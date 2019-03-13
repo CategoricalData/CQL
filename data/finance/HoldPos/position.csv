@@ -1,0 +1,3 @@
+id,position_id,position_client_no,position_asset_id,position_quantity,position_current_value,position_current_value_currency_id,position_cost_basis,position_cost_basis_currency_code,position_client,position_current_value_currency_code
+hpp1,1,1,1,100,550,2,551,EUR,hpc1,EUR
+hpp2,2,2,5,100,170,3,160,JPY,hpc2,JPY

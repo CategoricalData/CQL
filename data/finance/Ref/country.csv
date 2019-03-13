@@ -1,0 +1,7 @@
+id,country_id,country_code,country_name
+rcty1,1,AU,Australia
+rcty2,2,CH,Switzerland
+rcty3,3,CN,China
+rcty4,4,EU,European Union
+rcty5,5,JP,Japan
+rcty6,6,US,United States of America

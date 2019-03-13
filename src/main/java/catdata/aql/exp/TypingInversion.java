@@ -1,0 +1,1585 @@
+package catdata.aql.exp;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import catdata.Pair;
+import catdata.Unit;
+import catdata.aql.RawTerm;
+import catdata.aql.exp.ColimSchExp.ColimSchExpQuotient;
+import catdata.aql.exp.ColimSchExp.ColimSchExpRaw;
+import catdata.aql.exp.ColimSchExp.ColimSchExpVar;
+import catdata.aql.exp.ColimSchExp.ColimSchExpWrap;
+import catdata.aql.exp.EdsExp.EdsExpSch;
+import catdata.aql.exp.EdsExp.EdsExpVar;
+import catdata.aql.exp.GraphExp.GraphExpLiteral;
+import catdata.aql.exp.GraphExp.GraphExpRaw;
+import catdata.aql.exp.GraphExp.GraphExpVar;
+import catdata.aql.exp.InstExp.InstExpLit;
+import catdata.aql.exp.InstExp.InstExpVar;
+import catdata.aql.exp.MapExp.MapExpLit;
+import catdata.aql.exp.MapExp.MapExpVar;
+import catdata.aql.exp.PragmaExp.PragmaExpCheck;
+import catdata.aql.exp.PragmaExp.PragmaExpConsistent;
+import catdata.aql.exp.PragmaExp.PragmaExpJs;
+import catdata.aql.exp.PragmaExp.PragmaExpMatch;
+import catdata.aql.exp.PragmaExp.PragmaExpProc;
+import catdata.aql.exp.PragmaExp.PragmaExpSql;
+import catdata.aql.exp.PragmaExp.PragmaExpToCsvInst;
+import catdata.aql.exp.PragmaExp.PragmaExpToCsvTrans;
+import catdata.aql.exp.PragmaExp.PragmaExpToJdbcInst;
+import catdata.aql.exp.PragmaExp.PragmaExpToJdbcQuery;
+import catdata.aql.exp.PragmaExp.PragmaExpToJdbcTrans;
+import catdata.aql.exp.PragmaExp.PragmaExpVar;
+import catdata.aql.exp.QueryExp.QueryExpId;
+import catdata.aql.exp.QueryExp.QueryExpLit;
+import catdata.aql.exp.QueryExp.QueryExpVar;
+import catdata.aql.exp.SchExp.SchExpCod;
+import catdata.aql.exp.SchExp.SchExpDom;
+import catdata.aql.exp.SchExp.SchExpDst;
+import catdata.aql.exp.SchExp.SchExpEmpty;
+import catdata.aql.exp.SchExp.SchExpInst;
+import catdata.aql.exp.SchExp.SchExpLit;
+import catdata.aql.exp.SchExp.SchExpPivot;
+import catdata.aql.exp.SchExp.SchExpSrc;
+import catdata.aql.exp.SchExp.SchExpVar;
+import catdata.aql.exp.TransExp.TransExpId;
+import catdata.aql.exp.TransExp.TransExpLit;
+import catdata.aql.exp.TransExp.TransExpVar;
+import catdata.aql.exp.TyExp.TyExpEmpty;
+import catdata.aql.exp.TyExp.TyExpLit;
+import catdata.aql.exp.TyExp.TyExpSch;
+import catdata.aql.exp.TyExp.TyExpVar;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
+
+@SuppressWarnings({"unchecked","rawtypes"})
+public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeException> {
+ 
+	@Override
+	public  TyExpSch visitTyExpSch(Unit params, AqlTyping exp) throws RuntimeException {
+		SchExpVar e = new SchExpVar("s");
+		TyExpVar x = new TyExpVar("t");
+
+		TyExpSch t = new TyExpSch(e);
+		exp.defs.schs.put("s", x);
+		exp.defs.tys.put("t", Unit.unit);
+
+		return t;
+	}
+
+	@Override
+	public TyExpEmpty visitTyExpEmpty(Unit params, AqlTyping exp) throws RuntimeException {
+		return new TyExpEmpty();
+	}
+
+	@Override
+	public  TyExpLit visitTyExpLit(Unit params, AqlTyping exp) throws RuntimeException {
+		return null;
+	}
+
+	@Override
+	public  TyExpVar visitTyExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar e = new TyExpVar("t");
+		// exp.prog.exps.put("t", e);
+		return e;
+	}
+
+	@Override
+	public TyExpRaw visitTyExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+		return new TyExpRaw(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList());
+	}
+
+	@Override
+	public TyExpSql visitTyExpSql(Unit params, AqlTyping exp) throws RuntimeException {
+		return new TyExpSql();
+	}
+
+	@Override
+	public  SchExpCod visitSchExpCod(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		return new SchExpCod(new QueryExpVar("q"));
+	}
+	
+	@Override
+	public  SchExpDom visitSchExpDom(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		return new SchExpDom(new QueryExpVar("q"));
+	}
+	
+	@Override
+	public  SchExpDst visitSchExpDst(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		return new SchExpDst(new MapExpVar("m"));
+	}
+	
+	@Override
+	public  SchExpSrc visitSchExpSrc(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		return new SchExpSrc(new MapExpVar("m"));
+	}
+
+	@Override
+	public  SchExpEmpty visitSchExpEmpty(Unit params, AqlTyping exp) throws RuntimeException {
+		TyExp t = new TyExpVar("t");
+		exp.defs.tys.put("t", Unit.unit);
+		return new SchExpEmpty(t);
+	}
+
+	@Override
+	public  SchExpInst visitSchExpInst(Unit params, AqlTyping exp)
+			throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i =  new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		exp.prog.exps.put("i", i);
+		return new SchExpInst(i);
+
+	}
+
+	@Override
+	public  SchExpLit visitSchExpLit(Unit params, AqlTyping exp)
+			throws RuntimeException {
+		return null;
+//		return new SchExpLit(Schema.terminal(TypeSide.initial()));
+	}
+
+	@Override
+	public SchExpPivot visitSchExpPivot(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp x = new TyExpVar("t");
+		InstExp q = new InstExpVar("i");
+		exp.defs.schs.put("s", x);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new SchExpPivot(q, new LinkedList());
+	}
+
+	@Override
+	public  SchExpVar visitSchExpVar(Unit params, AqlTyping exp)
+			throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar e = new TyExpVar("t");
+		exp.defs.schs.put("s", e);
+		return new SchExpVar("s");
+	}
+
+	@Override
+	public SchExpRaw visitSchExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar e = new TyExpVar("t");
+		return new SchExpRaw(e, new LinkedList(), new LinkedList(), new LinkedList(), new LinkedList(),
+				new LinkedList(), new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public <N> SchExpColim<N> visitSchExpColim(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		ColimSchExp<N> x = new ColimSchExpVar("sc");
+		exp.defs.scs.put("sc", new THashSet());
+		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		exp.prog.exps.put("sc", q);
+		return new SchExpColim(x);
+
+	}
+
+	@Override
+	public  MapExpComp visitMapExpComp(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.schs.put("s3", t);
+
+		SchExpVar s1 = new SchExpVar("s1");
+		SchExpVar s2 = new SchExpVar("s2");
+		SchExpVar s3 = new SchExpVar("s3");
+
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("s3", new SchExpEmpty(t));
+
+		MapExpVar m12 = new MapExpVar("m12");
+		MapExpVar m23 = new MapExpVar("m23");
+
+		exp.defs.maps.put("m12", new Pair(s1, s2));
+		exp.defs.maps.put("m23", new Pair(s2, s3));
+
+		return new MapExpComp(m12, m23);
+	}
+
+	@Override
+	public  MapExpId visitMapExpId(Unit params, AqlTyping exp)
+			throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+
+		exp.defs.schs.put("s", t);
+		SchExpVar s = new SchExpVar("s");
+
+		return new MapExpId(s);
+	}
+
+	
+
+	@Override
+	public QueryExpVar visitQueryExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		return new QueryExpVar("q");
+	}
+
+	@Override
+	public QueryExpRaw visitQueryExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		// exp.defs.qs.put("q", new Pair(s1, s2));
+		return new QueryExpRaw(Collections.emptyList(), Collections.emptyList(), s1, s2, Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> MapExpPivot<Gen, Sk, X, Y> visitMapExpPivot(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp x = new TyExpVar("t");
+		InstExp i =  new InstExpVar("i");
+		exp.defs.schs.put("s", x);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+//		String l = new SchExpPivot(q, new LinkedList());
+		return new MapExpPivot(i, new LinkedList());
+	}
+
+	@Override
+	public MapExpVar visitMapExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		return new MapExpVar("m");
+	}
+
+	@Override
+	public MapExpRaw visitMapExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+//		exp.defs.maps.put("m", new Pair(s1, s2));
+		return new MapExpRaw(s1, s2, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+	}
+
+	
+	@Override
+	public <N> MapExpColim<N> visitMapExpColim(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.scs.put("sc", new THashSet());
+		exp.defs.schs.put("s", t);
+		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.singletonList(new LocStr(0, "s")),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		exp.prog.exps.put("sc", q);
+		return new MapExpColim("s", q);
+	}
+
+	@Override
+	public QueryExpCompose visitQueryExpCompose(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.schs.put("s3", t);
+
+		SchExpVar s1 = new SchExpVar("s1");
+		SchExpVar s2 = new SchExpVar("s2");
+		SchExpVar s3 = new SchExpVar("s3");
+
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("s3", new SchExpEmpty(t));
+
+		QueryExpVar m12 = new QueryExpVar("q12");
+		QueryExpVar m23 = new QueryExpVar("q23");
+
+		exp.defs.qs.put("q12", new Pair(s1, s2));
+		exp.defs.qs.put("q23", new Pair(s2, s3));
+
+		return new QueryExpCompose(m12, m23, Collections.emptyList());
+	}
+
+	@Override
+	public  QueryExpId visitQueryExpId(Unit params, AqlTyping exp)
+			throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+
+		exp.defs.schs.put("s", t);
+		SchExpVar s = new SchExpVar("s");
+
+		return new QueryExpId(s);
+	}
+
+	@Override
+	public QueryExpLit visitQueryExpLit(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		return null;
+	}
+
+	@Override
+	public  QueryExpDeltaCoEval visitQueryExpDeltaCoEval(
+			Unit params, AqlTyping exp) throws RuntimeException {
+
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+
+		SchExpVar s1 = new SchExpVar("s1");
+		SchExpVar s2 = new SchExpVar("s2");
+
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+
+		MapExp m = new MapExpVar("m");
+
+		exp.defs.maps.put("m", new Pair(s1, s2));
+
+		return new QueryExpDeltaCoEval(m, Collections.emptyList());
+	}
+
+	@Override
+	public  QueryExpDeltaEval visitQueryExpDeltaEval(
+			Unit params, AqlTyping exp) throws RuntimeException {
+
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+
+		SchExpVar s1 = new SchExpVar("s1");
+		SchExpVar s2 = new SchExpVar("s2");
+
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+
+		MapExpVar m = new MapExpVar("m");
+
+		exp.defs.maps.put("m", new Pair(s1, s2));
+
+		return new QueryExpDeltaEval(m, Collections.emptyList());
+
+	}
+
+	@Override
+	public QueryExpRawSimple visitQueryExpRawSimple(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.schs.put("s", t);
+		SchExp s1 = new SchExpVar("s");
+		return new QueryExpRawSimple(s1);
+	}
+
+	@Override
+	public EdsExpVar visitEdsExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		SchExpVar s = new SchExpVar("s");
+
+		exp.defs.schs.put("s", t);
+		exp.defs.eds.put("c", s);
+
+		return new EdsExpVar("c");
+	}
+
+	@Override
+	public EdsExpRaw visitEdsExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		SchExpVar s = new SchExpVar("s");
+		exp.defs.schs.put("s", t);
+
+		return new EdsExpRaw(s, Collections.emptyList(), Collections.emptyList(), Unit.unit);
+	}
+ 
+	
+
+	@Override
+	public GraphExpRaw visitGraphExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+		return new GraphExpRaw(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public  GraphExpVar visitGraphExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.gs.put("g", Unit.unit);
+		return new GraphExpVar("g");
+	}
+
+	@Override
+	public <N, Ex> GraphExpLiteral<N, Ex> visitGraphExpLiteral(Unit params, AqlTyping exp) throws RuntimeException {
+		return null;
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> PragmaExpConsistent< Gen, Sk, X, Y> visitPragmaExpConsistent(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
+				"i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new PragmaExpConsistent(i);
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> PragmaExpCheck< Gen, Sk, X, Y> visitPragmaExpCheck(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
+				"i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		EdsExp c = new EdsExpVar("c");
+		exp.defs.schs.put("c", t);
+		return new PragmaExpCheck(i, c);
+	}
+
+	@Override
+	public <N1, E1, N2, E2> PragmaExpMatch<N1, E1, N2, E2> visitPragmaExpMatch(Unit params, AqlTyping exp)
+			throws RuntimeException {
+		exp.defs.gs.put("g1", Unit.unit);
+		exp.defs.gs.put("g2", Unit.unit);
+		GraphExp<N1, E1> g1 = (GraphExp<N1, E1>) new GraphExpVar("g1");
+		GraphExp<N2, E2> g2 = (GraphExp<N2, E2>) new GraphExpVar("g2");
+		return new PragmaExpMatch("method", g1, g2, Collections.emptyList());
+	}
+
+	@Override
+	public PragmaExpSql visitPragmaExpSql(Unit params, AqlTyping exp) throws RuntimeException {
+		return new PragmaExpSql("class", "jdbc_string", Collections.emptyList(), new LinkedList());
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> PragmaExpToCsvInst< Gen, Sk, X, Y> visitPragmaExpToCsvInst(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
+				"i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new PragmaExpToCsvInst(i, "directory", new LinkedList());
+	}
+
+	@Override
+	public PragmaExpVar visitPragmaExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.ps.put("p", Unit.unit);
+		PragmaExpVar e = new PragmaExpVar("p");
+		return e;
+	}
+
+	@Override
+	public PragmaExpJs visitPragmaExpJs(Unit params, AqlTyping exp) throws RuntimeException {
+		return new PragmaExpJs(Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public PragmaExpProc visitPragmaExpProc(Unit params, AqlTyping exp) throws RuntimeException {
+		return new PragmaExpProc(Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> PragmaExpToJdbcInst< Gen, Sk, X, Y> visitPragmaExpToJdbcInst(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
+				"i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new PragmaExpToJdbcInst(i, "class", "jdbc_string", "prefix", new LinkedList());
+
+	}
+
+	@Override
+	public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToJdbcTrans(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp<Object, Object, Object, Object> i1 = new InstExpVar("i1");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		InstExp<Object, Object, Object, Object> i2 = new InstExpVar("i2");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		return new PragmaExpToJdbcTrans(h, "class", "jdbc_string", "prefix", new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public  PragmaExpToJdbcQuery visitPragmaExpToJdbcQuery(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		QueryExpVar q = new QueryExpVar("q");
+		return new PragmaExpToJdbcQuery(q, "class", "jdbc_string", "prefix_src", "prefix_dst", new LinkedList());
+	}
+
+	@Override
+	public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToCsvTrans(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp<Object, Object, Object, Object> i1 = new InstExpVar("i1");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		InstExp<Object, Object, Object, Object> i2 = new InstExpVar("i2");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		return new PragmaExpToCsvTrans(h, "directory", new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public  PragmaExpCheck2 visitPragmaExpCheck2(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		TyExpVar t = new TyExpVar("t");
+	
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		QueryExp q = new QueryExpVar("q");
+
+		exp.defs.eds.put("c1", s1);
+		exp.defs.eds.put("c2", s2);
+
+		EdsExp c1 = new EdsExpVar("c1");
+		EdsExp c2 = new EdsExpVar("c2");
+
+		return new PragmaExpCheck2(q, c1, c2);
+	}
+
+	@Override
+	public <N> ColimSchExpQuotient<N> visitColimSchExpQuotient(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		return q;
+	}
+
+	@Override
+	public <N, Ex> ColimSchExpRaw<N, Ex> visitColimSchExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.defs.gs.put("g", Unit.unit);
+		GraphExp<Object, Object> g = new GraphExpVar("g");
+		return new ColimSchExpRaw(g, t, new LinkedList(), new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public <N> ColimSchExpVar<N> visitColimSchExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		ColimSchExpVar<N> x = new ColimSchExpVar("sc");
+		exp.defs.scs.put("sc", new THashSet());
+		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		exp.prog.exps.put("sc", q);
+		return x;
+	}
+
+	@Override
+	public <N> ColimSchExpWrap<N> visitColimSchExpWrap(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		ColimSchExpVar<N> x = new ColimSchExpVar("sc");
+		exp.defs.scs.put("sc", new THashSet());
+		SchExp s = new SchExpVar("s");
+		SchExp ss = new SchExpColim(x);
+
+		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		exp.prog.exps.put("sc", q);
+
+		MapExp m1 = new MapExpVar("m1");
+		MapExp m2 = new MapExpVar("m2");
+		exp.defs.maps.put("m1", new Pair(ss, s));
+		exp.defs.maps.put("m2", new Pair(s, ss));
+
+		return new ColimSchExpWrap(x, m1, m2);
+	}
+
+	@Override
+	public <N> ColimSchExpModify<N> visitColimSchExpModify(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		ColimSchExpVar<N> x = new ColimSchExpVar("sc");
+		exp.defs.scs.put("sc", new THashSet());
+
+		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		exp.prog.exps.put("sc", q);
+
+		return new ColimSchExpModify(x, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public InstExpJdbcAll visitInstExpJdbcAll(Unit param, AqlTyping exp) throws RuntimeException {
+		return new InstExpJdbcAll("class", "jdbc_string", Collections.emptyList());
+	}
+
+	
+	@Override
+	public <Gen, Sk, X, Y> InstExpSigma<Gen, Sk, X, Y> visitInstExpSigma(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.insts.put("i", s1);
+		MapExpVar m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		return new InstExpSigma(m, i, Collections.emptyMap());
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpSigmaChase<Gen, Sk, X, Y> visitInstExpSigmaChase(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.defs.insts.put("i", s1);
+		MapExpVar m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		return new InstExpSigmaChase(m, i, Collections.emptyMap());
+	}
+
+	@Override
+	public InstExpVar visitInstExpVar(Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExpVar i = new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return i;
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpAnonymize<Gen, Sk, X, Y> visitInstExpAnonymize(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp<Object, Object, Object, Object> i = new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new InstExpAnonymize(i);
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpChase<Gen, Sk, X, Y> visitInstExpChase(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		exp.defs.eds.put("c", s);
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		EdsExpVar c = new EdsExpVar("c");
+		return new InstExpChase(c, i, Collections.emptyList());
+	}
+
+	@Override
+	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCoEq< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCoEq(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		TransExpVar h1 = new TransExpVar("h1");
+		exp.defs.trans.put("h1", new Pair(i1, i2));
+		TransExpVar h2 = new TransExpVar("h2");
+		exp.defs.trans.put("h2", new Pair(i1, i2));
+
+		return new InstExpCoEq(h1, h2, Collections.emptyList());
+	}
+
+	@Override
+	public <N, Ex, Gen, Sk, X, Y> InstExpColim<N, Ex,  Gen, Sk, X, Y> visitInstExpColim(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		GraphExpVar g = new GraphExpVar("g");
+		SchExp s = new SchExpVar("s");
+		exp.defs.tys.put("t", Unit.unit);
+		return new InstExpColim(g, s, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+	}
+
+	
+
+	@Override
+	public < Gen, Sk, X, Y> InstExpCoProdFull< Gen, Sk, X, Y> visitInstExpCoProdFull(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.schs.put("s", t);
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		List<String> l = new LinkedList();
+		l.add("i1");
+		l.add("i2");
+		return new InstExpCoProdFull(l, s, Collections.emptyList());
+	}
+
+	@Override
+	public < Gen, Sk, X, Y, Gen1, Sk1, X1> InstExpDiff< Gen, Sk, X, Y, Gen1, Sk1, X1> visitInstExpDiff(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		return new InstExpDiff(i1, i2);
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> InstExpDistinct< Gen, Sk, X, Y> visitInstExpDistinct(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new InstExpDistinct(i);
+	}
+
+	@Override
+	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpDom< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpDom(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		TransExpVar h = new TransExpVar("h");
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		return new InstExpDom(h);
+	}
+
+	@Override
+	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCod< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCod(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		TransExpVar h = new TransExpVar("h");
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		return new InstExpCod(h);
+	}
+
+	@Override
+	public  InstExpEmpty visitInstExpEmpty(Unit param, AqlTyping exp)
+			throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		return new InstExpEmpty(s);
+	}
+
+	@Override
+	public <Gen, Sk,X, Y> InstExpEval<Gen, Sk, X, Y> visitInstExpEval(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		QueryExpVar q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		return new InstExpEval(q, i, Collections.emptyList());
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpCoEval<Gen, Sk, X, Y> visitInstExpCoEval(
+			Unit param, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.insts.put("i", s2);
+		QueryExpVar q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		return new InstExpCoEval(q, i, Collections.emptyList());
+	}
+
+	@Override
+	public  InstExpFrozen visitInstExpFrozen(
+			Unit param, AqlTyping exp)  {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		QueryExpVar q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		return new InstExpFrozen(q, "an_entity_or_type");
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> InstExpLit< Gen, Sk, X, Y> visitInstExpLit(
+			Unit param, AqlTyping exp) {
+		return null;
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> InstExpPivot< Gen, Sk, X, Y> visitInstExpPivot(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new InstExpPivot(i, Collections.emptyList());
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpPi<Gen, Sk, X, Y> visitInstExpPi(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		MapExpVar m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		return new InstExpPi(m, i, Collections.emptyMap());
+	}
+
+	
+
+	@Override
+	public InstExpCsv visitInstExpCsv(Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		return new InstExpCsv(s, new LinkedList(), new LinkedList(), "directory");
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpDelta<Gen, Sk, X, Y> visitInstExpDelta(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		MapExpVar m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s2, s1));
+		return new InstExpDelta(m, i);
+	}
+
+	@Override
+	public InstExpJdbc visitInstExpJdbc(Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		return new InstExpJdbc(s, new LinkedList(), "class", "jdbc_string", new LinkedList());
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpQueryQuotient<Gen, Sk, X, Y> visitInstExpQueryQuotient(Unit param, AqlTyping exp)
+			throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		return new InstExpQueryQuotient(i, Collections.emptyList(), Collections.emptyList());
+
+	}
+
+	@Override
+	public InstExpRandom visitInstExpRandom(Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		return new InstExpRandom(s, new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public InstExpRaw visitInstExpRaw(Unit param, AqlTyping exp) throws RuntimeException {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		return new InstExpRaw(s, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList());
+	}
+
+	@Override
+	public <Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpEval< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpEval(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp j = new InstExpVar("j");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		QueryExp q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.defs.insts.put("j", s1);
+		InstExp i = new InstExpVar("i");
+		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i, j));
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+		exp.prog.exps.put("j", new InstExpEmpty(s2));
+
+		return new TransExpEval(q, h, Collections.emptyList());
+	}
+
+	@Override
+	public < Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpCoEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpCoEval(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp j = new InstExpVar("j");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		QueryExp q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s2, s1));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.defs.insts.put("j", s1);
+		InstExp i = new InstExpVar("i");
+		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i, j));
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+		exp.prog.exps.put("j", new InstExpEmpty(s2));
+
+		return new TransExpCoEval(q, h, new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public < Gen, Sk,  X, Y> TransExpCoEvalEvalCoUnit< Gen, Sk, X, Y> visitTransExpCoEvalEvalCoUnit(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		QueryExp q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		InstExp i = new InstExpVar("i");
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+
+		return new TransExpCoEvalEvalCoUnit(q, i, new THashMap());
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> TransExpCoEvalEvalUnit<Gen, Sk,  X, Y> visitTransExpCoEvalEvalUnit(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		QueryExp q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s2, s1));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		InstExp i = new InstExpVar("i");
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+
+		return new TransExpCoEvalEvalUnit(q, i, new THashMap());
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> TransExpSigmaDeltaCounit< Gen, Sk,  X, Y> visitTransExpSigmaDeltaCounit(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		MapExp m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		InstExp i = new InstExpVar("i");
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+
+		return new TransExpSigmaDeltaCounit(m, i, new THashMap());
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> TransExpSigmaDeltaUnit< Gen, Sk, X, Y> visitTransExpSigmaDeltaUnit(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		MapExp m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s2, s1));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		InstExp i = new InstExpVar("i");
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+
+		return new TransExpSigmaDeltaUnit(m, i, new THashMap());
+	}
+
+	@Override
+	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> TransExpCompose<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> visitTransExpCompose(
+			Unit params, AqlTyping exp) {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.schs.put("s", t);
+		SchExpVar s = new SchExpVar("s");
+
+		InstExpVar i1 = new InstExpVar("i1");
+		InstExpVar i2 = new InstExpVar("i2");
+		InstExpVar i3 = new InstExpVar("i3");
+
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		exp.defs.insts.put("i3", s);
+
+		exp.prog.exps.put("i1", new InstExpEmpty(s));
+		exp.prog.exps.put("i2", new InstExpEmpty(s));
+		exp.prog.exps.put("i3", new InstExpEmpty(s));
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+
+		TransExpVar h12 = new TransExpVar("h12");
+		TransExpVar h23 = new TransExpVar("h23");
+
+		exp.defs.trans.put("h12", new Pair(i1, i2));
+		exp.defs.trans.put("h23", new Pair(i2, i3));
+
+		return new TransExpCompose(h12, h23);
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> TransExpId< Gen, Sk, X, Y> visitTransExpId(
+			Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s", t);
+		exp.defs.insts.put("i", s);
+		return new TransExpId(i);
+	}
+
+	@Override
+	public <Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpDelta<Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpDelta(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp j = new InstExpVar("j");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		MapExp m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s2, s1));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.defs.insts.put("j", s1);
+		InstExp i = new InstExpVar("i");
+		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i, j));
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+		exp.prog.exps.put("j", new InstExpEmpty(s2));
+
+		return new TransExpDelta(m, h);
+	}
+
+	@Override
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpSigma<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpSigma(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp j = new InstExpVar("j");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		MapExp m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.defs.insts.put("j", s1);
+		InstExp i = new InstExpVar("i");
+		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i, j));
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+		exp.prog.exps.put("j", new InstExpEmpty(s2));
+
+		return new TransExpSigma(m, h, new THashMap(), new THashMap());
+	}
+
+	@Override
+	public < Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpPi<Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpPi(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp j = new InstExpVar("j");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		MapExp m = new MapExpVar("m");
+		exp.defs.maps.put("m", new Pair(s1, s2));
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.defs.insts.put("j", s1);
+		InstExp i = new InstExpVar("i");
+		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i, j));
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+		exp.prog.exps.put("j", new InstExpEmpty(s2));
+
+		return new TransExpPi(m, h, new THashMap(), new THashMap());
+	}
+	
+	@Override
+	public TransExpRaw visitTransExpRaw(Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		return new TransExpRaw(i1, i2, new LinkedList(), new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public TransExpVar visitTransExpVar(Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		TransExpVar h = new TransExpVar("h");
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		return h;
+
+	}
+
+	@Override
+	public <X1, Y1, X2, Y2> TransExpCsv<X1, Y1, X2, Y2> visitTransExpCsv(Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		return new TransExpCsv(i1, i2, new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public <X1, Y1, X2, Y2> TransExpJdbc<X1, Y1, X2, Y2> visitTransExpJdbc(Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		return new TransExpJdbc("class", "jdbc_string", i1, i2, new LinkedList(), new LinkedList());
+	}
+
+	@Override
+	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpDistinct< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpDistinct(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		InstExp j = new InstExpVar("j");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.defs.insts.put("j", s1);
+		InstExp i = new InstExpVar("i");
+		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
+				"h");
+		exp.defs.trans.put("h", new Pair(i, j));
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+		exp.prog.exps.put("j", new InstExpEmpty(s2));
+
+		return new TransExpDistinct(h);
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> TransExpDistinct2< Gen, Sk, X, Y> visitTransExpDistinct2(
+			Unit params, AqlTyping exp) {
+		SchExp s1 = new SchExpVar("s1");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s1);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.prog.exps.put("i", new InstExpEmpty(s1));
+
+		return new TransExpDistinct2(i);
+	}
+
+	@Override
+	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpLit< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpLit(
+			Unit params, AqlTyping exp) {
+		return null;
+	}
+
+	@Override
+	public  MapExpLit visitMapExpLit(
+			Unit params, AqlTyping exp) throws RuntimeException {
+		return null;
+	}
+
+	@Override
+	public CommentExp visitCommentExp(Unit params, AqlTyping exp) {
+		return new CommentExp("hello world", false);
+	}
+
+	@Override
+	public < Gen, Sk, X, Y> TransExpDiffReturn< Gen, Sk, X, Y> visitTransExpDiffReturn(
+			Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		return new TransExpDiffReturn(i1, i2);
+	}
+
+	@Override
+	public < Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> TransExpDiff< Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> visitTransExpDiff(
+			Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpVar("t");
+		InstExp i = new InstExpVar("i");
+		InstExp i1 = new InstExpVar("i1");
+		InstExp i2 = new InstExpVar("i2");
+		exp.defs.schs.put("s", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.insts.put("i", s);
+		exp.defs.insts.put("i1", s);
+		exp.defs.insts.put("i2", s);
+		TransExp h = new TransExpVar("h");
+		exp.defs.trans.put("h", new Pair(i1, i2));
+		return new TransExpDiff(i, h);
+	}
+
+	@Override
+	public TransExpFrozen visitTransExpFrozen(Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.tys.put("t", Unit.unit);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		QueryExpVar q = new QueryExpVar("q");
+		exp.defs.qs.put("q", new Pair(s1, s2));
+		return new TransExpFrozen(q, "var", "entity", new RawTerm("term", Collections.emptyList()), "entity_or_type");
+	}
+
+	@Override
+	public  QueryExpFromCoSpan visitQueryExpFromCoSpan(
+			Unit params, AqlTyping exp) {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		exp.defs.schs.put("s3", t);
+
+		SchExpVar s1 = new SchExpVar("s1");
+		SchExpVar s2 = new SchExpVar("s2");
+		SchExpVar s3 = new SchExpVar("s3");
+
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("s3", new SchExpEmpty(t));
+
+		MapExpVar m12 = new MapExpVar("m12");
+		MapExpVar m32 = new MapExpVar("m32");
+
+		exp.defs.maps.put("m12", new Pair(s1, s2));
+		exp.defs.maps.put("m32", new Pair(s3, s2));
+
+		return new QueryExpFromCoSpan(m12, m32, Collections.emptyList());
+	}
+
+	@Override
+	public <Gen, Sk, X, Y> InstExpCascadeDelete<Gen, Sk, X, Y> visitInstExpCascadeDelete(
+			Unit param, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+
+		SchExpVar s1 = new SchExpVar("s1");
+		SchExpVar s2 = new SchExpVar("s2");
+
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+
+		InstExp i = new InstExpVar("i");
+		exp.defs.insts.put("i", s1);
+		
+		return new InstExpCascadeDelete(i, s2);
+	}
+
+	@Override
+	public SchExpJdbcAll visitSchExpJdbcAll(Unit params, AqlTyping r) {
+		return new SchExpJdbcAll("class", "jdbc_string", new LinkedList());
+	}
+
+	@Override
+	public QueryExpFromEds visitQueryExpFromEds(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.defs.schs.put("s", t);
+		exp.defs.eds.put("eds", new SchExpVar("s")); //, Collections.emptyList(), Collections.emptyList(), Unit.unit));
+		EdsExpVar eds = new EdsExpVar("eds");
+		
+		return new QueryExpFromEds(eds, 0);
+	}
+
+	@Override
+	public EdsExpSch visitEdsExpSch(Unit params, AqlTyping exp) throws RuntimeException {
+		exp.defs.tys.put("t", Unit.unit);
+		TyExpVar t = new TyExpVar("t");
+		exp.prog.exps.put("t", new TyExpEmpty());
+		exp.defs.schs.put("s", t);
+		SchExpVar s = new SchExpVar("s");
+		exp.prog.exps.put("s", new SchExpEmpty(t));
+
+		return new EdsExpSch(s);
+	}
+
+}

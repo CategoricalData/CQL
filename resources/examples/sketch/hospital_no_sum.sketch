@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<easketch>
+<header>
+<title>Hospital2</title>
+<author>Johnson</author>
+<author>Rosebrugh</author>
+<description>Based on `Fibrations and universal view updatability'</description>
+<creationDate>2006-08-14T09:41:52</creationDate>
+<lastModificationDate>2009-05-27T13:37:32</lastModificationDate>
+</header>
+<entities>
+<entity name="College" x="168" y="277">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="name" size="255"/>
+</entity>
+<entity name="Specialisation" x="0" y="275">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="name" size="255"/>
+</entity>
+<entity name="GP" x="188" y="31"/>
+<entity name="InpatOperation" x="317" y="23">
+<attribute attributeTypeClass="easik.database.types.Int" name="number"/>
+</entity>
+<entity name="Hospital" x="514" y="131">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="name" size="255"/>
+<attribute attributeTypeClass="easik.database.types.Varchar" name="address" size="255"/>
+</entity>
+<entity name="PracAgree" x="332" y="139">
+<attribute attributeTypeClass="easik.database.types.Date" name="expires"/>
+</entity>
+<entity name="Specialist" x="12" y="146"/>
+<entity name="Person" x="331" y="271">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="name" size="255"/>
+<attribute attributeTypeClass="easik.database.types.Date" name="birth_date"/>
+</entity>
+<entity name="MedPrac" x="163" y="142">
+<attribute attributeTypeClass="easik.database.types.Int" name="address"/>
+</entity>
+<entity name="OpType" x="499" y="24">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="name" size="255"/>
+</entity>
+</entities>
+<edges>
+<edge cascade="cascade" id="of" source="InpatOperation" target="OpType" type="normal"/>
+<edge cascade="cascade" id="isA_2" source="Specialist" target="MedPrac" type="injective"/>
+<edge cascade="cascade" id="dat" source="MedPrac" target="Person" type="normal"/>
+<edge cascade="cascade" id="pCollege" source="MedPrac" target="College" type="normal"/>
+<edge cascade="cascade" id="under" source="InpatOperation" target="PracAgree" type="normal"/>
+<edge cascade="cascade" id="isA_3" source="GP" target="MedPrac" type="injective"/>
+<edge cascade="cascade" id="with" source="PracAgree" target="MedPrac" type="normal"/>
+<edge cascade="cascade" id="by" source="InpatOperation" target="MedPrac" type="normal"/>
+<edge cascade="cascade" id="isA_1" source="Specialisation" target="College" type="injective"/>
+<edge cascade="cascade" id="pSpecn" source="Specialist" target="Specialisation" type="normal"/>
+<edge cascade="cascade" id="in" source="InpatOperation" target="Hospital" type="normal"/>
+<edge cascade="cascade" id="for" source="PracAgree" target="Hospital" type="normal"/>
+</edges>
+<keys/>
+<constraints>
+<commutativediagram isVisible="true" x="398" y="97">
+<path codomain="Hospital" domain="InpatOperation">
+<edgeref id="under"/>
+<edgeref id="for"/>
+</path>
+<path codomain="Hospital" domain="InpatOperation">
+<edgeref id="in"/>
+</path>
+</commutativediagram>
+<commutativediagram isVisible="true" x="304" y="95">
+<path codomain="MedPrac" domain="InpatOperation">
+<edgeref id="under"/>
+<edgeref id="with"/>
+</path>
+<path codomain="MedPrac" domain="InpatOperation">
+<edgeref id="by"/>
+</path>
+</commutativediagram>
+<pullbackconstraint isVisible="true" x="105" y="206">
+<path codomain="MedPrac" domain="Specialist">
+<edgeref id="isA_2"/>
+</path>
+<path codomain="College" domain="MedPrac">
+<edgeref id="pCollege"/>
+</path>
+<path codomain="Specialisation" domain="Specialist">
+<edgeref id="pSpecn"/>
+</path>
+<path codomain="College" domain="Specialisation">
+<edgeref id="isA_1"/>
+</path>
+</pullbackconstraint>
+</constraints>
+</easketch>

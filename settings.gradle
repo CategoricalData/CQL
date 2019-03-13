@@ -1,0 +1,18 @@
+
+rootProject.name = 'fql'
+
+// include 'aql'
+// include 'aql_grammar'
+
+// include 'fql'
+// include 'fqlpp'
+// include 'fpql'
+// include 'graph'
+
+// include 'fqlide' // ide
+
+// include 'oql'
+// include 'easik'
+// include 'sql'
+
+// include catlib // all objects directly under catdata package

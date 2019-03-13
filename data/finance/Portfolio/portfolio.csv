@@ -1,0 +1,4 @@
+id,portfolio_id,portfolio_name,portfolio_description,portfolio_client_id,portfolio_strategy_id,portfolio_strategy,portfolio_parent_portfolio,portfolio_parent_portfolio_id
+pp1,1,Port1,Portfolio1,1,2,ps2,pp1,1
+pp2,2,Port2,Portfolio2,2,2,ps2,pp2,2
+pp3,3,Port3,Portfolio3,2,1,ps1,pp2,2

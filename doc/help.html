@@ -1,0 +1,197 @@
+<html><head>
+	<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" />
+</head><body>
+
+<h1>CQL Manual</h1>
+
+This reference manual for CQL exhaustively documents 1) the keywords and options of CQL, 2) the features of the CQL IDE, and 3) the subtleties that arise when using CQL practice.  Users new to CQL may also benefit from the CQL tutorial, built-in to the IDE as the Tutorial example.
+
+<h2>The IDE</h2>
+The CQL IDE is an open-source java program that provides an CQL code editor, an CQL execution engine, and a graphical viewer for CQL programs and results.   The CQL IDE contains a multi-tabbed text file editor that supports saving, opening, copy-paste, undo-redo, RTF export, code folding, outline-view, goto-definition, and search-replace through right-click context menus, menu bars, and keyboard shortcuts.  A variety of options are available in the options menu (text size, default file path, etc.)  Below each CQL text editor is a response text area that displays error and status messages.  The built-in CQL examples are loaded by selecting them from load-example combo-box in the upper-right of the IDE.  CQL programs are executed by pressing the run button in the upper-left of the IDE.  While an CQL program is running its status will be continually updated in the response area.  CQL programs that are running can be manually terminated using the abort menu option.   When an CQL program finishes running, the CQL IDE displays a graphical viewer allowing the result of the CQL program to be visually inspected.  Manual termination of CQL programs is best-effort and terminated CQL programs may leave resources (e.g., JDBC connections) open.
+
+<h2>Changing the Memory Limit</h2>
+
+To run the CQL IDE with more/less than the default 64mb heap, you must use a command line option such as:
+<pre>
+java -Xms512m -Xmx2048m -jar CQL.jar
+</pre>
+</pre>
+<h2>Adding JDBC drivers to the classpath</h2>
+
+To run the CQL IDE with a particular JDBC driver requires placing the driver on the class path using a ``-cp'' command line option \bf and running java directly, for example:
+<pre>
+java -cp "./mysql-connector-java-5.1.27-bin.jar:./CQL.jar" catdata.ide.IDE 
+</pre>
+
+On some systems, especially windows systems, the colon in the classpath may need to be replaced with a semi-colon.
+
+<h2>Using CQL without a GUI</h2>
+
+The CQL IDE also supports command-line execution: an CQL program is passed to stdin, and an HTML view of the result is output on stdout:
+<pre>
+java -cp "./cql.jar" catdata.aql.exp.AqlInACan
+</pre>
+
+<h2>HTML markup</h2>
+The CQL IDE allows HTML markup to be inserted into CQL files.  After a program has compiled, the ``emit as HTML'' option in the CQL menu will emit the HTML code.  The HTML will contain pretty-printings of the program text, HTML tables for instances, and (possibly) javascript graphs for schemas.  To insert HTML, use the keyword  html, then brackets, then (*, and then a quoted string (note that because the HTML appears in a string, any quotes and backslashes within that string must be escaped).  For example,
+<pre>
+instance I = ...
+
+html  (* "&lt;html&gt;Hello world &lt;a href=\"main.html\"&gt;link&lt;/a&gt;&lt;/html&gt;" *)  
+
+instance J = ...
+</pre>
+
+The CQL tutorial, built-in as the Tutorial example, illustrates HTML output.  Alternatively, \bf markdown (a simplified way to write HTML) can be used; use the keyword  md instead of  html.  Note that CQL emits HTML tables that, when clicked, sort themselves by invoking javascript code from
+<pre>
+https://categoricaldata.net/js/simple.js
+</pre>
+and a CSS style file is at
+<pre>
+https://categoricaldata.net/css/simple.js
+</pre>
+
+<h2>Just in time compilation</h2>
+
+The CQL IDE theorem provers benefit greatly from native compilation, which the JVM performs lazily.  Experiments suggest several CQL theorem provers become 2-4x faster after JIT compilation.  For this reason, if performance is critical it is suggested to run a few ``warm-up'' built-in examples to trigger JIT compilation.
+
+<h3>Comments</h3>
+
+Comments in CQL are C style, either ``//'' or ``/* */''.  
+
+<h3>Kinds</h3>
+
+A  kind is either  typeside,  schema,   instance, (schema)   mapping, (instance)  transform,  query,  graph,   command,  schema_colimit, or  constraints. 
+
+<h3>Identifiers</h3>
+
+CQL identifiers are case-sensitive alpha-numeric strings, or arbitrary strings escaped with double-quotes.
+
+<h3>Declarations</h3>
+
+An CQL program is an ordered list of  declarations of the form  kind \ name = expression .  Each declaration consists of a  name , which is an   identifier unique per CQL program. Each  expression  is evaluated by the CQL execution engine and the resulting artifact (a schema, instance, query, etc., according to  kind ) is bound to the declaration  name .  Before execution, the CQL engine checks that a program has an acyclic set of dependencies.
+
+<h3>Caching</h3>
+
+The CQL IDE will cache result artifacts to save time in subsequent executions; this behavior can be disabled per-expression through the  always_reload option.  Disabling caching is can be useful when an CQL program contains side-effecting commands.
+
+<h3>Terms</h3>
+
+An CQL program contains many  terms.  Their raw syntax is:
+
+<pre>
+term ::= identifier | identifier@identifier | term . identifier
+              | (term identifier term) | identifier(term, ...) 
+</pre>
+
+Intuitively, terms denote ``things which can be named'' in typesides (java objects, functions and types), schemas (entities, attributes, foreign keys), and instances (generators and labelled nulls).  Their abstract syntax is: 
+<pre>
+term ::= variable | java object@type | generator | labelled null 
+              | term.attribute | term.foreign key | function(term, ...) 
+</pre>
+
+The syntax  p.q  abbreviates  q(p) .  Parenthesis in CQL cannot be added (e.g., if  v  is a variable, then  (v)  is not valid syntax) or omitted (e.g.,  (x + y)  cannot be written as  x + y )..  
+
+<h3>Contexts</h3>
+
+An CQL program contains many  contexts.  Let  K,V  be two non-terminals in a grammar.  A context over  K,V  is a (possibly empty) list of  K,V  pairs:
+<pre>
+ctx(K,V) ::= "" | K : V ctx
+</pre> 
+
+The syntax  a \ b \ c \ \ldots : X  abbreviates the context  a:X \ b:X \ c:X .  Occasionally,  -> or  = will be used in place of  : (e.g., in mappings).  With the exception of  multi_equations in instance literals, lists (including contexts) are space-separated.
+
+<h3>Terms in Contexts</h3>
+The abstract syntax for a  term-in-context is: 
+<pre>
+type-or-entity ::= type | entity
+term-in-ctx ::= ctx(variable,type-or-entity) . term
+</pre>
+
+Terms are subject to an intuitive typing discipline; e.g., if  f : Nat \to Nat , then for  f(e)  to be well-typed, it must be that  e : Nat .
+
+<h3>Paths</h3>
+A  path is a well-typed list of foreign keys. Paths give rise to families of terms: if  f_1, \ldots, f_k  is a path, then for every term  e ,  f_k( \ldots f_1(e))  is a term.
+
+<h3>Equations</h3>
+The abstract syntax for an  equation is: 
+<pre>
+type-or-entity ::= type | entity
+term-in-ctx ::= forall ctx(variable,type-or-entity) . term = term
+</pre>
+The  type (or entity) of each term must match.  A  path equation is an equation of terms that are paths terminating on a variable.
+
+<h3>Sections, Literals, Options</h3>
+
+Many CQL expressions are written using  sections. In the example below,  imports,  types,  constants, and  options are the sections.
+<pre>
+typeside Ty = literal {
+  imports
+    Arithmetic
+  types
+    Bool
+  constants
+    t f : Bool	
+  options
+    timeout = 5  
+}
+</pre>
+The type side  Ty  is an example of a  literal; i.e., an expression that evaluates to itself.  All CQL kinds except for commands have literals.  Literals are also called  constants, but they should not be confused with the  constants declared in CQL type sides.  All sections are optional, but they must appear in the order specified in this manual. 
+
+Many expressions contain lists of key-value pairs that specify options in an option section.  The defaults of these options many change with new releases of CQL and are displayed in the CQL pane of the CQL IDE options menu.  The effect of these options is described in the rest of the manual.  In the above example, the execution timeout for the type side is set to five seconds.  Every expression that supports options supports the timeout option, as well as the GUI (display) options and the always reload option.  
+
+Every CQL file may contain an optional options section before the list of declarations.  These options are inherited by every expression (e.g., so you can set the timeout globally to 30 seconds, rather than having to specify that for every expression).  
+
+<h3>Imports</h3>
+
+Many literal expressions, including type sides, schemas, mappings, queries, instances, and transforms can contain  import sections.  Each import section must contain a list of names.  For example, a typeside  T  can import another typeside  T' , whose effect is the same as if  T'  were  textually included in  T .  Almost always each imported name should be a literal or an identity. 
+ 
+<h2>CQL's Typing Discipline</h2>
+
+Officially, CQL programs are nominally typed.  For example, if  schema X = Y is a declaration, then  id X has type  X -> X  which is not equal to  Y -> Y (beause  X and  Y are different  names).  Unofficially, the CQL type-checker accepts many programs that are not nominally typed but are still well-typed.
+
+<h2>Scripting with Side Effects using commands</h2>
+
+All CQL expressions with the exception of commands are side-effect free.  Many commands have side effects; for example,  export_instance_jdbc can write data to a database via JDBC.  Therefore, the execution order for commands matters.  To establish an ordering, each command implicitly depends on all declarations before it.  Consequently, commands can bottleneck CQL execution (the CQL execution engine is multi-threaded).  commands are provided to execute arbitrary SQL (via JDBC), Java (via Nashorn javascript), and command-line commands, thereby allowing CQL programs to ``script'' an entire data integration / ETL flow.
+
+<h2>Algebraic Databases are Deductive Databases</h2>
+
+CQL databases are deductive: that is, they are defined only up to provable equality.  This means, for example, that an instance may contain a row whose value is  2+2  rather than  4 .  From CQL's perspective,  2+2  and  4  are freely interchangeable.  However, when exporting CQL databases to CSV or SQL, there is a difference between  2+2  and  4 : the former is an expression, and the latter is a constant, and they can be exported differently.  To establish a true normal form (i.e., to everywhere prefer  4  over  2+2 ) it is necessary to use java type sides.
+
+<h2>Java (script) typesides and inline functions</h2>
+
+CQL typesides can contain bindings of types to java classes and of function symbols to javascript code.  (In this manual, we use java and javascript interchangeably, because the Java VM's Nashorn execution engine for javascript allows the use of java functions.)  The CQL execution engine will invoke this javascript code during execution, for example, to reduce  2+2  to  4 .  In order to maintain completeness of CQL's theorem prover, certain equations involving java are disallowed.  This restriction can be overridden using the  allow_java_eqs_unsafe option.  Java functions need to be side-effect free.  For SQL interaction, CQL provides a special built-in typeside called  sql.  
+
+<h2>Consistency</h2>
+
+It is possible for an CQL instance to be inconsistent; i.e., for  1 = 2  to be provable.  If this behavior is not desired, consistency can be enforced using the  require_consistency option.  This option is overly conservative: it may disallow instances that are consistent.
+
+<h2>Labelled Nulls</h2>
+
+Nulls in CQL are labelled; i.e., two null values need not be equal.  In addition, there is no way to test if a value is a labelled null.  Non-labelled nulls can be defined using optional types in typesides.  For example:
+
+<pre>
+ types
+   Nat NullableNat Bool
+ functions
+   null : NullableNat
+   in : Nat -> NullableNat	
+   out : NullableNat -> Nat
+   isNull : NullableNat -> Bool
+ equations
+    forall x. out (in x) = x	
+</pre>	
+
+<h2>Schema, Mapping, Query, Instance, Transform Inference</h2>
+
+The CQL IDE provides code-assistance functions.  For example, if  S  and  T  are schemas, then if  literal : S -> T is highlighted, the CQL editor is right-clicked, and ``infer mapping'' is selected in the resulting pop-up menu, then the IDE will add the skeleton of a mapping declaration.  In particular, it will list all of the entities, attributes, and foreign keys for  S  and will describe how they can be mapped into  T ; and similarly for queries, transforms, etc.  In addition, by pressing control-shift-space after a kind name (e.g., typeside), the CQL editor will pop up a template containing the sections for a corresponding literal.
+
+<h2>Theorem Proving</h2>
+
+The CQL engine uses automated theorem proving technology to ensure that CQL programs cannot fail at runtime (modulo javascript errors), or materialize instances that do not satisfy their data integrity constraints.  To provide this guarantee, every CQL typeside, schema, and instance must be a decidable equational theory.  Not all equational theories are decidable; moreover, automated theorem proving methods can be slow or incomplete.  The CQL engine provides a number of theorem provers which by default it uses automatically as appropriate; however, specific theorem provers can be chosen by using the  prover option.  In addition, schema mappings and transforms and queries are required to preserve provable equality; this behavior can be disabled with the  dont_validate_unsafe option.  To find out which prover is being used, click the ``info'' button in the ``DP'' pane in the viewer.  The DP pane also allows users to decide the equality of arbitrary terms by entering them as text (useful for debugging CQL programs).
+
+<h2>Provenance / Lineage of generated IDs</h2>
+
+The CQL engine generates fresh IDs during execution.  These IDs are exported via JDBC and CSV and are used by the engine internally.  The CQL engine maintains a ``lineage'' for these IDs that is displayed in the CQL viewer.  This lineage is invariably more meaningful to humans than the generated IDs.  For example, rather than display ``fresh ID 847'', the viewer might display ``bill.manager''.  It is important to remember that these lineages are not canonical, are provided for convenience only, and the real data is the generated IDs, not the lineages.
+
+</body></html>

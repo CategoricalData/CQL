@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<easketch>
+<header>
+<title>Approaches</title>
+<author>RR</author>
+<description>Some ideas about an instrument approach database</description>
+<creationDate>2006-08-06T11:28:08</creationDate>
+<lastModificationDate>2009-05-27T13:37:04</lastModificationDate>
+</header>
+<entities>
+<entity name="VOR" x="111" y="375"/>
+<entity name="Navaid" x="261" y="242">
+<attribute attributeTypeClass="easik.database.types.Boolean" name="operational"/>
+<attribute attributeTypeClass="easik.database.types.DoublePrecision" name="freq"/>
+</entity>
+<entity name="ILS" x="285" y="560"/>
+<entity name="Overshoot" x="447" y="309">
+<attribute attributeTypeClass="easik.database.types.Int" name="climbto"/>
+</entity>
+<entity name="NDB" x="52" y="259"/>
+<entity name="Airport" x="264" y="32">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="ident" size="255"/>
+<attribute attributeTypeClass="easik.database.types.DoublePrecision" name="towerfreq"/>
+<attribute attributeTypeClass="easik.database.types.Int" name="weatherfreq"/>
+</entity>
+<entity name="ILSApp" x="641" y="559"/>
+<entity name="Runway" x="634" y="31">
+<attribute attributeTypeClass="easik.database.types.Int" name="length"/>
+<attribute attributeTypeClass="easik.database.types.Int" name="hdg"/>
+<attribute attributeTypeClass="easik.database.types.Varchar" name="surface" size="255"/>
+</entity>
+<entity name="Approach" x="617" y="236">
+<attribute attributeTypeClass="easik.database.types.Int" name="faf_min"/>
+<attribute attributeTypeClass="easik.database.types.Int" name="time_in_sec"/>
+<attribute attributeTypeClass="easik.database.types.Int" name="ptmin"/>
+</entity>
+</entities>
+<edges>
+<edge cascade="cascade" id="to" source="Approach" target="Runway" type="normal"/>
+<edge cascade="cascade" id="isA_4" source="ILSApp" target="Approach" type="injective"/>
+<edge cascade="cascade" id="isA_2" source="ILS" target="Navaid" type="injective"/>
+<edge cascade="cascade" id="faf" source="Approach" target="Navaid" type="normal"/>
+<edge cascade="cascade" id="isA_3" source="NDB" target="Navaid" type="injective"/>
+<edge cascade="cascade" id="holdat" source="Overshoot" target="Navaid" type="normal"/>
+<edge cascade="cascade" id="nearest" source="Navaid" target="Airport" type="normal"/>
+<edge cascade="cascade" id="isA_1" source="VOR" target="Navaid" type="injective"/>
+<edge cascade="cascade" id="pfaf" source="ILSApp" target="ILS" type="normal"/>
+<edge cascade="cascade" id="at" source="Runway" target="Airport" type="normal"/>
+<edge cascade="cascade" id="for" source="Overshoot" target="Approach" type="injective"/>
+</edges>
+<keys/>
+<constraints>
+<sumconstraint isVisible="true" x="73" y="566">
+<path codomain="Navaid" domain="ILS">
+<edgeref id="isA_2"/>
+</path>
+<path codomain="Navaid" domain="VOR">
+<edgeref id="isA_1"/>
+</path>
+<path codomain="Navaid" domain="NDB">
+<edgeref id="isA_3"/>
+</path>
+</sumconstraint>
+<pullbackconstraint isVisible="true" x="472" y="429">
+<path codomain="Approach" domain="ILSApp">
+<edgeref id="isA_4"/>
+</path>
+<path codomain="Navaid" domain="Approach">
+<edgeref id="faf"/>
+</path>
+<path codomain="ILS" domain="ILSApp">
+<edgeref id="pfaf"/>
+</path>
+<path codomain="Navaid" domain="ILS">
+<edgeref id="isA_2"/>
+</path>
+</pullbackconstraint>
+<commutativediagram isVisible="true" x="467" y="158">
+<path codomain="Airport" domain="Approach">
+<edgeref id="to"/>
+<edgeref id="at"/>
+</path>
+<path codomain="Airport" domain="Approach">
+<edgeref id="faf"/>
+<edgeref id="nearest"/>
+</path>
+</commutativediagram>
+</constraints>
+</easketch>

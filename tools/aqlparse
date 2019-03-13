@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TokenMakerDefinition>
+  <general>
+    <package>catdata.aql.gui</package>
+    <className>AqlTokenMaker</className>
+    <extendedClass>AbstractJFlexCTokenMaker</extendedClass>
+    <classComment/>
+    <ignoreCase>false</ignoreCase>
+    <booleanLiterals>false</booleanLiterals>
+  </general>
+  <comments>
+    <lineComments enabled="true" start="//"/>
+    <multiLineComments enabled="true" end="*/" start="/*"/>
+    <docComments enabled="true" end="*)" start="(*"/>
+  </comments>
+  <keywords>
+    <keyword>schema_colimit</keyword>
+    <keyword>graph</keyword>
+    <keyword>instance</keyword>
+    <keyword>mapping</keyword>
+    <keyword>command</keyword>
+    <keyword>query</keyword>
+    <keyword>schema</keyword>
+    <keyword>transform</keyword>
+    <keyword>typeside</keyword>
+    <keyword>html</keyword>
+    <keyword>md</keyword>
+    <keyword>constraints</keyword>
+  </keywords>
+  <keywords2>
+<keyword>anonymize</keyword>
+<keyword>frozen</keyword>
+<keyword>toQuery</keyword>
+<keyword>toCoQuery</keyword>
+  	<keyword>chase</keyword>
+  	<keyword>check</keyword>
+  	<keyword>assert_consistent</keyword>
+    <keyword>attributes</keyword>
+    <keyword>coequalize</keyword>
+    <keyword>coeval</keyword>
+    <keyword>colimit</keyword>
+    <keyword>constants</keyword>
+    <keyword>coproduct</keyword>
+    <keyword>union</keyword>
+    <keyword>counit</keyword>
+    <keyword>counit_query</keyword>
+<keyword>coproduct_sigma</keyword>
+    <keyword>delta</keyword>
+    <keyword>distinct</keyword>
+    <keyword>dst</keyword>
+    <keyword>edges</keyword>
+    <keyword>empty</keyword>
+	<keyword>entity</keyword>
+    <keyword>entities</keyword>
+    <keyword>entity_equations</keyword>
+    <keyword>equations</keyword>
+    <keyword>eval</keyword>
+    <keyword>exec_cmdline</keyword>
+    <keyword>exec_jdbc</keyword>
+    <keyword>exec_js</keyword>
+    <keyword>exists</keyword>
+    <keyword>export_csv_instance</keyword>
+    <keyword>export_csv_transform</keyword>
+    <keyword>export_jdbc_query</keyword>
+    <keyword>export_jdbc_instance</keyword>
+    <keyword>export_jdbc_transform</keyword>
+    <keyword>forall</keyword>
+    <keyword>foreign_keys</keyword>
+    <keyword>from</keyword>
+    <keyword>functions</keyword>
+    <keyword>generators</keyword>
+<keyword>getMapping</keyword>
+<keyword>getSchema</keyword>
+    <keyword>identity</keyword>
+    <keyword>import_csv</keyword>
+    <keyword>import_jdbc</keyword>
+    <keyword>import_jdbc_all</keyword>
+    <keyword>imports</keyword>
+    <keyword>insert</keyword>
+    <keyword>java</keyword>
+    <keyword>java_constants</keyword>
+    <keyword>java_functions</keyword>
+    <keyword>java_types</keyword>
+    <keyword>lambda</keyword>
+    <keyword>literal</keyword>
+<keyword>modify</keyword>
+    <keyword>multi_equations</keyword>
+    <keyword>nodes</keyword>
+    <keyword>observation_equations</keyword>
+    <keyword>options</keyword>
+    <keyword>path_equations</keyword>
+<keyword>quotient</keyword>
+<keyword>quotient_jdbc</keyword>
+<keyword>quotient_csv</keyword>
+<keyword>quotient_query</keyword>
+    <keyword>random</keyword>
+<keyword>remove</keyword>
+<keyword>rename</keyword>
+    <keyword>return</keyword>
+<keyword>simple</keyword>
+    <keyword>schemaOf</keyword>
+    <keyword>sql</keyword>
+    <keyword>sigma</keyword>
+    <keyword>sigma_chase</keyword>
+    <keyword>src</keyword>
+    <keyword>types</keyword>
+    <keyword>typesideOf</keyword>
+    <keyword>unique</keyword>    
+    <keyword>unit</keyword>
+    <keyword>unit_query</keyword>
+    <keyword>where</keyword>
+<keyword>pi</keyword>
+  </keywords2>
+  <dataTypes/>
+  <functions/>
+  <numbers>
+    <hexLiteral/>
+    <intLiteral>{Digit}+</intLiteral>
+    <floatLiteral/>
+  </numbers>
+  <stringLiterals enabled="true" multiLine="true"/>
+  <charLiterals enabled="false" multiLine="false"/>
+  <backtickLiterals enabled="false"/>
+  <operators>
+    <operator>(</operator>
+    <operator>)</operator>
+    <operator>*</operator>
+    <operator>+</operator>
+    <operator>,</operator>
+    <operator>-&gt;</operator>
+    <operator>:</operator>
+    <operator>;</operator>
+    <operator>=</operator>
+    <operator>=&gt;</operator>
+    <operator>^</operator>
+    <operator>{</operator>
+    <operator>|</operator>
+    <operator>}</operator>
+  </operators>
+</TokenMakerDefinition>

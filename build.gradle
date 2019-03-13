@@ -1,0 +1,170 @@
+
+import org.babeloff.ProjectVersion
+import org.babeloff.ReleaseVersionTask
+import org.babeloff.SnapshotVersionTask
+import org.babeloff.plugins.antlr.Antlr4Task
+
+// apply from: 'gradle/foo.gradle'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'application'
+
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+group = 'net.catdata'
+
+project.ext.versionFile = file('gradle/version.properties')
+
+mainClassName = "catdata.ide.IDE"
+
+task loadVersion {
+    project.version = ProjectVersion.read(logger, versionFile)
+}
+
+task makeReleaseVersion (type: ReleaseVersionTask) {
+    release = version.release
+    propFile = versionFile
+}
+
+task makeSnapshotVersion (type: SnapshotVersionTask) {
+    propFile = versionFile
+}
+
+task showVersion {
+    group = 'versioning'
+    description = 'Prints project version.'
+
+    doLast {
+        logger.quiet "Version : ${project.version}"
+    }
+}
+
+task showDependencies {
+    doLast {
+        configurations.getByName('antlr').each{
+            dependency -> println dependency
+        }
+    }
+}
+
+description = "Categorical Data IDE"
+
+sourceCompatibility = 1.9
+targetCompatibility = 1.9
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+task createDistribution(type: Zip, dependsOn: makeReleaseVersion) {
+    from jar
+
+    from(sourceSets*.allSource) { into 'src' }
+    from(rootDir) { include versionFile.name }
+}
+
+task backupReleaseDistribution(type: Copy) {
+    from createDistribution.outputs.files
+    into "$buildDir/backup"
+}
+
+task release(dependsOn: backupReleaseDistribution) {
+    doLast { logger.quiet 'releasing the project...' }
+}
+
+configurations {
+    all {   }
+}
+
+task antlrGen (type: Antlr4Task) {
+    maxHeapSize = "64m"
+    sourceDir = file("${project.rootDir}/src/main/antlr")
+    lexerGrammar = file("${project.rootDir}/src/main/antlr/catdata/aql/grammar/AqlLexerRules.g4")
+    parserGrammar = file("${project.rootDir}/src/main/antlr/catdata/aql/grammar/AqlParser.g4")
+    module = "catdata.aql.grammar"
+    targetDir = file("${project.buildDir}/generated-src/java/catdata/aql/grammar")
+    visitor = false
+    listener = true
+}
+
+compileJava.dependsOn antlrGen
+
+wrapper {
+    gradleVersion = '4.10.1'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java','build/generated-src/java']
+        }
+        resources {
+            srcDirs = ["${project.projectDir}/resources"]
+        }
+    }
+    test {
+        java {
+            srcDirs = ["${project.projectDir}/src/test/java"]
+        }
+        resources {
+            srcDirs = ["${project.projectDir}/resources"]
+        }
+    }
+}
+
+idea {
+    module {
+        generatedSourceDirs += file("${project.buildDir}/generated-src/java")
+        downloadJavadoc = true
+        downloadSources = false
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://nexus.isis.vanderbilt.edu/repository/maven-releases" }
+    maven { url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots" }
+}
+
+dependencies {
+    compile group: 'net.sourceforge.collections', name: 'collections-generic', version:'4.01'
+    compile group: 'commons-cli', name: 'commons-cli', version:'1.4'
+    compile group: 'org.apache.commons', name: 'commons-csv', version:'1.5'
+    compile group: 'org.apache.commons', name: 'commons-exec', version:'1.3'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.7'
+    compile group: 'com.h2database', name: 'h2', version:'1.4.196'
+    compile group: 'org.glassfish', name: 'javax.json', version:'1.1.2'
+    compile group: 'jgraph', name: 'jgraph', version:'5.12.3.2'
+    compile group: 'org.jparsec', name: 'jparsec', version:'3.0'
+    compile group: 'net.sf.jung', name: 'jung-algorithms', version:'2.1.1'
+    compile group: 'net.sf.jung', name: 'jung-api', version:'2.1.1'
+    compile group: 'net.sf.jung', name: 'jung-graph-impl', version:'2.1.1'
+    compile group: 'net.sf.jung', name: 'jung-visualization', version:'2.1.1'
+    compile group: 'com.opencsv', name: 'opencsv', version:'4.1'
+    compile group: 'com.fifesoft', name: 'autocomplete', version:'2.6.1'
+    compile group: 'com.fifesoft', name: 'rstaui', version:'2.6.1'
+    compile group: 'com.fifesoft', name: 'rsyntaxtextarea', version:'2.6.1'
+    compile group: 'es.nitaur.markdown', name: 'txtmark', version:'0.16'
+    compile group: 'org.antlr', name: 'antlr4-runtime', version:'4.7.1'
+    // antlr group: 'org.antlr', name: 'antlr4', version: '4.7.1'
+
+    testCompileOnly(
+            'junit:junit:4.12'
+    )
+    testImplementation(
+            'org.junit.jupiter:junit-jupiter-api:5.3.1',
+            'org.junit.jupiter:junit-jupiter-params:5.3.1'
+    )
+    testRuntimeOnly(
+            'org.junit.jupiter:junit-jupiter-engine:5.3.1',
+            'org.junit.vintage:junit-vintage-engine:5.3.1'
+    )
+}
+
+test {
+    useJUnitPlatform()
+}

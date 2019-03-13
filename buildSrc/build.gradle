@@ -1,0 +1,9 @@
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.antlr', name: 'antlr4', version:'4.7.1'
+}

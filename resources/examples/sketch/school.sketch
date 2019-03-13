@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<easketch>
+<header>
+<title>School</title>
+<author>Johnson</author>
+<author>Rosebrugh</author>
+<author>Wood</author>
+<description>From `Entity-relationship-attribute designs and sketches '</description>
+<creationDate>2006-08-11T14:03:15</creationDate>
+<lastModificationDate>2009-05-27T13:38:00</lastModificationDate>
+</header>
+<entities>
+<entity name="TimeTable" x="269" y="234"/>
+<entity name="Student" x="10" y="138">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="name" size="255"/>
+<attribute attributeTypeClass="easik.database.types.Varchar" name="level" size="255"/>
+</entity>
+<entity name="TimeSlot" x="613" y="131">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="days" size="255"/>
+<attribute attributeTypeClass="easik.database.types.Varchar" name="times" size="255"/>
+</entity>
+<entity name="StuxTime" x="271" y="314"/>
+<entity name="Class" x="378" y="140">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="offerNumber" size="255"/>
+</entity>
+<entity name="Enrol" x="140" y="143">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="Dateof" size="255"/>
+</entity>
+<entity name="Course" x="267" y="12">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="dept" size="255"/>
+<attribute attributeTypeClass="easik.database.types.Varchar" name="credits" size="255"/>
+<attribute attributeTypeClass="easik.database.types.Varchar" name="level" size="255"/>
+<attribute attributeTypeClass="easik.database.types.Varchar" name="name" size="255"/>
+</entity>
+</entities>
+<edges>
+<edge cascade="cascade" id="pClass" source="TimeTable" target="Class" type="normal"/>
+<edge cascade="cascade" id="pEnrol" source="TimeTable" target="Enrol" type="normal"/>
+<edge cascade="cascade" id="meets" source="Class" target="TimeSlot" type="normal"/>
+<edge cascade="cascade" id="of" source="Enrol" target="Student" type="normal"/>
+<edge cascade="cascade" id="pStudent" source="StuxTime" target="Student" type="normal"/>
+<edge cascade="cascade" id="pTimeSlot" source="StuxTime" target="TimeSlot" type="normal"/>
+<edge cascade="cascade" id="in" source="Enrol" target="Course" type="normal"/>
+<edge cascade="cascade" id="f7" source="TimeTable" target="StuxTime" type="injective"/>
+<edge cascade="cascade" id="for" source="Class" target="Course" type="normal"/>
+</edges>
+<keys>
+<uniqueKey name="course" noderef="Course">
+<attref name="level"/>
+<attref name="name"/>
+</uniqueKey>
+</keys>
+<constraints>
+<pullbackconstraint isVisible="true" x="287" y="150">
+<path codomain="Enrol" domain="TimeTable">
+<edgeref id="pEnrol"/>
+</path>
+<path codomain="Course" domain="Enrol">
+<edgeref id="in"/>
+</path>
+<path codomain="Class" domain="TimeTable">
+<edgeref id="pClass"/>
+</path>
+<path codomain="Course" domain="Class">
+<edgeref id="for"/>
+</path>
+</pullbackconstraint>
+<productconstraint isVisible="true" x="289" y="374">
+<path codomain="Student" domain="StuxTime">
+<edgeref id="pStudent"/>
+</path>
+<path codomain="TimeSlot" domain="StuxTime">
+<edgeref id="pTimeSlot"/>
+</path>
+</productconstraint>
+<commutativediagram isVisible="true" x="412" y="203">
+<path codomain="TimeSlot" domain="TimeTable">
+<edgeref id="f7"/>
+<edgeref id="pTimeSlot"/>
+</path>
+<path codomain="TimeSlot" domain="TimeTable">
+<edgeref id="pClass"/>
+<edgeref id="meets"/>
+</path>
+</commutativediagram>
+<commutativediagram isVisible="true" x="194" y="211">
+<path codomain="Student" domain="TimeTable">
+<edgeref id="f7"/>
+<edgeref id="pStudent"/>
+</path>
+<path codomain="Student" domain="TimeTable">
+<edgeref id="pEnrol"/>
+<edgeref id="of"/>
+</path>
+</commutativediagram>
+</constraints>
+</easketch>

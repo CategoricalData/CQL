@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<easketch_overview>
+<header>
+<title>Hotel</title>
+<description/>
+<creationDate>2014-09-25T22:17:15</creationDate>
+<lastModificationDate>2014-09-26T14:09:04</lastModificationDate>
+</header>
+<sketches>
+<easketch cascade="cascade" name="Hotel" partial-cascade="set_null" x="13" y="9">
+<header>
+<title>Hotel</title>
+<description/>
+<creationDate>2014-09-25T22:17:21</creationDate>
+<lastModificationDate>2014-09-25T22:20:06</lastModificationDate>
+<connectionParam name="pkFormat" value="id"/>
+<connectionParam name="hostname" value="localhost"/>
+<connectionParam name="database" value="Hotel"/>
+<connectionParam name="port" value="3306"/>
+<connectionParam name="fkFormat" value="&lt;edge&gt;"/>
+<connectionParam name="type" value="MySQL"/>
+<connectionParam name="quoteIdentifiers" value="false"/>
+<connectionParam name="username" value="root"/>
+</header>
+<entities>
+<entity name="Guest" x="343" y="217">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="Name" size="255"/>
+</entity>
+<entity name="Room" x="424" y="359">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="Window View" size="255"/>
+</entity>
+<entity name="Cot" x="568" y="222"/>
+<entity name="GuestWithCot" x="426" y="121"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="f1" source="GuestWithCot" target="Guest" type="normal"/>
+<edge cascade="cascade" id="f2" source="Guest" target="Room" type="normal"/>
+<edge cascade="cascade" id="f3" source="Cot" target="Room" type="normal"/>
+<edge cascade="cascade" id="f4" source="GuestWithCot" target="Cot" type="normal"/>
+</edges>
+<keys/>
+<constraints>
+<pullbackconstraint isVisible="true" x="465" y="237">
+<path codomain="Guest" domain="GuestWithCot">
+<edgeref id="f1"/>
+</path>
+<path codomain="Room" domain="Guest">
+<edgeref id="f2"/>
+</path>
+<path codomain="Cot" domain="GuestWithCot">
+<edgeref id="f4"/>
+</path>
+<path codomain="Room" domain="Cot">
+<edgeref id="f3"/>
+</path>
+</pullbackconstraint>
+</constraints>
+</easketch>
+<easketch cascade="cascade" name="Simple" partial-cascade="set_null" x="23" y="160">
+<header>
+<title>Simple</title>
+<description/>
+<creationDate>2014-09-26T13:43:32</creationDate>
+<lastModificationDate>2014-09-26T13:43:52</lastModificationDate>
+</header>
+<entities>
+<entity name="A" x="66" y="74"/>
+<entity name="B" x="222" y="77"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="f1" source="A" target="B" type="normal"/>
+</edges>
+<keys/>
+<constraints/>
+</easketch>
+</sketches>
+<views>
+<view name="V0" on_sketch="Simple" viewDefinitionEdge="ve_1" x="185" y="162">
+<header>
+<title>V0</title>
+<description/>
+<creationDate>2014-09-26T13:44:14</creationDate>
+<lastModificationDate>2014-09-26T13:45:04</lastModificationDate>
+</header>
+<queryNodes>
+<queryNode name="V_B" query="Select * From B " x="199" y="41"/>
+<queryNode name="V_A" query="Select * From A " x="50" y="40"/>
+</queryNodes>
+<ViewEdges>
+<ViewEdge cascade="restrict" id="f1" source="V_A" target="V_B" type="normal"/>
+</ViewEdges>
+</view>
+<view name="RoomCotView" on_sketch="Hotel" viewDefinitionEdge="ve_0" x="176" y="40">
+<header>
+<title>RoomCotView</title>
+<description/>
+<creationDate>2014-09-26T13:34:49</creationDate>
+<lastModificationDate>2014-09-26T13:35:36</lastModificationDate>
+</header>
+<queryNodes>
+<queryNode name="V_GuestWithCot" query="Select * From GuestWithCot " x="67" y="59"/>
+</queryNodes>
+<ViewEdges/>
+</view>
+</views>
+</easketch_overview>

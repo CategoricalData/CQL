@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<easketch_overview>
+<header>
+<title>Constraints</title>
+<author>Andrew Wood</author>
+<description>Example of each constraint type</description>
+<creationDate>2009-05-27T09:58:50</creationDate>
+<lastModificationDate>2014-11-05T22:34:32</lastModificationDate>
+</header>
+<sketches>
+<easketch cascade="cascade" name="Pullback Constraint" partial-cascade="set_null" x="14" y="157">
+<header>
+<title>Pullback Constraint</title>
+<description/>
+<creationDate>2009-05-27T09:59:06</creationDate>
+<lastModificationDate>2009-05-28T12:12:55</lastModificationDate>
+</header>
+<entities>
+<entity name="Pullback" x="147" y="203"/>
+<entity name="A" x="162" y="20"/>
+<entity name="B" x="69" y="112"/>
+<entity name="C" x="255" y="112"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="f1" source="B" target="A" type="normal"/>
+<edge cascade="cascade" id="f2" source="Pullback" target="C" type="normal"/>
+<edge cascade="cascade" id="isA_1" source="C" target="A" type="injective"/>
+<edge cascade="cascade" id="isA_2" source="Pullback" target="B" type="injective"/>
+</edges>
+<keys/>
+<constraints>
+<pullbackconstraint isVisible="true" x="161" y="113">
+<path codomain="B" domain="Pullback">
+<edgeref id="isA_2"/>
+</path>
+<path codomain="A" domain="B">
+<edgeref id="f1"/>
+</path>
+<path codomain="C" domain="Pullback">
+<edgeref id="f2"/>
+</path>
+<path codomain="A" domain="C">
+<edgeref id="isA_1"/>
+</path>
+</pullbackconstraint>
+</constraints>
+</easketch>
+<easketch cascade="cascade" name="Commutative Diagram" partial-cascade="set_null" x="13" y="19">
+<header>
+<title>Commutative Diagram</title>
+<description/>
+<creationDate>2009-05-27T09:59:02</creationDate>
+<lastModificationDate>2009-05-28T12:16:08</lastModificationDate>
+</header>
+<entities>
+<entity name="Domain" x="167" y="203"/>
+<entity name="Codomain" x="165" y="8"/>
+<entity name="A" x="82" y="110"/>
+<entity name="B" x="279" y="117"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="f1" source="Domain" target="A" type="normal"/>
+<edge cascade="cascade" id="f2" source="A" target="Codomain" type="normal"/>
+<edge cascade="cascade" id="f3" source="Domain" target="B" type="normal"/>
+<edge cascade="cascade" id="f4" source="B" target="Codomain" type="normal"/>
+</edges>
+<keys/>
+<constraints>
+<commutativediagram isVisible="true" x="179" y="113">
+<path codomain="Codomain" domain="Domain">
+<edgeref id="f1"/>
+<edgeref id="f2"/>
+</path>
+<path codomain="Codomain" domain="Domain">
+<edgeref id="f3"/>
+<edgeref id="f4"/>
+</path>
+</commutativediagram>
+</constraints>
+</easketch>
+<easketch cascade="cascade" name="Product Constraint" partial-cascade="set_null" x="189" y="154">
+<header>
+<title>Product Constraint</title>
+<description/>
+<creationDate>2009-05-27T10:05:13</creationDate>
+<lastModificationDate>2009-05-28T12:10:08</lastModificationDate>
+</header>
+<entities>
+<entity name="Product" x="137" y="196"/>
+<entity name="P1" x="85" y="120"/>
+<entity name="P2" x="210" y="118"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="f1" source="Product" target="P1" type="normal"/>
+<edge cascade="cascade" id="f2" source="Product" target="P2" type="normal"/>
+</edges>
+<keys/>
+<constraints>
+<productconstraint isVisible="true" x="153" y="139">
+<path codomain="P1" domain="Product">
+<edgeref id="f1"/>
+</path>
+<path codomain="P2" domain="Product">
+<edgeref id="f2"/>
+</path>
+</productconstraint>
+</constraints>
+</easketch>
+<easketch cascade="cascade" name="Equalizer Constraint" partial-cascade="set_null" x="193" y="20">
+<header>
+<title>Equalizer Constraint</title>
+<description/>
+<creationDate>2009-05-27T10:00:18</creationDate>
+<lastModificationDate>2009-05-28T12:07:36</lastModificationDate>
+</header>
+<entities>
+<entity name="Equalizer" x="207" y="248"/>
+<entity name="A" x="96" y="249"/>
+<entity name="B" x="8" y="197"/>
+<entity name="C" x="9" y="98"/>
+<entity name="Codomain" x="77" y="19"/>
+<entity name="D" x="175" y="143"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="isA_1" source="Equalizer" target="A" type="injective"/>
+<edge cascade="cascade" id="f1" source="A" target="D" type="normal"/>
+<edge cascade="cascade" id="f2" source="D" target="Codomain" type="normal"/>
+<edge cascade="cascade" id="f3" source="A" target="B" type="normal"/>
+<edge cascade="cascade" id="f4" source="B" target="C" type="normal"/>
+<edge cascade="cascade" id="f5" source="C" target="Codomain" type="normal"/>
+</edges>
+<keys/>
+<constraints>
+<equalizerconstraint isVisible="true" x="91" y="145">
+<path codomain="A" domain="Equalizer">
+<edgeref id="isA_1"/>
+</path>
+<path codomain="Codomain" domain="A">
+<edgeref id="f3"/>
+<edgeref id="f4"/>
+<edgeref id="f5"/>
+</path>
+<path codomain="Codomain" domain="A">
+<edgeref id="f1"/>
+<edgeref id="f2"/>
+</path>
+</equalizerconstraint>
+</constraints>
+</easketch>
+<easketch cascade="cascade" name="Sum Constraint" partial-cascade="set_null" x="372" y="23">
+<header>
+<title>Sum Constraint</title>
+<description/>
+<creationDate>2009-05-27T09:59:13</creationDate>
+<lastModificationDate>2009-05-28T12:16:37</lastModificationDate>
+</header>
+<entities>
+<entity name="Sum" x="149" y="184"/>
+<entity name="Summand3" x="220" y="34"/>
+<entity name="Summand2" x="128" y="34"/>
+<entity name="Summand1" x="32" y="34"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="isA_1" source="Summand1" target="Sum" type="injective"/>
+<edge cascade="cascade" id="isA_2" source="Summand2" target="Sum" type="injective"/>
+<edge cascade="cascade" id="isA_3" source="Summand3" target="Sum" type="injective"/>
+</edges>
+<keys/>
+<constraints>
+<sumconstraint isVisible="true" x="55" y="102">
+<path codomain="Sum" domain="Summand1">
+<edgeref id="isA_1"/>
+</path>
+<path codomain="Sum" domain="Summand2">
+<edgeref id="isA_2"/>
+</path>
+<path codomain="Sum" domain="Summand3">
+<edgeref id="isA_3"/>
+</path>
+</sumconstraint>
+</constraints>
+</easketch>
+</sketches>
+<views/>
+</easketch_overview>

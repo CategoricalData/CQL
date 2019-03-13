@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<easketch>
+<header>
+<title>Program Cttee</title>
+<author>M. Johnson</author>
+<author>R. Rosebrugh</author>
+<description/>
+<creationDate>2008-05-07T14:59:00</creationDate>
+<lastModificationDate>2009-05-27T13:38:12</lastModificationDate>
+</header>
+<entities>
+<entity name="author" x="144" y="128"/>
+<entity name="person" x="10" y="127"/>
+<entity name="commMbr" x="114" y="235"/>
+<entity name="authorship" x="243" y="125"/>
+<entity name="paper" x="365" y="228">
+<attribute attributeTypeClass="easik.database.types.Varchar" name="Title" size="255"/>
+</entity>
+<entity name="acceptedPaper" x="454" y="125"/>
+<entity name="presenter" x="353" y="54"/>
+</entities>
+<edges>
+<edge cascade="cascade" id="of" source="authorship" target="paper" type="normal"/>
+<edge cascade="cascade" id="of_1" source="presenter" target="acceptedPaper" type="normal"/>
+<edge cascade="cascade" id="reader" source="paper" target="commMbr" type="normal"/>
+<edge cascade="cascade" id="among" source="presenter" target="authorship" type="normal"/>
+<edge cascade="cascade" id="isA_3" source="acceptedPaper" target="paper" type="injective"/>
+<edge cascade="cascade" id="isA_2" source="commMbr" target="person" type="injective"/>
+<edge cascade="cascade" id="has" source="authorship" target="author" type="normal"/>
+<edge cascade="cascade" id="isA_1" source="author" target="person" type="injective"/>
+</edges>
+<keys/>
+<constraints>
+<commutativediagram isVisible="true" x="373" y="126">
+<path codomain="paper" domain="presenter">
+<edgeref id="among"/>
+<edgeref id="of"/>
+</path>
+<path codomain="paper" domain="presenter">
+<edgeref id="of_1"/>
+<edgeref id="isA_3"/>
+</path>
+</commutativediagram>
+<sumconstraint isVisible="true" x="125" y="169">
+<path codomain="person" domain="author">
+<edgeref id="isA_1"/>
+</path>
+<path codomain="person" domain="commMbr">
+<edgeref id="isA_2"/>
+</path>
+</sumconstraint>
+</constraints>
+</easketch>
