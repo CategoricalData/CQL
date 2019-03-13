@@ -45,18 +45,18 @@ https://www.gnu.org/licenses/agpl-3.0.en.html
 
 Contains binary distributions of
 
-jparsec (Apache)
-JUNG (BSD)
-RSyntaxTextArea and autocomplete (BSD)
-Commons Generics, CSV, and Exec (Apache)
-OpenCSV (Apache)
-JFlex (BSD)
-H2 (Mozilla Public License or Eclipse Public License)
-JGraph (BSD)
-txtmark (Apache)
-commons-lang-3 (Apache)
-Google Guava (Apache)
-Gnu Trove (LGPL)
+jparsec (Apache),
+JUNG (BSD),
+RSyntaxTextArea and autocomplete (BSD),
+Commons Generics, CSV, and Exec (Apache),
+OpenCSV (Apache),
+JFlex (BSD),
+H2 (Mozilla Public License or Eclipse Public License),
+JGraph (BSD),
+txtmark (Apache),
+commons-lang-3 (Apache),
+Google Guava (Apache),
+Gnu Trove (LGPL),
 
 And a source distribution of
 
