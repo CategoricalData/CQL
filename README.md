@@ -30,6 +30,8 @@ For best results, compile using the [Eclipse IDE](https://eclipse.org/jdt/).
 Related projects:
 --------------
 
+- Archived FQL code: https://github.com/CategoricalData/FQL
+
 - CQL mode for Emacs: https://github.com/epost/aql-mode
 
 - Statebox CQL Haskell implementation (coming soon)
