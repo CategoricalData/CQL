@@ -14,10 +14,10 @@ import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 
-public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym, Fk, Att,Void,Void,Void,Void> {
+public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym, Fk, Att, Void, Void, Void, Void> {
 
 	private final Schema<Ty, En, Sym, Fk, Att> schema;
-	
+
 	public InitialInstance(Schema<Ty, En, Sym, Fk, Att> schema) {
 		this.schema = schema;
 		validate();
@@ -52,19 +52,19 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 	public Algebra<Ty, En, Sym, Fk, Att, Void, Void, Void, Void> algebra() {
 		return new EmptyAlgebra();
 	}
-	
-	private class EmptyAlgebra extends Algebra<Ty, En, Sym, Fk, Att, Void, Void, Void, Void>  {
+
+	private class EmptyAlgebra extends Algebra<Ty, En, Sym, Fk, Att, Void, Void, Void, Void> {
 
 		@Override
 		public String printX(En en, Void x) {
-			return  Util.abort(x);
+			return Util.abort(x);
 		}
 
 		@Override
 		public String printY(Ty ty, Void y) {
 			return Util.abort(y);
 		}
-		
+
 		@Override
 		public Schema<Ty, En, Sym, Fk, Att> schema() {
 			return schema;
@@ -129,7 +129,7 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 		public Chc<Void, Pair<Void, Att>> reprT_prot(Void y) {
 			return Util.abort(y);
 		}
-		
+
 	}
 
 	@Override
@@ -142,5 +142,4 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 		return false;
 	}
 
-	
 }

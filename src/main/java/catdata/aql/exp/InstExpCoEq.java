@@ -30,7 +30,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		t1.map(f);
@@ -55,8 +55,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 	}
 
 	public InstExpCoEq(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t1,
-			TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t2,
-			List<Pair<String, String>> options) {
+			TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t2, List<Pair<String, String>> options) {
 		this.t1 = t1;
 		this.t2 = t2;
 		this.options = Util.toMapSafely(options);
@@ -107,8 +106,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 	@Override
 	public SchExp type(AqlTyping G) {
 		if (!t1.type(G).first.equals(t2.type(G).first)) {
-			throw new RuntimeException(
-					"Domains do not match: " + t1.type(G).first + " and \n\n" + t2.type(G).first);
+			throw new RuntimeException("Domains do not match: " + t1.type(G).first + " and \n\n" + t2.type(G).first);
 		} else if (!t1.type(G).second.equals(t2.type(G).second)) {
 			throw new RuntimeException(
 					"CoDomains do not match: " + t1.type(G).second + " and \n\n" + t2.type(G).second);
@@ -117,7 +115,8 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, Integer, Chc<Sk2, Pair<Integer, Att>>> eval0(AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, Integer, Chc<Sk2, Pair<Integer, Att>>> eval0(
+			AqlEnv env, boolean isC) {
 		Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h1 = t1.eval(env, isC);
 		Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h2 = t2.eval(env, isC);
 		if (isC) {
@@ -128,7 +127,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> x : h1.dst().eqs()) {
 			col.eqs.add(new Eq<>(null, x.first, x.second));
 		}
-		
+
 		for (Entry<Gen1, En> g : h1.src().gens().entrySet()) {
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.gens().get(g.getKey()).convert();
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.gens().get(g.getKey()).convert();
@@ -139,8 +138,8 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.sks().get(g.getKey());
 			col.eqs.add(new Eq<>(null, l, r));
 		}
-		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen2, Sk2> initial0 = new InitialAlgebra<>(strat,
-				h1.src().schema(), col, (y)->y, (x,y)->y);
+		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen2, Sk2> initial0 = new InitialAlgebra<>(strat, h1.src().schema(), col,
+				(y) -> y, (x, y) -> y);
 
 		return new LiteralInstance<>(h1.src().schema(), col.gens, col.sks, col.eqsAsPairs(), initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),

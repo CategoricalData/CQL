@@ -90,9 +90,8 @@ public abstract class ModelState<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * When this state gets the top spot again, this gets executed. Restores
-	 * buttons and labels. If overridden, be sure to at call super.gotfocus()
-	 * first.
+	 * When this state gets the top spot again, this gets executed. Restores buttons
+	 * and labels. If overridden, be sure to at call super.gotfocus() first.
 	 */
 	public void gotFocus() {
 		// views don't add constraints
@@ -124,11 +123,10 @@ public abstract class ModelState<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * Use this function to toggle the usability of the cancel button. It
-	 * remembers the state in a separate boolean so it can be restored.
+	 * Use this function to toggle the usability of the cancel button. It remembers
+	 * the state in a separate boolean so it can be restored.
 	 *
-	 * @param inButton
-	 *            Status of the button
+	 * @param inButton Status of the button
 	 */
 	protected void setCancelButton(boolean inButton) {
 		if (_ourModel instanceof View) {
@@ -147,11 +145,10 @@ public abstract class ModelState<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * Use this function to toggle the usability of the ok button. It remembers
-	 * the state in a separate boolean so it can be restored.
+	 * Use this function to toggle the usability of the ok button. It remembers the
+	 * state in a separate boolean so it can be restored.
 	 *
-	 * @param inButton
-	 *            Status of the button
+	 * @param inButton Status of the button
 	 */
 	protected void setNextButton(boolean inButton) {
 		if (_ourModel instanceof View) {
@@ -170,11 +167,10 @@ public abstract class ModelState<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * Use this function to toggle the usability of the finish button. It
-	 * remembers the state in a separate boolean so it can be restored.
+	 * Use this function to toggle the usability of the finish button. It remembers
+	 * the state in a separate boolean so it can be restored.
 	 *
-	 * @param inButton
-	 *            Status of the button
+	 * @param inButton Status of the button
 	 */
 	protected void setFinishButton(boolean inButton) {
 		if (_ourModel instanceof View) {

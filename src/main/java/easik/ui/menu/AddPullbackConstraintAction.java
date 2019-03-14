@@ -33,7 +33,8 @@ import easik.ui.JUtils;
  * @version 2006-05-25 Vera Ranieri
  * @version Christian Fiddick Summer 2012
  */
-public class AddPullbackConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class AddPullbackConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**  */
 	private static final long serialVersionUID = 2034451266127954820L;
 
@@ -57,16 +58,14 @@ public class AddPullbackConstraintAction<F extends ModelFrame<F, GM, M, N, E>, G
 	/**
 	 * Creates the pullback if the selection is appropriate.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		/*
 		 * sketches can now be empty since we can add as we go if
-		 * (!_theFrame.getMModel().getEntities().isEmpty()) { // get the user
-		 * defined pullback width first PBWidthDialog pbwd = new
-		 * PBWidthDialog(_theFrame);
+		 * (!_theFrame.getMModel().getEntities().isEmpty()) { // get the user defined
+		 * pullback width first PBWidthDialog pbwd = new PBWidthDialog(_theFrame);
 		 * 
 		 * if (!pbwd.isAccepted()) { return; }
 		 * 
@@ -74,8 +73,8 @@ public class AddPullbackConstraintAction<F extends ModelFrame<F, GM, M, N, E>, G
 		 * 
 		 * _theFrame.getMModel().getStateManager().pushState(new
 		 * AddPullbackConstraintState(_theFrame.getMModel(), w)); } else {
-		 * JOptionPane.showMessageDialog(null, "Sketch cannot be empty.",
-		 * "Error", JOptionPane.ERROR_MESSAGE); }
+		 * JOptionPane.showMessageDialog(null, "Sketch cannot be empty.", "Error",
+		 * JOptionPane.ERROR_MESSAGE); }
 		 */
 
 		// get the user defined pullback width first
@@ -113,11 +112,9 @@ class PBWidthDialog extends JDialog {
 	private JTextField inBox;
 
 	/**
-	 * Sets up text area with a default statement fragment for the user to
-	 * complete.
+	 * Sets up text area with a default statement fragment for the user to complete.
 	 *
-	 * @param parent
-	 *            The parent frame of the modal dialog
+	 * @param parent The parent frame of the modal dialog
 	 */
 	public PBWidthDialog(JFrame parent) {
 		super(parent, "Pullback Width", true);
@@ -156,11 +153,11 @@ class PBWidthDialog extends JDialog {
 	}
 
 	/**
-	 * Returns true if the user accepted the options dialog (that is, clicked
-	 * the OK button).
+	 * Returns true if the user accepted the options dialog (that is, clicked the OK
+	 * button).
 	 *
-	 * @return true if the user clicked OK (and the fields verified
-	 *         successfully), false if the user cancelled or closed the dialog.
+	 * @return true if the user clicked OK (and the fields verified successfully),
+	 *         false if the user cancelled or closed the dialog.
 	 */
 	public boolean isAccepted() {
 		return _ok;

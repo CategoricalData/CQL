@@ -46,8 +46,7 @@ public class DeleteFromSketchAction extends AbstractAction {
 	 * When the action is performed, selection is deleted if possible. Error is
 	 * displayed if no graph item is selected.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -56,16 +55,20 @@ public class DeleteFromSketchAction extends AbstractAction {
 
 		// The confirm delete message. If we're currently synced with a db, add
 		// that to the message;
-		String confirm = _ourSketch.isSynced() ? "Warning: this sketch is currently synced with a db; delete and break synchronization?" : "Are you sure you want to delete selected item(s)?";
+		String confirm = _ourSketch.isSynced()
+				? "Warning: this sketch is currently synced with a db; delete and break synchronization?"
+				: "Are you sure you want to delete selected item(s)?";
 
-		if (JOptionPane.showConfirmDialog(_theFrame, confirm, "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+		if (JOptionPane.showConfirmDialog(_theFrame, confirm, "Warning!", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 			return;
 		}
 
 		Object[] currentSelection = _ourSketch.getSelectionCells();
 
 		if (currentSelection.length == 0) {
-			JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with something selected", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with something selected", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		} else {
 			_ourSketch.getGraphModel().beginUpdate();
 
@@ -77,9 +80,12 @@ public class DeleteFromSketchAction extends AbstractAction {
 			// First, delete any constraints:
 			for (Object o : currentSelection) {
 				if (o instanceof ModelConstraint) {
-					_ourSketch.removeConstraint((ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) o);
+					_ourSketch.removeConstraint(
+							(ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) o);
 					for (ViewNode v : _ourSketch.getViews()) {
-						if (v.getMModel().getConstraints().containsKey(((ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) o).getID())) {
+						if (v.getMModel().getConstraints().containsKey(
+								((ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) o)
+										.getID())) {
 							v.getMModel().removeConstraint(((ModelConstraint) o));
 						}
 					}
@@ -92,7 +98,11 @@ public class DeleteFromSketchAction extends AbstractAction {
 					for (ViewNode v : _theFrame.getMModel().getViews()) {
 						if (v.getMModel().getEdges().containsKey(((SketchEdge) o).getName())) {
 							// put up a warning cause this exists in a View
-							if (JOptionPane.showConfirmDialog(_theFrame, "SketchEdge " + ((SketchEdge) o).getName() + " exists in a View. Continue and delete in view as well?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+							if (JOptionPane.showConfirmDialog(_theFrame,
+									"SketchEdge " + ((SketchEdge) o).getName()
+											+ " exists in a View. Continue and delete in view as well?",
+									"Warning!", JOptionPane.OK_CANCEL_OPTION,
+									JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 								return;
 							}
 							// if we want to proceed and delete it...
@@ -109,7 +119,11 @@ public class DeleteFromSketchAction extends AbstractAction {
 					for (ViewNode v : _theFrame.getMModel().getViews()) {
 						if (v.getMModel().getEntityNodePairs().containsKey((o))) {
 							// put up a warning cause this exists in a View
-							if (JOptionPane.showConfirmDialog(_theFrame, "EntityNode " + ((EntityNode) o).getName() + " is being queried by a View. Continue and delete in view as well?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+							if (JOptionPane.showConfirmDialog(_theFrame,
+									"EntityNode " + ((EntityNode) o).getName()
+											+ " is being queried by a View. Continue and delete in view as well?",
+									"Warning!", JOptionPane.OK_CANCEL_OPTION,
+									JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 								return;
 							}
 							// if we want to proceed and delete it...

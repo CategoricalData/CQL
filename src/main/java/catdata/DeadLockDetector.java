@@ -20,10 +20,8 @@ public class DeadLockDetector {
 		deadlockDetector.start();
 	}
 
-	
 	public static class DeadlockConsoleHandler implements DeadlockHandler {
 
-		
 		@Override
 		public void handleDeadlock(final ThreadInfo[] deadlockedThreads) {
 			if (deadlockedThreads != null) {
@@ -60,7 +58,7 @@ public class DeadLockDetector {
 	final Runnable deadlockCheck = new Runnable() {
 		@Override
 		public void run() {
-			//System.out.println("+++ " + Term.cache.keySet().size());
+			// System.out.println("+++ " + Term.cache.keySet().size());
 
 			long[] deadlockedThreadIds = DeadLockDetector.this.mbean.findDeadlockedThreads();
 

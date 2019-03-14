@@ -50,8 +50,7 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 
 	/**
 	 * Returns the common attribute mapping for edges. Used by
-	 * normalEdgeAttributes() et al. to establish the common attributes for an
-	 * edge.
+	 * normalEdgeAttributes() et al. to establish the common attributes for an edge.
 	 * 
 	 * @return The attribute mapping
 	 */
@@ -78,9 +77,8 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 	/**
 	 * Alias for calling getColor() on the EasikSettings instance
 	 *
-	 * @param name
-	 *            the color property name to pass to
-	 *            {@link EasikSettings.getColor(String)}
+	 * @param name the color property name to pass to
+	 *             {@link EasikSettings.getColor(String)}
 	 *
 	 * @return
 	 */
@@ -91,13 +89,12 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 	/**
 	 * Alias for calling getFloat() on the EasikSettings instance.
 	 *
-	 * @param name
-	 *            the property name to pass to
-	 *            {@link EasikSettings.getFloat(String, float)};
-	 *            <code>"_width"</code> will be appended to the property name.
-	 * @param defaultValue
-	 *            the default value to pass to
-	 *            {@link EasikSettings.getFloat(String, float)}
+	 * @param name         the property name to pass to
+	 *                     {@link EasikSettings.getFloat(String, float)};
+	 *                     <code>"_width"</code> will be appended to the property
+	 *                     name.
+	 * @param defaultValue the default value to pass to
+	 *                     {@link EasikSettings.getFloat(String, float)}
 	 *
 	 * @return
 	 */
@@ -132,13 +129,12 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 	/**
 	 * Alias for calling getInt() on the EasikSettings instance.
 	 *
-	 * @param name
-	 *            the property name to pass to
-	 *            {@link EasikSettings.getInt(String, int)};
-	 *            <code>"_width"</code> will be appended to the property name.
-	 * @param defaultValue
-	 *            the default value to pass to
-	 *            {@link EasikSettings.getInt(String, int)}
+	 * @param name         the property name to pass to
+	 *                     {@link EasikSettings.getInt(String, int)};
+	 *                     <code>"_width"</code> will be appended to the property
+	 *                     name.
+	 * @param defaultValue the default value to pass to
+	 *                     {@link EasikSettings.getInt(String, int)}
 	 *
 	 * @return
 	 */
@@ -147,14 +143,14 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 	}
 
 	/**
-	 * Clears the current graph selection prior to an undo/redo. Must be
-	 * implemented by subclasses.
+	 * Clears the current graph selection prior to an undo/redo. Must be implemented
+	 * by subclasses.
 	 */
 	public abstract void clearSelection();
 
 	/**
-	 * Sets the current graph to "dirty". Must be implemented. Will be called
-	 * when an undo/redo occur.
+	 * Sets the current graph to "dirty". Must be implemented. Will be called when
+	 * an undo/redo occur.
 	 */
 	public abstract void setDirty();
 
@@ -199,20 +195,20 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 
 	/**
 	 * Begins a new compount edit. Each UndoableEdit then needs to be passed to
-	 * postEdit(), then finally endUpdate() called to signify the end of the
-	 * change. This properly handles nested updates, so
+	 * postEdit(), then finally endUpdate() called to signify the end of the change.
+	 * This properly handles nested updates, so
 	 * begin-add1-begin-add2-add3-end-add4-end gets added as a CompoundEdit with
-	 * three edits: add1, a CompountEdit of add2 and add3, and add4. What this
-	 * means is that code can safely call postEdit() with an UndoableEdit as
-	 * needed: if an update is in progress, it will be added to the in-progress
-	 * compound edit, otherwise it will be treated as its own edit. Any code
-	 * that needs to call other methods should do a beginUpdate(), then add its
-	 * own UndoableEdits, make the method calls, then finally call
-	 * endUpdate()--no matter what happens in such a case, everything from
-	 * beginUpdate() to endUpdate() will be considered a single edit.
+	 * three edits: add1, a CompountEdit of add2 and add3, and add4. What this means
+	 * is that code can safely call postEdit() with an UndoableEdit as needed: if an
+	 * update is in progress, it will be added to the in-progress compound edit,
+	 * otherwise it will be treated as its own edit. Any code that needs to call
+	 * other methods should do a beginUpdate(), then add its own UndoableEdits, make
+	 * the method calls, then finally call endUpdate()--no matter what happens in
+	 * such a case, everything from beginUpdate() to endUpdate() will be considered
+	 * a single edit.
 	 *
-	 * Note that if the automaton is currently in an insignificant edit mode,
-	 * any edit that occur will also be insignificant.
+	 * Note that if the automaton is currently in an insignificant edit mode, any
+	 * edit that occur will also be insignificant.
 	 */
 	@Override
 	public synchronized void beginUpdate() {
@@ -233,9 +229,9 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 	}
 
 	/**
-	 * Similar to beginUpdate(), but this beings an *insignificant* edit--that
-	 * is, an edit that won't be considered a "step" in the undo/redo list, but
-	 * will be undone/redone when moving between significant steps.
+	 * Similar to beginUpdate(), but this beings an *insignificant* edit--that is,
+	 * an edit that won't be considered a "step" in the undo/redo list, but will be
+	 * undone/redone when moving between significant steps.
 	 */
 	public synchronized void beginInsignificantUpdate() {
 		if (insignificantLevel == 0) {
@@ -291,8 +287,8 @@ public abstract class EasikGraphModel extends DefaultGraphModel {
 
 	/**
 	 * Adds an edit to the compound edit in progress, if beginUpdate() or
-	 * beginInsignificantEdit() have been called, otherwise posts the edit
-	 * directly to the undo manager.
+	 * beginInsignificantEdit() have been called, otherwise posts the edit directly
+	 * to the undo manager.
 	 *
 	 * @see beginUpdate()
 	 *

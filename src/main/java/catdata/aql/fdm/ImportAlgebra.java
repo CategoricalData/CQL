@@ -33,36 +33,31 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 	private final Collage<Ty, Void, Sym, Void, Void, Void, Y> talg = new Collage<>();
 
 	private Map<X, En> gens = new THashMap<>();
-	
-	public ImportAlgebra(Schema<Ty, En, Sym, Fk, Att> schema,
-			Map<En, Collection<X>> ens, 
-			Map<Ty, Collection<Y>> tys,
-			Map<X, Map<Fk, X>> fks, 
-			Map<X, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Y>>> atts, 
-			BiFunction<En, X, Object> printX, 
-			BiFunction<Ty, Y, Object> printY, 
-			boolean dontCheckClosure, 
-			Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> eqs) { 
+
+	public ImportAlgebra(Schema<Ty, En, Sym, Fk, Att> schema, Map<En, Collection<X>> ens, Map<Ty, Collection<Y>> tys,
+			Map<X, Map<Fk, X>> fks, Map<X, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Y>>> atts,
+			BiFunction<En, X, Object> printX, BiFunction<Ty, Y, Object> printY, boolean dontCheckClosure,
+			Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> eqs) {
 		this.schema = schema;
 		this.ens = (ens);
 		this.tys = (tys);
 		this.fks = (fks);
 		this.atts = (atts);
 		this.printX = printX;
-		this.printY = printY; 
-		
+		this.printY = printY;
+
 		if (!dontCheckClosure) {
 			checkClosure();
 		}
-		
-		initTalg(eqs); 
-		
+
+		initTalg(eqs);
+
 		for (Entry<En, Collection<X>> en : ens.entrySet()) {
 			for (X x : en.getValue()) {
 				gens.put(x, en.getKey());
 			}
 		}
-		
+
 	}
 
 	private void checkClosure() {
@@ -121,8 +116,7 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 			}
 		}
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> x : schema.typeSide.eqs) {
-			talg.eqs.add(new Eq<>(Util.inLeft(x.first), x.second.convert(),
-					x.third.convert()));
+			talg.eqs.add(new Eq<>(Util.inLeft(x.first), x.second.convert(), x.third.convert()));
 		}
 		talg.eqs.addAll(eqs0);
 	}
@@ -133,7 +127,7 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 		if (ctx != null && !ctx.isEmpty()) {
 			Util.anomaly();
 		} else if (lhs.hasTypeType()) {
-			return intoY(lhs).equals(intoY(rhs)); //free talg 
+			return intoY(lhs).equals(intoY(rhs)); // free talg
 		}
 		return intoX(lhs).equals(intoX(rhs));
 	}
@@ -173,8 +167,6 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 		return Term.Gen(x);
 	}
 
-
-
 	@Override
 	public String toStringProver() {
 		return "Import algebra prover";
@@ -209,6 +201,5 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 	public Chc<Y, Pair<X, Att>> reprT_prot(Y y) {
 		return Chc.inLeft(y);
 	}
-
 
 }

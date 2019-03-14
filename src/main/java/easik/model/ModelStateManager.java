@@ -34,8 +34,7 @@ public class ModelStateManager<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 	private LinkedList<ModelState<F, GM, M, N, E>> _states = new LinkedList<>();
 
 	/**
-	 * Boolean to record whether the user has pressed the <it>Finish</it>
-	 * button.
+	 * Boolean to record whether the user has pressed the <it>Finish</it> button.
 	 */
 	private boolean _finished;
 
@@ -88,8 +87,8 @@ public class ModelStateManager<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 	}
 
 	/**
-	 * Pop the state off of the top of the stack. After the state has been
-	 * popped the 'popped' hook is called.
+	 * Pop the state off of the top of the stack. After the state has been popped
+	 * the 'popped' hook is called.
 	 * 
 	 * @return The popped state
 	 */
@@ -106,11 +105,9 @@ public class ModelStateManager<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 	}
 
 	/**
-	 * Pushes a state onto the stack, calls the 'pushed on' hook after being
-	 * added.
+	 * Pushes a state onto the stack, calls the 'pushed on' hook after being added.
 	 * 
-	 * @param toPush
-	 *            The new state being pushed on
+	 * @param toPush The new state being pushed on
 	 */
 	public void pushState(ModelState<F, GM, M, N, E> toPush) {
 		_states.addFirst(toPush);

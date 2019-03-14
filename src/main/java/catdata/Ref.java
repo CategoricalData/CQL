@@ -4,14 +4,16 @@ public class Ref<X> {
 
 	public volatile X x;
 
-	private volatile int var; //needed to make sure refs don't compare to equal just because their referents are equal.  could have not used value eauality, but var aso useful for printing
-	
+	private volatile int var; // needed to make sure refs don't compare to equal just because their referents
+								// are equal. could have not used value eauality, but var aso useful for
+								// printing
+
 	private static int count = 0;
-	
+
 	public Ref() {
 		var = count++;
 	}
-	
+
 	public synchronized boolean isSet() {
 		return x != null;
 	}
@@ -22,7 +24,7 @@ public class Ref<X> {
 		}
 		this.x = x;
 	}
-	
+
 	public synchronized void set(X x) {
 		if (x == null) {
 			throw new RuntimeException("Anomaly, please report");
@@ -30,11 +32,12 @@ public class Ref<X> {
 		if (this.x == null) {
 			this.x = x;
 			var = -1;
-		} if (!this.x.equals(x)) {
+		}
+		if (!this.x.equals(x)) {
 			throw new RuntimeException("Reference already set to " + this.x + ", cannot set to " + x);
 		}
 	}
-	
+
 	public synchronized void set(Ref<X> ref) {
 		if (ref == null) {
 			throw new RuntimeException("Anomaly, please report");
@@ -78,8 +81,5 @@ public class Ref<X> {
 			return false;
 		return true;
 	}
-
-	
-	
 
 }

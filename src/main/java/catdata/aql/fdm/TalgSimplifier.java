@@ -21,27 +21,26 @@ import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 
 public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
-	
+
 	class Step {
-		volatile Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> 
-		in, out;
-		final Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, 
-		    Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> 
-		subst = new THashMap<>();
+		@SuppressWarnings("hiding")
+		volatile Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> in, out;
+		@SuppressWarnings("hiding")
+		final Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> subst = new THashMap<>();
 		volatile boolean changed;
-		
+
 		public Step(Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> col) {
-			//col.validate();
+			// col.validate();
 			in = col;
 			out = col;
-			//validate();
+			// validate();
 		}
-		
+
 		public Step(Step s) {
 			this.in = s.out;
-			//this.in.validate();
+			// this.in.validate();
 //			this.subst = new Ctx<>();
-			
+
 			out = new Collage<>();
 			out.sks.putAll(this.in.sks);
 			out.syms.putAll(this.in.syms);
@@ -49,29 +48,30 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 			out.java_fns.putAll(this.in.java_fns);
 			out.java_parsers.putAll(this.in.java_parsers);
 			out.java_tys.putAll(this.in.java_tys);
-		//	validate();
+			// validate();
 //			System.out.println("A " + Util.sep(new LinkedList<>(in.eqs).subList(0,Integer.min(in.eqs.size(), 16)), "\n"));
-			
+
 			if (!talg_h1()) {
-	//			System.out.println("XX " + Util.sep(new LinkedList<>(in.eqs).subList(0,Integer.min(in.eqs.size(), 16)), "\n"));
+				// System.out.println("XX " + Util.sep(new
+				// LinkedList<>(in.eqs).subList(0,Integer.min(in.eqs.size(), 16)), "\n"));
 				changed = false;
 				out = in;
-			//	validate();
+				// validate();
 				return;
 			}
-		
+
 			changed = true;
-			Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>>
-			it = new Util.FilterTransfomIterator<>(
+			Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> it = new Util.FilterTransfomIterator<>(
 					in.eqs.iterator(), this::fn);
 			while (it.hasNext()) {
 				out.eqs.add(it.next());
 			}
-			//System.out.println("B " + Util.sep(new LinkedList<>(out.eqs).subList(0,Integer.min(out.eqs.size(), 16)), "\n"));
+			// System.out.println("B " + Util.sep(new
+			// LinkedList<>(out.eqs).subList(0,Integer.min(out.eqs.size(), 16)), "\n"));
 
-			//validate();
+			// validate();
 		}
-		
+
 		private synchronized Optional<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> fn(
 				Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> x) {
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> l = simpl(x.lhs), r = simpl(x.rhs);
@@ -80,7 +80,7 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 			}
 			return Optional.of(new Eq<>(null, l, r));
 		}
-		
+
 		public synchronized void validate() {
 //			System.out.println(out);
 //			System.out.println(subst);
@@ -93,20 +93,20 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 				if (out.sks.keySet().contains(x)) {
 					continue;
 				}
-				//if (!subst.containsKey(Head.SkHead(x))) {
-				//	Util.anomaly();
-				//}
+				// if (!subst.containsKey(Head.SkHead(x))) {
+				// Util.anomaly();
+				// }
 			}
 		}
-		
+
 		private synchronized Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> simpl(
 				Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> t) {
-			//in.type(new Ctx<>(), t);
+			// in.type(new Ctx<>(), t);
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> x = t.replaceHead(subst, null);
-			//out.type(new Ctx<>(), x);
+			// out.type(new Ctx<>(), x);
 			return x;
 		}
-		
+
 		private synchronized boolean talg_h1() {
 			boolean b = false;
 			for (Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> eq : in.eqs) {
@@ -116,65 +116,66 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 		}
 
 		private synchronized boolean talg_h(Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> eq) {
-			//in.type(new Ctx<>(), eq.lhs);
-			//in.type(new Ctx<>(), eq.rhs);
-			
+			// in.type(new Ctx<>(), eq.lhs);
+			// in.type(new Ctx<>(), eq.rhs);
+
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> l = simpl(eq.lhs);
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> r = simpl(eq.rhs);
 
-			//out.type(new Ctx<>(), l);
-			//out.type(new Ctx<>(), r);
+			// out.type(new Ctx<>(), l);
+			// out.type(new Ctx<>(), r);
 
 			if (l.sk() != null && !r.contains(Head.SkHead(l.sk())) && out.sks.containsKey(l.sk())) {
-			//	out.type(new Ctx<>(), l);
-			//	out.type(new Ctx<>(), r);
+				// out.type(new Ctx<>(), l);
+				// out.type(new Ctx<>(), r);
 				out.sks.remove(l.sk());
 //				out.type(new Ctx<>(), l);
-			//	out.type(new Ctx<>(), r);
-				compose(l.sk(), r); 
-			//	System.out.println("pp " + eq);
+				// out.type(new Ctx<>(), r);
+				compose(l.sk(), r);
+				// System.out.println("pp " + eq);
 				return true;
 			} else if (r.sk() != null && !l.contains(Head.SkHead(r.sk())) && out.sks.containsKey(r.sk())) {
-				//out.type(new Ctx<>(), l);
-				//out.type(new Ctx<>(), r);
+				// out.type(new Ctx<>(), l);
+				// out.type(new Ctx<>(), r);
 				out.sks.remove(r.sk());
-				//out.type(new Ctx<>(), l);
+				// out.type(new Ctx<>(), l);
 				compose(r.sk(), l);
-			//	System.out.println("qq " + eq);
+				// System.out.println("qq " + eq);
 
 				return true;
 			}
 			// System.out.println("ff " + eq);
 
-			return false; //!l.equals(eq.lhs) || !r.equals(eq.rhs);
+			return false; // !l.equals(eq.lhs) || !r.equals(eq.rhs);
 		}
 
-
+		@SuppressWarnings("unchecked")
 		private synchronized void compose(Chc<Sk, Pair<X, Att>> sk,
 				Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> replacer) {
-		//	System.out.println("AA" + subst);
-			//out.type(new Ctx<>(), replacer);
+			// System.out.println("AA" + subst);
+			// out.type(new Ctx<>(), replacer);
 			Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> hSk = Head.SkHead(sk);
 			subst.replaceAll((h, t) -> t.replaceHead(hSk, Collections.EMPTY_LIST, replacer));
-			//if (!list.containsKey(hSk)) {
+			// if (!list.containsKey(hSk)) {
 			subst.put(hSk, replacer);
-			//}
-		//	for (Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> v : subst.keySet()) {
-			//	if (out.sks.containsKey(v.sk)) {
-			//		Util.anomaly();
-			//	}
-			///	Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> w = subst.get(v);
-			//	out.type(new Ctx<>(), w);
-			//}
-			//System.out.println("BB" + subst);
+			// }
+			// for (Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> v :
+			// subst.keySet()) {
+			// if (out.sks.containsKey(v.sk)) {
+			// Util.anomaly();
+			// }
+			/// Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> w =
+			// subst.get(v);
+			// out.type(new Ctx<>(), w);
+			// }
+			// System.out.println("BB" + subst);
 		}
 
 		@Override
 		public String toString() {
 			return "Step [out=" + out + "]";
-		}		
+		}
 	}
-	
 
 	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> toTerm(
 			Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> head) {
@@ -189,7 +190,6 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 	private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
 	private final Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> in = new Collage<>();
 
-	
 	public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> unflatten(
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> term) {
 		if (term.obj() != null) {
@@ -201,11 +201,13 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 			}
 			return Term.Sym(term.sym(), l);
 		} else if (term.sk() != null) {
-			return term.sk().left ? Term.Sk(term.sk().l) : Term.Att(term.sk().r.second, alg.repr(alg.schema().atts.get(term.sk().r.second).first, term.sk().r.first).convert());
+			return term.sk().left ? Term.Sk(term.sk().l)
+					: Term.Att(term.sk().r.second,
+							alg.repr(alg.schema().atts.get(term.sk().r.second).first, term.sk().r.first).convert());
 		}
 		throw new RuntimeException("Anomaly: please report");
-	} 
-	
+	}
+
 	public synchronized Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> transX(
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
 		if (term.obj() != null) {
@@ -230,25 +232,24 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
 	Step talg;
 
-	public final Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, 
-    Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> subst = new THashMap<>();
-	
+	public final Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> subst = new THashMap<>();
+
 	private final Schema<Ty, En, Sym, Fk, Att> sch;
 	private final Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg;
-	
+
 	public TalgSimplifier(Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
 			int reduce) {
 		this.alg = alg;
 		this.sch = alg.schema();
 		this.col = col;
-		//col.validate();
+		// col.validate();
 
 		talg_h0();
-		//in.validate();
+		// in.validate();
 
 		talg = new Step(in);
 		subst.putAll(talg.subst);
-		 		
+
 		for (int i = 0; i < reduce; i++) {
 			talg = new Step(talg);
 			if (!talg.changed) {
@@ -263,8 +264,6 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 		}
 	}
 
-	
-	
 	private synchronized void talg_h0() {
 		in.syms.putAll(col.syms);
 		in.tys.addAll(sch.typeSide.tys);
@@ -287,15 +286,15 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 			if (!eq.lhs.hasTypeType(eq.ctx) || !eq.ctx.isEmpty()) {
 				continue; // entity
 			}
-			
+
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> l = transX(eq.lhs);
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> r = transX(eq.rhs);
-			
+
 			if (!l.equals(r)) {
 				in.eqs.add(new Eq<>(null, l, r));
 			}
 		}
-		
+
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : alg
 				.schema().eqs) {
 			if (!sch.type(eq.first, eq.second).left) {
@@ -309,9 +308,9 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 				Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> r = transX(eq.third.subst(map).convert());
 
 				if (!l.equals(r)) {
-				//	System.out.println("-- " + l + " = " + r);
+					// System.out.println("-- " + l + " = " + r);
 					in.eqs.add(new Eq<>(null, l, r));
-					//in.validate();
+					// in.validate();
 				}
 			}
 		}
@@ -325,8 +324,7 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
 	@Override
 	public String toString() {
-		return talg.out + "\n\nDefinitions:\n" + Util.sep(subst, " -> ", "\n") + "\n\nOriginal Sks:" + in.sks.keySet(); 
+		return talg.out + "\n\nDefinitions:\n" + Util.sep(subst, " -> ", "\n") + "\n\nOriginal Sks:" + in.sks.keySet();
 	}
 
-	
 }

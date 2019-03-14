@@ -11,8 +11,7 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
 
-public class InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
-		extends InstExp<Gen2, Sk2, X2, Y2> {
+public class InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends InstExp<Gen2, Sk2, X2, Y2> {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
@@ -47,7 +46,7 @@ public class InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpCod other = (InstExpCod) obj;
+		InstExpCod<?, ?, ?, ?, ?, ?, ?, ?> other = (InstExpCod<?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (t == null) {
 			if (other.t != null)
 				return false;
@@ -79,11 +78,10 @@ public class InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		t.map(f);
 	}
-
 
 }

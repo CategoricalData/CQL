@@ -37,8 +37,7 @@ public class RecentFileAction extends AbstractAction {
 	/**
 	 * Constructor accepting one file
 	 * 
-	 * @param file
-	 *            The file to be opened
+	 * @param file    The file to be opened
 	 * @param inFrame
 	 */
 	public RecentFileAction(String file, ApplicationFrame inFrame) {
@@ -54,8 +53,7 @@ public class RecentFileAction extends AbstractAction {
 	/**
 	 * Records if the file has been chosen to be opened
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -78,7 +76,8 @@ public class RecentFileAction extends AbstractAction {
 			_theFrame.getOverview().setDirty(false);
 			_theFrame.addRecentFile(selFile);
 		} else {
-			JOptionPane.showMessageDialog(_theFrame, "'" + _file + "' does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame, "'" + _file + "' does not exist.", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

@@ -16,20 +16,24 @@ import catdata.aql.Schema;
 import catdata.aql.Term;
 import gnu.trove.map.hash.THashMap;
 
-public class TransExpCsv<X1,Y1,X2,Y2> 
-	extends TransExpImport<Gen,Sk,Gen,Sk,X1,Y1,X2,Y2,Map<En, List<String[]>>> {
+public class TransExpCsv<X1, Y1, X2, Y2>
+		extends TransExpImport<Gen, Sk, Gen, Sk, X1, Y1, X2, Y2, Map<En, List<String[]>>> {
 
-	public TransExpCsv(InstExp<Gen,Sk,X1,Y1> src, InstExp<Gen,Sk,X2,Y2> dst, List<Pair<LocStr, String>> files, List<Pair<String, String>> options) {
+	public TransExpCsv(InstExp<Gen, Sk, X1, Y1> src, InstExp<Gen, Sk, X2, Y2> dst, List<Pair<LocStr, String>> files,
+			List<Pair<String, String>> options) {
 		super(src, dst, files, options);
 	}
+
 	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		src.map(f);
 		dst.map(f);
 	}
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.csv_field_delim_char);
@@ -45,16 +49,15 @@ public class TransExpCsv<X1,Y1,X2,Y2>
 		set.add(AqlOption.prepend_entity_on_ids);
 	}
 
-	@Override 
+	@Override
 	public String makeString() {
-		StringBuilder sb = new StringBuilder()
-				.append("import_csv ").append(src).append(" -> ").append(dst).append(" {\n\t")
-				.append(Util.sep(map, " -> ", "\n\t"));
+		StringBuilder sb = new StringBuilder().append("import_csv ").append(src).append(" -> ").append(dst)
+				.append(" {\n\t").append(Util.sep(map, " -> ", "\n\t"));
 		sb = new StringBuilder(sb.toString().trim());
 		if (!options.isEmpty()) {
 			sb.append("options").append(Util.sep(options, "\n\t\t", " = "));
 		}
-		return  sb.append("}").toString();
+		return sb.append("}").toString();
 	}
 
 	@Override
@@ -77,10 +80,11 @@ public class TransExpCsv<X1,Y1,X2,Y2>
 	}
 
 	@Override
-	protected void processEn(En en, Schema<Ty, En, Sym, Fk, Att> sch, Map<En, List<String[]>> h, String q) throws Exception {
+	protected void processEn(En en, Schema<Ty, En, Sym, Fk, Att> sch, Map<En, List<String[]>> h, String q)
+			throws Exception {
 		for (String[] row : h.get(en)) {
 			if (row.length != 2) {
-				throw new RuntimeException("On " + en + ", encountered a row of length != 2: " + Arrays.toString(row) );
+				throw new RuntimeException("On " + en + ", encountered a row of length != 2: " + Arrays.toString(row));
 			}
 			String gen = row[0];
 			String gen2 = row[1];
@@ -100,10 +104,9 @@ public class TransExpCsv<X1,Y1,X2,Y2>
 		for (String q : map.keySet()) {
 			map2.put(q, new InputStreamReader(new URL(map.get(q)).openStream()));
 		}
-	
+
 		Map<En, List<String[]>> ret = InstExpCsv.start2(map2, op, sch, false);
 		return ret;
 	}
-	
-	
+
 }

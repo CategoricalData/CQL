@@ -48,8 +48,7 @@ public class RenameInOverviewAction extends AbstractAction {
 	/**
 	 * Called when clicked upon, will rename an article.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -63,37 +62,49 @@ public class RenameInOverviewAction extends AbstractAction {
 		String originalName = nodeToRename.getName();
 
 		if (nodeToRename instanceof SketchNode) {
-			if (((SketchNode) nodeToRename).getMModel().isSynced() && (JOptionPane.showConfirmDialog(_theOverview.getFrame(), "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION)) {
+			if (((SketchNode) nodeToRename).getMModel().isSynced()
+					&& (JOptionPane.showConfirmDialog(_theOverview.getFrame(),
+							"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+							"Warning!", JOptionPane.OK_CANCEL_OPTION,
+							JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION)) {
 				return;
 			}
 		} else if (nodeToRename instanceof ViewNode) {
-			if (((ViewNode) nodeToRename).getMModel().getSketch().isSynced() && (JOptionPane.showConfirmDialog(_theOverview.getFrame(), "Warning: this view is of a sketch that is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION)) {
+			if (((ViewNode) nodeToRename).getMModel().getSketch().isSynced() && (JOptionPane.showConfirmDialog(
+					_theOverview.getFrame(),
+					"Warning: this view is of a sketch that is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION)) {
 				return;
 			}
 		} else {
 			return;
 		}
 
-		String s = (String) JOptionPane.showInputDialog(_theOverview.getParent(), "New name:", "Rename", JOptionPane.QUESTION_MESSAGE, null, null, originalName);
+		String s = (String) JOptionPane.showInputDialog(_theOverview.getParent(), "New name:", "Rename",
+				JOptionPane.QUESTION_MESSAGE, null, null, originalName);
 
 		if (s != null) {
 			s = s.trim();
 
 			if (s.equals("")) {
-				JOptionPane.showMessageDialog(_theOverview.getParent(), "Sketch name is empty", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(_theOverview.getParent(), "Sketch name is empty", "Error",
+						JOptionPane.ERROR_MESSAGE);
 
 				return;
 			}
 
 			if (nodeToRename instanceof SketchNode) {
 				if (_theOverview.isNameUsed(s) && !nodeToRename.getName().equals(s)) {
-					JOptionPane.showMessageDialog(_theOverview.getParent(), "Sketch name is already in use", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(_theOverview.getParent(), "Sketch name is already in use", "Error",
+							JOptionPane.ERROR_MESSAGE);
 
 					return;
 				}
 			} else if (nodeToRename instanceof ViewNode) {
 				if (_theOverview.isNameUsed(s) && !nodeToRename.getName().equals(s)) {
-					JOptionPane.showMessageDialog(_theOverview.getParent(), "View name is already in use", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(_theOverview.getParent(), "View name is already in use", "Error",
+							JOptionPane.ERROR_MESSAGE);
 
 					return;
 				}

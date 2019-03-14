@@ -51,8 +51,7 @@ public class FileSaveAsAction extends AbstractAction {
 	 * Display a dialog prompting the user for the name under which to save the
 	 * current overview.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -60,8 +59,8 @@ public class FileSaveAsAction extends AbstractAction {
 	}
 
 	/**
-	 * Prompts for a filename and saves the overview as that name. Returns true
-	 * if the file was successfully saved, false if not (i.e. because the user
+	 * Prompts for a filename and saves the overview as that name. Returns true if
+	 * the file was successfully saved, false if not (i.e. because the user
 	 * cancelled).
 	 *
 	 * @param inFrame

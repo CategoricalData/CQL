@@ -16,13 +16,13 @@ import catdata.aql.Kind;
 import catdata.aql.Term;
 import catdata.aql.fdm.Row;
 
-public final class InstExpPi<Gen, Sk, X, Y>
-		extends InstExp<Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> {
+public final class InstExpPi<Gen, Sk, X, Y> extends
+		InstExp<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> {
 
 	public final InstExp<Gen, Sk, X, Y> I;
 	public final MapExp F;
 	public final Map<String, String> options;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		F.map(f);
@@ -44,7 +44,7 @@ public final class InstExpPi<Gen, Sk, X, Y>
 		set.add(AqlOption.start_ids_at);
 		set.addAll(AqlOptions.proverOptionNames());
 	}
-	
+
 	@Override
 	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.singleton(I);
@@ -64,8 +64,7 @@ public final class InstExpPi<Gen, Sk, X, Y>
 		return Util.union(I.deps(), F.deps());
 	}
 
-	public InstExpPi(MapExp f,
-			InstExp<Gen, Sk, X, Y> i, Map<String, String> options) {
+	public InstExpPi(MapExp f, InstExp<Gen, Sk, X, Y> i, Map<String, String> options) {
 		I = i;
 		F = f;
 		this.options = options;
@@ -113,9 +112,9 @@ public final class InstExpPi<Gen, Sk, X, Y>
 		SchExp t0 = I.type(G);
 		Pair<SchExp, SchExp> t1 = F.type(G);
 
-		if (!G.eq(t1.first, t0)) { 
-			throw new RuntimeException("Type error: In " + this + " domain of mapping is " + t1.first
-					+ " but instance has schema " + t0);
+		if (!G.eq(t1.first, t0)) {
+			throw new RuntimeException(
+					"Type error: In " + this + " domain of mapping is " + t1.first + " but instance has schema " + t0);
 		}
 
 		return t1.second;
@@ -127,11 +126,12 @@ public final class InstExpPi<Gen, Sk, X, Y>
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> eval0(AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> eval0(
+			AqlEnv env, boolean isC) {
 		QueryExp q = new QueryExpDeltaCoEval(F, Util.toList(options));
-		InstExpEval<Gen, Sk, X, Y> r = new InstExpEval<>(
-				q, I, Util.toList(options));
-		Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> w = r.eval(env, isC);
+		InstExpEval<Gen, Sk, X, Y> r = new InstExpEval<>(q, I, Util.toList(options));
+		Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> w = r
+				.eval(env, isC);
 		return w;
 	}
 

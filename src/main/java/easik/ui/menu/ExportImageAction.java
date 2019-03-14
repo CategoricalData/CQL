@@ -28,7 +28,8 @@ import easik.ui.FileFilter;
 /**
  * Menu action to export the current M as an image.
  */
-public class ExportImageAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class ExportImageAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -54,11 +55,10 @@ public class ExportImageAction<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 	}
 
 	/**
-	 * Creates a new image of the current M and prompts the user for a place to
-	 * save it. Displays a message if an error occurred.
+	 * Creates a new image of the current M and prompts the user for a place to save
+	 * it. Displays a message if an error occurred.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -68,7 +68,8 @@ public class ExportImageAction<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 			return;
 		}
 
-		FileFilter imageFilter = new FileFilter("Image files (*.png; *.jpg; *.gif; *.bmp)", "png", "jpg", "jpeg", "gif", "bmp");
+		FileFilter imageFilter = new FileFilter("Image files (*.png; *.jpg; *.gif; *.bmp)", "png", "jpg", "jpeg", "gif",
+				"bmp");
 		File selFile = FileChooser.saveFile("Export image", imageFilter, "png", _theModel.getName());
 
 		if (selFile == null) {
@@ -100,7 +101,8 @@ public class ExportImageAction<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 			return;
 		}
 
-		JOptionPane.showMessageDialog(_theModel.getFrame(), "Created " + selFile.getName() + " successfully", "Image Exported", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(_theModel.getFrame(), "Created " + selFile.getName() + " successfully",
+				"Image Exported", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**

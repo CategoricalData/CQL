@@ -39,15 +39,14 @@ public class FileQuitAction extends AbstractAction {
 		_theFrame = inFrame;
 
 		putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_Q));
-		putValue(Action.SHORT_DESCRIPTION, (inFrame instanceof ApplicationFrame) ? "Quit the EASIK Application" : "Close this EASIK Sketch Window");
+		putValue(Action.SHORT_DESCRIPTION, (inFrame instanceof ApplicationFrame) ? "Quit the EASIK Application"
+				: "Close this EASIK Sketch Window");
 	}
 
 	/**
-	 * Quits the application, warns if the sketch is dirty. \\FIXME no it
-	 * doesn't...
+	 * Quits the application, warns if the sketch is dirty. \\FIXME no it doesn't...
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

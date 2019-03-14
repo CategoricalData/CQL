@@ -5,10 +5,10 @@ import java.util.Map;
 import catdata.Util;
 import gnu.trove.map.hash.THashMap;
 
-public class Att  {
+public class Att {
 	public final String str;
 	public final En en;
-	
+
 	public synchronized static Att Att(En en, String str) {
 		Map<String, Att> m = SchExpRaw.attCache.get(en);
 		if (m == null) {
@@ -23,7 +23,7 @@ public class Att  {
 		m.put(str, att);
 		return att;
 	}
-	
+
 	private Att(En en, String str) {
 		this.str = str;
 		this.en = en;
@@ -41,7 +41,7 @@ public class Att  {
 
 	@Override
 	public String toString() {
-		return Util.maybeQuote(str); 
+		return Util.maybeQuote(str);
 	}
 
 	public String convert() {

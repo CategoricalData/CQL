@@ -87,8 +87,7 @@ public class XSDAnnotation {
 	/**
 	 * Add more annotations to this annotations. Merge if any existing.
 	 * 
-	 * @param other
-	 *            Other annotation
+	 * @param other Other annotation
 	 */
 	public void append(final XSDAnnotation other) {
 		documentation = documentation + lineSep + other.getDocumentation();
@@ -116,11 +115,13 @@ public class XSDAnnotation {
 		ret.append('<').append(nsPrefix).append(":annotation>").append(lineSep);
 
 		if (documentation.length() > 0) {
-			ret.append('<').append(nsPrefix).append(":documentation>").append(lineSep).append(documentation).append(lineSep).append("</").append(nsPrefix).append(":documentation>").append(lineSep);
+			ret.append('<').append(nsPrefix).append(":documentation>").append(lineSep).append(documentation)
+					.append(lineSep).append("</").append(nsPrefix).append(":documentation>").append(lineSep);
 		}
 
 		if ((null != appInfo) && (appInfo.length() > 0)) {
-			ret.append('<').append(nsPrefix).append(":appinfo>").append(lineSep).append(appInfo).append("</").append(nsPrefix).append(":appinfo>").append(lineSep);
+			ret.append('<').append(nsPrefix).append(":appinfo>").append(lineSep).append(appInfo).append("</")
+					.append(nsPrefix).append(":appinfo>").append(lineSep);
 		}
 
 		ret.append("</").append(nsPrefix).append(":annotation>");

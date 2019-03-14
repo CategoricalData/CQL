@@ -13,8 +13,7 @@ public abstract class XSDAbstractXPath extends XSDBaseNode {
 	/**
 	 * Create with no name.
 	 * 
-	 * @param path
-	 *            The XPATH element
+	 * @param path The XPATH element
 	 */
 	public XSDAbstractXPath(final String path) {
 		super(null);
@@ -25,8 +24,7 @@ public abstract class XSDAbstractXPath extends XSDBaseNode {
 	/**
 	 * Create with no name.
 	 * 
-	 * @param elt
-	 *            The element to get the PATH
+	 * @param elt The element to get the PATH
 	 */
 	public XSDAbstractXPath(final XSDAbstractElement elt) {
 		super(null);

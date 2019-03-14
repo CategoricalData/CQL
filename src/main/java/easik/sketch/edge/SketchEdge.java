@@ -38,15 +38,11 @@ public abstract class SketchEdge extends ModelEdge<SketchFrame, SketchGraphModel
 	/**
 	 * Creates a new edge between two entity nodes with the specified name.
 	 *
-	 * @param source
-	 *            The source entity node
-	 * @param target
-	 *            The target entity node
-	 * @param name
-	 *            The unique edge identifier
-	 * @param cascade
-	 *            The Cascade option for this edge (Cascade.CASCADE,
-	 *            Cascade.RESTRICT, Cascade.SET_NULL)
+	 * @param source  The source entity node
+	 * @param target  The target entity node
+	 * @param name    The unique edge identifier
+	 * @param cascade The Cascade option for this edge (Cascade.CASCADE,
+	 *                Cascade.RESTRICT, Cascade.SET_NULL)
 	 * @see NormalEdge
 	 * @see easik.sketch.edge.InjectiveEdge
 	 * @see easik.sketch.edge.PartialEdge
@@ -126,8 +122,7 @@ public abstract class SketchEdge extends ModelEdge<SketchFrame, SketchGraphModel
 	/**
 	 * Sets the name of this edge.
 	 * 
-	 * @param inName
-	 *            The unique name of the edge.
+	 * @param inName The unique name of the edge.
 	 */
 	public void setName(String inName) {
 		final String oldName = getName();
@@ -144,11 +139,10 @@ public abstract class SketchEdge extends ModelEdge<SketchFrame, SketchGraphModel
 	}
 
 	/**
-	 * Accessor for the injective attribute. For a SketchEdge object, this
-	 * always return false, however injective edge subclasses override this.
+	 * Accessor for the injective attribute. For a SketchEdge object, this always
+	 * return false, however injective edge subclasses override this.
 	 *
-	 * @return true if this edge is an injective edge (one-to-one); false
-	 *         otherwise
+	 * @return true if this edge is an injective edge (one-to-one); false otherwise
 	 */
 	@Override
 	public boolean isInjective() {
@@ -156,9 +150,9 @@ public abstract class SketchEdge extends ModelEdge<SketchFrame, SketchGraphModel
 	}
 
 	/**
-	 * Accessor for determing whether this edge is a partial map. For a
-	 * SketchEdge object, this always return false, however partial edge
-	 * subclasses may override this.
+	 * Accessor for determing whether this edge is a partial map. For a SketchEdge
+	 * object, this always return false, however partial edge subclasses may
+	 * override this.
 	 *
 	 * @return true if this edge is a partial map edge; false otherwise
 	 */
@@ -169,12 +163,11 @@ public abstract class SketchEdge extends ModelEdge<SketchFrame, SketchGraphModel
 
 	/**
 	 * Set the cascade mode to the passed-in mode. Note that
-	 * <code>Cascade.SET_NULL</code> will be ignored on a non-partial edge type
-	 * (if being called via the constructor, this means the edge will end up
-	 * with the default, <code>Cascade.RESTRICT</code>).
+	 * <code>Cascade.SET_NULL</code> will be ignored on a non-partial edge type (if
+	 * being called via the constructor, this means the edge will end up with the
+	 * default, <code>Cascade.RESTRICT</code>).
 	 * 
-	 * @param mode
-	 *            the cascade mode
+	 * @param mode the cascade mode
 	 */
 	@Override
 	public void setCascading(final Cascade mode) {
@@ -221,6 +214,7 @@ public abstract class SketchEdge extends ModelEdge<SketchFrame, SketchGraphModel
 	 * @return
 	 */
 	public String getForeignKeyName(final String pattern) {
-		return pattern.replaceAll("<target>", getTargetEntity().getName()).replaceAll("<source>", getSourceEntity().getName()).replaceAll("<edge>", getName());
+		return pattern.replaceAll("<target>", getTargetEntity().getName())
+				.replaceAll("<source>", getSourceEntity().getName()).replaceAll("<edge>", getName());
 	}
 }

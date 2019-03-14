@@ -65,8 +65,7 @@ public class DocumentInfoAction extends AbstractAction {
 	/**
 	 * Brings up a dialog to set the document header information.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@SuppressWarnings("unused")
 	@Override

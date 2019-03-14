@@ -18,7 +18,8 @@ import easik.model.vertex.ModelVertex;
  * @author Christian Fiddick
  * @date Summer 2012
  */
-public class TriangleEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends GuideEdge<F, GM, M, N, E> {
+public class TriangleEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends GuideEdge<F, GM, M, N, E> {
 	/**  */
 	private static final long serialVersionUID = 5105470457416734030L;
 
@@ -37,26 +38,21 @@ public class TriangleEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	private float width; // width of edge
 
 	/**
-	 * Creates a guide edge between a constraint vertex and a SketchNode. The
-	 * edge will default to highlighted if the node is the domain or codomain of
-	 * a path of the constraint, non-highlighted otherwise.
+	 * Creates a guide edge between a constraint vertex and a SketchNode. The edge
+	 * will default to highlighted if the node is the domain or codomain of a path
+	 * of the constraint, non-highlighted otherwise.
 	 *
-	 * @param con
-	 *            the Constraint object
-	 * @param node
-	 *            the EntityNode
-	 * @param color
-	 *            color of edge
-	 * @param width
-	 *            width of edge
-	 * @param lineEnd
-	 *            constant for line ending style, i.e
-	 *            GraphConstants.ARROW_CIRCLE
-	 * @param lineBegin
-	 *            constant for line beginning style, i.e
-	 *            GraphConstants.ARROW_CIRCLE
+	 * @param con       the Constraint object
+	 * @param node      the EntityNode
+	 * @param color     color of edge
+	 * @param width     width of edge
+	 * @param lineEnd   constant for line ending style, i.e
+	 *                  GraphConstants.ARROW_CIRCLE
+	 * @param lineBegin constant for line beginning style, i.e
+	 *                  GraphConstants.ARROW_CIRCLE
 	 */
-	public TriangleEdge(ModelConstraint<F, GM, M, N, E> con, N node, Color color, float width, int lineEnd, int lineBegin) {
+	public TriangleEdge(ModelConstraint<F, GM, M, N, E> con, N node, Color color, float width, int lineEnd,
+			int lineBegin) {
 		super(con, node);
 
 		this.color = color;

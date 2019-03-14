@@ -1,7 +1,6 @@
 
 package catdata.provers;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -13,10 +12,9 @@ import java.util.Set;
 import catdata.Util;
 import gnu.trove.set.hash.THashSet;
 
-public class MaedmaxProver<T, C, V> extends DPKB<T, C, V>  {
-	
-	
-	@Override 
+public class MaedmaxProver<T, C, V> extends DPKB<T, C, V> {
+
+	@Override
 	public void finalize() {
 		try {
 			writer.println("exit");
@@ -25,9 +23,9 @@ public class MaedmaxProver<T, C, V> extends DPKB<T, C, V>  {
 			proc.destroyForcibly();
 		} catch (Exception ex) {
 			try {
-	
+
 			} catch (Exception ex2) {
-				
+
 			}
 		}
 	}
@@ -36,17 +34,17 @@ public class MaedmaxProver<T, C, V> extends DPKB<T, C, V>  {
 	private final BufferedReader reader;
 	private final PrintWriter writer;
 	private final File g;
-	
-	//done elsewhere for convenience
-	//TODO CQL empty sorts check
-	public MaedmaxProver(String exePath, KBTheory<T,C,V> th, boolean allowEmptySorts, long seconds) {
+
+	// done elsewhere for convenience
+	// TODO CQL empty sorts check
+	public MaedmaxProver(String exePath, KBTheory<T, C, V> th, boolean allowEmptySorts, long seconds) {
 		super(th);
-		
+
 		File f = new File(exePath);
 		if (!f.exists()) {
 			throw new RuntimeException("File does not exist: " + exePath);
 		}
-		
+
 		if (!allowEmptySorts) {
 			Set<T> es = new THashSet<>();
 			th.inhabGen(es);
@@ -55,35 +53,34 @@ public class MaedmaxProver<T, C, V> extends DPKB<T, C, V>  {
 						+ " have no ground terms (consider allow_empty_sorts_unsafe = true).");
 			}
 		}
-		
+
 		try {
 			g = File.createTempFile("AqlMaedmax", ".tptp");
 			Util.writeFile(th.tptp_cnf(), g.getAbsolutePath());
-			//System.out.println(g.getAbsolutePath());
-			
+			// System.out.println(g.getAbsolutePath());
+
 			String str = exePath + " -T " + seconds + " --interactive " + g.getAbsolutePath();
 			proc = Runtime.getRuntime().exec(str);
-			
-			
+
 			reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			writer = new PrintWriter(proc.getOutputStream());
-			
+
 			String line = reader.readLine();
-			//System.out.println(line);
+			// System.out.println(line);
 			line = reader.readLine();
-			//System.out.println(line);
-			
-			
+			// System.out.println(line);
+
 			if (line == null) {
-				throw new RuntimeException("Call to maedmax yields null, process is alive: " + proc.isAlive() + ".  Command: " + str);
+				throw new RuntimeException(
+						"Call to maedmax yields null, process is alive: " + proc.isAlive() + ".  Command: " + str);
 			} // else if (!line.equals("OK")) {
-		//		throw new RuntimeException("Maedmax error: " + line);
-		//	}
-			
+			// throw new RuntimeException("Maedmax error: " + line);
+			// }
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 
 	@Override
@@ -94,22 +91,21 @@ public class MaedmaxProver<T, C, V> extends DPKB<T, C, V>  {
 		writer.println(kb.convert(lhs) + " = " + kb.convert(rhs));
 		writer.flush();
 		try {
-			reader.readLine(); //enter ... :
+			reader.readLine(); // enter ... :
 			String line = reader.readLine();
-			
+
 			if ("YES".equals(line)) {
 				return true;
 			} else if ("NO".equals(line)) {
 				return false;
 			}
-			throw new RuntimeException("Maedmax error on " + lhs + " = " + rhs + ", " + line + " is not YES or NO.\n\n" + kb.convert(lhs) + " = " + kb.convert(rhs) + "\n\n" + g.getAbsolutePath() );
+			throw new RuntimeException("Maedmax error on " + lhs + " = " + rhs + ", " + line + " is not YES or NO.\n\n"
+					+ kb.convert(lhs) + " = " + kb.convert(rhs) + "\n\n" + g.getAbsolutePath());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-
-	
 	@Override
 	public String toString() {
 		return "Maedmax prover";

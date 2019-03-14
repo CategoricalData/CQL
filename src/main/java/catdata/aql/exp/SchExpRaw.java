@@ -31,19 +31,18 @@ import gnu.trove.set.hash.THashSet;
 
 public final class SchExpRaw extends SchExp implements Raw {
 
-	public <R,P,E extends Exception> R accept(P params, SchExpVisitor<R,P,E> v) throws E {
+	public <R, P, E extends Exception> R accept(P params, SchExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Exp<?>> imports() {
 		return (Collection<Exp<?>>) (Object) imports;
 	}
-	
+
 	@Override
-	public <R, P, E extends Exception> SchExp coaccept(P params,
-			SchExpCoVisitor<R, P, E> v, R r) throws E {
+	public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
 		return v.visitSchExpRaw(params, r);
 	}
 
@@ -52,7 +51,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 	static Map<En, Map<String, Fk>> fkCache = new THashMap<>();
 
 	static Map<En, Map<String, Att>> attCache = new THashMap<>();
-	
+
 	public SchExp resolve(AqlTyping G, Program<Exp<?>> prog) {
 		return this;
 	}
@@ -61,7 +60,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 	public Collection<Pair<String, Kind>> deps() {
 		Set<Pair<String, Kind>> ret = new THashSet<>();
 		for (SchExp y : imports) {
-			ret.addAll(y.deps()); 			
+			ret.addAll(y.deps());
 		}
 		ret.addAll(typeSide.deps());
 		return ret;
@@ -72,15 +71,13 @@ public final class SchExpRaw extends SchExp implements Raw {
 		return options;
 	}
 
-	
 	@SuppressWarnings("unused")
 	@Override
 	public synchronized Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		TypeSide<Ty, Sym> ts = typeSide.eval(env, isC);
 		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new Collage<>(ts.collage());
 
-		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> 
-		eqs0 = (new THashSet<>());
+		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs0 = (new THashSet<>());
 
 		for (SchExp k : imports) {
 			Schema<Ty, En, Sym, Fk, Att> v = k.eval(env, isC);
@@ -146,18 +143,17 @@ public final class SchExpRaw extends SchExp implements Raw {
 			}
 		}
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : eqs0) {
-			col.eqs.add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)), eq.second, eq.third));
+			col.eqs.add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)), eq.second,
+					eq.third));
 		}
 
 		// forces type checking before prover construction
 		col.validate();
 
-		Schema ret = new Schema<>(ts, col, new AqlOptions(options, col, env.defaults));
+		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, col, env.defaults));
 		return ret;
 
 	}
-	
-
 
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
@@ -166,18 +162,14 @@ public final class SchExpRaw extends SchExp implements Raw {
 	}
 
 	private Map<Att, Pair<En, Ty>> conv2(Set<Pair<String, Pair<String, String>>> map) {
-		Set<Pair<Att, Pair<En, Ty>>> x = map.stream()
-				.map(p -> new Pair<>(Att.Att(En.En(p.second.first), p.first),
-						new Pair<>(En.En(p.second.first), Ty.Ty(p.second.second))))
-				.collect(Collectors.toSet());
+		Set<Pair<Att, Pair<En, Ty>>> x = map.stream().map(p -> new Pair<>(Att.Att(En.En(p.second.first), p.first),
+				new Pair<>(En.En(p.second.first), Ty.Ty(p.second.second)))).collect(Collectors.toSet());
 		return Util.toMapSafely(x);
 	}
 
 	private Map<Fk, Pair<En, En>> conv1(Set<Pair<String, Pair<String, String>>> map) {
-		Set<Pair<Fk, Pair<En, En>>> x = map.stream()
-				.map(p -> new Pair<>(Fk.Fk(En.En(p.second.first), p.first),
-						new Pair<>(En.En(p.second.first), En.En(p.second.second))))
-				.collect(Collectors.toSet());
+		Set<Pair<Fk, Pair<En, En>>> x = map.stream().map(p -> new Pair<>(Fk.Fk(En.En(p.second.first), p.first),
+				new Pair<>(En.En(p.second.first), En.En(p.second.second)))).collect(Collectors.toSet());
 		return Util.toMapSafely(x);
 	}
 
@@ -199,8 +191,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 
 	@Override
 	public String makeString() {
-		final StringBuilder sb = new StringBuilder()
-				.append("literal : ").append(typeSide).append(" {\n");
+		final StringBuilder sb = new StringBuilder().append("literal : ").append(typeSide).append(" {\n");
 
 		if (!imports.isEmpty()) {
 			sb.append("\timports");
@@ -349,11 +340,11 @@ public final class SchExpRaw extends SchExp implements Raw {
 
 	}
 
-	public void doGuiIndexing( List<LocStr> ens, List<Pair<LocStr, Pair<String, String>>> fks,
+	public void doGuiIndexing(List<LocStr> ens, List<Pair<LocStr, Pair<String, String>>> fks,
 			List<Pair<Integer, Pair<List<String>, List<String>>>> list, List<Pair<LocStr, Pair<String, String>>> atts,
 			List<Pair<Integer, Quad<String, String, RawTerm, RawTerm>>> list2) {
-		//List<InteriorLabel<Object>> i = InteriorLabel.imports("imports", imports);
-		//raw.put("imports", i);
+		// List<InteriorLabel<Object>> i = InteriorLabel.imports("imports", imports);
+		// raw.put("imports", i);
 		List<InteriorLabel<Object>> t = InteriorLabel.imports("entities", ens);
 		raw.put("entities", t);
 
@@ -395,11 +386,12 @@ public final class SchExpRaw extends SchExp implements Raw {
 		this.ens = (new THashSet<>(ens));
 		this.fks = (new THashSet<>(fks));
 		this.p_eqs = (new THashSet<>(list));
-		this.atts = (atts.stream().map(x->new Pair<>(x.first, new Pair<>(x.second.first, x.second.second.str))).collect(Collectors.toSet()));
+		this.atts = (atts.stream().map(x -> new Pair<>(x.first, new Pair<>(x.second.first, x.second.second.str)))
+				.collect(Collectors.toSet()));
 		this.t_eqs = (new THashSet<>(list2));
 		this.options = Util.toMapSafely(options);
-		//Util.toMapSafely(fks); // check no dups here rather than wait until eval
-		//Util.toMapSafely(atts);
+		// Util.toMapSafely(fks); // check no dups here rather than wait until eval
+		// Util.toMapSafely(atts);
 	}
 
 	@Override

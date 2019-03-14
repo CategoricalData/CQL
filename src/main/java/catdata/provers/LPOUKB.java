@@ -57,14 +57,14 @@ import gnu.trove.set.hash.THashSet;
  */
 public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 
-	static <T,C,V> Pair<KBExp<C, V>, KBExp<C, V>> freshen(KBTheory<T,C,V> kb, Iterator<V> fresh, Pair<KBExp<C, V>, KBExp<C, V>> eq) {
+	static <T, C, V> Pair<KBExp<C, V>, KBExp<C, V>> freshen(KBTheory<T, C, V> kb, Iterator<V> fresh,
+			Pair<KBExp<C, V>, KBExp<C, V>> eq) {
 		Map<V, KBExp<C, V>> subst = freshenMap(kb, fresh, eq).first;
 		return new Pair<>(eq.first.substitute(subst), eq.second.substitute(subst));
 	}
 
-	
-	private static <T,C,V> Pair<Map<V, KBExp<C, V>>, Map<V, KBExp<C, V>>> freshenMap(KBTheory<T,C,V> kb, Iterator<V> fresh,
-			Pair<KBExp<C, V>, KBExp<C, V>> eq) {
+	private static <T, C, V> Pair<Map<V, KBExp<C, V>>, Map<V, KBExp<C, V>>> freshenMap(KBTheory<T, C, V> kb,
+			Iterator<V> fresh, Pair<KBExp<C, V>, KBExp<C, V>> eq) {
 		Set<V> vars = (new THashSet<>());
 		KBExp<C, V> lhs = eq.first;
 		KBExp<C, V> rhs = eq.second;
@@ -133,7 +133,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 			R.add(freshen(fresh, new Triple<>((r.first), (r.second), r.third)));
 		}
 		this.fresh = fresh;
-		E = new ArrayList<>(2 * E0.size()); 
+		E = new ArrayList<>(2 * E0.size());
 		G = new ArrayList<>(2 * E0.size());
 		for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> x : E0) {
 			E.add(x);
@@ -279,8 +279,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 
 	private Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> freshen(Iterator<V> fresh,
 			Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> eq) {
-		Quad<Map<V, KBExp<C, V>>, Map<V, KBExp<C, V>>, Map<V, V>, Map<V, V>> xxx = freshenMap(fresh,
-				eq);
+		Quad<Map<V, KBExp<C, V>>, Map<V, KBExp<C, V>>, Map<V, V>, Map<V, V>> xxx = freshenMap(fresh, eq);
 		Map<V, KBExp<C, V>> subst = xxx.first;
 		return new Triple<>(eq.first.substitute(subst), eq.second.substitute(subst), subst(eq.third, xxx.third));
 	}
@@ -300,8 +299,8 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return ret;
 	}
 
-	private Quad<Map<V, KBExp<C, V>>, Map<V, KBExp<C, V>>, Map<V, V>, Map<V, V>> freshenMap(
-			Iterator<V> fresh, Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> eq) {
+	private Quad<Map<V, KBExp<C, V>>, Map<V, KBExp<C, V>>, Map<V, V>, Map<V, V>> freshenMap(Iterator<V> fresh,
+			Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> eq) {
 		Set<V> vars = new THashSet<>();
 		KBExp<C, V> lhs = eq.first;
 		KBExp<C, V> rhs = eq.second;
@@ -408,19 +407,18 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 			candX = freshen(fresh, cand);
 		}
 
-
 		Map<V, KBExp<C, V>> subst = findSubst(other.first, cand.first, other.third,
 				Util.union(groundInhabited, cand.third.values()));
 		if (subst == null) {
 			return null;
 		}
-		
-		Map<V, KBExp<C, V>> subst2 = findSubst(other.second.substitute(subst), cand.second.substitute(subst), other.third,
-				Util.union(groundInhabited, cand.third.values()));
+
+		Map<V, KBExp<C, V>> subst2 = findSubst(other.second.substitute(subst), cand.second.substitute(subst),
+				other.third, Util.union(groundInhabited, cand.third.values()));
 		if (subst2 == null) {
 			return null;
 		}
-		
+
 		return KBUnifier.andThen(subst, subst2);
 	}
 
@@ -497,11 +495,10 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 	}
 
 	// TODO: aql caching might be unsound here - reactivate if possible
-	private KBExp<C, V> red(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt,
+	private KBExp<C, V> red(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt,
 			@SuppressWarnings("unused") Map<KBExp<C, V>, KBExp<C, V>> cache,
 			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> Ex,
-			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> Ry, KBExp<C, V> e,
-			Collection<T> inhab0) {
+			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> Ry, KBExp<C, V> e, Collection<T> inhab0) {
 		Set<T> inhab = Util.union(inhab0, groundInhabited);
 		inhabGen(inhab);
 
@@ -517,11 +514,9 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		}
 	}
 
-	private KBExp<C, V> step(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt,
-			Map<KBExp<C, V>, KBExp<C, V>> cache,
+	private KBExp<C, V> step(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt, Map<KBExp<C, V>, KBExp<C, V>> cache,
 			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> E,
-			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R, KBExp<C, V> ee,
-			Set<T> inhab) {
+			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R, KBExp<C, V> ee, Set<T> inhab) {
 		if (ee.isVar()) {
 			return step1(gt, cache, E, R, ee, inhab);
 		}
@@ -535,8 +530,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 
 	}
 
-	private Map<V, KBExp<C, V>> findSubst(KBExp<C, V> lhs, KBExp<C, V> e, Map<V, T> lhsCtx,
-			Collection<T> allinhab) {
+	private Map<V, KBExp<C, V>> findSubst(KBExp<C, V> lhs, KBExp<C, V> e, Map<V, T> lhsCtx, Collection<T> allinhab) {
 		Map<V, KBExp<C, V>> s = KBUnifier.findSubst(lhs, e);
 		if (s == null || !applies(lhsCtx, s, allinhab)) {
 			return null;
@@ -544,11 +538,10 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return s;
 	}
 
-	private KBExp<C, V> step1(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt,
+	private KBExp<C, V> step1(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt,
 			@SuppressWarnings("unused") Map<KBExp<C, V>, KBExp<C, V>> cache,
 			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> E,
-			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R, KBExp<C, V> e0,
-			Set<T> inhab) {
+			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R, KBExp<C, V> e0, Set<T> inhab) {
 		KBExp<C, V> e = e0;
 		/*
 		 * if (cache != null && cache.containsKey(e)) { return cache.get(e); }
@@ -588,9 +581,8 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return inhab.containsAll(need);
 	}
 
-	private KBExp<C, V> step1Es(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt,
-			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> E, KBExp<C, V> e,
-			Collection<T> inhab) {
+	private KBExp<C, V> step1Es(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt,
+			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> E, KBExp<C, V> e, Collection<T> inhab) {
 		if (options.unfailing && e.getVars().isEmpty()) {
 			for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> r0 : E) {
 				KBExp<C, V> a = step1EsX(gt, r0, e, inhab);
@@ -606,9 +598,8 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return e;
 	}
 
-	private KBExp<C, V> step1EsX(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt,
-			Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> r0, KBExp<C, V> e,
-			Collection<T> inhab) {
+	private KBExp<C, V> step1EsX(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt,
+			Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> r0, KBExp<C, V> e, Collection<T> inhab) {
 		Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> r = r0;
 		// if (!Collections.disjoint(r.first.vars(), e.vars()) ||
 		// !Collections.disjoint(r.second.vars(), e.vars())) {
@@ -745,8 +736,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return ret;
 	}
 
-	private Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> cp(
-			Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> gd0,
+	private Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> cp(Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> gd0,
 			Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> ab0) {
 		// if (Thread.currentThread().isInterrupted()) {
 		// throw new InterruptedException();
@@ -754,8 +744,8 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> ab = freshen(fresh, ab0);
 		Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> gd = freshen(fresh, gd0);
 
-		Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, KBExp<C, V>>>> retX = gd.first
-				.cp(new LinkedList<>(), ab.first, ab.second, gd.first, gd.second);
+		Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, KBExp<C, V>>>> retX = gd.first.cp(new LinkedList<>(), ab.first,
+				ab.second, gd.first, gd.second);
 
 		Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> ret = new THashSet<>();
 		for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, KBExp<C, V>>> c : retX) {
@@ -833,7 +823,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 			}
 			Collection<PreOrder<V>> cands = PreOrder.allTotal(vars);
 			for (PreOrder<V> cand : cands) {
-				BiFunction<Chc<V,C>, Chc<V,C>, Boolean> r = wrapPreorderSk(cand, lift(prec));
+				BiFunction<Chc<V, C>, Chc<V, C>, Boolean> r = wrapPreorderSk(cand, lift(prec));
 				Map<V, KBExp<C, V>> m = new THashMap<>();
 				UnionFind<V> uf = new UnionFind<>(ctx.keySet().size(), ctx.keySet());
 				for (V v : vars) {
@@ -847,10 +837,8 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 					m.put(v, kb.factory.KBVar(uf.find(v)));
 				}
 
-				KBExp<C, V> s0 = red(r, null, Util.union(E, G), R, s.substitute(m),
-						ctx.values());
-				KBExp<C, V> t0 = red(r, null, Util.union(E, G), R, t.substitute(m),
-						ctx.values());
+				KBExp<C, V> s0 = red(r, null, Util.union(E, G), R, s.substitute(m), ctx.values());
+				KBExp<C, V> t0 = red(r, null, Util.union(E, G), R, t.substitute(m), ctx.values());
 
 				if (!s0.equals(t0)) {
 					continue outer;
@@ -861,7 +849,6 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return false;
 	}
 
-	
 	private static <X, V> BiFunction<Chc<V, X>, Chc<V, X>, Boolean> wrapPreorderSk(PreOrder<V> p,
 			BiFunction<X, X, Boolean> gt) {
 		return (lhs, rhs) -> {
@@ -876,10 +863,10 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		};
 	}
 
-	private boolean strongGroundJoinable(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt, KBExp<C, V> s,
-			KBExp<C, V> t, Map<V, T> ctx) {
+	private boolean strongGroundJoinable(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt, KBExp<C, V> s, KBExp<C, V> t,
+			Map<V, T> ctx) {
 		List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R0 = new TreeList<>();
-		
+
 		if (!s.equals(red(gt, null, G, R0, s, ctx.values()))) {
 			return false;
 		}
@@ -1051,8 +1038,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return newE;
 	}
 
-	private Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> pick(
-			List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> l) {
+	private Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> pick(List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> l) {
 		for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> x : l) {
 			if (orientable(x)) {
 				return x;
@@ -1066,7 +1052,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 	}
 
 	//
-	private boolean orientable(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt,
+	private boolean orientable(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt,
 			Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> e) {
 		return (gt_lpo(gt, e.first, e.second) || gt_lpo(gt, e.second, e.first));
 	}
@@ -1107,8 +1093,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 			}
 		}
 		for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> e : R) {
-			List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> set = filterSubsumed(
-					reduce(allcps(new THashSet<>(), e)));
+			List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> set = filterSubsumed(reduce(allcps(new THashSet<>(), e)));
 			if (!allCpsConfluent(print, ground, "rule" + e, set)) {
 				return false;
 			}
@@ -1117,8 +1102,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 	}
 
 	private boolean eqUpToSorting(KBExp<C, V> a, KBExp<C, V> b, Collection<T> inhab) {
-		List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R0 = new ArrayList<>(
-				AC_symbols.keySet().size());
+		List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R0 = new ArrayList<>(AC_symbols.keySet().size());
 		List<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> E0 = new LinkedList<>();
 
 		for (C f : AC_symbols.keySet()) {
@@ -1134,8 +1118,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 	}
 
 	private boolean allCpsConfluent(@SuppressWarnings("unused") boolean print, boolean ground,
-			@SuppressWarnings("unused") String s,
-			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> set) {
+			@SuppressWarnings("unused") String s, Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> set) {
 		outer: for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> e : set) {
 			KBExp<C, V> lhs = red(this::gtX, new THashMap<>(), Util.append(E, G), R, e.first, e.third.values());
 			KBExp<C, V> rhs = red(this::gtX, new THashMap<>(), Util.append(E, G), R, e.second, e.third.values());
@@ -1194,16 +1177,12 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		// }
 	}
 
-	/* public KBExp<C, V> inject(KBExp<C, V> x) {
-		if (x.isVar()) {
-			return (KBExp<C, V>) x;
-		}
-		List<KBExp<C, V>> new_args = new ArrayList<>(x.getArgs().size());
-		for (KBExp<C, V> arg : x.getArgs()) {
-			new_args.add(inject(arg));
-		}
-		return kb2.factory.KBApp(Chc.inRight(x.f()), new_args);
-	} */
+	/*
+	 * public KBExp<C, V> inject(KBExp<C, V> x) { if (x.isVar()) { return (KBExp<C,
+	 * V>) x; } List<KBExp<C, V>> new_args = new ArrayList<>(x.getArgs().size());
+	 * for (KBExp<C, V> arg : x.getArgs()) { new_args.add(inject(arg)); } return
+	 * kb2.factory.KBApp(Chc.inRight(x.f()), new_args); }
+	 */
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private static <X> BiFunction<X, X, Boolean> lift(List<X> prec) {
@@ -1236,20 +1215,18 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		};
 	}
 
-	private boolean gtX(Chc<V,C> lhs, Chc<V,C> rhs) {
-		BiFunction<Chc<V,C>, Chc<V,C>, Boolean> b = wrapMinSk(lift(prec));
+	private boolean gtX(Chc<V, C> lhs, Chc<V, C> rhs) {
+		BiFunction<Chc<V, C>, Chc<V, C>, Boolean> b = wrapMinSk(lift(prec));
 		return b.apply(lhs, rhs);
 	}
 
 	/////
 
-	private static <V, C> boolean gt_lpo(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt, KBExp<C, V> s,
-			KBExp<C, V> t) {
+	private static <V, C> boolean gt_lpo(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt, KBExp<C, V> s, KBExp<C, V> t) {
 		return gt_lpo1(gt, s, t) || gt_lpo2(gt, s, t);
 	}
 
-	private static <V, C> boolean gt_lpo1(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt, KBExp<C, V> s,
-			KBExp<C, V> t) {
+	private static <V, C> boolean gt_lpo1(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt, KBExp<C, V> s, KBExp<C, V> t) {
 		if (s.isVar()) {
 			return false;
 		}
@@ -1261,8 +1238,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return false;
 	}
 
-	private static <V, C> boolean gt_lpo2(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt, KBExp<C, V> S,
-			KBExp<C, V> T) {
+	private static <V, C> boolean gt_lpo2(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt, KBExp<C, V> S, KBExp<C, V> T) {
 		if (S.isVar() || T.isVar()) {
 			return false;
 		}
@@ -1277,7 +1253,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 		return gt.apply(Chc.inRight(S.f()), Chc.inRight(T.f()));
 	}
 
-	private static <V, C> boolean gt_lpo_lex(BiFunction<Chc<V,C>, Chc<V,C>, Boolean> gt, List<KBExp<C, V>> ss,
+	private static <V, C> boolean gt_lpo_lex(BiFunction<Chc<V, C>, Chc<V, C>, Boolean> gt, List<KBExp<C, V>> ss,
 			List<KBExp<C, V>> tt) {
 		if (ss.size() != tt.size()) {
 			throw new RuntimeException("Anomaly: please report");

@@ -10,7 +10,8 @@ import catdata.aql.Schema;
 import catdata.aql.Term;
 
 //TODO aql rename to constant?
-public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
+public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
+		extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
 	private final Schema<Ty, En, Sym, Fk, Att> schema;
 
@@ -22,10 +23,13 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instan
 	private final DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp;
 
 	private final Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg;
-	
+
 	boolean requireConsistency, allowUnsafeJava;
 
-	public LiteralInstance(Schema<Ty, En, Sym, Fk, Att> schema, Map<Gen, En> gens, Map<Sk, Ty> sks, Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs, DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg, boolean requireConsistency, boolean allowUnsafeJava) {
+	public LiteralInstance(Schema<Ty, En, Sym, Fk, Att> schema, Map<Gen, En> gens, Map<Sk, Ty> sks,
+			Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs,
+			DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg,
+			boolean requireConsistency, boolean allowUnsafeJava) {
 		Util.assertNotNull(schema, gens, sks, eqs, dp);
 		this.schema = schema;
 		this.gens = (gens);
@@ -36,7 +40,7 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instan
 		this.requireConsistency = requireConsistency;
 		this.allowUnsafeJava = allowUnsafeJava;
 		if (size() < 16 * 1024) {
-			validate(); 
+			validate();
 		}
 	}
 

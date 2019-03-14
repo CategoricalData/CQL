@@ -107,18 +107,15 @@ public class CongruenceProver<T, C, V> extends DPKB<T, C, V> {
 				KBExp<C, V> dd = kb.factory.KBApp(d, Collections.emptyList());
 				KBExp<C, V> zz = kb.factory.KBApp(c, Collections.singletonList(dd));
 				zz.allSubExps0(th.syms, t.second, pred);
-			
-				
-					
-				 
+
 			}
-		} 
+		}
 		doCong();
-		
-	//	p = new CongruenceProverUniform<>(th);
+
+		// p = new CongruenceProverUniform<>(th);
 	}
-	//CongruenceProverUniform<T, C, V>  p;
-	
+	// CongruenceProverUniform<T, C, V> p;
+
 	private synchronized void doCong2() {
 		doCong();
 	}
@@ -142,28 +139,25 @@ public class CongruenceProver<T, C, V> extends DPKB<T, C, V> {
 		T t = lhs.type(this.kb.syms, ctx);
 		boolean changed = lhs.allSubExps0(kb.syms, t, pred) | rhs.allSubExps0(kb.syms, t, pred);
 		if (changed) {
-			//System.out.println("triggered on " + lhs + " = " + rhs);
+			// System.out.println("triggered on " + lhs + " = " + rhs);
 			doCong2();
 		}
 		boolean b = ufs.get(t).connected(lhs, rhs);
-	//	boolean c = p.eq(ctx, lhs, rhs);
-	//	if (b != c) {
-	//		System.out.println(lhs + " = " + rhs);
-	//		System.out.println(b + " and " + c);
-	//		System.out.println(p.nf(lhs) + " eq " + p.nf(rhs));
-	//		System.out.println(this.kb.toString());
-			
+		// boolean c = p.eq(ctx, lhs, rhs);
+		// if (b != c) {
+		// System.out.println(lhs + " = " + rhs);
+		// System.out.println(b + " and " + c);
+		// System.out.println(p.nf(lhs) + " eq " + p.nf(rhs));
+		// System.out.println(this.kb.toString());
 
-	//		Util.anomaly();
-	//	}
+		// Util.anomaly();
+		// }
 		return b;
 	}
 
 	@Override
 	public synchronized void add(C c, T t) {
-		this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));		
+		this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
 	}
 
-
-	
 }

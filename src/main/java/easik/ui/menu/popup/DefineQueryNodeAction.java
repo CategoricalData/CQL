@@ -44,8 +44,8 @@ public class DefineQueryNodeAction extends AbstractAction {
 	}
 
 	/**
-	 * Prompts user for name and query values and make appropriate updates on
-	 * query node.
+	 * Prompts user for name and query values and make appropriate updates on query
+	 * node.
 	 *
 	 * @param ourNode
 	 */
@@ -87,7 +87,8 @@ public class DefineQueryNodeAction extends AbstractAction {
 			try {
 				ourNode.setQuery(query);
 			} catch (QueryException e) {
-				JOptionPane.showMessageDialog(ourView.getParent(), "New Query not set. Not valid query.\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(ourView.getParent(),
+						"New Query not set. Not valid query.\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 
 			if (hadWhere && ourNode.getWhere().isEmpty()) {
@@ -106,11 +107,10 @@ public class DefineQueryNodeAction extends AbstractAction {
 	}
 
 	/**
-	 * Fires updateNode(QueryNode ourNode) with the current selection, should
-	 * its size be equal to 1.
+	 * Fires updateNode(QueryNode ourNode) with the current selection, should its
+	 * size be equal to 1.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

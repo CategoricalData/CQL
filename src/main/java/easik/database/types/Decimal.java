@@ -32,8 +32,7 @@ public class Decimal extends EasikType {
 	/**
 	 * Recreates the object from the attributes returned by attributes().
 	 *
-	 * @param attr
-	 *            the attributes
+	 * @param attr the attributes
 	 */
 	public Decimal(final Map<String, String> attr) {
 		this(Integer.parseInt(attr.get("precision")), Integer.parseInt(attr.get("scale")));
@@ -92,12 +91,12 @@ public class Decimal extends EasikType {
 		if (decimal >= 0) {
 			if (decimal > precision - scale) {
 				return input.matches("^[-+]?\\d{0," + (precision - 1) + "}.\\d{1," + (precision - decimal) + "}$");
-			} 
-				return input.matches("^[-+]?\\d{0," + (precision - 1) + "}.\\d{1," + scale + "}$");
-			
-		} 
-			return input.matches("^[-+]?\\d{1," + precision + "}$");
-		
+			}
+			return input.matches("^[-+]?\\d{0," + (precision - 1) + "}.\\d{1," + scale + "}$");
+
+		}
+		return input.matches("^[-+]?\\d{1," + precision + "}$");
+
 	}
 
 	/**
@@ -146,7 +145,8 @@ public class Decimal extends EasikType {
 	 */
 	@Override
 	public XSDType getXMLSchemaType() {
-		final XSDRestriction dectype = new XSDRestriction("dec" + precision + '_' + scale, XSDBaseType.xsDecimal, FacetEnum.TOTALDIGITS, String.valueOf(precision));
+		final XSDRestriction dectype = new XSDRestriction("dec" + precision + '_' + scale, XSDBaseType.xsDecimal,
+				FacetEnum.TOTALDIGITS, String.valueOf(precision));
 
 		dectype.addFacet(FacetEnum.FRACTIONDIGITS, String.valueOf(scale));
 

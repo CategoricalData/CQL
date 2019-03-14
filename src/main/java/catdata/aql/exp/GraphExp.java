@@ -21,89 +21,91 @@ import catdata.graph.DMG;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public abstract class GraphExp<N,E> extends Exp<Graph<N,E>> {
+public abstract class GraphExp extends Exp<Graph<String, String>> {
 
 	@Override
 	public Kind kind() {
 		return Kind.GRAPH;
 	}
-	
+
 	public Unit type(AqlTyping t) {
 		return Unit.unit;
 	}
-	
-	public abstract Graph<N,E> resolve(Program<Exp<?>> G);
-	
-	 @Override
-	public synchronized Graph<N,E> eval0(AqlEnv env, boolean isC) { 
-		Graph<N,E> ret = resolve(env.prog);
+
+	public abstract Graph<String, String> resolve(Program<Exp<?>> G);
+
+	@Override
+	public synchronized Graph<String, String> eval0(AqlEnv env, boolean isC) {
+		Graph<String, String> ret = resolve(env.prog);
 		return ret;
-	} 
-	
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Exp<Graph<N,E>> Var(String v) {
+	public Exp<Graph<String, String>> Var(String v) {
 		Exp ret = new GraphExpVar(v);
 		return ret;
 	}
-	
+
 	public static interface GraphExpVisitor<R, P, E extends Exception> {
 		public abstract R visit(P params, GraphExpRaw exp) throws E;
+
 		public abstract <N> R visit(P params, GraphExpVar exp) throws E;
-		public abstract <N, Ex> R visit(P params, GraphExpLiteral<N, Ex> exp) throws E;
+
+		public abstract <String, Stringx> R visit(P params, GraphExpLiteral exp) throws E;
 	}
-	
+
 	public static interface GraphExpCoVisitor<R, P, E extends Exception> {
 		public abstract GraphExpRaw visitGraphExpRaw(P params, R exp) throws E;
+
 		public abstract <N> GraphExpVar visitGraphExpVar(P params, R exp) throws E;
-		public abstract <N, Ex> GraphExpLiteral<N, Ex> visitGraphExpLiteral(P params, R exp) throws E;
+
+		public abstract <String, Stringx> GraphExpLiteral visitGraphExpLiteral(P params, R exp) throws E;
 	}
-	
-	public abstract <R,P,Ex extends Exception> R accept(P params, GraphExpVisitor<R, P, Ex> v) throws Ex;
-	
-	
+
+	public abstract <R, P, Ex extends Exception> R accept(P params, GraphExpVisitor<R, P, Ex> v) throws Ex;
+
 	////////////////////////////
 
-	public static class GraphExpRaw extends GraphExp<String,String> implements Raw {
-		
-		
+	public static class GraphExpRaw extends GraphExp implements Raw {
+
 		@Override
 		public <R, P, E extends Exception> R accept(P param, GraphExpVisitor<R, P, E> v) throws E {
 			return v.visit(param, this);
 		}
-		
+
 		private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
-		
+
 		@Override
 		public Map<String, List<InteriorLabel<Object>>> raw() {
 			return raw;
-		} 
-		
+		}
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
 
 		public final Set<String> nodes;
-		public final Map<String,Pair<String,String>> edges;
-		
+		public final Map<String, Pair<String, String>> edges;
+
 		public final Set<GraphExp> imports;
 
 		public GraphExpRaw(List<LocStr> nodes, List<Pair<LocStr, Pair<String, String>>> edges, List<GraphExp> imports) {
 			this.nodes = LocStr.set1(nodes);
 			this.edges = Util.toMapSafely(LocStr.set2(edges));
 			this.imports = new THashSet<>(imports);
-			
-			//List<InteriorLabel<Object>> t = InteriorLabel.imports( "imports", imports);
-			//raw.put("imports", t);
-			
-			List<InteriorLabel<Object>> t = InteriorLabel.imports( "nodes", nodes);
+
+			// List<InteriorLabel<Object>> t = InteriorLabel.imports( "imports", imports);
+			// raw.put("imports", t);
+
+			List<InteriorLabel<Object>> t = InteriorLabel.imports("nodes", nodes);
 			raw.put("nodes", t);
-			
+
 			List<InteriorLabel<Object>> f = new ArrayList<>(edges.size());
 			for (Pair<LocStr, Pair<String, String>> p : edges) {
-				f.add(new InteriorLabel<>("edges", new Triple<>(p.first.str, p.second.first, p.second.second), p.first.loc,
-						x -> x.first + " : " + x.second + " -> " + x.third).conv());
+				f.add(new InteriorLabel<>("edges", new Triple<>(p.first.str, p.second.first, p.second.second),
+						p.first.loc, x -> x.first + " : " + x.second + " -> " + x.third).conv());
 			}
 			raw.put("edges", f);
 		}
@@ -145,18 +147,17 @@ public abstract class GraphExp<N,E> extends Exp<Graph<N,E>> {
 			return true;
 		}
 
-		@SuppressWarnings({ "unchecked" })
 		@Override
 		public synchronized Graph<String, String> resolve(Program<Exp<?>> G) {
 			Set<String> nodes = (new THashSet<>(this.nodes));
 			Map<String, Pair<String, String>> edges = (new THashMap<>(this.edges));
 			for (GraphExp s : imports) {
-				Graph<String, String> g = ((GraphExp<String, String>) s).resolve(G);
+				Graph<String, String> g = s.resolve(G);
 				nodes.addAll(g.dmg.nodes);
 				edges.putAll(g.dmg.edges);
 			}
 			return new Graph<>(new DMG<>(nodes, edges));
-		} 
+		}
 
 		@Override
 		public String makeString() {
@@ -164,18 +165,13 @@ public abstract class GraphExp<N,E> extends Exp<Graph<N,E>> {
 				return "literal {}";
 			}
 			final StringBuilder sb = new StringBuilder();
-			
+
 			List<String> l = new LinkedList<>();
-			for (Object e  : edges.keySet()) {
+			for (Object e : edges.keySet()) {
 				l.add(e + ": " + edges.get(e).first + " -> " + edges.get(e).second);
 			}
-			return sb
-				.append("literal {\n\tnodes\n\t\t")
-				.append(Util.sep(nodes, " "))
-				.append("\n\tedges\n\t\t")
-				.append(Util.sep(l, "\n\t\t"))
-				.append("\n}")
-				.toString();
+			return sb.append("literal {\n\tnodes\n\t\t").append(Util.sep(nodes, " ")).append("\n\tedges\n\t\t")
+					.append(Util.sep(l, "\n\t\t")).append("\n}").toString();
 		}
 
 		@Override
@@ -189,40 +185,35 @@ public abstract class GraphExp<N,E> extends Exp<Graph<N,E>> {
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
-		
+
 		}
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
+
 		}
 
-	
 	}
 
-	
-	
 	////////////////////////////
-	
-	public static class GraphExpLiteral<N,E> extends GraphExp<N,E> {
+
+	public static class GraphExpLiteral extends GraphExp {
 
 		@Override
-		public <R,P,Ex extends Exception> R accept(P param, GraphExpVisitor<R,P,Ex> v) throws Ex {
+		public <R, P, Ex extends Exception> R accept(P param, GraphExpVisitor<R, P, Ex> v) throws Ex {
 			return v.visit(param, this);
 		}
-		
-		public final DMG<N, E> graph;
-		
+
+		public final DMG<String, String> graph;
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
-		
-		public GraphExpLiteral(DMG<N, E> graph) {
+
+		public GraphExpLiteral(DMG<String, String> graph) {
 			this.graph = graph;
 		}
-
-		
 
 		@Override
 		public String toString() {
@@ -242,7 +233,7 @@ public abstract class GraphExp<N,E> extends Exp<Graph<N,E>> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			GraphExpLiteral<?,?> other = (GraphExpLiteral<?,?>) obj;
+			GraphExpLiteral other = (GraphExpLiteral) obj;
 			if (graph == null) {
 				if (other.graph != null)
 					return false;
@@ -261,48 +252,45 @@ public abstract class GraphExp<N,E> extends Exp<Graph<N,E>> {
 		}
 
 		@Override
-		public Graph<N, E> resolve(Program<Exp<?>> G) {
+		public Graph<String, String> resolve(Program<Exp<?>> G) {
 			return new Graph<>(graph);
 		}
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
+
 		}
-		
-		
-		
+
 	}
 
 	//////////////
-	
-	public static final class GraphExpVar extends GraphExp<Object, Object> {
+
+	public static final class GraphExpVar extends GraphExp {
 		public final String var;
-		
+
 		@Override
-		public <R,P,Ex extends Exception> R accept(P param, GraphExpVisitor<R,P,Ex> v) throws Ex {
+		public <R, P, Ex extends Exception> R accept(P param, GraphExpVisitor<R, P, Ex> v) throws Ex {
 			return v.visit(param, this);
 		}
-		
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
-		
+
 		@Override
 		public boolean isVar() {
 			return true;
 		}
+
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
-			return Collections.singleton(new Pair<>(var, Kind.INSTANCE));
+			return Collections.singleton(new Pair<>(var, Kind.GRAPH));
 		}
-		
+
 		public GraphExpVar(String var) {
 			this.var = var;
 		}
-
-		
 
 		@Override
 		public int hashCode() {
@@ -335,18 +323,16 @@ public abstract class GraphExp<N,E> extends Exp<Graph<N,E>> {
 		protected void allowedOptions(Set<AqlOption> set) {
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public Graph<Object, Object> resolve(Program<Exp<?>> G) {
-			return ((GraphExp<Object,Object>)G.exps.get(var)).resolve(G);
+		public Graph<String, String> resolve(Program<Exp<?>> G) {
+			return ((GraphExp) G.exps.get(var)).resolve(G);
 		}
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
+
 		}
-		
+
 	}
-	
-	
+
 }

@@ -93,8 +93,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	private boolean _syncLock;
 
 	/**
-	 * An update monitor that can be used when performing operations on this
-	 * sketch
+	 * An update monitor that can be used when performing operations on this sketch
 	 */
 	@SuppressWarnings("unused")
 	private UpdateMonitor _updateMonitor;
@@ -113,14 +112,12 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	private String pPaths = "";
 
 	/**
-	 * The default constructor sets all the visual settings for the JGraph, as
-	 * well as initialising the sketch to be empty. It also adds appropriate
-	 * listeners for all of the actions we are concerned with.
+	 * The default constructor sets all the visual settings for the JGraph, as well
+	 * as initialising the sketch to be empty. It also adds appropriate listeners
+	 * for all of the actions we are concerned with.
 	 *
-	 * @param inFrame
-	 *            The application frame of the sketch
-	 * @param inOverview
-	 *            the overview
+	 * @param inFrame    The application frame of the sketch
+	 * @param inOverview the overview
 	 */
 	public Sketch(final SketchFrame inFrame, final Overview inOverview) {
 		super(inFrame, inOverview);
@@ -135,9 +132,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 			public void mouseClicked(final MouseEvent e) {
 				// Ignore it if we're not in the basic editing state:
 				/*
-				 * we don't want to ignore it any more since we want to allow
-				 * the creation of edges and nodes as we go in the constraint
-				 * creation. For ease of use
+				 * we don't want to ignore it any more since we want to allow the creation of
+				 * edges and nodes as we go in the constraint creation. For ease of use
 				 * 
 				 * if (!(Sketch.this.getStateManager().peekState() instanceof
 				 * BasicEditingState)) { return; }
@@ -158,7 +154,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 
 						editEdgeAction.doClick();
 					}
-				} else if ((_Frame.getMode() == SketchFrame.Mode.MANIPULATE) && doubleClick && (selection.length == 1)) {
+				} else if ((_Frame.getMode() == SketchFrame.Mode.MANIPULATE) && doubleClick
+						&& (selection.length == 1)) {
 					if (selection[0] instanceof EntityNode) {
 						// hack to get rename action
 						final JMenuItem seeContentsAction = new JMenuItem(new ViewDataAction(_Frame.getMModel()));
@@ -180,7 +177,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 
 		final String pCascade = Easik.getInstance().getSettings().getProperty("sql_cascade_partial", "set_null");
 
-		_defaultPartialCascade = pCascade.equals("cascade") ? Cascade.CASCADE : pCascade.equals("restrict") ? Cascade.RESTRICT : Cascade.SET_NULL;
+		_defaultPartialCascade = pCascade.equals("cascade") ? Cascade.CASCADE
+				: pCascade.equals("restrict") ? Cascade.RESTRICT : Cascade.SET_NULL;
 
 	}
 
@@ -196,7 +194,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 
 		model = new SketchGraphModel(this);
 
-		final GraphLayoutCache glc = new GraphLayoutCache(model, new ModelViewFactory<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>());
+		final GraphLayoutCache glc = new GraphLayoutCache(model,
+				new ModelViewFactory<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>());
 
 		setModel(model);
 		setGraphLayoutCache(glc);
@@ -206,7 +205,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 
 		if (_Frame.getInfoTreeUI() != null) {
 			_Frame.setInfoTreeUI(new ModelInfoTreeUI<>(_Frame)); // Wipe
-																																// Tree
+																	// Tree
 			_Frame.getInfoTreeUI().refreshTree();
 		}
 
@@ -222,20 +221,17 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	 * Used to initialise a new sketch based on provided data (usually from the
 	 * Sketch loading methods).
 	 *
-	 * @param syncLock
-	 *            ?
-	 * @param entityNodes
-	 *            A map of all of the entities in the sketch
-	 * @param edges
-	 *            A map containing all of the edges in the sketch
-	 * @param linkedList
-	 *            A collection of the constraints of the sketch
-	 * @param head
-	 *            The header created from the loaded XML file.
-	 * @param connParams
-	 *            connection params
+	 * @param syncLock    ?
+	 * @param entityNodes A map of all of the entities in the sketch
+	 * @param edges       A map containing all of the edges in the sketch
+	 * @param linkedList  A collection of the constraints of the sketch
+	 * @param head        The header created from the loaded XML file.
+	 * @param connParams  connection params
 	 */
-	public String initializeFromData(final boolean syncLock, final Map<String, EntityNode> entityNodes, final Map<String, SketchEdge> edges, final LinkedList<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> linkedList, final DocumentInfo head, final Map<String, String> connParams) {
+	public String initializeFromData(final boolean syncLock, final Map<String, EntityNode> entityNodes,
+			final Map<String, SketchEdge> edges,
+			final LinkedList<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> linkedList,
+			final DocumentInfo head, final Map<String, String> connParams) {
 		initialiseModel();
 
 		_syncLock = syncLock;
@@ -271,9 +267,9 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 		// warnigns to true
 		if (warning != null && tempWarnings) {
 			return warning;
-		} 
-			return null;
-		
+		}
+		return null;
+
 	}
 
 	/**
@@ -289,8 +285,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Removes a view with a given name from our set of views.
 	 * 
-	 * @param name
-	 *            The name of the view.
+	 * @param name The name of the view.
 	 */
 	public void removeView(final String name) {
 		_views.remove(name);
@@ -299,27 +294,22 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Adds a view to our set of views
 	 * 
-	 * @param view
-	 *            The view to add to our set
+	 * @param view The view to add to our set
 	 */
 	public void addView(final ViewNode view) {
 		_views.put(view.getName(), view);
 	}
 
 	/**
-	 * Called internally by SketchEdge when an edge is renamed, to keep the edge
-	 * map consistent. Should not be called directly; instead just call
+	 * Called internally by SketchEdge when an edge is renamed, to keep the edge map
+	 * consistent. Should not be called directly; instead just call
 	 * edge.setName("newname").
 	 *
 	 * @see easik.sketch.edge.SketchEdge#setName(String)
-	 * @param edge
-	 *            the edge being renamed
-	 * @param oldName
-	 *            the old name of the edge
-	 * @param newName
-	 *            the candidate new name
-	 * @return a string containing the final new edge name, for SketchEdge to
-	 *         use.
+	 * @param edge    the edge being renamed
+	 * @param oldName the old name of the edge
+	 * @param newName the candidate new name
+	 * @return a string containing the final new edge name, for SketchEdge to use.
 	 */
 	@Override
 	public String edgeRenamed(final SketchEdge edge, final String oldName, String newName) {
@@ -336,8 +326,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Requests that an XML file be loaded into the sketch.
 	 *
-	 * @param inputFile
-	 *            The file from which the data will be drawn.
+	 * @param inputFile The file from which the data will be drawn.
 	 * @return The success of the load
 	 */
 	public boolean loadFromXML(final File inputFile) {
@@ -345,17 +334,16 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 			_theOverview.removeSketch(_Frame.getNode());
 
 			return false;
-		} 
-			return true;
-		
+		}
+		return true;
+
 	}
 
 	/**
-	 * Removes an entity, and also cascades to remove all the arrows involved
-	 * with it.
+	 * Removes an entity, and also cascades to remove all the arrows involved with
+	 * it.
 	 *
-	 * @param toRemove
-	 *            The entity about to be removed
+	 * @param toRemove The entity about to be removed
 	 */
 	@Override
 	public void removeNode(final EntityNode toRemove) {
@@ -406,13 +394,13 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Removes an edge, also cascades to remove all constraints using it.
 	 *
-	 * @param toRemove
-	 *            The edge about to be removed
+	 * @param toRemove The edge about to be removed
 	 */
 	public void removeEdge(final SketchEdge toRemove) {
 		model.beginUpdate();
 		// Check for constraints that need these edges
-		for (final ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> c : _constraints.values()) {
+		for (final ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> c : _constraints
+				.values()) {
 			if (c.hasEdge(toRemove)) {
 				removeConstraint(c);
 			}
@@ -422,7 +410,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 			final EntityNode source = toRemove.getSourceEntity();
 			boolean needCleanup = false;
 
-			for (final UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : source.getUniqueKeys()) {
+			for (final UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : source
+					.getUniqueKeys()) {
 				if (q.removeElement((UniqueIndexable) toRemove)) {
 					needCleanup = true;
 				}
@@ -468,8 +457,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Saves the existing sketch as an XML file.
 	 *
-	 * @param outputFile
-	 *            The file to be written to
+	 * @param outputFile The file to be written to
 	 */
 	public void saveToXML(final File outputFile) {
 		SketchFileIO.sketchToXML(outputFile, this);
@@ -478,12 +466,9 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Add a new, empty entity at point X, Y
 	 *
-	 * @param name
-	 *            The name of the new entity being added
-	 * @param x
-	 *            X Coordinate of new entity
-	 * @param y
-	 *            Y Coordinate of new entity
+	 * @param name The name of the new entity being added
+	 * @param x    X Coordinate of new entity
+	 * @param y    Y Coordinate of new entity
 	 */
 	@Override
 	public void addNewNode(final String name, final double x, final double y) {
@@ -495,12 +480,11 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	}
 
 	/**
-	 * Add one or more entities, or an array of entities, to the graph, dealing
-	 * with all of the dependencies.
+	 * Add one or more entities, or an array of entities, to the graph, dealing with
+	 * all of the dependencies.
 	 *
-	 * @param theEntities
-	 *            one or more EntityNodes (or an array of entitynodes) to be
-	 *            added
+	 * @param theEntities one or more EntityNodes (or an array of entitynodes) to be
+	 *                    added
 	 */
 	public void addEntity(final EntityNode... theEntities) {
 		addEntity(Arrays.asList(theEntities));
@@ -509,8 +493,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Adds a collection (set, list, etc.) of EntityNodes to the graph.
 	 *
-	 * @param theEntities
-	 *            the collection of entities to be added.
+	 * @param theEntities the collection of entities to be added.
 	 */
 	public void addEntity(final Collection<EntityNode> theEntities) {
 		// Push loading state
@@ -578,9 +561,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Adds one or more edges (or an array of edges) to the sketch.
 	 *
-	 * @param inEdges
-	 *            one or more SketchEdges (or an array of sketchedges) to be
-	 *            added
+	 * @param inEdges one or more SketchEdges (or an array of sketchedges) to be
+	 *                added
 	 */
 	public String addEdge(final SketchEdge... inEdges) {
 		String warning = addEdge(Arrays.asList(inEdges));
@@ -593,8 +575,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Adds a collection (set, list, etc.) of edges to the sketch.
 	 *
-	 * @param inEdges
-	 *            Collection of SketchEdges to add
+	 * @param inEdges Collection of SketchEdges to add
 	 */
 	public String addEdge(final Collection<SketchEdge> inEdges) {
 		// Push loading state
@@ -622,7 +603,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 		// if there is a cycle, we want to use warnigns, and we have not warned
 		// about this cycle previously
 		if (setHasCycle(!strongConnected.isEmpty()) && !prevCycle.equals(strongConnected)) {
-			warning += this.getName() + " contains a strongly connected component" + "\n        " + strongConnected + "\n";
+			warning += this.getName() + " contains a strongly connected component" + "\n        " + strongConnected
+					+ "\n";
 		}
 
 		// if there is a mismatched path pair in the sketch
@@ -674,10 +656,10 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	}
 
 	/**
-	 * Method that checks if there are paths with the same domain and codomain
-	 * and then sees if they mismatch. We only care about when one of the paths
-	 * is all cascade and the other path contains an edge which is not cascade.
-	 * In this case we will warn the user.
+	 * Method that checks if there are paths with the same domain and codomain and
+	 * then sees if they mismatch. We only care about when one of the paths is all
+	 * cascade and the other path contains an edge which is not cascade. In this
+	 * case we will warn the user.
 	 * 
 	 * @return String warning
 	 * @author Federico Mora
@@ -736,7 +718,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 							}
 						}
 						if (cascade && other) {
-							warning += this.getName() + " contains multiple paths from " + s.getName() + " to " + t.getName() + "\n";
+							warning += this.getName() + " contains multiple paths from " + s.getName() + " to "
+									+ t.getName() + "\n";
 							for (ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> p : paths) {
 								if (p.isCompositeCascade()) {
 									warning += "        " + p.toString() + " is Aggregate Cascade\n";
@@ -809,11 +792,10 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	}
 
 	/**
-	 * Checks to see if a name is in use, so that we will not have several
-	 * instances at once.
+	 * Checks to see if a name is in use, so that we will not have several instances
+	 * at once.
 	 *
-	 * @param inName
-	 *            The desired new name to check against
+	 * @param inName The desired new name to check against
 	 * @return Is it used or not.
 	 */
 	@Override
@@ -840,8 +822,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Returns the first available unique edge identifier
 	 * 
-	 * @param isInjective
-	 *            true if the edge is injective, false otherwise
+	 * @param isInjective true if the edge is injective, false otherwise
 	 * @return The next id
 	 */
 	public String getNewEdgeName(final boolean isInjective) {
@@ -861,11 +842,10 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	}
 
 	/**
-	 * Checks to see if a name is in use, so that we will not have several
-	 * instances at once. For edges.
+	 * Checks to see if a name is in use, so that we will not have several instances
+	 * at once. For edges.
 	 *
-	 * @param inName
-	 *            The desired new edge name to check against
+	 * @param inName The desired new edge name to check against
 	 * @return Is it used or not.
 	 */
 	public boolean isEdgeNameUsed(final String inName) {
@@ -935,8 +915,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	}
 
 	/**
-	 * Let the user choose from the appropriate set of installed server
-	 * exporting database drivers.
+	 * Let the user choose from the appropriate set of installed server exporting
+	 * database drivers.
 	 * 
 	 * @return Chosen database driver
 	 */
@@ -957,10 +937,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Pop up a dialog box for the user to choose database drivers from.
 	 * 
-	 * @param activeTypes
-	 *            The database drivers to choose from
-	 * @param defaultProperty
-	 *            Name of default property to fall back to
+	 * @param activeTypes     The database drivers to choose from
+	 * @param defaultProperty Name of default property to fall back to
 	 * @return The selected database driver type (MySQL, PostgreSQL, etc.)
 	 */
 	public String getDBType(final String[] activeTypes, String defaultProperty) {
@@ -981,15 +959,15 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 			}
 		}
 
-		return (String) JOptionPane.showInputDialog(getFrame(), "Please select the database type to use", "Choose database type", JOptionPane.INFORMATION_MESSAGE, null, activeTypes, activeTypes[defaultIndex]);
+		return (String) JOptionPane.showInputDialog(getFrame(), "Please select the database type to use",
+				"Choose database type", JOptionPane.INFORMATION_MESSAGE, null, activeTypes, activeTypes[defaultIndex]);
 	}
 
 	/**
-	 * Stores the map of db connection options reflecting the last connection
-	 * used for this sketch. We don't allow "password" to be stored.
+	 * Stores the map of db connection options reflecting the last connection used
+	 * for this sketch. We don't allow "password" to be stored.
 	 *
-	 * @param params
-	 *            Map of connection parameters to store
+	 * @param params Map of connection parameters to store
 	 * @return true if the connection parameters are changed.
 	 * @see #getConnectionParams()
 	 */
@@ -1014,15 +992,13 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 
 	/**
 	 * Sets a single connection parameter in the current db connection options
-	 * hashmap. Returns true if the value is new (that is, it didn't exist, or
-	 * it was set to something else).
+	 * hashmap. Returns true if the value is new (that is, it didn't exist, or it
+	 * was set to something else).
 	 *
-	 * @param key
-	 *            the connection parameter name
-	 * @param value
-	 *            the connection parameter value
-	 * @return true if the connection params are now different as a result of
-	 *         this change
+	 * @param key   the connection parameter name
+	 * @param value the connection parameter value
+	 * @return true if the connection params are now different as a result of this
+	 *         change
 	 * @see #setConnectionParams(java.util.Map)
 	 */
 	public boolean setConnectionParam(final String key, final String value) {
@@ -1040,8 +1016,8 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	}
 
 	/**
-	 * Returns a map of saved db connection options reflecting the last
-	 * connection used for this sketch (saved by setConnectionParams()).
+	 * Returns a map of saved db connection options reflecting the last connection
+	 * used for this sketch (saved by setConnectionParams()).
 	 *
 	 * @return Map of String, String pairs
 	 * @see #setConnectionParams(java.util.Map)
@@ -1053,10 +1029,9 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Sets the default cascade mode for new non-partial edges of this sketch.
 	 *
-	 * @param newDefault
-	 *            the new Cascade mode, e.g. <code>Cascade.RESTRICT</code>.
-	 *            <code>Cascade.SET_NULL</code> is not permitted: if passed, it
-	 *            will be ignored.
+	 * @param newDefault the new Cascade mode, e.g. <code>Cascade.RESTRICT</code>.
+	 *                   <code>Cascade.SET_NULL</code> is not permitted: if passed,
+	 *                   it will be ignored.
 	 */
 	public void setDefaultCascading(final Cascade newDefault) {
 		if (newDefault == Cascade.SET_NULL) {
@@ -1079,8 +1054,7 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	/**
 	 * Sets the default cascade mode for new partial edges of this sketch.
 	 *
-	 * @param newDefault
-	 *            the new Cascade mode, e.g. <code>Cascade.SET_NULL</code>.
+	 * @param newDefault the new Cascade mode, e.g. <code>Cascade.SET_NULL</code>.
 	 */
 	public void setDefaultPartialCascading(final Cascade newDefault) {
 		_defaultPartialCascade = newDefault;
@@ -1097,11 +1071,10 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 	}
 
 	/**
-	 * Sets our sync flag flag. This indicates whether or not we are synced with
-	 * a db and wish to lock editing.
+	 * Sets our sync flag flag. This indicates whether or not we are synced with a
+	 * db and wish to lock editing.
 	 * 
-	 * @param state
-	 *            The state of our exported flag.
+	 * @param state The state of our exported flag.
 	 */
 	@Override
 	public void setSynced(final boolean state) {
@@ -1114,11 +1087,11 @@ public class Sketch extends Model<SketchFrame, SketchGraphModel, Sketch, EntityN
 
 	/**
 	 * Returns the state of our sync flag. Any time a command would be issued to
-	 * edit this sketch, a call should be made to this method. If it returns
-	 * true, editing cannot occur safely.
+	 * edit this sketch, a call should be made to this method. If it returns true,
+	 * editing cannot occur safely.
 	 * 
-	 * @return A flag indicating if this sketch has been synced with a db. If
-	 *         true, any changes to the sketch may destroy the link to the db.
+	 * @return A flag indicating if this sketch has been synced with a db. If true,
+	 *         any changes to the sketch may destroy the link to the db.
 	 */
 	@Override
 	public boolean isSynced() {

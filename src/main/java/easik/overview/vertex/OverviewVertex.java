@@ -52,12 +52,9 @@ public abstract class OverviewVertex extends DefaultGraphCell {
 	/**
 	 * Create a vertex with basic attributes
 	 * 
-	 * @param name
-	 *            Label
-	 * @param x
-	 *            X coordinate
-	 * @param y
-	 *            Y coordinate
+	 * @param name Label
+	 * @param x    X coordinate
+	 * @param y    Y coordinate
 	 */
 	public OverviewVertex(String name, int x, int y) {
 		_name = name;
@@ -69,9 +66,8 @@ public abstract class OverviewVertex extends DefaultGraphCell {
 	}
 
 	/**
-	 * Must be implemented by subclasses if there is oppertunity for this
-	 * vertex's name to be changed elsewhere, leaving the locally stored name
-	 * outdated.
+	 * Must be implemented by subclasses if there is oppertunity for this vertex's
+	 * name to be changed elsewhere, leaving the locally stored name outdated.
 	 */
 	public abstract void updateName();
 
@@ -112,10 +108,9 @@ public abstract class OverviewVertex extends DefaultGraphCell {
 
 		if (bounds != null) {
 			return (int) bounds.getX();
-		} 
-			return _initX;
 		}
-	
+		return _initX;
+	}
 
 	/**
 	 * Accessor for the Y Coordinate
@@ -127,9 +122,9 @@ public abstract class OverviewVertex extends DefaultGraphCell {
 
 		if (bounds != null) {
 			return (int) bounds.getY();
-		} 
-			return _initY;
-		
+		}
+		return _initY;
+
 	}
 
 	/**
@@ -159,8 +154,7 @@ public abstract class OverviewVertex extends DefaultGraphCell {
 	}
 
 	/**
-	 * Gets the current thumbnail as an ImageIcon of the sketch this node
-	 * represents
+	 * Gets the current thumbnail as an ImageIcon of the sketch this node represents
 	 *
 	 * @return
 	 */
@@ -171,16 +165,15 @@ public abstract class OverviewVertex extends DefaultGraphCell {
 	/**
 	 * Sets the current thumbnail to be rendered on this node
 	 *
-	 * @param inThumb
-	 *            the Image to use for the thumbnail
+	 * @param inThumb the Image to use for the thumbnail
 	 */
 	public void setThumbnail(Image inThumb) {
 		_thumb = (inThumb == null) ? null : new ImageIcon(inThumb);
 	}
 
 	/**
-	 * Returns this vertex wrapped in a DefaultMutableTreeNode object. This
-	 * method should be overridden by children classes
+	 * Returns this vertex wrapped in a DefaultMutableTreeNode object. This method
+	 * should be overridden by children classes
 	 *
 	 * @return
 	 */

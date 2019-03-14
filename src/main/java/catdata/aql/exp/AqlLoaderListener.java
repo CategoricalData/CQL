@@ -1,9 +1,11 @@
 //
 package catdata.aql.exp;
+
 public class AqlLoaderListener {
 
 	public Object decls;
-	public Object kind; }
+	public Object kind;
+}
 //
 //import java.util.HashMap;
 //import java.util.LinkedList;

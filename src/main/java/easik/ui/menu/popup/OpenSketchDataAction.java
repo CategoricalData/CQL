@@ -53,8 +53,7 @@ public class OpenSketchDataAction extends AbstractAction {
 	/**
 	 * Enable editing on selected sketch.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

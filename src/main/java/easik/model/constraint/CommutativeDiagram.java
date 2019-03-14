@@ -19,7 +19,8 @@ import easik.model.vertex.ModelVertex;
  * 
  * @version 06-2014 Federico Mora
  */
-public class CommutativeDiagram<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelConstraint<F, GM, M, N, E> {
+public class CommutativeDiagram<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelConstraint<F, GM, M, N, E> {
 	/**
 	 *    
 	 */
@@ -28,10 +29,8 @@ public class CommutativeDiagram<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	/**
 	 * Creates a commutative diagram.
 	 *
-	 * @param inPaths
-	 *            List of paths to be used for the commutative diagram
-	 * @param inModel
-	 *            the sketch to which this CD belongs
+	 * @param inPaths List of paths to be used for the commutative diagram
+	 * @param inModel the sketch to which this CD belongs
 	 */
 	public CommutativeDiagram(List<ModelPath<F, GM, M, N, E>> inPaths, M inModel) {
 		super(inModel);
@@ -47,20 +46,15 @@ public class CommutativeDiagram<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	}
 
 	/**
-	 * Creates a commutative diagram from a List of paths. Also sets details of
-	 * the visual representation.
+	 * Creates a commutative diagram from a List of paths. Also sets details of the
+	 * visual representation.
 	 *
-	 * @param inPaths
-	 *            List of paths to be used for the commutative diagram
-	 * @param x
-	 *            x coordinate
-	 * @param y
-	 *            y coordinate
-	 * @param isVisible
-	 *            If true the constraint will be shown in the graph, otherwise
-	 *            it will not be visible.
-	 * @param inModel
-	 *            the sketch to which this CD belongs
+	 * @param inPaths   List of paths to be used for the commutative diagram
+	 * @param x         x coordinate
+	 * @param y         y coordinate
+	 * @param isVisible If true the constraint will be shown in the graph, otherwise
+	 *                  it will not be visible.
+	 * @param inModel   the sketch to which this CD belongs
 	 */
 	public CommutativeDiagram(List<ModelPath<F, GM, M, N, E>> inPaths, int x, int y, boolean isVisible, M inModel) {
 		super("CD", x, y, isVisible, inModel);
@@ -72,8 +66,8 @@ public class CommutativeDiagram<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	}
 
 	/**
-	 * Constructor that accepts ID. Used by views to match with corresponding
-	 * sketch constraints.
+	 * Constructor that accepts ID. Used by views to match with corresponding sketch
+	 * constraints.
 	 * 
 	 * @param inPaths
 	 * @param inModel
@@ -94,11 +88,10 @@ public class CommutativeDiagram<F extends ModelFrame<F, GM, M, N, E>, GM extends
 
 	/**
 	 * Sets the path array, updates edge list, and updates display. This method
-	 * should not be called without first checking whether the new paths are
-	 * valid, using CommutativeDiagram.isCommutativeDiagram(paths)!
+	 * should not be called without first checking whether the new paths are valid,
+	 * using CommutativeDiagram.isCommutativeDiagram(paths)!
 	 *
-	 * @param inPaths
-	 *            The new array of paths
+	 * @param inPaths The new array of paths
 	 */
 	public void setPaths(List<ModelPath<F, GM, M, N, E>> inPaths) {
 		_paths = new ArrayList<>(inPaths);

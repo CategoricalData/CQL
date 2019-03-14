@@ -6,23 +6,14 @@ import catdata.Pair;
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
 
-public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
+public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
 	protected static enum WH {
 		SYM, FK, ATT, GEN, SK, OBJ
 	};
-	
+
 	private final Object object;
 	private final WH which;
-	
-/*	private final Sym sym;
-	private final Fk fk;
-	private final Att att;
-	private final Gen gen;
-	private final Sk sk;
-	private final Object obj;
-	private final Ty ty; */
-	
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> SymHead(Sym sym) {
 		return mkHead(sym, null, null, null, null, null, null);
@@ -48,7 +39,10 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 		return mkHead(null, null, null, null, null, obj, ty);
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static HashingStrategy<Head> strategy = new HashingStrategy<>() {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public int computeHashCode(Head t) {
 			return t.hashCode2();
@@ -59,9 +53,8 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 			return s.equals2(t);
 		}
 	};
-		
 
-
+	@SuppressWarnings("rawtypes")
 	static Map<Head, Head> cache = (new TCustomHashMap<>(strategy));
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -90,22 +83,22 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 		} else {
 			throw new RuntimeException("|| " + fk + " " + att + " " + gen + " " + sk + " " + obj + " " + ty);
 		}
-		Head h = new Head<>(x, o); 
+		Head h = new Head<>(x, o);
 		Head h2 = cache.get(h);
 		if (h2 != null) {
 			return h2;
 		}
-		//h.back = p;
+		// h.back = p;
 		cache.put(h, h);
 		return h;
 	}
-	
+
 	protected Head(Object o, WH wh) {
 		this.object = o;
 		this.which = wh;
-	//	this.code = hashCode2();
+		// this.code = hashCode2();
 	}
-	//private final int code;
+	// private final int code;
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> mkHead(
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
@@ -117,26 +110,24 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 	}
 
 	@Override
-	public boolean equals(Object x) { 
+	public boolean equals(Object x) {
 		return this == x;
 	}
 
-	public boolean equals2(Object x) { 
+	@SuppressWarnings("unchecked")
+	public boolean equals2(Object x) {
 		Head<Ty, En, Sym, Fk, Att, Gen, Sk> o = (Head<Ty, En, Sym, Fk, Att, Gen, Sk>) x;
-		//if (code != o.code) {
-		//	return false;
-		//}
 		if (!which.equals(o.which)) {
 			return false;
 		}
 		return object.equals(o.object);
-	} 
-	
+	}
+
 	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
 	}
-	
+
 	public int hashCode2() {
 		final int prime = 31;
 		int result = 1;
@@ -165,15 +156,14 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 
 	///////////////////////
 
-	
-	
 //	 @Override
 //	public void finalize() {
 //		synchronized (Term.class) {
 //			cache.remove(back);
 ////		}
-	//} 
+	// }
 
+	@SuppressWarnings("unchecked")
 	public Sym sym() {
 		if (which != WH.SYM) {
 			return null;
@@ -181,6 +171,7 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 		return (Sym) object;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Fk fk() {
 		if (which != WH.FK) {
 			return null;
@@ -188,6 +179,7 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 		return (Fk) object;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Att att() {
 		if (which != WH.ATT) {
 			return null;
@@ -195,6 +187,7 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 		return (Att) object;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Gen gen() {
 		if (which != WH.GEN) {
 			return null;
@@ -202,6 +195,7 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 		return (Gen) object;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Sk sk() {
 		if (which != WH.SK) {
 			return null;
@@ -209,18 +203,20 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk>  {
 		return (Sk) object;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object obj() {
 		if (which != WH.OBJ) {
 			return null;
 		}
-		return ((Pair)object).first;
+		return ((Pair) object).first;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Ty ty() {
 		if (which != WH.OBJ) {
 			return null;
 		}
-		return (Ty) ((Pair)object).second;
+		return (Ty) ((Pair<?, ?>) object).second;
 	}
 
 }

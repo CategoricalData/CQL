@@ -7,13 +7,13 @@ import java.util.function.Function;
 import catdata.Unit;
 
 public class LazySet<E> implements Collection<E> {
-	
+
 	private Collection<E> s;
-	
-	private final Function<Unit,Collection<E>> c;
-	
+
+	private final Function<Unit, Collection<E>> c;
+
 	private final int size;
-	
+
 	public LazySet(Function<Unit, Collection<E>> c, int size) {
 		this.c = c;
 		this.size = size;
@@ -21,7 +21,7 @@ public class LazySet<E> implements Collection<E> {
 
 	@Override
 	public int size() {
-		return /*Util.anomaly();*/ size;
+		return /* Util.anomaly(); */ size;
 	}
 
 	private void init() {
@@ -29,7 +29,7 @@ public class LazySet<E> implements Collection<E> {
 			s = c.apply(Unit.unit);
 		}
 	}
-	
+
 	@Override
 	public boolean isEmpty() {
 		return size == 0;

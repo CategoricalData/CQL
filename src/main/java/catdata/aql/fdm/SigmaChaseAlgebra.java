@@ -23,10 +23,7 @@ import catdata.aql.Instance;
 import catdata.aql.Mapping;
 import catdata.aql.Schema;
 import catdata.aql.Term;
-import catdata.aql.TypeSide;
 import catdata.aql.Var;
-import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
 import catdata.aql.fdm.Chase.BST;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -34,9 +31,9 @@ import gnu.trove.set.hash.THashSet;
 public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y>
 		extends Algebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>>
 		implements DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> {
-	
+
 	public final Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> theInst = new SigmaChaseInstance();
-	
+
 	class SigmaChaseInstance extends Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> {
 
 		@Override
@@ -69,9 +66,10 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 			return new Iterable<>() {
 				@Override
 				public Iterator<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> iterator() {
-					return Iterators.transform(X.eqs().iterator(), eq->new Pair<>(F.trans(eq.first), F.trans(eq.second)));
-				}				
-			};			
+					return Iterators.transform(X.eqs().iterator(),
+							eq -> new Pair<>(F.trans(eq.first), F.trans(eq.second)));
+				}
+			};
 		}
 
 		@Override
@@ -83,7 +81,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		public Algebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> algebra() {
 			return SigmaChaseAlgebra.this;
 		}
-		
+
 	}
 
 	private final Schema<Ty, En2, Sym, Fk2, Att2> B;
@@ -99,10 +97,9 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 	private Map<En2, Integer> offset = new THashMap<>();
 	private int size = 0;
 	private AqlOptions ops;
-	
+
 	public SigmaChaseAlgebra(Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> f2,
-			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Map<En1, Set<Pair<X, X>>> e, 
-			AqlOptions ops) {
+			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Map<En1, Set<Pair<X, X>>> e, AqlOptions ops) {
 		if (!f2.src.equals(i2.schema())) {
 			Util.anomaly();
 		}
@@ -127,7 +124,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		}
 		talg = new TalgSimplifier<>(this, col, (int) ops.getOrDefault(AqlOption.talg_reduction));
 		talg();
-		this.dp_ty = AqlProver.createInstance(ops, talg.talg.out, Schema.terminal((TypeSide<catdata.aql.exp.Ty, catdata.aql.exp.Sym>) B.typeSide));		
+		this.dp_ty = AqlProver.createInstance(ops, talg.talg.out, Schema.terminal(B.typeSide));
 	}
 
 	@Override
@@ -138,7 +135,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		}
 		return dp_ty.eq(null, intoY0(lhs.convert()), intoY0(rhs.convert()));
 	}
-	
+
 	@Override
 	public Schema<Ty, En2, Sym, Fk2, Att2> schema() {
 		return B;
@@ -163,7 +160,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 	public synchronized Integer gen(Gen gen) {
 		En2 en2 = F.ens.get(X.gens().get(gen));
 		int o = offset.get(en2);
-		int ret = chase.stuff.get(en2).find(chase.stuff.get(en2).iso2.get(chase.findNoAdd(Term.Gen(gen), en2))) + o; 
+		int ret = chase.stuff.get(en2).find(chase.stuff.get(en2).iso2.get(chase.findNoAdd(Term.Gen(gen), en2))) + o;
 		return ret;
 	}
 
@@ -188,7 +185,8 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		return reprT0(Chc.inRight(new Pair<>(x, att)));
 	}
 
-	private synchronized Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> reprT0(Chc<Sk, Pair<Integer, Att2>> y) {
+	private synchronized Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> reprT0(
+			Chc<Sk, Pair<Integer, Att2>> y) {
 		talg();
 		return schema().typeSide.js.java_tys.isEmpty() ? talg.simpl(Term.Sk(y))
 				: schema().typeSide.js.reduce(talg.simpl(Term.Sk(y)));
@@ -202,8 +200,8 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 			return b;
 		}
 		talg();
-		Set<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>>> l = 
-				(new THashSet<>(schema().typeSide.eqs.size()));
+		Set<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>>> l = (new THashSet<>(
+				schema().typeSide.eqs.size()));
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : schema().typeSide.eqs) {
 			l.add(new Eq<>(Util.inLeft(eq.first), talg.transX(eq.second.convert()), talg.transX(eq.third.convert())));
 		}
@@ -229,12 +227,10 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		return printX(F.dst.atts.get(y.r.second).first, y.r.first) + "." + y.r.second;
 	}
 
-
 	@Override
 	public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> talg0() {
 		return talg.talg.out;
 	}
-
 
 	@Override
 	public int size(En2 en) {
@@ -244,6 +240,6 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 	@Override
 	public Chc<Sk, Pair<Integer, Att2>> reprT_prot(Chc<Sk, Pair<Integer, Att2>> y) {
 		return y;
-	} 
-	
+	}
+
 }

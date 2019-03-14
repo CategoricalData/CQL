@@ -47,8 +47,7 @@ public class FileOpenAction extends AbstractAction {
 	 * Opens a new dialog box to choose the file to load. Prompts user for
 	 * confirmation if the current sketch is unsaved.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

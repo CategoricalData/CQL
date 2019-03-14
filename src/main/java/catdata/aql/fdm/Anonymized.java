@@ -30,7 +30,7 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 	private Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>.InnerAlgebra algebra;
 
 	private DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp;
-	
+
 	private class InnerDP implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
 		@Override
@@ -43,9 +43,9 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 				Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
 			return I.dp().eq(ctx, iso2(lhs), iso2(rhs));
 		}
-		
+
 	}
-	
+
 	private class InnerAlgebra extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
 		@Override
@@ -62,7 +62,7 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		public X gen(Gen gen) {
 			return I.algebra().gen(gen);
 		}
-		
+
 		@Override
 		public X fk(Fk fk, X x) {
 			return I.algebra().fk(fk, x);
@@ -92,15 +92,15 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 			}
 			return col;
 		}
-		
+
 		public boolean hasFreeTypeAlgebra() {
 			return talg().eqs.isEmpty();
 		}
-		
-		public boolean hasFreeTypeAlgebraOnJava() {
-			return talg().eqs.stream().filter(x -> talg().java_tys.containsKey(talg().type(x.ctx, x.lhs).l)).collect(Collectors.toList()).isEmpty();
-		}
 
+		public boolean hasFreeTypeAlgebraOnJava() {
+			return talg().eqs.stream().filter(x -> talg().java_tys.containsKey(talg().type(x.ctx, x.lhs).l))
+					.collect(Collectors.toList()).isEmpty();
+		}
 
 		@Override
 		public String toStringProver() {
@@ -125,34 +125,35 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		@Override
 		public Chc<Sk, Pair<X, Att>> reprT_prot(Y y) {
 			return I.algebra().reprT_prot(y);
-			
+
 		}
-		
+
 	};
+
 	@SuppressWarnings("hiding")
-	private  Object iso1(Object obj, Ty ty)  {
+	private Object iso1(Object obj, Ty ty) {
 		if (I.schema().typeSide.js.java_tys.containsKey(ty)) {
 			String ty2 = I.schema().typeSide.js.java_tys.get(ty);
 			if (ty2.equals("java.lang.String")) {
 				if (!iso_string_1.containsKey(obj)) {
 					int i = fresh++;
-					iso_string_1.put((String)obj, "Str" + i);
-					iso_string_2.put("Str" + i, (String)obj);					
+					iso_string_1.put((String) obj, "Str" + i);
+					iso_string_2.put("Str" + i, (String) obj);
 				}
 				return iso_string_1.get(obj);
 			} else if (ty2.equals("java.lang.Integer")) {
 				if (!iso_int_1.containsKey(obj)) {
 					int i = fresh++;
-					iso_int_1.put((Integer)obj, i);			
-					iso_int_2.put(i, (Integer)obj);			
+					iso_int_1.put((Integer) obj, i);
+					iso_int_2.put(i, (Integer) obj);
 				}
 				return iso_int_1.get(obj);
 			}
 		}
 		return obj;
 	}
-	
-	private Object iso2(Object obj, Ty ty)  {
+
+	private Object iso2(Object obj, Ty ty) {
 		if (I.schema().typeSide.js.java_tys.containsKey(ty)) {
 			String ty2 = I.schema().typeSide.js.java_tys.get(ty);
 			if (ty2.equals("java.lang.String")) {
@@ -163,16 +164,19 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		}
 		return obj;
 	}
-	
-	private <En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> iso1(Term<Ty, En, Sym, Fk, Att, Gen, Sk> t) {
-		return t.visit(x->Term.Var(x),(obj,ty)->Term.Obj(iso1(obj,ty),ty), (sym,x)->Term.Sym(sym, x), (fk,x)->Term.Fk(fk,x), (att,x)->Term.Att(att,x), x->Term.Gen(x), x->Term.Sk(x));
+
+	private <En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> iso1(
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> t) {
+		return t.visit(x -> Term.Var(x), (obj, ty) -> Term.Obj(iso1(obj, ty), ty), (sym, x) -> Term.Sym(sym, x),
+				(fk, x) -> Term.Fk(fk, x), (att, x) -> Term.Att(att, x), x -> Term.Gen(x), x -> Term.Sk(x));
 	}
-	
+
 	private Term<Ty, En, Sym, Fk, Att, Gen, Sk> iso2(Term<Ty, En, Sym, Fk, Att, Gen, Sk> t) {
-		return t.visit(x->Term.Var(x),(obj,ty)->Term.Obj(iso2(obj,ty),ty), (sym,x)->Term.Sym(sym, x), (fk,x)->Term.Fk(fk,x), (att,x)->Term.Att(att,x), x->Term.Gen(x), x->Term.Sk(x));
+		return t.visit(x -> Term.Var(x), (obj, ty) -> Term.Obj(iso2(obj, ty), ty), (sym, x) -> Term.Sym(sym, x),
+				(fk, x) -> Term.Fk(fk, x), (att, x) -> Term.Att(att, x), x -> Term.Gen(x), x -> Term.Sk(x));
 	}
-	
-	//TODO aql note this can fail at runtime
+
+	// TODO aql note this can fail at runtime
 	public Anonymized(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
 		I = i;
 		for (Att att : i.schema().atts.keySet()) {
@@ -202,7 +206,8 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 
 	@Override
 	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs() {
-		return new IteratorIterable<>(Iterators.transform(I.eqs().iterator(), x->new Pair<>(iso1(x.first),iso1(x.second))), true);
+		return new IteratorIterable<>(
+				Iterators.transform(I.eqs().iterator(), x -> new Pair<>(iso1(x.first), iso1(x.second))), true);
 	}
 
 	@Override
@@ -214,7 +219,7 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 	public Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra() {
 		return algebra;
 	}
-	
+
 	@Override
 	public boolean requireConsistency() {
 		return I.requireConsistency();
@@ -224,5 +229,5 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 	public boolean allowUnsafeJava() {
 		return I.allowUnsafeJava();
 	}
-	
+
 }

@@ -19,15 +19,13 @@ import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.Var;
 
-public final class QueryExpFromCoSpan
-		extends QueryExp {
-	
+public final class QueryExpFromCoSpan extends QueryExp {
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		M1.map(f);
 		M2.map(f);
 	}
-
 
 	public final MapExp M1;
 	public final MapExp M2;
@@ -47,8 +45,7 @@ public final class QueryExpFromCoSpan
 		return Util.union(M1.deps(), M2.deps());
 	}
 
-	public QueryExpFromCoSpan(MapExp M1,
-			MapExp M2, List<Pair<String, String>> options) {
+	public QueryExpFromCoSpan(MapExp M1, MapExp M2, List<Pair<String, String>> options) {
 		this.M1 = M1;
 		this.M2 = M2;
 		this.options = Util.toMapSafely(options);
@@ -72,7 +69,6 @@ public final class QueryExpFromCoSpan
 			return false;
 		if (!(obj instanceof QueryExpCompose))
 			return false;
-		@SuppressWarnings("rawtypes")
 		QueryExpFromCoSpan other = (QueryExpFromCoSpan) obj;
 		if (M1 == null) {
 			if (other.M1 != null)
@@ -99,17 +95,16 @@ public final class QueryExpFromCoSpan
 
 	@Override
 	public Pair<SchExp, SchExp> type(AqlTyping G) {
-		if (!G.eq(M1.type(G).second, M2.type(G).second)) { 
+		if (!G.eq(M1.type(G).second, M2.type(G).second)) {
 			throw new RuntimeException("Cannot co-span: target of first, " + M1.type(G).second
 					+ " is not the same as target of second, " + M2.type(G).second);
 		}
-		return new Pair(M1.type(G).first, M2.type(G).first);
+		return new Pair<>(M1.type(G).first, M2.type(G).first);
 	}
-
 
 	public Query<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		QueryExp a = new QueryExpDeltaCoEval(M1, Util.toList(options));
-		QueryExp b = new QueryExpDeltaEval  (M2, Util.toList(options));
+		QueryExp b = new QueryExpDeltaEval(M2, Util.toList(options));
 		return new QueryExpCompose(a, b, Util.toList(options)).eval(env, isC);
 	}
 
@@ -128,13 +123,11 @@ public final class QueryExpFromCoSpan
 			En en2 = M1.dst.atts.get(t.att()).first;
 			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> ret = M1.atts.get(t.att());
 			for (Var head : M1.atts.get(t.att()).gens()) {
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3,
-						en2);
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3, en2);
 				ret = ret.replace(Term.Gen(head), u.convert());
 			}
 			for (Var head : M1.atts.get(t.att()).sks()) {
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3,
-						en2);
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3, en2);
 				ret = ret.replace(Term.Sk(head), u.convert());
 			}
 

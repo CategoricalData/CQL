@@ -24,7 +24,8 @@ import easik.model.vertex.ModelVertex;
  * @since 2006-06-06 Kevin Green
  * @version 2006-07-13 Kevin Green
  */
-public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends DefaultMutableTreeNode {
+public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends DefaultMutableTreeNode {
 	/**
 	 *    
 	 */
@@ -48,16 +49,14 @@ public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	/**
 	 * Default constructor
 	 * 
-	 * @param modelVertex
-	 *            The EntityNode to which this unique key applies
-	 * @param elements
-	 *            A List of the indexable objects (implementing UniqueIndexable)
-	 *            used in the key
-	 * @param name
-	 *            The name of the key
+	 * @param modelVertex The EntityNode to which this unique key applies
+	 * @param elements    A List of the indexable objects (implementing
+	 *                    UniqueIndexable) used in the key
+	 * @param name        The name of the key
 	 */
 	@SuppressWarnings("unchecked")
-	public UniqueKey(final ModelVertex<F, GM, M, N, E> modelVertex, final Collection<UniqueIndexable> elements, final String name) {
+	public UniqueKey(final ModelVertex<F, GM, M, N, E> modelVertex, final Collection<UniqueIndexable> elements,
+			final String name) {
 		super();
 
 		_parent = (N) modelVertex;
@@ -68,8 +67,7 @@ public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	/**
 	 * Overwriten method returns attribute list separated by semicolons
 	 *
-	 * @return The name of this unique key formatted for use on the information
-	 *         tree
+	 * @return The name of this unique key formatted for use on the information tree
 	 */
 	@Override
 	public String toString() {
@@ -81,8 +79,8 @@ public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	}
 
 	/**
-	 * Gets the id of this unique key. The id is formatted by getting the name
-	 * of each attribute and placing a comma between each name
+	 * Gets the id of this unique key. The id is formatted by getting the name of
+	 * each attribute and placing a comma between each name
 	 * 
 	 * @return The id of this attribute
 	 */
@@ -97,12 +95,11 @@ public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	}
 
 	/**
-	 * Returns the set of unique-indexable elements (attributes and edges) that
-	 * make up this key. The set is backed by a LinkedHashSet, and so is
-	 * ordered.
+	 * Returns the set of unique-indexable elements (attributes and edges) that make
+	 * up this key. The set is backed by a LinkedHashSet, and so is ordered.
 	 *
-	 * @return a Set of the UniqueIndexable objects (attributes/edges) used in
-	 *         the key
+	 * @return a Set of the UniqueIndexable objects (attributes/edges) used in the
+	 *         key
 	 */
 	public Set<UniqueIndexable> getElements() {
 		return Collections.unmodifiableSet(_elements);
@@ -115,8 +112,7 @@ public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	 * EntityAttribute values will be ignored. Also note that the order of the
 	 * attributes will be preserved.
 	 *
-	 * @param elems
-	 *            Collection of UniqueIndexable-implementing objects
+	 * @param elems Collection of UniqueIndexable-implementing objects
 	 */
 	public void setElements(final Collection<UniqueIndexable> elems) {
 		final LinkedHashSet<UniqueIndexable> oldElements = _elements;
@@ -148,16 +144,14 @@ public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	}
 
 	/**
-	 * Returns a UniqueIndexable element from the element list, if it contains
-	 * it. Note that this might make the unique key invalid (0 elements) or a
-	 * duplicate of another key: you must take care to call
-	 * UniqueKey.cleanup(node) after finished removing all elements from the
-	 * node to fix up the element list.
+	 * Returns a UniqueIndexable element from the element list, if it contains it.
+	 * Note that this might make the unique key invalid (0 elements) or a duplicate
+	 * of another key: you must take care to call UniqueKey.cleanup(node) after
+	 * finished removing all elements from the node to fix up the element list.
 	 *
-	 * @param elem
-	 *            the UniqueIndexable-implementing object to remove
-	 * @return true if the element existed and was removed, false if the element
-	 *         did not exist
+	 * @param elem the UniqueIndexable-implementing object to remove
+	 * @return true if the element existed and was removed, false if the element did
+	 *         not exist
 	 */
 	public boolean removeElement(final UniqueIndexable elem) {
 		final boolean ret = _elements.remove(elem);
@@ -198,8 +192,7 @@ public class UniqueKey<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	/**
 	 * Sets the key name to the name described in <it>inName</it>
 	 * 
-	 * @param inName
-	 *            The name of this attribute
+	 * @param inName The name of this attribute
 	 */
 	public void setKeyName(final String inName) {
 		final String oldName = _keyName;

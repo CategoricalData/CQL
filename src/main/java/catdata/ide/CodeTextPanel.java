@@ -32,7 +32,7 @@ public class CodeTextPanel extends JPanel {
 	public void setText(String s) {
 		area.setText(s);
 		area.setCaretPosition(0);
-		//System.out.println(s.substring(0, Integer.min(5, s.length())));
+		// System.out.println(s.substring(0, Integer.min(5, s.length())));
 	}
 
 	public String getText() {
@@ -53,7 +53,7 @@ public class CodeTextPanel extends JPanel {
 		}
 		area = new JTextArea(text);
 		p = new JScrollPane(area);
-		//p.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		// p.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		add(p);
 		p.setBorder(BorderFactory.createEmptyBorder());
 		setText(text);
@@ -62,7 +62,7 @@ public class CodeTextPanel extends JPanel {
 		// area.setEditable(false);
 
 		UndoManager m = new UndoManager();
-		m.setLimit(16); //since common case is lots of dots in bottom panels
+		m.setLimit(16); // since common case is lots of dots in bottom panels
 		// area.setundoManager = new UndoManager();
 		Document doc = area.getDocument();
 		doc.addUndoableEditListener((UndoableEditEvent e) -> m.addEdit(e.getEdit()));
@@ -106,9 +106,9 @@ public class CodeTextPanel extends JPanel {
 	private void setWordWrap(boolean b) {
 		area.setLineWrap(b);
 		area.setWrapStyleWord(b);
-		//p.revalidate();
-		//getScrollableTracksViewportWidth
-		//area.getScrgetViewport().set
+		// p.revalidate();
+		// getScrollableTracksViewportWidth
+		// area.getScrgetViewport().set
 	}
 
 }

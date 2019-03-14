@@ -18,7 +18,8 @@ import easik.model.vertex.ModelVertex;
 /**
  * A limit constraint menu option and action.
  */
-public class AddLimitConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class AddLimitConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**  */
 	private static final long serialVersionUID = -9089239559578339118L;
 
@@ -42,8 +43,7 @@ public class AddLimitConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM e
 	/**
 	 * Creates the limit constraint if the selection is appropriate.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -52,8 +52,8 @@ public class AddLimitConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM e
 		 * (!_theFrame.getMModel().getEntities().isEmpty()) {
 		 * _theFrame.getMModel().getStateManager().pushState(new
 		 * AddLimitConstraintState(_theFrame.getMModel())); } else {
-		 * JOptionPane.showMessageDialog(null, "Sketch cannot be empty.",
-		 * "Error", JOptionPane.ERROR_MESSAGE); }
+		 * JOptionPane.showMessageDialog(null, "Sketch cannot be empty.", "Error",
+		 * JOptionPane.ERROR_MESSAGE); }
 		 */
 		_theFrame.getMModel().getStateManager().pushState(new AddLimitConstraintState<>(_theFrame.getMModel()));
 	}

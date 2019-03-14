@@ -24,11 +24,10 @@ public class JUtils {
 
 	/**
 	 * Sets the maximum height of a JComponent to its preferred height, thereby
-	 * preventing it from being expanded. The component itself is returned, to
-	 * allow shortcuts such as: xyz.add(JUtils.fixHeight(component)).
+	 * preventing it from being expanded. The component itself is returned, to allow
+	 * shortcuts such as: xyz.add(JUtils.fixHeight(component)).
 	 *
-	 * @param c
-	 *            the component to be height-fixed
+	 * @param c the component to be height-fixed
 	 * @return the component
 	 */
 	public static JComponent fixHeight(JComponent c) {
@@ -43,11 +42,10 @@ public class JUtils {
 
 	/**
 	 * Sets the maximum width of a JComponent to its preferred width, thereby
-	 * preventing it from being expanded. The component itself is returned, to
-	 * allow shortcuts such as: xyz.add(JUtils.fixWidth(component)).
+	 * preventing it from being expanded. The component itself is returned, to allow
+	 * shortcuts such as: xyz.add(JUtils.fixWidth(component)).
 	 *
-	 * @param c
-	 *            the component to be width-fixed
+	 * @param c the component to be width-fixed
 	 * @return the component
 	 */
 	public static JComponent fixWidth(JComponent c) {
@@ -63,8 +61,7 @@ public class JUtils {
 	/**
 	 * Creates a new, fixed-height JTextField with the given initial value.
 	 *
-	 * @param initial
-	 *            the initial JTextField value
+	 * @param initial the initial JTextField value
 	 * @return JTextField with a fixed height
 	 * @see fixHeight( javax.swing.JComponent)
 	 * @see javax.swing.JTextField(String)
@@ -77,10 +74,8 @@ public class JUtils {
 	 * Creates a new, fixed-height JTextField with the given initial value and
 	 * columns field.
 	 *
-	 * @param initial
-	 *            the initial JTextField value
-	 * @param cols
-	 *            the number of cols
+	 * @param initial the initial JTextField value
+	 * @param cols    the number of cols
 	 * @return JTextField with a fixed height
 	 * @see fixHeight( javax.swing.JComponent)
 	 * @see javax.swing.JTextField(String, int)
@@ -90,11 +85,9 @@ public class JUtils {
 	}
 
 	/**
-	 * Creates a new, fixed-height JTextField with the given initial columns
-	 * field.
+	 * Creates a new, fixed-height JTextField with the given initial columns field.
 	 *
-	 * @param cols
-	 *            the number of cols
+	 * @param cols the number of cols
 	 * @return JTextField with a fixed height
 	 * @see fixHeight( javax.swing.JComponent)
 	 * @see javax.swing.JTextField(int)
@@ -105,16 +98,14 @@ public class JUtils {
 
 	/**
 	 * Creates a new JTextArea, sets various useful properties for using it, and
-	 * sticks it in a JScrollPane (so that it will scroll), which is then
-	 * returned. The JTextArea is accessible via
+	 * sticks it in a JScrollPane (so that it will scroll), which is then returned.
+	 * The JTextArea is accessible via
 	 * <code>scrollpane.getViewport().getMModel()</code>, or you can use
 	 * JUtils.taText(JScrollPane) to get the text.
 	 *
-	 * @param initial
-	 *            the initial text
+	 * @param initial the initial text
 	 * @param row
-	 * @param cols
-	 *            the number of cols (@see javax.swing.JTextArea)
+	 * @param cols    the number of cols (@see javax.swing.JTextArea)
 	 * @return a JScrollPane containing the created JTextArea
 	 */
 	public static JScrollPane textArea(String initial, int row, int cols) {
@@ -152,8 +143,7 @@ public class JUtils {
 	/**
 	 * Returns the text value of a scrollable JTextArea created by textArea().
 	 *
-	 * @param jsp
-	 *            a JScrollPane created by one of the JUtils.textArea() methods
+	 * @param jsp a JScrollPane created by one of the JUtils.textArea() methods
 	 * @return the string of the JTextArea
 	 */
 	public static String taText(JScrollPane jsp) {
@@ -174,8 +164,8 @@ public class JUtils {
 	}
 
 	/**
-	 * Takes a string meant for a tooltip and turns it into an HTML tooltip,
-	 * adding \n's, and then replacing all \n's (added and pre-existing) to
+	 * Takes a string meant for a tooltip and turns it into an HTML tooltip, adding
+	 * \n's, and then replacing all \n's (added and pre-existing) to
 	 * <code>&lt;br&gt;</code> tags to break up long lines.
 	 *
 	 * @param tip
@@ -251,15 +241,17 @@ public class JUtils {
 	}
 
 	/**
-	 * Shows a confirmation dialog, warning the user that their changes will be
-	 * lost if they continue. Returns true if the user confirms that losing
-	 * their changes is okay, false if they cancel.
+	 * Shows a confirmation dialog, warning the user that their changes will be lost
+	 * if they continue. Returns true if the user confirms that losing their changes
+	 * is okay, false if they cancel.
 	 *
 	 * @param frame
 	 *
 	 * @return
 	 */
 	public static boolean confirmLoss(JFrame frame) {
-		return JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(frame, "Warning: unsaved changes will be lost; continue anyway?", "Caution!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+		return JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(frame,
+				"Warning: unsaved changes will be lost; continue anyway?", "Caution!", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.WARNING_MESSAGE);
 	}
 }

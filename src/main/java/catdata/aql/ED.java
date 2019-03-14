@@ -30,8 +30,8 @@ import gnu.trove.set.hash.THashSet;
 public class ED {
 
 	public <Gen, Sk> String tptp(String x, int i, KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> th) {
-		//th.validate();
-		//System.out.println(th.toString());
+		// th.validate();
+		// System.out.println(th.toString());
 		StringBuffer sb = new StringBuffer("");
 		sb.append("fof(eq" + i + "," + x + ",(");
 		List<String> w = new LinkedList<>();
@@ -96,7 +96,7 @@ public class ED {
 			sks.put(v, Term.Sk(v));
 		}
 
-		return new LiteralTransform<>(gens, sks, I, J, true); 
+		return new LiteralTransform<>(gens, sks, I, J, true);
 	}
 
 	public LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> front(
@@ -119,8 +119,8 @@ public class ED {
 			col.eqs.add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
 		}
 
-		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col,
-				(y)->y, (x,y)->y);
+		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col, (y) -> y,
+				(x, y) -> y);
 
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
 				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
@@ -164,8 +164,8 @@ public class ED {
 			eqs0.add(new Pair<>(freeze(eq0.first), freeze(eq0.second)));
 			col.eqs.add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
 		}
-		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col,
-				(y)->y, (x,y)->y);
+		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col, (y) -> y,
+				(x, y) -> y);
 
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
 				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
@@ -180,7 +180,6 @@ public class ED {
 	public final static Fk UNIT = Fk.Fk(BACK, "unit");
 
 	public final boolean isUnique;
-	
 
 	public static <Ty, Sym> Schema<Ty, En, Sym, Fk, Att> getEDSchema(TypeSide<Ty, Sym> ty, AqlOptions ops) {
 		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new Collage<>(ty.collage());
@@ -191,17 +190,18 @@ public class ED {
 		return ret;
 	}
 
-	private Map<Schema<Ty, En, Sym, Fk, Att>, Query<Ty, En, Sym, Fk, Att, En, Fk, Att>> cache = 
-			new THashMap<>();
+	private Map<Schema<Ty, En, Sym, Fk, Att>, Query<Ty, En, Sym, Fk, Att, En, Fk, Att>> cache = new THashMap<>();
 
 	public synchronized final Query<Ty, En, Sym, Fk, Att, En, Fk, Att> getQ(Schema<Ty, En, Sym, Fk, Att> schema) {
 		if (!cache.containsKey(schema)) {
-			Schema<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att> zzz = getEDSchema(schema.typeSide, options);
+			Schema<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att> zzz = getEDSchema(
+					schema.typeSide, options);
 
-			Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>, AqlOptions>> is2 
-			= Util.map(is, (k,x) ->new Pair<>(k, new Triple<>(Util.map(x.first,(kk,z) -> new Pair<>(kk,z.reverse())), x.second, x.third)));
+			Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>, AqlOptions>> is2 = Util
+					.map(is, (k, x) -> new Pair<>(k, new Triple<>(
+							Util.map(x.first, (kk, z) -> new Pair<>(kk, z.reverse())), x.second, x.third)));
 
-			cache.put(schema, Query.makeQuery(is2, new THashMap<>(), fks, sks, schema, zzz, options)); 
+			cache.put(schema, Query.makeQuery(is2, new THashMap<>(), fks, sks, schema, zzz, options));
 		}
 		return cache.get(schema);
 	}
@@ -293,10 +293,10 @@ public class ED {
 		return ret;
 	}
 
-	Map<En , Triple<Map<Var, Chc<Ty, En>>, Collection<Eq<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>, AqlOptions>> is = new THashMap<>();
+	Map<En, Triple<Map<Var, Chc<Ty, En>>, Collection<Eq<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>, AqlOptions>> is = new THashMap<>();
 
-	Map<Fk , Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
-	Map<Fk , Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
+	Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
+	Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
 
 	<Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Void, Void> unfreeze(String prefix,
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> r) {

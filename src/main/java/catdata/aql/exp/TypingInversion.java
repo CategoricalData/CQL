@@ -54,11 +54,11 @@ import catdata.aql.exp.TyExp.TyExpVar;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-@SuppressWarnings({"unchecked","rawtypes"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeException> {
- 
+
 	@Override
-	public  TyExpSch visitTyExpSch(Unit params, AqlTyping exp) throws RuntimeException {
+	public TyExpSch visitTyExpSch(Unit params, AqlTyping exp) throws RuntimeException {
 		SchExpVar e = new SchExpVar("s");
 		TyExpVar x = new TyExpVar("t");
 
@@ -75,12 +75,12 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  TyExpLit visitTyExpLit(Unit params, AqlTyping exp) throws RuntimeException {
+	public TyExpLit visitTyExpLit(Unit params, AqlTyping exp) throws RuntimeException {
 		return null;
 	}
 
 	@Override
-	public  TyExpVar visitTyExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+	public TyExpVar visitTyExpVar(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar e = new TyExpVar("t");
 		// exp.prog.exps.put("t", e);
@@ -100,8 +100,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  SchExpCod visitSchExpCod(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpCod visitSchExpCod(Unit params, AqlTyping exp) throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -111,10 +110,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.qs.put("q", new Pair(s1, s2));
 		return new SchExpCod(new QueryExpVar("q"));
 	}
-	
+
 	@Override
-	public  SchExpDom visitSchExpDom(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpDom visitSchExpDom(Unit params, AqlTyping exp) throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -124,10 +122,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.qs.put("q", new Pair(s1, s2));
 		return new SchExpDom(new QueryExpVar("q"));
 	}
-	
+
 	@Override
-	public  SchExpDst visitSchExpDst(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpDst visitSchExpDst(Unit params, AqlTyping exp) throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -137,10 +134,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.maps.put("m", new Pair(s1, s2));
 		return new SchExpDst(new MapExpVar("m"));
 	}
-	
+
 	@Override
-	public  SchExpSrc visitSchExpSrc(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpSrc visitSchExpSrc(Unit params, AqlTyping exp) throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -152,18 +148,17 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  SchExpEmpty visitSchExpEmpty(Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpEmpty visitSchExpEmpty(Unit params, AqlTyping exp) throws RuntimeException {
 		TyExp t = new TyExpVar("t");
 		exp.defs.tys.put("t", Unit.unit);
 		return new SchExpEmpty(t);
 	}
 
 	@Override
-	public  SchExpInst visitSchExpInst(Unit params, AqlTyping exp)
-			throws RuntimeException {
+	public SchExpInst visitSchExpInst(Unit params, AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp i =  new InstExpVar("i");
+		InstExp i = new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -173,15 +168,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  SchExpLit visitSchExpLit(Unit params, AqlTyping exp)
-			throws RuntimeException {
+	public SchExpLit visitSchExpLit(Unit params, AqlTyping exp) throws RuntimeException {
 		return null;
 //		return new SchExpLit(Schema.terminal(TypeSide.initial()));
 	}
 
 	@Override
-	public SchExpPivot visitSchExpPivot(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpPivot visitSchExpPivot(Unit params, AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp x = new TyExpVar("t");
 		InstExp q = new InstExpVar("i");
@@ -192,8 +185,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  SchExpVar visitSchExpVar(Unit params, AqlTyping exp)
-			throws RuntimeException {
+	public SchExpVar visitSchExpVar(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar e = new TyExpVar("t");
 		exp.defs.schs.put("s", e);
@@ -209,12 +201,12 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <N> SchExpColim<N> visitSchExpColim(Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpColim visitSchExpColim(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
-		ColimSchExp<N> x = new ColimSchExpVar("sc");
+		ColimSchExp x = new ColimSchExpVar("sc");
 		exp.defs.scs.put("sc", new THashSet());
-		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+		ColimSchExpQuotient q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		exp.prog.exps.put("sc", q);
 		return new SchExpColim(x);
@@ -222,8 +214,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  MapExpComp visitMapExpComp(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public MapExpComp visitMapExpComp(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 		exp.prog.exps.put("t", new TyExpEmpty());
@@ -250,8 +241,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  MapExpId visitMapExpId(Unit params, AqlTyping exp)
-			throws RuntimeException {
+	public MapExpId visitMapExpId(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 
@@ -260,8 +250,6 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 		return new MapExpId(s);
 	}
-
-	
 
 	@Override
 	public QueryExpVar visitQueryExpVar(Unit params, AqlTyping exp) throws RuntimeException {
@@ -289,11 +277,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> MapExpPivot<Gen, Sk, X, Y> visitMapExpPivot(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> MapExpPivot<Gen, Sk, X, Y> visitMapExpPivot(Unit params, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp x = new TyExpVar("t");
-		InstExp i =  new InstExpVar("i");
+		InstExp i = new InstExpVar("i");
 		exp.defs.schs.put("s", x);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -325,22 +313,20 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		return new MapExpRaw(s1, s2, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 	}
 
-	
 	@Override
-	public <N> MapExpColim<N> visitMapExpColim(Unit params, AqlTyping exp) throws RuntimeException {
+	public MapExpColim visitMapExpColim(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 		exp.defs.scs.put("sc", new THashSet());
 		exp.defs.schs.put("s", t);
-		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.singletonList(new LocStr(0, "s")),
+		ColimSchExpQuotient q = new ColimSchExpQuotient(t, Collections.singletonList(new LocStr(0, "s")),
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		exp.prog.exps.put("sc", q);
 		return new MapExpColim("s", q);
 	}
 
 	@Override
-	public QueryExpCompose visitQueryExpCompose(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public QueryExpCompose visitQueryExpCompose(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 		exp.prog.exps.put("t", new TyExpEmpty());
@@ -367,8 +353,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  QueryExpId visitQueryExpId(Unit params, AqlTyping exp)
-			throws RuntimeException {
+	public QueryExpId visitQueryExpId(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 
@@ -379,14 +364,12 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public QueryExpLit visitQueryExpLit(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public QueryExpLit visitQueryExpLit(Unit params, AqlTyping exp) throws RuntimeException {
 		return null;
 	}
 
 	@Override
-	public  QueryExpDeltaCoEval visitQueryExpDeltaCoEval(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public QueryExpDeltaCoEval visitQueryExpDeltaCoEval(Unit params, AqlTyping exp) throws RuntimeException {
 
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
@@ -409,8 +392,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  QueryExpDeltaEval visitQueryExpDeltaEval(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public QueryExpDeltaEval visitQueryExpDeltaEval(Unit params, AqlTyping exp) throws RuntimeException {
 
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
@@ -463,8 +445,6 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 		return new EdsExpRaw(s, Collections.emptyList(), Collections.emptyList(), Unit.unit);
 	}
- 
-	
 
 	@Override
 	public GraphExpRaw visitGraphExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
@@ -472,23 +452,22 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  GraphExpVar visitGraphExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+	public GraphExpVar visitGraphExpVar(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.gs.put("g", Unit.unit);
 		return new GraphExpVar("g");
 	}
 
 	@Override
-	public <N, Ex> GraphExpLiteral<N, Ex> visitGraphExpLiteral(Unit params, AqlTyping exp) throws RuntimeException {
+	public GraphExpLiteral visitGraphExpLiteral(Unit params, AqlTyping exp) throws RuntimeException {
 		return null;
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> PragmaExpConsistent< Gen, Sk, X, Y> visitPragmaExpConsistent(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> PragmaExpConsistent<Gen, Sk, X, Y> visitPragmaExpConsistent(Unit params, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
-				"i");
+		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -496,12 +475,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> PragmaExpCheck< Gen, Sk, X, Y> visitPragmaExpCheck(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> PragmaExpCheck<Gen, Sk, X, Y> visitPragmaExpCheck(Unit params, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
-				"i");
+		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -511,12 +489,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <N1, E1, N2, E2> PragmaExpMatch<N1, E1, N2, E2> visitPragmaExpMatch(Unit params, AqlTyping exp)
-			throws RuntimeException {
+	public PragmaExpMatch visitPragmaExpMatch(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.gs.put("g1", Unit.unit);
 		exp.defs.gs.put("g2", Unit.unit);
-		GraphExp<N1, E1> g1 = (GraphExp<N1, E1>) new GraphExpVar("g1");
-		GraphExp<N2, E2> g2 = (GraphExp<N2, E2>) new GraphExpVar("g2");
+		GraphExp g1 = new GraphExpVar("g1");
+		GraphExp g2 = new GraphExpVar("g2");
 		return new PragmaExpMatch("method", g1, g2, Collections.emptyList());
 	}
 
@@ -526,12 +503,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> PragmaExpToCsvInst< Gen, Sk, X, Y> visitPragmaExpToCsvInst(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> PragmaExpToCsvInst<Gen, Sk, X, Y> visitPragmaExpToCsvInst(Unit params, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
-				"i");
+		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -556,12 +532,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> PragmaExpToJdbcInst< Gen, Sk, X, Y> visitPragmaExpToJdbcInst(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> PragmaExpToJdbcInst<Gen, Sk, X, Y> visitPragmaExpToJdbcInst(Unit params, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp< Gen, Sk, X, Y> i = (InstExp< Gen, Sk, X, Y>) new InstExpVar(
-				"i");
+		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -580,15 +555,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i1", s);
 		exp.defs.insts.put("i2", s);
 		InstExp<Object, Object, Object, Object> i2 = new InstExpVar("i2");
-		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i1, i2));
 		return new PragmaExpToJdbcTrans(h, "class", "jdbc_string", "prefix", new LinkedList(), new LinkedList());
 	}
 
 	@Override
-	public  PragmaExpToJdbcQuery visitPragmaExpToJdbcQuery(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public PragmaExpToJdbcQuery visitPragmaExpToJdbcQuery(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 		exp.defs.schs.put("s1", t);
@@ -611,17 +584,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i1", s);
 		exp.defs.insts.put("i2", s);
 		InstExp<Object, Object, Object, Object> i2 = new InstExpVar("i2");
-		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i1, i2));
 		return new PragmaExpToCsvTrans(h, "directory", new LinkedList(), new LinkedList());
 	}
 
 	@Override
-	public  PragmaExpCheck2 visitPragmaExpCheck2(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public PragmaExpCheck2 visitPragmaExpCheck2(Unit params, AqlTyping exp) throws RuntimeException {
 		TyExpVar t = new TyExpVar("t");
-	
+
 		exp.defs.schs.put("s1", t);
 		exp.defs.schs.put("s2", t);
 		SchExp s1 = new SchExpVar("s1");
@@ -639,45 +610,45 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <N> ColimSchExpQuotient<N> visitColimSchExpQuotient(Unit params, AqlTyping exp) throws RuntimeException {
+	public ColimSchExpQuotient visitColimSchExpQuotient(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
-		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+		ColimSchExpQuotient q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		return q;
 	}
 
 	@Override
-	public <N, Ex> ColimSchExpRaw<N, Ex> visitColimSchExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
+	public ColimSchExpRaw visitColimSchExpRaw(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 		exp.defs.gs.put("g", Unit.unit);
-		GraphExp<Object, Object> g = new GraphExpVar("g");
+		GraphExp g = new GraphExpVar("g");
 		return new ColimSchExpRaw(g, t, new LinkedList(), new LinkedList(), new LinkedList());
 	}
 
 	@Override
-	public <N> ColimSchExpVar<N> visitColimSchExpVar(Unit params, AqlTyping exp) throws RuntimeException {
+	public ColimSchExpVar visitColimSchExpVar(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
-		ColimSchExpVar<N> x = new ColimSchExpVar("sc");
+		ColimSchExpVar x = new ColimSchExpVar("sc");
 		exp.defs.scs.put("sc", new THashSet());
-		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+		ColimSchExpQuotient q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		exp.prog.exps.put("sc", q);
 		return x;
 	}
 
 	@Override
-	public <N> ColimSchExpWrap<N> visitColimSchExpWrap(Unit params, AqlTyping exp) throws RuntimeException {
+	public ColimSchExpWrap visitColimSchExpWrap(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
-		ColimSchExpVar<N> x = new ColimSchExpVar("sc");
+		ColimSchExpVar x = new ColimSchExpVar("sc");
 		exp.defs.scs.put("sc", new THashSet());
 		SchExp s = new SchExpVar("s");
 		SchExp ss = new SchExpColim(x);
 
-		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+		ColimSchExpQuotient q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		exp.prog.exps.put("sc", q);
 
@@ -690,13 +661,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <N> ColimSchExpModify<N> visitColimSchExpModify(Unit params, AqlTyping exp) throws RuntimeException {
+	public ColimSchExpModify visitColimSchExpModify(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
-		ColimSchExpVar<N> x = new ColimSchExpVar("sc");
+		ColimSchExpVar x = new ColimSchExpVar("sc");
 		exp.defs.scs.put("sc", new THashSet());
 
-		ColimSchExpQuotient<N> q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
+		ColimSchExpQuotient q = new ColimSchExpQuotient(t, Collections.emptyList(), Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		exp.prog.exps.put("sc", q);
 
@@ -709,10 +680,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		return new InstExpJdbcAll("class", "jdbc_string", Collections.emptyList());
 	}
 
-	
 	@Override
-	public <Gen, Sk, X, Y> InstExpSigma<Gen, Sk, X, Y> visitInstExpSigma(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpSigma<Gen, Sk, X, Y> visitInstExpSigma(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -731,8 +701,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> InstExpSigmaChase<Gen, Sk, X, Y> visitInstExpSigmaChase(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpSigmaChase<Gen, Sk, X, Y> visitInstExpSigmaChase(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -761,8 +731,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> InstExpAnonymize<Gen, Sk, X, Y> visitInstExpAnonymize(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpAnonymize<Gen, Sk, X, Y> visitInstExpAnonymize(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp<Object, Object, Object, Object> i = new InstExpVar("i");
@@ -773,8 +743,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> InstExpChase<Gen, Sk, X, Y> visitInstExpChase(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpChase<Gen, Sk, X, Y> visitInstExpChase(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i = new InstExpVar("i");
@@ -789,7 +759,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCoEq< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCoEq(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCoEq(
 			Unit param, AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
@@ -808,19 +778,17 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <N, Ex, Gen, Sk, X, Y> InstExpColim<N, Ex,  Gen, Sk, X, Y> visitInstExpColim(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpColim<Gen, Sk, X, Y> visitInstExpColim(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		GraphExpVar g = new GraphExpVar("g");
 		SchExp s = new SchExpVar("s");
 		exp.defs.tys.put("t", Unit.unit);
 		return new InstExpColim(g, s, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 	}
 
-	
-
 	@Override
-	public < Gen, Sk, X, Y> InstExpCoProdFull< Gen, Sk, X, Y> visitInstExpCoProdFull(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpCoProdFull<Gen, Sk, X, Y> visitInstExpCoProdFull(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		exp.defs.tys.put("t", Unit.unit);
@@ -836,8 +804,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y, Gen1, Sk1, X1> InstExpDiff< Gen, Sk, X, Y, Gen1, Sk1, X1> visitInstExpDiff(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y, Gen1, Sk1, X1> InstExpDiff<Gen, Sk, X, Y, Gen1, Sk1, X1> visitInstExpDiff(Unit param,
+			AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i1 = new InstExpVar("i1");
@@ -850,8 +818,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> InstExpDistinct< Gen, Sk, X, Y> visitInstExpDistinct(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpDistinct<Gen, Sk, X, Y> visitInstExpDistinct(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i = new InstExpVar("i");
@@ -862,7 +830,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpDom< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpDom(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpDom<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpDom(
 			Unit param, AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
@@ -878,7 +846,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCod< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCod(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCod(
 			Unit param, AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
@@ -894,8 +862,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  InstExpEmpty visitInstExpEmpty(Unit param, AqlTyping exp)
-			throws RuntimeException {
+	public InstExpEmpty visitInstExpEmpty(Unit param, AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		exp.defs.schs.put("s", t);
@@ -904,8 +871,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk,X, Y> InstExpEval<Gen, Sk, X, Y> visitInstExpEval(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpEval<Gen, Sk, X, Y> visitInstExpEval(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -924,8 +891,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> InstExpCoEval<Gen, Sk, X, Y> visitInstExpCoEval(
-			Unit param, AqlTyping exp) {
+	public <Gen, Sk, X, Y> InstExpCoEval<Gen, Sk, X, Y> visitInstExpCoEval(Unit param, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -944,8 +910,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  InstExpFrozen visitInstExpFrozen(
-			Unit param, AqlTyping exp)  {
+	public InstExpFrozen visitInstExpFrozen(Unit param, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -962,14 +927,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> InstExpLit< Gen, Sk, X, Y> visitInstExpLit(
-			Unit param, AqlTyping exp) {
+	public <Gen, Sk, X, Y> InstExpLit<Gen, Sk, X, Y> visitInstExpLit(Unit param, AqlTyping exp) {
 		return null;
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> InstExpPivot< Gen, Sk, X, Y> visitInstExpPivot(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpPivot<Gen, Sk, X, Y> visitInstExpPivot(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i = new InstExpVar("i");
@@ -980,8 +944,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> InstExpPi<Gen, Sk, X, Y> visitInstExpPi(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpPi<Gen, Sk, X, Y> visitInstExpPi(Unit param, AqlTyping exp) throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -998,8 +961,6 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		return new InstExpPi(m, i, Collections.emptyMap());
 	}
 
-	
-
 	@Override
 	public InstExpCsv visitInstExpCsv(Unit param, AqlTyping exp) throws RuntimeException {
 		SchExp s = new SchExpVar("s");
@@ -1010,8 +971,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> InstExpDelta<Gen, Sk, X, Y> visitInstExpDelta(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpDelta<Gen, Sk, X, Y> visitInstExpDelta(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1071,7 +1032,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpEval< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpEval(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpEval(
 			Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
@@ -1085,8 +1046,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i", s1);
 		exp.defs.insts.put("j", s1);
 		InstExp i = new InstExpVar("i");
-		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i, j));
 		exp.prog.exps.put("s1", new SchExpEmpty(t));
 		exp.prog.exps.put("s2", new SchExpEmpty(t));
@@ -1098,7 +1058,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpCoEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpCoEval(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpCoEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpCoEval(
 			Unit params, AqlTyping exp) throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
@@ -1112,8 +1072,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i", s1);
 		exp.defs.insts.put("j", s1);
 		InstExp i = new InstExpVar("i");
-		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i, j));
 		exp.prog.exps.put("s1", new SchExpEmpty(t));
 		exp.prog.exps.put("s2", new SchExpEmpty(t));
@@ -1125,8 +1084,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk,  X, Y> TransExpCoEvalEvalCoUnit< Gen, Sk, X, Y> visitTransExpCoEvalEvalCoUnit(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> visitTransExpCoEvalEvalCoUnit(Unit params,
+			AqlTyping exp) throws RuntimeException {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1146,8 +1105,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> TransExpCoEvalEvalUnit<Gen, Sk,  X, Y> visitTransExpCoEvalEvalUnit(
-			Unit params, AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpCoEvalEvalUnit<Gen, Sk, X, Y> visitTransExpCoEvalEvalUnit(Unit params,
+			AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1167,8 +1126,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> TransExpSigmaDeltaCounit< Gen, Sk,  X, Y> visitTransExpSigmaDeltaCounit(
-			Unit params, AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpSigmaDeltaCounit<Gen, Sk, X, Y> visitTransExpSigmaDeltaCounit(Unit params,
+			AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1188,8 +1147,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> TransExpSigmaDeltaUnit< Gen, Sk, X, Y> visitTransExpSigmaDeltaUnit(
-			Unit params, AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpSigmaDeltaUnit<Gen, Sk, X, Y> visitTransExpSigmaDeltaUnit(Unit params,
+			AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1209,7 +1168,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> TransExpCompose<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> visitTransExpCompose(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> TransExpCompose<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> visitTransExpCompose(
 			Unit params, AqlTyping exp) {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
@@ -1241,8 +1200,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> TransExpId< Gen, Sk, X, Y> visitTransExpId(
-			Unit params, AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpId<Gen, Sk, X, Y> visitTransExpId(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i = new InstExpVar("i");
@@ -1252,7 +1210,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpDelta<Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpDelta(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpDelta<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpDelta(
 			Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
@@ -1266,8 +1224,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i", s1);
 		exp.defs.insts.put("j", s1);
 		InstExp i = new InstExpVar("i");
-		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i, j));
 		exp.prog.exps.put("s1", new SchExpEmpty(t));
 		exp.prog.exps.put("s2", new SchExpEmpty(t));
@@ -1293,8 +1250,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i", s1);
 		exp.defs.insts.put("j", s1);
 		InstExp i = new InstExpVar("i");
-		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i, j));
 		exp.prog.exps.put("s1", new SchExpEmpty(t));
 		exp.prog.exps.put("s2", new SchExpEmpty(t));
@@ -1306,7 +1262,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> TransExpPi<Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpPi(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpPi<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpPi(
 			Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
@@ -1320,8 +1276,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i", s1);
 		exp.defs.insts.put("j", s1);
 		InstExp i = new InstExpVar("i");
-		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i, j));
 		exp.prog.exps.put("s1", new SchExpEmpty(t));
 		exp.prog.exps.put("s2", new SchExpEmpty(t));
@@ -1331,7 +1286,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 		return new TransExpPi(m, h, new THashMap(), new THashMap());
 	}
-	
+
 	@Override
 	public TransExpRaw visitTransExpRaw(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
@@ -1395,7 +1350,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpDistinct< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpDistinct(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpDistinct<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpDistinct(
 			Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
@@ -1407,8 +1362,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.insts.put("i", s1);
 		exp.defs.insts.put("j", s1);
 		InstExp i = new InstExpVar("i");
-		TransExp< Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar(
-				"h");
+		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i, j));
 		exp.prog.exps.put("s1", new SchExpEmpty(t));
 		exp.prog.exps.put("s2", new SchExpEmpty(t));
@@ -1420,8 +1374,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> TransExpDistinct2< Gen, Sk, X, Y> visitTransExpDistinct2(
-			Unit params, AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpDistinct2<Gen, Sk, X, Y> visitTransExpDistinct2(Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		TyExp t = new TyExpVar("t");
 		InstExp i = new InstExpVar("i");
@@ -1438,14 +1391,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpLit< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpLit(
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpLit<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpLit(
 			Unit params, AqlTyping exp) {
 		return null;
 	}
 
 	@Override
-	public  MapExpLit visitMapExpLit(
-			Unit params, AqlTyping exp) throws RuntimeException {
+	public MapExpLit visitMapExpLit(Unit params, AqlTyping exp) throws RuntimeException {
 		return null;
 	}
 
@@ -1455,8 +1407,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> TransExpDiffReturn< Gen, Sk, X, Y> visitTransExpDiffReturn(
-			Unit params, AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpDiffReturn<Gen, Sk, X, Y> visitTransExpDiffReturn(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i1 = new InstExpVar("i1");
@@ -1469,7 +1420,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public < Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> TransExpDiff< Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> visitTransExpDiff(
+	public <Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> TransExpDiff<Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> visitTransExpDiff(
 			Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
@@ -1504,8 +1455,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public  QueryExpFromCoSpan visitQueryExpFromCoSpan(
-			Unit params, AqlTyping exp) {
+	public QueryExpFromCoSpan visitQueryExpFromCoSpan(Unit params, AqlTyping exp) {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 		exp.prog.exps.put("t", new TyExpEmpty());
@@ -1532,8 +1482,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> InstExpCascadeDelete<Gen, Sk, X, Y> visitInstExpCascadeDelete(
-			Unit param, AqlTyping exp) throws RuntimeException {
+	public <Gen, Sk, X, Y> InstExpCascadeDelete<Gen, Sk, X, Y> visitInstExpCascadeDelete(Unit param, AqlTyping exp)
+			throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");
 		exp.prog.exps.put("t", new TyExpEmpty());
@@ -1549,7 +1499,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 		InstExp i = new InstExpVar("i");
 		exp.defs.insts.put("i", s1);
-		
+
 		return new InstExpCascadeDelete(i, s2);
 	}
 
@@ -1564,9 +1514,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		TyExpVar t = new TyExpVar("t");
 		exp.prog.exps.put("t", new TyExpEmpty());
 		exp.defs.schs.put("s", t);
-		exp.defs.eds.put("eds", new SchExpVar("s")); //, Collections.emptyList(), Collections.emptyList(), Unit.unit));
+		exp.defs.eds.put("eds", new SchExpVar("s")); // , Collections.emptyList(), Collections.emptyList(), Unit.unit));
 		EdsExpVar eds = new EdsExpVar("eds");
-		
+
 		return new QueryExpFromEds(eds, 0);
 	}
 

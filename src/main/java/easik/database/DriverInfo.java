@@ -91,8 +91,7 @@ public class DriverInfo {
 	/**
 	 * Return the appropriate API.
 	 * 
-	 * @param database
-	 *            Name of database
+	 * @param database Name of database
 	 * @return API to use (null if database unknown)
 	 *
 	 * @throws PersistenceDriver.LoadException

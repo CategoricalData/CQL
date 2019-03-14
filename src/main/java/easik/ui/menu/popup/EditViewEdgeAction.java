@@ -41,11 +41,10 @@ public class EditViewEdgeAction extends AbstractAction {
 	}
 
 	/**
-	 * Called when clicked upon, will popup the edge UI and, if accepted, update
-	 * the name and cascade option.
+	 * Called when clicked upon, will popup the edge UI and, if accepted, update the
+	 * name and cascade option.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -58,7 +57,10 @@ public class EditViewEdgeAction extends AbstractAction {
 			// If we're currently synced with a db, give the user the chance to
 			// cancel operation
 			if (_ourView.getSketch().isSynced()) {
-				if (JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; delete and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+				if (JOptionPane.showConfirmDialog(_theFrame,
+						"Warning: this sketch is currently synced with a db; delete and break synchronization?",
+						"Warning!", JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 					return;
 				}
 			}

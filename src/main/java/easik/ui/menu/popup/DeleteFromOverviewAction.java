@@ -44,8 +44,7 @@ public class DeleteFromOverviewAction extends AbstractAction {
 	 * When the action is performed, selection is deleted if possible. Error is
 	 * displayed if no graph item is selected.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -63,7 +62,8 @@ public class DeleteFromOverviewAction extends AbstractAction {
 				confirm = "Warning: this sketch is currently synced with a db; delete and break synchronization?";
 			}
 
-			if (JOptionPane.showConfirmDialog(_theOverview.getFrame(), confirm, "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(_theOverview.getFrame(), confirm, "Warning!",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 
@@ -73,7 +73,8 @@ public class DeleteFromOverviewAction extends AbstractAction {
 				confirm = "Warning: this view is of a sketch that is currently synced with a db; delete and break synchronization?";
 			}
 
-			if (JOptionPane.showConfirmDialog(_theOverview.getFrame(), confirm, "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(_theOverview.getFrame(), confirm, "Warning!",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 

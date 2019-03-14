@@ -14,11 +14,11 @@ public class Sk {
 		InstExpRaw.skCache.put(str, sk);
 		return sk;
 	}
-	
+
 	private Sk(String str) {
 		this.str = str;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
@@ -28,7 +28,7 @@ public class Sk {
 	public boolean equals(Object obj) {
 		return this == obj;
 	}
-	
+
 	@Override
 	public String toString() {
 		return Util.maybeQuote(str);

@@ -23,8 +23,7 @@ import catdata.aql.fdm.SigmaChaseAlgebra;
 import catdata.aql.fdm.SigmaLeftKanAlgebra;
 import gnu.trove.set.hash.THashSet;
 
-public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
-		InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {
+public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {
 
 	public final InstExp<Gen, Sk, X, Y> I;
 	public final MapExp F;
@@ -34,7 +33,7 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		F.map(f);
@@ -56,8 +55,7 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 		return Util.union(I.deps(), F.deps());
 	}
 
-	public InstExpSigmaChase(MapExp f,
-			InstExp<Gen, Sk, X, Y> i, Map<String, String> options) {
+	public InstExpSigmaChase(MapExp f, InstExp<Gen, Sk, X, Y> i, Map<String, String> options) {
 		I = i;
 		F = f;
 		this.options = options;
@@ -83,7 +81,7 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpSigmaChase< ?, ?, ?, ?> other = (InstExpSigmaChase< ?, ?, ?, ?>) obj;
+		InstExpSigmaChase<?, ?, ?, ?> other = (InstExpSigmaChase<?, ?, ?, ?>) obj;
 		if (F == null) {
 			if (other.F != null)
 				return false;
@@ -108,8 +106,8 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 		Pair<SchExp, SchExp> t1 = F.type(G);
 
 		if (!G.eq(t1.first, t0)) { // TODO aql schema equality
-			throw new RuntimeException("Type error: In " + this + " domain of mapping is " + t1.first
-					+ " but instance has schema " + t0);
+			throw new RuntimeException(
+					"Type error: In " + this + " domain of mapping is " + t1.first + " but instance has schema " + t0);
 		}
 
 		return t1.second;
@@ -126,24 +124,23 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(
-			AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
+			boolean isC) {
 		Mapping<catdata.aql.exp.Ty, En, catdata.aql.exp.Sym, Fk, Att, En, Fk, Att> f = F.eval(env, isC);
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = I.eval(env, isC);
 		if (isC) {
 			throw new IgnoreException();
 		}
-		
+
 		AqlOptions op = new AqlOptions(options, null, env.defaults);
 
 		String type = (String) op.getOrDefault(AqlOption.chase_style);
 		Integer reduce = (Integer) op.getOrDefault(AqlOption.talg_reduction);
-		
+
 		if (!("sequential".equals(type) || "parallel".equals(type))) {
 			throw new RuntimeException("Style must be sequential or parallel");
 		}
 
-			
 		if (type.equals("sequential")) {
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(f.dst.collage());
 
@@ -153,13 +150,12 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 			}
 
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = (new THashSet<>());
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : i
-					.eqs()) {
+			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : i.eqs()) {
 				eqs.add(new Pair<>(f.trans(eq.first), f.trans(eq.second)));
 				col.eqs.add(new Eq<>(null, f.trans(eq.first), f.trans(eq.second)));
 			}
-			SigmaLeftKanAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg 
-			= new SigmaLeftKanAlgebra<>(f, i, col, reduce);
+			SigmaLeftKanAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg = new SigmaLeftKanAlgebra<>(f, i,
+					col, reduce);
 
 			Instance zz = new LiteralInstance<>(alg.schema(), col.gens, col.sks, eqs, alg, alg,
 					(Boolean) op.getOrDefault(AqlOption.require_consistency),
@@ -167,9 +163,9 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 			zz.validate();
 			return zz;
 		} else if (type.equals("parallel")) {
-			
-			SigmaChaseAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg = new SigmaChaseAlgebra<>(
-					f, i, Collections.emptyMap(), op);
+
+			SigmaChaseAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg = new SigmaChaseAlgebra<>(f, i,
+					Collections.emptyMap(), op);
 			return alg.theInst;
 
 		}
@@ -183,5 +179,4 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends
 		set.add(AqlOption.allow_java_eqs_unsafe);
 	}
 
-	
 }

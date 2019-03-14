@@ -57,14 +57,13 @@ public class RowEntryDialog extends OptionsDialog {
 	private HashMap<String, String> defaults;
 
 	/**
-	 * Set of DialogRow objects which are used by the verify method to grab
-	 * input
+	 * Set of DialogRow objects which are used by the verify method to grab input
 	 */
 	private Collection<DialogRow> dialogRows;
 
 	/**
-	 * A map foreign key name to a JTable holding the data of the table to which
-	 * the foreign key points
+	 * A map foreign key name to a JTable holding the data of the table to which the
+	 * foreign key points
 	 */
 	private LinkedHashMap<String, EntityNode> foreignKeys;
 
@@ -81,28 +80,25 @@ public class RowEntryDialog extends OptionsDialog {
 	 * @param inAttToType
 	 * @param fKeys
 	 */
-	public RowEntryDialog(final JFrame parent, final String title, final Map<String, EasikType> inAttToType, final Map<String, EntityNode> fKeys) {
+	public RowEntryDialog(final JFrame parent, final String title, final Map<String, EasikType> inAttToType,
+			final Map<String, EntityNode> fKeys) {
 		this(parent, title, inAttToType, fKeys, new HashMap<String, String>(10));
 	}
 
 	/**
 	 * Sets up dialog for inserting data into a table
 	 *
-	 * @param parent
-	 *            The parent frame of the modal dialog
-	 * @param title
-	 *            a title
-	 * @param inAttToType
-	 *            A map of attribute (column) names, to the type of input they
-	 *            expect
-	 * @param fKeys
-	 *            A map of column names which represent foreign keys to the
-	 *            EntityNode to which it points
-	 * @param defs
-	 *            Default values for entry fields in the form of a map from
-	 *            column name to default text
+	 * @param parent      The parent frame of the modal dialog
+	 * @param title       a title
+	 * @param inAttToType A map of attribute (column) names, to the type of input
+	 *                    they expect
+	 * @param fKeys       A map of column names which represent foreign keys to the
+	 *                    EntityNode to which it points
+	 * @param defs        Default values for entry fields in the form of a map from
+	 *                    column name to default text
 	 */
-	public RowEntryDialog(final JFrame parent, final String title, final Map<String, EasikType> inAttToType, final Map<String, EntityNode> fKeys, final Map<String, String> defs) {
+	public RowEntryDialog(final JFrame parent, final String title, final Map<String, EasikType> inAttToType,
+			final Map<String, EntityNode> fKeys, final Map<String, String> defs) {
 		super(parent, title);
 
 		attsToTypes = new HashMap<>(inAttToType);
@@ -117,9 +113,9 @@ public class RowEntryDialog extends OptionsDialog {
 	}
 
 	/**
-	 * Called when the user clicks the OK button. If the input for a given field
-	 * is deemed valid, it is added to the input map. If any input is invalid.
-	 * The whole input map is set to null and the method returns false.
+	 * Called when the user clicks the OK button. If the input for a given field is
+	 * deemed valid, it is added to the input map. If any input is invalid. The
+	 * whole input map is set to null and the method returns false.
 	 *
 	 * @return true if all inputs check out, false otherwise.
 	 */
@@ -145,13 +141,11 @@ public class RowEntryDialog extends OptionsDialog {
 				input.add(new ColumnEntry(column, fieldInput, new Int()));
 			}
 			/*
-			 * else if (inputComponent instanceof JDateChooser) { // grab input
-			 * from date chooser - null -> bad input final String date =
-			 * Long.toString(((JDateChooser)
+			 * else if (inputComponent instanceof JDateChooser) { // grab input from date
+			 * chooser - null -> bad input final String date = Long.toString(((JDateChooser)
 			 * inputComponent).getDate().getTime());
 			 * 
-			 * if (date == null) { // bad input
-			 * JOptionPane.showMessageDialog(this,
+			 * if (date == null) { // bad input JOptionPane.showMessageDialog(this,
 			 * "<html>Invalid date selected for <b>" + column + "</b>", column +
 			 * ": Invalid input", JOptionPane.ERROR_MESSAGE);
 			 * 
@@ -167,12 +161,11 @@ public class RowEntryDialog extends OptionsDialog {
 				input.add(new ColumnEntry(column, Long.toString(t.getMillis()), row.type));
 			}
 			/*
-			 * else if (inputComponent instanceof DateTimeChooser) { final
-			 * DateTimeChooser dtc = (DateTimeChooser) inputComponent; final
-			 * Date date = dtc.dateChooser.getDate();
+			 * else if (inputComponent instanceof DateTimeChooser) { final DateTimeChooser
+			 * dtc = (DateTimeChooser) inputComponent; final Date date =
+			 * dtc.dateChooser.getDate();
 			 * 
-			 * if (date == null) { // bad input
-			 * JOptionPane.showMessageDialog(this,
+			 * if (date == null) { // bad input JOptionPane.showMessageDialog(this,
 			 * "<html>Invalid date/time for <b>" + column + "</b>", column +
 			 * ": Invalid input", JOptionPane.ERROR_MESSAGE);
 			 * 
@@ -182,8 +175,7 @@ public class RowEntryDialog extends OptionsDialog {
 			 * 
 			 * final long dateTime = dtc.getMillis();
 			 * 
-			 * input.add(new ColumnEntry(column, Long.toString(dateTime),
-			 * row.type)); }
+			 * input.add(new ColumnEntry(column, Long.toString(dateTime), row.type)); }
 			 */
 			else {
 				fieldInput = ((JTextField) inputComponent).getText();
@@ -193,7 +185,9 @@ public class RowEntryDialog extends OptionsDialog {
 				if ("".equals(fieldInput) || row.type.verifyInput(fieldInput)) {
 					input.add(new ColumnEntry(column, fieldInput, row.type));
 				} else { // otherwise we have bad input
-					JOptionPane.showMessageDialog(this, "<html>Invalid input '" + fieldInput + "' for <b>" + column + "</b> (" + row.type + ')', column + ": Invalid input", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this,
+							"<html>Invalid input '" + fieldInput + "' for <b>" + column + "</b> (" + row.type + ')',
+							column + ": Invalid input", JOptionPane.ERROR_MESSAGE);
 
 					input = null;
 
@@ -226,7 +220,8 @@ public class RowEntryDialog extends OptionsDialog {
 
 		if (attsToTypes.isEmpty() && foreignKeys.isEmpty()) {
 			if (getTitle().startsWith("Update")) {
-				options.add(new Option("<html><i>(No attributes or outgoing edges)</i><br>Cannot update foreign keys involved in constraint."));
+				options.add(new Option(
+						"<html><i>(No attributes or outgoing edges)</i><br>Cannot update foreign keys involved in constraint."));
 			} else {
 				options.add(new Option("<html><i>(No attributes or outgoing edges)</i><br>Press OK to add a new row."));
 			}
@@ -296,8 +291,8 @@ public class RowEntryDialog extends OptionsDialog {
 	}
 
 	/**
-	 * JComponent for entering a date and time. Constains JSpinners for
-	 * hour:min:sec and a JDateChooser.
+	 * JComponent for entering a date and time. Constains JSpinners for hour:min:sec
+	 * and a JDateChooser.
 	 */
 	/*
 	 * private class DateTimeChooser extends JPanel { private static final long
@@ -313,8 +308,8 @@ public class RowEntryDialog extends OptionsDialog {
 	 * 
 	 * this.add(dateChooser); this.add(timeChooser); JUtils.borderless(this); }
 	 * 
-	 * private long getMillis() { return
-	 * dateChooser.getDate(timeChooser).getTime(); } }
+	 * private long getMillis() { return dateChooser.getDate(timeChooser).getTime();
+	 * } }
 	 */
 
 	/**
@@ -347,8 +342,8 @@ public class RowEntryDialog extends OptionsDialog {
 
 	/**
 	 * Listens on the foreign key-selecting button and opens a singleton
-	 * record-selection dialog. The primary ID of the selected record is then
-	 * set in the _display text field for the user.
+	 * record-selection dialog. The primary ID of the selected record is then set in
+	 * the _display text field for the user.
 	 */
 	private class ForeignKeyListener implements ActionListener {
 		/**  */
@@ -455,17 +450,13 @@ public class RowEntryDialog extends OptionsDialog {
 		}
 
 		/**
-		 * Sets up time chooser with default values for the spinners. Bad
-		 * defaults get set to 0.
+		 * Sets up time chooser with default values for the spinners. Bad defaults get
+		 * set to 0.
 		 *
-		 * @param hr
-		 *            hour
-		 * @param min
-		 *            minute
-		 * @param sec
-		 *            second
-		 * @param msec
-		 *            msec
+		 * @param hr   hour
+		 * @param min  minute
+		 * @param sec  second
+		 * @param msec msec
 		 */
 		private TimeChooser(final int hr, final int min, final int sec, final int msec) {
 			final int hour = ((hr > 23) || (hr < 0)) ? 0 : hr;
@@ -500,9 +491,9 @@ public class RowEntryDialog extends OptionsDialog {
 		}
 
 		/**
-		 * Returns the miliseconds represented by this time chooser, corrected
-		 * via Java's Calendar object so that when sent to an SQL server, the
-		 * value interpreted is the same as the user sees on the JSpinners
+		 * Returns the miliseconds represented by this time chooser, corrected via
+		 * Java's Calendar object so that when sent to an SQL server, the value
+		 * interpreted is the same as the user sees on the JSpinners
 		 *
 		 * @return long msecions
 		 */

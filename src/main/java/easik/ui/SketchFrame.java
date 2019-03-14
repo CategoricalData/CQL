@@ -108,11 +108,13 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	 * Menu (items) that we need a reference to enabling us to toggle their
 	 * visibility
 	 */
-	private JMenuItem _AddCommutativeDiagramMenuItem, _AddSumMenuItem, _AddProductMenuItem, _AddPullbackMenuItem, _AddEqualizerMenuItem;
+	private JMenuItem _AddCommutativeDiagramMenuItem, _AddSumMenuItem, _AddProductMenuItem, _AddPullbackMenuItem,
+			_AddEqualizerMenuItem;
 	// _AddLimMenuItem;
 
 	/**  */
-	private JMenuItem _AddEntityPopItem, _AddEntityItem, _AddEdgePopItem, _AddInjEdgePopItem, _AddParEdgePopItem, _AddSelfParEdgePopItem;
+	private JMenuItem _AddEntityPopItem, _AddEntityItem, _AddEdgePopItem, _AddInjEdgePopItem, _AddParEdgePopItem,
+			_AddSelfParEdgePopItem;
 
 	/**  */
 	private JMenuItem _AddRowPopItem, _UpdateRowPopItem, _AddByQueryPopItem;
@@ -146,7 +148,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	private JLabel _connectionStatusLabel;
 
 	/** Popup menus for various selections */
-	private JPopupMenu _editSketchPopMenu, _editEntityPopMenu, _editConstraintPopMenu, _editEdgePopMenu, _editMixedPopMenu, _addConstraintPopMenu, _manipulateEntityPopMenu;
+	private JPopupMenu _editSketchPopMenu, _editEntityPopMenu, _editConstraintPopMenu, _editEdgePopMenu,
+			_editMixedPopMenu, _addConstraintPopMenu, _manipulateEntityPopMenu;
 
 	/** The information tree */
 	private ModelInfoTreeUI<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> _infoTreeUI;
@@ -176,8 +179,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	private Point _popupPosition;
 
 	/**
-	 * The recent files menu created from the recent files stored in the
-	 * settings file
+	 * The recent files menu created from the recent files stored in the settings
+	 * file
 	 */
 	@SuppressWarnings("unused")
 	private JMenu _recentFilesMenu;
@@ -186,7 +189,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	private JPanel _rightPane, _mainPane, _buttonPane;
 
 	/**  */
-	private JMenuItem addEdge, addInjEdge, addParEdge, addSelfParEdge, addAtt, addUK, rename, del, editEdge, addRowMenuItem, insertQueryMenuItem, deleteRowMenuItem, deleteQueryMenuItem;
+	private JMenuItem addEdge, addInjEdge, addParEdge, addSelfParEdge, addAtt, addUK, rename, del, editEdge,
+			addRowMenuItem, insertQueryMenuItem, deleteRowMenuItem, deleteQueryMenuItem;
 
 	/** Edit menu and items */
 
@@ -198,13 +202,12 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	private JMenu menuSQL;
 
 	/**
-	 * Creates a sketch frame, sets some sizes, sets up the properties builds
-	 * the menus, and lays out the swing components. Sketch frame's default mode
-	 * allows the user to edit the sketch, as opposed to editing a db defined by
-	 * the current sketch layout.
+	 * Creates a sketch frame, sets some sizes, sets up the properties builds the
+	 * menus, and lays out the swing components. Sketch frame's default mode allows
+	 * the user to edit the sketch, as opposed to editing a db defined by the
+	 * current sketch layout.
 	 *
-	 * @param inOverview
-	 *            The overview in which this frame's sketch will exist
+	 * @param inOverview The overview in which this frame's sketch will exist
 	 */
 	public SketchFrame(final Overview inOverview) {
 		super("EASIK - Untitled");
@@ -302,21 +305,22 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 		// Setup entire window
 		_mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, _mainPane, _rightPane);
 
-		final int dividerPos = Integer.parseInt(_settings.getProperty("sketch_divider_position", String.valueOf((defaultWidth - 255))));
+		final int dividerPos = Integer
+				.parseInt(_settings.getProperty("sketch_divider_position", String.valueOf((defaultWidth - 255))));
 
 		_mainSplitPane.setDividerLocation(dividerPos);
 		_mainSplitPane.setDividerSize(10);
 		_mainSplitPane.setResizeWeight(1);
 		_mainSplitPane.setOneTouchExpandable(true);
 		_mainSplitPane.setContinuousLayout(true);
-		
+
 		getContentPane().add(_mainSplitPane, BorderLayout.CENTER);
 
-		//JPanel aqlPanel = new JPanel();
-		//JButton toAqlButton = new JButton("To CQL");
-		//aqlPanel.add(toAqlButton);
-		//getContentPane().add(aqlPanel, BorderLayout.NORTH);
-		
+		// JPanel aqlPanel = new JPanel();
+		// JButton toAqlButton = new JButton("To CQL");
+		// aqlPanel.add(toAqlButton);
+		// getContentPane().add(aqlPanel, BorderLayout.NORTH);
+
 		// Update the display in the overview whenever we lost focus
 		addWindowFocusListener(new WindowFocusListener() {
 			@Override
@@ -339,7 +343,9 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	 */
 	public void enableSketchEdit() {
 		if (_ourSketch.getDatabase().hasConnection() || _ourSketch.isSynced()) {
-			if (JOptionPane.showConfirmDialog(this, '\'' + _ourSketch.getName() + "' is synced with a db. Continue and break sync?", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(this,
+					'\'' + _ourSketch.getName() + "' is synced with a db. Continue and break sync?", "Warning",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 
@@ -368,9 +374,9 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	}
 
 	/**
-	 * Sets up the frame to allow data manipulation of a db defined by the
-	 * current sketch layout. If we can't get a connection, or the user cannot
-	 * confirm that the sketch indeed represents the db, we do nothing.
+	 * Sets up the frame to allow data manipulation of a db defined by the current
+	 * sketch layout. If we can't get a connection, or the user cannot confirm that
+	 * the sketch indeed represents the db, we do nothing.
 	 */
 	public void enableDataManip(boolean show) {
 		final String lineSep = EasikTools.systemLineSeparator();
@@ -414,14 +420,21 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 
 		if (!_ourSketch.getDatabase().hasActiveDriver()) {
 			_ourSketch.getDatabase().cleanDatabaseDriver();
-			JOptionPane.showMessageDialog(this, "This Sketch does not have an outgoing connection.\nYou must connect through 'Export to DBMS' menu option...", "Manipulate db...", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(this,
+					"This Sketch does not have an outgoing connection.\nYou must connect through 'Export to DBMS' menu option...",
+					"Manipulate db...", JOptionPane.INFORMATION_MESSAGE);
 
 			return;
 		}
 
 		if (!_ourSketch.isSynced()) {
 			final String[] choices = { "Yes", "Cancel" };
-			final int choice = JOptionPane.showOptionDialog(this, "It appears that this sketch has either not been exported to the db," + lineSep + "or modifications have been made since an export." + lineSep + "Are you sure that the db is accurately represented by this sketch?", "Confirm Connection", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, choices, choices[0]);
+			final int choice = JOptionPane.showOptionDialog(this,
+					"It appears that this sketch has either not been exported to the db," + lineSep
+							+ "or modifications have been made since an export." + lineSep
+							+ "Are you sure that the db is accurately represented by this sketch?",
+					"Confirm Connection", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, choices,
+					choices[0]);
 
 			if (choice != 0) {
 				_ourSketch.getDatabase().cleanDatabaseDriver();
@@ -472,7 +485,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 		_ourSketch.clearSelection();
 		_ourSketch.getOverview().refreshAll();
 
-		final ModelStateManager<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> stateManager = _ourSketch.getStateManager();
+		final ModelStateManager<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> stateManager = _ourSketch
+				.getStateManager();
 		final SketchGraphModel sgm = _ourSketch.getGraphModel();
 
 		while (sgm.inInsignificantUpdate()) {
@@ -489,8 +503,7 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	/**
 	 * Sets if the button pane is visible or not
 	 *
-	 * @param isVis
-	 *            True if visible, false if hidden.
+	 * @param isVis True if visible, false if hidden.
 	 */
 	@Override
 	public void setButtonPaneVisibility(final boolean isVis) {
@@ -501,8 +514,7 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	 * The instruction bar tells the user what to do when the button pane in
 	 * enables, as it is not always obvious... This method changes that text.
 	 *
-	 * @param inText
-	 *            The new text
+	 * @param inText The new text
 	 */
 	@Override
 	public void setInstructionText(final String inText) {
@@ -573,10 +585,10 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	/**
 	 * Sets the InfoTreeUI
 	 *
-	 * @param inInfoTreeUI
-	 *            The new InfoTreeUI
+	 * @param inInfoTreeUI The new InfoTreeUI
 	 */
-	public void setInfoTreeUI(final ModelInfoTreeUI<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> inInfoTreeUI) {
+	public void setInfoTreeUI(
+			final ModelInfoTreeUI<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> inInfoTreeUI) {
 		_rightPane.remove(_infoTreeUI);
 
 		_infoTreeUI = inInfoTreeUI;
@@ -673,23 +685,22 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	}
 
 	/**
-	 * Based on the current selection, decided which popup menu is appropiriate
-	 * to display. A call is made to its "set items" method, and the menu is
-	 * returned.
+	 * Based on the current selection, decided which popup menu is appropiriate to
+	 * display. A call is made to its "set items" method, and the menu is returned.
 	 * 
 	 * @return The appropriate popup menu based on current selection, ready to
 	 *         display
 	 */
 	public JPopupMenu setPopMenu() {
 		/*
-		 * we want to be able to add edges and nodes as we go for ease of use so
-		 * this section is commented out
+		 * we want to be able to add edges and nodes as we go for ease of use so this
+		 * section is commented out
 		 * 
 		 * Federico Mora
 		 * 
-		 * // If adding constraint, does not matter what is selected - give back
-		 * that menu if (_ourSketch.getStateManager().peekState() instanceof
-		 * GetPathState) { setAddConstraintPopItems();
+		 * // If adding constraint, does not matter what is selected - give back that
+		 * menu if (_ourSketch.getStateManager().peekState() instanceof GetPathState) {
+		 * setAddConstraintPopItems();
 		 * 
 		 * return _addConstraintPopMenu; }
 		 */
@@ -701,9 +712,9 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 				setEditSketchPopItems();
 
 				return _editSketchPopMenu;
-			} 
-				return null;
-			
+			}
+			return null;
+
 		}
 
 		// Check for mixed selection
@@ -718,9 +729,9 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 			if (!(o.getClass() == selected.getClass())) {
 				if (_mode == Mode.EDIT) {
 					return _editMixedPopMenu;
-				} 
-					return null;
-				
+				}
+				return null;
+
 			}
 		}
 
@@ -729,19 +740,19 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 				setEditEntityPopItems();
 
 				return _editEntityPopMenu;
-			} 
-				setManipulateEntityPopItems();
+			}
+			setManipulateEntityPopItems();
 
-				return _manipulateEntityPopMenu;
-			
+			return _manipulateEntityPopMenu;
+
 		} else if (selected instanceof SketchEdge) {
 			if (_mode == Mode.EDIT) {
 				setEditEdgePopItems();
 
 				return _editEdgePopMenu;
-			} 
-				return null;
-			
+			}
+			return null;
+
 		}
 
 		if (selected instanceof ModelConstraint) {
@@ -819,7 +830,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 		final Object[] currentSelection = _ourSketch.getSelectionCells();
 
 		if (currentSelection.length == 1) {
-			if ((currentSelection[0] instanceof SumConstraint) || (currentSelection[0] instanceof ProductConstraint) || (currentSelection[0] instanceof CommutativeDiagram)) {
+			if ((currentSelection[0] instanceof SumConstraint) || (currentSelection[0] instanceof ProductConstraint)
+					|| (currentSelection[0] instanceof CommutativeDiagram)) {
 				_AddPathPopItem.setEnabled(true);
 			}
 		}
@@ -950,8 +962,10 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 			public void menuSelected(final MenuEvent e) {
 				final Object[] selection = _ourSketch.getSelectionCells();
 				final SketchGraphModel model = _ourSketch.getGraphModel();
-				final boolean undoable = model.canUndo() && !_ourSketch.getDatabase().hasConnection() && !_ourSketch.isSynced();
-				final boolean redoable = model.canRedo() && !_ourSketch.getDatabase().hasConnection() && !_ourSketch.isSynced();
+				final boolean undoable = model.canUndo() && !_ourSketch.getDatabase().hasConnection()
+						&& !_ourSketch.isSynced();
+				final boolean redoable = model.canRedo() && !_ourSketch.getDatabase().hasConnection()
+						&& !_ourSketch.isSynced();
 
 				_UndoItem.setEnabled(undoable);
 				_RedoItem.setEnabled(redoable);
@@ -1002,7 +1016,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 					}
 				}
 
-				if ((selection.length == 2) && (selection[0] instanceof EntityNode) && (selection[1] instanceof EntityNode)) {
+				if ((selection.length == 2) && (selection[0] instanceof EntityNode)
+						&& (selection[1] instanceof EntityNode)) {
 					addEdge.setEnabled(true);
 					addInjEdge.setEnabled(true);
 					addParEdge.setEnabled(true);
@@ -1064,7 +1079,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 		mainMenu.add(menuView);
 		menuView.add(_ShowAttributesToggle = new JCheckBoxMenuItem("Attributes/keys visible"));
 		_ShowAttributesToggle.setToolTipText("Toggle display of attributes and unique keys");
-		_ShowAttributesToggle.setState("show".equals(Easik.getInstance().getSettings().getProperty("attrib_display", "show")));
+		_ShowAttributesToggle
+				.setState("show".equals(Easik.getInstance().getSettings().getProperty("attrib_display", "show")));
 		_ShowAttributesToggle.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e1) {
@@ -1086,11 +1102,14 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 
 		menuConstraint.setMnemonic(KeyEvent.VK_C);
 		mainMenu.add(menuConstraint);
-		addMenuItem(menuConstraint, _AddCommutativeDiagramMenuItem = new JMenuItem(new AddCommutativeDiagramAction<>(this)), null);
+		addMenuItem(menuConstraint,
+				_AddCommutativeDiagramMenuItem = new JMenuItem(new AddCommutativeDiagramAction<>(this)), null);
 		addMenuItem(menuConstraint, _AddSumMenuItem = new JMenuItem(new AddSumConstraintAction<>(this)), null);
 		addMenuItem(menuConstraint, _AddProductMenuItem = new JMenuItem(new AddProductConstraintAction<>(this)), null);
-		addMenuItem(menuConstraint, _AddPullbackMenuItem = new JMenuItem(new AddPullbackConstraintAction<>(this)), null);
-		addMenuItem(menuConstraint, _AddEqualizerMenuItem = new JMenuItem(new AddEqualizerConstraintAction(this)), null);
+		addMenuItem(menuConstraint, _AddPullbackMenuItem = new JMenuItem(new AddPullbackConstraintAction<>(this)),
+				null);
+		addMenuItem(menuConstraint, _AddEqualizerMenuItem = new JMenuItem(new AddEqualizerConstraintAction(this)),
+				null);
 		// addMenuItem(menuConstraint, _AddLimMenuItem = new JMenuItem(new
 		// AddLimitConstraintAction<SketchFrame,
 		// SketchGraphModel,Sketch,EntityNode, SketchEdge>(this)), null);
@@ -1128,8 +1147,7 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	/**
 	 * Sets the state of the "show constraints" check box menu item
 	 * 
-	 * @param state
-	 *            The state of the "show constraints" check box menu item
+	 * @param state The state of the "show constraints" check box menu item
 	 */
 	public void setShowConstraints(final boolean state) {
 		_ShowConstraintToggle.setSelected(state);
@@ -1155,15 +1173,15 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	}
 
 	/**
-	 * Sets the text of our connection status label located above the info tree
-	 * to reflect the given db driver.
+	 * Sets the text of our connection status label located above the info tree to
+	 * reflect the given db driver.
 	 * 
-	 * @param dbd
-	 *            The driver whos connection options we will display
+	 * @param dbd The driver whos connection options we will display
 	 */
 	public void setConnectionStatus(final PersistenceDriver dbd) {
 		if ((dbd != null) && dbd.hasConnection()) {
-			_connectionStatusLabel.setText("<html>Connected:<br>   " + dbd.getOption("username") + '@' + dbd.getOption("hostname") + ':' + dbd.getOption("database") + "</html>");
+			_connectionStatusLabel.setText("<html>Connected:<br>   " + dbd.getOption("username") + '@'
+					+ dbd.getOption("hostname") + ':' + dbd.getOption("database") + "</html>");
 		} else {
 			_connectionStatusLabel.setText("Disconnected");
 		}
@@ -1182,8 +1200,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 
 	/**
 	 * Sets the edit mode of the current frame. This should only be called when
-	 * opening an existing sketch; normally, enableDataManip() or
-	 * enableSketchEdit() should be called to change the mode.
+	 * opening an existing sketch; normally, enableDataManip() or enableSketchEdit()
+	 * should be called to change the mode.
 	 *
 	 * @param newMode
 	 */
@@ -1206,8 +1224,7 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 	/**
 	 * Sets the enableness of the "add ____ constraint" menu items
 	 * 
-	 * @param state
-	 *            The state of the add constraint menu items.
+	 * @param state The state of the add constraint menu items.
 	 */
 	@Override
 	public void enableAddConstraintItems(final boolean state) {
@@ -1221,8 +1238,8 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 
 	/**
 	 * Dialog for if the user tries to open sketch for editing while there is an
-	 * active connection to a db. Gives the option to stay connected and
-	 * maintain limited editing power, or disconnecting for full power.
+	 * active connection to a db. Gives the option to stay connected and maintain
+	 * limited editing power, or disconnecting for full power.
 	 */
 	@SuppressWarnings("unused")
 	private class MaintainConnectionDialog extends OptionsDialog {
@@ -1275,9 +1292,9 @@ public class SketchFrame extends ModelFrame<SketchFrame, SketchGraphModel, Sketc
 		public int getSelection() {
 			if (throwConnection.isSelected()) {
 				return 1;
-			} 
-				return 0;
-			
+			}
+			return 0;
+
 		}
 	}
 }

@@ -22,9 +22,8 @@ public interface PathAcceptingState<F extends ModelFrame<F, GM, M, N, E>, GM ext
 	/**
 	 * Hook used by states to transmit information about a path.
 	 *
-	 * @param path
-	 *            A ModelPath<SketchFrame, SketchGraphModel,Sketch,EntityNode,
-	 *            SketchEdge> element.
+	 * @param path A ModelPath<SketchFrame, SketchGraphModel,Sketch,EntityNode,
+	 *             SketchEdge> element.
 	 */
 	public void passPath(ModelPath<F, GM, M, N, E> path);
 }

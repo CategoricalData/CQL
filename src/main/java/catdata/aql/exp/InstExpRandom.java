@@ -23,8 +23,7 @@ import catdata.aql.SkeletonInstanceWrapperInv;
 import catdata.aql.Term;
 import gnu.trove.map.hash.THashMap;
 
-public  final class InstExpRandom
-extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
+public final class InstExpRandom extends InstExp<Integer, Integer, Integer, Integer> implements Raw {
 
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
@@ -35,29 +34,29 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.emptySet();
 	}
-	
-	public <R,P, E extends Exception> R accept(P param, InstExpVisitor<R,P,E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
-	
-	@Override 
+
+	@Override
 	public Map<String, List<InteriorLabel<Object>>> raw() {
 		return raw;
 	}
+
 	public final Map<String, Integer> ens;
-			
+
 	public final Map<String, String> options;
-	
+
 	public final SchExp sch;
-	
+
 	@Override
 	public Map<String, String> options() {
 		return options;
 	}
-	
-	
+
 	public InstExpRandom(SchExp sch, List<Pair<LocStr, String>> ens, List<Pair<String, String>> options) {
 		this.ens = Util.toMapSafely(LocStr.set2y(ens, x -> Integer.parseInt(x)));
 		this.options = Util.toMapSafely(options);
@@ -74,7 +73,6 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 	public Collection<Pair<String, Kind>> deps() {
 		return sch.deps();
 	}
-	
 
 	@Override
 	public int hashCode() {
@@ -115,11 +113,9 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder()
-			.append("random : ").append(sch).append(" {");
+		final StringBuilder sb = new StringBuilder().append("random : ").append(sch).append(" {");
 		if (ens.size() > 0) {
-			sb.append("\ngenerators\n")
-				.append(Util.sep(ens, " -> ", "\n"));
+			sb.append("\ngenerators\n").append(Util.sep(ens, " -> ", "\n"));
 		}
 		return sb.append("}").toString();
 	}
@@ -129,26 +125,23 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 		return sch;
 	}
 
-	
-	
-	
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.random_seed);
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Integer, Integer, Integer, Integer> 
-	eval0(AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Integer, Integer, Integer, Integer> eval0(AqlEnv env,
+			boolean isC) {
 		if (isC) {
 			throw new IgnoreException();
 		}
 		AqlOptions ops = new AqlOptions(options, null, env.defaults);
 		int seed = (Integer) ops.getOrDefault(AqlOption.random_seed);
 		Random rand = new Random(seed);
-	
+
 		Schema<Ty, En, Sym, Fk, Att> schema = sch.eval(env, false);
-		
+
 		for (En e : schema.ens) {
 			if (!ens.containsKey(e.str)) {
 				ens.put(e.str, 1);
@@ -170,7 +163,7 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 			int y = this.ens.get(x.str);
 			ty.put(x, y);
 		}
-				
+
 		int t = 0;
 		Map<En, Integer> m = new THashMap<>();
 		Map<Ty, Integer> n = new THashMap<>();
@@ -184,7 +177,7 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 		}
 		Map<Fk, int[]> fks = new THashMap<>();
 		Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Integer>[]> atts = new THashMap<>();
- 
+
 		for (En e : schema.ens) {
 			int e_size = this.ens.get(e.str);
 			for (Fk f : schema.fksFrom(e)) {
@@ -197,6 +190,7 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 				}
 			}
 			for (Att f : schema.attsFrom(e)) {
+				@SuppressWarnings("unchecked")
 				Term<Ty, Void, Sym, Void, Void, Void, Integer>[] xx = new Term[e_size];
 				atts.put(f, xx);
 				Ty y = schema.atts.get(f).second;
@@ -206,17 +200,16 @@ extends InstExp<Integer, Integer,Integer,Integer> implements Raw {
 				}
 			}
 		}
-		
-		Term<Ty, Void, Sym, Void, Void, Void, Integer>[][] talg_eqs = new Term[0][];
-		BiPredicate<Term<Ty, Void, Sym, Void, Void, Void, Integer>, Term<Ty, Void, Sym, Void, Void, Void, Integer>> talg_dp
-		 = (x,y) -> Util.anomaly();
 
-		
+		@SuppressWarnings("unchecked")
+		Term<Ty, Void, Sym, Void, Void, Void, Integer>[][] talg_eqs = new Term[0][];
+		BiPredicate<Term<Ty, Void, Sym, Void, Void, Void, Integer>, Term<Ty, Void, Sym, Void, Void, Void, Integer>> talg_dp = (
+				x, y) -> Util.anomaly();
+
 		SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> J = new SkeletonExtensionalInstance<>(schema, en, ty, m, n,
-				fks, atts, talg_eqs, talg_dp, x->Chc.inLeft(x), ops);
+				fks, atts, talg_eqs, talg_dp, x -> Chc.inLeft(x), ops);
 		return new SkeletonInstanceWrapperInv<>(J);
-		
+
 	}
 
-	
 }

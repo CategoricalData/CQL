@@ -1,6 +1,5 @@
 package catdata.aql.exp;
 
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -14,15 +13,13 @@ import catdata.aql.Kind;
 import catdata.aql.Transform;
 import catdata.aql.fdm.DiffInstance;
 
-public final class TransExpDiffReturn<Gen, Sk, X, Y>
-extends TransExp<X, Y, Gen, Sk, X, Y, X, Y> {
-	
-	public TransExpDiffReturn(InstExp< Gen, Sk, X, Y> i,
-			InstExp< Gen, Sk, X, Y> j) {
+public final class TransExpDiffReturn<Gen, Sk, X, Y> extends TransExp<X, Y, Gen, Sk, X, Y, X, Y> {
+
+	public TransExpDiffReturn(InstExp<Gen, Sk, X, Y> i, InstExp<Gen, Sk, X, Y> j) {
 		I = i;
 		J = j;
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
@@ -46,7 +43,7 @@ extends TransExp<X, Y, Gen, Sk, X, Y, X, Y> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpDiffReturn other = (TransExpDiffReturn) obj;
+		TransExpDiffReturn<?, ?, ?, ?> other = (TransExpDiffReturn<?, ?, ?, ?>) obj;
 		if (I == null) {
 			if (other.I != null)
 				return false;
@@ -59,21 +56,21 @@ extends TransExp<X, Y, Gen, Sk, X, Y, X, Y> {
 			return false;
 		return true;
 	}
+
 	public final InstExp<Gen, Sk, X, Y> I, J;
 
-	
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
-	
-	public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
 
 	@Override
-	public Pair<InstExp<X, Y, X, Y>, InstExp< Gen, Sk, X, Y>> type(AqlTyping G) {
-		return new Pair<>(new InstExpDiff<>(I,J),I);
+	public Pair<InstExp<X, Y, X, Y>, InstExp<Gen, Sk, X, Y>> type(AqlTyping G) {
+		return new Pair<>(new InstExpDiff<>(I, J), I);
 	}
 
 	@Override
@@ -83,7 +80,7 @@ extends TransExp<X, Y, Gen, Sk, X, Y, X, Y> {
 			J.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new DiffInstance<>(I.eval(env, false), J.eval(env, false), true, false).h; 
+		return new DiffInstance<>(I.eval(env, false), J.eval(env, false), true, false).h;
 	}
 
 	@Override
@@ -95,9 +92,10 @@ extends TransExp<X, Y, Gen, Sk, X, Y, X, Y> {
 	public Collection<Pair<String, Kind>> deps() {
 		return Util.union(I.deps(), J.deps());
 	}
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
-		
+
 	}
-	
+
 }

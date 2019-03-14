@@ -41,8 +41,7 @@ public class OverviewDocumentInfoAction extends AbstractAction {
 	/**
 	 * Brings up a dialog to set the overview's header information.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@SuppressWarnings("unused")
 	@Override

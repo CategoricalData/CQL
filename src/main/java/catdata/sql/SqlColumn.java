@@ -3,10 +3,10 @@ package catdata.sql;
 public class SqlColumn {
 
 	public SqlTable table;
-	public String name; 
+	public String name;
 	public SqlType type;
 	public boolean autoInc = false;
-	
+
 	public SqlColumn(SqlTable table, String name, SqlType type) {
 		if (table == null || name == null || type == null) {
 			throw new RuntimeException();
@@ -18,7 +18,8 @@ public class SqlColumn {
 	}
 
 	@SuppressWarnings("unused")
-	private SqlColumn() { }
+	private SqlColumn() {
+	}
 
 	@Override
 	public int hashCode() {
@@ -61,9 +62,9 @@ public class SqlColumn {
 	public String toString() {
 		return name;
 	}
-	
-	//public String toString(String x) {
-	//	return table + x + name;
+
+	// public String toString(String x) {
+	// return table + x + name;
 //	}
-	
+
 }

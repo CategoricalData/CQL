@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.function.Function;
 
 public class InteriorLabel<X> {
-	
+
 	public final String section;
-	
+
 	public final X s;
-	
+
 	public Integer loc;
-	
+
 	private Function<X, String> toString;
-	
+
 	@SuppressWarnings("unchecked")
 	public InteriorLabel<Object> conv() {
 		return (InteriorLabel<Object>) this;
 	}
-	
+
 	@Override
 	public String toString() {
 		return toString.apply(s);
@@ -70,9 +70,4 @@ public class InteriorLabel<X> {
 		return ret;
 	}
 
-	
-
-	
-
-	
 }

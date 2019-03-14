@@ -33,24 +33,25 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 	public SkeletonInstanceWrapperInv(SkeletonInstance<Ty, En, Sym, Fk, Att, Gen, Sk> i) {
 		I = i;
 		alg = new InnerAlg();
-		
+
 		dp = new DP<>() {
 			@Override
 			public String toStringProver() {
 				return "Skeleton Inv Wrapper";
 			}
+
 			@Override
 			public boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
 					Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
 				if (ctx != null && !ctx.isEmpty()) {
 					Util.anomaly();
 				}
-				if (lhs.hasTypeType() ) {
+				if (lhs.hasTypeType()) {
 					return I.eqT(I.evalT(lhs), I.evalT(rhs));
 				}
 				return I.eval(lhs.convert()) == I.eval(rhs.convert());
 			}
-			
+
 		};
 
 		gens = new AbstractMap<>() {
@@ -61,6 +62,7 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 					public Iterator<Entry<Gen, En>> iterator() {
 						return I.gens().iterator();
 					}
+
 					@Override
 					public int size() {
 						return I.numGens();
@@ -76,6 +78,7 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 					public Iterator<Entry<Sk, Ty>> iterator() {
 						return I.sks().iterator();
 					}
+
 					@Override
 					public int size() {
 						return I.ys();
@@ -83,11 +86,11 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 				};
 			}
 		};
-		
-		if (size() < 1024*16) {
+
+		if (size() < 1024 * 16) {
 			validate();
-		//	checkSatisfaction(); 
-		}	
+			// checkSatisfaction();
+		}
 	}
 
 	@Override
@@ -111,7 +114,7 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 			List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> l = new LinkedList<>();
 			I.eqs((a, b) -> l.add(new Pair<>(a, b)));
 			return l;
-		}; 
+		};
 		return new LazySet<>(f, I.numEqs());
 	}
 
@@ -170,7 +173,7 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 		public Term<Void, En, Void, Fk, Void, Gen, Void> repr(En en, Integer x) {
 			return I.repr(x);
 		}
-	
+
 		@Override
 		public String toStringProver() {
 			return "SkeletonWrapperInv";
@@ -210,7 +213,7 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 
 		@Override
 		public Iterable<Integer> en(En en) {
-			return new IteratorIterable<>(new UpTo(I.xo(en),I.xo(en)+I.xs(en)));
+			return new IteratorIterable<>(new UpTo(I.xo(en), I.xo(en) + I.xs(en)));
 		}
 
 		@Override
@@ -218,12 +221,6 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 			return I.reprT_prot(y);
 		}
 
-	
-
-		
-
 	}
-	
-	
 
 }

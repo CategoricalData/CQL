@@ -28,8 +28,8 @@ import easik.xml.xsd.nodes.elements.XSDElement;
  */
 public abstract class XSDAbstractKey extends XSDBaseNode {
 	/**
-	 * The element this key applies to. Will be used to create the XPATH
-	 * expression for the key
+	 * The element this key applies to. Will be used to create the XPATH expression
+	 * for the key
 	 */
 	protected XSDXPathSelector appliesTo;
 
@@ -41,12 +41,9 @@ public abstract class XSDAbstractKey extends XSDBaseNode {
 	/**
 	 * Full constructor
 	 *
-	 * @param name
-	 *            Key name
-	 * @param appliesTo
-	 *            Which element
-	 * @param fields
-	 *            List of fields
+	 * @param name      Key name
+	 * @param appliesTo Which element
+	 * @param fields    List of fields
 	 */
 	public XSDAbstractKey(final String name, final XSDElement appliesTo, final List<String> fields) {
 		super(name);
@@ -62,12 +59,9 @@ public abstract class XSDAbstractKey extends XSDBaseNode {
 	/**
 	 * Full constructor with variable argument for fields
 	 *
-	 * @param name
-	 *            The name
-	 * @param appliesTo
-	 *            Which element
-	 * @param fields
-	 *            list of fields as variable number of arguments
+	 * @param name      The name
+	 * @param appliesTo Which element
+	 * @param fields    list of fields as variable number of arguments
 	 */
 	public XSDAbstractKey(final String name, final XSDElement appliesTo, final String... fields) {
 		this(name, appliesTo, Arrays.asList(fields));

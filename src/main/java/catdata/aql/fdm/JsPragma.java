@@ -15,13 +15,13 @@ import gnu.trove.map.hash.THashMap;
 public class JsPragma extends Pragma {
 
 	private final List<String> jss;
-	
+
 	private final List<String> responses = new LinkedList<>();
-	
+
 	private final AqlEnv env;
-		
-	private final AqlOptions options; 
-	
+
+	private final AqlOptions options;
+
 	public JsPragma(List<String> jss, Map<String, String> o, AqlEnv env) {
 		this.jss = jss;
 		this.env = env;
@@ -46,11 +46,10 @@ public class JsPragma extends Pragma {
 		}
 		responses.add(Util.sep(ret, "\n"));
 	}
-	
+
 	@Override
 	public String toString() {
 		return Util.sep(responses, "\n\n--------------\n\n");
 	}
-		
-}
 
+}

@@ -15,24 +15,25 @@ import catdata.aql.Transform;
 import catdata.aql.fdm.DistinctInstance;
 import catdata.aql.fdm.IdentityTransform;
 
-public final class TransExpDistinct2<Gen, Sk, X, Y>
-extends TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y> {
-	
+public final class TransExpDistinct2<Gen, Sk, X, Y> extends TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y> {
+
 	public final InstExp<Gen, Sk, X, Y> t;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		t.map(f);
 	}
-	
+
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
+
 	public TransExpDistinct2(InstExp<Gen, Sk, X, Y> t) {
 		this.t = t;
 	}
-	public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
 
@@ -49,7 +50,7 @@ extends TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpDistinct2 other = (TransExpDistinct2) obj;
+		TransExpDistinct2<?, ?, ?, ?> other = (TransExpDistinct2<?, ?, ?, ?>) obj;
 		if (t == null) {
 			if (other.t != null)
 				return false;
@@ -81,11 +82,10 @@ extends TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y> {
 	public Collection<Pair<String, Kind>> deps() {
 		return t.deps();
 	}
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
-		
+
 	}
-	
-	
-	
+
 }

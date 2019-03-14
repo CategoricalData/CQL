@@ -20,16 +20,16 @@ public class SqlInstance {
 	private final Map<SqlTable, Set<Map<SqlColumn, Optional<Object>>>> db = new THashMap<>();
 	private final SqlSchema schema;
 	private final String tick;
-	//private final Connection conn;
-	
+	// private final Connection conn;
+
 	public Map<SqlColumn, Optional<Object>> follow(Map<SqlColumn, Optional<Object>> row, SqlForeignKey fk) {
 		Map<SqlColumn, Optional<Object>> cand = new THashMap<>();
-		
+
 		for (SqlColumn tcol : fk.target.pk) {
 			SqlColumn scol = fk.map.get(tcol);
 			cand.put(tcol, row.get(scol));
 		}
-		
+
 		Map<SqlColumn, Optional<Object>> ret = null;
 		for (Map<SqlColumn, Optional<Object>> tuple : get(fk.target)) {
 			for (SqlColumn col : fk.target.pk) {
@@ -46,21 +46,22 @@ public class SqlInstance {
 		}
 		return ret;
 	}
-	
+
 	public Set<Map<SqlColumn, Optional<Object>>> get(SqlTable t) {
 		if (!db.containsKey(t)) {
 			throw new RuntimeException("Not a table: " + t.name);
 		}
 		return db.get(t);
 	}
-	
-	public SqlInstance(SqlSchema schema, Connection conn, boolean errMeansNull, boolean useDistinct, String tick) throws SQLException {
+
+	public SqlInstance(SqlSchema schema, Connection conn, boolean errMeansNull, boolean useDistinct, String tick)
+			throws SQLException {
 		if (schema == null || conn == null) {
 			throw new RuntimeException();
 		}
 		this.schema = schema;
 		this.tick = tick;
-		//this.conn = conn;
+		// this.conn = conn;
 		String d = useDistinct ? "DISTINCT" : "";
 		for (SqlTable table : schema.tables) {
 			try (Statement stmt = conn.createStatement()) {
@@ -84,7 +85,7 @@ public class SqlInstance {
 									throw ex;
 								}
 							}
-					    }
+						}
 						rows.add(row);
 					}
 					db.put(table, rows);
@@ -92,11 +93,11 @@ public class SqlInstance {
 			}
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		List<String> all = new LinkedList<>();
-		
+
 		for (SqlTable table : schema.tables) {
 			if (db.get(table).isEmpty()) {
 				continue;
@@ -115,9 +116,8 @@ public class SqlInstance {
 			}
 			all.add("INSERT INTO " + tick + table.name + tick + " VALUES\n  " + Util.sep(x, ",\n  ") + ";");
 		}
-		
-		return Util.sep(all, "\n\n"); 
+
+		return Util.sep(all, "\n\n");
 	}
-	
-	
+
 }

@@ -32,18 +32,18 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 class SqlViewer extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final Graph<Chc<SqlType, SqlTable>, Chc<SqlColumn, SqlForeignKey>> graph = new DirectedSparseMultigraph<>();
 	private final SqlSchema info;
 	private final SqlInstance inst;
 	private final Color color;
-	
+
 	private final CardLayout cards = new CardLayout();
 	private final JPanel bottom = new JPanel(cards);
 	private JPanel top;
-		
+
 	public SqlViewer(Color color, SqlSchema info, SqlInstance inst) {
-		super(new GridLayout(1,1));
+		super(new GridLayout(1, 1));
 		this.info = info;
 		this.inst = inst;
 		this.color = color;
@@ -51,7 +51,7 @@ class SqlViewer extends JPanel {
 		makeCards();
 		makeGraph();
 		makeUI();
-		
+
 		if (inst == null) {
 			add(top);
 		} else {
@@ -64,7 +64,7 @@ class SqlViewer extends JPanel {
 		}
 		setBorder(BorderFactory.createEtchedBorder());
 	}
-	
+
 	private void makeCards() {
 		if (inst == null) {
 			return;
@@ -75,7 +75,7 @@ class SqlViewer extends JPanel {
 		for (SqlTable table : info.tables) {
 			List<String> colNames = table.columns.stream().map(x -> x.name).collect(Collectors.toList());
 			String[][] rowData = new String[inst.get(table).size()][colNames.size()];
-			
+
 			int r = 0;
 			for (Map<SqlColumn, Optional<Object>> row : inst.get(table)) {
 				int c = 0;
@@ -84,17 +84,18 @@ class SqlViewer extends JPanel {
 					if (x == null) {
 						throw new RuntimeException();
 					}
-					String y = x.isPresent() ? x.get().toString() : "NULL"; 
+					String y = x.isPresent() ? x.get().toString() : "NULL";
 					rowData[r][c] = y;
 					c++;
 				}
 				r++;
 			}
-			
-			JPanel panel = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), table.name + " (" + inst.get(table).size() + ")" , rowData, colNames.toArray());
+
+			JPanel panel = GuiUtil.makeTable(BorderFactory.createEmptyBorder(),
+					table.name + " (" + inst.get(table).size() + ")", rowData, colNames.toArray());
 			bottom.add(panel, table.name);
 		}
-		
+
 	}
 
 	private void makeGraph() {
@@ -119,19 +120,21 @@ class SqlViewer extends JPanel {
 		}
 		Layout<Chc<SqlType, SqlTable>, Chc<SqlColumn, SqlForeignKey>> layout = new FRLayout<>(graph);
 		layout.setSize(new Dimension(600, 400));
-		VisualizationViewer<Chc<SqlType, SqlTable>, Chc<SqlColumn, SqlForeignKey>> vv = new VisualizationViewer<>(layout);
-		Function<Chc<SqlType, SqlTable>, Paint> vertexPaint = x -> x.left ? UIManager.getColor("Panel.background") : color;
+		VisualizationViewer<Chc<SqlType, SqlTable>, Chc<SqlColumn, SqlForeignKey>> vv = new VisualizationViewer<>(
+				layout);
+		Function<Chc<SqlType, SqlTable>, Paint> vertexPaint = x -> x.left ? UIManager.getColor("Panel.background")
+				: color;
 		DefaultModalGraphMouse<String, String> gm = new DefaultModalGraphMouse<>();
 		gm.setMode(Mode.TRANSFORMING);
 		vv.setGraphMouse(gm);
 		gm.setMode(Mode.PICKING);
-		
+
 		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 
 		Function<Chc<SqlType, SqlTable>, String> vt = x -> x.left ? x.l.name : x.r.name;
-		
+
 		Function<Chc<SqlColumn, SqlForeignKey>, String> et = x -> x.left ? x.l.name : "";
-		
+
 		vv.getRenderContext().setVertexLabelTransformer(vt);
 		vv.getRenderContext().setEdgeLabelTransformer(et);
 		top = new GraphZoomScrollPane(vv);
@@ -139,20 +142,19 @@ class SqlViewer extends JPanel {
 		if (inst == null) {
 			return;
 		}
-		
-		vv.getPickedVertexState().addItemListener((ItemEvent e) -> {
-                    if (e.getStateChange() != ItemEvent.SELECTED) {
-                        return;
-                    }
-                    vv.getPickedEdgeState().clear();
-                    @SuppressWarnings("unchecked")
-                    Chc<SqlType, SqlTable> x1 = (Chc<SqlType, SqlTable>) e.getItem();
-                    if (x1.left) {
-                        return;
-                    }
-                    cards.show(bottom, x1.r.name);
-                });
 
+		vv.getPickedVertexState().addItemListener((ItemEvent e) -> {
+			if (e.getStateChange() != ItemEvent.SELECTED) {
+				return;
+			}
+			vv.getPickedEdgeState().clear();
+			@SuppressWarnings("unchecked")
+			Chc<SqlType, SqlTable> x1 = (Chc<SqlType, SqlTable>) e.getItem();
+			if (x1.left) {
+				return;
+			}
+			cards.show(bottom, x1.r.name);
+		});
 
 	}
 

@@ -53,15 +53,9 @@ import easik.Easik;
 import easik.ui.menu.popup.ImportSketchAction;
 import gnu.trove.map.hash.THashMap;
 
-@SuppressWarnings("serial")
-/*
-
-  @author ryan
- *
- *         Top level gui
- */
 public class GUI extends JPanel {
-	
+	private static final long serialVersionUID = 1L;
+
 	public static Pair<AqlEnv, String> getCurrent() {
 		CodeEditor<?, ?, ?> c = getSelectedEditor();
 		if (c == null || c.lang() != Language.CQL) {
@@ -83,11 +77,10 @@ public class GUI extends JPanel {
 		return (CodeEditor<?, ?, ?>) editors.getComponentAt(i);
 	}
 
-	@SuppressWarnings({ })
+	@SuppressWarnings({})
 	public static Pair<JPanel, MenuBar> makeGUI(JFrame frame) {
 		topFrame = frame;
 
-		
 		MenuBar menuBar = new MenuBar();
 
 		Menu fileMenu = makeFileMenu();
@@ -95,19 +88,18 @@ public class GUI extends JPanel {
 		Menu editMenu = makeEditMenu();
 
 		Menu toolsMenu = makesToolsMenu();
-		
+
 		Menu helpMenu = new Menu("Help");
 		MenuItem aboutItem = new MenuItem("Help");
 		helpMenu.add(aboutItem);
 		aboutItem.addActionListener(e -> IdeOptions.showAbout());
-		
-	
+
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
 		menuBar.add(toolsMenu);
-		
+
 		Menu aqlMenu = populateAql();
-		
+
 		menuBar.add(aqlMenu);
 
 		Menu legacyMenu = new Menu("Legacy");
@@ -123,8 +115,7 @@ public class GUI extends JPanel {
 		legacyMenu.add(optionsItem2);
 		optionsItem2.addActionListener(e -> DefunctGlobalOptions.showOptions());
 
-		
-	//	menuBar.add(legacyMenu);
+		// menuBar.add(legacyMenu);
 
 		menuBar.add(helpMenu);
 
@@ -136,7 +127,7 @@ public class GUI extends JPanel {
 
 		pan.add(toolBar, BorderLayout.PAGE_START);
 		pan.add(editors, BorderLayout.CENTER);
-	
+
 		return new Pair<>(pan, menuBar);
 	}
 
@@ -172,22 +163,21 @@ public class GUI extends JPanel {
 
 		closeItem.addActionListener(e -> closeAction());
 		saveAsItem.addActionListener(e -> saveAsActionAlternate(getSelectedEditor()));
-	
-		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+
+		KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut s = new MenuShortcut(ctrlS.getKeyCode());
 		saveItem.setShortcut(s);
 
-		//TODO aql why doesn't shift mask work? order?
+		// TODO aql why doesn't shift mask work? order?
 		MenuShortcut sA = new MenuShortcut(ctrlS.getKeyCode(), true);
 		saveAllItem.setShortcut(sA);
 		saveAllItem.addActionListener(e -> saveAllAction());
 
-		KeyStroke ctrlQ = KeyStroke.getKeyStroke(KeyEvent.VK_Q,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlQ = KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut q = new MenuShortcut(ctrlQ.getKeyCode());
 		exitItem.setShortcut(q);
-		
-	
-		KeyStroke ctrlW = KeyStroke.getKeyStroke(KeyEvent.VK_W,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+
+		KeyStroke ctrlW = KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 //		KeyStroke commandW = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK);
 		MenuShortcut c = new MenuShortcut(ctrlW.getKeyCode());
 		closeItem.setShortcut(c);
@@ -198,24 +188,21 @@ public class GUI extends JPanel {
 
 		exitItem.addActionListener(e -> exitAction());
 
-		
-		KeyStroke ctrlN = KeyStroke.getKeyStroke(KeyEvent.VK_N,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlN = KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut n = new MenuShortcut(ctrlN.getKeyCode());
 		newItems.get(Language.getDefault()).setShortcut(n);
-		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut o = new MenuShortcut(ctrlO.getKeyCode());
 		openItem.setShortcut(o);
 		return fileMenu;
-		
-		
 
 	}
 
 	@SuppressWarnings("deprecation")
 	private static Menu makesToolsMenu() {
-		
+
 		Menu toolsMenu = new Menu("Tools");
-		
+
 		MenuItem runItem = new MenuItem("Run");
 		toolsMenu.add(runItem);
 		runItem.addActionListener(e -> {
@@ -224,9 +211,8 @@ public class GUI extends JPanel {
 				ed.runAction();
 			}
 		});
-		
-		
-		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+
+		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 
 		MenuShortcut q2 = new MenuShortcut(ctrlR.getKeyCode());
 		runItem.setShortcut(q2);
@@ -234,13 +220,11 @@ public class GUI extends JPanel {
 		MenuItem abortItem = new MenuItem("Cancel");
 		toolsMenu.add(abortItem);
 		abortItem.addActionListener(e -> abortAction());
-		
+
 		MenuItem optionsItem = new MenuItem("Options");
 		toolsMenu.add(optionsItem);
 		optionsItem.addActionListener(e -> IdeOptions.showOptions());
-		
-	
-		
+
 //		MenuItem chaseItem = new MenuItem("ED Chaser");
 //		toolsMenu.add(chaseItem);
 //		chaseItem.addActionListener(x -> Chase.dostuff());
@@ -264,7 +248,7 @@ public class GUI extends JPanel {
 		MenuItem easikItem = new MenuItem("EASIK");
 		toolsMenu.add(easikItem);
 		easikItem.addActionListener(x -> easik.Easik.main(new String[0]));
-		
+
 		return toolsMenu;
 	}
 
@@ -275,10 +259,11 @@ public class GUI extends JPanel {
 		editMenu.add(findItem);
 		MenuItem gotoItem = new MenuItem("Goto Line");
 		editMenu.add(gotoItem);
-		
+
 		MenuItem gotoDef = new MenuItem("Goto Definition");
 		editMenu.add(gotoDef);
-		KeyStroke ctrlShiftR = KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlShiftR = KeyStroke.getKeyStroke(KeyEvent.VK_R,
+				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut fx = new MenuShortcut(ctrlShiftR.getKeyCode(), true);
 		gotoDef.setShortcut(fx);
 		gotoDef.addActionListener(x -> {
@@ -287,11 +272,10 @@ public class GUI extends JPanel {
 				ed.showGotoDialog();
 			}
 		});
-		
-		KeyStroke ctrlF = KeyStroke.getKeyStroke(KeyEvent.VK_F,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+
+		KeyStroke ctrlF = KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut f = new MenuShortcut(ctrlF.getKeyCode());
 		findItem.setShortcut(f);
-
 
 		MenuItem copy = new MenuItem("Copy");
 		copy.addActionListener(x -> {
@@ -300,11 +284,11 @@ public class GUI extends JPanel {
 				ed.topArea.copy();
 			}
 		});
-		KeyStroke ctrlC = KeyStroke.getKeyStroke(KeyEvent.VK_C,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlC = KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut cc = new MenuShortcut(ctrlC.getKeyCode());
 		copy.setShortcut(cc);
 		editMenu.add(copy);
-		
+
 		MenuItem rtf = new MenuItem("Copy as RTF");
 		editMenu.add(rtf);
 		rtf.addActionListener(x -> {
@@ -313,7 +297,7 @@ public class GUI extends JPanel {
 				ed.copyAsRtf();
 			}
 		});
-		
+
 		MenuItem cut = new MenuItem("Cut");
 		cut.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -321,11 +305,11 @@ public class GUI extends JPanel {
 				ed.topArea.cut();
 			}
 		});
-		KeyStroke ctrlX = KeyStroke.getKeyStroke(KeyEvent.VK_X,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlX = KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut cx = new MenuShortcut(ctrlX.getKeyCode());
 		cut.setShortcut(cx);
 		editMenu.add(cut);
-		
+
 		MenuItem paste = new MenuItem("Paste");
 		cut.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -333,11 +317,11 @@ public class GUI extends JPanel {
 				ed.topArea.paste();
 			}
 		});
-		KeyStroke ctrlV = KeyStroke.getKeyStroke(KeyEvent.VK_V,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlV = KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut cv = new MenuShortcut(ctrlV.getKeyCode());
 		paste.setShortcut(cv);
 		editMenu.add(paste);
-		
+
 		MenuItem undo = new MenuItem("Undo");
 		undo.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -345,7 +329,7 @@ public class GUI extends JPanel {
 				ed.topArea.undoLastAction();
 			}
 		});
-		KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut z = new MenuShortcut(ctrlZ.getKeyCode());
 		undo.setShortcut(z);
 		editMenu.add(undo);
@@ -357,11 +341,12 @@ public class GUI extends JPanel {
 				ed.topArea.redoLastAction();
 			}
 		});
-		KeyStroke ctrlShiftZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,  Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		KeyStroke ctrlShiftZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 		MenuShortcut sz = new MenuShortcut(ctrlShiftZ.getKeyCode(), true);
 		redo.setShortcut(sz);
 		editMenu.add(redo);
-		
+
 		MenuItem back = new MenuItem("Back");
 		back.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -370,7 +355,7 @@ public class GUI extends JPanel {
 			}
 		});
 		editMenu.add(back);
-		
+
 		MenuItem fwd = new MenuItem("Forward");
 		fwd.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -380,7 +365,6 @@ public class GUI extends JPanel {
 		});
 		editMenu.add(fwd);
 
-	
 		MenuItem fall = new MenuItem("Fold All");
 		editMenu.add(fall);
 		fall.addActionListener(x -> {
@@ -398,7 +382,7 @@ public class GUI extends JPanel {
 				ed.foldAll(false);
 			}
 		});
-		
+
 		findItem.addActionListener(e -> {
 			delay();
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -406,9 +390,7 @@ public class GUI extends JPanel {
 				ed.replaceAction();
 			}
 		});
-		
-		
-		
+
 		gotoItem.addActionListener(e -> {
 			delay();
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -416,16 +398,17 @@ public class GUI extends JPanel {
 				ed.gotoLine();
 			}
 		});
-		
+
 		MenuItem clear = new MenuItem("Refresh Outline");
 		editMenu.add(clear);
 		clear.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
 			if (ed != null) {
-				ed.getOutline().build();;
+				ed.getOutline().build();
+				;
 			}
 		});
-		
+
 		return editMenu;
 	}
 
@@ -434,7 +417,7 @@ public class GUI extends JPanel {
 
 		JButton helpb = new JButton("Help");
 		helpb.addActionListener(e -> IdeOptions.showAbout());
-	
+
 		JButton compileB = new JButton("Run");
 		compileB.addActionListener(e -> {
 			CodeEditor<?, ?, ?> ed = (CodeEditor<?, ?, ?>) editors.getComponentAt(editors.getSelectedIndex());
@@ -481,7 +464,7 @@ public class GUI extends JPanel {
 		cl.show(boxPanel, Language.getDefault().prefix());
 
 		Vector<String> vec = new Vector<>();
-	
+
 		for (Language l : Language.values0()) {
 			vec.add(l.toString());
 		}
@@ -497,7 +480,6 @@ public class GUI extends JPanel {
 			}
 		});
 
-		
 		JButton fwd = new JButton("Fwd >");
 		fwd.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
@@ -505,7 +487,7 @@ public class GUI extends JPanel {
 				ed.fwdAction();
 			}
 		});
-	
+
 		toolBar.add(compileB);
 		toolBar.add(abortB);
 		toolBar.add(new_button);
@@ -535,7 +517,7 @@ public class GUI extends JPanel {
 		MenuItem st = new MenuItem("Self-Test");
 		st.addActionListener(x -> AqlTester.doSelfTests());
 		menu.add(st);
-	
+
 		MenuItem im = new MenuItem("Infer Mapping");
 		im.addActionListener(x -> infer(Kind.MAPPING));
 		menu.add(im);
@@ -551,8 +533,8 @@ public class GUI extends JPanel {
 
 		MenuItem ih = new MenuItem("Emit HTML");
 		ih.addActionListener(x -> {
-			CodeEditor<?,?,?> c = getSelectedEditor();
-			if (c == null) { //TODO aql refact these actions that depend on selected editor
+			CodeEditor<?, ?, ?> c = getSelectedEditor();
+			if (c == null) { // TODO aql refact these actions that depend on selected editor
 				return;
 			}
 			if (c instanceof AqlCodeEditor) {
@@ -561,13 +543,13 @@ public class GUI extends JPanel {
 			}
 		});
 		menu.add(ih);
-		
+
 		MenuItem formatItem = new MenuItem("Code Format");
 		menu.add(formatItem);
 		formatItem.addActionListener(x -> formatActionAql());
 
 		return menu;
-		
+
 	}
 
 	private static void doExample(Example e) {
@@ -586,9 +568,9 @@ public class GUI extends JPanel {
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
-			
+
 		}
-			
+
 		newAction(e.toString(), e.getText(), e.lang());
 	}
 
@@ -598,8 +580,8 @@ public class GUI extends JPanel {
 			c.abortAction();
 		}
 	}
-	
-	private static Unit deInc(CodeEditor<?,?,?> c) {
+
+	private static Unit deInc(CodeEditor<?, ?, ?> c) {
 		c.close();
 		dirty.remove(c.id);
 		keys.remove(c.id);
@@ -616,7 +598,7 @@ public class GUI extends JPanel {
 			return;
 		}
 		c.close();
-		deInc(c);		
+		deInc(c);
 	}
 
 	public static void exitAction() {
@@ -630,7 +612,8 @@ public class GUI extends JPanel {
 		if (i == 0) {
 			System.exit(0);
 		}
-		int choice = JOptionPane.showOptionDialog(null, i + " documents have unsaved changes - exit?", "Exit?", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] { "Yes", "No" }, "No");
+		int choice = JOptionPane.showOptionDialog(null, i + " documents have unsaved changes - exit?", "Exit?",
+				JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] { "Yes", "No" }, "No");
 		if (choice == JOptionPane.NO_OPTION) {
 			return;
 		}
@@ -640,7 +623,7 @@ public class GUI extends JPanel {
 	private static void saveAllAction() {
 		int select = editors.getSelectedIndex();
 		for (int index = 0; index < editors.getTabCount(); index++) {
-			CodeEditor<?,?,?> e = (CodeEditor<?, ?, ?>) editors.getComponentAt(index);
+			CodeEditor<?, ?, ?> e = (CodeEditor<?, ?, ?>) editors.getComponentAt(index);
 			editors.setSelectedIndex(index);
 			int id = e.id;
 			File f = files.get(id);
@@ -648,14 +631,14 @@ public class GUI extends JPanel {
 				String s = e.getText();
 				doSave(f, s, id);
 			} else {
-				saveAsActionAlternate(e); 
+				saveAsActionAlternate(e);
 			}
 		}
 		if (select >= 0 && select < editors.getTabCount()) {
 			editors.setSelectedIndex(select);
 		}
 	}
-	
+
 	private static void saveAction() {
 		CodeEditor<?, ?, ?> e = getSelectedEditor();
 		if (e == null) {
@@ -666,7 +649,7 @@ public class GUI extends JPanel {
 			saveAsActionAlternate(e);
 		} else {
 			delay();
-			doSave(f, e.getText(), e.id);		
+			doSave(f, e.getText(), e.id);
 		}
 	}
 
@@ -700,27 +683,20 @@ public class GUI extends JPanel {
 			return l + " files (*." + l.fileExtension() + ")";
 		}
 	}
-/*
-	private static class AllFilter extends FileFilter {
-		@Override
-		public boolean accept(File f) {
-			for (Language l : Language.values()) {
-				if (f.getName().endsWith("." + l.fileExtension())) {
-					return true;
-				}
-			}
 
-			return f.isDirectory();
-		}
-
-		@Override
-		public String getDescription() {
-			return "All CatData Files";
-		}
-	}
-	*/
+	/*
+	 * private static class AllFilter extends FileFilter {
+	 * 
+	 * @Override public boolean accept(File f) { for (Language l :
+	 * Language.values()) { if (f.getName().endsWith("." + l.fileExtension())) {
+	 * return true; } }
+	 * 
+	 * return f.isDirectory(); }
+	 * 
+	 * @Override public String getDescription() { return "All CatData Files"; } }
+	 */
 	public static class AllNameFilter implements FilenameFilter {
-	
+
 		@Override
 		public boolean accept(File dir, String name) {
 			for (Language l : Language.values()) {
@@ -742,84 +718,87 @@ public class GUI extends JPanel {
 
 	// TODO aql file chooser does not bold the selectable files on mac see
 	// http://stackoverflow.com/questions/15016176/jfilechooser-showsavedialog-all-files-greyed-out
-	
+
 	private synchronized static void doOpen(File f, Language lang) {
 		String s = GuiUtil.readFile(f.getAbsolutePath());
 		if (s == null) {
 			return;
 		}
-		s = s.replace("\r", ""); //TODO CQL may not be enough the \r make get added by output stream
+		s = s.replace("\r", ""); // TODO CQL may not be enough the \r make get added by output stream
 		if (lang.equals(Language.EASIK)) {
 			Easik.getInstance().getFrame().getOverview().openOverview(f);
 			return;
 		} else if (lang.equals(Language.SKETCH)) {
-			new ImportSketchAction(new Point(0,0), Easik.getInstance().getFrame().getOverview()).actionPerformed0(f);
+			new ImportSketchAction(new Point(0, 0), Easik.getInstance().getFrame().getOverview()).actionPerformed0(f);
 			return;
 		}
 		Integer i = newAction(f.getName(), s, lang);
 		files.put(i, f);
-		
+
 	}
 
 	private static FileDialog openDialog;
+
 	private static FileDialog getOpenDialog() {
 		if (openDialog != null) {
 			openDialog.setFile(AllNameFilter.getAllString());
 			return openDialog;
 		}
-		openDialog = new FileDialog((Dialog)null, "Open", FileDialog.LOAD);
+		openDialog = new FileDialog((Dialog) null, "Open", FileDialog.LOAD);
 		openDialog.setFile(AllNameFilter.getAllString());
 		openDialog.setFilenameFilter(new AllNameFilter());
-		//if (!GlobalOptions.debug.general.file_path.isEmpty()) {
+		// if (!GlobalOptions.debug.general.file_path.isEmpty()) {
 		openDialog.setDirectory(IdeOptions.theCurrentOptions.getFile(IdeOption.FILE_PATH).getAbsolutePath());
-		//}
+		// }
 		openDialog.setMultipleMode(true);
 		return openDialog;
 	}
-	
+
 	private static FileDialog saveDialog;
+
 	private static FileDialog getSaveDialog(Language lang) {
 		if (saveDialog != null) {
 			saveDialog.setFile("*." + lang.fileExtension());
 			return saveDialog;
 		}
-		saveDialog = new FileDialog((Dialog)null, "Save", FileDialog.SAVE);
+		saveDialog = new FileDialog((Dialog) null, "Save", FileDialog.SAVE);
 		saveDialog.setFile("*." + lang.fileExtension());
-		//openDialog.setFilenameFilter(new AllNameFilter());
-		//if (!GlobalOptions.debug.general.file_path.isEmpty()) {
-			saveDialog.setDirectory(IdeOptions.theCurrentOptions.getFile(IdeOption.FILE_PATH).getAbsolutePath());
-		//}
+		// openDialog.setFilenameFilter(new AllNameFilter());
+		// if (!GlobalOptions.debug.general.file_path.isEmpty()) {
+		saveDialog.setDirectory(IdeOptions.theCurrentOptions.getFile(IdeOption.FILE_PATH).getAbsolutePath());
+		// }
 		saveDialog.setMultipleMode(false);
 		return saveDialog;
 	}
-	
+
 	public static void openAction(File... fs0) {
 		List<File> fs = new ArrayList<>(Arrays.asList(fs0));
 		for (File f : fs) {
 			for (Language l : Language.values()) {
 				if (f.getAbsolutePath().endsWith("." + l.fileExtension())) {
 					doOpen(f, l);
-					break; //bc of Fred, now two .aqls
+					break; // bc of Fred, now two .aqls
 				}
 			}
 		}
 	}
+
 	private static void openActionAlternate() {
-		//delay();
+		// delay();
 		FileDialog jfc = getOpenDialog();
 		jfc.setVisible(true);
 		openAction(jfc.getFiles());
 	}
-	
+
 	private static void saveAsActionAlternate(CodeEditor<?, ?, ?> e) {
-		//delay();
+		// delay();
 
 		if (e == null) {
 			return;
 		}
 
 		FileDialog jfc = getSaveDialog(e.lang());
-		
+
 		jfc.setVisible(true);
 
 		String f = jfc.getFile();
@@ -840,16 +819,14 @@ public class GUI extends JPanel {
 
 	}
 
-	
-
 	public static void setDirty(Integer i, boolean b) {
 		dirty.put(i, b);
-		CodeEditor<?,?,?> wanted = keys.get(i);
+		CodeEditor<?, ?, ?> wanted = keys.get(i);
 		String title = (b ? "*" : "  ") + titles.get(i);
 		for (int tab = 0; tab < editors.getTabCount(); tab++) {
-			CodeEditor<?,?,?> ed = (CodeEditor<?,?,?>) editors.getComponentAt(tab);
+			CodeEditor<?, ?, ?> ed = (CodeEditor<?, ?, ?>) editors.getComponentAt(tab);
 			if (Objects.equals(wanted, ed)) {
-				editors.setTitleAt(tab, title);				
+				editors.setTitleAt(tab, title);
 				editors.setTabComponentAt(tab, new ButtonTabComponent(editors, x -> GUI.deInc(x)));
 			}
 		}
@@ -869,14 +846,14 @@ public class GUI extends JPanel {
 		}
 		String prev = UIManager.getLookAndFeel().getClass().getName();
 		String next = IdeOptions.theCurrentOptions.getString(IdeOption.LOOK_AND_FEEL);
-	    if (!prev.equals(next)) {
-            try {
-                UIManager.setLookAndFeel(next);
-                SwingUtilities.updateComponentTreeUI(GUI.topFrame);
-             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e);
-            }
-        }
+		if (!prev.equals(next)) {
+			try {
+				UIManager.setLookAndFeel(next);
+				SwingUtilities.updateComponentTreeUI(GUI.topFrame);
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e);
+			}
+		}
 	}
 
 	private static final Map<Integer, Boolean> dirty = new THashMap<>();
@@ -904,22 +881,20 @@ public class GUI extends JPanel {
 		editors.addTab("  " + title, c);
 		editors.setTabComponentAt(i, new ButtonTabComponent(editors, x -> GUI.deInc(x)));
 		editors.setSelectedIndex(i);
-		
+
 		c.topArea.setCaretPosition(0);
 		c.topArea.requestFocusInWindow();
-		
+
 		return c.id;
 	}
 
 	private static void delay() {
-/*		try {
-			Thread.sleep(100); // hack for enough time to unhighlight menu
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} */
+		/*
+		 * try { Thread.sleep(100); // hack for enough time to unhighlight menu } catch
+		 * (InterruptedException e) { e.printStackTrace(); }
+		 */
 	}
- 
-		
+
 	private static void formatActionAql() {
 		CodeEditor<?, ?, ?> c = getSelectedEditor();
 		if (c == null || !c.lang().equals(Language.CQL)) {
@@ -931,13 +906,12 @@ public class GUI extends JPanel {
 
 	private static void veditAction() {
 		CodeEditor<?, ?, ?> c = getSelectedEditor();
-		if (c == null ) {
+		if (c == null) {
 			return;
 		}
-		//FqlCodeEditor cc = (FqlCodeEditor) c;
-		//.cc.format();
-		//cc.vedit();
+		// FqlCodeEditor cc = (FqlCodeEditor) c;
+		// .cc.format();
+		// cc.vedit();
 	}
 
-	
 }

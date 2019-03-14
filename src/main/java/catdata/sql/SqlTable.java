@@ -15,15 +15,15 @@ public class SqlTable {
 	public String name;
 	public final List<SqlColumn> columns = new LinkedList<>();
 	public Set<SqlColumn> pk = new THashSet<>();
-	
+
 	public SqlColumn getCnfId() {
-		return Util.get0(pk);		
+		return Util.get0(pk);
 	}
-		
+
 	public boolean isCnf() {
-        return pk.size() == 1 && getCnfId().autoInc;
-    }
-	
+		return pk.size() == 1 && getCnfId().autoInc;
+	}
+
 	public void validate() {
 		if (name == null) {
 			throw new RuntimeException();
@@ -40,8 +40,9 @@ public class SqlTable {
 			throw new RuntimeException();
 		}
 	}
-	
+
 	private final Map<String, SqlColumn> colMap = new THashMap<>();
+
 	public SqlColumn getColumn(String name0) {
 		SqlColumn t = colMap.get(name0);
 		if (t != null) {
@@ -55,8 +56,9 @@ public class SqlTable {
 		}
 		throw new RuntimeException("Not a column in " + this + ": " + name0);
 	}
-	
+
 	private Map<String, String> typeMap = null;
+
 	public Map<String, String> typeMap() {
 		if (typeMap != null) {
 			return typeMap;
@@ -67,7 +69,7 @@ public class SqlTable {
 		}
 		return typeMap;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -75,7 +77,7 @@ public class SqlTable {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -97,6 +99,5 @@ public class SqlTable {
 	public String toString() {
 		return name;
 	}
-	
-	
+
 }

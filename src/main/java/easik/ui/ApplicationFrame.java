@@ -99,9 +99,13 @@ public class ApplicationFrame extends EasikFrame {
 	 * Various menu items
 	 */
 	@SuppressWarnings("unused")
-	private JMenuItem _AddSketchPopItem, _ImportSketchPopItem, _NewViewPopItem, _NewViewMenuItem, _OpenSketchPopItem, _OpenSketchPopDefItem, _OpenSketchManipulatePopItem, _OpenSketchManipulatePopDefItem, _AddInjEdgePopItem, _RenamePopItem, _DeleteSketchPopItem, _ExportSketchPopItem, _ExportSketchDatabasePopItem, _DeleteMixedPopItem, _AddAttributePopItem, _AddUniqueKeyPopItem,
-			_HideConstraintPopItem, _NextPopItem, _FinishPopItem, _CancelPopItem, _AddPathPopItem, _ProgramSettingsItem, _OpenViewPopItem, _RenameViewPopItem, _DeleteViewPopItem;// _ExportViewImage,
-																																													// _ExportSketchImage;
+	private JMenuItem _AddSketchPopItem, _ImportSketchPopItem, _NewViewPopItem, _NewViewMenuItem, _OpenSketchPopItem,
+			_OpenSketchPopDefItem, _OpenSketchManipulatePopItem, _OpenSketchManipulatePopDefItem, _AddInjEdgePopItem,
+			_RenamePopItem, _DeleteSketchPopItem, _ExportSketchPopItem, _ExportSketchDatabasePopItem,
+			_DeleteMixedPopItem, _AddAttributePopItem, _AddUniqueKeyPopItem, _HideConstraintPopItem, _NextPopItem,
+			_FinishPopItem, _CancelPopItem, _AddPathPopItem, _ProgramSettingsItem, _OpenViewPopItem, _RenameViewPopItem,
+			_DeleteViewPopItem;// _ExportViewImage,
+								// _ExportSketchImage;
 
 	/**
 	 * The popup menu for right-clicking on the overview canvas
@@ -122,8 +126,8 @@ public class ApplicationFrame extends EasikFrame {
 	private JSplitPane _mainSplitPane;
 
 	/**
-	 * Stores the object we call when creating a new window, to adjust its menus
-	 * in an OS-specific way
+	 * Stores the object we call when creating a new window, to adjust its menus in
+	 * an OS-specific way
 	 */
 	// private EasikMenuAdjuster _menuAdj;
 
@@ -148,8 +152,7 @@ public class ApplicationFrame extends EasikFrame {
 	private Point _popupPosition;
 
 	/**
-	 * The recent files menu created from the recent files stored in the ini
-	 * file
+	 * The recent files menu created from the recent files stored in the ini file
 	 */
 	private JMenu _recentFilesMenu;
 
@@ -169,8 +172,8 @@ public class ApplicationFrame extends EasikFrame {
 	private JPopupMenu _viewPopupMenu;
 
 	/**
-	 * Creates the application frame, sets some sizes, sets up the properties
-	 * builds the menus, and lays out the swing components.
+	 * Creates the application frame, sets some sizes, sets up the properties builds
+	 * the menus, and lays out the swing components.
 	 */
 	public ApplicationFrame() {
 		super("EASIK - Untitled");
@@ -230,7 +233,8 @@ public class ApplicationFrame extends EasikFrame {
 		// Setup entire window
 		_mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, _mainPane, _rightPane);
 
-		final int dividerPos = Integer.parseInt(_settings.getProperty("overview_divider_position", String.valueOf((defaultWidth - 255))));
+		final int dividerPos = Integer
+				.parseInt(_settings.getProperty("overview_divider_position", String.valueOf((defaultWidth - 255))));
 
 		_mainSplitPane.setDividerLocation(dividerPos);
 		_mainSplitPane.setDividerSize(10);
@@ -238,8 +242,8 @@ public class ApplicationFrame extends EasikFrame {
 		_mainSplitPane.setOneTouchExpandable(true);
 		_mainSplitPane.setContinuousLayout(true);
 		getContentPane().add(_mainSplitPane, BorderLayout.CENTER);
-		
-		JPanel aqlPanel = new JPanel(new GridLayout(1,4));
+
+		JPanel aqlPanel = new JPanel(new GridLayout(1, 4));
 		JButton toAqlButton = new JButton("To CQL");
 		if (GUI.topFrame == null) {
 			toAqlButton.setEnabled(false);
@@ -258,9 +262,9 @@ public class ApplicationFrame extends EasikFrame {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Error, could not create temporary file to transfer to CQL");
-			} 
+			}
 		});
-		
+
 		JButton fromAqlButton = new JButton("From last run of CQL");
 		if (GUI.topFrame == null) {
 			fromAqlButton.setEnabled(false);
@@ -281,24 +285,23 @@ public class ApplicationFrame extends EasikFrame {
 				w.write(str);
 				w.close();
 				if (!warnings.isEmpty()) {
-					JOptionPane.showMessageDialog(null, new CodeTextPanel("CQL to EASIK warnings", Util.sep(warnings, "\n")));
+					JOptionPane.showMessageDialog(null,
+							new CodeTextPanel("CQL to EASIK warnings", Util.sep(warnings, "\n")));
 				}
 				getOverview().openOverview(selFile);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Error, could not create temporary file to transfer from CQL");
-			} 
+			}
 		});
-		
-		
-		
+
 		List<Example> l = new LinkedList<>();
 		l.addAll(Examples.getExamples(Language.EASIK));
 		l.addAll(Examples.getExamples(Language.SKETCH));
 		JComboBox<Example> box = new JComboBox<>(l.toArray(new Example[0]));
 		box.setSelectedIndex(-1);
 		box.addActionListener((ActionEvent e) -> {
-			Example ex = (Example) box.getSelectedItem();	
+			Example ex = (Example) box.getSelectedItem();
 			boolean proceed = true;
 			if (getOverview().getDirty()) {
 				proceed = JUtils.confirmLoss(this);
@@ -319,7 +322,7 @@ public class ApplicationFrame extends EasikFrame {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Error, could not create temporary file for example");
-			} 
+			}
 		});
 
 		aqlPanel.add(toAqlButton);
@@ -327,9 +330,7 @@ public class ApplicationFrame extends EasikFrame {
 		aqlPanel.add(new JLabel("Load Example", SwingConstants.RIGHT));
 		aqlPanel.add(box);
 		getContentPane().add(aqlPanel, BorderLayout.NORTH);
-		
 
-		
 	}
 
 	/**
@@ -345,7 +346,9 @@ public class ApplicationFrame extends EasikFrame {
 
 			this.updateTitle();
 
-			final int result = JOptionPane.showOptionDialog(this, "The document \"" + title + "\" has unsaved changes.", "Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, choices, choices[0]);
+			final int result = JOptionPane.showOptionDialog(this, "The document \"" + title + "\" has unsaved changes.",
+					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, choices,
+					choices[0]);
 
 			if (result == 0) // Save and exit
 			{
@@ -397,8 +400,7 @@ public class ApplicationFrame extends EasikFrame {
 	/**
 	 * Sets the InfoTreeUI
 	 *
-	 * @param inInfoTreeUI
-	 *            The new InfoTreeUI
+	 * @param inInfoTreeUI The new InfoTreeUI
 	 */
 	public void setInfoTreeUI(final OverviewInfoTreeUI inInfoTreeUI) {
 		_rightPane.remove(_infoTreeUI);
@@ -410,8 +412,8 @@ public class ApplicationFrame extends EasikFrame {
 	}
 
 	/**
-	 * Updates the title of the overview frame to the title stored in the
-	 * document UI. Normally called by DocumentInfo.
+	 * Updates the title of the overview frame to the title stored in the document
+	 * UI. Normally called by DocumentInfo.
 	 */
 	public void updateTitle() {
 		String title = _overview.getDocInfo().getName();
@@ -434,7 +436,8 @@ public class ApplicationFrame extends EasikFrame {
 		_canvasPopupMenu.add(_AddSketchPopItem = new JMenuItem(new NewSketchAction(_popupPosition, _overview)));
 		_canvasPopupMenu.add(_ImportSketchPopItem = new JMenuItem(new ImportSketchAction(_popupPosition, _overview)));
 		_sketchPopupMenu.add(_OpenSketchPopDefItem = new JMenuItem(new OpenSketchAction(_overview, true)));
-		_sketchPopupMenu.add(_OpenSketchManipulatePopDefItem = new JMenuItem(new OpenSketchDataAction(_overview, true)));
+		_sketchPopupMenu
+				.add(_OpenSketchManipulatePopDefItem = new JMenuItem(new OpenSketchDataAction(_overview, true)));
 		_sketchPopupMenu.add(_OpenSketchPopItem = new JMenuItem(new OpenSketchAction(_overview)));
 		_sketchPopupMenu.add(_OpenSketchManipulatePopItem = new JMenuItem(new OpenSketchDataAction(_overview)));
 		_sketchPopupMenu.addSeparator();
@@ -584,7 +587,8 @@ public class ApplicationFrame extends EasikFrame {
 			// ExportImageAction<SketchFrame, SketchGraphModel, Sketch,
 			// EntityNode, SketchEdge>(((SketchNode)
 			// currentSelection[0]).getFrame()));
-			_ExportSketchDatabasePopItem = new JMenuItem(new ExportDatabaseAction(this, ((SketchNode) currentSelection[0]).getFrame().getMModel()));
+			_ExportSketchDatabasePopItem = new JMenuItem(
+					new ExportDatabaseAction(this, ((SketchNode) currentSelection[0]).getFrame().getMModel()));
 
 			_sketchPopupMenu.add(_ExportSketchDatabasePopItem);
 			// _sketchPopupMenu.add(_ExportSketchImage);
@@ -760,8 +764,7 @@ public class ApplicationFrame extends EasikFrame {
 	 * Adds the specified File to the recent files menu, then updates the recent
 	 * files menu items to reflect the new list of files.
 	 *
-	 * @param selFile
-	 *            the file to add to the recent files list
+	 * @param selFile the file to add to the recent files list
 	 */
 	public void addRecentFile(final File selFile) {
 		Easik.getInstance().getSettings().addRecentFile(selFile);
@@ -769,9 +772,9 @@ public class ApplicationFrame extends EasikFrame {
 	}
 
 	/**
-	 * Called by Overview when the overview is set as dirty (or clean). We
-	 * simply set the windowModified property for OS-specific window changes
-	 * (for example, the "modified" dot in OS X
+	 * Called by Overview when the overview is set as dirty (or clean). We simply
+	 * set the windowModified property for OS-specific window changes (for example,
+	 * the "modified" dot in OS X
 	 *
 	 * @param dirty
 	 */

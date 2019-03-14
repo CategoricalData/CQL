@@ -43,25 +43,28 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	private final Map<En2, Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>>>> ens = new THashMap<>();
 
 	@Override
-	public Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> fk(Fk2 fk, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row) {
+	public Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> fk(Fk2 fk,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row) {
 		Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> t = Q.fks
 				.get(fk);
 
 		List<Var> l = ens.get(Q.dst.fks.get(fk).second).first;
 		En2 en2 = Q.dst.fks.get(fk).second;
 		Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> r = new Row<>(en2);
-		
+
 //		Map<Var, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> ret = new THashMap<>(l.size());
 		for (Var v : l) {
 			if (t.gens().containsKey(v)) {
 				r = new Row<>(r, v, trans2(row, t.gens().get(v).convert()), en2, t.src().gens().get(v));
 			} else {
-				r = new Row<>(r, v, trans2(row, t.sks().get(v).convert()), en2, t.src().sks().get(v));						
+				r = new Row<>(r, v, trans2(row, t.sks().get(v).convert()), en2, t.src().sks().get(v));
 			}
 
 		}
 
-		return r; //Row.mkRow(l, ret, Q.dst.fks.get(fk).second, Q.ens.get(Q.dst.fks.get(fk).second).gens, Q.ens.get(Q.dst.fks.get(fk).second).sks);
+		return r; // Row.mkRow(l, ret, Q.dst.fks.get(fk).second,
+					// Q.ens.get(Q.dst.fks.get(fk).second).gens,
+					// Q.ens.get(Q.dst.fks.get(fk).second).sks);
 	}
 
 	private Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> trans2(
@@ -100,7 +103,8 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	@Override
 	public Term<Ty, Void, Sym, Void, Void, Void, Y> att(Att2 att,
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
-		Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> l = trans1(x, Q.atts.get(att), I, Q.ens.get(Q.dst.atts.get(att).first));
+		Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> l = trans1(x, Q.atts.get(att), I,
+				Q.ens.get(Q.dst.atts.get(att).first));
 		if (!l.isPresent()) {
 			System.out.flush();
 			throw new RuntimeException("Anomly: please report: cannot translate " + att + ", term " + Q.atts.get(att)
@@ -130,17 +134,16 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		return I.algebra().talg();
 	}
 
-
 	@Override
 	public Object printX(En2 en2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
 		return x.toString(z -> {
 			if (!z.left) {
 				return z.r.toString();
-			} 			
+			}
 			En1 en1 = (En1) x.t;
 
 			return I.algebra().printX(en1, z.l).toString();
-		});		
+		});
 	}
 
 	@Override
@@ -174,8 +177,8 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		}
 		Connection conn = null;
 		boolean safe = (I.algebra().talg().sks.isEmpty() && I.algebra().talg().eqs.isEmpty()) || allowUnsafeSql();
-		boolean useSql = I.size() >= minSizeForSql() && safe
-				&& (SqlTypeSide.tys().containsAll(I.schema().typeSide.tys)) && SqlTypeSide.syms().keySet().containsAll(I.schema().typeSide.syms.keySet());
+		boolean useSql = I.size() >= minSizeForSql() && safe && (SqlTypeSide.tys().containsAll(I.schema().typeSide.tys))
+				&& SqlTypeSide.syms().keySet().containsAll(I.schema().typeSide.syms.keySet());
 		int vlen = (int) options.getOrDefault(AqlOption.varchar_length);
 		if (useSql) {
 			this.Q = q.unnest();
@@ -268,8 +271,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		}
 		List<Var> order = (new LinkedList<>(q.gens().keySet()));
 		try (Statement stmt = conn.createStatement()) {
-			ResultSet rs = stmt
-					.executeQuery(Q.toSQL("").get(en2));
+			ResultSet rs = stmt.executeQuery(Q.toSQL("").get(en2));
 			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = (new LinkedList<>());
 			// ResultSetMetaData rsmd = rs.getMetaData();
 			while (rs.next()) {
@@ -347,23 +349,25 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		return ret;
 	}
 
-	 static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> trans1(
+	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> trans1(
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple,
-			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Frozen<Ty, En1, Sym, Fk1, Att1> Q) {
+			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2,
+			Frozen<Ty, En1, Sym, Fk1, Att1> Q) {
 		if (first.gen() != null) {
 			En1 en1 = Q.gens.get(first.gen());
-			return tuple.containsKey(first.gen()) ? Optional.of(i2.algebra().repr(en1, tuple.get(first.gen()).l).convert())
+			return tuple.containsKey(first.gen())
+					? Optional.of(i2.algebra().repr(en1, tuple.get(first.gen()).l).convert())
 					: Optional.empty();
 		} else if (first.sk() != null) {
 			if (!tuple.containsKey(first.sk())) {
 				return Optional.empty();
 			}
-			//Ty ty = Q.sks.get(first.sk());
+			// Ty ty = Q.sks.get(first.sk());
 			Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> z = tuple.get(first.sk());
 			if (!z.left) {
 				return Optional.of(z.r);
 			}
-			return Util.anomaly(); //Optional.of(i2.algebra().repr(z.l).convert());
+			return Util.anomaly(); // Optional.of(i2.algebra().repr(z.l).convert());
 		}
 
 		else if (first.obj() != null) {
@@ -392,7 +396,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			return Optional.of(Term.Sym(first.sym(), args));
 		}
 		throw new RuntimeException("Anomaly: please report");
-	} 
+	}
 
 	@Override
 	public boolean hasFreeTypeAlgebra() {
@@ -423,7 +427,8 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			outer: while (dom.hasNext()) {
 				Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> x = dom.next();
 
-				Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row = new Row<>(tuple, v, x, tuple.en2(), enOrTy);
+				Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row = new Row<>(tuple, v, x, tuple.en2(),
+						enOrTy);
 				for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : q
 						.eqs()) {
 					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = EvalAlgebra.trans1(row, eq.first, I, q);
@@ -445,7 +450,6 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	public String talgToString() {
 		return I.algebra().talgToString();
 	}
-
 
 	@Override
 	public int size(En2 en) {

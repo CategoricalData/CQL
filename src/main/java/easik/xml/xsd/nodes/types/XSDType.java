@@ -61,8 +61,7 @@ public abstract class XSDType extends XSDBaseNode {
 	 * Qualified name, with namespace ':' in front.
 	 *
 	 * Qualified names may be needed in the XML Schema in references to types,
-	 * depending on whether the schema requires qualified elements or
-	 * attributes.
+	 * depending on whether the schema requires qualified elements or attributes.
 	 *
 	 * @see easik.xml.xsd.XMLSchema
 	 * @return Qualified name

@@ -7,12 +7,12 @@ import catdata.Util;
 import catdata.aql.Kind;
 import gnu.trove.set.hash.THashSet;
 
-public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
+public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 
 	public final Map<V, G> gs = Util.mk();
 	public final Map<V, T> tys = Util.mk();
 	public final Map<V, S> schs = Util.mk();
-	public final Map<V, I> insts =Util.mk();
+	public final Map<V, I> insts = Util.mk();
 	public final Map<V, H> trans = Util.mk();
 	public final Map<V, F> maps = Util.mk();
 	public final Map<V, Q> qs = Util.mk();
@@ -20,10 +20,7 @@ public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
 	public final Map<V, C> cs = Util.mk();
 	public final Map<V, SC> scs = Util.mk();
 	public final Map<V, ED> eds = Util.mk();
-	
-	
-	
-	
+
 	public Map<V, ?> get(Kind kind) {
 		switch (kind) {
 		case INSTANCE:
@@ -52,11 +49,11 @@ public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
 			throw new RuntimeException();
 		}
 	}
-	
+
 	public Object get(V k, Kind kind) {
 		return get(kind).get(k);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void put(V k, Kind kind, Object o) {
 		switch (kind) {
@@ -73,7 +70,7 @@ public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
 			trans.put(k, (H) o);
 			break;
 		case TYPESIDE:
-			tys.put(k, (T)o);
+			tys.put(k, (T) o);
 			break;
 		case QUERY:
 			qs.put(k, (Q) o);
@@ -86,7 +83,7 @@ public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
 			break;
 		case COMMENT:
 			cs.put(k, (C) o);
-			break;	
+			break;
 		case SCHEMA_COLIMIT:
 			scs.put(k, (SC) o);
 			break;
@@ -98,8 +95,7 @@ public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
 		}
 	}
 
-	
-	public Set<V> keySet() { 
+	public Set<V> keySet() {
 		Set<V> ret = new THashSet<>();
 		ret.addAll(insts.keySet());
 		ret.addAll(maps.keySet());
@@ -108,7 +104,7 @@ public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
 		ret.addAll(schs.keySet());
 		ret.addAll(trans.keySet());
 		ret.addAll(tys.keySet());
-		ret.addAll(qs.keySet()); 
+		ret.addAll(qs.keySet());
 		ret.addAll(gs.keySet());
 		ret.addAll(cs.keySet());
 		ret.addAll(scs.keySet());
@@ -140,7 +136,7 @@ public class KindCtx<V,G,T,S,I,H,F,Q,P,C,SC,ED> {
 			return trans.size();
 		case TYPESIDE:
 			return tys.size();
-		
+
 		}
 		return Util.anomaly();
 	}

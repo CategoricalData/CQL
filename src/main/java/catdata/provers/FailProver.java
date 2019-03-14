@@ -2,9 +2,9 @@ package catdata.provers;
 
 import java.util.Map;
 
-public class FailProver<T,C,V> extends DPKB<T,C,V> {
+public class FailProver<T, C, V> extends DPKB<T, C, V> {
 
-	public FailProver(KBTheory<T,C,V> kb) { 
+	public FailProver(KBTheory<T, C, V> kb) {
 		super(kb);
 	}
 
@@ -13,7 +13,6 @@ public class FailProver<T,C,V> extends DPKB<T,C,V> {
 		throw new RuntimeException();
 	}
 
-	
 	@Override
 	public String toString() {
 		return "Fail prover";
@@ -23,6 +22,5 @@ public class FailProver<T,C,V> extends DPKB<T,C,V> {
 	public void add(C c, T t) {
 		throw new RuntimeException("Fail");
 	}
-
 
 }

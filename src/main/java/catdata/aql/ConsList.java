@@ -22,7 +22,10 @@ public class ConsList<X> {
 
 	public final List<X> list;
 
+	@SuppressWarnings("rawtypes")
 	private static HashingStrategy<List> strategy = new HashingStrategy<>() {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public int computeHashCode(List t) {
 			return t.hashCode();
@@ -33,10 +36,10 @@ public class ConsList<X> {
 			return s.equals(t);
 		}
 	};
-		
-	public static Map<List, ConsList> cache = 
-			new TCustomHashMap<>(strategy);
-	
+
+	@SuppressWarnings("rawtypes")
+	public static Map<List, ConsList> cache = new TCustomHashMap<>(strategy);
+
 	public static synchronized <X> ConsList<X> new0(List<X> l, Boolean copy) {
 		ConsList<X> ret = cache.get(l);
 		if (ret != null) {
@@ -113,6 +116,5 @@ public class ConsList<X> {
 	public String toString() {
 		return list.toString();
 	}
-	
 
 }

@@ -25,7 +25,8 @@ import easik.model.vertex.ModelVertex;
  * @since 2006-06-14 Kevin Green
  * @version 2006-07-26 Kevin Green
  */
-public class EditUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class EditUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -50,8 +51,7 @@ public class EditUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	/**
 	 * Brings up a dialog to edit the currently selected unique key
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -64,7 +64,9 @@ public class EditUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extend
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_theFrame.getMModel().isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -72,7 +74,8 @@ public class EditUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extend
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 		N curEntity;
 		UniqueKey<F, GM, M, N, E> myKey;
 
@@ -83,7 +86,9 @@ public class EditUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extend
 			// we can cast it because we will only edit in sketches
 			curEntity = myKey.getEntity();
 		} else {
-			JOptionPane.showMessageDialog(_theFrame, "You do not have an entity selected. \nPlease select an entity and try again.", "No Entity Selected", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame,
+					"You do not have an entity selected. \nPlease select an entity and try again.",
+					"No Entity Selected", JOptionPane.ERROR_MESSAGE);
 
 			return; // Jump out of function
 		}

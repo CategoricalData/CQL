@@ -18,8 +18,8 @@ import catdata.aql.Term;
 import catdata.aql.fdm.EvalInstance;
 import catdata.aql.fdm.Row;
 
-public final class InstExpEval<Gen, Sk, X, Y>
-		extends InstExp<Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> {
+public final class InstExpEval<Gen, Sk, X, Y> extends
+		InstExp<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> {
 
 	public final QueryExp Q;
 	public final InstExp<Gen, Sk, X, Y> I;
@@ -28,7 +28,7 @@ public final class InstExpEval<Gen, Sk, X, Y>
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		Q.map(f);
@@ -45,8 +45,7 @@ public final class InstExpEval<Gen, Sk, X, Y>
 		return options;
 	}
 
-	public InstExpEval(QueryExp q,
-			InstExp<Gen, Sk, X, Y> i, List<Pair<String, String>> options) {
+	public InstExpEval(QueryExp q, InstExp<Gen, Sk, X, Y> i, List<Pair<String, String>> options) {
 		Q = q;
 		I = i;
 		this.options = Util.toMapSafely(options);
@@ -96,7 +95,7 @@ public final class InstExpEval<Gen, Sk, X, Y>
 
 	@Override
 	public SchExp type(AqlTyping G) {
-		if (!G.eq(I.type(G), Q.type(G).first)) { 
+		if (!G.eq(I.type(G), Q.type(G).first)) {
 			throw new RuntimeException("In evaluating a query, schema of instance is " + I.type(G)
 					+ " but source of query is " + Q.type(G).first + "\nThe query is " + this);
 		}
@@ -104,7 +103,8 @@ public final class InstExpEval<Gen, Sk, X, Y>
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> eval0(AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> eval0(
+			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);
 			I.eval(env, true);

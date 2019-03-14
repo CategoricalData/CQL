@@ -43,18 +43,19 @@ public class DeleteFromViewAction extends AbstractAction {
 	 * When the action is performed, selection is deleted if possible. Error is
 	 * displayed if no graph item is selected.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		int op = JOptionPane.showConfirmDialog(_theFrame, "Are you sure you want to delete the selected items?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+		int op = JOptionPane.showConfirmDialog(_theFrame, "Are you sure you want to delete the selected items?",
+				"Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
 		if (op == JOptionPane.YES_OPTION) {
 			Object[] currentSelection = _theFrame.getMModel().getSelectionCells();
 
 			if (currentSelection.length == 0) {
-				JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with something selected", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with something selected", "Error",
+						JOptionPane.ERROR_MESSAGE);
 			} else {
 				for (Object o : currentSelection) {
 					if (o instanceof QueryNode) {

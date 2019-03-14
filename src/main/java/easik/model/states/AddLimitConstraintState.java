@@ -14,7 +14,8 @@ import easik.model.vertex.ModelVertex;
 /**
  *
  */
-public class AddLimitConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelState<F, GM, M, N, E> implements PathAcceptingState<F, GM, M, N, E> {
+public class AddLimitConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelState<F, GM, M, N, E> implements PathAcceptingState<F, GM, M, N, E> {
 	private Cone<F, GM, M, N, E> cone, limitCone1, limitCone2;
 	private ModelPath<F, GM, M, N, E> AB, BC, AC;
 	private String currCone = "cone";

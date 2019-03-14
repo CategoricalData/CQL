@@ -21,7 +21,8 @@ import easik.model.vertex.ModelVertex;
  *
  * @see org.jgraph.graph.VertexView
  */
-public class ModelVertexView<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends VertexView {
+public class ModelVertexView<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends VertexView {
 	/**
 	 *    
 	 */
@@ -34,8 +35,7 @@ public class ModelVertexView<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Sets the cell that this view will be used to render.
 	 *
-	 * @param vertex
-	 *            The SketchVertex to be rendered by this view.
+	 * @param vertex The SketchVertex to be rendered by this view.
 	 */
 	public ModelVertexView(ModelVertex<F, GM, M, N, E> vertex) {
 		super(vertex);
@@ -54,12 +54,9 @@ public class ModelVertexView<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Returns a perimeter point for edges to use.
 	 *
-	 * @param edge
-	 *            The edge
-	 * @param source
-	 *            The source of the edge
-	 * @param p
-	 *            The desitination of the edge
+	 * @param edge   The edge
+	 * @param source The source of the edge
+	 * @param p      The desitination of the edge
 	 * @return The perimeter intersection point
 	 */
 	@Override

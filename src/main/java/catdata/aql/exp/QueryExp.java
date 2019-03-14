@@ -16,8 +16,7 @@ import catdata.aql.Query;
 import catdata.aql.Schema;
 import catdata.aql.exp.SchExp.SchExpLit;
 
-public abstract class QueryExp
-		extends Exp<Query<Ty, En, Sym, Fk, Att, En, Fk, Att>> {
+public abstract class QueryExp extends Exp<Query<Ty, En, Sym, Fk, Att, En, Fk, Att>> {
 
 	@Override
 	public Kind kind() {
@@ -34,28 +33,23 @@ public abstract class QueryExp
 	}
 
 	public static interface QueryExpVisitor<R, P, E extends Exception> {
-		public  R visit(P params,
-				QueryExpCompose exp) throws E;
+		public R visit(P params, QueryExpCompose exp) throws E;
 
-		public  R visit(P params, QueryExpId exp) throws E;
+		public R visit(P params, QueryExpId exp) throws E;
 
-		public  R visit(P params,
-				QueryExpLit exp) throws E;
+		public R visit(P params, QueryExpLit exp) throws E;
 
 		public R visit(P params, QueryExpVar exp) throws E;
 
 		public R visit(P params, QueryExpRaw exp) throws E;
 
-		public  R visit(P params,
-				QueryExpDeltaCoEval exp) throws E;
+		public R visit(P params, QueryExpDeltaCoEval exp) throws E;
 
-		public  R visit(P params,
-				QueryExpDeltaEval exp) throws E;
+		public R visit(P params, QueryExpDeltaEval exp) throws E;
 
 		public R visit(P params, QueryExpRawSimple exp) throws E;
 
-		public  R visit(P params,
-				QueryExpFromCoSpan exp) throws E;
+		public R visit(P params, QueryExpFromCoSpan exp) throws E;
 
 		public R visit(P params, QueryExpFromEds exp);
 	}
@@ -127,11 +121,13 @@ public abstract class QueryExp
 
 		@Override
 		public Query<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
-			Schema<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att> s = sch.eval(env, isC);
+			Schema<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att> s = sch
+					.eval(env, isC);
 			if (sch2.isEmpty()) {
 				return Query.id(new AqlOptions(env.defaults, AqlOption.dont_validate_unsafe, true), s, s);
 			}
-			return Query.id(new AqlOptions(env.defaults, AqlOption.dont_validate_unsafe, true), sch2.get().eval(env, isC), s);
+			return Query.id(new AqlOptions(env.defaults, AqlOption.dont_validate_unsafe, true),
+					sch2.get().eval(env, isC), s);
 
 		}
 
@@ -147,7 +143,7 @@ public abstract class QueryExp
 		protected void allowedOptions(Set<AqlOption> set) {
 
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			sch.map(f);
@@ -156,23 +152,22 @@ public abstract class QueryExp
 			}
 		}
 
-
 	}
 
 	////////////////////////////////////////////////////////////
 
-	public static final class QueryExpVar
-			extends QueryExp {
+	public static final class QueryExpVar extends QueryExp {
 		public final String var;
 
 		public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
+
 		}
+
 		@Override
 		public boolean isVar() {
 			return true;
@@ -189,7 +184,8 @@ public abstract class QueryExp
 		}
 
 		@Override
-		public Query<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.En, catdata.aql.exp.Fk, catdata.aql.exp.Att> eval0(AqlEnv env, boolean isC) {
+		public Query<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.En, catdata.aql.exp.Fk, catdata.aql.exp.Att> eval0(
+				AqlEnv env, boolean isC) {
 			return env.defs.qs.get(var);
 		}
 
@@ -217,13 +213,11 @@ public abstract class QueryExp
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Pair<SchExp, SchExp> type(
-				AqlTyping G) {
+		public Pair<SchExp, SchExp> type(AqlTyping G) {
 			if (!G.defs.qs.containsKey(var)) {
 				throw new RuntimeException("Not a query: " + var);
 			}
-			return (Pair<SchExp, SchExp>) ((Object) G.defs.qs
-					.get(var));
+			return (Pair<SchExp, SchExp>) ((Object) G.defs.qs.get(var));
 		}
 
 		public QueryExpVar(String var) {
@@ -237,8 +231,7 @@ public abstract class QueryExp
 
 	}
 
-	public static final class QueryExpLit
-			extends QueryExp {
+	public static final class QueryExpLit extends QueryExp {
 
 		public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
@@ -257,7 +250,7 @@ public abstract class QueryExp
 		}
 
 		public QueryExpLit(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q) {
-		this.q = q;
+			this.q = q;
 		}
 
 		@Override
@@ -296,12 +289,11 @@ public abstract class QueryExp
 		protected void allowedOptions(Set<AqlOption> set) {
 
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
-		}
 
+		}
 
 	}
 

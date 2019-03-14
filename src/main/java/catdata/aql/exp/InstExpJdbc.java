@@ -29,19 +29,19 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 
 	public final String clazz;
 	public final String jdbcString;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		this.schema.map(f);
 	}
 
 	@Override
-	public Collection<InstExp< ?, ?, ?, ?>> direct(AqlTyping G) {
+	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.emptySet();
 	}
 
-	public InstExpJdbc(SchExp schema, List<Pair<String, String>> options, String clazz,
-			String jdbcString, List<Pair<LocStr, String>> map) {
+	public InstExpJdbc(SchExp schema, List<Pair<String, String>> options, String clazz, String jdbcString,
+			List<Pair<LocStr, String>> map) {
 		super(schema, map, options);
 		this.clazz = clazz;
 		this.jdbcString = jdbcString;
@@ -71,16 +71,16 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 		if (jdbcString.trim().isEmpty()) {
 			toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 		}
-		synchronized(DriverManager.class) {
+		synchronized (DriverManager.class) {
 			return DriverManager.getConnection(toGet);
 		}
 	}
 
 	@Override
 	protected void end(Connection conn) throws SQLException {
-		
+
 		conn.close();
-		
+
 	}
 
 	@Override
@@ -201,7 +201,8 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 	}
 
 	@Override
-	protected synchronized void joinedEn(Connection conn, En en, String s, Schema<Ty, En, Sym, Fk, Att> sch) throws Exception {
+	protected synchronized void joinedEn(Connection conn, En en, String s, Schema<Ty, En, Sym, Fk, Att> sch)
+			throws Exception {
 
 		if (s == null) {
 			if (!(boolean) op.getOrDefault(AqlOption.import_missing_is_empty)) {
@@ -230,7 +231,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 
 			for (Fk fk : sch.fksFrom(en)) {
 				Object rhs = rs.getObject(fk.convert());
-				
+
 				if (rhs == null && !import_as_theory) {
 					stmt.close();
 					rs.close();
@@ -241,7 +242,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 				if (rhs != null) {
 					Gen g2 = toGen(en2, rhs.toString()); // store strings
 					ens0.get(en2).add(g2);
-				
+
 					if (!fks0.containsKey(g1)) {
 						fks0.put(g1, new THashMap<>());
 					}
@@ -253,7 +254,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 				if (!atts0.containsKey(g1)) {
 					atts0.put(g1, new THashMap<>());
 				}
-				
+
 				atts0.get(g1).put(att, objectToSk(sch, rhs, g1, att, tys0, extraRepr, false, nullOnErr));
 			}
 
@@ -330,7 +331,5 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 		set.add(AqlOption.require_consistency);
 		set.add(AqlOption.jdbc_quote_char);
 	}
-
-	
 
 }

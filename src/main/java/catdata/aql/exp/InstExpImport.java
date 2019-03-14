@@ -28,8 +28,7 @@ import catdata.aql.fdm.SaturatedInstance;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen, Null<?>>
-		implements Raw {
+public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen, Null<?>> implements Raw {
 
 	public abstract boolean equals(Object o);
 
@@ -79,8 +78,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 
 	public static IntRef counter = new IntRef(0);
 
-	public InstExpImport(SchExp schema, List<Pair<LocStr, Q>> map,
-			List<Pair<String, String>> options) {
+	public InstExpImport(SchExp schema, List<Pair<LocStr, Q>> map, List<Pair<String, String>> options) {
 		this.schema = schema;
 
 		this.options = Util.toMapSafely(options);
@@ -105,7 +103,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 		Ty ty = sch.atts.get(att).second;
 		if (rhs == null) {
 			Null<?> n = new Null<>(Term.Att(att, Term.Gen(x)));
-			//extraRepr.put(n, Term.Att(att, Term.Gen(x)));
+			// extraRepr.put(n, Term.Att(att, Term.Gen(x)));
 			sks.get(ty).add(n);
 			return Term.Sk(n);
 		} else if (sch.typeSide.js.java_tys.containsKey(ty)) {
@@ -167,7 +165,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 		if (isC) {
 			throw new IgnoreException();
 		}
-		
+
 		op = new AqlOptions(options, null, env.defaults);
 
 		import_as_theory = (boolean) op.getOrDefault(AqlOption.import_as_theory);
@@ -182,7 +180,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 		tys0 = Util.newSetsFor0(sch.typeSide.tys);
 		fks0 = new THashMap<>();
 		atts0 = new THashMap<>();
-		extraRepr = null; //new THashMap<>();
+		extraRepr = null; // new THashMap<>();
 		En last = null;
 
 		try {
@@ -214,8 +212,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 		}
 
 		ImportAlgebra<Ty, En, Sym, Fk, Att, Gen, Null<?>> alg = new ImportAlgebra<>(sch, ens0, tys0, fks0, atts0,
-				(x,y)->y, (x,y)->y, dont_check_closure,
-				Collections.emptySet());
+				(x, y) -> y, (x, y) -> y, dont_check_closure, Collections.emptySet());
 
 		SaturatedInstance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, Null<?>, catdata.aql.exp.Gen, Null<?>> x = new SaturatedInstance<>(
 				alg, alg, (Boolean) op.getOrDefault(AqlOption.require_consistency),
@@ -245,8 +242,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 			Map<Gen, Map<Fk, Gen>> fks0, Map<Gen, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Null<?>>>> atts0,
 			AqlOptions op) {
 
-		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>, Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>>> eqs0 = 
-				new THashSet<>();
+		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>, Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>>> eqs0 = new THashSet<>();
 		Collage<Ty, En, Sym, Fk, Att, Gen, Null<?>> col = new Collage<>(sch.collage());
 		for (Gen gen : fks0.keySet()) {
 			for (Fk fk : fks0.get(gen).keySet()) {

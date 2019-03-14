@@ -25,10 +25,8 @@ public abstract class XSDAbstractCompositor extends XSDAbstractElement {
 	/**
 	 * Default constructor, requires a tagname and a list of sub elements.
 	 *
-	 * @param tagName
-	 *            The tag name.
-	 * @param elements
-	 *            The list of elements
+	 * @param tagName  The tag name.
+	 * @param elements The list of elements
 	 */
 	public XSDAbstractCompositor(final String tagName, final List<XSDAbstractElement> elements) {
 		super(null, false, null);
@@ -45,8 +43,7 @@ public abstract class XSDAbstractCompositor extends XSDAbstractElement {
 	 * <p/>
 	 * If the element is null, it is not added as a sub element.
 	 *
-	 * @param elt
-	 *            The element
+	 * @param elt The element
 	 */
 	public void addSubElement(final XSDAbstractElement elt) {
 		if (null != elt) {
@@ -61,10 +58,8 @@ public abstract class XSDAbstractCompositor extends XSDAbstractElement {
 	 * <p/>
 	 * If the element is null, it is not added as a sub element.
 	 *
-	 * @param pos
-	 *            Where to add the element in the list.
-	 * @param elt
-	 *            The element
+	 * @param pos Where to add the element in the list.
+	 * @param elt The element
 	 */
 	public void addSubElement(final int pos, final XSDAbstractElement elt) {
 		if (null != elt) {
@@ -110,7 +105,8 @@ public abstract class XSDAbstractCompositor extends XSDAbstractElement {
 		final StringBuilder ret = new StringBuilder(100);
 
 		if ((null != elements) && (elements.size() > 0)) {
-			ret.append('<').append(nsPrefix).append(':').append(getTagName()).append(' ').append(tagAttributeListToString()).append('>').append(lineSep);
+			ret.append('<').append(nsPrefix).append(':').append(getTagName()).append(' ')
+					.append(tagAttributeListToString()).append('>').append(lineSep);
 
 			for (final XSDBaseNode elt : elements) {
 				ret.append(elt.toString()).append(lineSep);

@@ -27,40 +27,40 @@ public class EasikConstants {
 	public static final boolean RUNNING_ON_LINUX = !RUNNING_ON_WINDOWS && !RUNNING_ON_MAC && OS_NAME.contains("Linux");
 
 	/**
-	 * DATE_SHORT is a SimpleDateFormat object that formats dates into strings
-	 * such as: "8-Jul-2008"
+	 * DATE_SHORT is a SimpleDateFormat object that formats dates into strings such
+	 * as: "8-Jul-2008"
 	 */
 	public static final SimpleDateFormat DATE_SHORT = new SimpleDateFormat("d-MMM-yyyy");
 
 	/**
-	 * DATE_LONG is a SimpleDateFormat object that formats dates into strings
-	 * such as: "Tuesday, July 8, 2008"
+	 * DATE_LONG is a SimpleDateFormat object that formats dates into strings such
+	 * as: "Tuesday, July 8, 2008"
 	 */
 	public static final SimpleDateFormat DATE_LONG = new SimpleDateFormat("EEEE, MMMM d, yyyy");
 
 	/**
-	 * DATETIME_SHORT is a SimpleDateFormat object that formats dates into
-	 * strings such as: "8-Jul-2008, 2:37 PM"
+	 * DATETIME_SHORT is a SimpleDateFormat object that formats dates into strings
+	 * such as: "8-Jul-2008, 2:37 PM"
 	 */
 	public static final SimpleDateFormat DATETIME_SHORT = new SimpleDateFormat("d-MMM-yyyy, h:mm a");
 
 	// Formatting objects for formatting Dates in various places in Easik.
 
 	/**
-	 * DATETIME_LONG is a SimpleDateFormat object that formats dates into
-	 * strings such as: "Tuesday, July 8, 2008, 2:37:15 PM"
+	 * DATETIME_LONG is a SimpleDateFormat object that formats dates into strings
+	 * such as: "Tuesday, July 8, 2008, 2:37:15 PM"
 	 */
 	public static final SimpleDateFormat DATETIME_LONG = new SimpleDateFormat("EEEE, MMMM d, yyyy, h:mm:ss a");
 
 	/**
-	 * TIME_LONG is a SimpleDateFormat object that formats dates into strings
-	 * such as: "2:37:15 PM"
+	 * TIME_LONG is a SimpleDateFormat object that formats dates into strings such
+	 * as: "2:37:15 PM"
 	 */
 	public static final SimpleDateFormat TIME_LONG = new SimpleDateFormat("h:mm:ss a");
 
 	/**
-	 * TIME_SHORT is a SimpleDateFormat object that formats dates into strings
-	 * such as: "2:37 PM"
+	 * TIME_SHORT is a SimpleDateFormat object that formats dates into strings such
+	 * as: "2:37 PM"
 	 */
 	public static final SimpleDateFormat TIME_SHORT = new SimpleDateFormat("h:mm a");
 

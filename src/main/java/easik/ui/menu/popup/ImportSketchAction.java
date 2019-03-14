@@ -36,8 +36,7 @@ public class ImportSketchAction extends AbstractAction {
 	 * Prepare the menu option, as well as pass a reference to the last clicked
 	 * point, which is used when positioning the new entity.
 	 *
-	 * @param inPoint
-	 *            The sketch's last-rightclicked-position
+	 * @param inPoint    The sketch's last-rightclicked-position
 	 * @param inOverview
 	 */
 	public ImportSketchAction(Point inPoint, Overview inOverview) {
@@ -45,7 +44,8 @@ public class ImportSketchAction extends AbstractAction {
 
 		_theOverview = inOverview;
 
-		putValue(Action.SHORT_DESCRIPTION, "Add a new sketch to the document imported from a previously saved sketch export.");
+		putValue(Action.SHORT_DESCRIPTION,
+				"Add a new sketch to the document imported from a previously saved sketch export.");
 
 		_newPoint = inPoint;
 	}
@@ -53,8 +53,7 @@ public class ImportSketchAction extends AbstractAction {
 	/**
 	 * Create the new sketch.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -64,7 +63,7 @@ public class ImportSketchAction extends AbstractAction {
 			actionPerformed0(selFile);
 		}
 	}
-	
+
 	public void actionPerformed0(File selFile) {
 		Point p = (_newPoint != null) ? _newPoint : _theOverview.getNewSketchPosition(10);
 

@@ -40,17 +40,17 @@ public class NewViewAction extends AbstractAction {
 	/**
 	 * Get new name and send off to overview for creation. The frame where this
 	 * action becomes available to the user is responsible for ensuring that the
-	 * current selection is valid for creating the view (i.e. That it consists
-	 * of exactly one sketch node.)
+	 * current selection is valid for creating the view (i.e. That it consists of
+	 * exactly one sketch node.)
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String newName = _theOverview.getNewViewName();
 
-		newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new view:", "Get name", JOptionPane.QUESTION_MESSAGE, null, null, newName);
+		newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new view:", "Get name",
+				JOptionPane.QUESTION_MESSAGE, null, null, newName);
 
 		if (newName == null) {
 			return;
@@ -59,9 +59,12 @@ public class NewViewAction extends AbstractAction {
 		newName = newName.trim();
 
 		while (newName.equals("") || _theOverview.isNameUsed(newName)) {
-			JOptionPane.showMessageDialog(_theOverview.getFrame(), "Error while naming view.\n" + "Please ensure that view name is not blank and not already in use\n", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theOverview.getFrame(),
+					"Error while naming view.\n" + "Please ensure that view name is not blank and not already in use\n",
+					"Error", JOptionPane.ERROR_MESSAGE);
 
-			newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new view:", "Get name", JOptionPane.QUESTION_MESSAGE, null, null, newName);
+			newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new view:", "Get name",
+					JOptionPane.QUESTION_MESSAGE, null, null, newName);
 
 			if (newName == null) {
 				return;

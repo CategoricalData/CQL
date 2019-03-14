@@ -13,7 +13,7 @@ import gnu.trove.set.hash.THashSet;
 /**
  * @author Ryan Wisnesky
  */
-public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
+public class Chc<X, Y> /* , Comparable<Chc<X,Y>> */ {
 	public final boolean left;
 
 	public final X l;
@@ -110,9 +110,11 @@ public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
 		this.r = r;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static Map<Object, Chc> lm = new THashMap<>();
+	@SuppressWarnings("rawtypes")
 	private static Map<Object, Chc> rm = new THashMap<>();
-	
+
 	public synchronized static <X, Y> Chc<X, Y> inLeft(X l) {
 		Chc<X, Y> z = lm.get(l);
 		if (z != null) {
@@ -148,7 +150,7 @@ public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
 		Chc<X, Y> ret = new Chc<>(false, null, r);
 		return ret;
 	}
-	
+
 	@Override
 	public String toString() {
 		return left ? "inl " + l : "inr " + r;
@@ -157,8 +159,6 @@ public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
 	public String toStringMash() {
 		return left ? l.toString() : r.toString();
 	}
-
-	
 
 	public void assertNeitherNull() {
 		if (l == null && r == null) {
@@ -174,7 +174,7 @@ public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Chc<?, ?> other = (Chc<?,?>) obj;
+		Chc<?, ?> other = (Chc<?, ?>) obj;
 		if (left != other.left)
 			return false;
 		if (left) {
@@ -185,6 +185,7 @@ public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
 	}
 
 	private int code = -1;
+
 	@Override
 	public synchronized int hashCode() {
 		if (code != -1) {
@@ -198,7 +199,6 @@ public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
 		code = result;
 		return result;
 	}
-	
 
 	public static <X, Y> Set<Chc<X, Y>> or(Collection<X> xs, Set<Y> ys) {
 		Set<Chc<X, Y>> ret = new THashSet<>(xs.size() + ys.size());
@@ -217,6 +217,5 @@ public class Chc<X, Y>  /* , Comparable<Chc<X,Y>> */ {
 		}
 		return Chc.inLeft(r);
 	}
-
 
 }

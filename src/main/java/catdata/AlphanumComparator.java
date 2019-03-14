@@ -12,12 +12,12 @@ import java.util.Comparator;
  */
 public class AlphanumComparator implements Comparator<Object> {
 	private final boolean isDigit(char ch) {
-		return   ((ch >= 48) && (ch <= 57));
+		return ((ch >= 48) && (ch <= 57));
 	}
 
 	/**
-	 * Length of string is passed in for improved efficiency (only need to
-	 * calculate it once)
+	 * Length of string is passed in for improved efficiency (only need to calculate
+	 * it once)
 	 **/
 	private final String getChunk(String s, int slength, int marker) {
 		StringBuilder chunk = new StringBuilder();
@@ -89,6 +89,5 @@ public class AlphanumComparator implements Comparator<Object> {
 
 		return s1Length - s2Length;
 	}
-
 
 }

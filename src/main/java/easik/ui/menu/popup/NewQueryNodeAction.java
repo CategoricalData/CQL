@@ -36,8 +36,7 @@ public class NewQueryNodeAction extends AbstractAction {
 	 * Prepare the menu option, as well as pass a reference to the last clicked
 	 * point, which is used when positioning the new entity.
 	 *
-	 * @param inPoint
-	 *            The sketch's last-rightclicked-position
+	 * @param inPoint The sketch's last-rightclicked-position
 	 * @param inFrame
 	 */
 	public NewQueryNodeAction(Point inPoint, ViewFrame inFrame) {
@@ -53,15 +52,15 @@ public class NewQueryNodeAction extends AbstractAction {
 	/**
 	 * Create the new query node.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String defaultName = _theFrame.getMModel().getNewName();
 		QueryNode newNode;
 		try {
-			newNode = new QueryNode(defaultName, (int) _newPoint.getX(), (int) _newPoint.getY(), _theFrame.getMModel(), "");
+			newNode = new QueryNode(defaultName, (int) _newPoint.getX(), (int) _newPoint.getY(), _theFrame.getMModel(),
+					"");
 			DefineQueryNodeDialog dqnd = new DefineQueryNodeDialog(_theFrame, "New Query Node", newNode);
 
 			if (!dqnd.isAccepted()) {
@@ -70,9 +69,14 @@ public class NewQueryNodeAction extends AbstractAction {
 
 			String name = dqnd.getName();
 			while (name.equals("") || _theFrame.getMModel().isNameUsed(name)) {
-				JOptionPane.showMessageDialog(_theFrame, "Error while naming entity.\n" + "Please ensure that entity name is:\n" + "1) Not blank\n" + "2) Not already in use", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane
+						.showMessageDialog(_theFrame,
+								"Error while naming entity.\n" + "Please ensure that entity name is:\n"
+										+ "1) Not blank\n" + "2) Not already in use",
+								"Error", JOptionPane.ERROR_MESSAGE);
 
-				name = (String) JOptionPane.showInputDialog(_theFrame, "Name for new entity:", "Get name", JOptionPane.QUESTION_MESSAGE, null, null, name);
+				name = (String) JOptionPane.showInputDialog(_theFrame, "Name for new entity:", "Get name",
+						JOptionPane.QUESTION_MESSAGE, null, null, name);
 
 				if (name == null) {
 					return;
@@ -90,7 +94,9 @@ public class NewQueryNodeAction extends AbstractAction {
 			// only really throw in the setQuery call
 			// because the first call, a constructor call to queryNode, gives an
 			// emptry query which is ok
-			JOptionPane.showMessageDialog(_theFrame.getParent(), "New Query node not created. Not valid query.\n" + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame.getParent(),
+					"New Query node not created. Not valid query.\n" + e1.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 	}

@@ -33,8 +33,7 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public final class QueryExpDeltaCoEval
-		extends QueryExp {
+public final class QueryExpDeltaCoEval extends QueryExp {
 
 	public final MapExp F;
 	public final Map<String, String> options;
@@ -42,12 +41,11 @@ public final class QueryExpDeltaCoEval
 	public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		F.map(f);
 	}
-
 
 	@Override
 	public Map<String, String> options() {
@@ -116,7 +114,7 @@ public final class QueryExpDeltaCoEval
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
 		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts = new THashMap<>();
 		Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
-		Map<Fk,Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
+		Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
 
 		Map<En, LiteralInstance<Ty, En, Sym, Fk, Att, Var, Void, Integer, Chc<Void, Pair<Integer, Att>>>> ys = new THashMap<>();
 		Map<En, DeltaInstance<Ty, En, Sym, Fk, Att, Var, Void, En, Fk, Att, Integer, Chc<Void, Pair<Integer, Att>>>> js = new THashMap<>();
@@ -125,14 +123,14 @@ public final class QueryExpDeltaCoEval
 		Var v = Var.Var("v");
 		Map<En, Map<Term<Ty, En, Sym, Fk, Att, Var, Chc<Void, Pair<Integer, Att>>>, Term<Ty, En, Sym, Fk, Att, Var, Var>>> surj = new THashMap<>();
 
-		Map<En, Pair<Map<Chc<Void, Pair<Integer, Att>>, Integer>, Map<Integer, Chc<Void, Pair<Integer, Att>>>>> isos2 = new THashMap<>();		
+		Map<En, Pair<Map<Chc<Void, Pair<Integer, Att>>, Integer>, Map<Integer, Chc<Void, Pair<Integer, Att>>>>> isos2 = new THashMap<>();
 		int skidx = 0;
 		for (En en2 : F0.dst.ens) {
 			Collage<Ty, En, Sym, Fk, Att, Var, Void> col = new Collage<>(F0.dst.collage());
 			col.gens.put(v, en2);
 
-			InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Void> initial = new InitialAlgebra<>(ops, F0.dst, col,
-					(y)->y, (x,y)->y);
+			InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Void> initial = new InitialAlgebra<>(ops, F0.dst, col, (y) -> y,
+					(x, y) -> y);
 			LiteralInstance<Ty, En, Sym, Fk, Att, Var, Void, Integer, Chc<Void, Pair<Integer, Att>>> y = new LiteralInstance<>(
 					F0.dst, col.gens, col.sks, Collections.emptySet(), initial.dp(), initial,
 					(Boolean) ops.getOrDefault(AqlOption.require_consistency),
@@ -143,8 +141,10 @@ public final class QueryExpDeltaCoEval
 					F0, y);
 			js.put(en2, J);
 
-			Pair<TObjectIntMap<Pair<En, Integer>>, TIntObjectMap<Pair<En, Integer>>> iso = J.algebra().intifyX(1000); //avoid sks
-			Pair<Map<Chc<Void, Pair<Integer, Att>>, Integer>, Map<Integer, Chc<Void, Pair<Integer, Att>>>> iso2 = new Pair<>(new THashMap<>(), new THashMap<>());
+			Pair<TObjectIntMap<Pair<En, Integer>>, TIntObjectMap<Pair<En, Integer>>> iso = J.algebra().intifyX(1000); // avoid
+																														// sks
+			Pair<Map<Chc<Void, Pair<Integer, Att>>, Integer>, Map<Integer, Chc<Void, Pair<Integer, Att>>>> iso2 = new Pair<>(
+					new THashMap<>(), new THashMap<>());
 			isos.put(en2, iso);
 			isos2.put(en2, iso2);
 
@@ -156,7 +156,7 @@ public final class QueryExpDeltaCoEval
 					fr.put(Var.Var("gen" + iso.first.get(id)), Chc.inLeft(en1));
 				}
 			}
-		
+
 			Map<Term<Ty, En, Sym, Fk, Att, Var, Chc<Void, Pair<Integer, Att>>>, Term<Ty, En, Sym, Fk, Att, Var, Var>> surjX = new THashMap<>();
 			for (Chc<Void, Pair<Integer, Att>> p : J.algebra().talg().sks.keySet()) {
 				Set<Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Void>> set = new THashSet<>();
@@ -182,11 +182,11 @@ public final class QueryExpDeltaCoEval
 					iso2.second.put(skidx, p);
 					skidx++;
 					surjX.put(Term.Sk(p), Term.Sk(vv));
-					//surjective on attributes
+					// surjective on attributes
 				} else {
 					surjX.put(Term.Sk(p), u);
 				}
-				
+
 			}
 			isos2.put(en2, iso2);
 			surj.put(en2, surjX);
@@ -194,14 +194,14 @@ public final class QueryExpDeltaCoEval
 			for (Pair<Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>>, Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>>> eq : J
 					.eqs()) {
 				Function<Pair<En, Integer>, Var> genf = x -> Var.Var("gen" + iso.first.get(x));
-			
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var,  Chc<Void, Pair<Integer, Att>>> tz = eq.first.mapGen(genf);
+
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, Chc<Void, Pair<Integer, Att>>> tz = eq.first.mapGen(genf);
 				Term tt0 = tz;
 				Term tt = tt0.replace(surjX);
 
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var,  Chc<Void, Pair<Integer, Att>>> qw = eq.second.mapGen(genf);
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, Chc<Void, Pair<Integer, Att>>> qw = eq.second.mapGen(genf);
 				Term qw1 = qw;
-			
+
 				Term<Ty, En, Sym, Fk, Att, Var, Var> ttA = qw1.replace(surjX);
 
 				if (!tt.equals(ttA)) {
@@ -246,7 +246,7 @@ public final class QueryExpDeltaCoEval
 							.get(F0.dst.fks.get(fk2).first);
 					Pair<Map<Chc<Void, Pair<Integer, Att>>, Integer>, Map<Integer, Chc<Void, Pair<Integer, Att>>>> iso2x = isos2
 							.get(F0.dst.fks.get(fk2).second);
-				
+
 					Chc<Void, Pair<Integer, Att>> x = iso2x.second.get(u0);
 					Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>> y = h.reprT(x);
 
@@ -254,7 +254,7 @@ public final class QueryExpDeltaCoEval
 						Integer y1 = iso1x.first.get(p);
 						return Var.Var("sk" + y1);
 					};
-					
+
 					Term<Ty, En, Sym, Fk, Att, Var, Var> tt = y.mapGenSk(genf, skf);
 					hh.put(u.getKey(), tt);
 				}
@@ -271,20 +271,20 @@ public final class QueryExpDeltaCoEval
 			Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>> s = js
 					.get(F0.dst.atts.get(att2).first).reprT(t);
 
-			Pair<TObjectIntMap<Pair<En, Integer>>, TIntObjectMap<Pair<En, Integer>>> iso1 = isos.get(F0.dst.atts.get(att2).first);
+			Pair<TObjectIntMap<Pair<En, Integer>>, TIntObjectMap<Pair<En, Integer>>> iso1 = isos
+					.get(F0.dst.atts.get(att2).first);
 
 			Function<Pair<En, Integer>, Var> genf = p -> {
 				Integer y1 = iso1.first.get(p);
 				return Var.Var("gen" + y1);
 			};
-			
-		
+
 			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, ?> tz = s.mapGen(genf);
 			Term tt0 = tz;
 			if (surj.containsKey(F0.dst.atts.get(att2).first)) {
 				tt0 = tt0.replace(surj.get(F0.dst.atts.get(att2).first));
 			}
-			
+
 			atts.put(att2, tt0);
 		}
 

@@ -28,7 +28,8 @@ import easik.ui.OptionsDialog;
 /**
  * Displays a UI for creating/editing a unique key
  */
-public class UniqueKeyUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends OptionsDialog {
+public class UniqueKeyUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends OptionsDialog {
 	/**
 	 *    
 	 */
@@ -60,13 +61,11 @@ public class UniqueKeyUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 	private UniqueKey<F, GM, M, N, E> _uniqueKey;
 
 	/**
-	 * Creates a dialog box prompting the user for input. Used for creation of
-	 * new unique key.
+	 * Creates a dialog box prompting the user for input. Used for creation of new
+	 * unique key.
 	 *
-	 * @param frame
-	 *            The frame to attach this option dialog to
-	 * @param inEntity
-	 *            The Entity node for which the user is creating a unique key
+	 * @param frame    The frame to attach this option dialog to
+	 * @param inEntity The Entity node for which the user is creating a unique key
 	 */
 	public UniqueKeyUI(JFrame frame, N inEntity) {
 		super(frame, "New Unique Key");
@@ -80,12 +79,9 @@ public class UniqueKeyUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 	 * Creates a dialog box prompting the user for input. Used for editing of
 	 * existing unique key.
 	 *
-	 * @param frame
-	 *            The frame to attach this option dialog to
-	 * @param inEntity
-	 *            The N for which the unique key is being built
-	 * @param inKey
-	 *            The unique key being edited
+	 * @param frame    The frame to attach this option dialog to
+	 * @param inEntity The N for which the unique key is being built
+	 * @param inKey    The unique key being edited
 	 */
 	public UniqueKeyUI(JFrame frame, N inEntity, UniqueKey<F, GM, M, N, E> inKey) {
 		super(frame, "Edit Unique Key");
@@ -189,13 +185,15 @@ public class UniqueKeyUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		else if (selected.isEmpty()) {
 			showError = true;
 			errorTitle = "No attributes/edges selected";
-			errorMessage = "One or more attributes or edges must be selected.\n" + "Please select the attributes and/or edges to be\n" + "added to the unique key.";
+			errorMessage = "One or more attributes or edges must be selected.\n"
+					+ "Please select the attributes and/or edges to be\n" + "added to the unique key.";
 
 			_attListField.requestFocusInWindow();
 		}
 
 		// Key name already in use:
-		else if (((_uniqueKey == null) || !_uniqueKey.getKeyName().equals(getKeyName())) && _entity.isKeyNameUsed(getKeyName())) {
+		else if (((_uniqueKey == null) || !_uniqueKey.getKeyName().equals(getKeyName()))
+				&& _entity.isKeyNameUsed(getKeyName())) {
 			showError = true;
 			errorTitle = "Key name already exists";
 			errorMessage = "A unique key with that key name already exists.\n\nPlease choose another name.";
@@ -204,10 +202,13 @@ public class UniqueKeyUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		}
 
 		// Set of attributes is not a unique set:
-		else if (((_uniqueKey == null) || !_uniqueKey.getElements().equals(selected)) && (_entity.uniqueKeyOn(selected) != null)) {
+		else if (((_uniqueKey == null) || !_uniqueKey.getElements().equals(selected))
+				&& (_entity.uniqueKeyOn(selected) != null)) {
 			showError = true;
 			errorTitle = "Unique key already exists";
-			errorMessage = "A unique key with those attributes/edges already exists.\n" + "You must change your attribute selection or remove the\n" + "existing unique key before continuing.";
+			errorMessage = "A unique key with those attributes/edges already exists.\n"
+					+ "You must change your attribute selection or remove the\n"
+					+ "existing unique key before continuing.";
 
 			_attListField.requestFocusInWindow();
 		}

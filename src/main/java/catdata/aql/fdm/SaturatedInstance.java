@@ -26,23 +26,23 @@ import catdata.aql.Term;
 import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 
-public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> 
-extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
+public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> {
 
-	private final Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs; // = new HashSet<>();
-	
+	private final Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs; // = new
+																											// HashSet<>();
+
 //	private final Map<X, En> gens;
-	
-	private final Map<Y, Ty> sks; 
-	
+
+	private final Map<Y, Ty> sks;
+
 	private final DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp;
 	public final Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg;
 	private final InnerAlgebra inner_alg;
 	private final InnerDP inner_dp;
 
 	boolean requireConsistency, allowUnsafeJava;
-	//private final Map<Y, Term<Ty, En, Sym, Fk, Att, X, Y>> reprT_extra;
-	
+	// private final Map<Y, Term<Ty, En, Sym, Fk, Att, X, Y>> reprT_extra;
+
 	@Override
 	public DP<Ty, En, Sym, Fk, Att, X, Y> dp() {
 		return inner_dp;
@@ -51,22 +51,22 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 	@Override
 	public Algebra<Ty, En, Sym, Fk, Att, X, Y, X, Y> algebra() {
 		return inner_alg;
-	} 
-	
-	
+	}
 
-	public SaturatedInstance(Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg, DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, boolean requireConsistency, boolean allowUnsafeJava, boolean labelledNulls, Map<Y, Term<Ty, En, Sym, Fk, Att, X, Y>> reprT_extra) {
+	public SaturatedInstance(Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg, DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp,
+			boolean requireConsistency, boolean allowUnsafeJava, boolean labelledNulls,
+			Map<Y, Term<Ty, En, Sym, Fk, Att, X, Y>> reprT_extra) {
 		this.alg = alg;
 		this.dp = dp;
 		this.requireConsistency = requireConsistency;
 		this.allowUnsafeJava = allowUnsafeJava;
-		
+
 		int size = 1;
 		for (En en : schema().ens) {
 			size += alg.size(en) * (schema().attsFrom(en).size() + schema().fksFrom(en).size());
 		}
-		//final int size2 = size;
-		
+		// final int size2 = size;
+
 		gens = (new THashMap<>(2 * alg.size()));
 		for (En en : alg.schema().ens) {
 			for (X x : alg.en(en)) {
@@ -74,9 +74,8 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 			}
 		}
 
-		Function<Unit, Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>>>  fun = _x-> {
-			Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>>
-			set = new LinkedList<>();
+		Function<Unit, Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>>> fun = _x -> {
+			Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> set = new LinkedList<>();
 			for (En en : schema().ens) {
 				for (X x : alg.en(en)) {
 					for (Att att : schema().attsFrom(en)) {
@@ -107,7 +106,7 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 			}
 			return set;
 		};
-		
+
 		eqs = (new LazySet<>(fun, size));
 
 		if (labelledNulls) {
@@ -116,18 +115,17 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 			sks = alg.talg().sks;
 		}
 
-	//	this.reprT_extra = reprT_extra;
+		// this.reprT_extra = reprT_extra;
 		inner_dp = new InnerDP();
 		inner_alg = new InnerAlgebra();
-		
-		if (size < 1024*4) {
+
+		if (size < 1024 * 4) {
 			validate();
-			checkSatisfaction(); 
-		}		
+			checkSatisfaction();
+		}
 	}
 
-	class InnerIt 
-	implements Iterator<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> {
+	class InnerIt implements Iterator<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> {
 
 		@Override
 		public boolean hasNext() {
@@ -138,31 +136,35 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 		public Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>> next() {
 			return null;
 		}
-		
+
 	}
-	
+
 	private Term<Ty, En, Sym, Fk, Att, X, Y> lnConv(Att att, X x) {
 		if (alg.talg().sks.containsKey(new Null<>(Term.Att(att, Term.Gen(x))))) {
 			return null;
-		} 
-		return alg.att(att, x).convert(); 
+		}
+		return alg.att(att, x).convert();
 	}
-
 
 	public void checkSatisfaction() {
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schema().eqs) {
-			//Chc<Ty, En> l = schema().type(eq.first, eq.second);
+			// Chc<Ty, En> l = schema().type(eq.first, eq.second);
 			for (X x : algebra().en(eq.first.second)) {
-				Term<Ty, En, Sym, Fk, Att, X, Y> lhs = eq.second.mapGenSk(Util.<X>voidFn(), Util.<Y>voidFn()).subst(Collections.singletonMap(eq.first.first, Term.Gen(x)));
-				Term<Ty, En, Sym, Fk, Att, X, Y> rhs = eq.third.mapGenSk(Util.<X>voidFn(), Util.<Y>voidFn()).subst(Collections.singletonMap(eq.first.first, Term.Gen(x)));
+				Term<Ty, En, Sym, Fk, Att, X, Y> lhs = eq.second.mapGenSk(Util.<X>voidFn(), Util.<Y>voidFn())
+						.subst(Collections.singletonMap(eq.first.first, Term.Gen(x)));
+				Term<Ty, En, Sym, Fk, Att, X, Y> rhs = eq.third.mapGenSk(Util.<X>voidFn(), Util.<Y>voidFn())
+						.subst(Collections.singletonMap(eq.first.first, Term.Gen(x)));
 				if (!dp().eq(null, lhs, rhs)) {
-					throw new RuntimeException("Algebra does not satisfy equation forall " + eq.first.first + ". " + eq.second + " = " + eq.third + " on ID " + alg.printX(eq.first.second, x) + ", yields unequal IDs " + lhs.toString() + " and " + rhs.toString());
+					throw new RuntimeException("Algebra does not satisfy equation forall " + eq.first.first + ". "
+							+ eq.second + " = " + eq.third + " on ID " + alg.printX(eq.first.second, x)
+							+ ", yields unequal IDs " + lhs.toString() + " and " + rhs.toString());
 				}
 			}
 		}
 	}
 
-	private Map<X, En> gens; 
+	private Map<X, En> gens;
+
 	public Map<X, En> gens() {
 		return gens;
 	}
@@ -182,8 +184,8 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 		return alg.schema();
 	}
 
-	private class InnerAlgebra extends Algebra<Ty,En,Sym,Fk,Att,X,Y,X,Y> {
-		
+	private class InnerAlgebra extends Algebra<Ty, En, Sym, Fk, Att, X, Y, X, Y> {
+
 		@Override
 		public Object printX(En en, X x) {
 			return alg.printX(en, x);
@@ -193,7 +195,7 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 		public Object printY(Ty ty, Y y) {
 			return alg.printY(ty, y);
 		}
-		
+
 		@Override
 		public Iterable<X> en(En en) {
 			return alg.en(en);
@@ -221,7 +223,7 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 
 		@Override
 		public Term<Void, En, Void, Fk, Void, X, Void> repr(En en, X x) {
-			return Term.Gen(x); 
+			return Term.Gen(x);
 		}
 
 		@Override
@@ -229,8 +231,6 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 			return alg.talg();
 		}
 
-	
-		
 		@Override
 		public Schema<Ty, En, Sym, Fk, Att> schema() {
 			return alg.schema();
@@ -251,8 +251,6 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 			return alg.hasFreeTypeAlgebraOnJava();
 		}
 
-		
-
 		@Override
 		public int size(En en) {
 			return alg.size(en);
@@ -264,15 +262,15 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 		}
 
 	}
-		
+
 	private class InnerDP implements DP<Ty, En, Sym, Fk, Att, X, Y> {
 
 		@Override
-		public synchronized boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, X, Y> lhs, Term<Ty, En, Sym, Fk, Att, X, Y> rhs) {
+		public synchronized boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, X, Y> lhs,
+				Term<Ty, En, Sym, Fk, Att, X, Y> rhs) {
 			return dp.eq(ctx, transL(lhs), transL(rhs));
 		}
 
-	
 		private Term<Ty, En, Sym, Fk, Att, Gen, Sk> transL(Term<Ty, En, Sym, Fk, Att, X, Y> term) {
 			if (term.obj() != null) {
 				return term.convert();
@@ -289,18 +287,18 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 			} else if (term.fk() != null) {
 				return Term.Fk(term.fk(), transL(term.arg));
 			} else if (term.gen() != null) {
-				return alg.repr(gens.get(term.gen()),term.gen()).convert();
+				return alg.repr(gens.get(term.gen()), term.gen()).convert();
 			} else if (term.sk() != null) {
 				return alg.reprT(Term.Sk(term.sk()));
 			}
 			throw new RuntimeException("Anomaly: please report");
-		} 
-		
+		}
+
 		@Override
 		public String toStringProver() {
 			return "Saturated Inner DP wrapper of " + dp.toStringProver();
 		}
-		
+
 	}
 
 	@Override
@@ -311,7 +309,6 @@ extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y>  {
 	@Override
 	public boolean allowUnsafeJava() {
 		return allowUnsafeJava;
-	}	
-	
-	
+	}
+
 }

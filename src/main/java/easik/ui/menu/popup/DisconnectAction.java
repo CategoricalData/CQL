@@ -39,8 +39,7 @@ public class DisconnectAction extends AbstractAction {
 	/**
 	 * Clears the sketch's driver, and hides the datamanip frame
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

@@ -39,8 +39,8 @@ public class ViewEdgeOptions extends OptionsDialog {
 	private View_Edge _viewEdge;
 
 	/*
-	 * Various JThings containing entered information. Note that not all of
-	 * these are used for every edge type.
+	 * Various JThings containing entered information. Note that not all of these
+	 * are used for every edge type.
 	 */
 
 	/**  */
@@ -62,11 +62,9 @@ public class ViewEdgeOptions extends OptionsDialog {
 	/**
 	 * Creates and displays a new modal edge options dialog.
 	 *
-	 * @param ViewFrame
-	 *            the ViewFrame to attach this modal dialog box to
-	 * @param edge
-	 *            takes an existing edge to set initial values from when
-	 *            modifying an edge
+	 * @param ViewFrame the ViewFrame to attach this modal dialog box to
+	 * @param edge      takes an existing edge to set initial values from when
+	 *                  modifying an edge
 	 * @author Federico Mora
 	 */
 	public ViewEdgeOptions(ViewFrame viewFrame, View_Edge edge) {
@@ -75,7 +73,8 @@ public class ViewEdgeOptions extends OptionsDialog {
 		_theViewFrame = viewFrame;
 		_viewEdge = edge;
 
-		_type = (edge instanceof PartialViewEdge) ? ((edge.getSource() == edge.getTarget()) ? Edge.SELF : Edge.PARTIAL) : (edge instanceof InjectiveViewEdge) ? Edge.INJECTIVE : Edge.NORMAL;
+		_type = (edge instanceof PartialViewEdge) ? ((edge.getSource() == edge.getTarget()) ? Edge.SELF : Edge.PARTIAL)
+				: (edge instanceof InjectiveViewEdge) ? Edge.INJECTIVE : Edge.NORMAL;
 
 		setSize(WIDTH, HEIGHT);
 		showDialog();
@@ -90,7 +89,8 @@ public class ViewEdgeOptions extends OptionsDialog {
 	public List<Option> getOptions() {
 		LinkedList<Option> opts = new LinkedList<>();
 
-		_viewEdgeName = JUtils.textField((_viewEdge != null) ? _viewEdge.getName() : _theViewFrame.getMModel().getNewName());
+		_viewEdgeName = JUtils
+				.textField((_viewEdge != null) ? _viewEdge.getName() : _theViewFrame.getMModel().getNewName());
 
 		opts.add(new Option("Edge name", _viewEdgeName));
 
@@ -125,7 +125,8 @@ public class ViewEdgeOptions extends OptionsDialog {
 
 		// the edge name must not already exist
 		else if (((_viewEdge == null) || !s.equals(_viewEdge.getName())) && _theViewFrame.getMModel().isNameUsed(s)) {
-			JOptionPane.showMessageDialog(this, "Edge name \"" + s + "\" is already in use", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Edge name \"" + s + "\" is already in use", "Error",
+					JOptionPane.ERROR_MESSAGE);
 
 			return false;
 		}

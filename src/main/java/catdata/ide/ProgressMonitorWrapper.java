@@ -15,7 +15,7 @@ public class ProgressMonitorWrapper implements ActionListener {
 	private final long start_time;
 	private final Thread thread;
 	private final Timer timer;
-	
+
 	public ProgressMonitorWrapper(String msg, Runnable task) {
 		pbar = new ProgressMonitor(null, msg, "Elapsed: 0 secs", 0, 4);
 		start_time = System.currentTimeMillis();
@@ -30,12 +30,10 @@ public class ProgressMonitorWrapper implements ActionListener {
 		thread.start();
 	}
 
-	/* public static void main(String args[]) {
-		Runnable r = () -> {
-			for (;;) { }
-		};
-		new ProgressMonitorWrapper("test", r);
-	} */
+	/*
+	 * public static void main(String args[]) { Runnable r = () -> { for (;;) { } };
+	 * new ProgressMonitorWrapper("test", r); }
+	 */
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -49,14 +47,15 @@ public class ProgressMonitorWrapper implements ActionListener {
 			if (pbar.isCanceled()) {
 				try {
 					thread.stop();
-				} catch (RuntimeException ex) { 
+				} catch (RuntimeException ex) {
 					ex.printStackTrace();
 				}
 				timer.stop();
 				return;
 			}
 			pbar.setProgress(counter % 4);
-			pbar.setNote("Elapsed: " + ((double)(System.currentTimeMillis() - start_time) / ((double)1000) + " secs"));
+			pbar.setNote(
+					"Elapsed: " + ((double) (System.currentTimeMillis() - start_time) / ((double) 1000) + " secs"));
 			counter++;
 		}
 	}

@@ -23,7 +23,8 @@ public class BoldifyingColumnHeaderRenderer extends JLabel implements TableCellR
 	}
 
 	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
 		JLabel ret = (JLabel) r.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		if (boldify.contains(value)) {
 			ret.setFont(bold);

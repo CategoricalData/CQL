@@ -1,3 +1,5 @@
+options  
+	diverge_warn = false
 
 schema Net = literal : empty {
 	entities

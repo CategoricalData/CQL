@@ -31,10 +31,10 @@ import catdata.Unit;
 @SuppressWarnings("serial")
 class ButtonTabComponent extends JPanel {
 	private final JTabbedPane pane;
-	
-	private Function<CodeEditor<?,?,?>, Unit> callback;
 
-	public ButtonTabComponent(JTabbedPane pane, Function<CodeEditor<?,?,?>, Unit> callback) {
+	private Function<CodeEditor<?, ?, ?>, Unit> callback;
+
+	public ButtonTabComponent(JTabbedPane pane, Function<CodeEditor<?, ?, ?>, Unit> callback) {
 		// unset default FlowLayout' gaps
 		super(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		if (pane == null) {
@@ -96,7 +96,7 @@ class ButtonTabComponent extends JPanel {
 				if (c.abortBecauseDirty()) {
 					return;
 				}
-				//pane.remove(i); //done by GUI
+				// pane.remove(i); //done by GUI
 				callback.apply(c);
 			}
 		}
@@ -121,10 +121,8 @@ class ButtonTabComponent extends JPanel {
 				g2.setColor(Color.MAGENTA);
 			}
 			int delta = 6;
-			g2.drawLine(delta, delta, getWidth() - delta - 1, getHeight()
-					- delta - 1);
-			g2.drawLine(getWidth() - delta - 1, delta, delta, getHeight()
-					- delta - 1);
+			g2.drawLine(delta, delta, getWidth() - delta - 1, getHeight() - delta - 1);
+			g2.drawLine(getWidth() - delta - 1, delta, delta, getHeight() - delta - 1);
 			g2.dispose();
 		}
 	}

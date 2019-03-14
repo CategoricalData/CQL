@@ -119,7 +119,8 @@ public class Prettify {
 		default:
 			final StringBuilder tag = new StringBuilder(20);
 
-			while ((tbp.charAt(loc) != ' ') && (tbp.charAt(loc) != '>') && (tbp.charAt(loc) != '/') && (tbp.charAt(loc) != '\t')) {
+			while ((tbp.charAt(loc) != ' ') && (tbp.charAt(loc) != '>') && (tbp.charAt(loc) != '/')
+					&& (tbp.charAt(loc) != '\t')) {
 				tag.append(tbp.charAt(loc));
 
 				loc++;

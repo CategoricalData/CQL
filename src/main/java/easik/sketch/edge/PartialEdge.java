@@ -20,14 +20,13 @@ public class PartialEdge extends SketchEdge implements UniqueIndexable {
 	private static final long serialVersionUID = 1796525114292808241L;
 
 	/**
-	 * Creates a new partial map edge between two entity nodes with the
-	 * specified name and SET_NULL cascading.
+	 * Creates a new partial map edge between two entity nodes with the specified
+	 * name and SET_NULL cascading.
 	 *
 	 *
 	 * @param a
 	 * @param b
-	 * @param name
-	 *            The unique edge identifier
+	 * @param name The unique edge identifier
 	 * @see SketchEdge.Cascade
 	 * @see SketchEdge( easik.sketch.vertex.EntityNode,
 	 *      easik.sketch.vertex.EntityNode, String)
@@ -39,17 +38,15 @@ public class PartialEdge extends SketchEdge implements UniqueIndexable {
 	}
 
 	/**
-	 * Creates a new partial map edge between two entity nodes with the
-	 * specified name and cascading option.
+	 * Creates a new partial map edge between two entity nodes with the specified
+	 * name and cascading option.
 	 *
 	 *
 	 * @param a
 	 * @param b
-	 * @param name
-	 *            The unique edge identifier
-	 * @param cascade
-	 *            The cascading option, such as
-	 *            <code>SketchEdge.Cascade.SET_NULL</code>
+	 * @param name    The unique edge identifier
+	 * @param cascade The cascading option, such as
+	 *                <code>SketchEdge.Cascade.SET_NULL</code>
 	 * @see SketchEdge.Cascade
 	 * @see SketchEdge( easik.sketch.vertex.EntityNode,
 	 *      easik.sketch.vertex.EntityNode, String)

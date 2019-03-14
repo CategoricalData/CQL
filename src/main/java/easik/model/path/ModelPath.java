@@ -32,7 +32,8 @@ import easik.sketch.edge.NormalEdge;
  * @author Federico Mora
  *
  */
-public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends DefaultMutableTreeNode {
+public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends DefaultMutableTreeNode {
 	/**
 	 * 
 	 */
@@ -61,8 +62,7 @@ public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	/**
 	 * Constructor takes one entity, creates a 0-length path.
 	 *
-	 * @param inEntity
-	 *            An entity
+	 * @param inEntity An entity
 	 */
 	public ModelPath(N inEntity) {
 		_domain = inEntity;
@@ -73,8 +73,7 @@ public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	/**
 	 * Constructor takes a List of one or more edges that form a path.
 	 *
-	 * @param inPath
-	 *            A List of edges
+	 * @param inPath A List of edges
 	 */
 	public ModelPath(List<E> inPath) {
 		_edges = new LinkedList<>(inPath);
@@ -163,8 +162,8 @@ public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	}
 
 	/**
-	 * Returns the second-last EntityNode in the path. In other words, this
-	 * gives the source (domain) of the last edge that makes up the path.
+	 * Returns the second-last EntityNode in the path. In other words, this gives
+	 * the source (domain) of the last edge that makes up the path.
 	 *
 	 * @return the second-last EntityNode along the path
 	 */
@@ -202,8 +201,8 @@ public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	}
 
 	/**
-	 * Returns true if this path is injective, that is, if the first edge of
-	 * this path is injective.
+	 * Returns true if this path is injective, that is, if the first edge of this
+	 * path is injective.
 	 *
 	 * @return
 	 */
@@ -215,10 +214,8 @@ public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	 * Method to determine whether two paths are equal, based on the edges that
 	 * comprise the path.
 	 *
-	 * @param a
-	 *            The first path
-	 * @param b
-	 *            The second path
+	 * @param a The first path
+	 * @param b The second path
 	 * @return True if the paths are equal, false otherwise
 	 */
 	public static boolean pathsAreEqual(ModelPath<?, ?, ?, ?, ?> a, ModelPath<?, ?, ?, ?, ?> b) {
@@ -280,7 +277,8 @@ public class ModelPath<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 			// Sketches not views
 			// this is OK at this point but will be bad if we decide to use this
 			// for views
-			if (!(ed instanceof NormalEdge || ed instanceof easik.view.edge.NormalViewEdge) && !(ed instanceof InjectiveEdge || ed instanceof easik.view.edge.InjectiveViewEdge)) {
+			if (!(ed instanceof NormalEdge || ed instanceof easik.view.edge.NormalViewEdge)
+					&& !(ed instanceof InjectiveEdge || ed instanceof easik.view.edge.InjectiveViewEdge)) {
 				return false;
 			}
 		}

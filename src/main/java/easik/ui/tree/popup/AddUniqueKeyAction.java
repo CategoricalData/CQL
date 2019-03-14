@@ -24,7 +24,8 @@ import easik.model.vertex.ModelVertex;
  * @since 2006-06-14 Kevin Green
  * @version 2006-07-26 Kevin Green
  */
-public class AddUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class AddUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -49,8 +50,7 @@ public class AddUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	/**
 	 * Inserts a unique key to the currently selected entity
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -63,7 +63,9 @@ public class AddUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_theFrame.getMModel().isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -79,7 +81,9 @@ public class AddUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 			// Entity is selected so set it as current entity
 			curEntity = (N) curSelected;
 		} else {
-			JOptionPane.showMessageDialog(_theFrame, "You have not selected an entity to add the unique key to.\nPlease select an entity and try again.", "No entity selected", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame,
+					"You have not selected an entity to add the unique key to.\nPlease select an entity and try again.",
+					"No entity selected", JOptionPane.ERROR_MESSAGE);
 
 			return;
 		}
@@ -87,7 +91,9 @@ public class AddUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 		// If the entity does not contain any attributes
 		if (curEntity.getEntityAttributes().isEmpty() && curEntity.getIndexableEdges().isEmpty()) {
 			// Pop up error dialog
-			JOptionPane.showMessageDialog(_theFrame, "The selected entity has no attributes/edges.\nA unique key can only be added to an entity with\nattributes or outgoing, non-injective edges.", "Entity has no attributes/edges", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame,
+					"The selected entity has no attributes/edges.\nA unique key can only be added to an entity with\nattributes or outgoing, non-injective edges.",
+					"Entity has no attributes/edges", JOptionPane.ERROR_MESSAGE);
 
 			return;
 		}
@@ -95,7 +101,8 @@ public class AddUniqueKeyAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 		UniqueKeyUI<F, GM, M, N, E> myUI = new UniqueKeyUI<>(_theFrame, curEntity);
 
 		if (myUI.showDialog()) {
-			UniqueKey<F, GM, M, N, E> newKey = new UniqueKey<>(curEntity, myUI.getSelectedElements(), myUI.getKeyName());
+			UniqueKey<F, GM, M, N, E> newKey = new UniqueKey<>(curEntity, myUI.getSelectedElements(),
+					myUI.getKeyName());
 
 			// Create new unique key
 			curEntity.addUniqueKey(newKey);

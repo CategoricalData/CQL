@@ -43,6 +43,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		set.addAll(AqlOptions.proverOptionNames());
 	}
 
+	@Override
 	public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
@@ -313,20 +314,20 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			this.eqs = LocStr.proj2(b.eqs);
 			this.options = Util.toMapSafely(b.options);
 
-			List<InteriorLabel<Object>> e = new LinkedList<>();
+			List<InteriorLabel<Object>> e = new ArrayList<>(b.gens.size());
 			for (Pair<LocStr, String> p : b.gens) {
 				e.add(new InteriorLabel<>("from", new Pair<>(p.first.str, p.second), p.first.loc,
 						x -> x.first + " : " + x.second).conv());
 			}
-			raw.put("from", e);
+			this.raw.put("from", e);
 
-			List<InteriorLabel<Object>> xx = new LinkedList<>();
+			List<InteriorLabel<Object>> xx = new ArrayList<>(b.eqs.size());
 			for (Pair<Integer, Pair<RawTerm, RawTerm>> p : b.eqs) {
 				xx.add(new InteriorLabel<>("where", p.second, p.first, x -> x.first + " = " + x.second).conv());
 			}
-			raw.put("where", xx);
+			this.raw.put("where", xx);
 
-			xx = new LinkedList<>();
+			xx = new ArrayList<>(b.atts.size());
 			for (Pair<LocStr, RawTerm> p : b.atts) {
 				xx.add(new InteriorLabel<>("attributes", new Pair<>(p.first.str, p.second), p.first.loc,
 						x -> x.first + " -> " + x.second).conv());
@@ -559,9 +560,8 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		return sb.toString() + "}";
 	}
 
-	public QueryExpRaw(List<Pair<LocStr, String>> params, List<Pair<LocStr, RawTerm>> consts, SchExp c,
-			SchExp d, List<QueryExp> imports, List<Pair<LocStr, PreBlock>> list,
-			List<Pair<String, String>> options) {
+	public QueryExpRaw(List<Pair<LocStr, String>> params, List<Pair<LocStr, RawTerm>> consts, SchExp c, SchExp d,
+			List<QueryExp> imports, List<Pair<LocStr, PreBlock>> list, List<Pair<String, String>> options) {
 		this.src = c;
 		this.dst = d;
 		this.imports = new THashSet<>(imports);
@@ -618,7 +618,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 
 	@Override
 	public Pair<SchExp, SchExp> type(AqlTyping G) {
-		TyExp t1 = src.type(G); 
+		TyExp t1 = src.type(G);
 		TyExp t2 = dst.type(G);
 		if (!t1.equals(t2)) {
 			throw new RuntimeException("Non-equal typesides: " + t1 + " and " + t2);
@@ -640,7 +640,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		Map<Var, Term<Ty, Void, Sym, Void, Void, Void, Void>> yyy = new THashMap<>();
 
 		for (QueryExp k : imports) {
-			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> v = k.eval(env, isC); 
+			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> v = k.eval(env, isC);
 
 			for (Var var : v.params.keySet()) {
 				xxx.put(var, v.params.get(var)); // allow benign collisions
@@ -663,7 +663,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			for (Fk Fk : v.fks.keySet()) {
 				fks0.put(Fk, new Pair<>(v.fks.get(Fk).gens(), v.doNotValidate.get(Fk)));
 			}
-			
+
 		}
 
 		Map<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols = new THashMap<>();
@@ -753,7 +753,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		}
 		// System.out.println("---------" + doNotCheckEqs);
 		return Query.makeQuery2(xxx, yyy, ens0, atts0, fks0, sks0, src0, dst0,
-				
+
 				new AqlOptions(options, null, env.defaults));
 	}
 
@@ -798,8 +798,8 @@ public class QueryExpRaw extends QueryExp implements Raw {
 				Map.put(v, Chc.inRight(tt));
 				col.sks.put(v, tt);
 			} else {
-				throw new RuntimeException(
-						"From clause contains " + v + ":" + en + ", but " + en + " is not a source entity.  Available: " + Util.sep(src0.ens, ", ") );
+				throw new RuntimeException("From clause contains " + v + ":" + en + ", but " + en
+						+ " is not a source entity.  Available: " + Util.sep(src0.ens, ", "));
 			}
 		}
 
@@ -815,7 +815,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 
 		for (Pair<RawTerm, RawTerm> eq : p.eqs) {
 			Triple<Map<catdata.aql.Var, Chc<catdata.aql.exp.Ty, catdata.aql.exp.En>>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>> x = RawTerm
-					.infer1x(Util.map(Map,(v, c) -> new Pair<>(v.var, c.reverse())), eq.first, eq.second, null,
+					.infer1x(Util.map(Map, (v, c) -> new Pair<>(v.var, c.reverse())), eq.first, eq.second, null,
 							col.convert(), "In equation " + eq.first + " = " + eq.second + ", ", src0.typeSide.js)
 					.first3();
 			eqs.add(new Eq<>(null, Query.freeze(x.second.convert(), params, set),

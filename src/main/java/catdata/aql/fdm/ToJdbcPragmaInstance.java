@@ -27,14 +27,14 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 	private final int truncate;
 	private final String tick;
 
-	
 	private final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
-	
+
 	private final int len;
 	private AqlOptions options;
-	
-	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, String clazz, String jdbcString, AqlOptions options) {
-		//try {
+
+	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, String clazz,
+			String jdbcString, AqlOptions options) {
+		// try {
 		this.jdbcString = jdbcString;
 		this.prefix = prefix;
 		this.I = I;
@@ -43,33 +43,34 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		truncate = (Integer) options.getOrDefault(AqlOption.jdbc_export_truncate_after);
 		tick = (String) options.getOrDefault(AqlOption.jdbc_quote_char);
 		this.options = options;
-		
+
 		assertDisjoint(idCol);
 	}
 
 	private void deleteThenCreate(Connection conn) throws SQLException {
-		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> m = I.schema().toSQL(prefix, "integer", idCol, truncate, Object::toString, len, tick);
+		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> m = I.schema().toSQL(prefix, "integer", idCol,
+				truncate, Object::toString, len, tick);
 		Statement stmt = conn.createStatement();
-		for (En en : I.schema().ens) {		
+		for (En en : I.schema().ens) {
 			for (String x : m.get(en).second) {
-				//TODO aql drop foreign keys here first
-				stmt.execute(x); //.replace("Varchar", "Varchar(" + len + ")").replace("Nvarchar", "Nvarchar(" + len + ")").replace("varchar", "Varchar(" + len + ")"));
-			}			
+				// TODO aql drop foreign keys here first
+				stmt.execute(x); // .replace("Varchar", "Varchar(" + len + ")").replace("Nvarchar", "Nvarchar(" +
+									// len + ")").replace("varchar", "Varchar(" + len + ")"));
+			}
 		}
 		stmt.close();
 	}
-	 
-	
 
-	
 	@Override
 	public void execute() {
 		try {
-			Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> zzz = I.schema().toSQL(prefix, "integer", idCol, truncate, Object::toString, len, tick);
-			//System.out.println(zzz);
+			Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> zzz = I.schema().toSQL(prefix, "integer",
+					idCol, truncate, Object::toString, len, tick);
+			// System.out.println(zzz);
 			Connection conn = DriverManager.getConnection(jdbcString);
 			deleteThenCreate(conn);
-			Pair<TObjectIntMap<X>, TIntObjectMap<X>> II = I.algebra().intifyX((int)options.getOrDefault(AqlOption.start_ids_at));
+			Pair<TObjectIntMap<X>, TIntObjectMap<X>> II = I.algebra()
+					.intifyX((int) options.getOrDefault(AqlOption.start_ids_at));
 			for (En en : I.schema().ens) {
 				List<Chc<Fk, Att>> header = headerFor(en);
 				for (X x : I.algebra().en(en)) {
@@ -90,8 +91,8 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		}
 	}
 
-	private List<Chc<Fk,Att>> headerFor(En en) {
-		List<Chc<Fk,Att>> ret = new LinkedList<>();
+	private List<Chc<Fk, Att>> headerFor(En en) {
+		List<Chc<Fk, Att>> ret = new LinkedList<>();
 		for (Fk fk : I.schema().fksFrom(en)) {
 			ret.add(Chc.inLeft(fk));
 		}
@@ -108,30 +109,28 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		}
 		Collection<Object> attfks = Util.isect(I.schema().atts.keySet(), I.schema().fks.keySet());
 		if (!attfks.isEmpty()) {
-			throw new RuntimeException("Cannot JDBC export: attributes and foreign keys share names: " + Util.sep(attfks, ","));
+			throw new RuntimeException(
+					"Cannot JDBC export: attributes and foreign keys share names: " + Util.sep(attfks, ","));
 		}
 		if (I.schema().atts.keySet().contains(idCol)) {
-			throw new RuntimeException("Cannot JDBC export: id column (" + idCol + ") is also an attribute" );
+			throw new RuntimeException("Cannot JDBC export: id column (" + idCol + ") is also an attribute");
 		}
 		if (I.schema().fks.keySet().contains(idCol)) {
-			throw new RuntimeException("Cannot JDBC export: id column (" + idCol + ") is also a foreign key" );
-		}	
+			throw new RuntimeException("Cannot JDBC export: id column (" + idCol + ") is also a foreign key");
+		}
 	}
-	
 
 	private String enToString(En en) {
 		return en.toString();
 	}
 
-	/*private String tyToString(Ty ty) {
-		return (String) ty;
-	}*/
+	/*
+	 * private String tyToString(Ty ty) { return (String) ty; }
+	 */
 
 	@Override
 	public String toString() {
 		return "Exported " + I.algebra().size() + " rows.";
 	}
-	
-	
 
 }

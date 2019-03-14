@@ -13,13 +13,12 @@ import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.fdm.DiffInstance;
 
-public final class InstExpDiff<Gen, Sk, X, Y, X1, Gen1, Sk1>
-		extends InstExp< X, Y, X, Y> {
+public final class InstExpDiff<Gen, Sk, X, Y, X1, Gen1, Sk1> extends InstExp<X, Y, X, Y> {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
@@ -53,7 +52,7 @@ public final class InstExpDiff<Gen, Sk, X, Y, X1, Gen1, Sk1>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpDiff other = (InstExpDiff) obj;
+		InstExpDiff<?, ?, ?, ?, ?, ?, ?> other = (InstExpDiff<?, ?, ?, ?, ?, ?, ?>) obj;
 		if (I == null) {
 			if (other.I != null)
 				return false;
@@ -67,11 +66,10 @@ public final class InstExpDiff<Gen, Sk, X, Y, X1, Gen1, Sk1>
 		return true;
 	}
 
-	public final InstExp< Gen, Sk, X, Y> I;
-	public final InstExp< Gen1, Sk1, X1, Y> J;
+	public final InstExp<Gen, Sk, X, Y> I;
+	public final InstExp<Gen1, Sk1, X1, Y> J;
 
-	public InstExpDiff(InstExp< Gen, Sk, X, Y> i,
-			InstExp< Gen1, Sk1, X1, Y> j) {
+	public InstExpDiff(InstExp<Gen, Sk, X, Y> i, InstExp<Gen1, Sk1, X1, Y> j) {
 		I = i;
 		J = j;
 	}
@@ -97,9 +95,12 @@ public final class InstExpDiff<Gen, Sk, X, Y, X1, Gen1, Sk1>
 	}
 
 	@Override
-	public synchronized Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, X, Y, X, Y> eval0(AqlEnv env, boolean isC) {
-		Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk, X, Y> a = I.eval(env, isC);
-		Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen1, Sk1, X1, Y> b = J.eval(env, isC);
+	public synchronized Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, X, Y, X, Y> eval0(
+			AqlEnv env, boolean isC) {
+		Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk, X, Y> a = I
+				.eval(env, isC);
+		Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen1, Sk1, X1, Y> b = J
+				.eval(env, isC);
 		if (!a.schema().fks.isEmpty()) {
 			throw new RuntimeException("Cannot difference when there are foreign keys.");
 		} else if (!a.algebra().talg().equals(b.algebra().talg())) {

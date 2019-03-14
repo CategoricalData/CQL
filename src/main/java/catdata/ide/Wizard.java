@@ -18,8 +18,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- * @param <T>
- *            the type of the result the wizard will generate
+ * @param <T> the type of the result the wizard will generate
  */
 class Wizard<T> implements ActionListener, ChangeListener {
 	private final WizardModel<T> model;
@@ -34,7 +33,7 @@ class Wizard<T> implements ActionListener, ChangeListener {
 	public Wizard(WizardModel<T> model, Consumer<T> completionCallback) {
 		dialog.setBounds(100, 100, 1000, 600);
 		dialog.getContentPane().setLayout(new BorderLayout());
-        layout = new CardLayout();
+		layout = new CardLayout();
 		contentPanel.setLayout(layout);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.model = model;
@@ -43,7 +42,7 @@ class Wizard<T> implements ActionListener, ChangeListener {
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		dialog.getContentPane().add(buttonPane, BorderLayout.SOUTH);
-		
+
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.setActionCommand("Cancel");
 		buttonPane.add(cancelButton);
@@ -62,7 +61,7 @@ class Wizard<T> implements ActionListener, ChangeListener {
 		dialog.getRootPane().setDefaultButton(nextButton);
 		nextButton.addActionListener(this);
 
-		//dialog.setModal(true);
+		// dialog.setModal(true);
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		this.completionCallback = completionCallback;
@@ -95,8 +94,7 @@ class Wizard<T> implements ActionListener, ChangeListener {
 	 */
 	public void startWizard() {
 		if (started) {
-			throw new IllegalStateException(
-					"Tried to start a wizard that had already started.");
+			throw new IllegalStateException("Tried to start a wizard that had already started.");
 		}
 		for (Entry<String, ? extends JComponent> entry : model.getAllPages().entrySet()) {
 			layout.addLayoutComponent(entry.getValue(), entry.getKey());
@@ -112,7 +110,7 @@ class Wizard<T> implements ActionListener, ChangeListener {
 	 * 
 	 * @return true when completable
 	 */
-    private boolean isComplete() {
+	private boolean isComplete() {
 		return model.isComplete();
 	}
 
@@ -122,8 +120,7 @@ class Wizard<T> implements ActionListener, ChangeListener {
 	 */
 	private void complete() {
 		if (!isComplete()) {
-			throw new IllegalStateException(
-					"Attempted to complete an unfinished model.");
+			throw new IllegalStateException("Attempted to complete an unfinished model.");
 		}
 		completionCallback.accept(model.complete());
 		dialog.dispose();
@@ -147,15 +144,12 @@ class Wizard<T> implements ActionListener, ChangeListener {
 
 	}
 
-
-
 	@SuppressWarnings("serial")
 	public static class WizardModelChangeEvent<T> extends ChangeEvent {
 		public final String newState;
 		public final String oldState;
 
-		public WizardModelChangeEvent(WizardModel<T> source, String newState,
-				String oldState) {
+		public WizardModelChangeEvent(WizardModel<T> source, String newState, String oldState) {
 			super(source);
 			this.newState = newState;
 			this.oldState = oldState;

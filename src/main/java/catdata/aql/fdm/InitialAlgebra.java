@@ -1,11 +1,11 @@
 package catdata.aql.fdm;
 
-
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,41 +22,42 @@ import catdata.aql.Collage;
 import catdata.aql.DP;
 import catdata.aql.Schema;
 import catdata.aql.Term;
-import catdata.aql.TypeSide;
 import catdata.aql.Var;
-import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
+import catdata.aql.exp.IgnoreException;
+import catdata.graph.DAG;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 
-public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> extends
-		Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>
-implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> { 
-																														
+public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
+		extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>
+		implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
+
 	public Object printX(En en, Integer x) {
-		return repr(en, x).toString(Util.voidFn(), z->printGen.apply(z).toString());
+		return repr(en, x).toString(Util.voidFn(), z -> printGen.apply(z).toString());
 	}
 
 	@Override
 	public Object printY(Ty ty, Chc<Sk, Pair<Integer, Att>> y) {
-		return y.left ? printSk.apply(ty, y.l) : printX(schema.atts.get(y.r.second).first,y.r.first) + "." + y.r.second;
+		return y.left ? printSk.apply(ty, y.l)
+				: printX(schema.atts.get(y.r.second).first, y.r.first) + "." + y.r.second;
 	}
 
 	private final Map<En, TIntHashSet> ens;
 	private final TIntObjectHashMap<TObjectIntHashMap<Fk>> fks = new TIntObjectHashMap<>(16, .75f, -1);
-	
-	private final TIntObjectHashMap<Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = 
-			new TIntObjectHashMap<>(16, .75f, -1);
 
-	private final TObjectIntHashMap<Term<Void, En, Void, Fk, Void, Gen, Void>> nfs = new TObjectIntHashMap<>(16, .75f, -1);
+	private final TIntObjectHashMap<Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = new TIntObjectHashMap<>(16, .75f,
+			-1);
+
+	private final TObjectIntHashMap<Term<Void, En, Void, Fk, Void, Gen, Void>> nfs = new TObjectIntHashMap<>(16, .75f,
+			-1);
 
 	private final Schema<Ty, En, Sym, Fk, Att> schema;
 
-	private Function<Gen,Object> printGen;
-	private BiFunction<Ty,Sk,Object> printSk;
+	private Function<Gen, Object> printGen;
+	private BiFunction<Ty, Sk, Object> printSk;
 
 	Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
 
@@ -66,27 +67,50 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	private TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> talg;
 
 	int fresh = 0;
+
+	@SuppressWarnings("unchecked")
 	public InitialAlgebra(AqlOptions ops, Schema<Ty, En, Sym, Fk, Att> schema,
-				Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
-				Function<Gen,Object> printGen,
-				BiFunction<Ty,Sk,Object> printSk) {
+			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, Function<Gen, Object> printGen,
+			BiFunction<Ty, Sk, Object> printSk) {
 		col.validate();
 		this.schema = schema;
 		Util.assertNotNull(printGen, printSk);
 		this.printGen = printGen;
 		this.printSk = printSk;
 		this.col = col;
-		this.dp_en = AqlProver.createInstance(ops, col.entities_only(), schema);
-		ens = new THashMap<>(16, .75f); 
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> zzz = col.entities_only();
+		int limit = (int) ops.getOrDefault(AqlOption.diverge_limit);
+		boolean warn = (boolean) ops.getOrDefault(AqlOption.diverge_warn);
+
+		// System.out.println(col.eqs);
+		checkTermination(schema, zzz.gens.size(), col.eqs.size(), warn, limit);
+		this.dp_en = (DP<Void, En, Void, Fk, Void, Gen, Void>) AqlProver.createInstance(ops, zzz, schema);
+		ens = new THashMap<>(16, .75f);
 		for (En en : schema.ens) {
 			ens.put(en, new TIntHashSet(16, .75f, -1));
 		}
 		while (saturate1());
-			
+
 		ProverName p = (ProverName) ops.getOrDefault(AqlOption.second_prover);
 		talg = new TalgSimplifier<>(this, col, (Integer) ops.getOrDefault(AqlOption.talg_reduction));
-		
-		this.dp_ty = AqlProver.createInstance(new AqlOptions(ops,AqlOption.prover,p), talg(), Schema.terminal((TypeSide<catdata.aql.exp.Ty, catdata.aql.exp.Sym>) schema.typeSide));
+
+		this.dp_ty = AqlProver.createInstance(new AqlOptions(ops, AqlOption.prover, p), talg(),
+				Schema.terminal(schema.typeSide));
+	}
+
+	private void checkTermination(Schema<Ty, En, Sym, Fk, Att> c, int genSize, int eqSize, boolean check, int limit) {
+		if (!check || c.fks.size() > limit || genSize == 0 || c.eqs.size() > 0 || eqSize > 0) {
+			return;
+		}
+		DAG<En> dag = new DAG<>();
+
+		for (Entry<Fk, Pair<En, En>> fk : c.fks.entrySet()) {
+			if (!dag.addEdge(fk.getValue().second, fk.getValue().first)) {
+				throw new RuntimeException(
+						"An instance with a cyclic schema, generators, and no equations may diverge.  Set diverge_warn=false to continue.");
+			}
+		}
+
 	}
 
 	private boolean add(En en, Term<Void, En, Void, Fk, Void, Gen, Void> term) {
@@ -109,10 +133,17 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		}
 		fks.put(x, map);
 
+		if (fresh % 10000 == 0) {
+			if (Thread.currentThread().isInterrupted() ) {
+				
+			//	
+				throw new IgnoreException();
+			}
+		}
 		return true;
 	}
 
-	private boolean saturate1()  {
+	private boolean saturate1() {
 		boolean changed = false;
 		for (Gen gen : col.gens.keySet()) {
 			En en = col.gens.get(gen);
@@ -146,13 +177,15 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 					public boolean hasNext() {
 						return it.hasNext();
 					}
+
 					@Override
 					public Integer next() {
 						return it.next();
 					}
-					
+
 				};
 			}
+
 			@Override
 			public int size() {
 				return ens.get(en).size();
@@ -172,7 +205,7 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		return ret;
 	}
 
-	private int nf0(En en, Term<Void, En, Void, Fk, Void, Gen, Void> term) {
+	private synchronized int nf0(En en, Term<Void, En, Void, Fk, Void, Gen, Void> term) {
 		int xx = nfs.get(term);
 		if (xx != -1) {
 			return xx;
@@ -195,7 +228,7 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	}
 
 	@Override
-	public boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
+	public synchronized boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
 		Chc<Ty, En> x = col.type(Collections.emptyMap(), lhs);
 		if (!x.left) {
@@ -203,7 +236,7 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		}
 		return dp_ty.eq(null, intoY0(lhs.convert()), intoY0(rhs.convert()));
 	}
-	
+
 	@Override
 	public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> talg0() {
 		return talg.talg.out;
@@ -247,6 +280,7 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public String talgToString() {
 		return this.talg.toString();
 	}
+
 	@Override
 	public int size(En en) {
 		return ens.get(en).size();
@@ -256,6 +290,5 @@ implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public Chc<Sk, Pair<Integer, Att>> reprT_prot(Chc<Sk, Pair<Integer, Att>> y) {
 		return y;
 	}
-	
 
 }

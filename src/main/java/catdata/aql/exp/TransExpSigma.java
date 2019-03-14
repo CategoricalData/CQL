@@ -15,9 +15,9 @@ import catdata.aql.Kind;
 import catdata.aql.Transform;
 import catdata.aql.fdm.SigmaTransform;
 
-public final class TransExpSigma<Gen1, Gen2, Sk1, Sk2, X1, Y1, X2, Y2> 
-extends TransExp<Gen1, Sk1, Gen2, Sk2, Integer, Chc<Sk1,Pair<Integer,Att>>, Integer, Chc<Sk1,Pair<Integer,Att>>> { 
-	
+public final class TransExpSigma<Gen1, Gen2, Sk1, Sk2, X1, Y1, X2, Y2> extends
+		TransExp<Gen1, Sk1, Gen2, Sk2, Integer, Chc<Sk1, Pair<Integer, Att>>, Integer, Chc<Sk2, Pair<Integer, Att>>> {
+
 	public final MapExp F;
 	public final TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t;
 
@@ -27,21 +27,21 @@ extends TransExp<Gen1, Sk1, Gen2, Sk2, Integer, Chc<Sk1,Pair<Integer,Att>>, Inte
 		t.map(f);
 	}
 
-	
-	public final Map<String, String> options1, options2;	
-	
+	public final Map<String, String> options1, options2;
+
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
-	
-	public TransExpSigma(MapExp F, TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t, Map<String, String> options1, Map<String, String> options2) {
+
+	public TransExpSigma(MapExp F, TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t, Map<String, String> options1,
+			Map<String, String> options2) {
 		this.F = F;
 		this.t = t;
 		this.options1 = options1;
 		this.options2 = options2;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -61,7 +61,7 @@ extends TransExp<Gen1, Sk1, Gen2, Sk2, Integer, Chc<Sk1,Pair<Integer,Att>>, Inte
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpSigma<?,?,?,?,?,?,?,?> other = (TransExpSigma<?,?,?,?,?,?,?,?>) obj;
+		TransExpSigma<?, ?, ?, ?, ?, ?, ?, ?> other = (TransExpSigma<?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (F == null) {
 			if (other.F != null)
 				return false;
@@ -85,26 +85,29 @@ extends TransExp<Gen1, Sk1, Gen2, Sk2, Integer, Chc<Sk1,Pair<Integer,Att>>, Inte
 		return true;
 	}
 
-
 	@Override
-	public Pair<InstExp<Gen1, Sk1, Integer, Chc<Sk1, Pair<Integer, Att>>>, InstExp<Gen2, Sk2, Integer, Chc<Sk1, Pair<Integer, Att>>>> type(AqlTyping G) {
+	public Pair<InstExp<Gen1, Sk1, Integer, Chc<Sk1, Pair<Integer, Att>>>, InstExp<Gen2, Sk2, Integer, Chc<Sk2, Pair<Integer, Att>>>> type(
+			AqlTyping G) {
 		Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<Gen2, Sk2, X2, Y2>> x = t.type(G);
 		if (!G.eq(x.first.type(G), F.type(G).first)) {
-			throw new RuntimeException("In " + this + ", mapping domain is " + F.type(G).first + " but transform domain schema is " + x.first.type(G));
+			throw new RuntimeException("In " + this + ", mapping domain is " + F.type(G).first
+					+ " but transform domain schema is " + x.first.type(G));
 		}
-		InstExp<Gen1,Sk1,Integer,Chc<Sk1,Pair<Integer,Att>>> a = new InstExpSigma(F, x.first, options1);
-		InstExp<Gen2,Sk2,Integer,Chc<Sk2,Pair<Integer,Att>>> b = new InstExpSigma(F, x.second, options2);
-		return new Pair(a,b);
-	} 
+		InstExp<Gen1, Sk1, Integer, Chc<Sk1, Pair<Integer, Att>>> a = new InstExpSigma<>(F, x.first, options1);
+		InstExp<Gen2, Sk2, Integer, Chc<Sk2, Pair<Integer, Att>>> b = new InstExpSigma<>(F, x.second, options2);
+		return new Pair<>(a, b);
+	}
 
 	@Override
-	public synchronized Transform eval0(AqlEnv env, boolean isC) {
+	public synchronized Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, Integer, Chc<Sk1, Pair<Integer, Att>>, Integer, Chc<Sk2, Pair<Integer, Att>>> eval0(
+			AqlEnv env, boolean isC) {
 		if (isC) {
 			F.eval(env, true);
 			t.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new SigmaTransform(F.eval(env, false), t.eval(env, false), new AqlOptions(options1, null, env.defaults), new AqlOptions(options2, null, env.defaults));
+		return new SigmaTransform<>(F.eval(env, false), t.eval(env, false),
+				new AqlOptions(options1, null, env.defaults), new AqlOptions(options2, null, env.defaults));
 	}
 
 	@Override
@@ -116,8 +119,8 @@ extends TransExp<Gen1, Sk1, Gen2, Sk2, Integer, Chc<Sk1,Pair<Integer,Att>>, Inte
 	public Collection<Pair<String, Kind>> deps() {
 		return Util.union(F.deps(), t.deps());
 	}
-		
-	public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
 

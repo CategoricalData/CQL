@@ -41,7 +41,8 @@ public class Cone<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphMod
 	}
 
 	public boolean validCone(ModelPath<F, GM, M, N, E> AB, ModelPath<F, GM, M, N, E> BC, ModelPath<F, GM, M, N, E> AC) {
-		if ((AB.getDomain() != AC.getDomain()) || (AB.getCoDomain() != BC.getDomain()) || (AC.getCoDomain() != BC.getCoDomain())) {
+		if ((AB.getDomain() != AC.getDomain()) || (AB.getCoDomain() != BC.getDomain())
+				|| (AC.getCoDomain() != BC.getCoDomain())) {
 			return false;
 		}
 

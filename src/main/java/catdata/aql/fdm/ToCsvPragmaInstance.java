@@ -22,17 +22,14 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.THashMap;
 
-public class ToCsvPragmaInstance<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> extends Pragma {
-	
-	private final String fil;
-		
-	
-	private final Instance<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> I;
+public class ToCsvPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Pragma {
 
+	private final String fil;
+
+	private final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
 
 	private final AqlOptions op;
-	
-	
+
 	public static CSVFormat getFormat(AqlOptions op) {
 		String format0 = "Default";
 		CSVFormat format = CSVFormat.valueOf(format0);
@@ -44,45 +41,44 @@ public class ToCsvPragmaInstance<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> extends Pragma {
 		format = format.withNullString(null);
 
 		return format;
-	} 
-	
-	public ToCsvPragmaInstance(Instance<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> I, String s, AqlOptions op) {
+	}
+
+	public ToCsvPragmaInstance(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, String s, AqlOptions op) {
 		if (!s.endsWith("/")) {
-            s += "/";
+			s += "/";
 		}
-        fil = s;
-        this.op = op;
+		fil = s;
+		this.op = op;
 		this.I = I;
 	}
-	
+
 	public static <Ty, Sym, Y> String print(Term<Ty, Void, Sym, Void, Void, Void, Y> term) {
 		if (term.obj() != null) {
 			return term.obj().toString();
 		} else if (term.sym() != null && term.args.isEmpty()) {
 			return term.sym().toString();
-		} 
+		}
 		return null;
 	}
 
-	
 	private void delete() {
 		File file = new File(fil);
 		if (!file.exists()) {
-            if (file.mkdirs()) {
-                return;
-            } 
-                throw new RuntimeException("Cannot create directory: " + file);
-            
+			if (file.mkdirs()) {
+				return;
+			}
+			throw new RuntimeException("Cannot create directory: " + file);
+
 		}
 		if (!file.isDirectory()) {
 			if (!file.delete()) {
 				throw new RuntimeException("Cannot delete file: " + file);
 			}
-            if (file.mkdirs()) {
-                return;
-            } 
-                throw new RuntimeException("Cannot create directory: " + file);
-            
+			if (file.mkdirs()) {
+				return;
+			}
+			throw new RuntimeException("Cannot create directory: " + file);
+
 		}
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
@@ -90,15 +86,15 @@ public class ToCsvPragmaInstance<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> extends Pragma {
 				throw new RuntimeException("Anomaly: please report");
 			}
 			for (File f : files) {
-                if (f.isDirectory()) {
-                    throw new RuntimeException("Cannot delete directory: " + f);
-                } 
-                    if (!f.delete()) {
-                        throw new RuntimeException("Cannot delete file: " + f);
-                    }
-                
+				if (f.isDirectory()) {
+					throw new RuntimeException("Cannot delete directory: " + f);
+				}
+				if (!f.delete()) {
+					throw new RuntimeException("Cannot delete file: " + f);
+				}
+
 			}
-		}	
+		}
 	}
 
 	@Override
@@ -112,7 +108,7 @@ public class ToCsvPragmaInstance<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> extends Pragma {
 			for (En en : I.schema().ens) {
 				StringBuffer sb = new StringBuffer();
 				CSVPrinter printer = new CSVPrinter(sb, getFormat(op));
-				
+
 				List<String> header = new LinkedList<>();
 				if (csv_emit_ids) {
 					header.add(idCol);
@@ -141,22 +137,22 @@ public class ToCsvPragmaInstance<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> extends Pragma {
 				ens.put(en, sb.toString());
 				printer.close();
 			}
-			
+
 			delete();
-			String ext = (String) op.getOrDefault(AqlOption.csv_file_extension); 
+			String ext = (String) op.getOrDefault(AqlOption.csv_file_extension);
 			for (En en : ens.keySet()) {
 				FileWriter out = new FileWriter(fil + en + "." + ext);
-				out.write(ens.get(en));		
+				out.write(ens.get(en));
 				out.close();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		} 			
+		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Export to " + fil + ".";
 	}
-	
+
 }

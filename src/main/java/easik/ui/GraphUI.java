@@ -49,11 +49,10 @@ public class GraphUI extends BasicGraphUI {
 		private static final long serialVersionUID = 8279681235456030395L;
 
 		/**
-		 * Mousepressed function examines to see if the mouse event is a left
-		 * click, and only then will it perform it's superclass's duties.
+		 * Mousepressed function examines to see if the mouse event is a left click, and
+		 * only then will it perform it's superclass's duties.
 		 *
-		 * @param e
-		 *            Mouse event
+		 * @param e Mouse event
 		 */
 		@Override
 		public void mousePressed(MouseEvent e) {
@@ -63,11 +62,9 @@ public class GraphUI extends BasicGraphUI {
 		}
 
 		/**
-		 * Overwritten JGraph method to remove creation of edge handles on right
-		 * click
+		 * Overwritten JGraph method to remove creation of edge handles on right click
 		 *
-		 * @param e
-		 *            Mouse event
+		 * @param e Mouse event
 		 */
 		@Override
 		public void mouseDragged(MouseEvent e) {

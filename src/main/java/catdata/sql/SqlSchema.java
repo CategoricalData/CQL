@@ -41,7 +41,7 @@ public class SqlSchema {
 			fk.validate();
 		}
 	}
-	
+
 	private final String tick;
 
 	public SqlSchema(DatabaseMetaData meta, String tick) throws SQLException {
@@ -50,16 +50,16 @@ public class SqlSchema {
 			while (result0.next()) {
 				SqlTable table = new SqlTable();
 				String x = result0.getString(3);
-				//int i = x.indexOf(".");
-				////if (i > -1) {
-				//	table.name = x.substring(i+1, x.length());
-				//	table.db = x.substring(0, i);								
-				//} else {
-					table.name = x;
+				// int i = x.indexOf(".");
+				//// if (i > -1) {
+				// table.name = x.substring(i+1, x.length());
+				// table.db = x.substring(0, i);
+				// } else {
+				table.name = x;
 //					table.db = 
-			//	}
-				
-			//	System.out.println(x);
+				// }
+
+				// System.out.println(x);
 				tables.add(table);
 				if (table.name.contains("sts_Skill")) {
 					Util.anomaly();
@@ -131,13 +131,15 @@ public class SqlSchema {
 							fks0.add(new Triple<>(l, r, lfk));
 						}
 					}
-					
+
 					for (Triple<List<String>, List<Pair<String, String>>, String> xxx : fks0) {
 						SqlForeignKey fk = new SqlForeignKey();
 						fk.source = getTable(table.name);
 						fk.target = getTable(xxx.second.get(0).first);
-						fk.name = table.name + "__" + Util.sep(xxx.first, "_") + "__" + Util.sep(xxx.second.stream().map(x->x.first + "_" + x.second).collect(Collectors.toList()), "_");
-								//xxx.third == null ? "FK" + (fkidx++) : xxx.third;
+						fk.name = table.name + "__" + Util.sep(xxx.first, "_") + "__" + Util.sep(
+								xxx.second.stream().map(x -> x.first + "_" + x.second).collect(Collectors.toList()),
+								"_");
+						// xxx.third == null ? "FK" + (fkidx++) : xxx.third;
 						int i = 0;
 						for (String lc : xxx.first) {
 							Pair<String, String> fc = xxx.second.get(i);
@@ -146,7 +148,7 @@ public class SqlSchema {
 						}
 						fks.add(fk);
 					}
-				}				
+				}
 			}
 		}
 
@@ -163,11 +165,14 @@ public class SqlSchema {
 
 			ret += "CREATE TABLE " + tick + table.name + tick;
 			ret += "(\n  ";
-			List<String> l = table.columns.stream().map(x -> tick + x.name + tick + " " + x.type.name).collect(Collectors.toList());
+			List<String> l = table.columns.stream().map(x -> tick + x.name + tick + " " + x.type.name)
+					.collect(Collectors.toList());
 			all.addAll(l);
 
 			// ret += "(" + Util.sep(l, ", ") + ")";
-			all.add("PRIMARY KEY (" + Util.sep(table.pk.stream().map(x -> tick + x.name + tick).collect(Collectors.toList()), ", ") + ")");
+			all.add("PRIMARY KEY ("
+					+ Util.sep(table.pk.stream().map(x -> tick + x.name + tick).collect(Collectors.toList()), ", ")
+					+ ")");
 
 			for (SqlForeignKey t : fksFrom(table.name)) {
 				List<String> src = new LinkedList<>();
@@ -176,7 +181,8 @@ public class SqlSchema {
 					dst.add(tick + tcol.name + tick);
 					src.add(tick + t.map.get(tcol).name + tick);
 				}
-				all.add("CONSTRAINT " + tick + t.name + tick + " FOREIGN KEY (" + Util.sep(src, ", ") + ") REFERENCES " + tick + t.target.name + tick + " (" + Util.sep(dst, ", ") + ")");
+				all.add("CONSTRAINT " + tick + t.name + tick + " FOREIGN KEY (" + Util.sep(src, ", ") + ") REFERENCES "
+						+ tick + t.target.name + tick + " (" + Util.sep(dst, ", ") + ")");
 			}
 
 			ret += Util.sep(all, ",\n  ") + "\n);\n\n";
@@ -316,5 +322,4 @@ public class SqlSchema {
 		return t;
 	}
 
-	
 }

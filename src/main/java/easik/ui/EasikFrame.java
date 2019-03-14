@@ -63,16 +63,14 @@ public abstract class EasikFrame extends JFrame {
 	/**
 	 * Sets the String to be displayed above the information tree.
 	 *
-	 * @param name
-	 *            The name of the tree
+	 * @param name The name of the tree
 	 */
 	public void setTreeName(String name) {
 		_treeName.setText(name);
 	}
 
 	/**
-	 * Returns the Overview, regardless of what type of EasikFrame instance this
-	 * is.
+	 * Returns the Overview, regardless of what type of EasikFrame instance this is.
 	 *
 	 * @return
 	 */
@@ -82,22 +80,19 @@ public abstract class EasikFrame extends JFrame {
 	 * Adds the specified JMenuItem to the menu, optionally setting up a key
 	 * accelerator.
 	 *
-	 * @param menu
-	 *            the menu to which the item should be added
-	 * @param item
-	 *            the item to be added
-	 * @param keyCode
-	 *            the key code (e.g. KeyEvent.VK_J) to bind to the menu item.
-	 *            null to not bind a accelerator.
-	 * @param extraMask
-	 *            an extra key mask to apply, in addition to the default mask.
-	 *            Optional.
+	 * @param menu      the menu to which the item should be added
+	 * @param item      the item to be added
+	 * @param keyCode   the key code (e.g. KeyEvent.VK_J) to bind to the menu item.
+	 *                  null to not bind a accelerator.
+	 * @param extraMask an extra key mask to apply, in addition to the default mask.
+	 *                  Optional.
 	 */
 	public static void addMenuItem(JMenu menu, JMenuItem item, Integer keyCode, int extraMask) {
 		menu.add(item);
 
 		if (keyCode != null) {
-			item.setAccelerator(KeyStroke.getKeyStroke(keyCode.intValue(), Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | extraMask));
+			item.setAccelerator(KeyStroke.getKeyStroke(keyCode.intValue(),
+					Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | extraMask));
 		}
 	}
 
@@ -116,16 +111,12 @@ public abstract class EasikFrame extends JFrame {
 	 * Adds the specified AbstractAction as a JMenuItem to the menu, optionally
 	 * setting up a key accelerator.
 	 *
-	 * @param menu
-	 *            the menu to which the item should be added
-	 * @param action
-	 *            the AbstractAction of the item to be added
-	 * @param keyCode
-	 *            the key code (e.g. KeyEvent.VK_J) to bind to the menu item.
-	 *            null to not bind a accelerator.
-	 * @param extraMask
-	 *            an extra key mask to apply, in addition to the default mask.
-	 *            Optional.
+	 * @param menu      the menu to which the item should be added
+	 * @param action    the AbstractAction of the item to be added
+	 * @param keyCode   the key code (e.g. KeyEvent.VK_J) to bind to the menu item.
+	 *                  null to not bind a accelerator.
+	 * @param extraMask an extra key mask to apply, in addition to the default mask.
+	 *                  Optional.
 	 */
 	public static void addMenuItem(JMenu menu, AbstractAction action, Integer keyCode, int extraMask) {
 		addMenuItem(menu, new JMenuItem(action), keyCode, extraMask);

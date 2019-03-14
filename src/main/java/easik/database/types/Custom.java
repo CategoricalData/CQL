@@ -24,8 +24,7 @@ public class Custom extends EasikType {
 	/**
 	 * Recreates the object from the attributes returned by attributes().
 	 *
-	 * @param attr
-	 *            custom attribute
+	 * @param attr custom attribute
 	 */
 	public Custom(final Map<String, String> attr) {
 		this(attr.get("custom"));
@@ -51,8 +50,7 @@ public class Custom extends EasikType {
 	}
 
 	/**
-	 * Returns the custom SQL type signature this Custom object was created
-	 * with.
+	 * Returns the custom SQL type signature this Custom object was created with.
 	 * 
 	 * @return custom string
 	 */
@@ -73,8 +71,8 @@ public class Custom extends EasikType {
 	}
 
 	/**
-	 * Returns the attributes of this object. For a Custom type, this is just
-	 * the entire type signature as a "custom" attribute key.
+	 * Returns the attributes of this object. For a Custom type, this is just the
+	 * entire type signature as a "custom" attribute key.
 	 *
 	 * @return
 	 */

@@ -13,23 +13,23 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 /**
- * Directed labeled multi-graphs.  
+ * Directed labeled multi-graphs.
  * 
  * @author ryan
  *
  * @param <N> type of nodes
  * @param <E> type of edges
  */
-public class DMG<N,E> {
+public class DMG<N, E> {
 	public final Collection<N> nodes;
-	public final Map<E, Pair<N,N>> edges;
-	
-	public DMG(Collection<N> nodes, Map<E, Pair<N,N>> edges) {
+	public final Map<E, Pair<N, N>> edges;
+
+	public DMG(Collection<N> nodes, Map<E, Pair<N, N>> edges) {
 		this.nodes = nodes;
 		this.edges = edges;
 		validate();
 	}
-	
+
 	private void validate() {
 		for (E e : edges.keySet()) {
 			if (!nodes.contains(edges.get(e).first)) {
@@ -40,7 +40,7 @@ public class DMG<N,E> {
 			}
 		}
 	}
-	
+
 	public Collection<E> edges(N src, N dst) {
 		List<E> ret = new LinkedList<>();
 		for (E e : edges.keySet()) {
@@ -50,8 +50,8 @@ public class DMG<N,E> {
 		}
 		return ret;
 	}
-	
-	public Pair<N,N> type(N src, List<E> path) {
+
+	public Pair<N, N> type(N src, List<E> path) {
 		Util.assertNotNull(src, path);
 		N dst = src;
 		for (E e : path) {
@@ -59,15 +59,16 @@ public class DMG<N,E> {
 				throw new RuntimeException("Not an edge: " + e);
 			}
 			if (!dst.equals(edges.get(e).first)) {
-				throw new RuntimeException("Ill-typed: " + path + ", edge " + e + " has source " + edges.get(e).first + " but is applied to " + src);
+				throw new RuntimeException("Ill-typed: " + path + ", edge " + e + " has source " + edges.get(e).first
+						+ " but is applied to " + src);
 			}
 			dst = edges.get(e).second;
-		}		
+		}
 		return new Pair<>(src, dst);
 	}
-	
+
 	public DMG(Collection<N> nodes, Set<Triple<E, N, N>> edges) {
-		this.nodes = new THashSet<>(nodes);	
+		this.nodes = new THashSet<>(nodes);
 		this.edges = new THashMap<>();
 		for (Triple<E, N, N> e : edges) {
 			if (this.edges.containsKey(e.first)) {
@@ -77,20 +78,20 @@ public class DMG<N,E> {
 		}
 		validate();
 	}
-	
+
 	@Override
 	public String toString() {
 		if (nodes.isEmpty()) {
 			return "";
 		}
-		
+
 		List<String> l = new LinkedList<>();
-		for (E e  : edges.keySet()) {
+		for (E e : edges.keySet()) {
 			l.add("\t" + e + ": " + edges.get(e).first + " -> " + edges.get(e).second);
 		}
 		return "nodes\n\t" + Util.sep(nodes, "\n\t") + "\nedges\n\n" + Util.sep(l, "\n");
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -99,6 +100,7 @@ public class DMG<N,E> {
 		result = prime * result + ((nodes == null) ? 0 : nodes.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -107,7 +109,7 @@ public class DMG<N,E> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DMG<?,?> other = (DMG<?,?>) obj;
+		DMG<?, ?> other = (DMG<?, ?>) obj;
 		if (edges == null) {
 			if (other.edges != null)
 				return false;
@@ -120,5 +122,5 @@ public class DMG<N,E> {
 			return false;
 		return true;
 	}
-	
+
 }

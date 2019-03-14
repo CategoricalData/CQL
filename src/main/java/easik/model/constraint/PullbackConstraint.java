@@ -29,7 +29,8 @@ import easik.model.vertex.ModelVertex;
  * @version Christian Fiddick Summer 2012
  * @version 06-2014 Federico Mora
  */
-public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelConstraint<F, GM, M, N, E> {
+public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelConstraint<F, GM, M, N, E> {
 	/**  */
 	private static final long serialVersionUID = -377563390225014414L;
 
@@ -40,17 +41,15 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	private final int width; // calculated as size of path array / 2
 
 	/**
-	 * Takes a List of paths, makes them a pullback. The paths can be specified
-	 * in any order, as long as they can be arranged into a pullback. If the
-	 * paths are invalid (that is, they cannot form a pullback), a
-	 * ConstraintException is thrown.
+	 * Takes a List of paths, makes them a pullback. The paths can be specified in
+	 * any order, as long as they can be arranged into a pullback. If the paths are
+	 * invalid (that is, they cannot form a pullback), a ConstraintException is
+	 * thrown.
 	 *
-	 * @param inPaths
-	 *            A List of ModelPath<F,GM,M,N,E>s
-	 * @param inModel
-	 *            the M this constraint belongs to
-	 * @throws ConstraintException
-	 *             if the paths do not form a valid pullback constraint
+	 * @param inPaths A List of ModelPath<F,GM,M,N,E>s
+	 * @param inModel the M this constraint belongs to
+	 * @throws ConstraintException if the paths do not form a valid pullback
+	 *                             constraint
 	 */
 	public PullbackConstraint(List<ModelPath<F, GM, M, N, E>> inPaths, M inModel) throws ConstraintException {
 		super(inModel);
@@ -64,7 +63,8 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 
 		if (_paths == null) // This method rearranges _paths
 		{
-			throw new ConstraintException("Unable to create pullback constraint: specified paths do not form a valid pullback constraint");
+			throw new ConstraintException(
+					"Unable to create pullback constraint: specified paths do not form a valid pullback constraint");
 		}
 
 		addEdges();
@@ -74,20 +74,16 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	/**
 	 * Takes an ArrayList of paths, makes them a pullback.
 	 *
-	 * @param paths
-	 *            An ArrayList of ModelPath<F,GM,M,N,E>s
-	 * @param x
-	 *            X coordinate of visual aid
-	 * @param y
-	 *            Y coordinate of visual aid
-	 * @param isVisible
-	 *            If the constraint is visible in the graph or not
-	 * @param inModel
-	 *            the M this constraint belongs to
+	 * @param paths     An ArrayList of ModelPath<F,GM,M,N,E>s
+	 * @param x         X coordinate of visual aid
+	 * @param y         Y coordinate of visual aid
+	 * @param isVisible If the constraint is visible in the graph or not
+	 * @param inModel   the M this constraint belongs to
 	 *
 	 * @throws ConstraintException
 	 */
-	public PullbackConstraint(ArrayList<ModelPath<F, GM, M, N, E>> paths, int x, int y, boolean isVisible, M inModel) throws ConstraintException {
+	public PullbackConstraint(ArrayList<ModelPath<F, GM, M, N, E>> paths, int x, int y, boolean isVisible, M inModel)
+			throws ConstraintException {
 		super("PB", x, y, isVisible, inModel);
 
 		width = paths.size() / 2;
@@ -95,7 +91,8 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 
 		if (_paths == null) // This method rearranges _paths
 		{
-			throw new ConstraintException("Unable to create pullback constraint: specified paths do not form a valid pullback constraint");
+			throw new ConstraintException(
+					"Unable to create pullback constraint: specified paths do not form a valid pullback constraint");
 		}
 		// add pullback to dependent node list of side nodes
 		for (int i = 0; i < width; i++) {
@@ -107,15 +104,16 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	}
 
 	/**
-	 * Constructor that accepts ID. Used by views to match with corresponding
-	 * sketch constraints.
+	 * Constructor that accepts ID. Used by views to match with corresponding sketch
+	 * constraints.
 	 * 
 	 * @param inPaths
 	 * @param inModel
 	 * @param id
 	 * @throws ConstraintException
 	 */
-	public PullbackConstraint(ArrayList<ModelPath<F, GM, M, N, E>> inPaths, M inModel, int id) throws ConstraintException {
+	public PullbackConstraint(ArrayList<ModelPath<F, GM, M, N, E>> inPaths, M inModel, int id)
+			throws ConstraintException {
 		super(inModel, id);
 
 		width = inPaths.size() / 2;
@@ -127,7 +125,8 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 
 		if (_paths == null) // This method rearranges _paths
 		{
-			throw new ConstraintException("Unable to create pullback constraint: specified paths do not form a valid pullback constraint");
+			throw new ConstraintException(
+					"Unable to create pullback constraint: specified paths do not form a valid pullback constraint");
 		}
 
 		addEdges();
@@ -144,8 +143,7 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	}
 
 	/**
-	 * Returns the "source" node of the pullback--that is, the pullback node
-	 * itself.
+	 * Returns the "source" node of the pullback--that is, the pullback node itself.
 	 * 
 	 * @return N the pullback node
 	 */
@@ -194,8 +192,7 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	/**
 	 * Check if the ith path exists.
 	 * 
-	 * @param i
-	 *            Path to check validity of
+	 * @param i Path to check validity of
 	 * @return True if i is positive and less than width
 	 */
 	public boolean validPathNumber(int i) {
@@ -204,14 +201,13 @@ public class PullbackConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends
 
 	/**
 	 * Returns one of the <b>full</b> paths from pullback to target. This is the
-	 * combination of *one* of the pair of paths from the pullback node to
-	 * target node.
+	 * combination of *one* of the pair of paths from the pullback node to target
+	 * node.
 	 *
 	 * The returned path is equivalent to combining the paths returned by
 	 * getProjectionPath(i) and getTargetPath(i).
 	 *
-	 * @param i
-	 *            Path number to get
+	 * @param i Path number to get
 	 * @return ModelPath<F,GM,M,N,E> created from the combination of paths from
 	 *         pullback to target nodes
 	 */

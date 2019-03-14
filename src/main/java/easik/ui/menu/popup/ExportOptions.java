@@ -49,10 +49,8 @@ public class ExportOptions extends OptionsDialog {
 	/**
 	 * Creates and displays a new modal db options dialog.
 	 *
-	 * @param type
-	 *            the SQL driver type, such as "MySQL" or "PostgreSQL"
-	 * @param sketchFrame
-	 *            the SketchFrame to attach this modal dialog box to
+	 * @param type        the SQL driver type, such as "MySQL" or "PostgreSQL"
+	 * @param sketchFrame the SketchFrame to attach this modal dialog box to
 	 */
 	public ExportOptions(final String type, final SketchFrame sketchFrame) {
 		super(sketchFrame, "Database parameters");
@@ -94,7 +92,8 @@ public class ExportOptions extends OptionsDialog {
 		}
 
 		dbopts.add(_bigKeys = new JCheckBox("Use BIGINTs instead of INTs for keys"));
-		_bigKeys.setToolTipText(JUtils.tooltip("Enabling this option will cause all primary and foreign key columns to be BIGINTs instead of INTEGERs.  Enable this if you anticipate more than 2 billion row insertions over the lifetime of the table"));
+		_bigKeys.setToolTipText(JUtils.tooltip(
+				"Enabling this option will cause all primary and foreign key columns to be BIGINTs instead of INTEGERs.  Enable this if you anticipate more than 2 billion row insertions over the lifetime of the table"));
 		opts.add(new Option(new JLabel("Creation options"), dbopts));
 
 		return opts;

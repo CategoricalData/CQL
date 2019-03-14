@@ -40,8 +40,7 @@ public class AddEqualizerConstraintAction extends AbstractAction {
 	/**
 	 * Creates the equalizer if the selection is appropriate.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -50,8 +49,8 @@ public class AddEqualizerConstraintAction extends AbstractAction {
 		 * (!_theFrame.getMModel().getEntities().isEmpty()) {
 		 * _theFrame.getMModel().getStateManager().pushState(new
 		 * AddEqualizerConstraintState(_theFrame.getMModel())); } else {
-		 * JOptionPane.showMessageDialog(null, "Sketch cannot be empty.",
-		 * "Error", JOptionPane.ERROR_MESSAGE); }
+		 * JOptionPane.showMessageDialog(null, "Sketch cannot be empty.", "Error",
+		 * JOptionPane.ERROR_MESSAGE); }
 		 */
 
 		_theFrame.getMModel().getStateManager().pushState(new AddEqualizerConstraintState<>(_theFrame.getMModel()));

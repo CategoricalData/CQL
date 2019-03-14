@@ -25,7 +25,8 @@ import easik.model.vertex.ModelVertex;
  * @since 2006-08-02 Kevin Green
  * @version 2006-08-02 Kevin Green
  */
-public class DeleteConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class DeleteConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -51,8 +52,7 @@ public class DeleteConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM ext
 	/**
 	 * Called when clicked upon, will delete constraint.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -65,7 +65,9 @@ public class DeleteConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM ext
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_theFrame.getMModel().isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -73,7 +75,8 @@ public class DeleteConstraintAction<F extends ModelFrame<F, GM, M, N, E>, GM ext
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 
 		if (curSelected instanceof ModelConstraint) {
 			_theFrame.getMModel().removeConstraint((ModelConstraint<F, GM, M, N, E>) curSelected);

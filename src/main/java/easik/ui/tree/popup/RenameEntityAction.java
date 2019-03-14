@@ -24,7 +24,8 @@ import easik.model.vertex.ModelVertex;
  * @author Kevin Green 2006
  * @version 2006-07-31 Kevin Green
  */
-public class RenameEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class RenameEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -50,8 +51,7 @@ public class RenameEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	/**
 	 * Called when clicked upon, will rename an article.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -67,7 +67,9 @@ public class RenameEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_ourModel.isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -75,7 +77,8 @@ public class RenameEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 		N nodeToRename;
 		String originalName = "";
 
@@ -87,7 +90,8 @@ public class RenameEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 			return;
 		}
 
-		String s = (String) JOptionPane.showInputDialog(_ourModel.getParent(), "New name:", "Rename", JOptionPane.QUESTION_MESSAGE, null, null, originalName);
+		String s = (String) JOptionPane.showInputDialog(_ourModel.getParent(), "New name:", "Rename",
+				JOptionPane.QUESTION_MESSAGE, null, null, originalName);
 
 		if (s != null) {
 			s = s.trim();
@@ -95,7 +99,8 @@ public class RenameEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 			if (s.equals("")) {
 				JOptionPane.showMessageDialog(_theFrame, "Entity name is empty", "Error", JOptionPane.ERROR_MESSAGE);
 			} else if (_ourModel.isNameUsed(s)) {
-				JOptionPane.showMessageDialog(_theFrame, "Entity name is already in use", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(_theFrame, "Entity name is already in use", "Error",
+						JOptionPane.ERROR_MESSAGE);
 			} else {
 				// Push loading state
 				_ourModel.getStateManager().pushState(new LoadingState<>(_ourModel));

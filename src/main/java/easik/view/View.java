@@ -63,8 +63,8 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	private static final long serialVersionUID = -8903773663603521530L;
 
 	/**
-	 * Records whether the view has been modified since the last save.
-	 * Initialized to <b>false</b>
+	 * Records whether the view has been modified since the last save. Initialized
+	 * to <b>false</b>
 	 */
 	private boolean _dirty = false;
 
@@ -72,16 +72,13 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	private Sketch _ourSketch;
 
 	/**
-	 * The default constructor sets all the visual settings for the JGraph, as
-	 * well as Initializing the view to be empty. It also adds appropriate
-	 * listeners for all of the actions we are concerned with.
+	 * The default constructor sets all the visual settings for the JGraph, as well
+	 * as Initializing the view to be empty. It also adds appropriate listeners for
+	 * all of the actions we are concerned with.
 	 *
-	 * @param inFrame
-	 *            The view frame of the sketch
-	 * @param inSketch
-	 *            The sketch this view is on
-	 * @param inOverview
-	 *            The overview in which this
+	 * @param inFrame    The view frame of the sketch
+	 * @param inSketch   The sketch this view is on
+	 * @param inOverview The overview in which this
 	 */
 	public View(ViewFrame inFrame, Sketch inSketch, Overview inOverview) {
 		super(inFrame, inOverview);
@@ -118,7 +115,8 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 
 		model = new ViewGraphModel(this);
 
-		final GraphLayoutCache glc = new GraphLayoutCache(model, new ModelViewFactory<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge>());
+		final GraphLayoutCache glc = new GraphLayoutCache(model,
+				new ModelViewFactory<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge>());
 
 		setModel(model);
 		setGraphLayoutCache(glc);
@@ -128,7 +126,7 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 
 		if (_Frame.getInfoTreeUI() != null) {
 			_Frame.setInfoTreeUI(new ModelInfoTreeUI<>(_Frame)); // Wipe
-																														// Tree
+																	// Tree
 			_Frame.getInfoTreeUI().refreshTree();
 		}
 
@@ -138,24 +136,23 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * When we initialize a new sketch, we need to clear the selection buffer
-	 * just in case something is still selected. Or else it will remain selected
-	 * because there will be no events removing it.
+	 * When we initialize a new sketch, we need to clear the selection buffer just
+	 * in case something is still selected. Or else it will remain selected because
+	 * there will be no events removing it.
 	 */
 	public void newView() {
 		initialiseModel();
 	}
 
 	/**
-	 * Used to initialize a new view based on provided data (usually from the
-	 * Sketch loading methods).
+	 * Used to initialize a new view based on provided data (usually from the Sketch
+	 * loading methods).
 	 *
-	 * @param queryNodes
-	 *            A map of all of the query nodes in the view
-	 * @param head
-	 *            The header created from the loaded XML file.
+	 * @param queryNodes A map of all of the query nodes in the view
+	 * @param head       The header created from the loaded XML file.
 	 */
-	public void initializeFromData(final Map<String, QueryNode> queryNodes, final DocumentInfo head, final Map<String, View_Edge> edges) {
+	public void initializeFromData(final Map<String, QueryNode> queryNodes, final DocumentInfo head,
+			final Map<String, View_Edge> edges) {
 		initialiseModel();
 
 		_nodes = new LinkedHashMap<>();
@@ -179,12 +176,10 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Used to mark a view as dirty or not. Since it's only marked as non-dirty
-	 * when saving, we mark all the current queryNode positions if setting
-	 * non-dirty.
+	 * Used to mark a view as dirty or not. Since it's only marked as non-dirty when
+	 * saving, we mark all the current queryNode positions if setting non-dirty.
 	 *
-	 * @param inDirty
-	 *            NEw dirtiness.
+	 * @param inDirty NEw dirtiness.
 	 */
 	public void setDirty(boolean inDirty) {
 		_dirty = inDirty;
@@ -203,9 +198,9 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Checks to see if any of the query nodes have moved and, if so, updates
-	 * them and sets the view to dirty. If the view is already dirty, we don't
-	 * have to do anything at all.
+	 * Checks to see if any of the query nodes have moved and, if so, updates them
+	 * and sets the view to dirty. If the view is already dirty, we don't have to do
+	 * anything at all.
 	 */
 	public void checkDirty() {
 		if (_dirty) {
@@ -227,11 +222,10 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Removes an entity, and also cascades to remove all the arrows involved
-	 * with it.
+	 * Removes an entity, and also cascades to remove all the arrows involved with
+	 * it.
 	 *
-	 * @param toRemove
-	 *            The entity about to be removed
+	 * @param toRemove The entity about to be removed
 	 */
 	@Override
 	public void removeNode(final QueryNode toRemove) {
@@ -281,12 +275,9 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	/**
 	 * Add a new, empty entity at point X, Y
 	 *
-	 * @param name
-	 *            The name of the new entity being added
-	 * @param x
-	 *            X Coordinate of new entity
-	 * @param y
-	 *            Y Coordinate of new entity
+	 * @param name The name of the new entity being added
+	 * @param x    X Coordinate of new entity
+	 * @param y    Y Coordinate of new entity
 	 */
 	@Override
 	public void addNewNode(final String name, final double x, final double y) {
@@ -302,11 +293,11 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Add one or more entities, or an array of entities, to the graph, dealing
-	 * with all of the dependencies.
+	 * Add one or more entities, or an array of entities, to the graph, dealing with
+	 * all of the dependencies.
 	 *
-	 * @param theEntities
-	 *            one or more QueryNodes (or an array of querynodes) to be added
+	 * @param theEntities one or more QueryNodes (or an array of querynodes) to be
+	 *                    added
 	 */
 	public void addEntity(final QueryNode... theEntities) {
 		addEntity(Arrays.asList(theEntities));
@@ -315,8 +306,7 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	/**
 	 * Adds a collection (set, list, etc.) of QueryNodes to the graph.
 	 *
-	 * @param theEntities
-	 *            the collection of entities to be added.
+	 * @param theEntities the collection of entities to be added.
 	 */
 	public void addEntity(final Collection<QueryNode> theEntities) {
 		// Push loading state
@@ -384,11 +374,10 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Checks to see if a name is in use, so that we will not have several
-	 * instances at once.
+	 * Checks to see if a name is in use, so that we will not have several instances
+	 * at once.
 	 *
-	 * @param inName
-	 *            The desired new name to check against
+	 * @param inName The desired new name to check against
 	 * @return Is it used or not.
 	 */
 	@Override
@@ -420,19 +409,15 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Called internally by View_Edge when an edge is renamed, to keep the edge
-	 * map consistent. Should not be called directly; instead just call
+	 * Called internally by View_Edge when an edge is renamed, to keep the edge map
+	 * consistent. Should not be called directly; instead just call
 	 * edge.setName("newname").
 	 *
 	 * @see easik.sketch.edge.SketchEdge#setName(String)
-	 * @param edge
-	 *            the edge being renamed
-	 * @param oldName
-	 *            the old name of the edge
-	 * @param newName
-	 *            the candidate new name
-	 * @return a string containing the final new edge name, for SketchEdge to
-	 *         use.
+	 * @param edge    the edge being renamed
+	 * @param oldName the old name of the edge
+	 * @param newName the candidate new name
+	 * @return a string containing the final new edge name, for SketchEdge to use.
 	 */
 	@Override
 	public String edgeRenamed(final View_Edge edge, final String oldName, String newName) {
@@ -445,8 +430,7 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	 * 
 	 * Adds one or more view edges (or an array of edges) to the view.
 	 *
-	 * @param inEdges
-	 *            one or more ViewEdges (or an array of viewEdges) to be added
+	 * @param inEdges one or more ViewEdges (or an array of viewEdges) to be added
 	 * 
 	 * 
 	 * @author Sarah van der Laan 2013
@@ -459,8 +443,7 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	/**
 	 * Adds a collection (set, list, etc.) of edges to the view.
 	 *
-	 * @param inEdges
-	 *            Collection of ViewEdges to add
+	 * @param inEdges Collection of ViewEdges to add
 	 * 
 	 * @author Sarah van der Laan 2013
 	 */
@@ -486,9 +469,9 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Call this method when a new QueryNode or Edge is created to automatically
-	 * add whatever existing edges It has in the underlying sketch with other
-	 * existing QueryNodes.
+	 * Call this method when a new QueryNode or Edge is created to automatically add
+	 * whatever existing edges It has in the underlying sketch with other existing
+	 * QueryNodes.
 	 * 
 	 *
 	 * @author Federico Mora
@@ -498,20 +481,24 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 		HashMap<EntityNode, QueryNode> nodeMatches = getEntityNodePairs();
 
 		for (SketchEdge se : sketchEdges) {
-			if (nodeMatches.containsKey(se.getTargetEntity()) && nodeMatches.containsKey(se.getSourceEntity()) && !_edges.containsKey(se.getName())) {
+			if (nodeMatches.containsKey(se.getTargetEntity()) && nodeMatches.containsKey(se.getSourceEntity())
+					&& !_edges.containsKey(se.getName())) {
 
 				View_Edge vEdge;
 				// need to move down??
 				if (se.isPartial()) {
-					vEdge = new PartialViewEdge(nodeMatches.get(se.getSourceEntity()), nodeMatches.get(se.getTargetEntity()), se.getName());
+					vEdge = new PartialViewEdge(nodeMatches.get(se.getSourceEntity()),
+							nodeMatches.get(se.getTargetEntity()), se.getName());
 
 				} else if (se.isInjective()) {
 					// System.out.println("Edge is injective");
 					// **NEED TO FIGURE OUT CASCADING
-					vEdge = new InjectiveViewEdge(nodeMatches.get(se.getSourceEntity()), nodeMatches.get(se.getTargetEntity()), se.getName(), Cascade.RESTRICT);
+					vEdge = new InjectiveViewEdge(nodeMatches.get(se.getSourceEntity()),
+							nodeMatches.get(se.getTargetEntity()), se.getName(), Cascade.RESTRICT);
 
 				} else {
-					vEdge = new NormalViewEdge(nodeMatches.get(se.getSourceEntity()), nodeMatches.get(se.getTargetEntity()), se.getName());
+					vEdge = new NormalViewEdge(nodeMatches.get(se.getSourceEntity()),
+							nodeMatches.get(se.getTargetEntity()), se.getName());
 				}
 
 				this.addEdge(vEdge);
@@ -522,8 +509,8 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Adds constraints to the view frame is all elements of Sketch constraints
-	 * are being queried in view
+	 * Adds constraints to the view frame is all elements of Sketch constraints are
+	 * being queried in view
 	 *
 	 * @author Federico Mora
 	 */
@@ -533,7 +520,8 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 		ArrayList<View_Edge> vEdges = new ArrayList<>();
 		HashMap<EntityNode, QueryNode> nodeMatches = getEntityNodePairs();
 
-		for (ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> c : _ourSketch.getConstraints().values()) {
+		for (ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> c : _ourSketch
+				.getConstraints().values()) {
 			ifblock: if (_constraints.containsKey(c.getID())) {
 				// already represented so lets get out
 			} else {
@@ -544,7 +532,8 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 					for (SketchEdge skEdge : skPath.getEdges()) {
 						if (!_edges.containsKey(skEdge.getName())) {
 							break ifblock;
-						} else if (!nodeMatches.get(skEdge.getTargetEntity()).getWhere().isEmpty() || !nodeMatches.get(skEdge.getSourceEntity()).getWhere().isEmpty()) {
+						} else if (!nodeMatches.get(skEdge.getTargetEntity()).getWhere().isEmpty()
+								|| !nodeMatches.get(skEdge.getSourceEntity()).getWhere().isEmpty()) {
 							// if the nodes being queried have where statements
 							// then just exit
 							break ifblock;
@@ -594,8 +583,7 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 	}
 
 	/**
-	 * Returns a hash map of paired QueryNodes and the EntityNodes they
-	 * represent
+	 * Returns a hash map of paired QueryNodes and the EntityNodes they represent
 	 *
 	 * @return HashMap<EntityNode, QueryNode>
 	 * @author Federico Mora
@@ -612,11 +600,11 @@ public class View extends Model<ViewFrame, ViewGraphModel, View, QueryNode, View
 
 	/**
 	 * Updates the view by taking away constraints if a node has been updated to
-	 * include a where statement. Or if it had a where statement and it was
-	 * updated to not having a where statement
+	 * include a where statement. Or if it had a where statement and it was updated
+	 * to not having a where statement
 	 * 
-	 * if it had a where statement then it must not have one now, if it didn't
-	 * then now it must.
+	 * if it had a where statement then it must not have one now, if it didn't then
+	 * now it must.
 	 * 
 	 * @author Federico Mora
 	 */

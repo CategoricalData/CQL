@@ -11,13 +11,12 @@ import catdata.aql.Kind;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.fdm.InitialInstance;
 
-public final class InstExpEmpty
-		extends InstExp<Void, Void, Void, Void> {
+public final class InstExpEmpty extends InstExp<Void, Void, Void, Void> {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		schema.map(f);
@@ -67,8 +66,8 @@ public final class InstExpEmpty
 	}
 
 	@Override
-	public synchronized InitialInstance eval0(AqlEnv env, boolean isC) {
-		return new InitialInstance(schema.eval(env, isC));
+	public synchronized InitialInstance<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+		return new InitialInstance<>(schema.eval(env, isC));
 	}
 
 	@Override
@@ -80,7 +79,5 @@ public final class InstExpEmpty
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 	}
-
-	
 
 }

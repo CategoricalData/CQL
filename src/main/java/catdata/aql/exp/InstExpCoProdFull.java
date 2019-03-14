@@ -25,22 +25,22 @@ import catdata.aql.fdm.LiteralInstance;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public final class InstExpCoProdFull<Gen, Sk, X, Y> extends
-		InstExp<Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>> {
+public final class InstExpCoProdFull<Gen, Sk, X, Y>
+		extends InstExp<Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>> {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
 
 	public final List<String> Is;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		sch.map(f);
 	}
 
 	@Override
-	public Collection<InstExp< ?, ?, ?, ?>> direct(AqlTyping G) {
+	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Is.stream().map(x -> new InstExpVar(x)).collect(Collectors.toSet());
 	}
 
@@ -53,8 +53,7 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y> extends
 		return options;
 	}
 
-	public InstExpCoProdFull(List<String> is, SchExp sch,
-			List<Pair<String, String>> options) {
+	public InstExpCoProdFull(List<String> is, SchExp sch, List<Pair<String, String>> options) {
 		Is = is;
 		if (is.size() != new THashSet<>(Is).size()) {
 			throw new RuntimeException("Duplicate name in " + Util.sep(is, ", "));
@@ -95,7 +94,7 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y> extends
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpCoProdFull other = (InstExpCoProdFull) obj;
+		InstExpCoProdFull<?, ?, ?, ?> other = (InstExpCoProdFull<?, ?, ?, ?>) obj;
 		if (Is == null) {
 			if (other.Is != null)
 				return false;
@@ -117,9 +116,8 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y> extends
 	@Override
 	public SchExp type(AqlTyping G) {
 		for (String x : Is) {
-			@SuppressWarnings("rawtypes")
 			SchExp t = new InstExpVar(x).type(G);
-			if (!G.eq(t, sch)) { // TODO aql schema equality
+			if (!G.eq(t, sch)) {
 				throw new RuntimeException(
 						"Instance " + x + " has schema " + t + ",\n\nnot " + sch + "\n\nas expected");
 			}
@@ -132,12 +130,12 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y> extends
 	public synchronized Instance<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>> eval0(
 			AqlEnv env, boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> sch0 = sch.eval(env, isC);
-		
+
 		Collage<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> col = new Collage<>(sch0.collage());
 		AqlOptions strat = new AqlOptions(options, col, env.defaults);
-		Set<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs0 =(new THashSet<>());
+		Set<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs0 = (new THashSet<>());
 
-		Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> m =(new THashMap<>());
+		Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> m = (new THashMap<>());
 		boolean onlyFree = true;
 		for (String x : Is) {
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I = (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>) new InstExpVar(
@@ -153,10 +151,10 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y> extends
 		if (isC) {
 			throw new IgnoreException();
 		}
-		
+
 		if (onlyFree) {
-			CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> k = new CoprodInstance<>(
-					m, sch0, (boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe),
+			CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> k = new CoprodInstance<>(m, sch0,
+					(boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe),
 					(boolean) strat.getOrDefault(AqlOption.require_consistency));
 
 			Object o = k;
@@ -178,9 +176,8 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y> extends
 				col.eqs.add(new Eq<>(null, eq.first.mapGenSk(f1, f2), eq.second.mapGenSk(f1, f2)));
 			}
 		}
-		InitialAlgebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> 
-		initial0 = new InitialAlgebra<>(
-				strat, sch0, col, (y)->y, (x,y)->y);
+		InitialAlgebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> initial0 = new InitialAlgebra<>(strat,
+				sch0, col, (y) -> y, (x, y) -> y);
 
 		return new LiteralInstance<>(sch0, col.gens, col.sks, eqs0, initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),

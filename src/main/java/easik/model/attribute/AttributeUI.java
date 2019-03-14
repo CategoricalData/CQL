@@ -49,7 +49,8 @@ import easik.ui.TabbedOptionsDialog;
  * Options dialog class that prompts the user for attribute information (name
  * and type) for a new or existing attribute.
  */
-public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends OptionsDialog implements TabbedOptionsDialog {
+public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends OptionsDialog implements TabbedOptionsDialog {
 	/**
 	 *    
 	 */
@@ -71,7 +72,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 	private F _theFrame;
 
 	/**  */
-	private JRadioButton tInt, tSmallInt, tBigInt, tFloat, tDouble, tDecimal, tVarchar, tChar, tText, tBlob, tDate, tTime, tTimestamp, tBoolean, tCustom;
+	private JRadioButton tInt, tSmallInt, tBigInt, tFloat, tDouble, tDecimal, tVarchar, tChar, tText, tBlob, tDate,
+			tTime, tTimestamp, tBoolean, tCustom;
 
 	/**  */
 	private ButtonGroup types;
@@ -79,11 +81,9 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 	/**
 	 * Creates a dialog box prompting the user for an attribute type to add.
 	 *
-	 * @param inFrame
-	 *            the F to which the modal dialog box should be attached
-	 * @param node
-	 *            the N this attribute is being added to; used to check the name
-	 *            for uniqueness. If null, the check will be skipped.
+	 * @param inFrame the F to which the modal dialog box should be attached
+	 * @param node    the N this attribute is being added to; used to check the name
+	 *                for uniqueness. If null, the check will be skipped.
 	 *
 	 */
 	public AttributeUI(F inFrame, N node) {
@@ -98,16 +98,13 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 	}
 
 	/**
-	 * Creates a dialog box prompting the user for an attribute type, when
-	 * modifying the passed-in attribute. The passed-in value will be the
-	 * default option on the page, so that clicking "OK" should result in no
-	 * changes.
+	 * Creates a dialog box prompting the user for an attribute type, when modifying
+	 * the passed-in attribute. The passed-in value will be the default option on
+	 * the page, so that clicking "OK" should result in no changes.
 	 *
-	 * @param inFrame
-	 *            the F to which the modal dialog box should be attached
+	 * @param inFrame the F to which the modal dialog box should be attached
 	 * @param node
-	 * @param inAtt
-	 *            the attribute being modified
+	 * @param inAtt   the attribute being modified
 	 */
 	public AttributeUI(F inFrame, N node, EntityAttribute<F, GM, M, N, E> inAtt) {
 		super(inFrame, "Modify Attribute");
@@ -130,14 +127,15 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 	public List<Option> getOptions() {
 		LinkedList<Option> opts = new LinkedList<>();
 
-		opts.add(new Option(new JLabel("Attribute name:"), _name = JUtils.textField((_att == null) ? "" : _att.getName())));
+		opts.add(new Option(new JLabel("Attribute name:"),
+				_name = JUtils.textField((_att == null) ? "" : _att.getName())));
 
 		return opts;
 	}
 
 	/**
-	 * Returns the tabs for the page; we separate the options into rough
-	 * categories: numeric, string, date/time, and other (for boolean/custom).
+	 * Returns the tabs for the page; we separate the options into rough categories:
+	 * numeric, string, date/time, and other (for boolean/custom).
 	 *
 	 * @return
 	 */
@@ -145,7 +143,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 	public List<OptionTab> getTabs() {
 		LinkedList<OptionTab> tabs = new LinkedList<>();
 		EasikType currentType = (_att != null) ? _att.getType() : null;
-		JPanel pInts = new JPanel(), pFloats = new JPanel(), pChars = new JPanel(), pTS = new JPanel(), pCustom = new JPanel();
+		JPanel pInts = new JPanel(), pFloats = new JPanel(), pChars = new JPanel(), pTS = new JPanel(),
+				pCustom = new JPanel();
 
 		pInts.setLayout(new BoxLayout(pInts, BoxLayout.Y_AXIS));
 		pFloats.setLayout(new BoxLayout(pFloats, BoxLayout.Y_AXIS));
@@ -161,7 +160,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		types = new ButtonGroup();
 
 		types.add(tInt = new JRadioButton("INTEGER"));
-		tInt.setToolTipText("An integer value field (usually a 32-bit int) that stores integer values from -2147483648 to 2147483647");
+		tInt.setToolTipText(
+				"An integer value field (usually a 32-bit int) that stores integer values from -2147483648 to 2147483647");
 
 		if (currentType instanceof Int) {
 			tInt.setSelected(true);
@@ -169,7 +169,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		}
 
 		types.add(tSmallInt = new JRadioButton("SMALLINT"));
-		tSmallInt.setToolTipText("An integer value field (usually a 16-bit int) that stores integer values from (at least) -32768 to 32767");
+		tSmallInt.setToolTipText(
+				"An integer value field (usually a 16-bit int) that stores integer values from (at least) -32768 to 32767");
 
 		if (currentType instanceof SmallInt) {
 			tSmallInt.setSelected(true);
@@ -177,7 +178,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		}
 
 		types.add(tBigInt = new JRadioButton("BIGINT"));
-		tBigInt.setToolTipText("<html>An integer value field (usually a 64-bit int) that stores integer values from -9223372036854775808<br>to 9223372036854775807");
+		tBigInt.setToolTipText(
+				"<html>An integer value field (usually a 64-bit int) that stores integer values from -9223372036854775808<br>to 9223372036854775807");
 
 		if (currentType instanceof BigInt) {
 			tBigInt.setSelected(true);
@@ -189,7 +191,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		pInts.add(tBigInt);
 		numeric.addOption(new Option("Integers", pInts));
 		types.add(tDouble = new JRadioButton("DOUBLE PRECISION"));
-		tDouble.setToolTipText("<html>A floating point value with at least 15 digits of precision (typically a standard 64-bit<br>floating-point value with 53 bits of precision).");
+		tDouble.setToolTipText(
+				"<html>A floating point value with at least 15 digits of precision (typically a standard 64-bit<br>floating-point value with 53 bits of precision).");
 
 		if (currentType instanceof DoublePrecision) {
 			tDouble.setSelected(true);
@@ -197,7 +200,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		}
 
 		types.add(tFloat = new JRadioButton("FLOAT"));
-		tFloat.setToolTipText("<html>A floating point value with at least 6 digits of precision (typically a standard 32-bit<br>floating-point value with 24 bits of precision).  This is sometimes known as a REAL, but a REAL is<br>also sometimes an alias for a DOUBLE PRECISION.");
+		tFloat.setToolTipText(
+				"<html>A floating point value with at least 6 digits of precision (typically a standard 32-bit<br>floating-point value with 24 bits of precision).  This is sometimes known as a REAL, but a REAL is<br>also sometimes an alias for a DOUBLE PRECISION.");
 
 		if (currentType instanceof easik.database.types.Float) {
 			tFloat.setSelected(true);
@@ -283,7 +287,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		vcPanel.add(tVarchar);
 		vcPanel.add(new JLabel("Size: "));
 		vcPanel.add(JUtils.fixHeight(JUtils.fixWidth(_varcharSize)));
-		vcPanel.setToolTipText("<html>Stores a string of characters of up to \"size\" characters.  Unlike a CHAR, a VARCHAR column is<br>typically stored using the minimum storage space required, while a CHAR field pads shorter strings<br>to always store values of \"size\" length.");
+		vcPanel.setToolTipText(
+				"<html>Stores a string of characters of up to \"size\" characters.  Unlike a CHAR, a VARCHAR column is<br>typically stored using the minimum storage space required, while a CHAR field pads shorter strings<br>to always store values of \"size\" length.");
 		tVarchar.setToolTipText(vcPanel.getToolTipText());
 		pChars.add(vcPanel);
 		types.add(tChar = new JRadioButton("CHAR"));
@@ -306,7 +311,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		cPanel.add(tChar);
 		cPanel.add(new JLabel("Size: "));
 		cPanel.add(JUtils.fixHeight(JUtils.fixWidth(_charSize)));
-		cPanel.setToolTipText("<html>Stores a string of characters of up to \"size\" characters.  Unlike a VARCHAR, a CHAR column is<br>typically padded up to the specified size to make it a fixed-width column (the padding is removed on<br>retrieval).  Note that some databases implicitly convert CHAR columns to VARCHAR if other<br>variable-width columns exist in the table.");
+		cPanel.setToolTipText(
+				"<html>Stores a string of characters of up to \"size\" characters.  Unlike a VARCHAR, a CHAR column is<br>typically padded up to the specified size to make it a fixed-width column (the padding is removed on<br>retrieval).  Note that some databases implicitly convert CHAR columns to VARCHAR if other<br>variable-width columns exist in the table.");
 		tChar.setToolTipText(cPanel.getToolTipText());
 		pChars.add(cPanel);
 		text.addOption(new Option("Characters", pChars));
@@ -347,7 +353,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 
 		datetime.addOption(new Option("Time only", tTime));
 		types.add(tTimestamp = new JRadioButton("TIMESTAMP (date and time)"));
-		tTimestamp.setToolTipText("<html>A field that stores a date and time (e.g. '2008/07/14 12:13:14').  Note that this is converted to a<br>DATETIME when using MySQL.");
+		tTimestamp.setToolTipText(
+				"<html>A field that stores a date and time (e.g. '2008/07/14 12:13:14').  Note that this is converted to a<br>DATETIME when using MySQL.");
 
 		if (currentType instanceof Timestamp) {
 			tTimestamp.setSelected(true);
@@ -357,7 +364,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		pTS.add(tTimestamp);
 		datetime.addOption(new Option("Date & time", pTS));
 		types.add(tBoolean = new JRadioButton("BOOLEAN"));
-		tBoolean.setToolTipText("<html>A column that stores true/false values.  Note that this type may be converted to a small integer<br>type by databases (such as MySQL) that do not fully support BOOLEAN data types");
+		tBoolean.setToolTipText(
+				"<html>A column that stores true/false values.  Note that this type may be converted to a small integer<br>type by databases (such as MySQL) that do not fully support BOOLEAN data types");
 
 		if (currentType instanceof easik.database.types.Boolean) {
 			tBoolean.setSelected(true);
@@ -380,7 +388,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 
 		custPanel.setLayout(new BoxLayout(custPanel, BoxLayout.X_AXIS));
 		custPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		custPanel.setToolTipText("<html>Any SQL type supported by the SQL db that will be exported to can be entered here.  No<br>verification of this field is performed: you must ensure that what you specify here is a valid type<br>for the SQL db type you will be using!");
+		custPanel.setToolTipText(
+				"<html>Any SQL type supported by the SQL db that will be exported to can be entered here.  No<br>verification of this field is performed: you must ensure that what you specify here is a valid type<br>for the SQL db type you will be using!");
 		tCustom.setToolTipText(custPanel.getToolTipText());
 		_custom.setToolTipText(custPanel.getToolTipText());
 		custPanel.add(tCustom);
@@ -404,11 +413,15 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		JRadioButton selected = getSelectedButton();
 
 		if (selected == null) {
-			JOptionPane.showMessageDialog(this, "No attribute type selected!", "Attribute error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "No attribute type selected!", "Attribute error",
+					JOptionPane.ERROR_MESSAGE);
 
 			return false;
 		} else if ((selected == tCustom) && _custom.getText().trim().equals("")) {
-			JOptionPane.showMessageDialog(this, "No custom attribute type entered!\n\n" + "You must enter the SQL type signature when selecting a custom type", "Attribute error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this,
+					"No custom attribute type entered!\n\n"
+							+ "You must enter the SQL type signature when selecting a custom type",
+					"Attribute error", JOptionPane.ERROR_MESSAGE);
 
 			return false;
 		}
@@ -416,7 +429,8 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		String name = getName();
 
 		if (name.equals("")) {
-			JOptionPane.showMessageDialog(this, "No attribute name entered!", "Attribute error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "No attribute name entered!", "Attribute error",
+					JOptionPane.ERROR_MESSAGE);
 
 			return false;
 		}
@@ -424,7 +438,9 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 		// Adding or changing the name
 		else if ((_att == null) || !_att.getName().equals(name)) {
 			if (_node.isAttNameUsed(name)) {
-				JOptionPane.showMessageDialog(_theFrame, "Invalid attribute name: an attribute with that name already exists.", "Attribute error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(_theFrame,
+						"Invalid attribute name: an attribute with that name already exists.", "Attribute error",
+						JOptionPane.ERROR_MESSAGE);
 
 				return false;
 			}
@@ -444,7 +460,24 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 						: tBigInt.isSelected() ? tBigInt
 								: tFloat.isSelected() ? tFloat
 										: tDouble.isSelected() ? tDouble
-												: tDecimal.isSelected() ? tDecimal : tVarchar.isSelected() ? tVarchar : tChar.isSelected() ? tChar : tText.isSelected() ? tText : tBlob.isSelected() ? tBlob : tDate.isSelected() ? tDate : tTime.isSelected() ? tTime : tTimestamp.isSelected() ? tTimestamp : tBoolean.isSelected() ? tBoolean : tCustom.isSelected() ? tCustom : null;
+												: tDecimal.isSelected() ? tDecimal
+														: tVarchar.isSelected() ? tVarchar
+																: tChar.isSelected() ? tChar
+																		: tText.isSelected() ? tText
+																				: tBlob.isSelected() ? tBlob
+																						: tDate.isSelected() ? tDate
+																								: tTime.isSelected()
+																										? tTime
+																										: tTimestamp
+																												.isSelected()
+																														? tTimestamp
+																														: tBoolean
+																																.isSelected()
+																																		? tBoolean
+																																		: tCustom
+																																				.isSelected()
+																																						? tCustom
+																																						: null;
 	}
 
 	/**
@@ -474,9 +507,35 @@ public class AttributeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikG
 						: tBigInt.isSelected() ? new BigInt()
 								: tFloat.isSelected() ? new easik.database.types.Float()
 										: tDouble.isSelected() ? new DoublePrecision()
-												: tDecimal.isSelected() ? new Decimal(((SpinnerNumberModel) _decPrec.getModel()).getNumber().intValue(), ((SpinnerNumberModel) _decScale.getModel()).getNumber().intValue())
-														: tVarchar.isSelected() ? new Varchar(((SpinnerNumberModel) _varcharSize.getModel()).getNumber().intValue())
-																: tChar.isSelected() ? new Char(((SpinnerNumberModel) _charSize.getModel()).getNumber().intValue())
-																		: tText.isSelected() ? new Text() : tBlob.isSelected() ? new Blob() : tDate.isSelected() ? new Date() : tTime.isSelected() ? new Time() : tTimestamp.isSelected() ? new Timestamp() : tBoolean.isSelected() ? new easik.database.types.Boolean() : tCustom.isSelected() ? new Custom(_custom.getText().trim()) : null;
+												: tDecimal.isSelected()
+														? new Decimal(((SpinnerNumberModel) _decPrec.getModel())
+																.getNumber().intValue(),
+																((SpinnerNumberModel) _decScale.getModel()).getNumber()
+																		.intValue())
+														: tVarchar.isSelected()
+																? new Varchar(
+																		((SpinnerNumberModel) _varcharSize.getModel())
+																				.getNumber().intValue())
+																: tChar.isSelected() ? new Char(
+																		((SpinnerNumberModel) _charSize.getModel())
+																				.getNumber().intValue())
+																		: tText.isSelected() ? new Text()
+																				: tBlob.isSelected() ? new Blob()
+																						: tDate.isSelected()
+																								? new Date()
+																								: tTime.isSelected()
+																										? new Time()
+																										: tTimestamp
+																												.isSelected()
+																														? new Timestamp()
+																														: tBoolean
+																																.isSelected()
+																																		? new easik.database.types.Boolean()
+																																		: tCustom
+																																				.isSelected()
+																																						? new Custom(
+																																								_custom.getText()
+																																										.trim())
+																																						: null;
 	}
 }

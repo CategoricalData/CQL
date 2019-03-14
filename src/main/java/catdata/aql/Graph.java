@@ -2,7 +2,7 @@ package catdata.aql;
 
 import catdata.graph.DMG;
 
-public class Graph<N,E> implements Semantics {
+public class Graph<N, E> implements Semantics {
 
 	/**
 	 * return size of nodes plus size of edges
@@ -11,9 +11,9 @@ public class Graph<N,E> implements Semantics {
 	public int size() {
 		return dmg.nodes.size() + dmg.edges.size();
 	}
-	
-	public final DMG<N,E> dmg;
-	
+
+	public final DMG<N, E> dmg;
+
 	public Graph(DMG<N, E> dmg) {
 		this.dmg = dmg;
 	}
@@ -39,7 +39,7 @@ public class Graph<N,E> implements Semantics {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Graph<?,?> other = (Graph<?,?>) obj;
+		Graph<?, ?> other = (Graph<?, ?>) obj;
 		if (dmg == null) {
 			if (other.dmg != null)
 				return false;
@@ -52,7 +52,5 @@ public class Graph<N,E> implements Semantics {
 	public String toString() {
 		return dmg.toString();
 	}
-
-	
 
 }

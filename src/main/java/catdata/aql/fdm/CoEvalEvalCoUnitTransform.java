@@ -26,8 +26,10 @@ public class CoEvalEvalCoUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk
 	private final CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, En2, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> K; // TODO
 																																																		// aql
 																																																		// recomputes
-	private final Map<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, Term<Void, En1, Void, Fk1, Void, Gen, Void>> gens = new THashMap<>(Collections.emptyMap());
-	private final Map<Chc<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, Y>, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> sks = new THashMap<>(Collections.emptyMap());
+	private final Map<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, Term<Void, En1, Void, Fk1, Void, Gen, Void>> gens = new THashMap<>(
+			Collections.emptyMap());
+	private final Map<Chc<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, Y>, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> sks = new THashMap<>(
+			Collections.emptyMap());
 
 	public CoEvalEvalCoUnitTransform(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q,
 			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i, AqlOptions options) {
@@ -38,8 +40,9 @@ public class CoEvalEvalCoUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk
 		I = i;
 		J = new EvalInstance<>(Q, I, options);
 		K = new CoEvalInstance<>(Q, J, options);
-	
-		for (Entry<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, En1> gen : src().gens().entrySet()) {
+
+		for (Entry<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, En1> gen : src().gens()
+				.entrySet()) {
 			Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> x = gen.getKey().second.get(gen.getKey().first);
 			if (x.left) {
 				gens.put(gen.getKey(), I.algebra().repr(gen.getValue(), x.l));
@@ -47,13 +50,14 @@ public class CoEvalEvalCoUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk
 				Util.anomaly(); // TODO aql
 			}
 		}
-		for (Chc<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, Y> y : src().sks().keySet()) {
+		for (Chc<Triple<Var, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2>, Y> y : src().sks()
+				.keySet()) {
 			if (!y.left) {
 				sks.put(y, I.reprT(Term.Sk(y.r)));
 			} else {
 				Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> z = y.l.second.get(y.l.first);
 				if (z.left) {
-					Util.anomaly(); //	sks.put(y, z.l);
+					Util.anomaly(); // sks.put(y, z.l);
 				} else {
 					sks.put(y, z.r);
 				}

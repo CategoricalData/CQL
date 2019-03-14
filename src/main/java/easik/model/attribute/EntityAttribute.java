@@ -16,7 +16,8 @@ import easik.model.vertex.ModelVertex;
 /**
  * This class is used to store information related to entity attributes.
  */
-public class EntityAttribute<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends DefaultMutableTreeNode implements UniqueIndexable {
+public class EntityAttribute<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends DefaultMutableTreeNode implements UniqueIndexable {
 	/**  */
 	private final static long serialVersionUID = 17;
 
@@ -38,12 +39,9 @@ public class EntityAttribute<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Default Constructor
 	 *
-	 * @param inName
-	 *            Name of attribute
-	 * @param inDataType
-	 *            EasikType of attribute
-	 * @param inEntity
-	 *            entity
+	 * @param inName     Name of attribute
+	 * @param inDataType EasikType of attribute
+	 * @param inEntity   entity
 	 * @see easik.database.types.EasikType
 	 */
 	public EntityAttribute(final String inName, final EasikType inDataType, final N inEntity) {
@@ -63,8 +61,8 @@ public class EntityAttribute<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	}
 
 	/**
-	 * Overwrite standard toString function. (provides functionality for
-	 * inserting attributes to the tree)
+	 * Overwrite standard toString function. (provides functionality for inserting
+	 * attributes to the tree)
 	 * 
 	 * @return The name of this attribute formatted for display on the tree
 	 */
@@ -76,8 +74,7 @@ public class EntityAttribute<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Sets the attribute name.
 	 *
-	 * @param inName
-	 *            Attribute Name
+	 * @param inName Attribute Name
 	 */
 	public void setName(final String inName) {
 		_name = inName;
@@ -106,8 +103,7 @@ public class EntityAttribute<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Sets the data type of the attribute
 	 *
-	 * @param inType
-	 *            The data type of the attribute
+	 * @param inType The data type of the attribute
 	 */
 	public void setType(final EasikType inType) {
 		_dataType = inType;

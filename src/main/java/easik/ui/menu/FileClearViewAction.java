@@ -45,8 +45,7 @@ public class FileClearViewAction extends AbstractAction {
 	 * Create a new sketch. Prompts user for confirmation if current sketch is
 	 * unsaved.
 	 *
-	 * @param e
-	 *            The Action Event
+	 * @param e The Action Event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

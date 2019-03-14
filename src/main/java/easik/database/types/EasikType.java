@@ -36,11 +36,11 @@ import easik.xml.xsd.nodes.types.XSDType;
  */
 public abstract class EasikType {
 	/**
-	 * Returns a string representation of this data type. This should generally
-	 * be the SQL standard version of the datatype, which base are free to use
-	 * if they support it. Once created, new EasikType subclasses should *not*
-	 * change their toString() output without very good reason as it may break
-	 * base that are depending on the existing string value.
+	 * Returns a string representation of this data type. This should generally be
+	 * the SQL standard version of the datatype, which base are free to use if they
+	 * support it. Once created, new EasikType subclasses should *not* change their
+	 * toString() output without very good reason as it may break base that are
+	 * depending on the existing string value.
 	 *
 	 * @return
 	 */
@@ -48,17 +48,16 @@ public abstract class EasikType {
 	public abstract String toString();
 
 	/**
-	 * Verifies a value to see if it conforms to the values available for this
-	 * type. The value is typically something user-provided; this method can be
-	 * used to check whether such a value is (likely) valid for the type
-	 * represented by this object. This checking doesn't have to be *perfect*,
-	 * just approximate. For example, BIGINT allows input consisting of any
-	 * number up to 19 digits, even though values greater than approximately
-	 * 9.2e18 aren't actually valid. In other words, this checking is meant to
-	 * be a quick check, not an exhaustive one.
+	 * Verifies a value to see if it conforms to the values available for this type.
+	 * The value is typically something user-provided; this method can be used to
+	 * check whether such a value is (likely) valid for the type represented by this
+	 * object. This checking doesn't have to be *perfect*, just approximate. For
+	 * example, BIGINT allows input consisting of any number up to 19 digits, even
+	 * though values greater than approximately 9.2e18 aren't actually valid. In
+	 * other words, this checking is meant to be a quick check, not an exhaustive
+	 * one.
 	 *
-	 * @param input
-	 *            the value to check
+	 * @param input the value to check
 	 * @return true if the value is valid for this type, false otherwise
 	 */
 	public abstract boolean verifyInput(String input);
@@ -80,22 +79,21 @@ public abstract class EasikType {
 	 * Takes a type name and an attribute Map (as returned by attributes()) and
 	 * constructs and returns a new EasikType object of that class.
 	 *
-	 * @param className
-	 *            the fully-qualified class name of the type, such as
-	 *            "easik.databse.types.Integer". The class must exist and must
-	 *            be a subclass of EasikType.
-	 * @param attrs
-	 *            the attributes of the type object, as returned by
-	 *            attributes().
+	 * @param className the fully-qualified class name of the type, such as
+	 *                  "easik.databse.types.Integer". The class must exist and must
+	 *                  be a subclass of EasikType.
+	 * @param attrs     the attributes of the type object, as returned by
+	 *                  attributes().
 	 * @return the new object of type <code>typeClass</code>, which must be a
 	 *         EasikType subclass
-	 * @throws ClassNotFoundException
-	 *             if <code><i>(typeClass)</i></code> does not exist, is not a
-	 *             EasikType subclass, does not have an appropriate constructor,
-	 *             or has a constructor that throws an exception.
+	 * @throws ClassNotFoundException if <code><i>(typeClass)</i></code> does not
+	 *                                exist, is not a EasikType subclass, does not
+	 *                                have an appropriate constructor, or has a
+	 *                                constructor that throws an exception.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static EasikType newType(final String className, final Map<String, String> attrs) throws ClassNotFoundException {
+	public static EasikType newType(final String className, final Map<String, String> attrs)
+			throws ClassNotFoundException {
 		if (!className.matches("^(?!(?i:" + EasikType.class.getName() + "))(?:\\w+\\.)+\\w+$")) // Only
 																								// allow
 																								// package.Class
@@ -135,25 +133,24 @@ public abstract class EasikType {
 	}
 
 	/**
-	 * Takes an SQL signature of a type name (such as "VARCHAR(255)") and maps
-	 * it into a EasikType object. If the signature can't be identified as a
-	 * known Easik db type, it'll be mapped into a Custom type object based on
-	 * the passed-in signature.
+	 * Takes an SQL signature of a type name (such as "VARCHAR(255)") and maps it
+	 * into a EasikType object. If the signature can't be identified as a known
+	 * Easik db type, it'll be mapped into a Custom type object based on the
+	 * passed-in signature.
 	 *
-	 * @param sig
-	 *            the SQL signature of the type, such as "INTEGER" or
-	 *            "DECIMAL(10, 2)"
-	 * @return a EasikType object representing the signature as best as
-	 *         possible, or a Custom type object if the type cannot be
-	 *         identified.
+	 * @param sig the SQL signature of the type, such as "INTEGER" or "DECIMAL(10,
+	 *            2)"
+	 * @return a EasikType object representing the signature as best as possible, or
+	 *         a Custom type object if the type cannot be identified.
 	 */
 	public static EasikType typeFromSignature(final String sig) {
 		final Pattern types = Pattern.compile(
 
 				// $1 $2 $3 $4 $5 $6 $7
-				"^(?:(varchar2?)\\s*\\(\\s*(\\d+)\\s*\\)|(char)\\s*\\(\\s*(\\d+)\\s*\\)|(int(?:eger)?)|(smallint(?:eger)?)|(bigint(?:eger)?)|" +
+				"^(?:(varchar2?)\\s*\\(\\s*(\\d+)\\s*\\)|(char)\\s*\\(\\s*(\\d+)\\s*\\)|(int(?:eger)?)|(smallint(?:eger)?)|(bigint(?:eger)?)|"
+						+
 
-				// $8 $9 $10
+						// $8 $9 $10
 						"(date)|(datetime|timestamp)|(time)|" +
 
 						// $11 $12 $13

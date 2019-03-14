@@ -1,40 +1,40 @@
 package catdata;
 
-
-
 /**
  * @author Ryan Wisnesky
  */
 
-public class Pair<T1, T2>  /*Comparable<Pair<T1, T2>>,*/  {
+public class Pair<T1, T2> /* Comparable<Pair<T1, T2>>, */ {
 
-	public  T1 first; //TODO aql make these final.  Same for Triple
-	public  T2 second;
-	
+	public T1 first; // TODO aql make these final. Same for Triple
+	public T2 second;
+
 	public void setFirst(T1 x) {
 		first = x;
-	//	hashCode2();
+		// hashCode2();
 	}
+
 	public void setSecond(T2 x) {
 		second = x;
-	//	hashCode2();
+		// hashCode2();
 	}
 
 	public Pair(T1 value, T2 value2) {
 		first = value;
 		second = value2;
-		//Util.assertNotNull(value, value2);
-	//	hashCode2();
+		// Util.assertNotNull(value, value2);
+		// hashCode2();
 	}
-	//private int hashCode = -1;
-	
+	// private int hashCode = -1;
+
 	@Override
 	public String toString() {
 		return "(" + first + ", " + second + ")";
-		
+
 	}
 
 	private int code = -1;
+
 	@Override
 	public synchronized int hashCode() {
 		if (code != -1) {
@@ -47,9 +47,7 @@ public class Pair<T1, T2>  /*Comparable<Pair<T1, T2>>,*/  {
 		code = result;
 		return result;
 	}
-	
-	
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -58,14 +56,12 @@ public class Pair<T1, T2>  /*Comparable<Pair<T1, T2>>,*/  {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Pair<?,?> other = (Pair<?,?>) obj;
+		Pair<?, ?> other = (Pair<?, ?>) obj;
 		return (first.equals(other.first) && second.equals(other.second));
-	} 
-	
-	
-	
-	//public Pair<T2, T1> reverse() {
-	//	return new Pair<>(second, first);
-	//}
-		
+	}
+
+	// public Pair<T2, T1> reverse() {
+	// return new Pair<>(second, first);
+	// }
+
 }

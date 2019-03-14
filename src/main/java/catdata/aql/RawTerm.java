@@ -35,55 +35,60 @@ public final class RawTerm {
 		if (args.isEmpty()) {
 			return Util.maybeQuote(head) + str;
 		}
-		//if (args.size() == 1) {
-		//	return args.get(0) + "." + head;
-		//}
+		// if (args.size() == 1) {
+		// return args.get(0) + "." + head;
+		// }
 		return Util.maybeQuote(head) + "(" + Util.sep(args, ", ") + ")";
 	}
-	
+
 	/**
 	 * Decend the RawTerms tree so long as args are singular.
+	 * 
 	 * @return
 	 */
 	public List<String> forwardPack() {
 		final LinkedList<String> ls = new LinkedList<>();
-		for(RawTerm ix=this; ; ix = ix.args.get(0)) {
+		for (RawTerm ix = this;; ix = ix.args.get(0)) {
 			ls.addFirst(ix.head);
-			if (ix.args.size() < 1) break;
+			if (ix.args.size() < 1)
+				break;
 			if (ix.args.size() > 1) {
-				//log.warn("forward packing should only be on singular args");
+				// log.warn("forward packing should only be on singular args");
 			}
 		}
 		return ls;
 	}
-	
+
 	public List<String> backwardPack() {
 		final LinkedList<String> ls = new LinkedList<>();
-		for(RawTerm ix=this; ; ix = ix.args.get(0)) {
+		for (RawTerm ix = this;; ix = ix.args.get(0)) {
 			ls.addLast(ix.head);
-			if (ix.args.size() < 1) break;
+			if (ix.args.size() < 1)
+				break;
 			if (ix.args.size() > 1) {
-				//log.warn("backward packing should only be on singular args");
+				// log.warn("backward packing should only be on singular args");
 			}
 		}
 		return ls;
 	}
-	
+
 	/**
 	 * Grab the element from the RawTerm.
-	 * @param primary the depth into the term
+	 * 
+	 * @param primary   the depth into the term
 	 * @param secondary the width to the node
 	 * @return a String representing the value of the node. null if not present.
 	 */
-	public String byIndex(final int ...ixs) {
+	public String byIndex(final int... ixs) {
 		RawTerm term = this;
 		for (int ix : ixs) {
-			if (ix >= term.args.size()) return null;
+			if (ix >= term.args.size())
+				return null;
 			term = term.args.get(ix);
 		}
 		return term.head;
 	}
-	
+
 	private static Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> infer_good(
 			RawTerm e, Chc<Ty, En> expected, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String pre, AqlJs<Ty, Sym> js,
 			Map<Var, Chc<Ty, En>> vars) {
@@ -107,7 +112,7 @@ public final class RawTerm {
 					ret2.put(vv, Chc.inRight(en));
 					if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 						ret.add(new Triple<>(ret1, ret2, Chc.inRight(en)));
-					} 
+					}
 				}
 				for (Ty ty : col.tys) {
 					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
@@ -120,7 +125,7 @@ public final class RawTerm {
 		}
 		Sym ss = Sym.Sym(e.head);
 		if (col.syms.containsKey(ss) && e.annotation == null) {
-		
+
 			List<List<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>>> l = new LinkedList<>();
 			l.add(new LinkedList<>());
 			for (int i = 0; i < e.args.size(); i++) {
@@ -142,16 +147,17 @@ public final class RawTerm {
 				}
 				l = l2;
 			}
-		
+
 			outer: for (List<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> outcome : l) {
-		
+
 				List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> w = outcome.stream().map(x -> x.first)
 						.collect(Collectors.toList());
 				Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Sym(ss, w);
 				Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
 				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> Map0 : outcome) {
-		
-					if (!Util.agreeOnOverlap(Map0.second,ret2) || !Util.agreeOnOverlap(Map0.second,Util.fromNullable(vars))) {
+
+					if (!Util.agreeOnOverlap(Map0.second, ret2)
+							|| !Util.agreeOnOverlap(Map0.second, Util.fromNullable(vars))) {
 						continue outer;
 					}
 					ret2.putAll(Map0.second);
@@ -171,15 +177,15 @@ public final class RawTerm {
 
 				Chc<Ty, En> ret3 = Chc.inLeft(col.syms.get(ss).second);
 				if (expected != null && !expected.equals(ret3)) {
-					
+
 				} else {
-					if (Util.agreeOnOverlap(ret2,Util.fromNullable(vars))) {
+					if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 						ret.add(new Triple<>(ret1, ret2, ret3));
 					}
 				}
 			}
 		}
-		
+
 		for (En en : col.ens) {
 			if (col.fks.containsKey(Fk.Fk(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
 				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : infer_good(
@@ -197,54 +203,53 @@ public final class RawTerm {
 					}
 					Chc<Ty, En> ret3 = Chc.inRight(col.fks.get(Fk.Fk(en, e.head)).second);
 					Chc<Ty, En> argt = Chc.inRight(col.fks.get(Fk.Fk(en, e.head)).first);
-	
+
 					if (expected != null && !expected.equals(ret3)) {
 					} else {
 						if (argt.equals(outcome.third)) {
-							if (Util.agreeOnOverlap(ret2,Util.fromNullable(vars))) {
+							if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 								ret.add(new Triple<>(ret1, ret2, ret3));
 							} else {
-								
+
 							}
 						} else {
-							
+
 						}
 					}
 				}
 			}
-			
+
 			if (col.atts.containsKey(Att.Att(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
-						for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : infer_good(
-								e.args.get(0), Chc.inRight(col.atts.get(Att.Att(en, e.head)).first), col, pre, js, vars)) {
-					
-							Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Att(Att.Att(en, e.head), outcome.first);
-							Map<Var, Chc<Ty, En>> ret2 = new THashMap<>(outcome.second);
-							Var v = Var.Var(e.args.get(0).head);
-							Chc<Ty, En> ty = Chc.inRight(col.atts.get(Att.Att(en, e.head)).first);
-							if (vars.keySet().contains(v)) {
-								if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
-									continue;
-								} else if (!ret2.containsKey(v)) {
-									ret2.put(v, ty);
-								}
-							}
+				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : infer_good(
+						e.args.get(0), Chc.inRight(col.atts.get(Att.Att(en, e.head)).first), col, pre, js, vars)) {
 
-							Chc<Ty, En> ret3 = Chc.inLeft(col.atts.get(Att.Att(en, e.head)).second);
-							Chc<Ty, En> argt = Chc.inRight(col.atts.get(Att.Att(en, e.head)).first);
+					Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Att(Att.Att(en, e.head), outcome.first);
+					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>(outcome.second);
+					Var v = Var.Var(e.args.get(0).head);
+					Chc<Ty, En> ty = Chc.inRight(col.atts.get(Att.Att(en, e.head)).first);
+					if (vars.keySet().contains(v)) {
+						if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
+							continue;
+						} else if (!ret2.containsKey(v)) {
+							ret2.put(v, ty);
+						}
+					}
 
-							if (expected != null && !expected.equals(ret3)) {
-							} else {
-								if (argt.equals(outcome.third)) {
-									if (Util.agreeOnOverlap(ret2,Util.fromNullable(vars))) {
-										ret.add(new Triple<>(ret1, ret2, ret3));
-									}
-								}
+					Chc<Ty, En> ret3 = Chc.inLeft(col.atts.get(Att.Att(en, e.head)).second);
+					Chc<Ty, En> argt = Chc.inRight(col.atts.get(Att.Att(en, e.head)).first);
+
+					if (expected != null && !expected.equals(ret3)) {
+					} else {
+						if (argt.equals(outcome.third)) {
+							if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
+								ret.add(new Triple<>(ret1, ret2, ret3));
 							}
 						}
 					}
+				}
+			}
 		}
-		
-		
+
 		if (col.gens.containsKey(Gen.Gen(e.head)) && e.args.isEmpty() && e.annotation == null) {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Gen(Gen.Gen(e.head));
 			Chc<Ty, En> ret3 = Chc.inRight(col.gens.get(Gen.Gen(e.head)));
@@ -270,7 +275,8 @@ public final class RawTerm {
 				ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
 			}
 		}
-		// as primitive - only if not a variable/generator/etc in scope i.e. none above fired
+		// as primitive - only if not a variable/generator/etc in scope i.e. none above
+		// fired
 		if (e.args.isEmpty() && e.annotation == null && ret.isEmpty()) {
 			for (Ty ty : col.tys) {
 				if (expected != null && !expected.equals(Chc.inLeft(ty))) {
@@ -286,26 +292,23 @@ public final class RawTerm {
 				} catch (Exception ex) {
 					if (expected != null) {
 						ex.printStackTrace();
-						//throw ex;
-					} 
+						// throw ex;
+					}
 
 				}
 			}
 		}
-		
 
 		return ret;
 	}
 
-	private static  boolean isSymbolAll(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
-			String s) {
-		return col.syms.containsKey(Sym.Sym(s)) || 
-				col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s) ||
-				col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s) ||
-				col.gens.containsKey(Gen.Gen(s)) ||
-				col.sks.containsKey(Sk.Sk(s));
+	private static boolean isSymbolAll(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String s) {
+		return col.syms.containsKey(Sym.Sym(s))
+				|| col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
+				|| col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
+				|| col.gens.containsKey(Gen.Gen(s)) || col.sks.containsKey(Sk.Sk(s));
 	}
- 
+
 	public synchronized static Quad<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>> infer1x(
 			Map<String, Chc<Ty, En>> Map0, RawTerm e0, RawTerm f, Chc<Ty, En> expected,
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String pre, AqlJs<Ty, Sym> js) {
@@ -326,14 +329,13 @@ public final class RawTerm {
 		}
 		Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> lhs = infer_good(e0,
 				expected, col, pre, js, vars0);
-		
+
 		if (lhs.isEmpty()) {
 			String msg = "Cannot infer a well-sorted term for " + e0 + ".\n";
-			if (!vars.contains(Var.Var(e0.head)) && !isSymbolAll(col, e0.head)
-					&& e0.annotation == null) {
+			if (!vars.contains(Var.Var(e0.head)) && !isSymbolAll(col, e0.head) && e0.annotation == null) {
 				msg += "Undefined (or not java-parseable) symbol: " + e0.head + "\n";
 				msg += "\nAvailable symbols:\n\t" + Util.sep(Util.alphabetical(col.allSymbolsAsStrings()), "\n\t");
-				
+
 			}
 			if (expected != null) {
 				String msg2 = expected.left ? "type" : "entity";
@@ -342,21 +344,21 @@ public final class RawTerm {
 
 			throw new RuntimeException(pre + msg);
 		}
-		
+
 		Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> rhs;
 		if (f == null) {
 			rhs = lhs;
 		} else {
 			rhs = infer_good(f, expected, col, pre, js, vars0);
 		}
-		
+
 		if (rhs.isEmpty()) {
-			String msg = "Cannot infer a well-sorted term for " + f + ".\n"; //if f were null, above exn would have fired
-			if (!vars.contains(Var.Var(f.head)) && !isSymbolAll(col, f.head)
-					&& f.annotation == null) {
+			String msg = "Cannot infer a well-sorted term for " + f + ".\n"; // if f were null, above exn would have
+																				// fired
+			if (!vars.contains(Var.Var(f.head)) && !isSymbolAll(col, f.head) && f.annotation == null) {
 				msg += "Undefined (or not java-parseable) symbol: " + f.head + "\n";
 				msg += "\nAvailable symbols:\n\t" + Util.sep(Util.alphabetical(col.allSymbolsAsStrings()), "\n\t");
-				//TODO aql merge this error message with the one above it
+				// TODO aql merge this error message with the one above it
 			}
 			if (expected != null) {
 				String msg2 = expected.left ? "type" : "entity";
@@ -379,13 +381,13 @@ public final class RawTerm {
 		List<String> misses = new LinkedList<>();
 		for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> p : lhs) {
 			for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> q : rhs) {
-				if (!Util.agreeOnOverlap(p.second,(q.second))) {
+				if (!Util.agreeOnOverlap(p.second, (q.second))) {
 					continue;
 				}
-				if (!Util.agreeOnOverlap(p.second,(initial))) {
+				if (!Util.agreeOnOverlap(p.second, (initial))) {
 					continue;
 				}
-				if (!Util.agreeOnOverlap(q.second,(initial))) {
+				if (!Util.agreeOnOverlap(q.second, (initial))) {
 					continue;
 				}
 				if (!p.third.equals(q.third)) {
@@ -418,7 +420,7 @@ public final class RawTerm {
 			if (!misses.isEmpty()) {
 				msg += "\nAttempted LHS and RHS types: " + Util.sep(misses, "\n");
 			}
-			
+
 			throw new RuntimeException((pre + msg).trim());
 		}
 		if (pre == null) {
@@ -442,27 +444,24 @@ public final class RawTerm {
 
 	}
 
-	
-	 public static void assertUnambig(String head,
-				Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
-			int n = boolToInt(col.syms.containsKey(Sym.Sym(head))) 
-					+ boolToInt(col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head)) 
-					+ boolToInt(col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head)) 
-					+ boolToInt(col.gens.containsKey(Gen.Gen(head)))
-					+ boolToInt(col.sks.containsKey(Sk.Sk(head)));
-			if (n == 0) {
-				throw new RuntimeException(head + " is not a symbol");
-			} else if (n > 1) {
-				throw new RuntimeException(head + " is ambiguous");
-			}
-		
-	 }
-	
-	//only used for precedences with aql options
-	 public static  Head<Ty, En, Sym, Fk, Att, Gen, Sk> toHeadNoPrim(String head,
+	public static void assertUnambig(String head, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
+		int n = boolToInt(col.syms.containsKey(Sym.Sym(head)))
+				+ boolToInt(col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
+				+ boolToInt(col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
+				+ boolToInt(col.gens.containsKey(Gen.Gen(head))) + boolToInt(col.sks.containsKey(Sk.Sk(head)));
+		if (n == 0) {
+			throw new RuntimeException(head + " is not a symbol");
+		} else if (n > 1) {
+			throw new RuntimeException(head + " is ambiguous");
+		}
+
+	}
+
+	// only used for precedences with aql options
+	public static Head<Ty, En, Sym, Fk, Att, Gen, Sk> toHeadNoPrim(String head,
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 		assertUnambig(head, col);
-		 
+
 		if (col.syms.containsKey(Sym.Sym(head))) {
 			return Head.SymHead(Sym.Sym(head));
 		} else if (col.gens.containsKey(Gen.Gen(head))) {
@@ -470,7 +469,7 @@ public final class RawTerm {
 		} else if (col.sks.containsKey(Sk.Sk(head))) {
 			return Head.SkHead(Sk.Sk(head));
 		}
-		for (En en : col.ens) { //TODO aql won't work with ambig
+		for (En en : col.ens) { // TODO aql won't work with ambig
 			if (col.fks.containsKey(Fk.Fk(en, head))) {
 				return Head.FkHead(Fk.Fk(en, head));
 			}
@@ -479,14 +478,12 @@ public final class RawTerm {
 			}
 		}
 		throw new RuntimeException("Anomaly: please report");
-	} 
-
+	}
 
 	private static int boolToInt(boolean b) {
 		return b ? 1 : 0;
 	}
 
-	
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -555,8 +552,8 @@ public final class RawTerm {
 			args.add(term.clone());
 		}
 		return new RawTerm(this.head, args);
-	}	
-	
+	}
+
 	/**
 	 * Make a clone (deep-copy) first.
 	 * 
@@ -566,7 +563,7 @@ public final class RawTerm {
 	public RawTerm append(String tail) {
 		final List<RawTerm> last = new LinkedList<>();
 		last.add(new RawTerm(tail));
-		
+
 		List<RawTerm> c = this.args;
 		while (!c.isEmpty()) {
 			c = c.get(0).args;
@@ -576,14 +573,13 @@ public final class RawTerm {
 	}
 
 	// TODO: aql use of toString here is ugly
-	public static  RawTerm fold(Set<En> entities, List<String> l, String v) {
+	public static RawTerm fold(Set<En> entities, List<String> l, String v) {
 		String head = l.get(0);
 		if (!entities.contains(En.En(head))) {
 			throw new RuntimeException("Not an entity: " + head + ".  Paths must start with entities.");
 		}
 		l = l.subList(1, l.size());
-		
-		
+
 		RawTerm ret = new RawTerm(v, (String) null);
 		for (String o : l) {
 			ret = new RawTerm(o, Collections.singletonList(ret));
@@ -599,7 +595,6 @@ public final class RawTerm {
 		return ret;
 	}
 
-	
 	public static Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> infer2(
 			List<Pair<String, String>> l, RawTerm a, RawTerm b, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
 			AqlJs<Ty, Sym> js) {
@@ -613,8 +608,8 @@ public final class RawTerm {
 				if (col.tys.contains(tt) && col.ens.contains(En.En(p.second))) {
 					throw new RuntimeException("Ambiguous: " + p.second + " is an entity and a type");
 				} else if (col.tys.contains(tt)) {
-					//Ty tt = new Ty(p.second);
-					Map.put(p.first, Chc.inLeft(tt)); 
+					// Ty tt = new Ty(p.second);
+					Map.put(p.first, Chc.inLeft(tt));
 				} else if (col.ens.contains(En.En(p.second))) {
 					En tt0 = En.En(p.second);
 					Map.put(p.first, Chc.inRight(tt0));

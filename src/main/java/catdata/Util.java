@@ -21,6 +21,12 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,7 +39,6 @@ import com.google.common.collect.Iterators;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-
 public class Util {
 
 	public static void writeFile(String text, String file) throws IOException {
@@ -43,13 +48,13 @@ public class Util {
 			f.createNewFile();
 		}
 		FileWriter w = new FileWriter(file);
-		//System.out.println(		new File(file).getAbsolutePath() );
+		// System.out.println( new File(file).getAbsolutePath() );
 		w.write(text);
 		w.close();
 	}
-	
-	public static <K,V> Map<K,V> fromNullable(Map<K,V> m) {
-		Map<K,V> ret = new THashMap<>(m.size());
+
+	public static <K, V> Map<K, V> fromNullable(Map<K, V> m) {
+		Map<K, V> ret = new THashMap<>(m.size());
 		for (Entry<K, V> k : m.entrySet()) {
 			if (k.getValue() != null) {
 				ret.put(k.getKey(), k.getValue());
@@ -57,71 +62,37 @@ public class Util {
 		}
 		return ret;
 	}
-	
+
 	public static String quote(String s) {
 		s = s.replace("\\", "\\" + "\\"); // \ --> \\
 		s = s.replace("\"", "\\\""); // " --> \"
 		return "\"" + s + "\"";
 	}
 
+	//public static volatile int i = 0;
+	private static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	public static <X> X timeout(Callable<X> c, long timeout) {
-		Ref<X> ret = new Ref<>();
-		Ref<Exception> thr = new Ref<>();
-		Thread t = new Thread(() -> {
-			try {
-				X x = c.call();
-				synchronized (ret) {
-					ret.set(x);
-				}
-			} catch (Exception exn) {
-				exn.printStackTrace();
-				synchronized (thr) {
-					thr.set(exn);
-				}
-			} catch (OutOfMemoryError exn) {
-				exn.printStackTrace();
-				synchronized (thr) {
-					thr.set(new RuntimeException("Out of memory.  Try increasing the java heap space (see manual)."));
-				}
-			} catch (ThreadDeath d) {
-				synchronized (thr) {
-					thr.set(new RuntimeInterruptedException(d));
-				}
-			}
-		});
-		t.start();
-
+		Future<X> future = executor.submit(c);
 		try {
-			t.join(timeout);
+			return future.get(timeout, TimeUnit.MILLISECONDS);
+		} catch (TimeoutException ex) {
+			future.cancel(true);
+			throw new RuntimeException("Timout after " + (timeout / 1000)
+							+ " seconds. \n\nPossible solution: add options timeout=X where X > " + (timeout / 1000)
+							+ " is how many seconds to wait.");
+		} catch (ExecutionException ex) {
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
 		} catch (InterruptedException e) {
-			t.stop();
 			throw new RuntimeInterruptedException(e);
+		}  catch (ThreadDeath d) {
+			throw new RuntimeInterruptedException(d);
 		}
-
-		synchronized (thr) {
-			synchronized (ret) {
-				if (!ret.isSet() && !thr.isSet()) {
-					t.stop();
-					throw new RuntimeException("Timout after " + (timeout / 1000) + " seconds. \n\nPossible solution: add options timeout=X where X > " + (timeout / 1000) + " is how many seconds to wait.");
-				} else if (ret.isSet() && !thr.isSet()) {
-					// t should be dying
-					return ret.x;
-				} else if (!ret.isSet() && thr.isSet()) {
-					// t should be dying
-					if (thr.x instanceof RuntimeException) {
-						throw (RuntimeException) thr.x;
-					} 
-						throw new RuntimeException(thr.x);
-					
-				} else {
-					throw new RuntimeException("Anomaly: please report");
-				}
-			}
-		}
-
+		
 	}
 
 	private static Map<String, Class<?>> load_cache = new THashMap<>();
+
 	public synchronized static Class<?> load(String clazz) {
 		if (clazz == null) {
 			return Util.anomaly();
@@ -165,43 +136,49 @@ public class Util {
 		}
 		return ret;
 	}
-	
+
 	public static class UpToF<X> implements Iterator<X> {
 		public UpToF(int start, int m, Function<Integer, X> f) {
 			this.m = m;
 			this.n = start;
 			this.f = f;
 		}
+
 		private final int m;
 		private int n;
 		private Function<Integer, X> f;
+
 		@Override
 		public boolean hasNext() {
 			return n < m;
 		}
+
 		@Override
 		public X next() {
 			return f.apply(n++);
 		}
-	};	
+	};
 
 	public static class UpTo implements Iterator<Integer> {
 		public UpTo(int start, int m) {
 			this.m = m;
 			this.n = start;
 		}
+
 		private final int m;
 		private int n;
+
 		@Override
 		public boolean hasNext() {
 			return n < m;
 		}
+
 		@Override
 		public Integer next() {
 			return n++;
 		}
-	};	
-	
+	};
+
 	public static <X> List<X> diff(Collection<X> l, Collection<?> r) {
 		List<X> ret = new TreeList<>(l);
 		ret.removeAll(r);
@@ -260,7 +237,7 @@ public class Util {
 	public static String sep(Iterator<?> c, String sep) {
 		return sep(c, sep, Object::toString);
 	}
-	
+
 	public static <X> String sep(Iterator<X> c, String sep, Function<X, String> fun) {
 		StringBuffer ret = new StringBuffer("");
 		boolean b = false;
@@ -385,15 +362,11 @@ public class Util {
 		}
 		return map;
 	}
-	
-	
 
 	/**
 	 * 
-	 * @param m
-	 *            target
-	 * @param m2
-	 *            source
+	 * @param m  target
+	 * @param m2 source
 	 */
 	public static <K, V> void putAllSafely(Map<K, V> m, Map<K, V> m2) {
 		for (K k : m2.keySet()) {
@@ -412,7 +385,7 @@ public class Util {
 		}
 
 	}
-	
+
 	public static <X> Iterable<X> iterConcat(Iterable<X> i, Iterable<X> j) {
 		return new IteratorIterable<>(Iterators.concat(i.iterator(), j.iterator()), true);
 	}
@@ -423,19 +396,19 @@ public class Util {
 		}
 		return null;
 	}
-	
-	public static <K,X,V> Map<K, Chc<X,V>> inRight(Map<K,V> map) {
+
+	public static <K, X, V> Map<K, Chc<X, V>> inRight(Map<K, V> map) {
 		if (map.isEmpty()) {
 			return Collections.emptyMap();
 		}
-		Map<K,Chc<X,V>> ret = new THashMap<>(map.size());
+		Map<K, Chc<X, V>> ret = new THashMap<>(map.size());
 		for (K k : map.keySet()) {
 			ret.put(k, Chc.inRight(map.get(k)));
 		}
 		return ret;
 	}
-	
-	public static <K,X,V> Map<K, Chc<V,X>> inLeft(Map<K,V> map) {
+
+	public static <K, X, V> Map<K, Chc<V, X>> inLeft(Map<K, V> map) {
 		if (map.isEmpty()) {
 			return Collections.emptyMap();
 		}
@@ -445,6 +418,7 @@ public class Util {
 		}
 		return ret;
 	}
+
 	public static <X> X get0X(Collection<X> c) {
 		for (X x : c) {
 			return x;
@@ -511,62 +485,34 @@ public class Util {
 		return s;
 	}
 
-/*
-
-	public static List<List<Integer>> multiply_many(List<List<Integer>> l, List<List<List<Integer>>> r) {
-		List<List<Integer>> ret = l;
-		for (List<List<Integer>> x : r) {
-			ret = mat_conv2(mult(mat_conv1(x), mat_conv1(l)));
-		}
-		return ret;
-	}
-
-	public static List<List<Integer>> multiply(List<List<Integer>> l, List<List<Integer>> r) {
-		return mat_conv2(mult(mat_conv1(l), mat_conv1(r)));
-	}
-
-	private static int[][] mat_conv1(List<List<Integer>> l) {
-		int[][] ret = new int[l.size()][];
-		int w = 0;
-		for (List<Integer> r : l) {
-			int[] q = new int[r.size()];
-			int cnt = 0;
-			for (int x : r) {
-				q[cnt++] = x;
-			}
-			ret[w++] = q;
-		}
-		return ret;
-	}
-
-	// public for OPL example
-	public static List<List<Integer>> mat_conv2(int[][] l) {
-		List<List<Integer>> ret = new LinkedList<>();
-		for (int[] r : l) {
-			List<Integer> q = new LinkedList<>();
-			for (int x : r) {
-				q.add(x);
-			}
-			ret.add(q);
-		}
-		return ret;
-	}
-
-	private static int[][] mult(int[][] A, int[][] B) {
-		int mA = A.length;
-		int nA = A[0].length;
-		int mB = B.length;
-		int nB = B[0].length;
-		if (nA != mB)
-			throw new RuntimeException("Illegal matrix dimensions: " + mat_conv2(A) + " and " + mat_conv2(B));
-		int[][] C = new int[mA][nB];
-		for (int i = 0; i < mA; i++)
-			for (int j = 0; j < nB; j++)
-				for (int k = 0; k < nA; k++)
-					C[i][j] += A[i][k] * B[k][j];
-		return C;
-	}
-*/
+	/*
+	 * 
+	 * public static List<List<Integer>> multiply_many(List<List<Integer>> l,
+	 * List<List<List<Integer>>> r) { List<List<Integer>> ret = l; for
+	 * (List<List<Integer>> x : r) { ret = mat_conv2(mult(mat_conv1(x),
+	 * mat_conv1(l))); } return ret; }
+	 * 
+	 * public static List<List<Integer>> multiply(List<List<Integer>> l,
+	 * List<List<Integer>> r) { return mat_conv2(mult(mat_conv1(l), mat_conv1(r)));
+	 * }
+	 * 
+	 * private static int[][] mat_conv1(List<List<Integer>> l) { int[][] ret = new
+	 * int[l.size()][]; int w = 0; for (List<Integer> r : l) { int[] q = new
+	 * int[r.size()]; int cnt = 0; for (int x : r) { q[cnt++] = x; } ret[w++] = q; }
+	 * return ret; }
+	 * 
+	 * // public for OPL example public static List<List<Integer>> mat_conv2(int[][]
+	 * l) { List<List<Integer>> ret = new LinkedList<>(); for (int[] r : l) {
+	 * List<Integer> q = new LinkedList<>(); for (int x : r) { q.add(x); }
+	 * ret.add(q); } return ret; }
+	 * 
+	 * private static int[][] mult(int[][] A, int[][] B) { int mA = A.length; int nA
+	 * = A[0].length; int mB = B.length; int nB = B[0].length; if (nA != mB) throw
+	 * new RuntimeException("Illegal matrix dimensions: " + mat_conv2(A) + " and " +
+	 * mat_conv2(B)); int[][] C = new int[mA][nB]; for (int i = 0; i < mA; i++) for
+	 * (int j = 0; j < nB; j++) for (int k = 0; k < nA; k++) C[i][j] += A[i][k] *
+	 * B[k][j]; return C; }
+	 */
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public static final Comparator<Object> LengthComparator = (Object o1, Object o2) -> {
@@ -579,13 +525,12 @@ public class Util {
 	};
 
 	public static final Comparator<Object> AlphabeticalComparator = new AlphanumComparator();
-			
+
 //			Comparator.comparing(Object::toString);
 
 	public static <X, Y> Map<Y, X> rev0(Map<X, Y> m) {
 		return rev(m, new THashSet<>(m.values()));
 	}
-	
 
 	public static <X, Y> Map<Y, Set<X>> revS(Map<X, Y> m) {
 		Map<Y, Set<X>> ret = new THashMap<>(m.size());
@@ -596,8 +541,6 @@ public class Util {
 		}
 		return ret;
 	}
-
-	
 
 	public static <X> String print(Collection<X[]> c) {
 		String ret = "";
@@ -615,22 +558,20 @@ public class Util {
 		return ret;
 	}
 
-
 	public static String nice(String s) {
 		return s;
 	}
 
 	/*
-	public static <X, Y> List<Y> proj2(Collection<Pair<X, Y>> l) {
-		return l.stream().map(x -> x.second).collect(Collectors.toList());
-	}
-
-	public static <X, Y> List<X> proj1(Collection<Pair<X, Y>> l) {
-		return l.stream().map(x -> x.first).collect(Collectors.toList());
-	}
-*/
+	 * public static <X, Y> List<Y> proj2(Collection<Pair<X, Y>> l) { return
+	 * l.stream().map(x -> x.second).collect(Collectors.toList()); }
+	 * 
+	 * public static <X, Y> List<X> proj1(Collection<Pair<X, Y>> l) { return
+	 * l.stream().map(x -> x.first).collect(Collectors.toList()); }
+	 */
 	@SuppressWarnings("unchecked")
-	public static <X> String sep(Collection<?> order, Map<?, ?> m, String sep1, String sep2, boolean skip, Function<X,String> fn) {
+	public static <X> String sep(Collection<?> order, Map<?, ?> m, String sep1, String sep2, boolean skip,
+			Function<X, String> fn) {
 		StringBuffer ret = new StringBuffer("");
 		boolean b = false;
 		for (Object o : order) {
@@ -644,7 +585,7 @@ public class Util {
 			b = true;
 			ret.append(o);
 			ret.append(sep1);
-			ret.append(fn.apply((X)m.get(o)));
+			ret.append(fn.apply((X) m.get(o)));
 		}
 		return ret.toString();
 	}
@@ -652,8 +593,8 @@ public class Util {
 	public static String sep(Map<?, ?> m, String sep1, String sep2) {
 		return sep(m.keySet(), m, sep1, sep2, false, Object::toString);
 	}
-	
-	public static <X> String sep(Map<?, X> m, String sep1, String sep2, Function<X,String> fn) {
+
+	public static <X> String sep(Map<?, X> m, String sep1, String sep2, Function<X, String> fn) {
 		return sep(m.keySet(), m, sep1, sep2, false, fn);
 	}
 
@@ -662,7 +603,8 @@ public class Util {
 			return "!!!NULL!!!";
 		}
 		String s = o.toString();
-		if ((s.contains("\t") || s.contains("\n") || s.contains("\r") || s.contains("-") || s.isEmpty()) && !s.contains("\"")) {
+		if ((s.contains("\t") || s.contains("\n") || s.contains("\r") || s.contains("-") || s.isEmpty())
+				&& !s.contains("\"")) {
 			return "\"" + s + "\"";
 		}
 		return s;
@@ -675,7 +617,7 @@ public class Util {
 		}
 		return y;
 	}
-	
+
 	public static <X, Y> Y lookupNull(Collection<Pair<X, Y>> s, X x) {
 		for (Pair<X, Y> o : s) {
 			if (o.first.equals(x)) {
@@ -719,7 +661,7 @@ public class Util {
 
 		return ret;
 	}
-	
+
 	public static <X, Y> Map<X, Set<Y>> convertMulti(Set<Pair<X, Y>> t) {
 		Map<X, Set<Y>> ret = new THashMap<>(t.size());
 
@@ -732,7 +674,6 @@ public class Util {
 
 		return ret;
 	}
-
 
 	public static <X, Y> void putSafely(Map<X, Y> ret, X k, Y v) {
 		if (ret.containsKey(k) && !ret.get(k).equals(v)) {
@@ -792,8 +733,6 @@ public class Util {
 		return y -> revLookup(m, y);
 	}
 
-	
-
 	public static <X, Y> X anyKey(Map<X, Y> m) {
 		for (X x : m.keySet()) {
 			return x;
@@ -829,10 +768,10 @@ public class Util {
 			if (c.left) {
 				Pair<Function, Object> p = stripChcs(c.l);
 				return new Pair<>(x -> Chc.inLeftNC(p.first.apply(x)), p.second);
-			} 
-				Pair<Function, Object> p = stripChcs(c.r);
-				return new Pair<>(x -> Chc.inRightNC(p.first.apply(x)), p.second);
-			
+			}
+			Pair<Function, Object> p = stripChcs(c.r);
+			return new Pair<>(x -> Chc.inRightNC(p.first.apply(x)), p.second);
+
 		}
 		return new Pair<>(x -> x, o);
 	}
@@ -886,20 +825,19 @@ public class Util {
 		ret.sort(AlphabeticalComparator);
 		return ret;
 	}
-	
+
 	public static <Ty> Collection<Ty> alphaMaybe(boolean b, Collection<Ty> tys) {
 		if (b) {
 			return alphabetical(tys);
 		}
 		return tys;
 	}
-/*
-	public static <X> List<String> shortest(Collection<X> set) {
-		List<String> ret = set.stream().map(Object::toString).collect(Collectors.toList());
-		ret.sort(LengthComparator);
-		return ret;
-	}
-*/
+
+	/*
+	 * public static <X> List<String> shortest(Collection<X> set) { List<String> ret
+	 * = set.stream().map(Object::toString).collect(Collectors.toList());
+	 * ret.sort(LengthComparator); return ret; }
+	 */
 	public static <X, Y, Z> Map<X, Map<Y, Z>> newMapsFor(Collection<X> xs) {
 		Map<X, Map<Y, Z>> ret = new THashMap<>(xs.size());
 		for (X x : xs) {
@@ -915,32 +853,35 @@ public class Util {
 		}
 		return ret;
 	}
-	
+
 	public static <X> Collection<X> iterToColLazy(Iterable<X> it) {
 		return new AbstractCollection<>() {
 			@Override
 			public Iterator<X> iterator() {
 				return it.iterator();
 			}
+
 			@Override
 			public int size() {
 				return -1;
 			}
 		};
 	}
-	
+
 	public static <X> Collection<X> iterToCol(Iterable<X> it, int size) {
 		return new AbstractCollection<>() {
 			@Override
 			public Iterator<X> iterator() {
 				return it.iterator();
 			}
+
 			@Override
 			public int size() {
 				return size;
 			}
 		};
 	}
+
 	public static <X, Y> Map<X, Collection<Y>> newSetsFor0(Collection<X> xs) {
 		Map<X, Collection<Y>> ret = (new THashMap<>(xs.size()));
 		for (X x : xs) {
@@ -971,13 +912,13 @@ public class Util {
 		ret.addAll(y);
 		return ret;
 	}
-/*
-	public static <X> List<String> toString(Collection<X> list) {
-		return list.stream().map(Object::toString).collect(Collectors.toList());
-	}
-*/
+
+	/*
+	 * public static <X> List<String> toString(Collection<X> list) { return
+	 * list.stream().map(Object::toString).collect(Collectors.toList()); }
+	 */
 	public static <T> Set<Set<T>> powerSet(Collection<T> originalSet) {
-		Set<Set<T>> sets = new THashSet<>((int)Math.pow(2, originalSet.size()));
+		Set<Set<T>> sets = new THashSet<>((int) Math.pow(2, originalSet.size()));
 		if (originalSet.isEmpty()) {
 			sets.add(Collections.emptySet());
 			return sets;
@@ -995,16 +936,16 @@ public class Util {
 		return sets;
 	}
 
-	public static final Comparator<Object> ToStringComparator =  (Object o1, Object o2) -> {
+	public static final Comparator<Object> ToStringComparator = (Object o1, Object o2) -> {
 		if (o1.toString().length() > o2.toString().length()) {
 			return 1;
 		} else if (o1.toString().length() < o2.toString().length()) {
 			return -1;
 		}
 		return o1.toString().compareTo(o2.toString());
-	}; 
-	
-	private static <K,V> boolean agreeOnOverlap0(Map<K, V> map, Map<K, V> ret) {
+	};
+
+	private static <K, V> boolean agreeOnOverlap0(Map<K, V> map, Map<K, V> ret) {
 		for (K k : map.keySet()) {
 			if (ret.containsKey(k)) {
 				if (!ret.get(k).equals(map.get(k))) {
@@ -1014,8 +955,8 @@ public class Util {
 		}
 		return true;
 	}
-	
-	public static <K,V> boolean agreeOnOverlap(Map<K, V> ret1, Map<K, V> ret2) {
+
+	public static <K, V> boolean agreeOnOverlap(Map<K, V> ret1, Map<K, V> ret2) {
 		return agreeOnOverlap0(ret1, ret2) && agreeOnOverlap0(ret2, ret1);
 	}
 
@@ -1023,39 +964,44 @@ public class Util {
 		throw new RuntimeException("Anomaly: please report");
 	}
 
-	public static class FilterTransfomIterator<T,U> implements Iterator<U> {
+	public static class FilterTransfomIterator<T, U> implements Iterator<U> {
 		Iterator<T> in;
 		Function<T, Optional<U>> fn;
+
 		public FilterTransfomIterator(Iterator<T> in, Function<T, Optional<U>> fn) {
 			this.in = in;
 			this.fn = fn;
 			repair();
 		}
+
 		Optional<U> next;
+
 		@Override
 		public boolean hasNext() {
 			return next != null && !next.isEmpty();
 		}
+
 		@Override
 		public U next() {
 			U u = next.get();
 			repair();
 			return u;
 		}
+
 		private void repair() {
 			while (in.hasNext()) {
 				T t = in.next();
 				next = fn.apply(t);
 				if (!next.isEmpty()) {
 					return;
-				} 
-				//next = Optional.empty();
+				}
+				// next = Optional.empty();
 			}
 			next = Optional.empty();
 		}
-		
+
 	}
-	
+
 	public static <X, Y> Collection<Object> isect(Collection<X> xs, Collection<Y> ys) {
 		List<Object> l = new LinkedList<>(xs);
 		l.removeIf(x -> !ys.contains(x));
@@ -1097,8 +1043,8 @@ public class Util {
 	}
 
 	/**
-	 * Calculates a similarity (a number within 0 and 1) between two strings as
-	 * 1 / 1 + editDistance
+	 * Calculates a similarity (a number within 0 and 1) between two strings as 1 /
+	 * 1 + editDistance
 	 * 
 	 */
 	public static double similarity(String s1, String s2) { // TODO aql
@@ -1121,8 +1067,6 @@ public class Util {
 		}
 	}
 
-	
-	
 	public static <T> Iterable<List<T>> permutationsOf(List<T> l) {
 		return new Iterable<>() {
 			@Override
@@ -1131,106 +1075,103 @@ public class Util {
 			}
 		};
 	}
-	
-	//seems like heap's algorithm
-	private static final class PermutationIterator<T> 
-    implements Iterator<List<T>> {
 
-        private List<T> nextPermutation;
-        private final List<T> allElements = new ArrayList<>();
-        private int[] indices;
+	// seems like heap's algorithm
+	private static final class PermutationIterator<T> implements Iterator<List<T>> {
 
-        PermutationIterator(List<T> allElements) {
-            if (allElements.isEmpty()) {
-                nextPermutation = null;
-                return;
-            }
+		private List<T> nextPermutation;
+		private final List<T> allElements = new ArrayList<>();
+		private int[] indices;
 
-            this.allElements.addAll(allElements);
-            this.indices = new int[allElements.size()];
+		PermutationIterator(List<T> allElements) {
+			if (allElements.isEmpty()) {
+				nextPermutation = null;
+				return;
+			}
 
-            for (int i = 0; i < indices.length; ++i) {
-                indices[i] = i;
-            }
+			this.allElements.addAll(allElements);
+			this.indices = new int[allElements.size()];
 
-            nextPermutation = new ArrayList<>(this.allElements);
-        }
+			for (int i = 0; i < indices.length; ++i) {
+				indices[i] = i;
+			}
 
-        @Override
-        public boolean hasNext() {
-            return nextPermutation != null;
-        }
+			nextPermutation = new ArrayList<>(this.allElements);
+		}
 
-        @Override
-        public List<T> next() {
-            if (nextPermutation == null) {
-                throw new NoSuchElementException("No permutations left.");
-            }
+		@Override
+		public boolean hasNext() {
+			return nextPermutation != null;
+		}
 
-            List<T> ret = nextPermutation;
-            generateNextPermutation();
-            return ret;
-        }
+		@Override
+		public List<T> next() {
+			if (nextPermutation == null) {
+				throw new NoSuchElementException("No permutations left.");
+			}
 
-        private void generateNextPermutation() {
-            int i = indices.length - 2;
+			List<T> ret = nextPermutation;
+			generateNextPermutation();
+			return ret;
+		}
 
-            while (i >= 0 && indices[i] > indices[i + 1]) {
-                --i;
-            }
+		private void generateNextPermutation() {
+			int i = indices.length - 2;
 
-            if (i == -1) {
-                // No more new permutations.
-                nextPermutation = null;
-                return;
-            }
+			while (i >= 0 && indices[i] > indices[i + 1]) {
+				--i;
+			}
 
-            int j = i + 1;
-            int min = indices[j];
-            int minIndex = j;
+			if (i == -1) {
+				// No more new permutations.
+				nextPermutation = null;
+				return;
+			}
 
-            while (j < indices.length) {
-                if (indices[i] < indices[j] && indices[j] < min) {
-                    min = indices[j];
-                    minIndex = j;
-                }
+			int j = i + 1;
+			int min = indices[j];
+			int minIndex = j;
 
-                ++j;
-            }
+			while (j < indices.length) {
+				if (indices[i] < indices[j] && indices[j] < min) {
+					min = indices[j];
+					minIndex = j;
+				}
 
-            swap(indices, i, minIndex);
+				++j;
+			}
 
-            ++i;
-            j = indices.length - 1;
+			swap(indices, i, minIndex);
 
-            while (i < j) {
-                swap(indices, i++, j--);
-            }
+			++i;
+			j = indices.length - 1;
 
-            loadPermutation();
-        }
+			while (i < j) {
+				swap(indices, i++, j--);
+			}
 
-        private void loadPermutation() {
-            List<T> newPermutation = new ArrayList<>(indices.length);
+			loadPermutation();
+		}
 
-            for (int i : indices) {
-                newPermutation.add(allElements.get(i));
-            }
+		private void loadPermutation() {
+			List<T> newPermutation = new ArrayList<>(indices.length);
 
-            this.nextPermutation = newPermutation;
-        }
-    
+			for (int i : indices) {
+				newPermutation.add(allElements.get(i));
+			}
 
-    private static void swap(int[] array, int a, int b) {
-        int tmp = array[a];
-        array[a] = array[b];
-        array[b] = tmp;
-    }
+			this.nextPermutation = newPermutation;
+		}
 
-   
-}
+		private static void swap(int[] array, int a, int b) {
+			int tmp = array[a];
+			array[a] = array[b];
+			array[b] = tmp;
+		}
 
-	public static <X,Y> boolean containsUpToCase(Collection<X> set, Y s) {
+	}
+
+	public static <X, Y> boolean containsUpToCase(Collection<X> set, Y s) {
 		for (X t : set) {
 			if (s.toString().toLowerCase().equals(t.toString().toLowerCase())) {
 				return true;
@@ -1241,7 +1182,7 @@ public class Util {
 
 	public static String[] union(String[] res, String[] res2) {
 		String[] ret = new String[res.length + res2.length];
-		System.arraycopy(res , 0, ret, 0, res.length);
+		System.arraycopy(res, 0, ret, 0, res.length);
 		System.arraycopy(res2, 0, ret, res.length, res2.length);
 		return ret;
 	}
@@ -1256,7 +1197,7 @@ public class Util {
 		}
 	}
 
-	public static <X,Y> boolean containsKey(Set<Pair<X,Y>> set, X x) {
+	public static <X, Y> boolean containsKey(Set<Pair<X, Y>> set, X x) {
 		for (Pair<X, Y> p : set) {
 			if (p.first.equals(x)) {
 				return true;
@@ -1265,42 +1206,37 @@ public class Util {
 		return false;
 	}
 
-
-	public static <K1,V1,K2,V2> Map<K2,V2> map(Map<K1, V1> m, BiFunction<K1,V1,Pair<K2,V2>> f) {
-		Map<K2,V2> ret = new THashMap<>(m.size());
+	public static <K1, V1, K2, V2> Map<K2, V2> map(Map<K1, V1> m, BiFunction<K1, V1, Pair<K2, V2>> f) {
+		Map<K2, V2> ret = new THashMap<>(m.size());
 		for (K1 k1 : m.keySet()) {
-			Pair<K2,V2> p = f.apply(k1, m.get(k1));
+			Pair<K2, V2> p = f.apply(k1, m.get(k1));
 			ret.put(p.first, p.second);
 		}
 		return ret;
 	}
-	
-	
 
 	public static String longestCommonPrefix(List<String> strings) {
-	    if (strings.size() == 0) {
-	        return "";   // Or maybe return null?
-	    }
+		if (strings.size() == 0) {
+			return ""; // Or maybe return null?
+		}
 
-	    for (int prefixLen = 0; prefixLen < strings.get(0).length(); prefixLen++) {
-	        char c = strings.get(0).charAt(prefixLen);
-	        for (int i = 1; i < strings.size(); i++) {
-	            if ( prefixLen >= strings.get(i).length() ||
-	                 strings.get(i).charAt(prefixLen) != c ) {
-	                // Mismatch found
-	                return strings.get(i).substring(0, prefixLen);
-	            }
-	        }
-	    }
-	    return strings.get(0);
+		for (int prefixLen = 0; prefixLen < strings.get(0).length(); prefixLen++) {
+			char c = strings.get(0).charAt(prefixLen);
+			for (int i = 1; i < strings.size(); i++) {
+				if (prefixLen >= strings.get(i).length() || strings.get(i).charAt(prefixLen) != c) {
+					// Mismatch found
+					return strings.get(i).substring(0, prefixLen);
+				}
+			}
+		}
+		return strings.get(0);
 	}
 
-
-	public static <X,Y> List<Pair<X,Y>> zip(List<X> x, List<Y> y) {
+	public static <X, Y> List<Pair<X, Y>> zip(List<X> x, List<Y> y) {
 		if (x.size() != y.size()) {
 			Util.anomaly();
 		}
-		List<Pair<X,Y>> ret = new ArrayList<>(x.size());
+		List<Pair<X, Y>> ret = new ArrayList<>(x.size());
 		Iterator<X> it = x.iterator();
 		Iterator<Y> jt = y.iterator();
 		while (it.hasNext()) {
@@ -1308,17 +1244,16 @@ public class Util {
 		}
 		return ret;
 	}
-	
-	
-	static class NiceMap<X,Y> implements Map<X,Y> {
-		
-		private final Map<X,Y> m;
-		
+
+	static class NiceMap<X, Y> implements Map<X, Y> {
+
+		private final Map<X, Y> m;
+
 		@Override
 		public String toString() {
 			return Util.sep(this, ":", ", ");
 		}
-		
+
 		@Override
 		public int hashCode() {
 			return m.hashCode();
@@ -1357,7 +1292,7 @@ public class Util {
 		public Y get(Object key) {
 			assertNotNull(key);
 			Y y = m.get(key);
-			//assertNotNull(y);
+			// assertNotNull(y);
 			return y;
 		}
 
@@ -1401,11 +1336,12 @@ public class Util {
 		public Set<Entry<X, Y>> entrySet() {
 			return m.entrySet();
 		}
-		
+
 	};
-	public static <X,Y> Map<X,Y> mk() {
-		Map<X,Y> m = (new THashMap<>());
+
+	public static <X, Y> Map<X, Y> mk() {
+		Map<X, Y> m = (new THashMap<>());
 		return new NiceMap<>(m);
 	}
-	
+
 }

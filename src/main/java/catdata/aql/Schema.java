@@ -16,11 +16,6 @@ import catdata.Pair;
 import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.exp.Att;
-import catdata.aql.exp.En;
-import catdata.aql.exp.Fk;
-import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
 import catdata.graph.DAG;
 import gnu.trove.map.hash.THashMap;
 
@@ -28,10 +23,11 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
 	@SuppressWarnings("unchecked")
 	public Schema<Ty, En, Sym, Void, Void> discretize(Set<En> ensX) {
-		Schema<Ty, En, Sym, Fk, Att> x = new Schema<>(typeSide, ensX, Collections.emptyMap(), Collections.emptyMap(), Collections.emptySet(), dp, false);
+		Schema<Ty, En, Sym, Fk, Att> x = new Schema<>(typeSide, ensX, Collections.emptyMap(), Collections.emptyMap(),
+				Collections.emptySet(), dp, false);
 		return (Schema<Ty, En, Sym, Void, Void>) x;
 	}
-	
+
 	@Override
 	public int size() {
 		return ens.size() + atts.size() + fks.size() + eqs.size();
@@ -49,7 +45,6 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	public final Map<Fk, Pair<En, En>> fks;
 
 	public final Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs;
-
 
 	private void validate(boolean checkJava) {
 		// check that each att/fk is in tys/ens
@@ -114,16 +109,15 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		}
 
 	}
-	
-	
-	
+
 	public boolean acyclic() {
 		DAG<En> dag = new DAG<>();
 		for (Fk fk : fks.keySet()) {
 			boolean ok = dag.addEdge(fks.get(fk).first, fks.get(fk).second);
 			if (!ok) {
 				return false;
-				//throw new RuntimeException("Adding dependency on " + fk + " causes circularity " + dag);
+				// throw new RuntimeException("Adding dependency on " + fk + " causes
+				// circularity " + dag);
 			}
 		}
 		return true;
@@ -135,26 +129,25 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	}
 
 	public final Chc<Ty, En> type(Pair<Var, En> p, Term<Ty, En, Sym, Fk, Att, ?, ?> term) {
-		return term.type(Collections.emptyMap(), Collections.singletonMap(p.first, p.second), typeSide.tys, typeSide.syms, typeSide.js.java_tys, ens,
-				atts, fks, Collections.emptyMap(), Collections.emptyMap());
+		return term.type(Collections.emptyMap(), Collections.singletonMap(p.first, p.second), typeSide.tys,
+				typeSide.syms, typeSide.js.java_tys, ens, atts, fks, Collections.emptyMap(), Collections.emptyMap());
 	}
 
-	public static Schema<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att> terminal(TypeSide<catdata.aql.exp.Ty, catdata.aql.exp.Sym> t) {
-		return new Schema(t, Collections.emptySet(), Collections.emptyMap(), Collections.emptyMap(),
-				Collections.emptySet(), t.semantics(), false);
+	@SuppressWarnings("unchecked")
+	public static <Ty, En, Sym, Fk, Att> Schema<Ty, En, Sym, Fk, Att> terminal(TypeSide<Ty, Sym> t) {
+		return new Schema<>(t, Collections.emptySet(), Collections.emptyMap(), Collections.emptyMap(),
+				Collections.emptySet(), (DP<Ty, En, Sym, Fk, Att, Void, Void>) t.semantics(), false);
 	}
-	
-	
-	public Schema(TypeSide<Ty, Sym> typeSide, Collage<Ty, En, Sym, Fk, Att, Void, Void> col,
-			AqlOptions options) {
-		this(typeSide, col.ens, col.atts, col.fks, conv(col.eqs), AqlProver.createSchema(options, col, typeSide), ! (boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+
+	public Schema(TypeSide<Ty, Sym> typeSide, Collage<Ty, En, Sym, Fk, Att, Void, Void> col, AqlOptions options) {
+		this(typeSide, col.ens, col.atts, col.fks, conv(col.eqs), AqlProver.createSchema(options, col, typeSide),
+				!(boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}
-	
-	
+
 	private static <Ty, En, Sym, Fk, Att> Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> conv(
 			Collection<Eq<Ty, En, Sym, Fk, Att, Void, Void>> eqs2) {
-		Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>>
-		ret = new ArrayList<>(eqs2.size());
+		Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> ret = new ArrayList<>(
+				eqs2.size());
 		for (Eq<Ty, En, Sym, Fk, Att, Void, Void> s : eqs2) {
 			if (s.ctx.size() != 1) {
 				continue;
@@ -163,12 +156,12 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			if (yy.getValue().left) {
 				continue;
 			}
-			ret.add(new Triple<>(conv2(yy),s.lhs, s.rhs));
+			ret.add(new Triple<>(conv2(yy), s.lhs, s.rhs));
 		}
 		return Collections.synchronizedCollection(ret);
 	}
 
-	private static <Ty,En> Pair<Var, En> conv2(Entry<Var, Chc<Ty, En>> x) {
+	private static <Ty, En> Pair<Var, En> conv2(Entry<Var, Chc<Ty, En>> x) {
 		return new Pair<>(x.getKey(), x.getValue().r);
 	}
 
@@ -180,7 +173,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		this.atts = atts;
 		this.fks = fks;
 		this.eqs = eqs;
-		this.ens = ens; 
+		this.ens = ens;
 		dp = semantics;
 		validate(checkJava);
 	}
@@ -209,8 +202,8 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		collage.atts.putAll(atts);
 		collage.fks.putAll(fks);
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> x : eqs) {
-			collage.eqs.add(new Eq<>(Collections.singletonMap(x.first.first, Chc.inRight(x.first.second)), upgrade(x.second),
-					upgrade(x.third)));
+			collage.eqs.add(new Eq<>(Collections.singletonMap(x.first.first, Chc.inRight(x.first.second)),
+					upgrade(x.second), upgrade(x.third)));
 		}
 		return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) collage;
 	}
@@ -296,7 +289,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			atts0.add(att + " : " + atts.get(att).first + " -> " + atts.get(att).second);
 		}
 		toString = "";
-		
+
 		if (!ens0.isEmpty()) {
 			toString += "entities";
 			toString += "\n\t" + Util.sep(ens0, " ");
@@ -384,19 +377,19 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			l.add(tick + idCol + tick + " " + idTy + " primary key");
 			List<String> f = new LinkedList<>();
 			for (Fk fk1 : fksFrom(en1)) {
-				l.add(tick + truncate(fun.apply(fk1), truncate) + tick + " " +  idTy  + " not null ");
+				l.add(tick + truncate(fun.apply(fk1), truncate) + tick + " " + idTy + " not null ");
 				k.add(Chc.inLeft(fk1));
-				f.add("alter table " + tick + truncate(prefix + en1, truncate) + tick + " add constraint "
-						+ tick + truncate(prefix + en1 + fk1 + constraint_static++, truncate) + tick + " foreign key ("
-						+ tick + truncate(fun.apply(fk1), truncate) + tick + ") references "
-						+ tick + truncate(prefix + fks.get(fk1).second, truncate) + tick + "(" + tick + idCol + tick + ");");
+				f.add("alter table " + tick + truncate(prefix + en1, truncate) + tick + " add constraint " + tick
+						+ truncate(prefix + en1 + fk1 + constraint_static++, truncate) + tick + " foreign key (" + tick
+						+ truncate(fun.apply(fk1), truncate) + tick + ") references " + tick
+						+ truncate(prefix + fks.get(fk1).second, truncate) + tick + "(" + tick + idCol + tick + ");");
 			}
 			for (Att att1 : attsFrom(en1)) {
 				l.add(tick + truncate(att1.toString(), truncate) + tick + " "
 						+ SqlTypeSide.mediate(vlen, atts.get(att1).second.toString()));
 				k.add(Chc.inRight(att1));
 			}
-			String str = "create table " + tick + prefix + en1 + tick +  "(" + Util.sep(l, ", ") + ");";
+			String str = "create table " + tick + prefix + en1 + tick + "(" + Util.sep(l, ", ") + ");";
 			List<String> q = new LinkedList<>();
 			// q.add("drop table if exists " + prefix + en1 + ";");
 			q.add(str);
@@ -431,5 +424,4 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return s.equals("custom") || s.equals("text");
 	}
 
-	
 }

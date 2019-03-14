@@ -15,9 +15,8 @@ import catdata.aql.Transform;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 
-public class ToCsvPragmaTransform<Ty,En,Sym,Att,Fk,Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Pragma {
-	
-	
+public class ToCsvPragmaTransform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Pragma {
+
 	private final File file;
 
 	private AqlOptions options1;
@@ -25,14 +24,15 @@ public class ToCsvPragmaTransform<Ty,En,Sym,Att,Fk,Gen1, Sk1, Gen2, Sk2, X1, Y1,
 	private AqlOptions options2;
 
 	private Transform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h;
-	
-	public ToCsvPragmaTransform(Transform<Ty,En,Sym,Att,Fk,Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> h, String s, AqlOptions options1, AqlOptions options2) {
+
+	public ToCsvPragmaTransform(Transform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h, String s,
+			AqlOptions options1, AqlOptions options2) {
 		this.options1 = options1;
 		this.options2 = options2;
 		this.file = new File(s);
 		this.h = h;
 	}
-	
+
 	private void delete() {
 		if (!file.exists()) {
 			return;
@@ -41,7 +41,7 @@ public class ToCsvPragmaTransform<Ty,En,Sym,Att,Fk,Gen1, Sk1, Gen2, Sk2, X1, Y1,
 			throw new RuntimeException("Cannot delete directory: " + file);
 		}
 		if (!file.delete()) {
-			throw new RuntimeException("Cannot delete file: " + file);			
+			throw new RuntimeException("Cannot delete file: " + file);
 		}
 	}
 
@@ -52,10 +52,10 @@ public class ToCsvPragmaTransform<Ty,En,Sym,Att,Fk,Gen1, Sk1, Gen2, Sk2, X1, Y1,
 			CSVPrinter printer = new CSVPrinter(sb, ToCsvPragmaInstance.getFormat(options1));
 			int srcId = (int) options1.getOrDefault(AqlOption.start_ids_at);
 			int dstId = (int) options2.getOrDefault(AqlOption.start_ids_at);
-			
+
 			Pair<TObjectIntMap<X1>, TIntObjectMap<X1>> a = h.src().algebra().intifyX(srcId);
 			Pair<TObjectIntMap<X2>, TIntObjectMap<X2>> b = h.dst().algebra().intifyX(dstId);
-			
+
 			for (En en : h.src().schema().ens) {
 				for (X1 x1 : h.src().algebra().en(en)) {
 					List<String> row = new LinkedList<>();
@@ -66,22 +66,22 @@ public class ToCsvPragmaTransform<Ty,En,Sym,Att,Fk,Gen1, Sk1, Gen2, Sk2, X1, Y1,
 				}
 			}
 
-			printer.close();				
+			printer.close();
 			delete();
 			if (!file.createNewFile()) {
 				throw new RuntimeException("Could not create new file: " + file);
 			}
 			FileWriter out = new FileWriter(file);
-			out.write(sb.toString());		
+			out.write(sb.toString());
 			out.close();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		} 		
+		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Exported to " + file + ".";
 	}
-	
+
 }

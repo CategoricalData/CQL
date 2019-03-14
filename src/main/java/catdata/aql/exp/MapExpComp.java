@@ -12,29 +12,29 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
 
-public final class MapExpComp 
-extends MapExp {
-	
-	public <R,P,E extends Exception> R accept(P params, MapExpVisitor<R, P, E> v) throws E {
+public final class MapExpComp extends MapExp {
+
+	public <R, P, E extends Exception> R accept(P params, MapExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
-	
+
 	@Override
-	public <R, P, E extends Exception> MapExp coaccept(
-			P params, MapExpCoVisitor<R, P, E> v, R r) throws E {
+	public <R, P, E extends Exception> MapExp coaccept(P params, MapExpCoVisitor<R, P, E> v, R r) throws E {
 		return v.visitMapExpComp(params, r);
 	}
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
-		
+
 	}
-	
+
 	public final MapExp m1, m2;
 
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
+
 	public MapExpComp(MapExp m1, MapExp m2) {
 		this.m1 = m1;
 		this.m2 = m2;
@@ -79,7 +79,8 @@ extends MapExp {
 	@Override
 	public Pair<SchExp, SchExp> type(AqlTyping G) {
 		if (!G.eq(m1.type(G).second, m2.type(G).first)) {
-			throw new RuntimeException("Cod of first arg, " + m1.type(G).second + " is not equal to dom of second arg, " + m2.type(G).first + " in " + this);
+			throw new RuntimeException("Cod of first arg, " + m1.type(G).second + " is not equal to dom of second arg, "
+					+ m2.type(G).first + " in " + this);
 		}
 		return new Pair<>(m1.type(G).first, m2.type(G).second);
 	}
@@ -98,12 +99,11 @@ extends MapExp {
 	public Collection<Pair<String, Kind>> deps() {
 		return Util.union(m1.deps(), m2.deps());
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		m1.map(f);
 		m2.map(f);
 	}
 
-	
 }

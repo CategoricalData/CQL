@@ -45,7 +45,7 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class Mpl implements MplObject {
-	
+
 	@Override
 	public JComponent display() {
 		CodeTextPanel p = new CodeTextPanel(BorderFactory.createEtchedBorder(), "", toString());
@@ -53,15 +53,15 @@ public class Mpl implements MplObject {
 		ret.add(p, "Text");
 		return ret;
 	}
-	
+
 	public abstract static class MplType<O> extends Mpl {
-		
+
 		public abstract <R, E> R accept(E env, MplTypeVisitor<O, R, E> v);
 
 		public abstract void type(MplSch<O, ?> ctx);
-		
+
 		public abstract List<O> typeStrict(MplSch<O, ?> ctx);
-				
+
 		public static class MplBase<O> extends MplType<O> {
 			final O o;
 
@@ -74,7 +74,7 @@ public class Mpl implements MplObject {
 				type(ctx);
 				return Collections.singletonList(o);
 			}
-			
+
 			@Override
 			public int hashCode() {
 				return o.hashCode();
@@ -96,34 +96,34 @@ public class Mpl implements MplObject {
 					return false;
 				return true;
 			}
-			
+
 			@Override
 			public void type(MplSch<O, ?> ctx) {
-				 if (!ctx.sorts.contains(o)) {
-					 throw new RuntimeException("Undefined sort: " + o);
-				 }
+				if (!ctx.sorts.contains(o)) {
+					throw new RuntimeException("Undefined sort: " + o);
+				}
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTypeVisitor<O, R, E> v) {
 				return v.visit(env, this);
 			}
-			
+
 			@Override
 			public String toString() {
 				return o.toString();
 			}
 		}
-		
+
 		static class MplProd<O> extends MplType<O> {
 			final MplType<O> l;
-            final MplType<O> r;
+			final MplType<O> r;
 
 			public MplProd(MplType<O> l, MplType<O> r) {
 				this.l = l;
 				this.r = r;
 			}
-			
+
 			@Override
 			public List<O> typeStrict(MplSch<O, ?> ctx) {
 				List<O> ret = new LinkedList<>();
@@ -136,7 +136,7 @@ public class Mpl implements MplObject {
 			public String toString() {
 				return "(" + l + " * " + r + ")";
 			}
-			
+
 			@Override
 			public int hashCode() {
 				int prime = 31;
@@ -167,22 +167,22 @@ public class Mpl implements MplObject {
 					return false;
 				return true;
 			}
-			
+
 			@Override
 			public void type(MplSch<O, ?> ctx) {
 				l.type(ctx);
 				r.type(ctx);
 			}
-		
+
 			@Override
 			public <R, E> R accept(E env, MplTypeVisitor<O, R, E> v) {
 				return v.visit(env, this);
 			}
 
 		}
-		
+
 		static class MplUnit<O> extends MplType<O> {
-			
+
 			@Override
 			public String toString() {
 				return "I";
@@ -192,61 +192,61 @@ public class Mpl implements MplObject {
 			public int hashCode() {
 				return 0;
 			}
-			
+
 			@Override
 			public List<O> typeStrict(MplSch<O, ?> ctx) {
 				return new LinkedList<>();
 			}
-			
+
 			@Override
 			public boolean equals(Object o) {
 				return (o instanceof MplUnit);
 			}
-			
+
 			@Override
 			public void type(MplSch<O, ?> ctx) {
-	
+
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTypeVisitor<O, R, E> v) {
 				return v.visit(env, this);
 			}
 
 		}
-				
+
 	}
-	
-	abstract static class MplTerm<O,A> extends Mpl {
-		
+
+	abstract static class MplTerm<O, A> extends Mpl {
+
 		public abstract <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v);
 
-		public abstract Pair<MplType<O>, MplType<O>> type(MplSch<O,A> ctx);
-		
-		public abstract Pair<List<O>, List<O>> typeStrict(MplSch<O,A> ctx);
-		
-		protected abstract MplTerm<O,A> forget0();
-		
-		public MplTerm<O,A> forget() {
-			MplTerm<O,A> ret = this;
-            while (true) {
-                MplTerm<O, A> ret2 = ret.forget0();
-                if (ret.toString().equals(ret2.toString())) {
-                    return ret2;
-                }
-                ret = ret2;
-            }
+		public abstract Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx);
+
+		public abstract Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx);
+
+		protected abstract MplTerm<O, A> forget0();
+
+		public MplTerm<O, A> forget() {
+			MplTerm<O, A> ret = this;
+			while (true) {
+				MplTerm<O, A> ret2 = ret.forget0();
+				if (ret.toString().equals(ret2.toString())) {
+					return ret2;
+				}
+				ret = ret2;
+			}
 		}
 
-		static class MplTr<O,A> extends MplTerm<O,A> {
-			final MplTerm<O,A> t;
-			
+		static class MplTr<O, A> extends MplTerm<O, A> {
+			final MplTerm<O, A> t;
+
 			public MplTr(MplTerm<O, A> t) {
 				this.t = t;
 			}
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return new MplTr<>(t.forget0());
 			}
 
@@ -262,11 +262,12 @@ public class Mpl implements MplObject {
 				MplProd<O> dom = (MplProd<O>) x.first;
 				MplProd<O> cod = (MplProd<O>) x.second;
 				if (!dom.r.equals(cod.r)) {
-					throw new RuntimeException("Second component of dom and cod do not match: are " + dom.r + " and " + cod.r + " in " + x.first + " -> " + x.second);
+					throw new RuntimeException("Second component of dom and cod do not match: are " + dom.r + " and "
+							+ cod.r + " in " + x.first + " -> " + x.second);
 				}
 				return new Pair<>(dom.l, cod.l);
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				Pair<List<O>, List<O>> x = t.typeStrict(ctx);
@@ -279,24 +280,25 @@ public class Mpl implements MplObject {
 				O dom = x.first.get(0);
 				O cod = x.second.get(0);
 				if (!dom.equals(cod)) {
-					throw new RuntimeException("Second component of dom and cod do not match: are " + dom + " and " + cod + " in " + x.first + " -> " + x.second);
+					throw new RuntimeException("Second component of dom and cod do not match: are " + dom + " and "
+							+ cod + " in " + x.first + " -> " + x.second);
 				}
 				return new Pair<>(x.first.subList(1, x.first.size()), x.second.subList(1, x.second.size()));
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
 			}
-			
+
 			@Override
 			public String toString() {
 				return "tr " + t;
 			}
 
 		}
-		
-		static class MplConst<O,A> extends MplTerm<O,A> {
+
+		static class MplConst<O, A> extends MplTerm<O, A> {
 			final A a;
 
 			public MplConst(A a) {
@@ -304,7 +306,7 @@ public class Mpl implements MplObject {
 			}
 
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return this;
 			}
 
@@ -312,12 +314,12 @@ public class Mpl implements MplObject {
 			public Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx) {
 				return ctx.getSymbol(a);
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
-				return new Pair<>(ctx.getSymbol(a).first.typeStrict(ctx),ctx.getSymbol(a).second.typeStrict(ctx)) ;
+				return new Pair<>(ctx.getSymbol(a).first.typeStrict(ctx), ctx.getSymbol(a).second.typeStrict(ctx));
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
@@ -330,30 +332,29 @@ public class Mpl implements MplObject {
 
 		}
 
-		static class MplId<O,A> extends MplTerm<O,A> {
+		static class MplId<O, A> extends MplTerm<O, A> {
 			final MplType<O> o;
 
 			public MplId(MplType<O> o) {
 				this.o = o;
 			}
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return this;
 			}
-
 
 			@Override
 			public Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx) {
 				o.type(ctx);
 				return new Pair<>(o, o);
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				return new Pair<>(o.typeStrict(ctx), o.typeStrict(ctx));
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
@@ -365,20 +366,20 @@ public class Mpl implements MplObject {
 			}
 
 		}
-		
-		static class MplComp<O,A> extends MplTerm<O,A> {
-			final MplTerm<O,A> l;
-            final MplTerm<O,A> r;
+
+		static class MplComp<O, A> extends MplTerm<O, A> {
+			final MplTerm<O, A> l;
+			final MplTerm<O, A> r;
 
 			public MplComp(MplTerm<O, A> l, MplTerm<O, A> r) {
 				this.l = l;
 				this.r = r;
 			}
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
-				MplTerm<O,A> l0 = l.forget0();
-				MplTerm<O,A> r0 = r.forget0();
+			protected MplTerm<O, A> forget0() {
+				MplTerm<O, A> l0 = l.forget0();
+				MplTerm<O, A> r0 = r.forget0();
 				if (l0 instanceof MplAlpha) {
 					return r0;
 				}
@@ -403,7 +404,7 @@ public class Mpl implements MplObject {
 				}
 				return new Pair<>(p1.first, p2.second);
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				Pair<List<O>, List<O>> p1 = l.typeStrict(ctx);
@@ -413,34 +414,32 @@ public class Mpl implements MplObject {
 				}
 				return new Pair<>(p1.first, p2.second);
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
 			}
-			
+
 			@Override
 			public String toString() {
 				return "(" + l + " ; " + r + ")";
 			}
 
-
 		}
-		
-		static class MplPair<O,A> extends MplTerm<O,A> {
-			final MplTerm<O,A> l;
-            final MplTerm<O,A> r;
-			
+
+		static class MplPair<O, A> extends MplTerm<O, A> {
+			final MplTerm<O, A> l;
+			final MplTerm<O, A> r;
+
 			public MplPair(MplTerm<O, A> l, MplTerm<O, A> r) {
 				this.l = l;
 				this.r = r;
 			}
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return new MplPair<>(l.forget0(), r.forget0());
 			}
-
 
 			@Override
 			public Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx) {
@@ -448,7 +447,7 @@ public class Mpl implements MplObject {
 				Pair<MplType<O>, MplType<O>> p2 = r.type(ctx);
 				return new Pair<>(new MplProd<>(p1.first, p2.first), new MplProd<>(p1.second, p2.second));
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				Pair<List<O>, List<O>> p1 = l.typeStrict(ctx);
@@ -458,10 +457,10 @@ public class Mpl implements MplObject {
 				ret1.addAll(p2.first);
 				List<O> ret2 = new LinkedList<>();
 				ret2.addAll(p1.second);
-				ret2.addAll(p2.second);				
+				ret2.addAll(p2.second);
 				return new Pair<>(ret1, ret2);
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
@@ -473,25 +472,24 @@ public class Mpl implements MplObject {
 			}
 
 		}
-		
-		static class MplAlpha<O,A> extends MplTerm<O,A> {
+
+		static class MplAlpha<O, A> extends MplTerm<O, A> {
 			final MplType<O> a;
-            final MplType<O> b;
-            final MplType<O> c;
+			final MplType<O> b;
+			final MplType<O> c;
 			final boolean leftToRight;
-			
+
 			public MplAlpha(MplType<O> a, MplType<O> b, MplType<O> c, boolean leftToRight) {
 				this.a = a;
 				this.b = b;
 				this.c = c;
 				this.leftToRight = leftToRight;
 			}
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return this;
 			}
-
 
 			@Override
 			public Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx) {
@@ -501,14 +499,14 @@ public class Mpl implements MplObject {
 				MplType<O> r = new MplProd<>(a, new MplProd<>(b, c));
 				MplType<O> l = new MplProd<>(new MplProd<>(a, b), c);
 
-                return leftToRight ? new Pair<>(l, r) : new Pair<>(r, l);
+				return leftToRight ? new Pair<>(l, r) : new Pair<>(r, l);
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				throw new RuntimeException();
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
@@ -516,26 +514,25 @@ public class Mpl implements MplObject {
 
 			@Override
 			public String toString() {
-                return leftToRight ? "alpha1 " + a + " " + b + " " + c : "alpha2 " + a + " " + b + " " + c;
+				return leftToRight ? "alpha1 " + a + " " + b + " " + c : "alpha2 " + a + " " + b + " " + c;
 			}
 
 		}
-		
-		static class MplSym<O,A> extends MplTerm<O,A> {
+
+		static class MplSym<O, A> extends MplTerm<O, A> {
 			final MplType<O> a;
-            final MplType<O> b;
-			
+			final MplType<O> b;
+
 			public MplSym(MplType<O> a, MplType<O> b) {
 				this.a = a;
 				this.b = b;
 			}
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return this;
 			}
 
-			
 			@Override
 			public Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx) {
 				a.type(ctx);
@@ -544,7 +541,7 @@ public class Mpl implements MplObject {
 				MplType<O> r = new MplProd<>(b, a);
 				return new Pair<>(l, r);
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				List<O> a0 = a.typeStrict(ctx);
@@ -557,28 +554,26 @@ public class Mpl implements MplObject {
 				y.addAll(a0);
 				return new Pair<>(x, y);
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
 			}
-			
+
 			@Override
 			public String toString() {
 				return "sym " + a + " " + b;
 			}
 
-
 		}
 
-		
-		//ai->a
-		static class MplRho<O,A> extends MplTerm<O,A> {
+		// ai->a
+		static class MplRho<O, A> extends MplTerm<O, A> {
 			final MplType<O> a;
 			final boolean leftToRight;
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return this;
 			}
 
@@ -586,40 +581,39 @@ public class Mpl implements MplObject {
 				this.a = a;
 				this.leftToRight = leftToRight;
 			}
-			
+
 			@Override
 			public Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx) {
 				a.type(ctx);
 				MplType<O> l = new MplProd<>(a, new MplUnit<>());
 
-                return leftToRight ? new Pair<>(l, new MplUnit<>()) : new Pair<>(new MplUnit<>(), l);
+				return leftToRight ? new Pair<>(l, new MplUnit<>()) : new Pair<>(new MplUnit<>(), l);
 			}
-			
+
 			@Override
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				throw new RuntimeException();
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
 			}
-			
+
 			@Override
 			public String toString() {
-                return leftToRight ? "rho1 " + a : "rho2 " + a;
+				return leftToRight ? "rho1 " + a : "rho2 " + a;
 			}
 
-
 		}
-		
-		//ia->a
-		static class MplLambda<O,A> extends MplTerm<O,A> {
+
+		// ia->a
+		static class MplLambda<O, A> extends MplTerm<O, A> {
 			final MplType<O> a;
 			final boolean leftToRight;
-			
+
 			@Override
-			protected MplTerm<O,A> forget0() {
+			protected MplTerm<O, A> forget0() {
 				return this;
 			}
 
@@ -627,20 +621,20 @@ public class Mpl implements MplObject {
 			public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
 				throw new RuntimeException();
 			}
-			
+
 			public MplLambda(MplType<O> a, boolean leftToRight) {
 				this.a = a;
 				this.leftToRight = leftToRight;
 			}
-			
+
 			@Override
 			public Pair<MplType<O>, MplType<O>> type(MplSch<O, A> ctx) {
 				a.type(ctx);
 				MplType<O> l = new MplProd<>(new MplUnit<>(), a);
 
-                return leftToRight ? new Pair<>(l, new MplUnit<>()) : new Pair<>(new MplUnit<>(), l);
+				return leftToRight ? new Pair<>(l, new MplUnit<>()) : new Pair<>(new MplUnit<>(), l);
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplTermVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
@@ -648,17 +642,17 @@ public class Mpl implements MplObject {
 
 			@Override
 			public String toString() {
-                return leftToRight ? "lambda1 " + a : "lambda2 " + a;
+				return leftToRight ? "lambda1 " + a : "lambda2 " + a;
 			}
 		}
 
 	}
-	
-	abstract static class MplExp<O,A> extends Mpl {
-		
+
+	abstract static class MplExp<O, A> extends Mpl {
+
 		public abstract <R, E> R accept(E env, MplExpVisitor<O, A, R, E> v);
 
-		static class MplVar<O,A> extends MplExp<O,A> {
+		static class MplVar<O, A> extends MplExp<O, A> {
 			final String s;
 
 			public MplVar(String s) {
@@ -681,7 +675,7 @@ public class Mpl implements MplObject {
 					return false;
 				if (getClass() != obj.getClass())
 					return false;
-				MplVar<?,?> other = (MplVar<?,?>) obj;
+				MplVar<?, ?> other = (MplVar<?, ?>) obj;
 				if (s == null) {
 					if (other.s != null)
 						return false;
@@ -689,24 +683,24 @@ public class Mpl implements MplObject {
 					return false;
 				return true;
 			}
-		
+
 			@Override
 			public <R, E> R accept(E env, MplExpVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
 			}
-			
+
 			@Override
 			public String toString() {
 				return s;
 			}
 
 		}
-		
-		static class MplSch<O,A> extends MplExp<O,A> {
+
+		static class MplSch<O, A> extends MplExp<O, A> {
 			final Set<O> sorts;
 			final Map<A, Pair<MplType<O>, MplType<O>>> symbols;
-			final Set<Pair<MplTerm<O,A>, MplTerm<O,A>>> eqs;
-			
+			final Set<Pair<MplTerm<O, A>, MplTerm<O, A>>> eqs;
+
 			public MplSch(Set<O> sorts, Map<A, Pair<MplType<O>, MplType<O>>> symbols,
 					Set<Pair<MplTerm<O, A>, MplTerm<O, A>>> eqs) {
 				this.sorts = sorts;
@@ -714,15 +708,15 @@ public class Mpl implements MplObject {
 				this.eqs = eqs;
 				validate();
 			}
-			
+
 			public Pair<MplType<O>, MplType<O>> getSymbol(A a) {
-				 Pair<MplType<O>, MplType<O>> ret = symbols.get(a);
-				 if (ret == null) {
-					 throw new RuntimeException("Undefined symbol: " + a);
-				 }
-				 return ret;
+				Pair<MplType<O>, MplType<O>> ret = symbols.get(a);
+				if (ret == null) {
+					throw new RuntimeException("Undefined symbol: " + a);
+				}
+				return ret;
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplExpVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
@@ -739,22 +733,22 @@ public class Mpl implements MplObject {
 				}
 			}
 		}
-		
-		static class MplEval<O,A> extends MplExp<O,A> {
-			MplSch<O,A> sch;
-			final MplTerm<O,A> a;
+
+		static class MplEval<O, A> extends MplExp<O, A> {
+			MplSch<O, A> sch;
+			final MplTerm<O, A> a;
 			final String sch0;
-			
+
 			public MplEval(String sch0, MplTerm<O, A> a) {
 				this.sch0 = sch0;
 				this.a = a;
-			}			
-			
-			public void validte(MplSch<O,A> sch) {
+			}
+
+			public void validte(MplSch<O, A> sch) {
 				this.sch = sch;
 				a.type(sch);
 			}
-			
+
 			@Override
 			public <R, E> R accept(E env, MplExpVisitor<O, A, R, E> v) {
 				return v.visit(env, this);
@@ -764,65 +758,77 @@ public class Mpl implements MplObject {
 			public String toString() {
 				return "eval " + sch + " " + a;
 			}
-			
+
 			@Override
 			public JComponent display() {
-				
+
 				JTabbedPane p = new JTabbedPane();
-				
+
 				MplStrict<O, A> op = new MplStrict<>(sch);
-				Triple<List<Node<O,A>>,List<Node<O,A>>,String> r = a.forget().accept(Unit.unit, op);
-				JComponent g = doTermView(Color.green, Color.red, op.g); 
+				Triple<List<Node<O, A>>, List<Node<O, A>>, String> r = a.forget().accept(Unit.unit, op);
+				JComponent g = doTermView(Color.green, Color.red, op.g);
 				p.addTab("Graph1", g);
-				p.addTab("Dot1", new CodeTextPanel("", "digraph foo { " +  r.third + " }"));
-				
-			/*	MplStrict2<O, A> op2 = new MplStrict2<O,A>(sch);
-				Pair<MplStrict2.Node<O,A>,String> r2 = a.accept(new Unit(), op2);
-				JComponent g2 = doTermView2(Color.green, Color.red, op2.g); 
-				p.addTab("Graph2", g2);
-				p.addTab("Dot2", new CodeTextPanel("", "digraph foo { " +  r2.second + " }"));
-*/
-				
+				p.addTab("Dot1", new CodeTextPanel("", "digraph foo { " + r.third + " }"));
+
+				/*
+				 * MplStrict2<O, A> op2 = new MplStrict2<O,A>(sch);
+				 * Pair<MplStrict2.Node<O,A>,String> r2 = a.accept(new Unit(), op2); JComponent
+				 * g2 = doTermView2(Color.green, Color.red, op2.g); p.addTab("Graph2", g2);
+				 * p.addTab("Dot2", new CodeTextPanel("", "digraph foo { " + r2.second + " }"));
+				 */
+
 				return p;
-				
+
 			}
 		}
-		
+
 	}
-	
+
 	public interface MplTypeVisitor<O, R, E> {
 		R visit(E env, MplBase<O> e);
+
 		R visit(E env, MplProd<O> e);
+
 		R visit(E env, MplUnit<O> e);
 	}
-	
+
 	public interface MplTermVisitor<O, A, R, E> {
 		R visit(E env, MplConst<O, A> e);
+
 		R visit(E env, MplId<O, A> e);
+
 		R visit(E env, MplComp<O, A> e);
+
 		R visit(E env, MplPair<O, A> e);
+
 		R visit(E env, MplAlpha<O, A> e);
+
 		R visit(E env, MplRho<O, A> e);
+
 		R visit(E env, MplLambda<O, A> e);
+
 		R visit(E env, MplTr<O, A> e);
+
 		R visit(E env, MplSym<O, A> e);
 	}
-	
-	public interface MplExpVisitor<O,A,R,E> {
+
+	public interface MplExpVisitor<O, A, R, E> {
 		R visit(E env, MplVar<O, A> e);
+
 		R visit(E env, MplSch<O, A> e);
+
 		R visit(E env, MplEval<O, A> e);
 	}
-	
-	@SuppressWarnings({"unchecked","rawtypes"})
-    private static <O,A> JComponent doTermView(Color src, Color dst, Graph<Node<O, A>, Integer> sgv) {
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static <O, A> JComponent doTermView(Color src, Color dst, Graph<Node<O, A>, Integer> sgv) {
 		if (sgv.getVertexCount() == 0) {
 			return new JPanel();
 		}
 		Layout layout = new FRLayout<>(sgv);
 		layout.setSize(new Dimension(600, 400));
 		VisualizationViewer vv = new VisualizationViewer<>(layout);
-		Function<Node<O,A>, Color> vertexPaint = x -> {
+		Function<Node<O, A>, Color> vertexPaint = x -> {
 			if (x.isInput) {
 				return src;
 			}
@@ -834,7 +840,7 @@ public class Mpl implements MplObject {
 		gm.setMode(Mode.PICKING);
 		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 
-		Function<Node<O,A>, String> ttt = arg0 -> {
+		Function<Node<O, A>, String> ttt = arg0 -> {
 			String w = arg0.isInput ? "in" : "out";
 			return arg0.term + " #" + arg0.which + " " + w;
 		};
@@ -847,22 +853,22 @@ public class Mpl implements MplObject {
 		ret.setBorder(BorderFactory.createEtchedBorder());
 		return ret;
 	}
-	@SuppressWarnings({"unchecked","rawtypes"})
-	public static <O,A> JComponent doTermView2(Graph<MplStrict2.Node<O,A>, Integer> sgv) {
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <O, A> JComponent doTermView2(Graph<MplStrict2.Node<O, A>, Integer> sgv) {
 		if (sgv.getVertexCount() == 0) {
 			return new JPanel();
 		}
 		Layout layout = new FRLayout<>(sgv);
 		layout.setSize(new Dimension(600, 400));
 		VisualizationViewer vv = new VisualizationViewer<>(layout);
-		
+
 		DefaultModalGraphMouse<String, String> gm = new DefaultModalGraphMouse<>();
 		gm.setMode(Mode.TRANSFORMING);
 		vv.setGraphMouse(gm);
 		gm.setMode(Mode.PICKING);
-		//vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
+		// vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 
-		
 //		vv.getRenderContext().setVertexLabelTransformer(ttt);
 		vv.getRenderContext().setEdgeLabelTransformer(xx -> "");
 

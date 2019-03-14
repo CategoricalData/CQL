@@ -14,8 +14,7 @@ import catdata.aql.Kind;
 import catdata.aql.Mapping;
 import catdata.aql.fdm.DeltaInstance;
 
-public final class InstExpDelta<Gen, Sk, X, Y>
-		extends InstExp<Pair<En, X>, Y, Pair<En, X>, Y> {
+public final class InstExpDelta<Gen, Sk, X, Y> extends InstExp<Pair<En, X>, Y, Pair<En, X>, Y> {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
@@ -26,6 +25,7 @@ public final class InstExpDelta<Gen, Sk, X, Y>
 		F.map(f);
 		I.map(f);
 	}
+
 	@Override
 	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.singleton(I);
@@ -44,8 +44,7 @@ public final class InstExpDelta<Gen, Sk, X, Y>
 		return Util.union(I.deps(), F.deps());
 	}
 
-	public InstExpDelta(MapExp f,
-			InstExp<Gen, Sk, X, Y> i) {
+	public InstExpDelta(MapExp f, InstExp<Gen, Sk, X, Y> i) {
 		I = i;
 		F = f;
 	}
@@ -86,7 +85,7 @@ public final class InstExpDelta<Gen, Sk, X, Y>
 		SchExp t0 = I.type(G);
 		Pair<SchExp, SchExp> t1 = F.type(G);
 
-		if (!G.eq(t1.second, t0)) { 
+		if (!G.eq(t1.second, t0)) {
 			throw new RuntimeException("Type error: In " + this + " codomain of mapping is " + t1.first
 					+ " but instance has schema " + t0);
 		}

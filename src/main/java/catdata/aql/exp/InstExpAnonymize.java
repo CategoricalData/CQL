@@ -12,8 +12,7 @@ import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.fdm.Anonymized;
 
-public final class InstExpAnonymize<Gen, Sk, X, Y>
-		extends InstExp<Gen, Sk, X, Y> {
+public final class InstExpAnonymize<Gen, Sk, X, Y> extends InstExp<Gen, Sk, X, Y> {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
@@ -67,7 +66,7 @@ public final class InstExpAnonymize<Gen, Sk, X, Y>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpAnonymize other = (InstExpAnonymize) obj;
+		InstExpAnonymize<?, ?, ?, ?> other = (InstExpAnonymize<?, ?, ?, ?>) obj;
 		if (I == null) {
 			if (other.I != null)
 				return false;

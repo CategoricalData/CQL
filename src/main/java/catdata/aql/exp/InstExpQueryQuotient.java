@@ -39,8 +39,8 @@ import catdata.aql.fdm.SigmaChaseAlgebra;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public class InstExpQueryQuotient<Gen, Sk, X, Y>
-		extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> implements Raw {
+public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>
+		implements Raw {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
@@ -50,7 +50,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y>
 	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.singleton(I);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
@@ -80,7 +80,6 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y>
 			raw.put(p.first.str, f);
 		}
 
-		
 	}
 
 	private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
@@ -118,7 +117,8 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y>
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
+			boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> sss = I.type(env.typing).eval(env, isC);
 		Set<En> ensX = new THashSet<>();
 		for (Block b : queries) {
@@ -133,20 +133,19 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y>
 		}
 
 		AqlOptions op = new AqlOptions(options, null, env.defaults);
-		
-		Query<Ty, En, Sym, Fk, Att, En, Void, Void> q = Query.makeQuery(ens, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
-				sss, dst, op);
+
+		Query<Ty, En, Sym, Fk, Att, En, Void, Void> q = Query.makeQuery(ens, Collections.emptyMap(),
+				Collections.emptyMap(), Collections.emptyMap(), sss, dst, op);
 		if (isC) {
 			throw new IgnoreException();
 		}
 
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0 = I.eval(env, isC);
 
-		EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Void, Void, X, Y> J = new EvalInstance<>(q, I0,
-				op);
-		
+		EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Void, Void, X, Y> J = new EvalInstance<>(q, I0, op);
+
 		boolean useChase = (boolean) op.getOrDefault(AqlOption.quotient_use_chase);
-	
+
 		if (useChase) {
 			Map<En, Set<Pair<X, X>>> mm = new THashMap<>(ens.size());
 			for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> p : J.gens().keySet()) {
@@ -180,8 +179,8 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y>
 			EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Void, Void, X, Y> J) {
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(I0.collage());
 
-		List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> 
-		eqs0 = new ArrayList<>(J.gens().size()); 
+		List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 = new ArrayList<>(
+				J.gens().size());
 
 		AqlOptions strat = new AqlOptions(options, col, env.defaults);
 
@@ -198,15 +197,15 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y>
 			eqs0.add(new Pair<>(t1.convert(), t2.convert()));
 			col.eqs.add(new Eq<>(null, t1.convert(), t2.convert()));
 		}
-	
-		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial0 = new InitialAlgebra<>(strat, I0.schema(), col,
-				 (y)->y, (x,y)->y);
-		
+
+		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial0 = new InitialAlgebra<>(strat, I0.schema(), col, (y) -> y,
+				(x, y) -> y);
+
 		LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> ret = new LiteralInstance<>(
 				I0.schema(), col.gens, col.sks, Util.iterConcat(I0.eqs(), eqs0), initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
-		
+
 		return ret;
 	}
 
@@ -291,28 +290,27 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y>
 		set.add(AqlOption.quotient_use_chase);
 	}
 
-	/*public void validate(AqlEnv env) {
-		SchExp sch0 = I.type(env.typing);
-		Schema<Ty, En, Sym, Fk, Att> sch = sch0.eval0(env, true);
-		Set<En> ensX = Collections.synchronizedSet(new THashSet<>());
-		for (Block b : queries) {
-			ensX.add(b.en);
-		}
-		
-		Ctx<En, Triple<Ctx<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new Ctx<>();
-		Ctx<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols = new Ctx<>();
-
-		for (Block b : queries) {
-			QueryExpRaw.processBlock(b.options, env, sch, ens, cols, b, new Ctx<>());
-		}
-		
-		AqlOptions op = new AqlOptions(options, null, env.defaults);
-		Schema<Ty, En, Sym, Void, Void> dst = sch.discretize(ensX);
-		
-		Query<Ty, En, Sym, Fk, Att, En, Void, Void> q = Query.makeQuery(ens, new Ctx<>(), new Ctx<>(), new Ctx<>(),
-				sch, dst, op);
-		q.validate((boolean)op.getOrDefault(AqlOption.dont_validate_unsafe));
-		
-	}*/
+	/*
+	 * public void validate(AqlEnv env) { SchExp sch0 = I.type(env.typing);
+	 * Schema<Ty, En, Sym, Fk, Att> sch = sch0.eval0(env, true); Set<En> ensX =
+	 * Collections.synchronizedSet(new THashSet<>()); for (Block b : queries) {
+	 * ensX.add(b.en); }
+	 * 
+	 * Ctx<En, Triple<Ctx<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att,
+	 * Var, Var>>, AqlOptions>> ens = new Ctx<>(); Ctx<En, Collage<Ty, En, Sym, Fk,
+	 * Att, Var, Var>> cols = new Ctx<>();
+	 * 
+	 * for (Block b : queries) { QueryExpRaw.processBlock(b.options, env, sch, ens,
+	 * cols, b, new Ctx<>()); }
+	 * 
+	 * AqlOptions op = new AqlOptions(options, null, env.defaults); Schema<Ty, En,
+	 * Sym, Void, Void> dst = sch.discretize(ensX);
+	 * 
+	 * Query<Ty, En, Sym, Fk, Att, En, Void, Void> q = Query.makeQuery(ens, new
+	 * Ctx<>(), new Ctx<>(), new Ctx<>(), sch, dst, op);
+	 * q.validate((boolean)op.getOrDefault(AqlOption.dont_validate_unsafe));
+	 * 
+	 * }
+	 */
 
 }

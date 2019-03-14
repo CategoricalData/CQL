@@ -37,8 +37,7 @@ public class SketchExportAction extends AbstractAction {
 	/**
 	 * Create a new save as menu action.
 	 * 
-	 * @param inFrame
-	 *            the frame
+	 * @param inFrame the frame
 	 */
 	public SketchExportAction(final EasikFrame inFrame) {
 		super((inFrame instanceof SketchFrame) ? "Sketch XML..." : "Export sketch to XML...");
@@ -53,8 +52,7 @@ public class SketchExportAction extends AbstractAction {
 	 * Display a dialog prompting the user for the name under which to save the
 	 * current sketch.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(final ActionEvent e) {
@@ -66,7 +64,8 @@ public class SketchExportAction extends AbstractAction {
 			final Object[] currentSelection = ((ApplicationFrame) _theFrame).getOverview().getSelectionCells();
 
 			if (!((currentSelection.length == 1) && (currentSelection[0] instanceof SketchNode))) {
-				System.err.println("Sketch export via overview popup should only be enabled when " + "selection size is 1, and it is a sketch node");
+				System.err.println("Sketch export via overview popup should only be enabled when "
+						+ "selection size is 1, and it is a sketch node");
 
 				return;
 			}

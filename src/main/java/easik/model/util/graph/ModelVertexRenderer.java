@@ -45,7 +45,8 @@ import easik.model.vertex.ModelVertex;
  * @version 12/09/12
  * @author Christian Fiddick
  */
-public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends JPanel implements CellViewRenderer {
+public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends JPanel implements CellViewRenderer {
 	/**
 	 *    
 	 */
@@ -80,16 +81,11 @@ public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	/**
 	 * Returns the renderer component after initializing it
 	 * 
-	 * @param graph
-	 *            The graph (really a M in disguise)
-	 * @param view
-	 *            The cell view
-	 * @param sel
-	 *            If the view is selected or not
-	 * @param focus
-	 *            If the view has focus or not
-	 * @param preview
-	 *            If the graph is in preview mode or not
+	 * @param graph   The graph (really a M in disguise)
+	 * @param view    The cell view
+	 * @param sel     If the view is selected or not
+	 * @param focus   If the view has focus or not
+	 * @param preview If the graph is in preview mode or not
 	 * @return The renderer component fully initialized
 	 */
 	@Override
@@ -173,8 +169,7 @@ public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	 *
 	 *
 	 * @param v
-	 * @param attributes
-	 *            The attributes in use
+	 * @param attributes The attributes in use
 	 */
 	protected void installAttributes(ModelVertex<F, GM, M, N, E> v, Map<?, ?> attributes) {
 		_entityLabel.setIcon(GraphConstants.getIcon(attributes));
@@ -220,11 +215,14 @@ public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extend
 
 		EasikSettings s = Easik.getInstance().getSettings();
 
-		if (v != null) { //TODO aql easik
+		if (v != null) { // TODO aql easik
 			_attributes.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, bordercolor));
 			_uniqueKeys.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, bordercolor));
 
-			Color entityFG = s.getColor(modeTag + "entity_fg", Color.black), entityBG = s.getColor(modeTag + "entity_bg", Color.white), attribFG = s.getColor(modeTag + "attribute_fg", foreground), attribBG = s.getColor(modeTag + "attribute_bg", background);
+			Color entityFG = s.getColor(modeTag + "entity_fg", Color.black),
+					entityBG = s.getColor(modeTag + "entity_bg", Color.white),
+					attribFG = s.getColor(modeTag + "attribute_fg", foreground),
+					attribBG = s.getColor(modeTag + "attribute_bg", background);
 
 			_entityLabel.setBackground(entityBG);
 			_entityLabel.setForeground(entityFG);
@@ -249,7 +247,8 @@ public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extend
 				}
 			}
 		} else { // A constraint
-			Color constFG = s.getColor(modeTag + "constraint_fg", Color.black), constBG = s.getColor(modeTag + "constraint_bg", Color.white);
+			Color constFG = s.getColor(modeTag + "constraint_fg", Color.black),
+					constBG = s.getColor(modeTag + "constraint_bg", Color.white);
 
 			_entityLabel.setBackground(constBG);
 			_entityLabel.setForeground(constFG);
@@ -263,8 +262,7 @@ public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	/**
 	 * Draws the object on the screen
 	 *
-	 * @param g
-	 *            The graphics to be drawn
+	 * @param g The graphics to be drawn
 	 */
 	@Override
 	public void paint(Graphics g) {
@@ -288,8 +286,7 @@ public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	/**
 	 * Provided for subclassers to paint a selection border.
 	 *
-	 * @param g
-	 *            Graphic to be drawn
+	 * @param g Graphic to be drawn
 	 */
 	protected void paintSelectionBorder(Graphics g) {
 		((Graphics2D) g).setStroke(GraphConstants.SELECTION_STROKE);
@@ -304,15 +301,12 @@ public class ModelVertexRenderer<F extends ModelFrame<F, GM, M, N, E>, GM extend
 
 	/**
 	 * Returns the intersection of the bounding rectangle and the straight line
-	 * between the source and the specified point p. The specified point is
-	 * expected not to intersect the bounds.
+	 * between the source and the specified point p. The specified point is expected
+	 * not to intersect the bounds.
 	 *
-	 * @param view
-	 *            The view of the cell
-	 * @param source
-	 *            The source of the line
-	 * @param p
-	 *            The inner point which the line should be drawn towards
+	 * @param view   The view of the cell
+	 * @param source The source of the line
+	 * @param p      The inner point which the line should be drawn towards
 	 * @return The perimeter intersection point
 	 */
 	@SuppressWarnings("static-method")

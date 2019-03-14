@@ -1,12 +1,12 @@
 package catdata.aql;
 
 public class Comment implements Semantics {
-	
+
 	@Override
 	public int size() {
 		return 0;
 	}
-	
+
 	public final String comment;
 	public final boolean isMarkdown;
 
@@ -52,7 +52,5 @@ public class Comment implements Semantics {
 	public Kind kind() {
 		return Kind.COMMENT;
 	}
-	
-	
 
 }

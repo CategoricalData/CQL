@@ -20,11 +20,11 @@ public class EasikTools {
 
 	/**  */
 	private static HashMap<Color, Boolean> usedColors = new HashMap<>(); // colors
-																						// being
-																						// used
-																						// elsewhere
-																						// in
-																						// Easik
+																			// being
+																			// used
+																			// elsewhere
+																			// in
+																			// Easik
 
 	/**  */
 	private static boolean hardToFindUnusedCol = false; // will probably never
@@ -34,12 +34,11 @@ public class EasikTools {
 														// one
 
 	/**
-	 * Takes a name, such as "name" or "name5", and increments or adds a number
-	 * as appropriate. For example, passing "name" would return "name2", while
-	 * "name0" would return "name1".
+	 * Takes a name, such as "name" or "name5", and increments or adds a number as
+	 * appropriate. For example, passing "name" would return "name2", while "name0"
+	 * would return "name1".
 	 * 
-	 * @param name
-	 *            input
+	 * @param name input
 	 * @return incremented name
 	 */
 	public static String incrementName(final String name) {
@@ -47,21 +46,19 @@ public class EasikTools {
 
 		if (m.find()) {
 			return m.replaceFirst(String.valueOf((Integer.parseInt(m.group(1)) + 1)));
-		}  // No digits, so we have something like blah, so change it to
-				// blah2
-		
-			return name + 2;
-		
+		} // No digits, so we have something like blah, so change it to
+			// blah2
+
+		return name + 2;
+
 	}
 
 	/**
 	 * Joins strings together on a delimiter, like Perl's join function or PHP's
 	 * implode function.
 	 *
-	 * @param delimiter
-	 *            the delimiter to join the pieces with
-	 * @param pieces
-	 *            the strings to join
+	 * @param delimiter the delimiter to join the pieces with
+	 * @param pieces    the strings to join
 	 * @return the joined string
 	 */
 	public static String join(final String delimiter, final Object... pieces) {
@@ -78,10 +75,8 @@ public class EasikTools {
 	 * Just like join(), but takes any sort of String Collection (LinkedList,
 	 * ArrayList, Set, etc .).
 	 * 
-	 * @param delimiter
-	 *            the delim
-	 * @param pieces
-	 *            the pieces
+	 * @param delimiter the delim
+	 * @param pieces    the pieces
 	 * @return joined string
 	 */
 	public static String join(final String delimiter, final Collection<?> pieces) {
@@ -104,11 +99,9 @@ public class EasikTools {
 	}
 
 	/**
-	 * TODO CF2012 Just load from preset list Get a (probably) unused random
-	 * color.
+	 * TODO CF2012 Just load from preset list Get a (probably) unused random color.
 	 * 
-	 * @param transparency
-	 *            Transparency of color (0-255)
+	 * @param transparency Transparency of color (0-255)
 	 * @return A random, unused color
 	 */
 	public static Color getUnusedColor(int transparency) {

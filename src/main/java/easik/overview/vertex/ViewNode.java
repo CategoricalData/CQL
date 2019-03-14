@@ -27,8 +27,7 @@ public class ViewNode extends OverviewVertex {
 	/**
 	 * Creates a new entity node with the name provided.
 	 *
-	 * @param nodeName
-	 *            The name of the new node
+	 * @param nodeName The name of the new node
 	 * @param inFrame
 	 */
 	public ViewNode(String nodeName, ViewFrame inFrame) {
@@ -43,15 +42,12 @@ public class ViewNode extends OverviewVertex {
 	}
 
 	/**
-	 * Creates a new enity node with the name provided. Stores visual
-	 * representation information.
+	 * Creates a new enity node with the name provided. Stores visual representation
+	 * information.
 	 *
-	 * @param nodeName
-	 *            Name of the new node
-	 * @param x
-	 *            X Coordinate of the new node
-	 * @param y
-	 *            Y Coordinate of the new node
+	 * @param nodeName Name of the new node
+	 * @param x        X Coordinate of the new node
+	 * @param y        Y Coordinate of the new node
 	 * @param inFrame
 	 */
 	public ViewNode(String nodeName, int x, int y, ViewFrame inFrame) {
@@ -89,8 +85,7 @@ public class ViewNode extends OverviewVertex {
 	 * actual name, if it already exists, might have a number added and/or
 	 * incremented.
 	 *
-	 * @param name
-	 *            the new name (which might be incremented)
+	 * @param name the new name (which might be incremented)
 	 */
 	@Override
 	public void setName(String name) {
@@ -112,8 +107,8 @@ public class ViewNode extends OverviewVertex {
 	}
 
 	/**
-	 * Refreshes the name stored locally to match what is in this sketch's
-	 * document information
+	 * Refreshes the name stored locally to match what is in this sketch's document
+	 * information
 	 */
 	@Override
 	public void updateName() {

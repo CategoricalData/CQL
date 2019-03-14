@@ -51,11 +51,10 @@ public class FileSaveAction extends AbstractAction {
 	}
 
 	/**
-	 * Check to see if the overview already has a file name and if it doesn't
-	 * prompt for one. Then save with that file name.
+	 * Check to see if the overview already has a file name and if it doesn't prompt
+	 * for one. Then save with that file name.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -63,9 +62,9 @@ public class FileSaveAction extends AbstractAction {
 	}
 
 	/**
-	 * Saves the file with the current name, if it has one. Otherwise, invokes
-	 * the saveFileAs to prompt for a name. Returns true if the file was
-	 * successfully saved.
+	 * Saves the file with the current name, if it has one. Otherwise, invokes the
+	 * saveFileAs to prompt for a name. Returns true if the file was successfully
+	 * saved.
 	 *
 	 * @param inFrame
 	 *
@@ -76,9 +75,9 @@ public class FileSaveAction extends AbstractAction {
 
 		if (selFile == null) {
 			return FileSaveAsAction.saveFileAs(inFrame);
-		} 
-			return saveFile(inFrame, selFile);
-		
+		}
+		return saveFile(inFrame, selFile);
+
 	}
 
 	/**
@@ -101,7 +100,7 @@ public class FileSaveAction extends AbstractAction {
 
 		return true;
 	}
-	
+
 	public static void saveFileAql(Overview overview, File selFile) {
 		overview.getDocInfo().updateModificationDate();
 		overview.saveToXML(selFile);

@@ -31,13 +31,12 @@ public final class QueryExpCompose extends QueryExp {
 
 	public final QueryExp Q1, Q2;
 	public final Map<String, String> options;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		Q1.map(f);
 		Q2.map(f);
 	}
-
 
 	public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
@@ -53,8 +52,7 @@ public final class QueryExpCompose extends QueryExp {
 		return Util.union(Q1.deps(), Q2.deps());
 	}
 
-	public QueryExpCompose(QueryExp Q1,
-			QueryExp Q2, List<Pair<String, String>> options) {
+	public QueryExpCompose(QueryExp Q1, QueryExp Q2, List<Pair<String, String>> options) {
 		this.Q1 = Q1;
 		this.Q2 = Q2;
 		this.options = Util.toMapSafely(options);
@@ -104,35 +102,36 @@ public final class QueryExpCompose extends QueryExp {
 
 	@Override
 	public Pair<SchExp, SchExp> type(AqlTyping G) {
-		if (!G.eq(Q1.type(G).second, Q2.type(G).first)) { 
+		if (!G.eq(Q1.type(G).second, Q2.type(G).first)) {
 			throw new RuntimeException("Cannot compose: target of first, " + Q1.type(G).second
 					+ " is not the same as source of second, " + Q2.type(G).first);
 		}
 		return new Pair<>(Q1.type(G).first, Q2.type(G).second);
 	}
 
-	//private static int i = 0;
+	// private static int i = 0;
 
 	public synchronized Query<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		AqlOptions ops = new AqlOptions(options, null, env.defaults);
-		
+
 		Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1 = Q1.eval(env, isC);
 		Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q2 = Q2.eval(env, isC);
-		
+
 		if (isC) {
 			throw new IgnoreException();
 		}
-		
+
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
 		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts = new THashMap<>();
 		Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
 		Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
 
 		Map<En, Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>>> isos = (new THashMap<>());
-		
+
 		for (En En : Util.alphabetical(q2.dst.ens)) {
 			int i = 0;
-			Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>> iso = new Pair<>(new THashMap<>(), new THashMap<>());
+			Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>> iso = new Pair<>(new THashMap<>(),
+					new THashMap<>());
 
 			Map<Var, Chc<En, Ty>> fr = new THashMap<>();
 			Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>> wh = new LinkedList<>();
@@ -167,10 +166,10 @@ public final class QueryExpCompose extends QueryExp {
 				}
 
 			}
-			
+
 			for (Entry<Var, En> v : Util.alphabetical(q2.ens.get(En).gens.entrySet())) {
 				Frozen<Ty, En, Sym, Fk, Att> I = q1.ens.get(v.getValue());
-			
+
 				Function<Var, Var> genf = u -> iso.second.get(new Pair<>(v.getKey(), u));
 				for (Pair<Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var>, Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var>> eq : I.eqs) {
 					wh.add(new Eq<>(null, eq.first.mapGenSk(genf, genf), eq.second.mapGenSk(genf, genf)));
@@ -182,7 +181,8 @@ public final class QueryExpCompose extends QueryExp {
 		}
 
 		for (En En : Util.alphabetical(q2.dst.ens)) {
-			for (Pair<Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var>, Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var>> eq : q2.ens.get(En).eqs) {
+			for (Pair<Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var>, Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var>> eq : q2.ens
+					.get(En).eqs) {
 				Chc<Ty, En> ty = q2.ens.get(En).type(eq.first);
 				if (!ty.left) {
 					for (Var v : q1.ens.get(ty.r).gens().keySet()) {
@@ -198,15 +198,14 @@ public final class QueryExpCompose extends QueryExp {
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = trans(q1, q2, isos, v, eq.first.asArgForFk(), En);
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xr = trans(q1, q2, isos, v, eq.second.asArgForFk(), En);
-			
+
 						ens.get(En).second.add(new Eq<>(null, xl.convert(), xr.convert()));
-						
+
 					}
-						
 
 					// todo: add eqs from sks?
 				} else {
-					//exactly one thing, _y_
+					// exactly one thing, _y_
 					for (Var v : q1.tys.get(ty.l).sks().keySet()) {
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = transT(q1, q2, isos, eq.first, En, v);
@@ -258,12 +257,11 @@ public final class QueryExpCompose extends QueryExp {
 		for (Att Att : q2.dst.atts.keySet()) {
 			Term<Ty, En, Sym, Fk, Att, Var, Var> h = q2.atts.get(Att);
 
-			Term<Ty, En, Sym, Fk, Att, Var, Var> xl = transT(q1, q2, isos, h, q2.dst.atts.get(Att).first,
-					yy);
+			Term<Ty, En, Sym, Fk, Att, Var, Var> xl = transT(q1, q2, isos, h, q2.dst.atts.get(Att).first, yy);
 
 			atts.put(Att, xl);
 		}
-		
+
 		if (!Util.agreeOnOverlap(q1.params, q2.params)) {
 			throw new RuntimeException("Incompatible parameters: [" + q1.params + "] and [" + q2.params + "]");
 		}
@@ -273,12 +271,11 @@ public final class QueryExpCompose extends QueryExp {
 				zzz.put(v, q2.params.get(v));
 			}
 		}
-		//System.out.println("ens " + ens);
-		//System.out.println("atts " + atts);
-		//System.out.println("fks " + fks);
-		//System.out.println("sks " + sks);
-		return Query.makeQuery2(zzz, Collections.emptyMap(), ens, atts, fks, sks, q1.src, q2.dst,
-				ops);
+		// System.out.println("ens " + ens);
+		// System.out.println("atts " + atts);
+		// System.out.println("fks " + fks);
+		// System.out.println("sks " + sks);
+		return Query.makeQuery2(zzz, Collections.emptyMap(), ens, atts, fks, sks, q1.src, q2.dst, ops);
 
 	}
 
@@ -297,14 +294,14 @@ public final class QueryExpCompose extends QueryExp {
 		} else if (t.att() != null) {
 			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> ret = q1.atts.get(t.att());
 			for (Var head : q1.atts.get(t.att()).gens()) {
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(q1, q2, iso, head, t.arg.asArgForAtt(), En
-						);
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(q1, q2, iso, head,
+						t.arg.asArgForAtt(), En);
 				ret = ret.replace(Term.Gen(head), u.convert());
 			}
 			for (Var head : q1.atts.get(t.att()).sks()) {
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(q1, q2, iso, head, t.arg.asArgForAtt(), En
-						);
-				ret = ret.replace(Term.Sk(head), u.convert()); 
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(q1, q2, iso, head,
+						t.arg.asArgForAtt(), En);
+				ret = ret.replace(Term.Sk(head), u.convert());
 			}
 
 			return ret;
@@ -322,8 +319,8 @@ public final class QueryExpCompose extends QueryExp {
 
 		En Enn = q2.ens.get(En).type(t.convert()).r;
 		Transform<Ty, En, Sym, Fk, Att, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att>>, ID, Chc<Var, Pair<ID, Att>>> rhs;
-			rhs = q1.compose(q1.transP(t.convert()), Enn);
-		
+		rhs = q1.compose(q1.transP(t.convert()), Enn);
+
 		Function<Var, Var> genf = u -> {
 			Var lhsGen = Util.get0(t.gens());
 			return iso.get(En).second.get(new Pair<>(lhsGen, u));

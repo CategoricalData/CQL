@@ -20,19 +20,17 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 	final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
 	private Map<En, Iterable<X>> ens = new THashMap<>();
 	Schema<Ty, En, Sym, Fk, Att> schema;
-	
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>  
-	Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> 
-	filterInstance(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, 
-			Schema<Ty, En, Sym, Fk, Att> schema) {
+
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> filterInstance(
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, Schema<Ty, En, Sym, Fk, Att> schema) {
 		Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg = new FilterAlgebra<>(I, schema);
-		Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> ret = new SaturatedInstance<>(alg, I.dp(), I.requireConsistency(), I.allowUnsafeJava(), false, Collections.emptyMap());
+		Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> ret = new SaturatedInstance<>(alg, I.dp(), I.requireConsistency(),
+				I.allowUnsafeJava(), false, Collections.emptyMap());
 
 		return ret;
 	}
-	
-	public FilterAlgebra(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i, 
-			Schema<Ty, En, Sym, Fk, Att> schema) {
+
+	public FilterAlgebra(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i, Schema<Ty, En, Sym, Fk, Att> schema) {
 		I = i;
 		this.schema = schema;
 		for (En en : schema.ens) {
@@ -41,25 +39,24 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 			}
 			for (Fk fk : schema.fksFrom(en)) {
 				if (!I.schema().fksFrom(en).contains(fk)) {
-					throw new RuntimeException("Missing fk: " + fk);					
+					throw new RuntimeException("Missing fk: " + fk);
 				}
 			}
 			for (Att att : schema.attsFrom(en)) {
 				if (!I.schema().attsFrom(en).contains(att)) {
-					throw new RuntimeException("Missing att: " + att);					
+					throw new RuntimeException("Missing att: " + att);
 				}
 			}
 		}
-		
+
 		m = getUnsatisfying();
 		for (En en : schema.ens) {
-			UnmodifiableIterator<X> z = Iterators.filter(I.algebra().en(en).iterator(), x->!m.get(en).contains(x));
+			UnmodifiableIterator<X> z = Iterators.filter(I.algebra().en(en).iterator(), x -> !m.get(en).contains(x));
 			Set<X> s = new THashSet<>(I.algebra().size(en));
 			z.forEachRemaining(s::add);
 			ens.put(en, s);
 		}
-	
-		
+
 		for (;;) {
 			boolean hit = false;
 			for (En en : schema.ens) {
@@ -82,41 +79,42 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 		}
 
 	}
-	
-	Map<En,Set<X>> m;
+
+	Map<En, Set<X>> m;
+
 	@Override
 	public int size(En en) {
 		return I.algebra().size(en) - m.get(en).size();
 	}
 
-	public Map<En,Set<X>> getUnsatisfying() {
-		Map<En,Set<X>> ret = new THashMap<>();
+	public Map<En, Set<X>> getUnsatisfying() {
+		Map<En, Set<X>> ret = new THashMap<>();
 		for (En en : schema.ens) {
 			ret.put(en, new THashSet<>(I.algebra().size(en)));
 		}
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schema().eqs) {
 			for (X x : I.algebra().en(eq.first.second)) {
 				Term<Void, En, Void, Fk, Void, Gen, Void> xx = I.algebra().repr(eq.first.second, x);
-				
+
 				Map m = Collections.singletonMap(eq.first.first, xx);
-				
+
 				Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs = eq.second.subst(m);
 				Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs = eq.third.subst(m);
-				
+
 				if (!I.dp().eq(null, lhs, rhs)) {
 					ret.get(eq.first.second).add(x);
 				}
 			}
 		}
-		
+
 		return ret;
 	}
-	
+
 	@Override
 	public Iterable<X> en(En en) {
 		return ens.get(en);
 	}
-	
+
 	@Override
 	public Schema<Ty, En, Sym, Fk, Att> schema() {
 		return schema;
@@ -152,7 +150,6 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 		return I.algebra().repr(en, x);
 	}
 
-	
 	@Override
 	protected Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
 		return I.algebra().talg();
@@ -178,6 +175,5 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 	public Chc<Sk, Pair<X, Att>> reprT_prot(Y y) {
 		return I.algebra().reprT_prot(y);
 	}
-	
-	
+
 }

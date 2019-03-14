@@ -23,10 +23,10 @@ import catdata.graph.DMG;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public class InstExpColim<N, E, Gen, Sk, X, Y>
-		extends InstExp<Pair<N, Gen>, Pair<N, Sk>, Integer, Chc<Pair<N, Sk>, Pair<Integer, Att>>>
+public class InstExpColim<Gen, Sk, X, Y>
+		extends InstExp<Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>>
 		implements Raw {
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		schema.map(f);
@@ -58,10 +58,10 @@ public class InstExpColim<N, E, Gen, Sk, X, Y>
 
 	public final SchExp schema;
 
-	public final GraphExp<N, E> shape;
+	public final GraphExp shape;
 
-	public final Map<N, InstExp<Gen, Sk, X, Y>> nodes;
-	public final Map<E, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>> edges;
+	public final Map<String, InstExp<Gen, Sk, X, Y>> nodes;
+	public final Map<String, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>> edges;
 
 	public final Map<String, String> options;
 
@@ -70,15 +70,12 @@ public class InstExpColim<N, E, Gen, Sk, X, Y>
 		return options;
 	}
 
-	@SuppressWarnings("unchecked")
-	public InstExpColim(GraphExp<N, E> shape, SchExp schema,
-			List<Pair<LocStr, InstExp< Gen, Sk, X, Y>>> nodes,
-			List<Pair<LocStr, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>>> edges,
-			List<Pair<String, String>> options) {
+	public InstExpColim(GraphExp shape, SchExp schema, List<Pair<LocStr, InstExp<Gen, Sk, X, Y>>> nodes,
+			List<Pair<LocStr, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>>> edges, List<Pair<String, String>> options) {
 		this.schema = schema;
 		this.shape = shape;
-		this.nodes = Util.toMapSafely(LocStr.list2(nodes, x -> (N) x));
-		this.edges = Util.toMapSafely(LocStr.list2(edges, x -> (E) x));
+		this.nodes = Util.toMapSafely(LocStr.list2(nodes));
+		this.edges = Util.toMapSafely(LocStr.list2(edges));
 		this.options = Util.toMapSafely(options);
 
 		List<InteriorLabel<Object>> f = new TreeList<>();
@@ -87,7 +84,6 @@ public class InstExpColim<N, E, Gen, Sk, X, Y>
 					x -> x.first + " -> " + x.second).conv());
 		}
 		raw.put("nodes", f);
-		
 
 		f = new LinkedList<>();
 		for (Pair<LocStr, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>> p : edges) {
@@ -117,7 +113,7 @@ public class InstExpColim<N, E, Gen, Sk, X, Y>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpColim other = (InstExpColim) obj;
+		InstExpColim<?, ?, ?, ?> other = (InstExpColim<?, ?, ?, ?>) obj;
 		if (edges == null) {
 			if (other.edges != null)
 				return false;
@@ -148,8 +144,7 @@ public class InstExpColim<N, E, Gen, Sk, X, Y>
 
 	@Override
 	public String makeString() {
-		StringBuilder sb = new StringBuilder().append("colimit ").append(shape).append(" ").append(schema)
-				.append(" {");
+		StringBuilder sb = new StringBuilder().append("colimit ").append(shape).append(" ").append(schema).append(" {");
 		if (!nodes.isEmpty()) {
 			sb.append("\n\tnodes\n\t\t").append(Util.sep(nodes, " -> ", "\n\t\t")).append("\n\tedges\n\t\t")
 					.append(Util.sep(edges, " -> ", "\n\t\t"));
@@ -158,46 +153,45 @@ public class InstExpColim<N, E, Gen, Sk, X, Y>
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>, Integer, Chc<Pair<N, Sk>, Pair<Integer, Att>>> eval0(
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>> eval0(
 			AqlEnv env, boolean isC) {
-		Map<N, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> nodes0 = Util.mk();
-		Map<E, Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y>> edges0 = Util.mk();
+		Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> nodes0 = Util.mk();
+		Map<String, Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y>> edges0 = Util.mk();
 
-		for (N n : nodes.keySet()) {
+		for (String n : nodes.keySet()) {
 			nodes0.put(n, nodes.get(n).eval(env, isC));
 		}
-		for (E e : edges.keySet()) {
+		for (String e : edges.keySet()) {
 			edges0.put(e, edges.get(e).eval(env, isC));
 		}
-		
+
 		if (isC) {
 			throw new IgnoreException();
 		}
 
-		return new ColimitInstance(schema.eval(env, false), shape.eval(env, false).dmg, nodes0, edges0,
+		return new ColimitInstance<>(schema.eval(env, false), shape.eval(env, false).dmg, nodes0, edges0,
 				new AqlOptions(options, null, env.defaults));
 	}
 
 	@Override
 	public SchExp type(AqlTyping G) {
-		for (N n : nodes.keySet()) {
-			if (!G.eq(nodes.get(n).type(G), schema)) { 
-				throw new RuntimeException("The instance for " + n + " has schema " + nodes.get(n).type(G)
-						+ ", not " + schema + " as expected");
+		for (String n : nodes.keySet()) {
+			if (!G.eq(nodes.get(n).type(G), schema)) {
+				throw new RuntimeException("The instance for " + n + " has schema " + nodes.get(n).type(G) + ", not "
+						+ schema + " as expected");
 			}
 		}
 		if (!(Boolean) new AqlOptions(options, null, G.prog.options).getOrDefault(AqlOption.static_typing)) {
 			return schema;
 		}
-		
-		DMG<N, E> g = shape.resolve(G.prog).dmg;
 
-		for (E e : g.edges.keySet()) {
-			InstExp< Gen, Sk, X, Y> reqdSrc = nodes.get(g.edges.get(e).first);
-			InstExp< Gen, Sk, X, Y> reqdDst = nodes.get(g.edges.get(e).second);
+		DMG<String, String> g = shape.resolve(G.prog).dmg;
 
-			InstExp< Gen, Sk, X, Y> givenSrc = edges.get(e).type(G).first,
-					givenDst = edges.get(e).type(G).second;
+		for (String e : g.edges.keySet()) {
+			InstExp<Gen, Sk, X, Y> reqdSrc = nodes.get(g.edges.get(e).first);
+			InstExp<Gen, Sk, X, Y> reqdDst = nodes.get(g.edges.get(e).second);
+
+			InstExp<Gen, Sk, X, Y> givenSrc = edges.get(e).type(G).first, givenDst = edges.get(e).type(G).second;
 
 			if (!reqdSrc.equals(givenSrc)) {
 				throw new RuntimeException("On " + e + ", its source is " + givenSrc + " but should be " + reqdSrc);

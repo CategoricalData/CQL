@@ -6,10 +6,10 @@ import catdata.aql.Instance;
 import catdata.aql.Term;
 import catdata.aql.Transform;
 
-public class DistinctTransform<Ty,En,Sym,Fk,Att,Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> 
-extends Transform<Ty,En,Sym,Fk,Att,Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> {
-	
-	private final Transform<Ty,En,Sym,Fk,Att,Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> t;
+public class DistinctTransform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
+		extends Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> {
+
+	private final Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t;
 
 	public DistinctTransform(Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t) {
 		this.t = t;
@@ -31,8 +31,8 @@ extends Transform<Ty,En,Sym,Fk,Att,Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> {
 	}
 
 	@Override
-	public Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst() { //TODO aql recomputes
+	public Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst() { // TODO aql recomputes
 		return new DistinctInstance<>(t.dst());
 	}
-	
+
 }

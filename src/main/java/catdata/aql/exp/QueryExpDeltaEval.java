@@ -23,8 +23,7 @@ import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public final class QueryExpDeltaEval
-		extends QueryExp {
+public final class QueryExpDeltaEval extends QueryExp {
 
 	public final MapExp F;
 	public final Map<String, String> options;
@@ -35,12 +34,11 @@ public final class QueryExpDeltaEval
 		set.add(AqlOption.query_remove_redundancy);
 
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		F.map(f);
 	}
-
 
 	public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
@@ -56,8 +54,7 @@ public final class QueryExpDeltaEval
 		return F.deps();
 	}
 
-	public QueryExpDeltaEval(MapExp F,
-			List<Pair<String, String>> options) {
+	public QueryExpDeltaEval(MapExp F, List<Pair<String, String>> options) {
 		this.F = F;
 		this.options = Util.toMapSafely(options);
 	}
@@ -79,7 +76,6 @@ public final class QueryExpDeltaEval
 			return false;
 		if (!(obj instanceof QueryExpDeltaEval))
 			return false;
-		@SuppressWarnings("rawtypes")
 		QueryExpDeltaEval other = (QueryExpDeltaEval) obj;
 		if (F == null) {
 			if (other.F != null)
@@ -102,8 +98,8 @@ public final class QueryExpDeltaEval
 					.map(sym -> sym.getKey() + " = " + sym.getValue()).collect(Collectors.joining("\n\t")));
 			sb.append(" }");
 		}
-		
-		return "toQuery " + F + sb.toString() ;
+
+		return "toQuery " + F + sb.toString();
 	}
 
 	@Override
@@ -118,7 +114,7 @@ public final class QueryExpDeltaEval
 			throw new IgnoreException();
 		}
 
-		Map<En, Triple<Map<Var, Chc<En,Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
+		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
 		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts = new THashMap<>();
 		Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
 		Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
@@ -127,13 +123,12 @@ public final class QueryExpDeltaEval
 
 		Var v = Var.Var("v");
 		for (En en : F0.src.ens) {
-			Map<Var, Chc<En,Ty>> fr = new THashMap<>();
+			Map<Var, Chc<En, Ty>> fr = new THashMap<>();
 			fr.put(v, Chc.inLeft(F0.ens.get(en)));
 			ens.put(en, new Triple<>(fr, new THashSet<>(), ops));
 		}
 		for (Att att : F0.src.atts.keySet()) {
-			Term<Ty, En, Sym, Fk, Att, Var, Var> h = F0.atts.get(att).third.mapGenSk(Util.voidFn(),
-					Util.voidFn());
+			Term<Ty, En, Sym, Fk, Att, Var, Var> h = F0.atts.get(att).third.mapGenSk(Util.voidFn(), Util.voidFn());
 			Term<Ty, En, Sym, Fk, Att, Var, Var> g = Term.Gen(v);
 			Term<Ty, En, Sym, Fk, Att, Var, Var> t = h.subst(Collections.singletonMap(F0.atts.get(att).first, g));
 			atts.put(att, t);

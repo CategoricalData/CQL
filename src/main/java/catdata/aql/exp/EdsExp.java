@@ -14,7 +14,6 @@ import catdata.aql.Schema;
 
 public abstract class EdsExp extends Exp<Constraints> {
 
-	
 	@Override
 	public Kind kind() {
 		return Kind.CONSTRAINTS;
@@ -28,45 +27,49 @@ public abstract class EdsExp extends Exp<Constraints> {
 		Exp ret = new EdsExpVar(v);
 		return ret;
 	}
-	
+
 	/////////////////////////////////////////////////////////////////////////////////////////
 
 	public static interface EdsExpCoVisitor<R, P, E extends Exception> {
 		public EdsExpVar visitEdsExpVar(P params, R exp) throws E;
+
 		public EdsExpRaw visitEdsExpRaw(P params, R exp) throws E;
+
 		public EdsExpSch visitEdsExpSch(P params, R exp) throws E;
 	}
-	
-	//public abstract <R, P, E extends Exception> EdsExp coaccept(P params, EdsExpCoVisitor<R,P,E> v) throws E;
-	
+
+	// public abstract <R, P, E extends Exception> EdsExp coaccept(P params,
+	// EdsExpCoVisitor<R,P,E> v) throws E;
+
 	public static interface EdsExpVisitor<R, P, E extends Exception> {
 		public R visit(P params, EdsExpVar exp) throws E;
+
 		public R visit(P params, EdsExpRaw exp) throws E;
+
 		public R visit(P params, EdsExpSch exp) throws E;
 	}
 
-	public abstract <R, P, E extends Exception> R accept(P params, EdsExpVisitor<R,P,E> v) throws E;
+	public abstract <R, P, E extends Exception> R accept(P params, EdsExpVisitor<R, P, E> v) throws E;
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 
 	public static final class EdsExpVar extends EdsExp {
 
 		@Override
-		public <R, P, E extends Exception> R accept(P params, EdsExpVisitor<R,P,E> v) throws E{
+		public <R, P, E extends Exception> R accept(P params, EdsExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
-		
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
-		
+
 		@Override
 		public boolean isVar() {
 			return true;
 		}
-		
+
 		public final String var;
 
 		@Override
@@ -113,35 +116,32 @@ public abstract class EdsExp extends Exp<Constraints> {
 			return G.defs.eds.get(var);
 		}
 
-
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 		}
-
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 		}
 	}
-	
+
 	public static final class EdsExpSch extends EdsExp {
 
 		@Override
-		public <R, P, E extends Exception> R accept(P params, EdsExpVisitor<R,P,E> v) throws E{
+		public <R, P, E extends Exception> R accept(P params, EdsExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
-		
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
-		
+
 		@Override
 		public boolean isVar() {
 			return true;
 		}
-		
+
 		public final SchExp sch;
 
 		@Override
@@ -187,11 +187,9 @@ public abstract class EdsExp extends Exp<Constraints> {
 			return sch;
 		}
 
-
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 		}
-
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {

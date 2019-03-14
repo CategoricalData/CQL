@@ -20,12 +20,12 @@ import catdata.aql.Pragma;
 public class ProcPragma extends Pragma {
 
 	private final List<String> cmds;
-	
+
 	private final List<String> responses = (new LinkedList<>());
-		
+
 	@SuppressWarnings("unused")
-	private final Map<String, String> options; 
-	
+	private final Map<String, String> options;
+
 	public ProcPragma(List<String> cmds) {
 		this.cmds = cmds;
 		this.options = Collections.emptyMap();
@@ -44,44 +44,45 @@ public class ProcPragma extends Pragma {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return Util.sep(responses, "\n\n--------------\n\n");
 	}
 
 	private class ProcHandler implements ExecuteStreamHandler {
-		
+
 		private final String cmd;
-		
+
 		Thread out, err;
-	
+
 		InputStream outs, errs;
-		
+
 		private ProcHandler(String str) {
 			cmd = str;
 		}
-		
+
 		@Override
 		public void setProcessErrorStream(InputStream arg0) {
 			errs = arg0;
 			err = new Thread(make(arg0, "stderr:"));
 		}
-	
+
 		private Runnable make(InputStream is, String pre) {
 			return () -> {
 				String newLine = System.getProperty("line.separator");
 				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 				StringBuilder result = new StringBuilder();
-				String line; boolean flag = false;
+				String line;
+				boolean flag = false;
 				try {
 					while ((line = reader.readLine()) != null) {
-					    result.append(flag? newLine: "").append(line);
-					    flag = true;
+						result.append(flag ? newLine : "").append(line);
+						flag = true;
 					}
 				} catch (IOException e) {
-					responses.add("Err: " + cmd + " " + pre + " " + result + " and "  + e.getMessage());
-					
+					responses.add("Err: " + cmd + " " + pre + " " + result + " and " + e.getMessage());
+
 					if (!e.getLocalizedMessage().equals("Stream closed")) {
 						throw new RuntimeException(e);
 					}
@@ -96,24 +97,24 @@ public class ProcPragma extends Pragma {
 			outs = arg0;
 			out = new Thread(make(arg0, "stdout:"));
 		}
-	
+
 		@Override
 		public void start() {
 			out.start();
 			err.start();
 		}
-	
+
 		@Override
 		public void stop() throws IOException {
 			outs.close();
 			errs.close();
-			//threads should stop automatically
+			// threads should stop automatically
 		}
 
 		@Override
 		public void setProcessInputStream(OutputStream arg0) {
 		}
-	
-	 }
-		
+
+	}
+
 }

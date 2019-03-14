@@ -90,34 +90,35 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	public String getClickedWord() {
 		String content = topArea.getText();
 		int caretPosition = topArea.getCaretPosition();
-	    try {
-	        if (content.length() == 0) {
-	            return "";
-	        }
-	        //replace non breaking character with space
-	        content = content.replace(String.valueOf((char) 160), " ");
-	        int selectionStart = content.lastIndexOf(" ", caretPosition - 1);
-	        if (selectionStart == -1) {
-	            selectionStart = 0;
-	        } else {
-	            //ignore space character
-	            selectionStart += 1;
-	        }
-	        content = content.substring(selectionStart);
-	        int i = 0;
-	        String temp;
-	        int length = content.length();
-	        while (i != length && !(temp = content.substring(i, i + 1)).equals(" ") && !temp.equals("\n")) {
-	            i++;
-	        }
-	        content = content.substring(0, i);
-	        //int selectionEnd = content.length() + selectionStart;
-	        return content;
-	    } catch (StringIndexOutOfBoundsException e) {
-	        return "";
-	    }
-	    
+		try {
+			if (content.length() == 0) {
+				return "";
+			}
+			// replace non breaking character with space
+			content = content.replace(String.valueOf((char) 160), " ");
+			int selectionStart = content.lastIndexOf(" ", caretPosition - 1);
+			if (selectionStart == -1) {
+				selectionStart = 0;
+			} else {
+				// ignore space character
+				selectionStart += 1;
+			}
+			content = content.substring(selectionStart);
+			int i = 0;
+			String temp;
+			int length = content.length();
+			while (i != length && !(temp = content.substring(i, i + 1)).equals(" ") && !temp.equals("\n")) {
+				i++;
+			}
+			content = content.substring(0, i);
+			// int selectionEnd = content.length() + selectionStart;
+			return content;
+		} catch (StringIndexOutOfBoundsException e) {
+			return "";
+		}
+
 	}
+
 	public void showGotoDialog2() {
 		String selected = getClickedWord().trim();
 		synchronized (parsed_prog_lock) {
@@ -131,13 +132,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			}
 		}
 	}
-	
-	
+
 	public void showGotoDialog() {
 		JPanel panel = new JPanel(new BorderLayout());
-		
+
 		JList<String> list = GuiUtil.makeList();
-		
+
 		DefaultListModel<String> model = new DefaultListModel<>();
 		synchronized (parsed_prog_lock) {
 			if (parsed_prog != null) {
@@ -150,42 +150,45 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		}
 		list.setModel(model);
 		JTextField field = new JTextField();
-		//field.setBorder(BorderFactory.createTitledBorder("Goto definition:"));
-		
+		// field.setBorder(BorderFactory.createTitledBorder("Goto definition:"));
+
 		panel.add(field, BorderLayout.NORTH);
 		panel.add(new JScrollPane(list), BorderLayout.CENTER);
-		
+
 		JDialog dialog = new JDialog((Dialog) null, "Goto Definition:", true);
-		
-		JPanel bot = new JPanel(new GridLayout(1,4));
+
+		JPanel bot = new JPanel(new GridLayout(1, 4));
 		JButton ok = new JButton("Goto");
 		JButton cancel = new JButton("Cancel");
 		bot.add(new JLabel(""));
 		bot.add(new JLabel(""));
 		bot.add(ok);
 		bot.add(cancel);
-		
-		Boolean[] canceled = new Boolean[1]; 
+
+		Boolean[] canceled = new Boolean[1];
 		canceled[0] = false;
-		cancel.addActionListener(x -> { canceled[0] = true; dialog.setVisible(false); });
+		cancel.addActionListener(x -> {
+			canceled[0] = true;
+			dialog.setVisible(false);
+		});
 		ok.addActionListener(x -> dialog.setVisible(false));
-		
+
 		panel.add(bot, BorderLayout.SOUTH);
-		
+
 		KeyAdapter adapter = new KeyAdapter() {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {	
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					dialog.setVisible(false);
 				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 					list.clearSelection();
 					dialog.setVisible(false);
 				}
 			}
-			
+
 		};
-		
+
 		field.addKeyListener(new KeyAdapter() {
 
 			@Override
@@ -204,38 +207,36 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 						}
 					}
 					list.setModel(model);
-				}
-				);
-		}
+				});
+			}
 		});
-			
-		
+
 		field.addKeyListener(adapter);
 		list.addKeyListener(adapter);
 		dialog.addKeyListener(adapter);
 		panel.addKeyListener(adapter);
 		bot.addKeyListener(adapter);
-		
+
 		list.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mousePressed(MouseEvent me) {
-				 if (me.getClickCount() != 2) {
-			            return;
-			     }
-				 dialog.setVisible(false);
+				if (me.getClickCount() != 2) {
+					return;
+				}
+				dialog.setVisible(false);
 			}
 		});
-		
+
 		dialog.setContentPane(panel);
-		dialog.setSize(new Dimension(300,600));	
+		dialog.setSize(new Dimension(300, 600));
 		dialog.setLocationRelativeTo(null);
-		dialog.setVisible(true);	
-		
+		dialog.setVisible(true);
+
 		if (canceled[0]) {
 			return;
 		}
-		
+
 		String selected = list.getSelectedValue();
 		if (selected == null) {
 			if (list.getModel().getSize() == 1) {
@@ -246,7 +247,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 				return;
 			}
 		}
-		
+
 		synchronized (parsed_prog_lock) {
 			if (parsed_prog != null) {
 				Integer line = parsed_prog.getLine(selected);
@@ -284,7 +285,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		// This ties the properties of the two dialogs together (match case,
 		SearchContext context = findDialog.getSearchContext();
 		replaceDialog.setSearchContext(context);
-	
+
 		tweak(findDialog); // indDialog.get
 		tweak(replaceDialog);
 	}
@@ -349,7 +350,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	}
 
 	ErrorStrip errorStrip;
-	
+
 	protected CodeEditor(String title, Integer id, String content, LayoutManager l) {
 		super(l);
 		this.id = id;
@@ -364,12 +365,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		FoldParserManager.get().addFoldParserMapping(getATMFlhs(), new CurlyFoldParser());
 
 		topArea = new RSyntaxTextArea();
-		//topArea.setHighlightSecondaryLanguages(true);
-		//topArea.ge
+		// topArea.setHighlightSecondaryLanguages(true);
+		// topArea.ge
 		errorStrip = new ErrorStrip(topArea);
 		errorStrip.setShowMarkedOccurrences(false);
 		errorStrip.setShowMarkAll(true);
-		
+
 		topArea.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -386,10 +387,9 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			}
 		});
 
-		//topArea.setMarkOccurrences(true);
-		//topArea.setFractionalFontMetricsEnabled(true);
-		
-		
+		// topArea.setMarkOccurrences(true);
+		// topArea.setFractionalFontMetricsEnabled(true);
+
 		if (getATMFrhs() != null) {
 			topArea.setSyntaxEditingStyle(getATMFlhs());
 		}
@@ -484,10 +484,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		topArea.setCodeFoldingEnabled(true);
 		sp = new RTextScrollPane(topArea);
 		sp.setFoldIndicatorEnabled(true);
-		
-		
-	
-		//sp.getGutter().set
+
+		// sp.getGutter().set
 		sp.setBorder(BorderFactory.createEmptyBorder());
 		sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -557,8 +555,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		gotox.addActionListener(x -> showGotoDialog2());
 		topArea.getPopupMenu().add(gotox, 0);
 
-	
-
 		respArea.setMinimumSize(new Dimension(0, 0));
 		respArea.setPreferredSize(new Dimension(600, 200));
 		topArea.setOpaque(true);
@@ -568,7 +564,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		initSearchDialogs();
 
 		situate();
-		
+
 		last_keystroke = System.currentTimeMillis();
 	}
 
@@ -586,7 +582,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			situateNotElongated();
 		}
 	}
-	
 
 	private void situateElongated() {
 		JComponent outline = getOutline().p;
@@ -594,10 +589,10 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		JSplitPane xx1 = new Split(.8, JSplitPane.VERTICAL_SPLIT);
 		xx1.setDividerSize(6);
 		// xx1.setResizeWeight(.8);
-					JPanel cp = new JPanel(new BorderLayout());
-					cp.add(sp);
-					cp.add(errorStrip, BorderLayout.LINE_END);
-					cp.setBorder(BorderFactory.createEtchedBorder());
+		JPanel cp = new JPanel(new BorderLayout());
+		cp.add(sp);
+		cp.add(errorStrip, BorderLayout.LINE_END);
+		cp.setBorder(BorderFactory.createEtchedBorder());
 		xx1.add(cp);
 		xx1.add(respArea);
 		xx1.setBorder(BorderFactory.createEmptyBorder());
@@ -606,7 +601,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		if (enable_outline) {
 			JSplitPane xx2 = new Split(.8, JSplitPane.HORIZONTAL_SPLIT);
 			xx2.setDividerSize(6);
-			//xx1.setForeground(xx2.getForeground());
+			// xx1.setForeground(xx2.getForeground());
 			if (outline_on_left) {
 				// xx2.setResizeWeight(.2);
 				xx2.add(outline);
@@ -658,8 +653,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		xx1.add(newtop);
 		xx1.add(respArea);
 		xx1.setBorder(BorderFactory.createEmptyBorder());
-	//	newtop.setBackground(xx1.getBackground());
-		
+		// newtop.setBackground(xx1.getBackground());
+
 		respArea.setMinimumSize(new Dimension(0, 0));
 
 		this.removeAll();
@@ -667,7 +662,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		revalidate();
 	}
 
-	//private final SpellChecker spc;
+	// private final SpellChecker spc;
 
 	public void foldAll(boolean b) {
 		int i = topArea.getFoldManager().getFoldCount();
@@ -694,7 +689,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		respArea.area.setFont(font2);
 	}
 
-	
 	void gotoLine() {
 		if (findDialog.isVisible()) {
 			findDialog.setVisible(false);
@@ -716,13 +710,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		}
 	}
 
-	
 	void replaceAction() {
 		if (findDialog.isVisible()) {
 			findDialog.setVisible(false);
-			
+
 		}
-		
+
 		replaceDialog.setVisible(true);
 	}
 
@@ -740,7 +733,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			display.close();
 		}
 		display = null;
-		//topArea.for
+		// topArea.for
 	}
 
 	public void abortAction() {
@@ -757,7 +750,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			return;
 		}
 //		started = true;
-		//toDisplay = null;
+		// toDisplay = null;
 		interruptAndNullify();
 		respArea.setText("Begin\n");
 		toDisplay = null;
@@ -787,7 +780,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 					}
 					count++;
 					Thread.sleep(250);
-				
+
 				}
 			} catch (InterruptedException ie) {
 			} catch (Exception tt) {
@@ -834,8 +827,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			foo2 += " - " + format.format(new Date(start));
 			String foo = foo2;
 			long t = init.timeout() * 1000;
-			display  = Util.timeout( () -> makeDisplay(foo, init, env, start, middle), t );
-			
+			display = Util.timeout(() -> makeDisplay(foo, init, env, start, middle), t);
+
 			if (display.exn() == null) {
 				toDisplay = textFor(env); // "Done";
 				respArea.setText(textFor(env)); // "Done");
@@ -898,7 +891,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	private void moveTo(int col, int line) {
 		topArea.requestFocusInWindow();
 		try {
-			setCaretPos(topArea.getDocument().getDefaultRootElement().getElement(line - 1).getStartOffset() + (col - 1));
+			setCaretPos(
+					topArea.getDocument().getDefaultRootElement().getElement(line - 1).getStartOffset() + (col - 1));
 		} catch (Exception ex) {
 		}
 	}
@@ -915,7 +909,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			toDisplay = "Syntax error: " + e.getLocalizedMessage();
 			e.printStackTrace();
 			return null;
-		} catch (ParserException e) { //legacy - for fql, etc
+		} catch (ParserException e) { // legacy - for fql, etc
 			int col = e.getLocation().column;
 			int line = e.getLocation().line;
 
@@ -924,8 +918,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			toDisplay = "Syntax error: " + e.getLocalizedMessage();
 			e.printStackTrace();
 			return null;
-		} 
-		
+		}
+
 		catch (LocException e) {
 			setCaretPos(e.loc);
 			toDisplay = "Type error: " + e.getLocalizedMessage();
@@ -954,19 +948,14 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	public void optionsHaveChanged() {
 		IdeOptions.theCurrentOptions.apply(this);
-		//clearSpellCheck();
+		// clearSpellCheck();
 	}
-/*
-	public void clearSpellCheck() {
-		SwingUtilities.invokeLater(() -> {
-			try {
-				topArea.forceReparsing(spc);
-			} catch (Throwable t) {
-				// t.printStackTrace();
-			}
-		});
-	}
-*/
+
+	/*
+	 * public void clearSpellCheck() { SwingUtilities.invokeLater(() -> { try {
+	 * topArea.forceReparsing(spc); } catch (Throwable t) { // t.printStackTrace();
+	 * } }); }
+	 */
 	@SuppressWarnings("static-method")
 	protected Collection<String> reservedWords() {
 		return Collections.emptySet();
@@ -983,12 +972,10 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		SearchEvent.Type type = e.getType();
 		SearchContext context = e.getSearchContext();
 		SearchResult result = null;
-		
-		
-		
-		//topArea.mark
+
+		// topArea.mark
 		switch (type) {
-		
+
 		case MARK_ALL:
 			result = SearchEngine.markAll(topArea, context);
 			break;
@@ -1000,7 +987,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			break;
 		case REPLACE:
 			topArea.setMarkOccurrences(false);
-			
+
 			result = SearchEngine.replace(topArea, context);
 			if (!result.wasFound()) {
 				UIManager.getLookAndFeel().provideErrorFeedback(topArea);
@@ -1008,7 +995,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			break;
 		case REPLACE_ALL:
 			topArea.setMarkOccurrences(false);
-			
+
 			result = SearchEngine.replaceAll(topArea, context);
 			JOptionPane.showMessageDialog(null, result.getCount() + " occurrences replaced.");
 			break;
@@ -1028,7 +1015,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		isClosed = true;
 		if (findDialog != null) {
 			findDialog.removeSearchListener(this);
-			findDialog.dispose();	
+			findDialog.dispose();
 		}
 		if (replaceDialog != null) {
 			replaceDialog.removeSearchListener(this);
@@ -1037,8 +1024,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		findDialog = null;
 		replaceDialog = null;
 		topArea.clearParsers();
-		List<PropertyChangeListener> l 
-		= new ArrayList<>(Arrays.asList(topArea.getPropertyChangeListeners()));
+		List<PropertyChangeListener> l = new ArrayList<>(Arrays.asList(topArea.getPropertyChangeListeners()));
 		for (PropertyChangeListener x : l) {
 			topArea.removePropertyChangeListener(x);
 		}
@@ -1051,13 +1037,13 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	// TODO aql pull these from options rather than cache here?
 	private volatile Boolean enable_outline = false;
-	public  volatile Boolean outline_alphabetical = false;
+	public volatile Boolean outline_alphabetical = false;
 	private volatile Boolean outline_on_left = true;
-	public  volatile Boolean outline_prefix_kind = true;
+	public volatile Boolean outline_prefix_kind = true;
 	private volatile Boolean outline_elongated = true;
-	public  volatile long sleepDelay = 2;
-	public  volatile Boolean outline_types = true;
-	public  volatile Long last_keystroke = null;
+	public volatile long sleepDelay = 2;
+	public volatile Boolean outline_types = true;
+	public volatile Long last_keystroke = null;
 
 	public void set_delay(int i) {
 		if (i < 1) {

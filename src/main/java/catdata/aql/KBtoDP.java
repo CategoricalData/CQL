@@ -10,7 +10,8 @@ import catdata.provers.DPKB;
 
 public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
-	//private final Map<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>, Boolean> cache = new THashMap<>();
+	// private final Map<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>, Boolean> cache = new
+	// THashMap<>();
 
 	private final Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> simp;
 
@@ -20,7 +21,7 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 
 	private final boolean allowNew;
 
-	//private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
+	// private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
 
 	public KBtoDP(AqlJs<Ty, Sym> js,
 			Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> simp,
@@ -30,7 +31,7 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 		this.dpkb = dpkb;
 		this.js = js;
 		this.allowNew = allowNew;
-		//this.col = col;
+		// this.col = col;
 		// dpkbs kb can be smaller than col, mediated by simp
 	}
 
@@ -40,10 +41,10 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 		if (ctx == null) {
 			ctx = Collections.emptyMap();
 		}
-		if (lhs.equals(rhs)) { //need
+		if (lhs.equals(rhs)) { // need
 			return true;
 		}
-	
+
 		Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs2 = simp.apply(lhs);
 		Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs2 = simp.apply(rhs);
 
@@ -53,25 +54,25 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 			dealWithNew(lhs2, allowNew);
 			dealWithNew(rhs2, allowNew);
 		}
-		
+
 		boolean b;
 		if (lhs2.equals(rhs2)) {
 			b = true;
 		} else {
 			b = dpkb.eq(ctx, lhs2.toKB(), rhs2.toKB());
 		}
-		
+
 		return b;
 	}
 
 	private void dealWithNew(Term<Ty, En, Sym, Fk, Att, Gen, Sk> t, boolean allowNew) {
 		if (allowNew) {
-				for (Pair<Object, Ty> x : t.objs()) {
-					Head<Ty, En, Sym, Fk, Att, Gen, Sk> h = Head.mkHead(x.first, x.second);
-					if (!dpkb.kb.syms.containsKey(h)) {
-						dpkb.add(h, Chc.inLeft(x.second));
-					}
+			for (Pair<Object, Ty> x : t.objs()) {
+				Head<Ty, En, Sym, Fk, Att, Gen, Sk> h = Head.mkHead(x.first, x.second);
+				if (!dpkb.kb.syms.containsKey(h)) {
+					dpkb.add(h, Chc.inLeft(x.second));
 				}
+			}
 		} else {
 			throw new RuntimeException("New lhs java object: " + t.toStringUnambig());
 		}

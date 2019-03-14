@@ -59,8 +59,8 @@ public class Overview extends JGraph {
 	private File _currentFile = null;
 
 	/**
-	 * Records whether the sketch has been modified since the last save.
-	 * Initialized to <b>false</b>
+	 * Records whether the sketch has been modified since the last save. Initialized
+	 * to <b>false</b>
 	 */
 	private boolean _dirty = false;
 
@@ -80,12 +80,11 @@ public class Overview extends JGraph {
 	private HashMap<String, ViewNode> _viewNodes;
 
 	/**
-	 * The default constructor sets all the visual settings for the JGraph, as
-	 * well as initialising the sketch to be empty. It also adds appropriate
-	 * listeners for all of the actions we are concerned with.
+	 * The default constructor sets all the visual settings for the JGraph, as well
+	 * as initialising the sketch to be empty. It also adds appropriate listeners
+	 * for all of the actions we are concerned with.
 	 *
-	 * @param inFrame
-	 *            The application frame of the sketch
+	 * @param inFrame The application frame of the sketch
 	 */
 	public Overview(ApplicationFrame inFrame) {
 		super();
@@ -150,8 +149,8 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Refreshes the specified nodes/edges in the overview GUI. If called with
-	 * no arguments, all items are refreshed.
+	 * Refreshes the specified nodes/edges in the overview GUI. If called with no
+	 * arguments, all items are refreshed.
 	 *
 	 * @param cells
 	 */
@@ -201,8 +200,7 @@ public class Overview extends JGraph {
 	/**
 	 * Gets the outgoing edge from the node representing the given view.
 	 * 
-	 * @param view
-	 *            The view
+	 * @param view The view
 	 * @return The edge leaving the given view.
 	 */
 	public ViewDefinitionEdge getViewEdge(View view) {
@@ -220,8 +218,7 @@ public class Overview extends JGraph {
 	/**
 	 * Gets a view edge with a given label.
 	 * 
-	 * @param inLabel
-	 *            The label of the edge we want.
+	 * @param inLabel The label of the edge we want.
 	 * @return The edge who's label matches inLabel.
 	 */
 	public ViewDefinitionEdge getViewEdge(String inLabel) {
@@ -258,8 +255,7 @@ public class Overview extends JGraph {
 	/**
 	 * Removes a sketch from both the tree representation, and the graphical.
 	 *
-	 * @param toRemove
-	 *            The entity about to be removed
+	 * @param toRemove The entity about to be removed
 	 */
 	public void removeSketch(SketchNode toRemove) {
 		ArrayList<ViewNode> removeViews = new ArrayList<>(toRemove.getFrame().getMModel().getViews());
@@ -276,11 +272,10 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Removes a view edge from the overview. This does not automatically delete
-	 * the source view from the graph.
+	 * Removes a view edge from the overview. This does not automatically delete the
+	 * source view from the graph.
 	 * 
-	 * @param toRemove
-	 *            The edge to remove.
+	 * @param toRemove The edge to remove.
 	 */
 	private void removeViewEdge(ViewDefinitionEdge toRemove) {
 		_viewEdges.remove(toRemove.getName());
@@ -329,8 +324,7 @@ public class Overview extends JGraph {
 	/**
 	 * This assigns a file to the current overview.
 	 *
-	 * @param inFile
-	 *            File to be assigned.
+	 * @param inFile File to be assigned.
 	 */
 	public void setFile(File inFile) {
 		_currentFile = inFile;
@@ -338,9 +332,9 @@ public class Overview extends JGraph {
 
 	/**
 	 * Since this is a Swing component, this method is overloading a method of
-	 * JGraph to adjust the look and feel. The feel we are changing is ignoring
-	 * all but left clicks, allowing for right-click functionality not affecting
-	 * the selections.
+	 * JGraph to adjust the look and feel. The feel we are changing is ignoring all
+	 * but left clicks, allowing for right-click functionality not affecting the
+	 * selections.
 	 */
 	@Override
 	public void updateUI() {
@@ -358,12 +352,11 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Used to mark a sketch as dirty or not. Since it's only marked as
-	 * non-dirty when saving, we mark all the current node/view positions if
-	 * setting non-dirty.
+	 * Used to mark a sketch as dirty or not. Since it's only marked as non-dirty
+	 * when saving, we mark all the current node/view positions if setting
+	 * non-dirty.
 	 *
-	 * @param inDirty
-	 *            NEw dirtiness.
+	 * @param inDirty NEw dirtiness.
 	 */
 	public void setDirty(boolean inDirty) {
 		_dirty = inDirty;
@@ -386,9 +379,9 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Checks to see if any of the sketch nodes or view nodes have moved and, if
-	 * so, updates them and sets the overview to dirty. If the overview is
-	 * already dirty, we don't have to do anything at all.
+	 * Checks to see if any of the sketch nodes or view nodes have moved and, if so,
+	 * updates them and sets the overview to dirty. If the overview is already
+	 * dirty, we don't have to do anything at all.
 	 */
 	public void checkDirty() {
 		if (_dirty) {
@@ -478,14 +471,14 @@ public class Overview extends JGraph {
 	 * Used to initialise a new sketch based on provided data (usually from the
 	 * Sketch loading methods).
 	 *
-	 * @param sketchNodes
-	 *            A Map of all of the sketches in the overview
+	 * @param sketchNodes         A Map of all of the sketches in the overview
 	 * @param viewNodes
 	 * @param viewDefinitionEdges
-	 * @param docInfo
-	 *            The document information to be stored along with this overview
+	 * @param docInfo             The document information to be stored along with
+	 *                            this overview
 	 */
-	public void initializeFromData(Map<String, SketchNode> sketchNodes, Map<String, ViewNode> viewNodes, Map<String, ViewDefinitionEdge> viewDefinitionEdges, DocumentInfo docInfo) {
+	public void initializeFromData(Map<String, SketchNode> sketchNodes, Map<String, ViewNode> viewNodes,
+			Map<String, ViewDefinitionEdge> viewDefinitionEdges, DocumentInfo docInfo) {
 		initializeOverview();
 
 		_sketchNodes = new HashMap<>();
@@ -515,19 +508,15 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Called internally by SketchNode when a sketch is renamed, to keep the
-	 * sketch node map consistent. Should not be called directly; instead call
+	 * Called internally by SketchNode when a sketch is renamed, to keep the sketch
+	 * node map consistent. Should not be called directly; instead call
 	 * overview.getSketch("currentname").setName("newname").
 	 *
 	 * @see easik.overview.SketchNode.setName(String)
-	 * @param node
-	 *            the SketchNode being renamed
-	 * @param oldName
-	 *            the old name of the node
-	 * @param newName
-	 *            the candidate new name
-	 * @return a string containing the final new node name, for EntityNode to
-	 *         use.
+	 * @param node    the SketchNode being renamed
+	 * @param oldName the old name of the node
+	 * @param newName the candidate new name
+	 * @return a string containing the final new node name, for EntityNode to use.
 	 */
 	public String sketchRenamed(SketchNode node, String oldName, String newName) {
 		// If the name already exists, we have to rename it
@@ -543,17 +532,14 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Called internally by ViewNode when a view is renamed, to keep the view
-	 * node map consistent. Should not be called directly; instead call
+	 * Called internally by ViewNode when a view is renamed, to keep the view node
+	 * map consistent. Should not be called directly; instead call
 	 * overview.getView("currentname").setName("newname").
 	 *
 	 * @see easik.overview.vertex.ViewNode.setName(String)
-	 * @param node
-	 *            the ViewNode being renamed
-	 * @param oldName
-	 *            the old name of the node
-	 * @param newName
-	 *            the candidate new name
+	 * @param node    the ViewNode being renamed
+	 * @param oldName the old name of the node
+	 * @param newName the candidate new name
 	 * @return a string containing the final new node name, for ViewNode to use.
 	 */
 	public String viewRenamed(ViewNode node, String oldName, String newName) {
@@ -568,19 +554,15 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Called internally by ViewDefinitionEdge when an edge is renamed, to keep
-	 * the edge map consistent. Should not be called directly; instead just call
+	 * Called internally by ViewDefinitionEdge when an edge is renamed, to keep the
+	 * edge map consistent. Should not be called directly; instead just call
 	 * edge.setName("newname").
 	 *
 	 * @see easik.sketch.edge.SketchEdge.setName(String)
-	 * @param edge
-	 *            the edge being renamed
-	 * @param oldName
-	 *            the old name of the edge
-	 * @param newName
-	 *            the candidate new name
-	 * @return a string containing the final new edge name, for SketchEdge to
-	 *         use.
+	 * @param edge    the edge being renamed
+	 * @param oldName the old name of the edge
+	 * @param newName the candidate new name
+	 * @return a string containing the final new edge name, for SketchEdge to use.
 	 */
 	public String viewEdgeRenamed(ViewDefinitionEdge edge, String oldName, String newName) {
 		// If the name already exists, we have to rename it
@@ -599,20 +581,18 @@ public class Overview extends JGraph {
 	/**
 	 * Saves the overview as an XML file.
 	 *
-	 * @param outputFile
-	 *            The file to be written to
+	 * @param outputFile The file to be written to
 	 */
 	public void saveToXML(File outputFile) {
 		OverviewFileIO.overviewToXML(outputFile, this);
 	}
 
 	/**
-	 * Requests that an XML file be loaded into the overview. Note that this
-	 * only loads the data, it doesn't do the other operations required for
-	 * properly loading an overview XML file.
+	 * Requests that an XML file be loaded into the overview. Note that this only
+	 * loads the data, it doesn't do the other operations required for properly
+	 * loading an overview XML file.
 	 *
-	 * @param inputFile
-	 *            The file from which the data will be drawn.
+	 * @param inputFile The file from which the data will be drawn.
 	 * @see openOverview( java.io.File) for complete file loading
 	 */
 	public void loadFromXML(File inputFile) {
@@ -622,11 +602,10 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Loads an XML overview file into the overview, sets up the window, marks
-	 * the window clean, and adds the file to the recent files list.
+	 * Loads an XML overview file into the overview, sets up the window, marks the
+	 * window clean, and adds the file to the recent files list.
 	 *
-	 * @param inputFile
-	 *            The file from which the data will be drawn.
+	 * @param inputFile The file from which the data will be drawn.
 	 */
 	public void openOverview(File inputFile) {
 		loadFromXML(inputFile);
@@ -639,12 +618,9 @@ public class Overview extends JGraph {
 	/**
 	 * Add a new sketch at point (x,y). Returns the new SketchNode.
 	 *
-	 * @param name
-	 *            The name of the new sketch being added
-	 * @param x
-	 *            X Coordinate of new sketch
-	 * @param y
-	 *            Y Coordinate of new sketch
+	 * @param name The name of the new sketch being added
+	 * @param x    X Coordinate of new sketch
+	 * @param y    Y Coordinate of new sketch
 	 * @return the created SketchNode
 	 */
 	public SketchNode addNewSketch(String name, double x, double y) {
@@ -660,8 +636,7 @@ public class Overview extends JGraph {
 	 * Add a view to a given sketch node
 	 *
 	 * @param sketch
-	 * @param viewName
-	 *            The name of the new view. Assumes no naming naming conflict
+	 * @param viewName The name of the new view. Assumes no naming naming conflict
 	 * @return The new view node
 	 */
 	public ViewNode addNewView(SketchNode sketch, String viewName) {
@@ -683,8 +658,7 @@ public class Overview extends JGraph {
 	/**
 	 * Add one one of our verticies to the overview
 	 *
-	 * @param theNode
-	 *            The node to be added
+	 * @param theNode The node to be added
 	 */
 	public void addVertex(OverviewVertex theNode) {
 		// The next call will fire a rendering. At this point, the model adapter
@@ -767,8 +741,7 @@ public class Overview extends JGraph {
 	/**
 	 * Takes an edge name and makes it unique by append a number if needed.
 	 * 
-	 * @param tryName
-	 *            the first name to try
+	 * @param tryName the first name to try
 	 * @return the next available new name
 	 */
 	public String getNewEdgeName(String tryName) {
@@ -780,11 +753,10 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Takes a name, and makes it unique. If it is already used, appends a
-	 * number to make it unique.
+	 * Takes a name, and makes it unique. If it is already used, appends a number to
+	 * make it unique.
 	 *
-	 * @param tryName
-	 *            the first name to try
+	 * @param tryName the first name to try
 	 * @return the next available new name
 	 */
 	public String getNewName(String tryName) {
@@ -796,46 +768,41 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Checks to see if a name is in use so that we will not have several
-	 * instances at once.
+	 * Checks to see if a name is in use so that we will not have several instances
+	 * at once.
 	 *
-	 * @param inName
-	 *            The desired new name to check against
+	 * @param inName The desired new name to check against
 	 * @return Is it used or not.
 	 */
 	public boolean isNameUsed(String inName) {
 		if (_sketchNodes.keySet().contains(inName) || _viewNodes.keySet().contains(inName)) {
 			return true;
-		} 
-			return false;
-		
+		}
+		return false;
+
 	}
 
 	/**
-	 * Checks to see if an edge name is in use so that we will not have
-	 * duplicates.
+	 * Checks to see if an edge name is in use so that we will not have duplicates.
 	 *
-	 * @param inName
-	 *            The desired new name to check against
+	 * @param inName The desired new name to check against
 	 * @return Is it used or not.
 	 */
 	public boolean isEdgeNameUsed(String inName) {
 		if (_viewEdges.keySet().contains(inName)) {
 			return true;
-		} 
-			return false;
-		
+		}
+		return false;
+
 	}
 
 	/**
-	 * Tries random positions to find location for a new sketch node to be
-	 * placed in an effort to avoid hidden nodes. Looks for any location on the
-	 * canvas. Gives up afer a specified number of tries, accepting the random
-	 * position.
+	 * Tries random positions to find location for a new sketch node to be placed in
+	 * an effort to avoid hidden nodes. Looks for any location on the canvas. Gives
+	 * up afer a specified number of tries, accepting the random position.
 	 * 
-	 * @param tries
-	 *            The number of random tries to get a new location before giving
-	 *            up.
+	 * @param tries The number of random tries to get a new location before giving
+	 *              up.
 	 * @return The point deemed acceptable for placement of a new node.
 	 */
 	public Point getNewSketchPosition(int tries) {
@@ -856,20 +823,17 @@ public class Overview extends JGraph {
 	}
 
 	/**
-	 * Tries random positions to find location for a new view node to be placed
-	 * in an effort to avoid hidden nodes. Looks for a point on a circe around a
+	 * Tries random positions to find location for a new view node to be placed in
+	 * an effort to avoid hidden nodes. Looks for a point on a circe around a
 	 * specified point. Gives up afer a specified number of tries, accepting the
 	 * random position.
 	 * 
-	 * @param x
-	 *            The X coordinate circle's centre on whose circumference we are
-	 *            placing the new node.
-	 * @param y
-	 *            The Y coordinate circle's centre on whose circumference we are
-	 *            placing the new node.
-	 * @param tries
-	 *            The number of random tries to get a new location before giving
-	 *            up.
+	 * @param x     The X coordinate circle's centre on whose circumference we are
+	 *              placing the new node.
+	 * @param y     The Y coordinate circle's centre on whose circumference we are
+	 *              placing the new node.
+	 * @param tries The number of random tries to get a new location before giving
+	 *              up.
 	 * @return The point deemed acceptable for placement of a new node.
 	 */
 	public Point getNewViewPosition(int x, int y, int tries) {

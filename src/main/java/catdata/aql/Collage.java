@@ -71,8 +71,7 @@ public class Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
 	private List<Term<Ty, En, Sym, Fk, Att, Gen, Void>> getForTy(Chc<Ty, En> t,
 			Collection<Term<Ty, En, Sym, Fk, Att, Gen, Void>> set) {
-		return set.stream()
-				.filter(x -> type(Collections.emptyMap(), x.convert()).equals(t))
+		return set.stream().filter(x -> type(Collections.emptyMap(), x.convert()).equals(t))
 				.collect(Collectors.toList());
 	}
 
@@ -459,7 +458,6 @@ public class Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
 	}
 
-	
 	public Collection<String> allSymbolsAsStrings() {
 		Collection<String> ret = new LinkedList<>();
 		for (Sym k : syms.keySet()) {

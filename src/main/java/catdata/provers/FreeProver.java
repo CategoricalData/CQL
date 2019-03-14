@@ -5,9 +5,9 @@ import java.util.Map;
 
 import catdata.Pair;
 
-public class FreeProver<T,C,V> extends DPKB<T,C,V> {
+public class FreeProver<T, C, V> extends DPKB<T, C, V> {
 
-	public FreeProver(KBTheory<T,C,V> th) { 
+	public FreeProver(KBTheory<T, C, V> th) {
 		super(th);
 		if (!th.eqs.isEmpty()) {
 			throw new RuntimeException("not an empty theory, as required by free proving strategy");
@@ -19,8 +19,6 @@ public class FreeProver<T,C,V> extends DPKB<T,C,V> {
 		return lhs.equals(rhs);
 	}
 
-	
-	
 	@Override
 	public String toString() {
 		return "Free prover";
@@ -31,5 +29,4 @@ public class FreeProver<T,C,V> extends DPKB<T,C,V> {
 		this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
 	}
 
-	
 }

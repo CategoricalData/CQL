@@ -14,12 +14,11 @@ import catdata.aql.It.ID;
 import catdata.aql.Kind;
 import catdata.aql.Var;
 
-public final class InstExpFrozen
-		extends InstExp<Var, Var, ID, Chc<Var, Pair<ID, Att>>> {
+public final class InstExpFrozen extends InstExp<Var, Var, ID, Chc<Var, Pair<ID, Att>>> {
 
 	public final QueryExp Q;
 	public final String I;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		Q.map(f);
@@ -94,7 +93,7 @@ public final class InstExpFrozen
 	}
 
 	@Override
-	public Collection<InstExp< ?, ?, ?, ?>> direct(AqlTyping G) {
+	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.emptySet();
 	}
 

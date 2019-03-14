@@ -25,17 +25,16 @@ import easik.xml.xsd.nodes.elements.XSDElement;
  */
 public class XSDUniqueKey extends XSDAbstractKey {
 	/**
-	 * Create based on an element and Unique key, but create a mangled name
-	 * based on the "appliesTo" xsd element
+	 * Create based on an element and Unique key, but create a mangled name based on
+	 * the "appliesTo" xsd element
 	 *
 	 * Use the unique key to discover the fields this refers to.
 	 *
-	 * @param appliesTo
-	 *            Which element
-	 * @param key
-	 *            The unique key of the element
+	 * @param appliesTo Which element
+	 * @param key       The unique key of the element
 	 */
-	public XSDUniqueKey(final XSDElement appliesTo, final UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> key) {
+	public XSDUniqueKey(final XSDElement appliesTo,
+			final UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> key) {
 		super(appliesTo.getName() + '_' + key.getKeyName(), appliesTo, new ArrayList<String>(key.getElements().size()));
 
 		setTagName("unique");

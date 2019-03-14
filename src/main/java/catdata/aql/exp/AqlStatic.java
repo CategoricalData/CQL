@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.swing.JCheckBox;
 import javax.swing.text.BadLocationException;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
@@ -29,11 +30,15 @@ import catdata.aql.Pragma;
 public class AqlStatic extends AbstractParser {
 
 	private static String truncate(String w) {
-//		String w = x.substring(0, Integer.min(1024, x.length()));
-		List<String> s = w.lines().map(x->x.substring(0, Integer.min(40, x.length()))).collect(Collectors.toList());
-		return Util.sep(s.subList(0, Integer.min(s.size(), 40)), "\n");
+		w = w.substring(0, Integer.min(80 * 80, w.length()));
+		w = WordUtils.wrap(w, 80);
+		return w;
+//		
+//		List<String> s = w.lines().map(x -> x.substring(0, Integer.min(80, x.length()))).collect(Collectors.toList());
+//		return Util.sep(s.subList(0, Integer.min(s.size(), 80)), "\n");
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public synchronized void validate() {
 		Set<String> done = new TreeSet<>(exns.keySet());
 		for (String n : env.prog.order) {
@@ -42,16 +47,16 @@ public class AqlStatic extends AbstractParser {
 			}
 			Exp exp = env.prog.exps.get(n);
 			long l = (long) exp.getOrDefault(env, AqlOption.static_timeout);
-			Util.timeout(() -> {
-				try {
+			try {
+				Util.timeout(() -> {
 					Optional<Chc<String, ?>> oo = exp.eval_static(env, exns);
 					if (oo.isEmpty()) {
 						if (exp instanceof InstExpQueryQuotient) {
 							try {
 								exp.eval0(env, true);
-							} catch (IgnoreException ex) { 
-							} 
-						} 
+							} catch (IgnoreException ex) {
+							}
+						}
 						exns.put(n, Optional.empty());
 					} else {
 						Chc<String, ?> o = oo.get();
@@ -61,17 +66,19 @@ public class AqlStatic extends AbstractParser {
 							if (exp instanceof PragmaExpCheck2) {
 								((Pragma) o.r).asPragma().execute();
 							}
-							env.defs.put(n, exp.kind(), o.r);	
-						} 
+							env.defs.put(n, exp.kind(), o.r);
+						}
 					}
-				} catch (Exception ex) {
-					if (ex.getMessage() == null) {
-						ex.printStackTrace();
-					}
-					exns.put(n, Optional.of(ex.getMessage() == null ? "Null pointer exception." : ex.getMessage()));
+
+					return Unit.unit;
+				}, l * 1000);
+			} catch (Exception ex) {
+				if (ex.getMessage() == null) {
+					ex.printStackTrace();
 				}
-				return Unit.unit;
-			}, l * 1000);
+				ex.printStackTrace();
+				exns.put(n, Optional.of(ex.getMessage() == null ? "Null pointer exception." : ex.getMessage()));
+			}
 
 			for (String k : exns.keySet()) {
 				Optional<String> text = exns.get(k);
@@ -81,8 +88,7 @@ public class AqlStatic extends AbstractParser {
 				try {
 					int z = area.getLineOfOffset(env.prog.lines.get(k));
 					z = Integer.min(z, area.getLineCount());
-					result.addNotice(new StaticParserNotice(this, text.get(),
-							z, Color.magenta));
+					result.addNotice(new StaticParserNotice(this, text.get(), z, Color.magenta));
 				} catch (BadLocationException ex) {
 					ex.printStackTrace();
 				}
@@ -113,9 +119,8 @@ public class AqlStatic extends AbstractParser {
 			try {
 				int z = area.getLineOfOffset(env.prog.lines.get(k));
 				z = Integer.min(z, area.getLineCount());
-				
-				result.addNotice(new StaticParserNotice(this, exns.get(k).get(),
-						z, Color.red));
+
+				result.addNotice(new StaticParserNotice(this, exns.get(k).get(), z, Color.red));
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

@@ -14,17 +14,17 @@ import gnu.trove.map.hash.THashMap;
  * 
  * @author ryan
  */
-public class NaiveMatcher<N1,N2,E1,E2> extends Matcher<N1,E1,N2,E2,BiFunction<String,String,Integer>> {
-	
+public class NaiveMatcher<N1, N2, E1, E2> extends Matcher<N1, E1, N2, E2, BiFunction<String, String, Integer>> {
+
 	public NaiveMatcher(DMG<N1, E1> src, DMG<N2, E2> dst, Map<String, String> options) {
 		super(src, dst, options);
 	}
-	
+
 	@Override
 	public Match<N1, E1, N2, E2> bestMatch() {
 		Map<N1, N2> nodes = new THashMap<>();
 		Map<E1, List<E2>> edges = new THashMap<>();
-		
+
 		for (N1 s : src.nodes) {
 			int min_d = Integer.MAX_VALUE;
 			N2 min_t = null;
@@ -40,7 +40,7 @@ public class NaiveMatcher<N1,N2,E1,E2> extends Matcher<N1,E1,N2,E2,BiFunction<St
 			}
 			nodes.put(s, min_t);
 		}
-			
+
 		for (E1 c : src.edges.keySet()) {
 			int min_d = Integer.MAX_VALUE;
 			E2 min_c = null;
@@ -58,19 +58,18 @@ public class NaiveMatcher<N1,N2,E1,E2> extends Matcher<N1,E1,N2,E2,BiFunction<St
 			} else if (n2_s.equals(n2_t)) {
 				edges.put(c, new LinkedList<>());
 			} else {
-				ShortestPath<N2,E2> sp = new ShortestPath<>(dst, n2_s);
+				ShortestPath<N2, E2> sp = new ShortestPath<>(dst, n2_s);
 				if (sp.hasPathTo(n2_t)) {
 					edges.put(c, sp.pathTo(n2_t));
 				} else {
-					throw new RuntimeException("No match from " + c + " under node mapping\n\n" + Util.sep(nodes, " -> ", "\n") );
+					throw new RuntimeException(
+							"No match from " + c + " under node mapping\n\n" + Util.sep(nodes, " -> ", "\n"));
 				}
 			}
 		}
-		
+
 		return new Match<>(src, dst, nodes, edges);
 	}
-
-	
 
 	@Override
 	public BiFunction<String, String, Integer> createParams(Map<String, String> options) {
@@ -79,7 +78,8 @@ public class NaiveMatcher<N1,N2,E1,E2> extends Matcher<N1,E1,N2,E2,BiFunction<St
 		}
 		return Util::editDistance;
 	}
-	
-	//TODO: explore all node matchings in order, veto-ing ones that cause edge mappings to fail
+
+	// TODO: explore all node matchings in order, veto-ing ones that cause edge
+	// mappings to fail
 
 }

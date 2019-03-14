@@ -2,13 +2,13 @@ package catdata.aql.exp;
 
 import catdata.Util;
 
-public class En { 
+public class En {
 	public final String str;
 
 	private En(String str) {
 		this.str = str;
 	}
-	
+
 	public synchronized static En En(String str) {
 		En en = SchExpRaw.enCache.get(str);
 		if (en != null) {
@@ -28,10 +28,10 @@ public class En {
 	public boolean equals(Object obj) {
 		return this == obj;
 	}
-	
+
 	@Override
 	public String toString() {
-		return Util.maybeQuote(str) ;
+		return Util.maybeQuote(str);
 	}
 
 	public String convert() {

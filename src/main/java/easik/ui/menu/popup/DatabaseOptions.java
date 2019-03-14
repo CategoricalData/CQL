@@ -44,8 +44,8 @@ public class DatabaseOptions extends OptionsDialog {
 	private String _dialect;
 
 	/*
-	 * Various JThings containing entered information. Note that not all of
-	 * these are used for every db type.
+	 * Various JThings containing entered information. Note that not all of these
+	 * are used for every db type.
 	 */
 
 	/**  */
@@ -63,10 +63,8 @@ public class DatabaseOptions extends OptionsDialog {
 	/**
 	 * Creates and displays a new modal db options dialog.
 	 *
-	 * @param dialect
-	 *            the SQL driver type, such as "MySQL" or "PostgreSQL"
-	 * @param sketchFrame
-	 *            the SketchFrame to attach this modal dialog box to
+	 * @param dialect     the SQL driver type, such as "MySQL" or "PostgreSQL"
+	 * @param sketchFrame the SketchFrame to attach this modal dialog box to
 	 */
 	public DatabaseOptions(final String dialect, final SketchFrame sketchFrame) {
 		super(sketchFrame, "Database connection options");
@@ -81,13 +79,10 @@ public class DatabaseOptions extends OptionsDialog {
 	/**
 	 * Creates and displays a new modal db options dialog.
 	 *
-	 * @param dialect
-	 *            the SQL driver type, such as "MySQL" or "PostgreSQL"
-	 * @param dbd
-	 *            an existing driver whos settings will be used as the defualt
-	 *            for the current dialog
-	 * @param sketchFrame
-	 *            the SketchFrame to attach this modal dialog box to
+	 * @param dialect     the SQL driver type, such as "MySQL" or "PostgreSQL"
+	 * @param dbd         an existing driver whos settings will be used as the
+	 *                    defualt for the current dialog
+	 * @param sketchFrame the SketchFrame to attach this modal dialog box to
 	 */
 	public DatabaseOptions(final String dialect, final PersistenceDriver dbd, final SketchFrame sketchFrame) {
 		super(sketchFrame, "Database connection options");
@@ -104,16 +99,13 @@ public class DatabaseOptions extends OptionsDialog {
 
 	/**
 	 * Creates and displays a new modal db options dialog, but doesn't ask for
-	 * username/password/hostname/port, but only db name (and related). This is
-	 * used when getting a driver for a non-connection (for instance, for an SQL
-	 * text export).
+	 * username/password/hostname/port, but only db name (and related). This is used
+	 * when getting a driver for a non-connection (for instance, for an SQL text
+	 * export).
 	 * 
-	 * @param dialect
-	 *            which slq
-	 * @param sketchFrame
-	 *            the frame
-	 * @param noConnection
-	 *            connect or not
+	 * @param dialect      which slq
+	 * @param sketchFrame  the frame
+	 * @param noConnection connect or not
 	 */
 	public DatabaseOptions(final String dialect, final SketchFrame sketchFrame, final boolean noConnection) {
 		super(sketchFrame, "Database options");
@@ -130,21 +122,18 @@ public class DatabaseOptions extends OptionsDialog {
 
 	/**
 	 * Creates and displays a new modal db options dialog, but doesn't ask for
-	 * username/password/hostname/port, but only db name (and related). This is
-	 * used when getting a driver for a non-connection (for instance, for an SQL
-	 * text export).
+	 * username/password/hostname/port, but only db name (and related). This is used
+	 * when getting a driver for a non-connection (for instance, for an SQL text
+	 * export).
 	 * 
-	 * @param dialect
-	 *            the SQL driver type, such as "MySQL" or "PostgreSQL"
-	 * @param dbd
-	 *            an existing driver whos settings will be used as the defualt
-	 *            for the current dialog
-	 * @param sketchFrame
-	 *            the SketchFrame to attach this modal dialog box to
-	 * @param noConnection
-	 *            connect or not
+	 * @param dialect      the SQL driver type, such as "MySQL" or "PostgreSQL"
+	 * @param dbd          an existing driver whos settings will be used as the
+	 *                     defualt for the current dialog
+	 * @param sketchFrame  the SketchFrame to attach this modal dialog box to
+	 * @param noConnection connect or not
 	 */
-	public DatabaseOptions(final String dialect, final PersistenceDriver dbd, final SketchFrame sketchFrame, final boolean noConnection) {
+	public DatabaseOptions(final String dialect, final PersistenceDriver dbd, final SketchFrame sketchFrame,
+			final boolean noConnection) {
 		super(sketchFrame, "Database options");
 
 		_dialect = dialect;
@@ -178,7 +167,8 @@ public class DatabaseOptions extends OptionsDialog {
 			}
 
 			opts.add(new Option(new JLabel("Username"), _username = JUtils.textField(username)));
-			opts.add(new Option(new JLabel("Password"), _password = (JPasswordField) JUtils.fixHeight(new JPasswordField())));
+			opts.add(new Option(new JLabel("Password"),
+					_password = (JPasswordField) JUtils.fixHeight(new JPasswordField())));
 			opts.add(new Option(new JLabel("Database hostname"), _hostname = JUtils.textField(hostname)));
 			opts.add(new Option(new JLabel("Database port"), _port = JUtils.textField(port)));
 		}
@@ -186,7 +176,8 @@ public class DatabaseOptions extends OptionsDialog {
 		String defaultDBName = saved.get("database");
 
 		if (defaultDBName == null) {
-			defaultDBName = _theFrame.getMModel().getDocInfo().getName().replaceAll("\\W+", "_").replaceFirst("^_+", "").replaceFirst("_+$", "");
+			defaultDBName = _theFrame.getMModel().getDocInfo().getName().replaceAll("\\W+", "_").replaceFirst("^_+", "")
+					.replaceFirst("_+$", "");
 		}
 
 		opts.add(new Option(new JLabel("Database name"), _database = JUtils.textField(defaultDBName)));

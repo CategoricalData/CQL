@@ -50,8 +50,7 @@ public class ViewDataAction extends AbstractAction {
 	}
 
 	/**
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

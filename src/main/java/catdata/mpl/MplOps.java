@@ -7,14 +7,14 @@ import catdata.mpl.Mpl.MplExp.MplSch;
 import catdata.mpl.Mpl.MplExp.MplVar;
 import catdata.mpl.Mpl.MplExpVisitor;
 
-public class MplOps<O,A> implements MplExpVisitor<O,A,MplObject,Unit> {
+public class MplOps<O, A> implements MplExpVisitor<O, A, MplObject, Unit> {
 
 	private final Environment<MplObject> ENV;
 
 	public MplOps(Environment<MplObject> env) {
-        ENV = env;
+		ENV = env;
 	}
-	
+
 	@Override
 	public MplObject visit(Unit env, MplVar<O, A> e) {
 		return ENV.get(e.s);
@@ -32,12 +32,9 @@ public class MplOps<O,A> implements MplExpVisitor<O,A,MplObject,Unit> {
 		if (!(o instanceof MplSch)) {
 			throw new RuntimeException("Not a theory: " + e.sch0);
 		}
-		MplSch<O,A> sch = (MplSch<O,A>) o;
+		MplSch<O, A> sch = (MplSch<O, A>) o;
 		e.validte(sch);
 		return e;
 	}
-
-
-	
 
 }

@@ -41,10 +41,8 @@ public class ExportFileAction extends AbstractAction {
 	/**
 	 * Create a new ExportFileAction. Adds a new menu item to the File menu.
 	 *
-	 * @param inFrame
-	 *            The Frame
-	 * @param inSketch
-	 *            The Sketch
+	 * @param inFrame  The Frame
+	 * @param inSketch The Sketch
 	 */
 	@SuppressWarnings("deprecation")
 	public ExportFileAction(final EasikFrame inFrame, final Sketch inSketch) {
@@ -95,8 +93,7 @@ public class ExportFileAction extends AbstractAction {
 	 * Exports the current sketch as a file (in specified language). Displays a
 	 * message if an error occurred.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(final ActionEvent e) {
@@ -135,7 +132,8 @@ public class ExportFileAction extends AbstractAction {
 					return;
 				}
 
-				final File selected = FileChooser.saveFile("Select XML/XSD output file", new FileFilter("XML Schema definitions", "xsd"), "xsd");
+				final File selected = FileChooser.saveFile("Select XML/XSD output file",
+						new FileFilter("XML Schema definitions", "xsd"), "xsd");
 
 				if (selected == null) {
 					return;
@@ -146,7 +144,8 @@ public class ExportFileAction extends AbstractAction {
 					return;
 				}
 
-				JOptionPane.showMessageDialog(null, "XML/XSD exported successfully.", "Export successful", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, "XML/XSD exported successfully.", "Export successful",
+						JOptionPane.INFORMATION_MESSAGE);
 			} else if (DriverInfo.JDBC.equals(api)) {
 				// load options
 				final ExportOptions expOpts = new ExportOptions(type, _theSketch.getFrame());
@@ -177,7 +176,8 @@ public class ExportFileAction extends AbstractAction {
 					return;
 				}
 
-				final File selected = FileChooser.saveFile("Select SQL output file", new FileFilter("SQL scripts", "sql", "mysql", "pgsql"), "sql");
+				final File selected = FileChooser.saveFile("Select SQL output file",
+						new FileFilter("SQL scripts", "sql", "mysql", "pgsql"), "sql");
 
 				if (selected == null) {
 					return;
@@ -187,12 +187,14 @@ public class ExportFileAction extends AbstractAction {
 					return;
 				}
 
-				JOptionPane.showMessageDialog(null, "SQL exported successfully.", "Export successful", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, "SQL exported successfully.", "Export successful",
+						JOptionPane.INFORMATION_MESSAGE);
 			} else {
 			} // won't happen if DriverInfo is configured properly
 		} catch (PersistenceDriver.LoadException le) {
 			_theSketch.getDatabase().cleanDatabaseDriver();
-			JOptionPane.showMessageDialog(null, "An error occurred while exporting to file. " + le.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "An error occurred while exporting to file. " + le.getMessage(),
+					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

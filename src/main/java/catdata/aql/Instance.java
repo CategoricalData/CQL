@@ -11,7 +11,7 @@ import java.util.Set;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
-import gnu.trove.set.hash.THashSet;  
+import gnu.trove.set.hash.THashSet;
 
 public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements Semantics {
 
@@ -26,46 +26,46 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			int x_i = 0;
 			List<String> h = new LinkedList<>();
 			h.add(en.toString() + " (" + algebra().size(en) + " rows)");
-		//	h.add("========");
+			// h.add("========");
 			for (X x : algebra().en(en)) {
 				List<String> l = new LinkedList<>();
 				l.add("");
 				l.add("ID: " + x);
-				
+
 				int att_i = 0;
 				for (Att att : schema().attsFrom(en)) {
 					l.add(att.toString() + ": " + algebra().att(att, x));
 					att_i++;
-					if (att_i > (2*size)) {
+					if (att_i > (2 * size)) {
 						break;
 					}
 				}
-						
+
 				x_i++;
 				h.add(Util.sep(l, "\n"));
-				
+
 				if (x_i > size) {
 					break;
 				}
 			}
-			
+
 			en_i++;
 			u.add(Util.sep(h, "\n"));
-			
-			if (en_i > size*size) {
+
+			if (en_i > size * size) {
 				break;
 			}
 		}
-		
+
 		return Util.sep(u, "\n\n");
 	}
-	
+
 	@Override
 	public Kind kind() {
 		return Kind.INSTANCE;
 	}
-	
-	/**	  
+
+	/**
 	 * @return sum of rows in the algebra
 	 */
 	@Override
@@ -73,41 +73,45 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		return algebra().size();
 	}
 
-	
 	public abstract Schema<Ty, En, Sym, Fk, Att> schema();
-	
-	public abstract Map<Gen, En> gens(); 
+
+	public abstract Map<Gen, En> gens();
+
 	public abstract Map<Sk, Ty> sks();
 
 	public abstract boolean requireConsistency();
-	
+
 	public abstract boolean allowUnsafeJava();
-	
+
 	public abstract Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs();
 
-	public abstract DP<Ty,En,Sym,Fk,Att,Gen,Sk> dp();
-	
-	
-	public final Chc<Ty,En> type(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {		
-		return term.type(Collections.emptyMap(), Collections.emptyMap(), schema().typeSide.tys, schema().typeSide.syms, schema().typeSide.js.java_tys, schema().ens, schema().atts, schema().fks, gens(), sks());
+	public abstract DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp();
+
+	public final Chc<Ty, En> type(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
+		return term.type(Collections.emptyMap(), Collections.emptyMap(), schema().typeSide.tys, schema().typeSide.syms,
+				schema().typeSide.js.java_tys, schema().ens, schema().atts, schema().fks, gens(), sks());
 	}
-	
-	public final void validate() {	
+
+	public final void validate() {
 		validateNoTalg();
 		if (requireConsistency() && !algebra().hasFreeTypeAlgebra()) {
-			throw new RuntimeException("Not necessarily consistent.  This isn't necessarily an error, but is unusual.  Set require_consistency=false to proceed.  Type algebra is\n\n" + algebra().talg());
+			throw new RuntimeException(
+					"Not necessarily consistent.  This isn't necessarily an error, but is unusual.  Set require_consistency=false to proceed.  Type algebra is\n\n"
+							+ algebra().talg());
 		}
 		if (!allowUnsafeJava() && !algebra().hasFreeTypeAlgebraOnJava()) {
-			throw new RuntimeException("Unsafe use of java - CQL's behavior is undefined.  Possible solution: add allow_java_eqs_unsafe=true, change the equations, or contact support at info@catinf.com.  Type algebra is\n\n" + algebra().talg());
+			throw new RuntimeException(
+					"Unsafe use of java - CQL's behavior is undefined.  Possible solution: add allow_java_eqs_unsafe=true, change the equations, or contact support at info@catinf.com.  Type algebra is\n\n"
+							+ algebra().talg());
 		}
 	}
-	
+
 	public synchronized final Term<Ty, En, Sym, Fk, Att, Gen, Sk> reprT(Term<Ty, Void, Sym, Void, Void, Void, Y> y) {
 		Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret = algebra().reprT(y);
 		return ret;
 	}
-	
-	private  Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> makeModel() {
+
+	private Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> makeModel() {
 		Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> model = Util.mk();
 		for (Ty ty : schema().typeSide.tys) {
 			model.put(ty, new THashSet<>());
@@ -115,12 +119,12 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		for (Ty ty : schema().typeSide.js.java_tys.keySet()) {
 			for (Object o : TypeSide.enumerate(schema().typeSide.js.java_tys.get(ty))) {
 				model.get(ty).add(Term.Obj(o, ty));
-			}			
+			}
 		}
 		for (Y y : algebra().talg().sks.keySet()) {
 			model.get(algebra().talg().sks.get(y)).add(reprT(Term.Sk(y)));
 		}
-		
+
 		for (;;) {
 			boolean changed = false;
 			for (Sym f : schema().typeSide.syms.keySet()) {
@@ -140,16 +144,16 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 					}
 					model.get(t).add(cand);
 					changed = true;
-				}			
+				}
 			}
 			if (!changed) {
 				break;
 			}
 		}
-		
+
 		return model;
 	}
-	
+
 	public Term<Ty, En, Sym, Fk, Att, Gen, Sk> talgNF(Term<Ty, En, Sym, Fk, Att, Gen, Sk> t) {
 		for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : getModel().get(type(t).l)) {
 			if (dp().eq(null, t, x)) {
@@ -158,49 +162,53 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		}
 		return Util.anomaly();
 	}
-	
+
 	public Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> model;
+
 	public synchronized Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> getModel() {
 		if (model != null) {
 			return model;
 		}
 		this.model = makeModel();
-		
+
 		return model;
 	}
 
-	public final void validateNoTalg() {		
-			//check that each gen/sk is in tys/ens
-			for (Gen gen : gens().keySet()) {
-				En en = gens().get(gen);
-				if (!schema().ens.contains(en)) {
-					throw new RuntimeException("On generator " + gen + ", the entity " + en + " is not declared.");
-				}
+	public final void validateNoTalg() {
+		// check that each gen/sk is in tys/ens
+		for (Gen gen : gens().keySet()) {
+			En en = gens().get(gen);
+			if (!schema().ens.contains(en)) {
+				throw new RuntimeException("On generator " + gen + ", the entity " + en + " is not declared.");
 			}
-			for (Sk sk : sks().keySet()) {
-				Ty ty = sks().get(sk);
-				if (!schema().typeSide.tys.contains(ty)) {
-					throw new RuntimeException("On labelled null " + sk + ", the type " + ty + " is not declared." + "\n\n" + this);
-				}
+		}
+		for (Sk sk : sks().keySet()) {
+			Ty ty = sks().get(sk);
+			if (!schema().typeSide.tys.contains(ty)) {
+				throw new RuntimeException(
+						"On labelled null " + sk + ", the type " + ty + " is not declared." + "\n\n" + this);
 			}
-			
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : eqs()) {
-				//check lhs and rhs types match in all eqs
-				Chc<Ty, En> lhs = type(eq.first);
-				Chc<Ty, En> rhs = type(eq.second);
-				if (!lhs.equals(rhs)) {
-					throw new RuntimeException("In instance equation " + toString(eq) + ", lhs sort is " + lhs.toStringMash() + " but rhs sort is " + rhs.toStringMash());
-				}
-			}				
-		}	
-	
+		}
+
+		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : eqs()) {
+			// check lhs and rhs types match in all eqs
+			Chc<Ty, En> lhs = type(eq.first);
+			Chc<Ty, En> rhs = type(eq.second);
+			if (!lhs.equals(rhs)) {
+				throw new RuntimeException("In instance equation " + toString(eq) + ", lhs sort is "
+						+ lhs.toStringMash() + " but rhs sort is " + rhs.toStringMash());
+			}
+		}
+	}
+
 	private String toString(Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq) {
 		return eq.first + " = " + eq.second;
 	}
-	
-	public abstract Algebra<Ty,En,Sym,Fk,Att,Gen,Sk,X,Y> algebra();
+
+	public abstract Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra();
 
 	private Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage;
+
 	public final synchronized Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage() {
 		if (collage != null) {
 			return collage;
@@ -213,8 +221,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		}
 		return collage;
 	}
-	
-	
+
 	@Override
 	public final int hashCode() {
 		int prime = 31;
@@ -232,7 +239,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			return true;
 		if (obj == null)
 			return false;
-		Instance<?,?,?,?,?,?,?,?,?> other = (Instance<?,?,?,?,?,?,?,?,?>) obj;
+		Instance<?, ?, ?, ?, ?, ?, ?, ?, ?> other = (Instance<?, ?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (eqs() == null) {
 			if (other.eqs() != null)
 				return false;
@@ -255,7 +262,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			return false;
 		return true;
 	}
-	
+
 	public final String toString(String g, String w) {
 		final StringBuilder sb = new StringBuilder();
 		final List<String> eqs0 = new LinkedList<>();
@@ -267,14 +274,14 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			sb.append("\n\t" + Util.sep(gens(), " : ", "\n\t"));
 		}
 		if (!sks().isEmpty()) {
-			sb.append("\n\t" + Util.sep(sks(), " : " , "\n\t"));			
+			sb.append("\n\t" + Util.sep(sks(), " : ", "\n\t"));
 		}
 		sb.append(w);
 		if (!eqs0.isEmpty()) {
-			sb.append("\n\t" + Util.sep(eqs0, "\n\t"));			
+			sb.append("\n\t" + Util.sep(eqs0, "\n\t"));
 		}
 		return sb.toString().trim();
-	} 
+	}
 
 	@Override
 	public String toString() {
@@ -288,19 +295,12 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		return Chc.rightIterator(getModel().get(enOrTy.r).iterator());
 	}
 
-	/*private volatile long time = -1000;
-	
-	@Override
-	public synchronized long time() {
-		return time;
-	}
+	/*
+	 * private volatile long time = -1000;
+	 * 
+	 * @Override public synchronized long time() { return time; }
+	 * 
+	 * @Override public synchronized void time(long time) { this.time = time; }
+	 */
 
-	@Override
-	public synchronized void time(long time) {
-		this.time = time;
-	} */
-	
-	
-	
-	
 }

@@ -50,8 +50,7 @@ public class ViewUpdateAction extends AbstractAction {
 	}
 
 	/**
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 * @author Sarah van der Laan
 	 */
 	@Override
@@ -85,18 +84,16 @@ public class ViewUpdateAction extends AbstractAction {
 			return;
 		}
 
-		
-			UpdateMonitor um = _ourSketch.getDatabase().newUpdateMonitor();
+		UpdateMonitor um = _ourSketch.getDatabase().newUpdateMonitor();
 
-			if (um == null) {
-				JOptionPane.showMessageDialog(null, "Could not perform update: problem accessing db driver");
+		if (um == null) {
+			JOptionPane.showMessageDialog(null, "Could not perform update: problem accessing db driver");
 
-				return;
-			}
+			return;
+		}
 
-			if (_ourEntityNode != null)
-				um.updateRow(_ourEntityNode);
-		
+		if (_ourEntityNode != null)
+			um.updateRow(_ourEntityNode);
 
 	}
 }

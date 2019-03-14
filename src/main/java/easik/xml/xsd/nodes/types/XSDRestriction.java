@@ -59,7 +59,8 @@ public class XSDRestriction extends XSDType {
 	 * @param facet
 	 * @param restr
 	 */
-	public XSDRestriction(final XMLNameSpace ns, final String t, final XSDBaseType base, final FacetEnum facet, final String restr) {
+	public XSDRestriction(final XMLNameSpace ns, final String t, final XSDBaseType base, final FacetEnum facet,
+			final String restr) {
 		super(ns, t);
 
 		setBase(base);
@@ -89,8 +90,8 @@ public class XSDRestriction extends XSDType {
 	}
 
 	/**
-	 * Chosen never to be referencable. Simply a design choice, always used as
-	 * an inline anonymous type.
+	 * Chosen never to be referencable. Simply a design choice, always used as an
+	 * inline anonymous type.
 	 *
 	 * @return false.
 	 */
@@ -102,10 +103,8 @@ public class XSDRestriction extends XSDType {
 	/**
 	 * Add a facet and its restriction value
 	 *
-	 * @param facet
-	 *            The facet
-	 * @param value
-	 *            The restriction value
+	 * @param facet The facet
+	 * @param value The restriction value
 	 * @todo add check that the facet is in the base.
 	 * @todo (bigger) add check that value is OK for facet.
 	 */

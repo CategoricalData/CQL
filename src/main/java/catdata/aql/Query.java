@@ -47,8 +47,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	public final Map<Fk2, Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>>> fks = new THashMap<>();
 
 	public final Map<Fk2, AqlOptions> doNotValidate = new THashMap<>();
-	//public final AqlOptions doNotValidateAll = null; 
-	
+	// public final AqlOptions doNotValidateAll = null;
+
 	public final Schema<Ty, En1, Sym, Fk1, Att1> src;
 	public final Schema<Ty, En2, Sym, Fk2, Att2> dst;
 
@@ -59,7 +59,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			Map<Var, Chc<En1, Ty>> ctx = new THashMap<>();
 			ctx.putAll(Util.inRight(ens.get(en2).sks()));
 			ctx.putAll(Util.inLeft(ens.get(en2).gens()));
-			Set<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> z = ens.get(en2).eqs;
+			Set<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> z = ens
+					.get(en2).eqs;
 			Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>> l = new ArrayList<>(z.size());
 			for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> y : z) {
 				l.add(new Eq<>(null, y.first, y.second));
@@ -68,8 +69,6 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		}
 		return ret;
 	}
-	
-	
 
 	private Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> conv2() {
 		Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> ret = new THashMap<>();
@@ -82,41 +81,37 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	private Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> conv3() {
 		Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> ret = new THashMap<>();
 		for (Fk2 fk2 : fks.keySet()) {
-			ret.put(fk2, fks.get(fk2).sks()); 
+			ret.put(fk2, fks.get(fk2).sks());
 		}
 		return ret;
 	}
 
 	public synchronized Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> unnest() {
-		
-		Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b 
-		= new Blob<>(conv1(ens), atts, conv2(), conv3(), src, dst);
+
+		Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b = new Blob<>(conv1(ens), atts, conv2(), conv3(), src, dst);
 		b = unfoldNestedApplications(b);
-		//System.out.println(b);
+		// System.out.println(b);
 		Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> p = new Query<>(params, consts, b.ens, b.atts, b.fks, b.sks,
 				b.src, dst, doNotCheckPathEqs);
 		return p;
 	}
 
-	public static  <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> 
-	Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> makeQuery(
+	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> makeQuery(
 			Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> is2,
 			Map<Att2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> ctx,
 			Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> fks2,
-			Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks,
-			Schema<Ty, En1, Sym, Fk1, Att1> schema, Schema<Ty, En2, Sym, Fk2, Att2> zzz, AqlOptions doNotCheckPathEqs
-			) {
-		return makeQuery2(new THashMap<>(), new THashMap<>(), is2, ctx, fks2, sks, schema, zzz, doNotCheckPathEqs
-				);
+			Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks, Schema<Ty, En1, Sym, Fk1, Att1> schema,
+			Schema<Ty, En2, Sym, Fk2, Att2> zzz, AqlOptions doNotCheckPathEqs) {
+		return makeQuery2(new THashMap<>(), new THashMap<>(), is2, ctx, fks2, sks, schema, zzz, doNotCheckPathEqs);
 	}
 
-	public static  <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> makeQuery2(
+	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> makeQuery2(
 			Map<Var, Ty> params, Map<Var, Term<Ty, Void, Sym, Void, Void, Void, Void>> consts,
 			Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> ens,
 			Map<Att2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> atts,
 			Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> fks,
-			Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks,
-			Schema<Ty, En1, Sym, Fk1, Att1> src, Schema<Ty, En2, Sym, Fk2, Att2> dst, AqlOptions doNotCheckPathEqs) {
+			Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks, Schema<Ty, En1, Sym, Fk1, Att1> src,
+			Schema<Ty, En2, Sym, Fk2, Att2> dst, AqlOptions doNotCheckPathEqs) {
 
 		boolean removeRedundantVars = (boolean) doNotCheckPathEqs.getOrDefault(AqlOption.query_remove_redundancy);
 		if (!removeRedundantVars) {
@@ -124,9 +119,10 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		}
 
 		// do this first to type check
-		//@SuppressWarnings("unused")
-		//Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q = new Query<>(params, consts, ens, atts, fks, sks, src, dst,
-		//		doNotCheckPathEqs);
+		// @SuppressWarnings("unused")
+		// Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q = new Query<>(params,
+		// consts, ens, atts, fks, sks, src, dst,
+		// doNotCheckPathEqs);
 
 		Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b = new Blob<>(ens, atts, fks, sks, src, dst);
 		b = removeRedundantVars(b);
@@ -140,7 +136,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		return p;
 	}
 
-	private  static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> unfoldNestedApplications(
+	private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> unfoldNestedApplications(
 			Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b) {
 
 		int i = 0;
@@ -151,9 +147,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				return b;
 			}
 			b = elimNested(Var.Var("unfold" + i), p.first, b, p.second, p.third);
-			
+
 			i++;
-			
+
 			if (i == 128) {
 				throw new RuntimeException(
 						"No convergence after 128 iterations.  Note: this 1-pass SQL generation algorithm is neccessarily incomplete.");
@@ -209,13 +205,12 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			En2 dst = b.dst.fks.get(fk2).second;
 			Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>> g = new THashMap<>(b.fks.get(fk2).first);
 			if (second.equals(dst)) {
-				Term<Ty, En1, Sym, Fk1, Att1, Var, Var> zz = third.replace(Util.map(g,(s,
-						t) -> new Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>(
-								Term.Gen(s), t.convert())));
+				Term<Ty, En1, Sym, Fk1, Att1, Var, Var> zz = third
+						.replace(Util.map(g, (s, t) -> new Pair<>(Term.Gen(s), t.convert())));
 				g.put(v, zz.convert());
 			}
 			if (second.equals(src)) {
-				g = Util.map(g, (k,t) -> new Pair<>(k, t.replace(third.convert(), Term.Gen(v))));
+				g = Util.map(g, (k, t) -> new Pair<>(k, t.replace(third.convert(), Term.Gen(v))));
 			}
 
 			xfks.put(fk2, new Pair<>(g, b.fks.get(fk2).second));
@@ -270,7 +265,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				g.remove(v);
 			}
 			if (en2.equals(src)) {
-				g = Util.map(g,(k,t) -> new Pair<>(k, t.replaceHead(Head.GenHead(v), (Collections.emptyList()), term)));
+				g = Util.map(g,
+						(k, t) -> new Pair<>(k, t.replaceHead(Head.GenHead(v), (Collections.emptyList()), term)));
 			}
 
 			xfks.put(fk2, new Pair<>(g, b.fks.get(fk2).second));
@@ -284,7 +280,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				// g.remove(v); aleady happens above
 			}
 			if (en2.equals(src)) {
-				g = Util.map(g, (k,t) -> new Pair<>(k,t.replaceHead(Head.SkHead(v), (Collections.emptyList()), term.convert())));
+				g = Util.map(g, (k, t) -> new Pair<>(k,
+						t.replaceHead(Head.SkHead(v), (Collections.emptyList()), term.convert())));
 			}
 
 			xsks.put(fk2, g);
@@ -296,8 +293,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				ctx.remove(v);
 				Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>> eqs = (new LinkedList<>());
 				for (Eq<Ty, En1, Sym, Fk1, Att1, Var, Var> eq : b.ens.get(en).second) {
-					Term<Ty, En1, Sym, Fk1, Att1, Var, Var> l = eq.lhs.replaceHead(Head.GenHead(v), (Collections.emptyList()),
-							term.convert()),
+					Term<Ty, En1, Sym, Fk1, Att1, Var, Var> l = eq.lhs.replaceHead(Head.GenHead(v),
+							(Collections.emptyList()), term.convert()),
 							r = eq.rhs.replaceHead(Head.GenHead(v), (Collections.emptyList()), term.convert());
 					if (!l.equals(r)) {
 						eqs.add(new Eq<>(null, l, r));
@@ -313,17 +310,17 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	}
 
 	private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Triple<En2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Head<Ty, En1, Sym, Fk1, Att1, Var, Var>> findNested(
-			 Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b) {
+			Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b) {
 		for (En2 en2 : b.ens.keySet()) {
 			Set<KBExp<Head<Ty, En1, Sym, Fk1, Att1, Var, Var>, Var>> s = new THashSet<>();
 
 			for (Eq<Ty, En1, Sym, Fk1, Att1, Var, Var> eq : b.ens.get(en2).second) {
 				allSubExps(eq.lhs.toKB(), s);
 				allSubExps(eq.rhs.toKB(), s);
-			
+
 				for (KBExp<Head<Ty, En1, Sym, Fk1, Att1, Var, Var>, Var> e : s) {
 					Triple<En2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Head<Ty, En1, Sym, Fk1, Att1, Var, Var>> q = findNested(
-							 en2, e);
+							en2, e);
 					if (q != null) {
 						return q;
 					}
@@ -342,7 +339,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				for (Term<Void, En1, Void, Fk1, Void, Var, Void> cand : b.fks.get(fk2).first.values()) {
 					Term<Ty, En1, Sym, Fk1, Att1, Var, Var> cand2 = cand.convert();
 					Triple<En2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Head<Ty, En1, Sym, Fk1, Att1, Var, Var>> q = findNested(
-							 en2, cand2.toKB());
+							en2, cand2.toKB());
 					if (q != null) {
 						return q;
 					}
@@ -362,14 +359,14 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	}
 
 	private static <Fk1, En2, Ty, En1, Att1, Sym> Triple<En2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Head<Ty, En1, Sym, Fk1, Att1, Var, Var>> findNested(
-			/*Iterator<Var> it,*/  En2 en2, KBExp<Head<Ty, En1, Sym, Fk1, Att1, Var, Var>, Var> e) {
+			/* Iterator<Var> it, */ En2 en2, KBExp<Head<Ty, En1, Sym, Fk1, Att1, Var, Var>, Var> e) {
 		KBExp<Head<Ty, En1, Sym, Fk1, Att1, Var, Var>, Var> f = e;
 		if (f.getArgs().size() == 1 && f.f().fk() != null || f.f().att() != null) {
 			KBExp<Head<Ty, En1, Sym, Fk1, Att1, Var, Var>, Var> g = f.getArgs().get(0);
 			if (g.getArgs().size() == 1 && g.f().fk() != null) {
 				KBExp<Head<Ty, En1, Sym, Fk1, Att1, Var, Var>, Var> x = g.getArgs().get(0);
 				if (x.getArgs().size() == 0 && x.f().gen() != null) {
-					return new Triple<>(/*it.next(),*/ en2, Term.fromKB(g), f.f());
+					return new Triple<>(/* it.next(), */ en2, Term.fromKB(g), f.f());
 				}
 			}
 		}
@@ -417,8 +414,6 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			return result;
 		}
 
-
-
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -461,36 +456,34 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			return true;
 		}
 
-
-
 		public Blob(
 				Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> ens,
 				Map<Att2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> atts,
 				Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> fks,
-				Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks,
-				Schema<Ty, En1, Sym, Fk1, Att1> src, Schema<Ty, En2, Sym, Fk2, Att2> dst) {
+				Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks, Schema<Ty, En1, Sym, Fk1, Att1> src,
+				Schema<Ty, En2, Sym, Fk2, Att2> dst) {
 			this.ens = ens;
 			this.atts = atts;
 			this.fks = fks;
 			this.src = src;
 			this.dst = dst;
 			this.sks = sks;
-			//if (!this.equals(this)) {
-			//	Util.anomaly();
-			//}
+			// if (!this.equals(this)) {
+			// Util.anomaly();
+			// }
 		}
 
 	}
-	
-	AqlOptions  doNotCheckPathEqs;
+
+	AqlOptions doNotCheckPathEqs;
+
 	// doNotCheckPathEqs will stop construction of dps
 	private Query(Map<Var, Ty> params, Map<Var, Term<Ty, Void, Sym, Void, Void, Void, Void>> consts,
 			Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> ens,
 			Map<Att2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> atts,
 			Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> fks,
-			Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks,
-			Schema<Ty, En1, Sym, Fk1, Att1> src, Schema<Ty, En2, Sym, Fk2, Att2> dst,
-			AqlOptions doNotCheckPathEqs) {
+			Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks, Schema<Ty, En1, Sym, Fk1, Att1> src,
+			Schema<Ty, En2, Sym, Fk2, Att2> dst, AqlOptions doNotCheckPathEqs) {
 		this.src = src;
 		this.dst = dst;
 		this.params = params;
@@ -500,8 +493,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		Map<Var, Ty> pp = (params);
 		for (En2 en2 : ens.keySet()) {
 			try {
-				this.ens.put(en2, new Frozen<>(pp, (ens.get(en2).first), ens.get(en2).second, src,
-						ens.get(en2).third));
+				this.ens.put(en2, new Frozen<>(pp, (ens.get(en2).first), ens.get(en2).second, src, ens.get(en2).third));
 			} catch (Throwable thr) {
 				thr.printStackTrace();
 				throw new RuntimeException("In block for entity " + en2 + ", " + thr.getMessage());
@@ -509,8 +501,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		}
 
 		for (Ty ty : src.typeSide.tys) {
-			this.tys.put(ty, new Frozen<>(pp, Collections.singletonMap(Var.Var("_y_"), Chc.inRight(ty)), Collections.emptyList(),
-					src, doNotCheckPathEqs));
+			this.tys.put(ty, new Frozen<>(pp, Collections.singletonMap(Var.Var("_y_"), Chc.inRight(ty)),
+					Collections.emptyList(), src, doNotCheckPathEqs));
 		}
 
 		for (Fk2 fk2 : fks.keySet()) {
@@ -521,17 +513,18 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			try {
 				AqlOptions b = fks.get(fk2).second;
 				doNotValidate.put(fk2, b);
-				this.fks.put(fk2, new LiteralTransform<>(fks.get(fk2).first, www,
-						this.ens.get(dst.fks.get(fk2).second), this.ens.get(dst.fks.get(fk2).first), (boolean)b.getOrDefault(AqlOption.dont_validate_unsafe)));
+				this.fks.put(fk2,
+						new LiteralTransform<>(fks.get(fk2).first, www, this.ens.get(dst.fks.get(fk2).second),
+								this.ens.get(dst.fks.get(fk2).first),
+								(boolean) b.getOrDefault(AqlOption.dont_validate_unsafe)));
 			} catch (Throwable thr) {
 				thr.printStackTrace();
 				throw new RuntimeException("In transform for foreign key " + fk2 + ", " + thr.getMessage() + "\n\n");
 			}
 		}
 		this.atts = atts;
-		
-		validate((boolean)doNotCheckPathEqs.getOrDefault(AqlOption.dont_validate_unsafe));
-		
+
+		validate((boolean) doNotCheckPathEqs.getOrDefault(AqlOption.dont_validate_unsafe));
 
 	}
 
@@ -602,7 +595,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			}
 		}
 		for (Fk2 xxx : fks.keySet()) {
-				fks.get(xxx).validate(false);
+			fks.get(xxx).validate(false);
 		}
 	}
 
@@ -703,7 +696,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		} else if (l.obj() != null) {
 			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> b = Term.Obj(l.obj(), l.ty());
 			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = new LiteralTransform<>(
-					Collections.emptyMap(), Collections.singletonMap(Var.Var("_y_"), b), tys.get(l.ty()), ens.get(en2), true);
+					Collections.emptyMap(), Collections.singletonMap(Var.Var("_y_"), b), tys.get(l.ty()), ens.get(en2),
+					true);
 			return a;
 		} else if (l.sym() != null) {
 			Ty ty = dst.typeSide.syms.get(l.sym()).second;
@@ -711,7 +705,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 					.map(x -> composeT(x, en2).sks().get(Var.Var("_y_"))).collect(Collectors.toList()));
 			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> b = Term.Sym(l.sym(), z);
 			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = new LiteralTransform<>(
-					Collections.emptyMap(), Collections.singletonMap(Var.Var("_y_"), b), tys.get(ty), ens.get(en2), true);
+					Collections.emptyMap(), Collections.singletonMap(Var.Var("_y_"), b), tys.get(ty), ens.get(en2),
+					true);
 			return a;
 		} else if (l.var != null) {
 			return new IdentityTransform<>(tys.get(ens.get(en2).sks.get(l.var)), Optional.empty());
@@ -733,7 +728,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	////////////////
 
 	public Pair<Collection<Fk1>, Collection<Att1>> fksAndAttsOfWhere() {
-		Set<Fk1> fks =new THashSet<>();
+		Set<Fk1> fks = new THashSet<>();
 		Set<Att1> atts = new THashSet<>();
 		for (Frozen<Ty, En1, Sym, Fk1, Att1> I : ens.values()) {
 			for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : I.eqs) {
@@ -808,7 +803,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			String tick) {
 		if (!(src.typeSide.tys.containsAll(SqlTypeSide.tys()))) {
 			throw new RuntimeException("Not on SQL typeside");
-		} 
+		}
 
 		List<String> ret1 = new LinkedList<>();
 		Map<En2, String> ret2 = new THashMap<>();
@@ -876,7 +871,8 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		if (vs.isEmpty()) {
 			Util.anomaly();
 		}
-		List<String> l = (vs.stream().map(x -> "concat('(" + x.first + "=', concat(" + convert(x.second, ty) + ", ')'))")
+		List<String> l = (vs.stream()
+				.map(x -> "concat('(" + x.first + "=', concat(" + convert(x.second, ty) + ", ')'))")
 				.collect(Collectors.toList()));
 
 		String s = l.get(0);
@@ -891,7 +887,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 	}
 
-	private String whereToString(Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqs, String idCol, String tick) {
+	private String whereToString(
+			Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqs,
+			String idCol, String tick) {
 		if (eqs.isEmpty()) {
 			return "";
 		}
@@ -975,7 +973,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		return new Query<>(new THashMap<>(), new THashMap<>(), ens0, atts0, fks0, sks0, S, T, options);
 	}
 
-	public  Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> deParam() {
+	public Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> deParam() {
 
 		Map<Att2, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> atts2 = new THashMap<>();
 		Function<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> f = x -> {
@@ -1009,18 +1007,18 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	@SuppressWarnings("hiding")
 	public static <Ty, En, Sym, Fk, Att> Term<Ty, En, Sym, Fk, Att, Var, Var> freeze(
 			Term<Ty, En, Sym, Fk, Att, Var, Var> term, Map<String, String> params, Set<Var> tyvars) {
-	
-			Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> m = new THashMap<>();
-			for (Var v : term.vars()) {
-				if (params.keySet().contains(v.var) || tyvars.contains(v)) {
-					m.put(v, Term.Sk(v));
-				} else {
-					m.put(v, Term.Gen(v));
-				}
+
+		Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> m = new THashMap<>();
+		for (Var v : term.vars()) {
+			if (params.keySet().contains(v.var) || tyvars.contains(v)) {
+				m.put(v, Term.Sk(v));
+			} else {
+				m.put(v, Term.Gen(v));
 			}
-			Term<Ty, En, Sym, Fk, Att, Var, Var> ret = term.subst(m);
-			return ret;
-		
+		}
+		Term<Ty, En, Sym, Fk, Att, Var, Var> ret = term.subst(m);
+		return ret;
+
 	}
 
 	@Override
@@ -1089,7 +1087,5 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			return false;
 		return true;
 	}
-	
-	
 
 }

@@ -14,20 +14,19 @@ import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.Schema;
 
-public class InstExpCascadeDelete<Gen,Sk, X, Y>
- extends InstExp<X, Y, X, Y>  {
+public class InstExpCascadeDelete<Gen, Sk, X, Y> extends InstExp<X, Y, X, Y> {
 
-	final InstExp<Gen,Sk, X, Y> I;
+	final InstExp<Gen, Sk, X, Y> I;
 
 	final SchExp sch;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
 		sch.map(f);
 	}
-	
-	public InstExpCascadeDelete(InstExp<Gen,Sk, X, Y> i, SchExp sch) {
+
+	public InstExpCascadeDelete(InstExp<Gen, Sk, X, Y> i, SchExp sch) {
 		I = i;
 		this.sch = sch;
 	}
@@ -64,14 +63,12 @@ public class InstExpCascadeDelete<Gen,Sk, X, Y>
 	@Override
 	public Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> eval0(AqlEnv env, boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> sch0 = sch.eval(env, isC);
-		Instance<Ty,En,Sym,Fk,Att,Gen,Sk, X, Y> i = I.eval(env, isC);
+		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = I.eval(env, isC);
 		if (isC) {
 			throw new IgnoreException();
 		}
-		return FilterAlgebra.filterInstance(i,sch0);
+		return FilterAlgebra.filterInstance(i, sch0);
 	}
-
-
 
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
@@ -108,7 +105,7 @@ public class InstExpCascadeDelete<Gen,Sk, X, Y>
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "cascade_delete " + I + " : " + sch;

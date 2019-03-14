@@ -61,16 +61,15 @@ public class XSDWriteOptions extends OptionsDialog {
 	private JCheckBox _useUnqualifiedAttributes;
 
 	/**
-	 * checkbox to set whether to have qualified or unqualified attributes in
-	 * the XMLDBDriver.
+	 * checkbox to set whether to have qualified or unqualified attributes in the
+	 * XMLDBDriver.
 	 */
 	private JCheckBox _useUnqualifiedElements;
 
 	/**
 	 * Creates and displays a new modal db options dialog.
 	 *
-	 * @param sketchFrame
-	 *            the SketchFrame to attach this modal dialog box to
+	 * @param sketchFrame the SketchFrame to attach this modal dialog box to
 	 */
 	public XSDWriteOptions(final SketchFrame sketchFrame) {
 		super(sketchFrame, "XML Schema parameters");
@@ -118,7 +117,8 @@ public class XSDWriteOptions extends OptionsDialog {
 		String topLevelTag = saved.get("topLevelTag");
 
 		if (topLevelTag == null) {
-			topLevelTag = _theFrame.getMModel().getDocInfo().getName().replaceAll("\\W+", "_").replaceFirst("^_+", "").replaceFirst("_+$", "");
+			topLevelTag = _theFrame.getMModel().getDocInfo().getName().replaceAll("\\W+", "_").replaceFirst("^_+", "")
+					.replaceFirst("_+$", "");
 		}
 
 		_topLevelTag = JUtils.textField(topLevelTag);
@@ -133,14 +133,12 @@ public class XSDWriteOptions extends OptionsDialog {
 	 * <p/>
 	 * The parameters are put in as:
 	 * <ul>
-	 * <li>targetNS: This is a boolean value whether to add a target namespace
-	 * or not.</li>
+	 * <li>targetNS: This is a boolean value whether to add a target namespace or
+	 * not.</li>
 	 * <li>unqualifiedAttributes: Assume unqualified attributes if this is
 	 * true.</li>
-	 * <li>unqualifiedElements: Assume unqualified elements if this is
-	 * true.</li>
-	 * <li>topLevelTag: The tag name of the top level element in the
-	 * schema.</li>
+	 * <li>unqualifiedElements: Assume unqualified elements if this is true.</li>
+	 * <li>topLevelTag: The tag name of the top level element in the schema.</li>
 	 * </ul>
 	 *
 	 * @return the map of the parameters.

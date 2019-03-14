@@ -28,7 +28,8 @@ import easik.model.vertex.ModelVertex;
  * @since 2006-08-17 Kevin Green
  * @version 2006-08-17 Kevin Green
  */
-public class AddPathAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class AddPathAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -53,8 +54,7 @@ public class AddPathAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 	/**
 	 * Pushes the add path state
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -68,7 +68,9 @@ public class AddPathAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_theFrame.getMModel().isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -80,16 +82,21 @@ public class AddPathAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 
 		// Selection is a constraint that can have a path added
 		if (curSelected instanceof SumConstraint) {
-			_theFrame.getMModel().getStateManager().pushState(new AddSumConstraintState<>(_theFrame.getMModel(), (SumConstraint<F, GM, M, N, E>) curSelected));
+			_theFrame.getMModel().getStateManager().pushState(
+					new AddSumConstraintState<>(_theFrame.getMModel(), (SumConstraint<F, GM, M, N, E>) curSelected));
 		} else if (curSelected instanceof CommutativeDiagram) {
-			_theFrame.getMModel().getStateManager().pushState(new AddCommutativeDiagramState<>(_theFrame.getMModel(), (CommutativeDiagram<F, GM, M, N, E>) curSelected));
+			_theFrame.getMModel().getStateManager().pushState(new AddCommutativeDiagramState<>(_theFrame.getMModel(),
+					(CommutativeDiagram<F, GM, M, N, E>) curSelected));
 		} else if (curSelected instanceof ProductConstraint) {
-			_theFrame.getMModel().getStateManager().pushState(new AddProductConstraintState<>(_theFrame.getMModel(), (ProductConstraint<F, GM, M, N, E>) curSelected));
+			_theFrame.getMModel().getStateManager().pushState(new AddProductConstraintState<>(_theFrame.getMModel(),
+					(ProductConstraint<F, GM, M, N, E>) curSelected));
 		}
 
 		// Selection is not a valid constraint type
 		else {
-			JOptionPane.showMessageDialog(_theFrame, "You don't have a sum, product, or commutative diagram constraint selected.\nPlease select a sum, product, or commutative diagram constraint and try again.", "No Constraint Selected", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame,
+					"You don't have a sum, product, or commutative diagram constraint selected.\nPlease select a sum, product, or commutative diagram constraint and try again.",
+					"No Constraint Selected", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

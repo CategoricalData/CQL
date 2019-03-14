@@ -41,8 +41,7 @@ public abstract class XSDBaseNode {
 	public static final String lineSep = EasikTools.systemLineSeparator();
 
 	/**
-	 * Make the XMLSchema namespace available as a class element and in all
-	 * children
+	 * Make the XMLSchema namespace available as a class element and in all children
 	 */
 	public static final String nsPrefix = XMLSchema.getXSDNameSpace().getNs();
 
@@ -63,8 +62,7 @@ public abstract class XSDBaseNode {
 	 * <p/>
 	 * Name will be a tag attribute.
 	 *
-	 * @param name
-	 *            The name
+	 * @param name The name
 	 */
 	public XSDBaseNode(final String name) {
 		this(name, false, null);
@@ -75,10 +73,8 @@ public abstract class XSDBaseNode {
 	 * <p/>
 	 * Name and nillable will be tag attributes.
 	 *
-	 * @param name
-	 *            The name
-	 * @param nillable
-	 *            can it use the nillable attribute
+	 * @param name     The name
+	 * @param nillable can it use the nillable attribute
 	 */
 	protected XSDBaseNode(final String name, final boolean nillable) {
 		this(name, nillable, null);
@@ -89,10 +85,8 @@ public abstract class XSDBaseNode {
 	 * <p/>
 	 * Name will be tag attributes.
 	 *
-	 * @param name
-	 *            The name
-	 * @param parent
-	 *            The container element/node
+	 * @param name   The name
+	 * @param parent The container element/node
 	 */
 	protected XSDBaseNode(final String name, final XSDBaseNode parent) {
 		this(name, false, parent);
@@ -103,12 +97,9 @@ public abstract class XSDBaseNode {
 	 * <p/>
 	 * Name and nillable will be tag attributes.
 	 *
-	 * @param name
-	 *            The name
-	 * @param nillable
-	 *            can it use the nillable attribute
-	 * @param parent
-	 *            The container element/node
+	 * @param name     The name
+	 * @param nillable can it use the nillable attribute
+	 * @param parent   The container element/node
 	 */
 	protected XSDBaseNode(final String name, final boolean nillable, final XSDBaseNode parent) {
 		addTagAttribute("name", name);
@@ -132,8 +123,7 @@ public abstract class XSDBaseNode {
 	/**
 	 * Set a name
 	 *
-	 * @param name
-	 *            the name
+	 * @param name the name
 	 */
 	protected void setName(final String name) {
 		addTagAttribute("name", name);
@@ -151,8 +141,7 @@ public abstract class XSDBaseNode {
 	/**
 	 * Set nillability
 	 *
-	 * @param nillable
-	 *            true or false
+	 * @param nillable true or false
 	 */
 	public void setNillable(final boolean nillable) {
 		if (nillable) {
@@ -168,8 +157,7 @@ public abstract class XSDBaseNode {
 	 * consists of the tag name prefixed by the namespace and includes the tag
 	 * attributes. If selfClose is true, close at the same time.
 	 *
-	 * @param selfClose
-	 *            True if there are no sub elements
+	 * @param selfClose True if there are no sub elements
 	 * @return string with tag display at start.
 	 */
 	public String getStartTag(final boolean selfClose) {
@@ -237,8 +225,7 @@ public abstract class XSDBaseNode {
 	/**
 	 * Set the parent node (element)
 	 *
-	 * @param parent
-	 *            the parent node
+	 * @param parent the parent node
 	 */
 	public void setParent(final XSDBaseNode parent) {
 		this.parent = parent;
@@ -255,9 +242,9 @@ public abstract class XSDBaseNode {
 
 		if (null != parent) {
 			return parent.getXPath() + '/' + name;
-		} 
-			return name;
-		
+		}
+		return name;
+
 	}
 
 	/**
@@ -272,8 +259,7 @@ public abstract class XSDBaseNode {
 	/**
 	 * (re)Set the initial annotation
 	 *
-	 * @param annotation
-	 *            The annotation
+	 * @param annotation The annotation
 	 */
 	public void setAnnotation(final XSDAnnotation annotation) {
 		this.annotation = annotation;
@@ -282,13 +268,12 @@ public abstract class XSDBaseNode {
 	/**
 	 * Add more annotations to the node.
 	 * <p/>
-	 * Note this works whether or not an annotation has already been added. If
-	 * there is not a current annotation, the nodes annotation is set to the
-	 * parameter. If there is an existing annotation, the parameter is merged
-	 * with the existing one.
+	 * Note this works whether or not an annotation has already been added. If there
+	 * is not a current annotation, the nodes annotation is set to the parameter. If
+	 * there is an existing annotation, the parameter is merged with the existing
+	 * one.
 	 *
-	 * @param xannotation
-	 *            The annotation.
+	 * @param xannotation The annotation.
 	 */
 	public void addAnnotation(final XSDAnnotation xannotation) {
 		if (null == this.annotation) {
@@ -310,11 +295,10 @@ public abstract class XSDBaseNode {
 	/**
 	 * Set the tag name
 	 * <p/>
-	 * Note this should be without a namespace prefix, but that is not checked
-	 * by the method.
+	 * Note this should be without a namespace prefix, but that is not checked by
+	 * the method.
 	 *
-	 * @param tagName
-	 *            The non-namespace prefixed tag name.
+	 * @param tagName The non-namespace prefixed tag name.
 	 * @todo Check for ':' and disallow in a friendly way.
 	 */
 	public void setTagName(final String tagName) {
@@ -324,8 +308,7 @@ public abstract class XSDBaseNode {
 	/**
 	 * Manage the attribute list - remove an attribute.
 	 *
-	 * @param key
-	 *            of the attribute to remove.
+	 * @param key of the attribute to remove.
 	 */
 	public void removeTagAttribute(final String key) {
 		if (null != tagAttributeList) {
@@ -336,10 +319,8 @@ public abstract class XSDBaseNode {
 	/**
 	 * Manage the attribute list, add an attribute
 	 *
-	 * @param key
-	 *            Of the attribute
-	 * @param value
-	 *            Of the attribute.
+	 * @param key   Of the attribute
+	 * @param value Of the attribute.
 	 */
 	public void addTagAttribute(final String key, final String value) {
 		if (null == tagAttributeList) {
@@ -365,8 +346,7 @@ public abstract class XSDBaseNode {
 	/**
 	 * Manage the attribute list, get value for a particular key
 	 *
-	 * @param key
-	 *            of the desired attribute
+	 * @param key of the desired attribute
 	 * @return null if not found, otherwise the value.
 	 */
 	public String getTagAttribute(final String key) {
@@ -378,8 +358,7 @@ public abstract class XSDBaseNode {
 	}
 
 	/**
-	 * Return a string representation of the attribute list, suitable for use in
-	 * XML
+	 * Return a string representation of the attribute list, suitable for use in XML
 	 * <p/>
 	 * Creates a string of the form:
 	 * 

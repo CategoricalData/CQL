@@ -185,8 +185,6 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				return col;
 			}
 
-			
-
 			@Override
 			public String toStringProver() {
 				return "Coprod talg";

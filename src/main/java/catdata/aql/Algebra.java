@@ -47,9 +47,8 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	}
 
 	public abstract Iterable<X> en(En en);
-	
-	private final Map<Triple<En, List<Pair<Fk, X>>, List<Pair<Att, Object>>>, Collection<X>> en_index2 = 
-			(new THashMap<>());
+
+	private final Map<Triple<En, List<Pair<Fk, X>>, List<Pair<Att, Object>>>, Collection<X>> en_index2 = (new THashMap<>());
 
 	public synchronized Iterable<X> en_indexed(En en, List<Pair<Fk, X>> fks, List<Pair<Att, Object>> atts) {
 		Triple<En, List<Pair<Fk, X>>, List<Pair<Att, Object>>> t = new Triple<>(en, fks, atts);
@@ -137,7 +136,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		}
 		return i;
 	}
-	
+
 	public abstract int size(En en);
 
 	public Iterable<X> allXs() {
@@ -164,10 +163,8 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 	private Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0;
 
-	
-
 	public abstract Chc<Sk, Pair<X, Att>> reprT_prot(Y y);
-	
+
 	public final Term<Ty, En, Sym, Fk, Att, Gen, Sk> reprT(Term<Ty, Void, Sym, Void, Void, Void, Y> y) {
 		if (y.sk() != null) {
 			Chc<Sk, Pair<X, Att>> x = reprT_prot(y.sk());
@@ -182,7 +179,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			}
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret = Term.Sym(y.sym(), arr);
 			if (schema().typeSide.js.java_tys.isEmpty()) {
-				return ret; 
+				return ret;
 			}
 			return schema().typeSide.js.reduce(ret);
 		} else if (y.obj() != null) {
@@ -190,7 +187,6 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		}
 		throw new RuntimeException("Please report, reprT on " + y);
 	}
-
 
 	/**
 	 * @param term of type sort
@@ -237,26 +233,28 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	@Override
 	public String toString() {
 		String ret;
-		
+
 		ret = "carriers\n\t";
-		ret += Util.sep(Util.iterToColLazy(schema().ens).stream().map(
-				x -> x + " -> {" + Util.sep(Util.iterToColLazy(en(x)).stream().map(Object::toString).collect(Collectors.toList()), ", ") + "}")
-				.collect(Collectors.toList()), "\n\t");
+		ret += Util.sep(
+				Util.iterToColLazy(schema().ens).stream()
+						.map(x -> x + " -> {"
+								+ Util.sep(Util.iterToColLazy(en(x)).stream().map(Object::toString)
+										.collect(Collectors.toList()), ", ")
+								+ "}")
+						.collect(Collectors.toList()),
+				"\n\t");
 
 		ret += "\n\nforeign keys";
 		for (Fk fk : schema().fks.keySet()) {
-			ret += "\n\t" + fk + " -> {"
-					+ Util.sep(Util.iterToColLazy(en(schema().fks.get(fk).first)).stream()
-							.map(x -> "(" + x + ", " + fk(fk, x) + ")").collect(Collectors.toList()), ", ")
-					+ "}";
+			ret += "\n\t" + fk + " -> {" + Util.sep(Util.iterToColLazy(en(schema().fks.get(fk).first)).stream()
+					.map(x -> "(" + x + ", " + fk(fk, x) + ")").collect(Collectors.toList()), ", ") + "}";
 		}
 
 		ret += "\n\nattributes";
 		for (Att att : schema().atts.keySet()) {
 			ret += "\n\t" + att + " -> {"
 					+ Util.sep(Util.iterToColLazy(en(schema().atts.get(att).first)).stream()
-							.map(x -> "(" + x + ", " + att(att, x).toString() + ")")
-							.collect(Collectors.toList()), ", ")
+							.map(x -> "(" + x + ", " + att(att, x).toString() + ")").collect(Collectors.toList()), ", ")
 					+ "}";
 		}
 
@@ -267,7 +265,8 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	}
 
 	public Pair<TObjectIntMap<X>, TIntObjectMap<X>> intifyX(int i) {
-		Pair<TObjectIntMap<X>, TIntObjectMap<X>> intifyX = new Pair<>(new TObjectIntHashMap<>(), new TIntObjectHashMap<>());
+		Pair<TObjectIntMap<X>, TIntObjectMap<X>> intifyX = new Pair<>(new TObjectIntHashMap<>(),
+				new TIntObjectHashMap<>());
 		for (En en : schema().ens) {
 			for (X x : en(en)) {
 				intifyX.first.put(x, i);
@@ -313,10 +312,11 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	/**
 	 * MUST close this connection
 	 */
-	public Connection createAndLoad(Map<En, List<String>> indices, Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, int vlen) {
+	public Connection createAndLoad(Map<En, List<String>> indices, Pair<TObjectIntMap<X>, TIntObjectMap<X>> j,
+			int vlen) {
 		try {
-			Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> xxx = schema().toSQL("", "integer", Query.internal_id_col_name,
-					-1, Object::toString, vlen, "");
+			Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> xxx = schema().toSQL("", "integer",
+					Query.internal_id_col_name, -1, Object::toString, vlen, "");
 			Connection conn = DriverManager.getConnection("jdbc:h2:mem:db_temp_" + session_id++ + ";DB_CLOSE_DELAY=-1");
 			try (Statement stmt = conn.createStatement()) {
 				for (En en1 : schema().ens) {
@@ -384,7 +384,8 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 	// TODO aql refactor
 	public synchronized void storeMyRecord(Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, Connection conn2, X x,
-			List<Chc<Fk, Att>> header, String table, String prefix, int truncate, String tick, String idcol) throws Exception {
+			List<Chc<Fk, Att>> header, String table, String prefix, int truncate, String tick, String idcol)
+			throws Exception {
 
 		List<String> hdrQ = new LinkedList<>();
 		List<String> hdr = new LinkedList<>();
@@ -439,7 +440,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 	public String talgToString() {
 		return talg().toString();
- 	}
+	}
 
 	public int sizeOfBiggest() {
 		int ret = 0;

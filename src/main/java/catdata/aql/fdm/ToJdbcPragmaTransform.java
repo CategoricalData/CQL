@@ -23,24 +23,24 @@ import catdata.aql.exp.Ty;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 
-public class ToJdbcPragmaTransform<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> extends Pragma {
+public class ToJdbcPragmaTransform<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Pragma {
 
 	private final String jdbcString;
 	private final String prefix;
 //	private final String clazz;
 	private final String idCol;
 
-	private final Transform<Ty,En,Sym,Fk,Att,Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> h;
-	
+	private final Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h;
+
 	private final String colTy;
 	private final int colTy0;
-	
+
 	private final AqlOptions options1;
 	private final AqlOptions options2;
-	
-	
-	//TODO aql column type mapping for jdbc instance export
-	public ToJdbcPragmaTransform(String prefix, Transform<Ty,En,Sym,Fk,Att,Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> h, String clazz, String jdbcString, AqlOptions options1, AqlOptions options2) {
+
+	// TODO aql column type mapping for jdbc instance export
+	public ToJdbcPragmaTransform(String prefix, Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h,
+			String clazz, String jdbcString, AqlOptions options1, AqlOptions options2) {
 		try {
 			Class.forName(clazz);
 		} catch (ClassNotFoundException e) {
@@ -49,7 +49,7 @@ public class ToJdbcPragmaTransform<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> extends Pragma
 		this.jdbcString = jdbcString;
 		this.prefix = prefix;
 		this.h = h;
-	//s	this.clazz = clazz;
+		// s this.clazz = clazz;
 		idCol = (String) options1.getOrDefault(AqlOption.id_column_name);
 		colTy = "VARCHAR(" + options1.getOrDefault(AqlOption.varchar_length) + ")";
 		colTy0 = Types.VARCHAR;
@@ -67,25 +67,24 @@ public class ToJdbcPragmaTransform<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> extends Pragma
 			stmt.execute("CREATE TABLE " + prefix + enToString(en) + "(" + str + ")");
 		}
 	}
-	
-	private void storeMyRecord(Pair<TObjectIntMap<X1>, TIntObjectMap<X1>> i, Pair<TObjectIntMap<X2>, TIntObjectMap<X2>> j, Connection conn, X1 x, String table, En en) throws Exception {
-		  List<String> hdrQ = new LinkedList<>();
-		  List<String> hdr = new LinkedList<>();
-		  hdr.add("src" + idCol);
-		  hdr.add("dst" + idCol);
-		  hdrQ.add("?");
-		  hdrQ.add("?");
-		  	  
-		  String insertSQL = "INSERT INTO " + table + "(" + Util.sep(hdr,"," )+ ") values (" + Util.sep(hdrQ,",") + ")";
-		  PreparedStatement ps = conn.prepareStatement(insertSQL);
-		
-		  ps.setObject(1, i.first.get(x), colTy0);
-		  ps.setObject(2, j.first.get(h.repr(en, x)), colTy0);
-		
-		  ps.executeUpdate();
-	} 
 
-	
+	private void storeMyRecord(Pair<TObjectIntMap<X1>, TIntObjectMap<X1>> i,
+			Pair<TObjectIntMap<X2>, TIntObjectMap<X2>> j, Connection conn, X1 x, String table, En en) throws Exception {
+		List<String> hdrQ = new LinkedList<>();
+		List<String> hdr = new LinkedList<>();
+		hdr.add("src" + idCol);
+		hdr.add("dst" + idCol);
+		hdrQ.add("?");
+		hdrQ.add("?");
+
+		String insertSQL = "INSERT INTO " + table + "(" + Util.sep(hdr, ",") + ") values (" + Util.sep(hdrQ, ",") + ")";
+		PreparedStatement ps = conn.prepareStatement(insertSQL);
+
+		ps.setObject(1, i.first.get(x), colTy0);
+		ps.setObject(2, j.first.get(h.repr(en, x)), colTy0);
+
+		ps.executeUpdate();
+	}
 
 	@Override
 	public void execute() {
@@ -110,9 +109,10 @@ public class ToJdbcPragmaTransform<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> extends Pragma
 	private void assertDisjoint() {
 		Collection<Object> entys = Util.isect(h.src().schema().ens, h.src().schema().typeSide.tys);
 		if (!entys.isEmpty()) {
-			throw new RuntimeException("Cannot JDBC export: entities and types and idcol share names: " + Util.sep(entys, ","));
+			throw new RuntimeException(
+					"Cannot JDBC export: entities and types and idcol share names: " + Util.sep(entys, ","));
 		}
-		
+
 	}
 
 	private String enToString(En en) {

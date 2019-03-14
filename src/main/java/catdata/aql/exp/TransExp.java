@@ -15,16 +15,15 @@ import catdata.aql.Transform;
 import catdata.aql.exp.InstExp.InstExpLit;
 import catdata.aql.fdm.IdentityTransform;
 
-
-public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp<Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>> {
+public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
+		extends Exp<Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>> {
 
 	@Override
 	public Kind kind() {
 		return Kind.TRANSFORM;
 	}
-	
-	public abstract Pair<InstExp<Gen1,Sk1,X1,Y1>, InstExp<Gen2,Sk2,X2,Y2>> type(AqlTyping G);
 
+	public abstract Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<Gen2, Sk2, X2, Y2>> type(AqlTyping G);
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -32,18 +31,16 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 		Exp ret = new TransExpVar(v);
 		return ret;
 	}
-	
-	public abstract <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E;
-	
-	
-	
+
+	public abstract <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E;
+
 	public static final class TransExpId<Gen, Sk, X, Y> extends TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y> {
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
-			
+
 		}
-	
+
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
 			if (inst2.isEmpty()) {
@@ -51,10 +48,12 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 			}
 			return Util.union(inst.deps(), inst2.get().deps());
 		}
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
+
 		public final InstExp<Gen, Sk, X, Y> inst;
 		public final Optional<InstExp<Gen, Sk, X, Y>> inst2;
 
@@ -62,7 +61,7 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 			this.inst = inst;
 			this.inst2 = Optional.empty();
 		}
-		
+
 		public TransExpId(InstExp<Gen, Sk, X, Y> inst, InstExp<Gen, Sk, X, Y> inst2) {
 			this.inst = inst;
 			this.inst2 = Optional.of(inst2);
@@ -85,24 +84,24 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			TransExpId< ?, ?, ?, ?> other = (TransExpId< ?, ?, ?, ?>) obj;
-            return inst.equals(other.inst) && inst2.equals(other.inst2);
-        }
+			TransExpId<?, ?, ?, ?> other = (TransExpId<?, ?, ?, ?>) obj;
+			return inst.equals(other.inst) && inst2.equals(other.inst2);
+		}
 
 		@Override
 		public String toString() {
 			if (inst2.isEmpty()) {
 				return "identity " + inst;
 			}
-			return "include " + inst + " " + inst2.get(); 
+			return "include " + inst + " " + inst2.get();
 		}
 
 		@Override
 		public Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y> eval0(AqlEnv env, boolean isC) {
 			if (inst2.isEmpty()) {
-				return new IdentityTransform(inst.eval(env, isC), Optional.empty());
-			} 
-			return new IdentityTransform(inst.eval(env, isC), Optional.of(inst2.get().eval(env, isC)));
+				return new IdentityTransform<>(inst.eval(env, isC), Optional.empty());
+			}
+			return new IdentityTransform<>(inst.eval(env, isC), Optional.of(inst2.get().eval(env, isC)));
 		}
 
 		@Override
@@ -117,11 +116,11 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 			}
 			return new Pair<>(inst, inst2.get());
 		}
-		
-		public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+		public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			inst.map(f);
@@ -130,40 +129,43 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 			}
 		}
 
-
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	public static final class TransExpVar extends TransExp<Object, Object, Object, Object, Object, Object, Object, Object> {
+	public static final class TransExpVar
+			extends TransExp<Object, Object, Object, Object, Object, Object, Object, Object> {
 		public final String var;
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
+
 		@Override
 		public boolean isVar() {
 			return true;
 		}
+
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
 			return Collections.singleton(new Pair<>(var, Kind.TRANSFORM));
 		}
-		
+
 		public TransExpVar(String var) {
 			this.var = var;
 		}
 
 		@Override
-		public Transform eval0(AqlEnv env, boolean isC) {
+		public Transform<Ty, En, Sym, Fk, Att, Object, Object, Object, Object, Object, Object, Object, Object> eval0(
+				AqlEnv env, boolean isC) {
 			return env.defs.trans.get(var);
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
-		}
 
+		}
 
 		@Override
 		public int hashCode() {
@@ -194,39 +196,45 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Pair<InstExp<Object, Object, Object, Object>, InstExp<Object, Object, Object, Object>> type(AqlTyping G) {
+		public Pair<InstExp<Object, Object, Object, Object>, InstExp<Object, Object, Object, Object>> type(
+				AqlTyping G) {
 			if (!G.defs.trans.containsKey(var)) {
 				throw new RuntimeException("Not a transform: " + var);
 			}
-			return (Pair<InstExp<Object, Object, Object, Object>,InstExp<Object, Object, Object, Object>>) ((Object)G.defs.trans.get(var));
+			return (Pair<InstExp<Object, Object, Object, Object>, InstExp<Object, Object, Object, Object>>) ((Object) G.defs.trans
+					.get(var));
 		}
-		
-		public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+		public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
+
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
-			
+
 		}
-		
 
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static final class TransExpLit<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> {
+	public static final class TransExpLit<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
+			extends TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> {
 
-		public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
 			return Collections.emptyList();
-		}@Override
+		}
+
+		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
+
 		public final Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> trans;
 
 		public TransExpLit(Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> trans) {
@@ -251,33 +259,31 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Exp
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			TransExpLit<?, ?, ?, ?, ?, ?, ?, ?> other = (TransExpLit< ?, ?, ?, ?, ?, ?, ?, ?>) obj;
-            return trans.equals(other.trans);
-        }
+			TransExpLit<?, ?, ?, ?, ?, ?, ?, ?> other = (TransExpLit<?, ?, ?, ?, ?, ?, ?, ?>) obj;
+			return trans.equals(other.trans);
+		}
 
 		@Override
 		public String toString() {
 			return trans.toString();
-		} 
+		}
 
 		@Override
 		public Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<Gen2, Sk2, X2, Y2>> type(AqlTyping G) {
-			return new Pair<>(new InstExpLit(trans.src()), new InstExpLit(trans.dst()));
+			return new Pair<>(new InstExpLit<>(trans.src()), new InstExpLit<>(trans.dst()));
 		}
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
+
 		}
 
-		
 	}
 
-	
 	///////////////////////////////////////////////////////////////////////////
 
 }

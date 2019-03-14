@@ -41,9 +41,8 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 		return options;
 	}
 
-	public TransExpImport(InstExp<Gen1, Sk1, X1, Y1> src,
-			InstExp<Gen2, Sk2, X2, Y2> dst, List<Pair<LocStr, String>> map,
-			List<Pair<String, String>> options) {
+	public TransExpImport(InstExp<Gen1, Sk1, X1, Y1> src, InstExp<Gen2, Sk2, X2, Y2> dst,
+			List<Pair<LocStr, String>> map, List<Pair<String, String>> options) {
 		this.src = src;
 		this.dst = dst;
 		this.options = Util.toMapSafely(options);
@@ -97,12 +96,13 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 						+ " to target instance because target instance has no nulls at type " + ty);
 			}
 			if (xxx.size() > 1) {
-				if (autoMapNulls)  {
+				if (autoMapNulls) {
 					Sk2 sk2 = Util.get0X(xxx);
 					sks.put(sk, Term.Sk(sk2));
 				} else {
 					throw new RuntimeException("Cannot automatically map null " + sk
-							+ " to target instance because target instance has " + xxx.size() + " nulls at type " + ty + ". Possible solution: add options map_nulls_arbitrarily_unsafe = true");
+							+ " to target instance because target instance has " + xxx.size() + " nulls at type " + ty
+							+ ". Possible solution: add options map_nulls_arbitrarily_unsafe = true");
 				}
 			} else {
 				Sk2 sk2 = Util.get0(xxx);
@@ -122,8 +122,8 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 
 			stop(h);
 		} catch (Exception exn) {
-		//	exn.printStackTrace();
-			throw new RuntimeException(exn); //.getMessage() + "\n\n" + getHelpStr());
+			// exn.printStackTrace();
+			throw new RuntimeException(exn); // .getMessage() + "\n\n" + getHelpStr());
 		}
 
 		return new LiteralTransform<>(gens, sks, src0, dst0, dontValidateEqs);
@@ -190,11 +190,10 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 	}
 
 	@Override
-	public Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<Gen2, Sk2, X2, Y2>> type(
-			AqlTyping G) {
+	public Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<Gen2, Sk2, X2, Y2>> type(AqlTyping G) {
 		SchExp s = src.type(G);
 		SchExp t = dst.type(G);
-		if (!G.eq(s, t)) { 
+		if (!G.eq(s, t)) {
 			throw new RuntimeException(
 					"Source instance of transform has schema\n" + s + " \n\n but target instance has schema\n" + t);
 		}

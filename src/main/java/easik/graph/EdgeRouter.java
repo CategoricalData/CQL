@@ -40,9 +40,9 @@ public class EdgeRouter extends org.jgraph.util.ParallelEdgeRouter {
 	}
 
 	/**
-	 * Calculates intermediate points for multiple loops. This is the same
-	 * algorithm used by DefaultEdge.LoopRouting, but we scale the loop box for
-	 * parallel self-referencing edges.
+	 * Calculates intermediate points for multiple loops. This is the same algorithm
+	 * used by DefaultEdge.LoopRouting, but we scale the loop box for parallel
+	 * self-referencing edges.
 	 *
 	 * @param cache
 	 * @param edge
@@ -61,7 +61,8 @@ public class EdgeRouter extends org.jgraph.util.ParallelEdgeRouter {
 		if (sourceNode == null) {
 			throw new RuntimeException("Internal EASIK error, please report");
 		}
-		final Object[] edges = DefaultGraphModel.getEdgesBetween(cache.getModel(), sourceNode.getCell(), sourceNode.getCell(), true);
+		final Object[] edges = DefaultGraphModel.getEdgesBetween(cache.getModel(), sourceNode.getCell(),
+				sourceNode.getCell(), true);
 		int position = 0;
 
 		if (edges != null) {
@@ -87,12 +88,14 @@ public class EdgeRouter extends org.jgraph.util.ParallelEdgeRouter {
 			loopWidth *= posWidthFactor;
 			loopHeight *= posHeightFactor;
 
-			newPoints.add(edge.getAttributes().createPoint(from.getX() - loopWidth, from.getY() - height2 - loopHeight * 1.0));
+			newPoints.add(edge.getAttributes().createPoint(from.getX() - loopWidth,
+					from.getY() - height2 - loopHeight * 1.0));
 
 			final double midpointY = from.getY() - height2 - 1.5 * loopHeight;
 
 			newPoints.add(edge.getAttributes().createPoint(from.getX(), midpointY));
-			newPoints.add(edge.getAttributes().createPoint(from.getX() + loopWidth, from.getY() - height2 - loopHeight * 1.0));
+			newPoints.add(edge.getAttributes().createPoint(from.getX() + loopWidth,
+					from.getY() - height2 - loopHeight * 1.0));
 			newPoints.add(edge.getTarget());
 
 			return newPoints;

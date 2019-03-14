@@ -158,7 +158,8 @@ public class OverviewGraphModel extends EasikGraphModel {
 	private static AttributeMap sketchAttributes(SketchNode node) {
 		AttributeMap map = commonVertexAttributes(node);
 
-		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor("overview_sketch_border"), getIntWidth("overview_sketch_border", 2)));
+		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor("overview_sketch_border"),
+				getIntWidth("overview_sketch_border", 2)));
 		GraphConstants.setBackground(map, getColor("overview_sketch_bg"));
 		GraphConstants.setForeground(map, getColor("overview_sketch_fg"));
 
@@ -174,7 +175,8 @@ public class OverviewGraphModel extends EasikGraphModel {
 	private static AttributeMap viewAttributes(ViewNode node) {
 		AttributeMap map = commonVertexAttributes(node);
 
-		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor("overview_view_border"), getIntWidth("overview_view_border", 2)));
+		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor("overview_view_border"),
+				getIntWidth("overview_view_border", 2)));
 		GraphConstants.setBackground(map, getColor("overview_view_bg"));
 		GraphConstants.setForeground(map, getColor("overview_view_fg"));
 

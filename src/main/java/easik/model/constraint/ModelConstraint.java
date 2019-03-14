@@ -53,7 +53,8 @@ import easik.ui.SketchFrame;
  * 
  * @author Federico Mora
  */
-public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelVertex<F, GM, M, N, E> {
+public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelVertex<F, GM, M, N, E> {
 	/**  */
 	private static final long serialVersionUID = 4073411262247365979L;
 
@@ -94,16 +95,11 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 	/**
 	 * Creates a very simple constraint node.
 	 *
-	 * @param name
-	 *            The label on the node
-	 * @param x
-	 *            x coordinate
-	 * @param y
-	 *            y coordinate
-	 * @param isVisible
-	 *            If the constraint is visible in the graph or not
-	 * @param inModel
-	 *            the sketch this constraint belongs to
+	 * @param name      The label on the node
+	 * @param x         x coordinate
+	 * @param y         y coordinate
+	 * @param isVisible If the constraint is visible in the graph or not
+	 * @param inModel   the sketch this constraint belongs to
 	 */
 	public ModelConstraint(String name, int x, int y, boolean isVisible, M inModel) {
 		super(name, x, y, inModel);
@@ -149,8 +145,7 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 	/**
 	 * Sets if the constraint should be visible or not
 	 *
-	 * @param inIsVisible
-	 *            If the constraint should be visible or not.
+	 * @param inIsVisible If the constraint should be visible or not.
 	 */
 	public void setVisible(boolean inIsVisible) {
 		if (inIsVisible != _isVisible) {
@@ -159,7 +154,7 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 			_theModel.setDirty();
 		}
 
-		//GuideEdge<F, GM, M, N, E>[] visuals = _visuals.toArray(new GuideEdge[0]);
+		// GuideEdge<F, GM, M, N, E>[] visuals = _visuals.toArray(new GuideEdge[0]);
 		@SuppressWarnings("unused")
 		GraphLayoutCache glc = _theModel.getGraphLayoutCache();
 
@@ -211,10 +206,14 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 																	// 230 is
 																	// transparency
 
-			_visuals.add(new TriangleEdge<>(this, constraintRoot, col, BIG_EDGE_WIDTH, GraphConstants.ARROW_NONE, GraphConstants.ARROW_NONE));
-			_visuals.add(new TriangleEdge<>(this, thisConstraintAsLC.getCone().getA(), col, LITTLE_EDGE_WIDTH, GraphConstants.ARROW_NONE, GraphConstants.ARROW_NONE));
-			_visuals.add(new TriangleEdge<>(this, thisConstraintAsLC.getCone().getB(), col, LITTLE_EDGE_WIDTH, GraphConstants.ARROW_NONE, GraphConstants.ARROW_NONE));
-			_visuals.add(new TriangleEdge<>(this, thisConstraintAsLC.getCone().getC(), col, LITTLE_EDGE_WIDTH, GraphConstants.ARROW_NONE, GraphConstants.ARROW_NONE));
+			_visuals.add(new TriangleEdge<>(this, constraintRoot, col, BIG_EDGE_WIDTH, GraphConstants.ARROW_NONE,
+					GraphConstants.ARROW_NONE));
+			_visuals.add(new TriangleEdge<>(this, thisConstraintAsLC.getCone().getA(), col, LITTLE_EDGE_WIDTH,
+					GraphConstants.ARROW_NONE, GraphConstants.ARROW_NONE));
+			_visuals.add(new TriangleEdge<>(this, thisConstraintAsLC.getCone().getB(), col, LITTLE_EDGE_WIDTH,
+					GraphConstants.ARROW_NONE, GraphConstants.ARROW_NONE));
+			_visuals.add(new TriangleEdge<>(this, thisConstraintAsLC.getCone().getC(), col, LITTLE_EDGE_WIDTH,
+					GraphConstants.ARROW_NONE, GraphConstants.ARROW_NONE));
 		} else {
 			// Place this object at the average position of all the involved
 			// entities, and draw
@@ -298,10 +297,9 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 	 * Tests to see if an entity is either the domain or co-domain of any of the
 	 * paths involved in the constraint
 	 *
-	 * @param inEntity
-	 *            The entity to be tested
-	 * @return True if it is either domain or co-domain of a path involved in
-	 *         the constraint, false otherwise.
+	 * @param inEntity The entity to be tested
+	 * @return True if it is either domain or co-domain of a path involved in the
+	 *         constraint, false otherwise.
 	 */
 	public boolean isDomainOrCoDomain(N inEntity) {
 		@SuppressWarnings("unused")
@@ -357,12 +355,14 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 
 					if (source != dom) {
 						// Create Entity Attribute
-						EntityAttribute<F, GM, M, N, E> newAtt = new EntityAttribute<>(name, new easik.database.types.Boolean(), source);
+						EntityAttribute<F, GM, M, N, E> newAtt = new EntityAttribute<>(name,
+								new easik.database.types.Boolean(), source);
 						source.addHiddenEntityAttribute(newAtt);
 					}
 					if (target != codom) {
 						// Create Entity Attribute
-						EntityAttribute<F, GM, M, N, E> newAtt = new EntityAttribute<>(name, new easik.database.types.Boolean(), target);
+						EntityAttribute<F, GM, M, N, E> newAtt = new EntityAttribute<>(name,
+								new easik.database.types.Boolean(), target);
 						target.addHiddenEntityAttribute(newAtt);
 					}
 				}
@@ -410,8 +410,7 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 	/**
 	 * Checks to see if the constraint contains a path that uses an edge
 	 *
-	 * @param inEdge
-	 *            The edge to check against.
+	 * @param inEdge The edge to check against.
 	 * @return True if constraint contains inEdge, false otherwise.
 	 */
 	public boolean hasEdge(E inEdge) {
@@ -486,29 +485,29 @@ public abstract class ModelConstraint<F extends ModelFrame<F, GM, M, N, E>, GM e
 	/**
 	 * Sets all constraints to visible/invisible in the sketch.
 	 *
-	 * @param hashMap
-	 *            The list of constraints.
-	 * @param show
-	 *            true if constraints are to be set to visible, false otherwise
+	 * @param hashMap The list of constraints.
+	 * @param show    true if constraints are to be set to visible, false otherwise
 	 * @since 2006-05-29 Vera Ranieri
 	 */
-	public static void setAllConstraintsVisible(HashMap<Integer, ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> hashMap, boolean show) {
+	public static void setAllConstraintsVisible(
+			HashMap<Integer, ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> hashMap,
+			boolean show) {
 		for (ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> c : hashMap.values()) {
 			c.setVisible(show);
 		}
 	}
 
 	/**
-	 * Determines the entities involved in a constraint and lists them for an
-	 * error message.
+	 * Determines the entities involved in a constraint and lists them for an error
+	 * message.
 	 * 
-	 * @param paths
-	 *            The paths forming the constraint
-	 * @return A string of the domains and codomains of the constraint,
-	 *         formatted for an error message
+	 * @param paths The paths forming the constraint
+	 * @return A string of the domains and codomains of the constraint, formatted
+	 *         for an error message
 	 * @since 2006-08-04 Vera Ranieri
 	 */
-	public static String getTablesInvolvedForError(ArrayList<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths) {
+	public static String getTablesInvolvedForError(
+			ArrayList<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths) {
 		if (paths == null) {
 			return null;
 		}

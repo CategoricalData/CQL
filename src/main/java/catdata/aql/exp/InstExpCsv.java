@@ -97,7 +97,7 @@ public class InstExpCsv
 		if (map.isEmpty()) {
 			return new StringBuilder().append("import_csv \"" + f + "\" : " + schema).toString();
 		}
-		Function<Pair<List<Pair<String, String>>, List<Pair<String, String>>>,String> fun = p -> {
+		Function<Pair<List<Pair<String, String>>, List<Pair<String, String>>>, String> fun = p -> {
 			String z = p.second.isEmpty() ? "" : " options " + Util.sep(Util.toMapSafely(p.second), " = ", "\n\t");
 			return "{" + Util.sep(Util.toMapSafely(p.first), " -> ", "\n\t") + z + " }";
 		};
@@ -206,14 +206,14 @@ public class InstExpCsv
 		}
 
 		// index of each column name
-		Map<String, Integer> m = new THashMap();
+		Map<String, Integer> m = new THashMap<>();
 		for (int i = 0; i < rows.get(en0).get(0).length; i++) {
 			m.put(rows.get(en0).get(0)[i], i);
 		}
 		boolean prepend = (boolean) op.getOrDefault(inner, AqlOption.csv_prepend_entity);
 		String sep = (String) op.getOrDefault(inner, AqlOption.import_col_seperator);
 		String pre = (String) op.getOrDefault(inner, AqlOption.csv_import_prefix);
-	
+
 		Map<String, String> map;
 		if (s != null) {
 			map = Util.toMapSafely(s.first);
@@ -265,7 +265,7 @@ public class InstExpCsv
 					Gen g = toGen(sch.fks.get(fk).second, zz);
 					ens0.get(sch.fks.get(fk).second).add(g);
 					fks0.get(l0).put(fk, g);
-				} 
+				}
 			}
 
 			for (Att att : sch.attsFrom(en0)) {
@@ -341,7 +341,5 @@ public class InstExpCsv
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		this.schema.map(f);
 	}
-
-
 
 }

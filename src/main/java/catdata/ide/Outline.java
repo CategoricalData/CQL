@@ -45,7 +45,7 @@ public abstract class Outline<Progg extends Prog, Env, DDisp extends Disp> {
 		}
 		this.codeEditor.revalidate();
 		jsp.getViewport().setViewPosition(p);
-		
+
 	}
 
 	public JLabel oLabel = new JLabel("", JLabel.CENTER);
@@ -75,7 +75,7 @@ public abstract class Outline<Progg extends Prog, Env, DDisp extends Disp> {
 		alphaBox.setHorizontalAlignment(SwingConstants.RIGHT);
 		validateBox.setHorizontalTextPosition(SwingConstants.LEFT);
 		validateBox.setHorizontalAlignment(SwingConstants.LEFT);
-		
+
 		gbc.weightx = 1;
 		gbc.anchor = GridBagConstraints.EAST;
 		q.add(alphaBox, gbc);
@@ -89,8 +89,6 @@ public abstract class Outline<Progg extends Prog, Env, DDisp extends Disp> {
 
 		p.setMinimumSize(new Dimension(0, 0));
 
-		
-
 	}
 
 	public void startThread() {
@@ -103,10 +101,10 @@ public abstract class Outline<Progg extends Prog, Env, DDisp extends Disp> {
 					threadBody();
 					long r = System.currentTimeMillis();
 					x = r - l;
-					
+
 					try {
 						long todo = codeEditor.sleepDelay - x;
-						if (todo > 100) { 
+						if (todo > 100) {
 							Thread.sleep(todo);
 						}
 					} catch (Throwable e1) {
@@ -118,15 +116,11 @@ public abstract class Outline<Progg extends Prog, Env, DDisp extends Disp> {
 				}
 			}
 
-			
-
 		});
 		t.setDaemon(true);
 		t.setPriority(Thread.MIN_PRIORITY);
 		t.start();
 	}
-	
-	
 
 	protected void threadBody() {
 		try {
@@ -135,14 +129,13 @@ public abstract class Outline<Progg extends Prog, Env, DDisp extends Disp> {
 				Progg e = Outline.this.codeEditor.parse(s);
 				oLabel.setText("");
 				if (!equiv(e, Outline.this.codeEditor.parsed_prog)) {
-					if (System.currentTimeMillis()
-							- Outline.this.codeEditor.last_keystroke > codeEditor.sleepDelay) {
+					if (System.currentTimeMillis() - Outline.this.codeEditor.last_keystroke > codeEditor.sleepDelay) {
 						synchronized (Outline.this.codeEditor.parsed_prog_lock) {
 							Outline.this.codeEditor.parsed_prog = e;
 							Outline.this.codeEditor.parsed_prog_string = s;
 						}
 						build();
-						//Outline.this.codeEditor.clearSpellCheck(); 
+						// Outline.this.codeEditor.clearSpellCheck();
 					}
 				}
 			}

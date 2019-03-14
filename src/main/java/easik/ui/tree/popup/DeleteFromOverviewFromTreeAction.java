@@ -49,8 +49,7 @@ public class DeleteFromOverviewFromTreeAction extends AbstractAction {
 	/**
 	 * Called when clicked upon, will delete entity.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -59,11 +58,13 @@ public class DeleteFromOverviewFromTreeAction extends AbstractAction {
 			return;
 		}
 
-		int op = JOptionPane.showConfirmDialog(_theFrame, "Are you sure you want to delete the selected items?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+		int op = JOptionPane.showConfirmDialog(_theFrame, "Are you sure you want to delete the selected items?",
+				"Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
 		if (op == JOptionPane.YES_OPTION) {
 			// Get currently selected object
-			DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+			DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+					.getSelectionPath().getLastPathComponent();
 
 			if (curSelected.getUserObject() instanceof SketchNode) {
 				_theFrame.getOverview().removeSketch((SketchNode) curSelected.getUserObject());

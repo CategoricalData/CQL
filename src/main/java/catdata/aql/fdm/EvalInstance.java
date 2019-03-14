@@ -13,29 +13,31 @@ import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
 
-public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> 
-extends Instance<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>  
- implements DP<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>  {	
-	
+public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> extends
+		Instance<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>
+		implements DP<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> {
+
 	private final Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Q;
-	private final Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y>  I;
+	private final Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I;
 	private final EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> alg;
-	private final SaturatedInstance<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> J;
-	
-	public EvalInstance(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i, AqlOptions options) {
+	private final SaturatedInstance<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> J;
+
+	public EvalInstance(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q,
+			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i, AqlOptions options) {
 		if (!q.src.equals(i.schema())) {
-			throw new RuntimeException("In eval instance, source of query is " + q.src + ", but instance has type " + i.schema());
+			throw new RuntimeException(
+					"In eval instance, source of query is " + q.src + ", but instance has type " + i.schema());
 		}
 
 		Q = q;
 		I = i;
 		alg = new EvalAlgebra<>(Q, I, options);
-		
+
 		J = new SaturatedInstance<>(alg, dp(), I.requireConsistency(), I.allowUnsafeJava(), false, null);
-		
-		//if (J.size() < 1024*16) {
-		//	validate();
-		//}
+
+		// if (J.size() < 1024*16) {
+		// validate();
+		// }
 	}
 
 	@Override
@@ -44,7 +46,7 @@ extends Instance<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, 
 	}
 
 	@Override
-	public Map<Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2> gens() {
+	public Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2> gens() {
 		return J.gens();
 	}
 
@@ -54,29 +56,34 @@ extends Instance<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, 
 	}
 
 	@Override
-	public Iterable<Pair<Term<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>, Term<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>>> eqs() {
+	public Iterable<Pair<Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>, Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>>> eqs() {
 		return J.eqs();
 	}
 
 	@Override
-	public DP<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> dp() {
+	public DP<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> dp() {
 		return this;
 	}
 
 	@Override
-	public Algebra<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> algebra() {
+	public Algebra<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> algebra() {
 		return alg;
 	}
-		
-	@Override
-	public boolean eq(Map<Var, Chc<Ty, En2>> ctx, Term<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> lhs, Term<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> rhs) {
-		if (ctx != null && !ctx.isEmpty()) {
-			throw new RuntimeException("Anomaly: please report.  Note to Ryan: caused by call to instance dp on non-ground eq");
-		}
-        return atType(lhs) ? I.dp().eq(null, I.reprT(alg.intoY(lhs)), I.reprT(alg.intoY(rhs))) : alg.intoX(lhs).equals(alg.intoX(rhs));
-	} 
 
-	private boolean atType(Term<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> term) {
+	@Override
+	public boolean eq(Map<Var, Chc<Ty, En2>> ctx,
+			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> lhs,
+			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> rhs) {
+		if (ctx != null && !ctx.isEmpty()) {
+			throw new RuntimeException(
+					"Anomaly: please report.  Note to Ryan: caused by call to instance dp on non-ground eq");
+		}
+		return atType(lhs) ? I.dp().eq(null, I.reprT(alg.intoY(lhs)), I.reprT(alg.intoY(rhs)))
+				: alg.intoX(lhs).equals(alg.intoX(rhs));
+	}
+
+	private boolean atType(
+			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> term) {
 		if (term.obj() != null || term.sk() != null) {
 			return true;
 		} else if (term.gen() != null) {
@@ -105,8 +112,5 @@ extends Instance<Ty, En2, Sym, Fk2, Att2, Row<En2,Chc<X,Term<Ty, En1, Sym, Fk1, 
 	public boolean allowUnsafeJava() {
 		return I.allowUnsafeJava();
 	}
-	
-	
-	
-}	
-	
+
+}

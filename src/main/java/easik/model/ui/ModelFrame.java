@@ -22,7 +22,8 @@ import easik.ui.tree.ModelInfoTreeUI;
  * @author Federico Mora
  *
  */
-public abstract class ModelFrame<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends EasikFrame {
+public abstract class ModelFrame<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends EasikFrame {
 
 	/**
 	 * 
@@ -51,9 +52,8 @@ public abstract class ModelFrame<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	private M _ourModel;
 
 	/**
-	 * Allows the frame to know which mode it is in. The current modes allow
-	 * editing a sketch, or manipulating data on a server if a connection
-	 * exists.
+	 * Allows the frame to know which mode it is in. The current modes allow editing
+	 * a sketch, or manipulating data on a server if a connection exists.
 	 */
 	public enum Mode {
 		EDIT, MANIPULATE
@@ -66,8 +66,7 @@ public abstract class ModelFrame<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	/**
 	 * Sets if the button pane is visible or not
 	 *
-	 * @param isVis
-	 *            True if visible, false if hidden.
+	 * @param isVis True if visible, false if hidden.
 	 */
 	public void setButtonPaneVisibility(final boolean isVis) {
 		_buttonPane.setVisible(isVis);
@@ -103,8 +102,7 @@ public abstract class ModelFrame<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	/**
 	 * Sets the enableness of the "add ____ constraint" menu items
 	 * 
-	 * @param state
-	 *            The state of the add constraint menu items.
+	 * @param state The state of the add constraint menu items.
 	 */
 	public abstract void enableAddConstraintItems(final boolean state);
 
@@ -137,8 +135,7 @@ public abstract class ModelFrame<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	 * The instruction bar tells the user what to do when the button pane in
 	 * enables, as it is not always obvious... This method changes that text.
 	 *
-	 * @param inText
-	 *            The new text
+	 * @param inText The new text
 	 */
 	public void setInstructionText(final String inText) {
 		_instructionBar.setText(inText);

@@ -63,8 +63,7 @@ public class RedoAction extends AbstractAction {
 	/**
 	 * When action is performed, do a redo.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

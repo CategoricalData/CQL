@@ -90,42 +90,45 @@ public class AqlOutline extends Outline<Program<Exp<?>>, AqlEnv, AqlDisplay> {
 	protected synchronized void threadBody() {
 		try {
 			String s = codeEditor.topArea.getText();
+			String z = codeEditor.parsed_prog_string;
 //			if (System.currentTimeMillis() - codeEditor.last_keystroke > codeEditor.sleepDelay) {
 
 			if (!s.equals(codeEditor.parsed_prog_string)) {
-			//	oLabel.setText("?");
+				// oLabel.setText("?");
 				AqlCodeEditor codeEditor2 = (AqlCodeEditor) codeEditor;
+				synchronized (codeEditor.parsed_prog_lock) {
+					codeEditor.parsed_prog_string = s;
+				}
 				codeEditor2.aqlStatic.doIt(s);
 				if (codeEditor2.aqlStatic.env != null && codeEditor2.aqlStatic.env.prog != null) {
-					
-				Program<Exp<?>> e = codeEditor2.aqlStatic.env.prog; // codeEditor.parse(s);
-				oLabel.setText("");
+
+					Program<Exp<?>> e = codeEditor2.aqlStatic.env.prog; // codeEditor.parse(s);
+					oLabel.setText("");
 
 					synchronized (codeEditor.parsed_prog_lock) {
 						codeEditor.parsed_prog = e;
-						codeEditor.parsed_prog_string = s;
 					}
 					build();
-					//codeEditor.clearSpellCheck();
+					// codeEditor.clearSpellCheck();
 //				}
 				}
 			}
-					
+
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			oLabel.setText("err");
 		}
 	}
 
-	private synchronized DefaultMutableTreeNode makeTree(List<String> set, @SuppressWarnings("unused") String prog, boolean prefix, boolean alpha,
-			boolean useTypes) {
+	private synchronized DefaultMutableTreeNode makeTree(List<String> set, @SuppressWarnings("unused") String prog,
+			boolean prefix, boolean alpha, boolean useTypes) {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		AqlCodeEditor codeEditor2 = (AqlCodeEditor) codeEditor;
 		AqlStatic s = codeEditor2.aqlStatic;
 
 //		codeEditor2.topArea.forceReparsing(codeEditor2.aqlStatic);
-		AqlTyping G = s.env.typing; 
-		
+		AqlTyping G = s.env.typing;
+
 		for (String k : set) {
 			Exp<?> e = s.env.prog.exps.get(k);
 			if (e == null) {
@@ -141,7 +144,7 @@ public class AqlOutline extends Outline<Program<Exp<?>>, AqlEnv, AqlDisplay> {
 			root.add(n);
 		}
 		return root;
-	
+
 	}
 
 	private void asTree(DefaultMutableTreeNode root, boolean alpha, Exp<?> e) {
@@ -283,15 +286,15 @@ public class AqlOutline extends Outline<Program<Exp<?>>, AqlEnv, AqlDisplay> {
 
 	@Override
 	protected boolean equiv(Program<Exp<?>> now, Program<Exp<?>> then) {
-		return false; 
+		return false;
 	}
 
 	public AqlOutline(AqlCodeEditor codeEditor) {
 		super(codeEditor);
-		//codeEditor2 = codeEditor;
+		// codeEditor2 = codeEditor;
 	}
 
-	//final AqlCodeEditor codeEditor2;
+	// final AqlCodeEditor codeEditor2;
 
 	private <X, Y, Z> void add(DefaultMutableTreeNode root, Collection<X> x, Y y, Function<X, Z> f, boolean alpha) {
 		if (x.size() > 0) {
@@ -313,7 +316,5 @@ public class AqlOutline extends Outline<Program<Exp<?>>, AqlEnv, AqlDisplay> {
 			root.add(n);
 		}
 	}
-
-	
 
 }

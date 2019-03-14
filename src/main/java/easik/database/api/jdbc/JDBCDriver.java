@@ -65,7 +65,8 @@ public abstract class JDBCDriver extends PersistenceDriver {
 		}
 
 		if (!isConnectable()) {
-			throw new LoadException("Insufficient driver parameters for establishing a db connection: at least db, username, and password are required");
+			throw new LoadException(
+					"Insufficient driver parameters for establishing a db connection: at least db, username, and password are required");
 		}
 
 		final StringBuilder dsn = new StringBuilder("jdbc:mysql://");
@@ -146,9 +147,9 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	}
 
 	/**
-	 * The statement separator for SQL statements. This is generally only used
-	 * when generating multiple SQL statements (e.g. into a file), not when
-	 * performing ordinary single db statements.
+	 * The statement separator for SQL statements. This is generally only used when
+	 * generating multiple SQL statements (e.g. into a file), not when performing
+	 * ordinary single db statements.
 	 *
 	 * @return the string ";"
 	 */
@@ -158,10 +159,10 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	}
 
 	/**
-	 * Returns true if enough options are specified to establish a connection.
-	 * At a minimum, <code>db</code>, <code>username</code>, and
-	 * <code>password</code> options are required, and <code>db</code> and
-	 * <code>username</code> must be non-empty strings.
+	 * Returns true if enough options are specified to establish a connection. At a
+	 * minimum, <code>db</code>, <code>username</code>, and <code>password</code>
+	 * options are required, and <code>db</code> and <code>username</code> must be
+	 * non-empty strings.
 	 *
 	 * @return
 	 */
@@ -176,8 +177,7 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	 * Executes a given SQL query that produces a ResultSet. Typically a SELECT
 	 * statement.
 	 *
-	 * @param s
-	 *            The statement to execute
+	 * @param s The statement to execute
 	 * @return The ResultSet returned from the query's execution
 	 *
 	 * @throws SQLException
@@ -191,16 +191,15 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	}
 
 	/**
-	 * A simple alias for obj.Database().prepareStatement(...). Takes a query,
-	 * which may contain literal value placeholders (such as "SELECT col1, col2
-	 * FROM tablename WHERE col1 = ? AND col = ?"), and executes it safely,
-	 * quoting values replacing placeholders as required. When handling user
-	 * input of any sort, using executeQuery with setString() etc. calls on the
-	 * PreparedStatement object is highly recommended over using executeQuery().
-	 * The returned prepared statement is set to not return auto-generated keys.
+	 * A simple alias for obj.Database().prepareStatement(...). Takes a query, which
+	 * may contain literal value placeholders (such as "SELECT col1, col2 FROM
+	 * tablename WHERE col1 = ? AND col = ?"), and executes it safely, quoting
+	 * values replacing placeholders as required. When handling user input of any
+	 * sort, using executeQuery with setString() etc. calls on the PreparedStatement
+	 * object is highly recommended over using executeQuery(). The returned prepared
+	 * statement is set to not return auto-generated keys.
 	 *
-	 * @param sql
-	 *            the sql string to prepare.
+	 * @param sql the sql string to prepare.
 	 * @return a prepared sql statement
 	 *
 	 * @throws SQLException
@@ -215,12 +214,11 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	}
 
 	/**
-	 * Executes a given SQL updating statement. Which may be an INSERT, UPDATE,
-	 * or DELETE statement.
+	 * Executes a given SQL updating statement. Which may be an INSERT, UPDATE, or
+	 * DELETE statement.
 	 *
 	 * @author Sarah van der Laan
-	 * @param s
-	 *            The SQL statement to execute
+	 * @param s The SQL statement to execute
 	 *
 	 * @throws SQLException
 	 */
@@ -234,17 +232,14 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	}
 
 	/**
-	 * Executes a given SQL updating statement. Which may be an INSERT, UPDATE,
-	 * or DELETE statement. The statement must be in the form expected by
+	 * Executes a given SQL updating statement. Which may be an INSERT, UPDATE, or
+	 * DELETE statement. The statement must be in the form expected by
 	 * java.sql.PreparedStatement
 	 *
-	 * @param sql
-	 *            The SQL statement to execute
-	 * @param input
-	 *            The set of ColumnEntry objects from which our values are
-	 *            retrieved. Note: This works but relys on 'input' being
-	 *            iterated over in the same order that it was when 'sql' was
-	 *            generated.
+	 * @param sql   The SQL statement to execute
+	 * @param input The set of ColumnEntry objects from which our values are
+	 *              retrieved. Note: This works but relys on 'input' being iterated
+	 *              over in the same order that it was when 'sql' was generated.
 	 *
 	 * @throws SQLException
 	 */
@@ -276,12 +271,11 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	/**
 	 * Returns the part of statement for an insertion with no columns, such as:
 	 * <code>() VALUES ()</code> (to be used after
-	 * <code>INSERT INTO tablename </code>). By default, we return "() VALUES
-	 * ()", but some databases (e.g. postgresql) need something else (e.g.
-	 * "DEFAULT VALUES");
+	 * <code>INSERT INTO tablename </code>). By default, we return "() VALUES ()",
+	 * but some databases (e.g. postgresql) need something else (e.g. "DEFAULT
+	 * VALUES");
 	 *
-	 * @return String to add when inserting without specifying any
-	 *         columns/values.
+	 * @return String to add when inserting without specifying any columns/values.
 	 */
 	@SuppressWarnings("static-method")
 	public String emptyInsertClause() {
@@ -289,12 +283,11 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	}
 
 	/**
-	 * Creates a db corresponding to the current set of options, with the
-	 * ability to drop the db before crating.
+	 * Creates a db corresponding to the current set of options, with the ability to
+	 * drop the db before crating.
 	 *
-	 * @param drop
-	 *            Indicates if the db should be droped before creation, should a
-	 *            naming conflict arise.
+	 * @param drop Indicates if the db should be droped before creation, should a
+	 *             naming conflict arise.
 	 * @return The success of the db creation. (Always false)
 	 *
 	 * @throws LoadException
@@ -306,8 +299,8 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	}
 
 	/**
-	 * Drops a recreates a schema corresponding to the current set of options,
-	 * if the driver supports schemas.
+	 * Drops a recreates a schema corresponding to the current set of options, if
+	 * the driver supports schemas.
 	 *
 	 * @return Success of operation(Always false)
 	 *
@@ -322,8 +315,7 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	/**
 	 * Get an update monitor for this JDBC driver.
 	 * 
-	 * @param sk
-	 *            Requesting sketch.
+	 * @param sk Requesting sketch.
 	 * @return a JDBC update monitor
 	 */
 	public JDBCUpdateMonitor newUpdateMonitor(Sketch sk) {
@@ -344,8 +336,7 @@ public abstract class JDBCDriver extends PersistenceDriver {
 	/**
 	 * Toggle constraints and let the user modify the table.
 	 *
-	 * @param sketch
-	 *            Sketch to override triggers for
+	 * @param sketch Sketch to override triggers for
 	 * @throws Exception
 	 */
 	@Override
@@ -354,7 +345,8 @@ public abstract class JDBCDriver extends PersistenceDriver {
 		final String INSERT = "Insert";
 		final String DELETE = "Delete";
 		String[] options = { INSERT, DELETE };
-		String edit = (String) JOptionPane.showInputDialog(sketch.getFrame(), "Select constraint override update", "What would you like to do?", JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+		String edit = (String) JOptionPane.showInputDialog(sketch.getFrame(), "Select constraint override update",
+				"What would you like to do?", JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
 		if (edit == null) {
 			return;
@@ -369,7 +361,8 @@ public abstract class JDBCDriver extends PersistenceDriver {
 			options[i] = ens.get(i).getName();
 		}
 
-		String table = (String) JOptionPane.showInputDialog(sketch.getFrame(), "Select table to modify", "Which table to modify?", JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+		String table = (String) JOptionPane.showInputDialog(sketch.getFrame(), "Select table to modify",
+				"Which table to modify?", JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
 		if (table == null) {
 			return;

@@ -8,18 +8,19 @@ import catdata.Util;
 
 /**
  * 
- * A morphism of graphs taking nodes to nodes and edges to (possibly empty) paths.
+ * A morphism of graphs taking nodes to nodes and edges to (possibly empty)
+ * paths.
  * 
  * @author ryan
  */
-public final class Match<N1,E1,N2,E2> {
+public final class Match<N1, E1, N2, E2> {
 
-	private final DMG<N1,E1> src;
-	private final DMG<N2,E2> dst;
+	private final DMG<N1, E1> src;
+	private final DMG<N2, E2> dst;
 
 	private final Map<N1, N2> nodes;
 	private final Map<E1, List<E2>> edges;
-	
+
 	public Match(DMG<N1, E1> src, DMG<N2, E2> dst, Map<N1, N2> nodes, Map<E1, List<E2>> edges) {
 		this.src = src;
 		this.dst = dst;
@@ -27,7 +28,7 @@ public final class Match<N1,E1,N2,E2> {
 		this.edges = edges;
 		validate();
 	}
-	
+
 	private void validate() {
 		for (N1 en1 : src.nodes) {
 			N2 en2 = nodes.get(en1);
@@ -35,12 +36,14 @@ public final class Match<N1,E1,N2,E2> {
 				throw new RuntimeException("in " + this + ", " + "source node " + en1 + " has no mapping");
 			}
 			if (!dst.nodes.contains(en2)) {
-				throw new RuntimeException("in " + this + ", " + "source node " + en1 + " maps to " + en2 + ", which is not in target");
-			}	
+				throw new RuntimeException(
+						"in " + this + ", " + "source node " + en1 + " maps to " + en2 + ", which is not in target");
+			}
 		}
 		for (N1 en1 : nodes.keySet()) {
 			if (!src.nodes.contains(en1)) {
-				throw new RuntimeException("in " + this + ", " + "there is a mapping for " + en1 + " which is not a source node");
+				throw new RuntimeException(
+						"in " + this + ", " + "there is a mapping for " + en1 + " which is not a source node");
 			}
 		}
 		for (E1 en1 : src.edges.keySet()) {
@@ -52,7 +55,8 @@ public final class Match<N1,E1,N2,E2> {
 		}
 		for (E1 en1 : edges.keySet()) {
 			if (!src.edges.keySet().contains(en1)) {
-				throw new RuntimeException("in " + this + ", " + "there is a mapping for " + en1 + " which is not a source edge");
+				throw new RuntimeException(
+						"in " + this + ", " + "there is a mapping for " + en1 + " which is not a source edge");
 			}
 		}
 	}
@@ -76,7 +80,7 @@ public final class Match<N1,E1,N2,E2> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Match<?,?,?,?> other = (Match<?,?,?,?>) obj;
+		Match<?, ?, ?, ?> other = (Match<?, ?, ?, ?>) obj;
 		if (dst == null) {
 			if (other.dst != null)
 				return false;
@@ -99,13 +103,14 @@ public final class Match<N1,E1,N2,E2> {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
-		List<String> nodesStr = nodes.keySet().stream().map(x -> x + " -> " + nodes.get(x)).collect(Collectors.toList());
-		List<String> edgesStr = edges.keySet().stream().map(x -> x + " -> " + Util.sep(edges.get(x), ".")).collect(Collectors.toList());
+		List<String> nodesStr = nodes.keySet().stream().map(x -> x + " -> " + nodes.get(x))
+				.collect(Collectors.toList());
+		List<String> edgesStr = edges.keySet().stream().map(x -> x + " -> " + Util.sep(edges.get(x), "."))
+				.collect(Collectors.toList());
 		return "nodes\n\t" + Util.sep(nodesStr, "\n\t") + "\n\nedges\n\t" + Util.sep(edgesStr, "\n\t");
-	} 
-	
-}
+	}
 
+}

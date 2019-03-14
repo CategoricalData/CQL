@@ -49,8 +49,8 @@ public class SketchGraphModel extends EasikGraphModel {
 	private Sketch _sketch;
 
 	/**
-	 * Constructs a new SketchGraphModel, which overrides cell attributes to
-	 * display things appropriately for Easik.
+	 * Constructs a new SketchGraphModel, which overrides cell attributes to display
+	 * things appropriately for Easik.
 	 *
 	 * @param inSketch
 	 */
@@ -81,11 +81,14 @@ public class SketchGraphModel extends EasikGraphModel {
 			AttributeMap easikAttribs = null;
 
 			if (cell instanceof SketchEdge) {
-				easikAttribs = (cell instanceof InjectiveEdge) ? injectiveEdgeAttributes() : (cell instanceof PartialEdge) ? partialEdgeAttributes() : normalEdgeAttributes();
+				easikAttribs = (cell instanceof InjectiveEdge) ? injectiveEdgeAttributes()
+						: (cell instanceof PartialEdge) ? partialEdgeAttributes() : normalEdgeAttributes();
 			} else if (cell instanceof TriangleEdge) {
-				easikAttribs = triangleEdgeAttributes((TriangleEdge<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) cell);
+				easikAttribs = triangleEdgeAttributes(
+						(TriangleEdge<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) cell);
 			} else if (cell instanceof GuideEdge) {
-				easikAttribs = ((GuideEdge<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) cell).isHighlighted() ? virtualHighlightedEdgeAttributes() : virtualEdgeAttributes();
+				easikAttribs = ((GuideEdge<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) cell)
+						.isHighlighted() ? virtualHighlightedEdgeAttributes() : virtualEdgeAttributes();
 			} else if (cell instanceof ModelConstraint) {
 				easikAttribs = virtualVertexAttributes();
 			} else if (cell instanceof EntityNode) {
@@ -105,7 +108,8 @@ public class SketchGraphModel extends EasikGraphModel {
 						lineWidth = getWidth("selection", 3);
 					}
 
-					int borderWidth = getIntWidth(_mode + ((cell instanceof ModelConstraint) ? "constraint" : "entity") + "_border", 1);
+					int borderWidth = getIntWidth(
+							_mode + ((cell instanceof ModelConstraint) ? "constraint" : "entity") + "_border", 1);
 
 					GraphConstants.setBorder(easikAttribs, BorderFactory.createLineBorder(selColor, borderWidth));
 					GraphConstants.setForeground(easikAttribs, selColor);
@@ -221,11 +225,11 @@ public class SketchGraphModel extends EasikGraphModel {
 	/**
 	 * TRIANGLES CF2012 Set the attributes for display of a triangle edge.
 	 * 
-	 * @param edge
-	 *            the edge to read attributes from
+	 * @param edge the edge to read attributes from
 	 * @return a map of attributes to be used for new triangle edges
 	 */
-	private static AttributeMap triangleEdgeAttributes(TriangleEdge<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> edge) {
+	private static AttributeMap triangleEdgeAttributes(
+			TriangleEdge<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> edge) {
 		AttributeMap map = commonEdgeAttributes();
 
 		GraphConstants.setLineEnd(map, edge.getLineEnd());
@@ -264,7 +268,8 @@ public class SketchGraphModel extends EasikGraphModel {
 
 		GraphConstants.setAutoSize(map, true);
 		GraphConstants.setInset(map, 5);
-		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor(_mode + "entity_border"), getIntWidth(_mode + "entity_border", 1)));
+		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor(_mode + "entity_border"),
+				getIntWidth(_mode + "entity_border", 1)));
 		GraphConstants.setBackground(map, getColor(_mode + "entity_bg"));
 		GraphConstants.setForeground(map, getColor(_mode + "entity_fg"));
 		GraphConstants.setFont(map, GraphConstants.DEFAULTFONT.deriveFont(Font.BOLD, 12));
@@ -283,7 +288,8 @@ public class SketchGraphModel extends EasikGraphModel {
 
 		GraphConstants.setAutoSize(map, true);
 		GraphConstants.setInset(map, 5);
-		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor(_mode + "constraint_border"), getIntWidth(_mode + "constraint_border", 1)));
+		GraphConstants.setBorder(map, BorderFactory.createLineBorder(getColor(_mode + "constraint_border"),
+				getIntWidth(_mode + "constraint_border", 1)));
 		GraphConstants.setBackground(map, getColor(_mode + "constraint_bg"));
 		GraphConstants.setForeground(map, getColor(_mode + "constraint_fg"));
 		GraphConstants.setFont(map, GraphConstants.DEFAULTFONT.deriveFont(Font.BOLD, 12));

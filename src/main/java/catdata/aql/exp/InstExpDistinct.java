@@ -12,8 +12,7 @@ import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.fdm.DistinctInstance;
 
-public final class InstExpDistinct<Gen, Sk, X, Y>
-		extends InstExp<Gen, Sk, X, Y> {
+public final class InstExpDistinct<Gen, Sk, X, Y> extends InstExp<Gen, Sk, X, Y> {
 
 	public final InstExp<Gen, Sk, X, Y> I;
 
@@ -21,7 +20,7 @@ public final class InstExpDistinct<Gen, Sk, X, Y>
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
 	}
-	
+
 	@Override
 	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.singleton(I);
@@ -72,7 +71,7 @@ public final class InstExpDistinct<Gen, Sk, X, Y>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpDistinct other = (InstExpDistinct) obj;
+		InstExpDistinct<?, ?, ?, ?> other = (InstExpDistinct<?, ?, ?, ?>) obj;
 		return I.equals(other.I);
 	}
 

@@ -45,8 +45,8 @@ public class DefineQueryNodeFromTreeAction extends AbstractAction {
 	}
 
 	/**
-	 * Prompts user for name and query values and make appropriate updates on
-	 * query node.
+	 * Prompts user for name and query values and make appropriate updates on query
+	 * node.
 	 *
 	 * @param ourNode
 	 */
@@ -84,18 +84,18 @@ public class DefineQueryNodeFromTreeAction extends AbstractAction {
 		try {
 			ourNode.setQuery(query);
 		} catch (QueryException e) {
-			JOptionPane.showMessageDialog(ourView.getParent(), "New Query not set. Not valid query.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(ourView.getParent(), "New Query not set. Not valid query.", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 		ourView.clearSelection();
 	}
 
 	/**
-	 * Fires updateNode(QueryNode ourNode) with the current selection, should
-	 * its size be equal to 1.
+	 * Fires updateNode(QueryNode ourNode) with the current selection, should its
+	 * size be equal to 1.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -105,7 +105,8 @@ public class DefineQueryNodeFromTreeAction extends AbstractAction {
 			return;
 		}
 
-		DefaultMutableTreeNode selected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode selected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 
 		if (selected.getUserObject() instanceof QueryNode) {
 			updateNode((QueryNode) selected.getUserObject());

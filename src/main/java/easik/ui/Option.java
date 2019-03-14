@@ -24,8 +24,8 @@ public class Option {
 	private JLabel label;
 
 	/**
-	 * Creates a new label-only option line. This can be used for a title, or
-	 * some other long description that should use up the entire line.
+	 * Creates a new label-only option line. This can be used for a title, or some
+	 * other long description that should use up the entire line.
 	 *
 	 * @param label
 	 */
@@ -34,8 +34,8 @@ public class Option {
 	}
 
 	/**
-	 * Creates a new label-only option line, creating a new JLabel from the
-	 * provided string.
+	 * Creates a new label-only option line, creating a new JLabel from the provided
+	 * string.
 	 *
 	 * @see easik.ui.Option( javax.swing.JLabel)
 	 *
@@ -47,12 +47,11 @@ public class Option {
 
 	/**
 	 * Creates a new label/component pair. If given multiple compnents, will add
-	 * them to a JPanel and then set that as the component. Note that this is
-	 * better than putting them into a JPanel yourself: the label will be
-	 * centered on the first component passed-in.
+	 * them to a JPanel and then set that as the component. Note that this is better
+	 * than putting them into a JPanel yourself: the label will be centered on the
+	 * first component passed-in.
 	 *
-	 * @param label
-	 *            the JLabel of the option
+	 * @param label      the JLabel of the option
 	 * @param components
 	 */
 	public Option(JLabel label, JComponent... components) {
@@ -103,8 +102,7 @@ public class Option {
 	 * Creates a new label/component pair, constructing a new JLabel from the
 	 * provided string.
 	 *
-	 * @param label
-	 *            the text of the JLabel
+	 * @param label      the text of the JLabel
 	 * @param components
 	 */
 	public Option(String label, JComponent... components) {
@@ -114,8 +112,7 @@ public class Option {
 	/**
 	 * Sets the label of this option.
 	 * 
-	 * @param label
-	 *            the new label
+	 * @param label the new label
 	 */
 	public void setLabel(JLabel label) {
 		this.label = label;
@@ -133,8 +130,7 @@ public class Option {
 	/**
 	 * Sets the value component for this option.
 	 * 
-	 * @param comp
-	 *            the component
+	 * @param comp the component
 	 */
 	public void setComponent(JComponent comp) {
 		component = comp;
@@ -150,8 +146,8 @@ public class Option {
 	}
 
 	/**
-	 * Option.Title is a special Option subclass that creates an Option label
-	 * row with specified text, formatted to be the title of an option dialog.
+	 * Option.Title is a special Option subclass that creates an Option label row
+	 * with specified text, formatted to be the title of an option dialog.
 	 */
 	public static class Title extends Option {
 		/**

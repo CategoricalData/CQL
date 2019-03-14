@@ -51,8 +51,8 @@ public class XSDAttribute extends XSDAbstractElement {
 	public String getBody() {
 		if (getElementType().isReferencable()) {
 			return lineSep;
-		} 
-			return getElementType().toString() + lineSep;
-		
+		}
+		return getElementType().toString() + lineSep;
+
 	}
 }

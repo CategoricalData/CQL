@@ -27,13 +27,12 @@ public class Varchar extends EasikType {
 	 * varchar. Note that some databases may not support size values larger than
 	 * 255.
 	 *
-	 * @param n
-	 *            the size
+	 * @param n the size
 	 */
 	public Varchar(final int n) {
 		size = n;
 	}
-	
+
 	public Varchar() {
 		this(255);
 	}
@@ -41,8 +40,7 @@ public class Varchar extends EasikType {
 	/**
 	 * Recreates the object from the attributes returned by attributes().
 	 *
-	 * @param attr
-	 *            the size attribute in a map
+	 * @param attr the size attribute in a map
 	 */
 	public Varchar(final Map<String, String> attr) {
 		this(Integer.parseInt(attr.get("size")));
@@ -120,6 +118,7 @@ public class Varchar extends EasikType {
 	 */
 	@Override
 	public XSDType getXMLSchemaType() {
-		return new XSDSimpleType(new XSDRestriction("varchar" + size, XSDBaseType.xsString, FacetEnum.MAXLENGTH, String.valueOf(size)));
+		return new XSDSimpleType(
+				new XSDRestriction("varchar" + size, XSDBaseType.xsString, FacetEnum.MAXLENGTH, String.valueOf(size)));
 	}
 }

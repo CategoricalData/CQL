@@ -7,8 +7,8 @@ package easik.model.keys;
  */
 public interface UniqueIndexable {
 	/**
-	 * Returns a human-readable name of this indexable item. Typically the
-	 * attribute name or edge name.
+	 * Returns a human-readable name of this indexable item. Typically the attribute
+	 * name or edge name.
 	 *
 	 * @return
 	 */

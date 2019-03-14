@@ -49,7 +49,8 @@ import easik.ui.GraphUI;
  * @author Federico Mora
  *
  */
-public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends JGraph {
+public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends JGraph {
 
 	/**
 	 * 
@@ -92,14 +93,12 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	private boolean _warnings = true;
 
 	/**
-	 * The default constructor sets all the visual settings for the JGraph, as
-	 * well as initialising the sketch to be empty. It also adds appropriate
-	 * listeners for all of the actions we are concerned with.
+	 * The default constructor sets all the visual settings for the JGraph, as well
+	 * as initialising the sketch to be empty. It also adds appropriate listeners
+	 * for all of the actions we are concerned with.
 	 * 
-	 * @param inFrame
-	 *            The application frame of the sketch
-	 * @param inOverview
-	 *            the overview
+	 * @param inFrame    The application frame of the sketch
+	 * @param inOverview the overview
 	 */
 	public Model(final F inFrame, final Overview inOverview) {
 		super();
@@ -144,27 +143,23 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * When we initialise the model, we flush out all the data concerning the
-	 * model itself.
+	 * When we initialise the model, we flush out all the data concerning the model
+	 * itself.
 	 *
 	 * This methods serves as a "new model" function.
 	 */
 	protected abstract void initialiseModel();
 
 	/**
-	 * Called internally by Node when a node is renamed, to keep the entity node
-	 * map consistent. Should not be called directly; instead call
+	 * Called internally by Node when a node is renamed, to keep the entity node map
+	 * consistent. Should not be called directly; instead call
 	 * sketch.getEntity("currentname").setName("newname").
 	 *
 	 * @see easik.sketch.vertex.EntityNode#setName(String)
-	 * @param node
-	 *            the EntityNode being renamed
-	 * @param oldName
-	 *            the old name of the node
-	 * @param newName
-	 *            the candidate new name
-	 * @return a string containing the final new node name, for EntityNode to
-	 *         use.
+	 * @param node    the EntityNode being renamed
+	 * @param oldName the old name of the node
+	 * @param newName the candidate new name
+	 * @return a string containing the final new node name, for EntityNode to use.
 	 */
 	public String nodeRenamed(final N node, final String oldName, String newName) {
 		// If the name already exists, we have to rename it
@@ -178,8 +173,8 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Overridden version of JGraph.getSelectionCells() that always returns an
-	 * empty array (instead of null) for an empty selection.
+	 * Overridden version of JGraph.getSelectionCells() that always returns an empty
+	 * array (instead of null) for an empty selection.
 	 *
 	 * @return
 	 */
@@ -207,8 +202,7 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	 * Refreshes the specified nodes/edges in the sketch GUI. If called with no
 	 * arguments, all items are refreshed.
 	 *
-	 * @param cells
-	 *            the cells.
+	 * @param cells the cells.
 	 */
 	public void refresh(final GraphCell... cells) {
 		setBackground(Easik.getInstance().getSettings().getColor("edit_canvas_background"));
@@ -244,31 +238,25 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	 * Should not be called directly; instead just call edge.setName("newname").
 	 *
 	 * @see easik.sketch.edge.SketchEdge#setName(String)
-	 * @param edge
-	 *            the edge being renamed
-	 * @param oldName
-	 *            the old name of the edge
-	 * @param newName
-	 *            the candidate new name
-	 * @return a string containing the final new edge name, for SketchEdge to
-	 *         use.
+	 * @param edge    the edge being renamed
+	 * @param oldName the old name of the edge
+	 * @param newName the candidate new name
+	 * @return a string containing the final new edge name, for SketchEdge to use.
 	 */
 	public abstract String edgeRenamed(final E edge, final String oldName, String newName);
 
 	/**
-	 * Removes an entity, and also cascades to remove all the arrows involved
-	 * with it.
+	 * Removes an entity, and also cascades to remove all the arrows involved with
+	 * it.
 	 *
-	 * @param toRemove
-	 *            The entity about to be removed
+	 * @param toRemove The entity about to be removed
 	 */
 	public abstract void removeNode(final N toRemove);
 
 	/**
 	 * Returns an edge based on its name.
 	 *
-	 * @param name
-	 *            name of the edge desired
+	 * @param name name of the edge desired
 	 * @return the edge with this name.
 	 */
 	public E getEdge(final String name) {
@@ -278,10 +266,8 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	/**
 	 * Accessor for a single entity in the sketch. Takes the entity name.
 	 *
-	 * @param entName
-	 *            the entity name
-	 * @return Node associated with that name, or null if the entity does not
-	 *         exist
+	 * @param entName the entity name
+	 * @return Node associated with that name, or null if the entity does not exist
 	 */
 	public N getEntity(final String entName) {
 		return _nodes.get(entName);
@@ -307,9 +293,9 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 
 	/**
 	 * Since this is a Swing component, this method is overloading a method of
-	 * JGraph to adjust the look and feel. The feel we are changing is ignoring
-	 * all but left clicks, allowing for right-click functionality not affecting
-	 * the selections.
+	 * JGraph to adjust the look and feel. The feel we are changing is ignoring all
+	 * but left clicks, allowing for right-click functionality not affecting the
+	 * selections.
 	 */
 	@Override
 	public void updateUI() {
@@ -374,8 +360,7 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	/**
 	 * Add a new constraint to the sketch
 	 *
-	 * @param c
-	 *            The constraint to be added
+	 * @param c The constraint to be added
 	 */
 	@SuppressWarnings("unchecked")
 	public void addNewConstraint(final ModelConstraint<F, GM, M, N, E>... c) {
@@ -385,40 +370,35 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	/**
 	 * Add a new, empty entity at point X, Y
 	 *
-	 * @param name
-	 *            The name of the new entity being added
-	 * @param x
-	 *            X Coordinate of new entity
-	 * @param y
-	 *            Y Coordinate of new entity
+	 * @param name The name of the new entity being added
+	 * @param x    X Coordinate of new entity
+	 * @param y    Y Coordinate of new entity
 	 */
 	public abstract void addNewNode(final String name, final double x, final double y);
 
 	/**
 	 * Returns the state of our sync flag. Any time a command would be issued to
-	 * edit this sketch, a call should be made to this method. If it returns
-	 * true, editing cannot occur safely.
+	 * edit this sketch, a call should be made to this method. If it returns true,
+	 * editing cannot occur safely.
 	 * 
-	 * @return A flag indicating if this sketch has been synced with a db. If
-	 *         true, any changes to the sketch may destroy the link to the db.
+	 * @return A flag indicating if this sketch has been synced with a db. If true,
+	 *         any changes to the sketch may destroy the link to the db.
 	 */
 	public abstract boolean isSynced();
 
 	/**
-	 * Sets our sync flag flag. This indicates whether or not we are synced with
-	 * a db and wish to lock editing.
+	 * Sets our sync flag flag. This indicates whether or not we are synced with a
+	 * db and wish to lock editing.
 	 * 
-	 * @param state
-	 *            The state of our exported flag.
+	 * @param state The state of our exported flag.
 	 */
 	public abstract void setSynced(final boolean state);
 
 	/**
 	 * Returns the next available name, starting from the passed-in name.
 	 *
-	 * @param name
-	 *            the initial name to try; if it exists, we add/increment a
-	 *            number until it's unique
+	 * @param name the initial name to try; if it exists, we add/increment a number
+	 *             until it's unique
 	 * @return the first available unused name
 	 */
 	public String getNewName(String name) {
@@ -430,8 +410,8 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Returns the next available name, starting from 'NewEntity0', so we don't
-	 * get duplicates.
+	 * Returns the next available name, starting from 'NewEntity0', so we don't get
+	 * duplicates.
 	 *
 	 * @return The next new name.
 	 */
@@ -440,11 +420,10 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Checks to see if a name is in use, so that we will not have several
-	 * instances at once.
+	 * Checks to see if a name is in use, so that we will not have several instances
+	 * at once.
 	 *
-	 * @param inName
-	 *            The desired new name to check against
+	 * @param inName The desired new name to check against
 	 * @return Is it used or not.
 	 */
 	public abstract boolean isNameUsed(final String inName);
@@ -475,11 +454,10 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 
 	/**
 	 * Adds a constraint to the sketch. This will register the constraint in the
-	 * constraint list, as well as adding a visual representation of the
-	 * constraint to the graph.
+	 * constraint list, as well as adding a visual representation of the constraint
+	 * to the graph.
 	 *
-	 * @param c
-	 *            The constraint to be added.
+	 * @param c The constraint to be added.
 	 */
 	@SuppressWarnings("unchecked")
 	public void addConstraint(final ModelConstraint<F, GM, M, N, E> c) {
@@ -516,8 +494,7 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	/**
 	 * Removes a constraint and guide arrows
 	 *
-	 * @param toRemove
-	 *            The constraint about to be removed
+	 * @param toRemove The constraint about to be removed
 	 */
 	public void removeConstraint(final ModelConstraint<F, GM, M, N, E> toRemove) {
 		model.beginUpdate();
@@ -565,9 +542,8 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	 * effort to avoid hidden nodes. Gives up afer a specified number of tries,
 	 * accepting the random position.
 	 * 
-	 * @param tries
-	 *            The number of random tries to get a new location before giving
-	 *            up.
+	 * @param tries The number of random tries to get a new location before giving
+	 *              up.
 	 * @return The point deemed acceptable for placement of a new node.
 	 */
 	public Point getNewPosition(final int tries) {
@@ -597,14 +573,12 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Takes a snapshot of the current sketch and returns it. We override
-	 * JGraph's default getImage method to make sure the sketch is displayable,
-	 * setting it up propertly if it isn't.
+	 * Takes a snapshot of the current sketch and returns it. We override JGraph's
+	 * default getImage method to make sure the sketch is displayable, setting it up
+	 * propertly if it isn't.
 	 *
-	 * @param bg
-	 *            background color of the sketch, or null for transparent
-	 * @param inset
-	 *            the size of an empty border to add around the sketch
+	 * @param bg    background color of the sketch, or null for transparent
+	 * @param inset the size of an empty border to add around the sketch
 	 * @return an Image of the current sketch
 	 */
 	@Override
@@ -621,8 +595,8 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Takes a snapshot of the current sketch, sends the image to
-	 * scaleImage(..), and sets in the node representing this sketch.
+	 * Takes a snapshot of the current sketch, sends the image to scaleImage(..),
+	 * and sets in the node representing this sketch.
 	 */
 	public void updateThumb() {
 		Image temp = getImage(Easik.getInstance().getSettings().getColor("edit_canvas_background"), 0);
@@ -637,15 +611,16 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	/**
 	 * Scales image by factor specified for x and y directions.
 	 *
-	 * @param inThumb
-	 *            The image to be scaled
+	 * @param inThumb The image to be scaled
 	 *
 	 * @return The scaled image
 	 */
 	private static Image scaleThumb(final BufferedImage inThumb) {
-		final double scaleFactor = Double.parseDouble(Easik.getInstance().getSettings().getProperty("thumb_scale_factor", "0.5"));
+		final double scaleFactor = Double
+				.parseDouble(Easik.getInstance().getSettings().getProperty("thumb_scale_factor", "0.5"));
 
-		return inThumb.getScaledInstance((int) (inThumb.getWidth() * scaleFactor), (int) (inThumb.getHeight() * scaleFactor), Image.SCALE_SMOOTH);
+		return inThumb.getScaledInstance((int) (inThumb.getWidth() * scaleFactor),
+				(int) (inThumb.getHeight() * scaleFactor), Image.SCALE_SMOOTH);
 	}
 
 	/**
@@ -659,9 +634,8 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Used to mark a sketch as dirty. When called, we mark the Overview as
-	 * dirty, and update the last modification time of the sketch to the current
-	 * time.
+	 * Used to mark a sketch as dirty. When called, we mark the Overview as dirty,
+	 * and update the last modification time of the sketch to the current time.
 	 */
 	public void setDirty() {
 		getOverview().setDirty(true);
@@ -675,31 +649,30 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	 * pullback constraint is valid, this returns the passed-in list in the
 	 * appropriate order,
 	 *
-	 * Note: This method does not currently care about the order that the paths
-	 * are selected.
+	 * Note: This method does not currently care about the order that the paths are
+	 * selected.
 	 *
-	 * Modified summer 2012 (CRF): The original (not 'wide') pullback constraint
-	 * was hard coded (with 4 nested loops) to arrange the paths in order (i.e.
-	 * exponential time). This is infeasible for a generalized pullback. This
-	 * method now arranges the edges more efficiently: For each edge in the
-	 * constraint, if we store a count of the number of times we see an N (by
-	 * calling getDomain() and getCoDomain() on the path) in a hash map. Once
-	 * all paths have been considered, the source and target will have each been
-	 * encountered n times where n is the width of the constraint. The
-	 * intermediate nodes will have been encountered 2 times. So it is possible
-	 * to determine the constraints if the width is > 2.If the width = 2, I pass
-	 * the paths to be dealt with by the original pullback method. Otherwise,
-	 * the source and targets are identified to separate the path list into
-	 * target and projection paths. This then lets us arrange the list as a
-	 * pullback. _____________________________________________________ | Source
-	 * P1 | Target P1 | Source P2 | Target P2 | ...
+	 * Modified summer 2012 (CRF): The original (not 'wide') pullback constraint was
+	 * hard coded (with 4 nested loops) to arrange the paths in order (i.e.
+	 * exponential time). This is infeasible for a generalized pullback. This method
+	 * now arranges the edges more efficiently: For each edge in the constraint, if
+	 * we store a count of the number of times we see an N (by calling getDomain()
+	 * and getCoDomain() on the path) in a hash map. Once all paths have been
+	 * considered, the source and target will have each been encountered n times
+	 * where n is the width of the constraint. The intermediate nodes will have been
+	 * encountered 2 times. So it is possible to determine the constraints if the
+	 * width is > 2.If the width = 2, I pass the paths to be dealt with by the
+	 * original pullback method. Otherwise, the source and targets are identified to
+	 * separate the path list into target and projection paths. This then lets us
+	 * arrange the list as a pullback.
+	 * _____________________________________________________ | Source P1 | Target P1
+	 * | Source P2 | Target P2 | ...
 	 * |___________|___________|___________|___________|_____
 	 *
-	 * TODO All of this could be simplified by keeping track of which node is
-	 * which upon creation...
+	 * TODO All of this could be simplified by keeping track of which node is which
+	 * upon creation...
 	 *
-	 * @param paths
-	 *            The set of potential paths
+	 * @param paths The set of potential paths
 	 * @return Null if invalid pullback constraint, a valid pullback constraint
 	 *         ordering otherwise.
 	 */
@@ -843,8 +816,7 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	 * Find the projection path for a given source path. (The path to the
 	 * intermediary node that is the domain of p)
 	 * 
-	 * @param p
-	 *            The source path
+	 * @param p The source path
 	 * @return Corresponding projection path, null if not found
 	 */
 	private ModelPath<F, GM, M, N, E> getProjectionPathFor(ModelPath<F, GM, M, N, E> p) {
@@ -867,16 +839,15 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	/**
 	 * Method to determine whether a set of paths potentially forming a pullback
 	 * constraint could legally form a pullback constraint. Additionally, if the
-	 * pullback constraint is valid, this rearranges the passed-in list to be in
-	 * the appropriate order: path elements 0 and 1 form one path, elements 2
-	 * and 3 form the other path. In other words, the domains of elements 0 and
-	 * 2 are the same, and the codomains of elements 1 and 3 are the same.
+	 * pullback constraint is valid, this rearranges the passed-in list to be in the
+	 * appropriate order: path elements 0 and 1 form one path, elements 2 and 3 form
+	 * the other path. In other words, the domains of elements 0 and 2 are the same,
+	 * and the codomains of elements 1 and 3 are the same.
 	 *
-	 * Note: This method does not currently care about the order that the paths
-	 * are selected.
+	 * Note: This method does not currently care about the order that the paths are
+	 * selected.
 	 *
-	 * @param paths
-	 *            The set of potential paths
+	 * @param paths The set of potential paths
 	 * @return Null if invalid pullback constraint, a valid pullback constraint
 	 *         ordering otherwise.
 	 * @since 2006-05-25 Vera Ranieri
@@ -914,9 +885,12 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 							continue;
 						}
 
-						ModelPath<F, GM, M, N, E> pathA = paths.get(i), pathB = paths.get(j), pathC = paths.get(k), pathD = paths.get(l);
-						N domA = pathA.getDomain(), domB = pathB.getDomain(), domC = pathC.getDomain(), domD = pathD.getDomain();
-						N codoA = pathA.getCoDomain(), codoB = pathB.getCoDomain(), codoC = pathC.getCoDomain(), codoD = pathD.getCoDomain();
+						ModelPath<F, GM, M, N, E> pathA = paths.get(i), pathB = paths.get(j), pathC = paths.get(k),
+								pathD = paths.get(l);
+						N domA = pathA.getDomain(), domB = pathB.getDomain(), domC = pathC.getDomain(),
+								domD = pathD.getDomain();
+						N codoA = pathA.getCoDomain(), codoB = pathB.getCoDomain(), codoC = pathC.getCoDomain(),
+								codoD = pathD.getCoDomain();
 
 						try {
 							if ((codoA == domB) && ( // "Left" paths connect
@@ -925,7 +899,10 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 													// thing
 							domA == domC)) { // "Top" paths come from the same
 												// thing
-								if (!(!pathB.getEdges().getFirst().isInjective() || (pathC.getEdges().getFirst().isInjective() && !pathD.getEdges().getFirst().isInjective()) || pathA.getEdges().getFirst().isInjective())) {
+								if (!(!pathB.getEdges().getFirst().isInjective()
+										|| (pathC.getEdges().getFirst().isInjective()
+												&& !pathD.getEdges().getFirst().isInjective())
+										|| pathA.getEdges().getFirst().isInjective())) {
 									return null;
 								}
 
@@ -953,8 +930,7 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	 * Static method to determine whether a set of paths could theoretically
 	 * designate a sum constraint.
 	 * 
-	 * @param paths
-	 *            The paths to check for a sum constraint formation.
+	 * @param paths The paths to check for a sum constraint formation.
 	 * @return True if forms a sum constraint, false otherwise.
 	 * @since 2006-05-29 Vera Ranieri
 	 */
@@ -1004,8 +980,7 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	 * Method to determine whether a given set of paths could legally create a
 	 * product constraint.
 	 *
-	 * @param paths
-	 *            The paths potentially involved in a product constraint
+	 * @param paths The paths potentially involved in a product constraint
 	 * @return True if a legal path configuration, false otherwise
 	 * @since 2006-05-25 Vera Ranieri
 	 */
@@ -1047,15 +1022,14 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Method to determine whether a set of paths potentially forming a
-	 * equalizer constraint could legally form a equalizer constraint. The first
-	 * path must be the equalizer projection, and must consist of a single,
-	 * injective edge. The remaining paths (of which there must be at least 2)
-	 * must start at the project path's codomain, must all have the same
-	 * codomain, and must be distinct paths from one another.
+	 * Method to determine whether a set of paths potentially forming a equalizer
+	 * constraint could legally form a equalizer constraint. The first path must be
+	 * the equalizer projection, and must consist of a single, injective edge. The
+	 * remaining paths (of which there must be at least 2) must start at the project
+	 * path's codomain, must all have the same codomain, and must be distinct paths
+	 * from one another.
 	 *
-	 * @param paths
-	 *            The set of potential paths
+	 * @param paths The set of potential paths
 	 * @return True if a legal equalizer configuration, false otherwise.
 	 */
 	public boolean isEqualizerConstraint(ArrayList<ModelPath<F, GM, M, N, E>> paths) {
@@ -1112,13 +1086,12 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 	}
 
 	/**
-	 * Checks whether the current selected paths form a commutative diagram.
-	 * This is determined by checking whether the paths participating in the
-	 * commutative diagram have the same domain and codomain, and also by making
-	 * sure that each path is different.
+	 * Checks whether the current selected paths form a commutative diagram. This is
+	 * determined by checking whether the paths participating in the commutative
+	 * diagram have the same domain and codomain, and also by making sure that each
+	 * path is different.
 	 *
-	 * @param inPaths
-	 *            The list of paths participating in the commutative diagram
+	 * @param inPaths The list of paths participating in the commutative diagram
 	 * @return true if it forms a valid commutative diagram, false otherwise
 	 */
 	public boolean isCommutativeDiagram(List<ModelPath<F, GM, M, N, E>> inPaths) {
@@ -1138,7 +1111,8 @@ public abstract class Model<F extends ModelFrame<F, GM, M, N, E>, GM extends Eas
 			if (i > 0) // Don't both checking the first one, obviously it is
 						// equal to itself
 			{
-				if (!firstPath.getDomain().equals(path.getDomain()) || !firstPath.getCoDomain().equals(path.getCoDomain())) {
+				if (!firstPath.getDomain().equals(path.getDomain())
+						|| !firstPath.getCoDomain().equals(path.getCoDomain())) {
 					return false;
 				}
 			}

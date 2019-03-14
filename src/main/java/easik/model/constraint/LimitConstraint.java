@@ -27,12 +27,14 @@ import easik.model.vertex.ModelVertex;
 /**
  *
  */
-public class LimitConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelConstraint<F, GM, M, N, E> {
+public class LimitConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelConstraint<F, GM, M, N, E> {
 	private static final long serialVersionUID = 8645375610612714804L;
 	private Cone<F, GM, M, N, E> cone;
 	private Cone<F, GM, M, N, E> limitCone1, limitCone2;
 
-	public LimitConstraint(M inSketch, Cone<F, GM, M, N, E> cone, Cone<F, GM, M, N, E> limitCone1, Cone<F, GM, M, N, E> limitCone2) {
+	public LimitConstraint(M inSketch, Cone<F, GM, M, N, E> cone, Cone<F, GM, M, N, E> limitCone1,
+			Cone<F, GM, M, N, E> limitCone2) {
 		super(inSketch);
 
 		setName("LC");
@@ -75,7 +77,8 @@ public class LimitConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 		_edges = edges;
 	}
 
-	public LimitConstraint(String name, int x, int y, boolean isVisible, M inModel, ArrayList<ModelPath<F, GM, M, N, E>> constraintPaths) {
+	public LimitConstraint(String name, int x, int y, boolean isVisible, M inModel,
+			ArrayList<ModelPath<F, GM, M, N, E>> constraintPaths) {
 		super(name, x, y, isVisible, inModel);
 
 		// assumed order of constraintPaths

@@ -30,20 +30,19 @@ import gnu.trove.set.hash.THashSet;
 public final class MapExpRaw extends MapExp implements Raw {
 
 	@Override
-	public <R, P, E extends Exception> MapExp coaccept(P params,
-			MapExpCoVisitor<R, P, E> v, R r) throws E {
+	public <R, P, E extends Exception> MapExp coaccept(P params, MapExpCoVisitor<R, P, E> v, R r) throws E {
 		return v.visitMapExpRaw(params, r);
 	}
-	
+
 	@Override
 	public Collection<Exp<?>> imports() {
 		return (Collection<Exp<?>>) (Object) imports;
 	}
-	
-	public <R,P,E extends Exception> R accept(P params, MapExpVisitor<R,P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, MapExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
-	
+
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
 		Set<Pair<String, Kind>> ret = new THashSet<>();
@@ -71,26 +70,24 @@ public final class MapExpRaw extends MapExp implements Raw {
 		return options;
 	}
 
-	
 	private Map<En, Integer> enPos = new THashMap<>();
 	private Map<Fk, Integer> fkPos = new THashMap<>();
 	private Map<Att, Integer> attPos = new THashMap<>();
 
-	
 	public MapExpRaw(SchExp src, SchExp dst, List<MapExp> a,
 			List<Pair<LocStr, Triple<String, List<Pair<LocStr, List<String>>>, List<Pair<LocStr, Triple<String, String, RawTerm>>>>>> list,
 			List<Pair<String, String>> options) {
-		this.src =  src;
-		this.dst =  dst;
+		this.src = src;
+		this.dst = dst;
 		this.imports = new THashSet<>(a);
 
 		Map<LocStr, Triple<String, List<Pair<LocStr, List<String>>>, List<Pair<LocStr, Triple<String, String, RawTerm>>>>> list2 = Util
 				.toMapSafely(list);
 
-		this.ens = new THashSet<>(); 
-		this.fks = new THashSet<>(); 
-		this.atts = new THashSet<>(); 
-	
+		this.ens = new THashSet<>();
+		this.fks = new THashSet<>();
+		this.atts = new THashSet<>();
+
 		for (LocStr en : list2.keySet()) {
 			Triple<String, List<Pair<LocStr, List<String>>>, List<Pair<LocStr, Triple<String, String, RawTerm>>>> v = list2
 					.get(en);
@@ -113,8 +110,8 @@ public final class MapExpRaw extends MapExp implements Raw {
 		Util.toMapSafely(this.fks);
 		Util.toMapSafely(this.atts); // do here rather than wait
 
-		//List<InteriorLabel<Object>> t = InteriorLabel.imports("imports", imports);
-		//raw.put("imports", t);
+		// List<InteriorLabel<Object>> t = InteriorLabel.imports("imports", imports);
+		// raw.put("imports", t);
 
 		raw.put("entities", new LinkedList<>());
 		raw.put("foreign keys", new LinkedList<>());
@@ -126,15 +123,18 @@ public final class MapExpRaw extends MapExp implements Raw {
 			En x = En.En(p.first);
 			inner.add(new InteriorLabel<>("entities", new Pair<>(p.first, p.second), enPos.get(x),
 					xx -> xx.first + " -> " + xx.second).conv());
-		
-			for (Pair<Pair<String, String>, List<String>> q : this.fks.stream().filter(xx -> xx.first.first.equals(p.first)).collect(Collectors.toList())) {
-				inner.add(new InteriorLabel<>("foreign keys",
-						q /* new Pair<>(p.first.second.str, p.second) */, fkPos.get(Fk.Fk(x,q.first.second)),
-						xx -> xx.first + " -> " + Util.sep(xx.second, ".")).conv());
+
+			for (Pair<Pair<String, String>, List<String>> q : this.fks.stream()
+					.filter(xx -> xx.first.first.equals(p.first)).collect(Collectors.toList())) {
+				inner.add(new InteriorLabel<>("foreign keys", q /* new Pair<>(p.first.second.str, p.second) */,
+						fkPos.get(Fk.Fk(x, q.first.second)), xx -> xx.first + " -> " + Util.sep(xx.second, "."))
+								.conv());
 			}
-	
-			for (Pair<Pair<String, String>, Triple<String, String, RawTerm>> q : atts.stream().filter(xx -> xx.first.first.equals(p.first)).collect(Collectors.toList())) {
-				inner.add(new InteriorLabel<>("attributes", new Pair<>(q.first.second, q.second), attPos.get(Att.Att(x,q.first.second)),
+
+			for (Pair<Pair<String, String>, Triple<String, String, RawTerm>> q : atts.stream()
+					.filter(xx -> xx.first.first.equals(p.first)).collect(Collectors.toList())) {
+				inner.add(new InteriorLabel<>("attributes", new Pair<>(q.first.second, q.second),
+						attPos.get(Att.Att(x, q.first.second)),
 						xx -> xx.first + " -> \\" + xx.second.first + ". " + xx.second.third).conv());
 			}
 		}
@@ -157,26 +157,25 @@ public final class MapExpRaw extends MapExp implements Raw {
 			sb.append("\n\t\t").append(Util.sep(imports, " ")).append("\n");
 		}
 
-		
 		for (Pair<String, String> en : Util.alphabetical(ens)) {
 			List<String> temp = new LinkedList<>();
 
 			sb.append("\tentity");
 
-			//for (Pair<LocStr, String> x : Util.alphabetical(ens)) {
-				temp.add(en.first + " -> " + en.second);
-			//}
+			// for (Pair<LocStr, String> x : Util.alphabetical(ens)) {
+			temp.add(en.first + " -> " + en.second);
+			// }
 
 			sb.append("\n\t\t").append(Util.sep(temp, "\n\t\t")).append("\n");
-			
-			List<Pair<Pair<String, String>, List<String>>> 
-			x = fks.stream().filter(z -> z.first.first.equals(en.first)).collect(Collectors.toList());
+
+			List<Pair<Pair<String, String>, List<String>>> x = fks.stream().filter(z -> z.first.first.equals(en.first))
+					.collect(Collectors.toList());
 			if (!x.isEmpty()) {
 				sb.append("\tforeign_keys");
 				temp = new LinkedList<>();
 				for (Pair<Pair<String, String>, List<String>> sym : Util.alphabetical(x)) {
 					if (sym.second.isEmpty()) {
-						temp.add(sym.first.second + " -> identity");						
+						temp.add(sym.first.second + " -> identity");
 					} else {
 						temp.add(sym.first.second + " -> " + Util.sep(sym.second, "."));
 					}
@@ -184,9 +183,9 @@ public final class MapExpRaw extends MapExp implements Raw {
 				sb.append("\n\t\t").append(Util.sep(temp, "\n\t\t")).append("\n");
 			}
 
-			List<Pair<Pair<String, String>, Triple<String, String, RawTerm>>> 
-			y = atts.stream().filter(z -> z.first.first.equals(en.first)).collect(Collectors.toList());
-			
+			List<Pair<Pair<String, String>, Triple<String, String, RawTerm>>> y = atts.stream()
+					.filter(z -> z.first.first.equals(en.first)).collect(Collectors.toList());
+
 			if (!y.isEmpty()) {
 				sb.append("\tattributes");
 				temp = new LinkedList<>();
@@ -196,8 +195,6 @@ public final class MapExpRaw extends MapExp implements Raw {
 				sb.append("\n\t\t").append(Util.sep(temp, "\n\t\t")).append("\n");
 			}
 		}
-
-		
 
 		if (!options.isEmpty()) {
 			sb.append("\toptions");
@@ -209,7 +206,7 @@ public final class MapExpRaw extends MapExp implements Raw {
 			sb.append("\n\t\t").append(Util.sep(temp, "\n\t\t")).append("\n");
 		}
 
-		return  sb.toString().trim() + "}";
+		return sb.toString().trim() + "}";
 	}
 
 	@Override
@@ -304,20 +301,20 @@ public final class MapExpRaw extends MapExp implements Raw {
 		}
 
 		for (Pair<Pair<String, String>, List<String>> p : this.fks) {
-			En x = En.En(p.first.first); 
+			En x = En.En(p.first.first);
 			Fk theFk = Fk.Fk(x, p.first.second);
 			if (!src0.fks.containsKey(theFk)) {
-				throw new RuntimeException("Not a foreign key in source: " + theFk.en + "." + theFk.str); 
+				throw new RuntimeException("Not a foreign key in source: " + theFk.en + "." + theFk.str);
 			}
 			try {
 				En start_en_fixed = ens0.get(x);
 
 				En start_en = ens0.get(x);
-				
+
 				List<Fk> r = new ArrayList<>(p.second.size());
 				for (String o : p.second) {
-						r.add(Fk.Fk(start_en, o));
-						start_en = dst0.fks.get(Fk.Fk(start_en, o)).second;
+					r.add(Fk.Fk(start_en, o));
+					start_en = dst0.fks.get(Fk.Fk(start_en, o)).second;
 				}
 				fksX.put(Fk.Fk(x, p.first.second), new Pair<>(start_en_fixed, r));
 			} catch (RuntimeException ex) {
@@ -326,7 +323,7 @@ public final class MapExpRaw extends MapExp implements Raw {
 						+ Util.sep(p.second, ".") + ", " + ex.getMessage());
 			}
 		}
-	
+
 		for (Pair<Pair<String, String>, Triple<String, String, RawTerm>> att : atts) {
 			try {
 				String var = att.second.first;
@@ -366,7 +363,8 @@ public final class MapExpRaw extends MapExp implements Raw {
 						new Triple<>(Var.Var(var), dst_att_dom_en, term0.convert()));
 			} catch (RuntimeException ex) {
 				ex.printStackTrace();
-				throw new LocException(attPos.get(Att.Att(En.En(att.first.first), att.first.second)), "in mapping for " + att.first + ", " + ex.getMessage());
+				throw new LocException(attPos.get(Att.Att(En.En(att.first.first), att.first.second)),
+						"in mapping for " + att.first + ", " + ex.getMessage());
 			}
 		}
 
@@ -395,6 +393,6 @@ public final class MapExpRaw extends MapExp implements Raw {
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		src.map(f);
-		dst.map(f);		
+		dst.map(f);
 	}
 }

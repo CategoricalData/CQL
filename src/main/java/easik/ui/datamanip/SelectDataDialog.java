@@ -34,12 +34,9 @@ public class SelectDataDialog extends JDialog {
 	/**
 	 * Sets up a data selection dialog on a dialog instead of a frame.
 	 *
-	 * @param parent
-	 *            the parent JDialog of the modal dialog
-	 * @param title
-	 *            The title of the dialog window
-	 * @param table
-	 *            The data of the table to display
+	 * @param parent the parent JDialog of the modal dialog
+	 * @param title  The title of the dialog window
+	 * @param table  The data of the table to display
 	 */
 	public SelectDataDialog(final JDialog parent, final String title, final JTable table) {
 		super(parent, title, true);
@@ -50,12 +47,9 @@ public class SelectDataDialog extends JDialog {
 	/**
 	 * Sets up a data selection dialog.
 	 *
-	 * @param parent
-	 *            the parent frame of the modal dialog
-	 * @param title
-	 *            The title of the dialog window
-	 * @param table
-	 *            The data of the table to display
+	 * @param parent the parent frame of the modal dialog
+	 * @param title  The title of the dialog window
+	 * @param table  The data of the table to display
 	 */
 	public SelectDataDialog(final JFrame parent, final String title, final JTable table) {
 		super(parent, title, true);
@@ -118,19 +112,19 @@ public class SelectDataDialog extends JDialog {
 	}
 
 	/**
-	 * Returns true if the user accepted the options dialog (that is, clicked
-	 * the OK button).
+	 * Returns true if the user accepted the options dialog (that is, clicked the OK
+	 * button).
 	 *
-	 * @return true if the user clicked OK (and the fields verified
-	 *         successfully), false if the user cancelled or closed the dialog.
+	 * @return true if the user clicked OK (and the fields verified successfully),
+	 *         false if the user cancelled or closed the dialog.
 	 */
 	public boolean isAccepted() {
 		return _ok;
 	}
 
 	/**
-	 * Gets the rows selected from the data table. This information can then be
-	 * used by DatabaseUtils to find selected primary IDs.
+	 * Gets the rows selected from the data table. This information can then be used
+	 * by DatabaseUtils to find selected primary IDs.
 	 *
 	 * @return An int array of row numbers selected in the display
 	 */

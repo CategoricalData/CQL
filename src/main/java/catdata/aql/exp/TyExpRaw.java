@@ -79,9 +79,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 		return options;
 	}
 
-	@SuppressWarnings("unchecked")
-	public TyExpRaw(List<TyExp> imports, List<LocStr> types,
-			List<Pair<LocStr, Pair<List<String>, String>>> functions,
+	public TyExpRaw(List<TyExp> imports, List<LocStr> types, List<Pair<LocStr, Pair<List<String>, String>>> functions,
 			List<Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>>> eqsX,
 			List<Pair<LocStr, String>> java_tys_string, List<Pair<LocStr, String>> java_parser_string,
 			List<Pair<LocStr, Triple<List<String>, String, String>>> java_fns_string,
@@ -132,16 +130,17 @@ public final class TyExpRaw extends TyExp implements Raw {
 		return Util.map(m, (k, v) -> new Pair<>(Sym.Sym(k), conv2(v.first, v.second)));
 	}
 
-	public void doGuiIndex(/*List<Pair<Integer, TyExp<?, ?>>> imports2, */List<LocStr> types,
+	public void doGuiIndex(/* List<Pair<Integer, TyExp<?, ?>>> imports2, */List<LocStr> types,
 			List<Pair<LocStr, Pair<List<String>, String>>> functions,
 			List<Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>>> eqs,
 			List<Pair<LocStr, String>> java_tys_string, List<Pair<LocStr, String>> java_parser_string,
 			List<Pair<LocStr, Triple<List<String>, String, String>>> java_fns_string) {
-		//@SuppressWarnings("unused")
-		//List<InteriorLabel<Object>> i = imports2.stream()
-		//		.map(z -> new InteriorLabel<Object>(z.toString(), z.second, z.first, x -> x.toString()))
-		//		.collect(Collectors.toList());
-		//raw.put("imports", i);
+		// @SuppressWarnings("unused")
+		// List<InteriorLabel<Object>> i = imports2.stream()
+		// .map(z -> new InteriorLabel<Object>(z.toString(), z.second, z.first, x ->
+		// x.toString()))
+		// .collect(Collectors.toList());
+		// raw.put("imports", i);
 		List<InteriorLabel<Object>> t = InteriorLabel.imports("types", types);
 		raw.put("types", t);
 
@@ -294,8 +293,6 @@ public final class TyExpRaw extends TyExp implements Raw {
 			sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
 		}
 
-		
-
 		if (!java_tys.isEmpty()) {
 			sb.append("\tjava_types");
 			temp = new LinkedList<>();
@@ -325,7 +322,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 
 			sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
 		}
-		
+
 		if (!eqs.isEmpty()) {
 			sb.append("\tequations");
 			temp = new LinkedList<>();
@@ -376,8 +373,8 @@ public final class TyExpRaw extends TyExp implements Raw {
 				.eqsAsTriples().stream().map(x -> new Triple<>(xxx(x.first), x.second, x.third))
 				.collect(Collectors.toSet());
 
-		TypeSide<Ty, Sym> ret = new TypeSide<>(col.tys, col.syms, (eqs0), col.java_tys,
-				col.java_parsers, col.java_fns, ops);
+		TypeSide<Ty, Sym> ret = new TypeSide<>(col.tys, col.syms, (eqs0), col.java_tys, col.java_parsers, col.java_fns,
+				ops);
 
 		return ret;
 	}

@@ -34,32 +34,32 @@ import catdata.Util;
 public class DefunctGlobalOptions implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public static DefunctGlobalOptions debug = new DefunctGlobalOptions();
-	
+
 	public static void clear() {
 		debug = new DefunctGlobalOptions();
 	}
 
 	private static int selected_tab = 0;
 
-	//public final GeneralOptions general = new GeneralOptions();
-	//public final FqlOptions fql = new FqlOptions();
-	//public final FqlppOptions fqlpp = new FqlppOptions();
-	//public final XOptions fpql = new XOptions();
-	//public OplOptions opl = new OplOptions(); 
-	//private final AqlOptionsDefunct aql = new AqlOptionsDefunct();
-	
+	// public final GeneralOptions general = new GeneralOptions();
+	// public final FqlOptions fql = new FqlOptions();
+	// public final FqlppOptions fqlpp = new FqlppOptions();
+	// public final XOptions fpql = new XOptions();
+	// public OplOptions opl = new OplOptions();
+	// private final AqlOptionsDefunct aql = new AqlOptionsDefunct();
+
 	private Options[] options() {
-		return new Options[] { /*general,*/  /*fpql, opl */ /*,aql*/ };
+		return new Options[] { /* general, */ /* fpql, opl */ /* ,aql */ };
 	}
-	
+
 	{
 		for (Options option : options()) {
 			Options.biggestSize = Integer.max(Options.biggestSize, option.size());
 		}
 	}
-	
+
 	private static void save() {
 		try {
 			FileOutputStream fileOut = new FileOutputStream("cdide.ser");
@@ -72,7 +72,7 @@ public class DefunctGlobalOptions implements Serializable {
 			JOptionPane.showMessageDialog(null, i.getLocalizedMessage());
 		}
 	}
-	
+
 	private static void delete() {
 		File f = new File("cdide.ser");
 		if (!f.exists()) {
@@ -104,10 +104,9 @@ public class DefunctGlobalOptions implements Serializable {
 			JOptionPane.showMessageDialog(null, "Cannot restore options - deleting");
 			delete();
 		}
-		
+
 	}
 
-				
 	public static void showOptions() {
 		JTabbedPane jtb = new JTabbedPane();
 
@@ -118,11 +117,11 @@ public class DefunctGlobalOptions implements Serializable {
 			callbacks.add(x.second);
 		}
 		jtb.setSelectedIndex(selected_tab);
-		
+
 		JOptionPane pane = new JOptionPane(new JScrollPane(jtb), JOptionPane.PLAIN_MESSAGE,
-				JOptionPane.OK_CANCEL_OPTION, null,
-				new String[] { "OK", "Cancel", "Reset", "Save", "Load", "Delete" }, "OK");
-		
+				JOptionPane.OK_CANCEL_OPTION, null, new String[] { "OK", "Cancel", "Reset", "Save", "Load", "Delete" },
+				"OK");
+
 		JDialog dialog = pane.createDialog(null, "Options");
 		dialog.setModal(false);
 		dialog.setResizable(true);
@@ -131,7 +130,7 @@ public class DefunctGlobalOptions implements Serializable {
 			@Override
 			public void windowDeactivated(WindowEvent e) {
 				Object ret = pane.getValue();
-				
+
 				selected_tab = jtb.getSelectedIndex();
 
 				if (ret == "OK") {
@@ -153,26 +152,24 @@ public class DefunctGlobalOptions implements Serializable {
 				} else if (ret == "Delete") {
 					delete();
 					showOptions();
-				} 
+				}
 			}
-			
-		
+
 		});
-		
+
 		dialog.pack();
 		dialog.setVisible(true);
-	
+
 	}
-	 
 
 	public static void showAbout() {
-		JOptionPane.showMessageDialog(null, new CodeTextPanel("", about()), "About",
-				JOptionPane.PLAIN_MESSAGE, null);
+		JOptionPane.showMessageDialog(null, new CodeTextPanel("", about()), "About", JOptionPane.PLAIN_MESSAGE, null);
 	}
 
 	private static final String aboutErr = "No cdide.properties found.  If you are building from source, make sure cdide.properties is on the classpath.";
-	
+
 	private static String aboutString = null;
+
 	private static String about() {
 		if (aboutString != null) {
 			return aboutString;
@@ -181,13 +178,12 @@ public class DefunctGlobalOptions implements Serializable {
 			Properties prop = new Properties();
 			prop.load(in);
 
-            aboutString = in == null ? aboutErr : Util.sep(prop, ": ", "\n\n");
+			aboutString = in == null ? aboutErr : Util.sep(prop, ": ", "\n\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 			aboutString = aboutErr;
-		}	
+		}
 		return aboutString;
 	}
-
 
 }

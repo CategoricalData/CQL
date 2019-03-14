@@ -42,8 +42,7 @@ public class AboutAction extends AbstractAction {
 	/**
 	 * When action is performed, show the about dialog box.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -57,7 +56,11 @@ public class AboutAction extends AbstractAction {
 		ImageIcon myIcon = new ImageIcon(Easik.getInstance().getFrame().getIconImage());
 
 		myIcon.setDescription("Easik");
-		JOptionPane.showMessageDialog(null, "EASIK - Entity Attribute Sketch Implementation Kit\n" + "Version " + Easik.VERSION + " (build r" + Easik.REVISION + ")\n" + "Developed 2005-2008 at Mount Allison University\n\n" + "R. Rosebrugh\n" + "Rob Fletcher (2005)\n" + "Vera Ranieri (2006)\n" + "Kevin Green (2006)\n" + "Jason Rhinelander (2008)\n" + "Andrew Wood (2008)\n", "Easik",
-				JOptionPane.INFORMATION_MESSAGE, myIcon);
+		JOptionPane.showMessageDialog(null,
+				"EASIK - Entity Attribute Sketch Implementation Kit\n" + "Version " + Easik.VERSION + " (build r"
+						+ Easik.REVISION + ")\n" + "Developed 2005-2008 at Mount Allison University\n\n"
+						+ "R. Rosebrugh\n" + "Rob Fletcher (2005)\n" + "Vera Ranieri (2006)\n" + "Kevin Green (2006)\n"
+						+ "Jason Rhinelander (2008)\n" + "Andrew Wood (2008)\n",
+				"Easik", JOptionPane.INFORMATION_MESSAGE, myIcon);
 	}
 }

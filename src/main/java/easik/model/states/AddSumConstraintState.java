@@ -22,7 +22,8 @@ import easik.model.vertex.ModelVertex;
  * request for a path. After adding the first path the options to either add
  * another path or finish the constraint are available.
  */
-public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelState<F, GM, M, N, E> implements PathAcceptingState<F, GM, M, N, E> {
+public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelState<F, GM, M, N, E> implements PathAcceptingState<F, GM, M, N, E> {
 	/** Stores whether the user has finished adding paths to this constraint */
 	private boolean _finished;
 
@@ -30,16 +31,15 @@ public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM exte
 	private ArrayList<ModelPath<F, GM, M, N, E>> _paths;
 
 	/**
-	 * If set, we delete this constraint immediately before adding the new one.
-	 * Used when adding paths to an existing constraint.
+	 * If set, we delete this constraint immediately before adding the new one. Used
+	 * when adding paths to an existing constraint.
 	 */
 	private SumConstraint<F, GM, M, N, E> _replace;
 
 	/**
 	 * Constructor for creating a new state to collect paths and make a diagram.
 	 *
-	 * @param inModel
-	 *            The sketch being worked with.
+	 * @param inModel The sketch being worked with.
 	 */
 	public AddSumConstraintState(M inModel) {
 		super(inModel);
@@ -51,10 +51,8 @@ public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM exte
 	/**
 	 * Constructor for modifying an existing constraint.
 	 *
-	 * @param inModel
-	 *            The sketch being worked with
-	 * @param existing
-	 *            The existing constraint to have paths added to
+	 * @param inModel  The sketch being worked with
+	 * @param existing The existing constraint to have paths added to
 	 */
 	public AddSumConstraintState(M inModel, SumConstraint<F, GM, M, N, E> existing) {
 		super(inModel);
@@ -70,12 +68,11 @@ public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM exte
 	}
 
 	/**
-	 * Called when a new path has been completed by a state above this on the
-	 * stack. If it is null, then cancel, otherwise check to see if the user
-	 * selected the 'next' or 'finish' option.
+	 * Called when a new path has been completed by a state above this on the stack.
+	 * If it is null, then cancel, otherwise check to see if the user selected the
+	 * 'next' or 'finish' option.
 	 *
-	 * @param inPath
-	 *            The last path in, null if it was a cancellation
+	 * @param inPath The last path in, null if it was a cancellation
 	 */
 	@Override
 	public void passPath(ModelPath<F, GM, M, N, E> inPath) {
@@ -96,10 +93,14 @@ public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM exte
 			// when we have enough paths, tell the user and leave instructions
 			// alone until either finish or cancel
 			if (_paths.size() == 1) {
-				_ourModel.getFrame().setInstructionText("Select a path beginning with an injective edge with target '" + _paths.get(0).getCoDomain().getName() + "' and press 'Next' to continue, or 'Finish' to add constraint.");
+				_ourModel.getFrame()
+						.setInstructionText("Select a path beginning with an injective edge with target '"
+								+ _paths.get(0).getCoDomain().getName()
+								+ "' and press 'Next' to continue, or 'Finish' to add constraint.");
 			}
 
-			_ourModel.getStateManager().pushState(new GetInjectivePathState<>(true, true, false, _ourModel, null, _paths.get(0).getCoDomain()));
+			_ourModel.getStateManager().pushState(
+					new GetInjectivePathState<>(true, true, false, _ourModel, null, _paths.get(0).getCoDomain()));
 		} else {
 			_paths.add(inPath);
 			_ourModel.getGraphModel().cancelInsignificantUpdate();
@@ -111,7 +112,12 @@ public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM exte
 					_ourModel.removeConstraint(_replace);
 				}
 			} else {
-				JOptionPane.showMessageDialog(_ourModel.getFrame(), "Sum constraint could not be created.\n" + "Please ensure that:\n" + "  1) All edges involved target the same entity\n" + "  2) The first edge in each path is injective\n" + "  3) At least two edges are selected\n" + "  4) All paths are unique", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(_ourModel.getFrame(),
+						"Sum constraint could not be created.\n" + "Please ensure that:\n"
+								+ "  1) All edges involved target the same entity\n"
+								+ "  2) The first edge in each path is injective\n"
+								+ "  3) At least two edges are selected\n" + "  4) All paths are unique",
+						"Error", JOptionPane.ERROR_MESSAGE);
 			}
 
 			_ourModel.getGraphModel().endUpdate();
@@ -127,7 +133,9 @@ public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM exte
 	@SuppressWarnings("unchecked")
 	private boolean addDiagram() {
 		if (_ourModel.isSumConstraint(_paths)) {
-			ModelConstraint<F, GM, M, N, E> newDiagram = (_replace != null) ? new SumConstraint<>(_paths, _replace.getX(), _replace.getY(), true, _ourModel) : new SumConstraint<>(_paths, _ourModel);
+			ModelConstraint<F, GM, M, N, E> newDiagram = (_replace != null)
+					? new SumConstraint<>(_paths, _replace.getX(), _replace.getY(), true, _ourModel)
+					: new SumConstraint<>(_paths, _ourModel);
 
 			_ourModel.addNewConstraint(newDiagram);
 			_ourModel.setDirty();
@@ -139,19 +147,23 @@ public class AddSumConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM exte
 	}
 
 	/**
-	 * When this state is pushed on, it sends a message in a popup and then
-	 * pushes a path collection state.
+	 * When this state is pushed on, it sends a message in a popup and then pushes a
+	 * path collection state.
 	 */
 	@Override
 	public void pushedOn() {
 		_ourModel.clearSelection();
 		_ourModel.getStateManager().resetFinished();
 		_ourModel.getGraphModel().beginInsignificantUpdate();
-		_ourModel.getFrame().setInstructionText((_paths.size() >= 1) ? "Select a path beginning with an injective edge with target '" + _paths.get(0).getCoDomain().getName() + "' and press 'Next' to continue, or 'Finish' to add constraint." : "Select a path beginning with an injective edge and then press 'Next' to add it to the constraint");
+		_ourModel.getFrame().setInstructionText((_paths.size() >= 1)
+				? "Select a path beginning with an injective edge with target '" + _paths.get(0).getCoDomain().getName()
+						+ "' and press 'Next' to continue, or 'Finish' to add constraint."
+				: "Select a path beginning with an injective edge and then press 'Next' to add it to the constraint");
 		setNextButton(true);
 		setFinishButton(_paths.size() >= 1);
 		setCancelButton(true);
-		_ourModel.getStateManager().pushState(new GetInjectivePathState<>(true, _paths.size() >= 1, false, _ourModel, null, (_paths.size() >= 1) ? _paths.get(0).getCoDomain() : null));
+		_ourModel.getStateManager().pushState(new GetInjectivePathState<>(true, _paths.size() >= 1, false, _ourModel,
+				null, (_paths.size() >= 1) ? _paths.get(0).getCoDomain() : null));
 	}
 
 	/**

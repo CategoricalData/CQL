@@ -11,10 +11,11 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
+import catdata.aql.Transform;
 import catdata.aql.fdm.SigmaDeltaCounitTransform;
 
-public class TransExpSigmaDeltaCounit<Gen, Sk, X, Y> 
-extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X, Y> {
+public class TransExpSigmaDeltaCounit<Gen, Sk, X, Y>
+		extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X, Y> {
 
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
@@ -22,8 +23,7 @@ extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X
 		I.map(f);
 	}
 
-	
-	public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
 
@@ -33,16 +33,16 @@ extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X
 		set.add(AqlOption.allow_java_eqs_unsafe);
 		set.addAll(AqlOptions.proverOptionNames());
 	}
-	
-	public final MapExp F; 
+
+	public final MapExp F;
 	public final InstExp<Gen, Sk, X, Y> I;
 	public final Map<String, String> options;
-	
+
 	@Override
 	public Map<String, String> options() {
 		return options;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -52,7 +52,6 @@ extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		return result;
 	}
-	
 
 	@Override
 	public boolean equals(Object obj) {
@@ -62,7 +61,7 @@ extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpSigmaDeltaCounit other = (TransExpSigmaDeltaCounit) obj;
+		TransExpSigmaDeltaCounit<?, ?, ?, ?> other = (TransExpSigmaDeltaCounit<?, ?, ?, ?>) obj;
 		if (F == null) {
 			if (other.F != null)
 				return false;
@@ -88,13 +87,15 @@ extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X
 	}
 
 	@Override
-	public synchronized SigmaDeltaCounitTransform eval0(AqlEnv env, boolean isC) {
+	public synchronized Transform<Ty, En, Sym, Fk, Att, Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X, Y> eval0(
+			AqlEnv env, boolean isC) {
 		if (isC) {
 			F.eval(env, true);
 			I.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new SigmaDeltaCounitTransform(F.eval(env, false), I.eval(env, false), new AqlOptions(options, null, env.defaults));
+		return new SigmaDeltaCounitTransform<>(F.eval(env, false), I.eval(env, false),
+				new AqlOptions(options, null, env.defaults));
 	}
 
 	@Override
@@ -108,13 +109,14 @@ extends TransExp<Pair<En, X>, Y, Gen, Sk, Integer, Chc<Y, Pair<Integer, Att>>, X
 	}
 
 	@Override
-	public Pair<InstExp<Pair<En, X>, Y, Integer, Chc<Y, Pair<Integer, Att>>>, 
-	            InstExp<Gen, Sk, X, Y>> type(AqlTyping G) {
+	public Pair<InstExp<Pair<En, X>, Y, Integer, Chc<Y, Pair<Integer, Att>>>, InstExp<Gen, Sk, X, Y>> type(
+			AqlTyping G) {
 		SchExp x = I.type(G);
 		if (!G.eq(x, F.type(G).second)) {
-			throw new RuntimeException("In " + this + ", mapping codomain is " + F.type(G).second + " but instance schema is " + x);
+			throw new RuntimeException(
+					"In " + this + ", mapping codomain is " + F.type(G).second + " but instance schema is " + x);
 		}
-		return new Pair(new InstExpSigma(F, new InstExpDelta(F, I), options), I);
+		return new Pair<>(new InstExpSigma<>(F, new InstExpDelta<>(F, I), options), I);
 	}
-	
+
 }

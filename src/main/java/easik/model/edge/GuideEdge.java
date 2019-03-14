@@ -23,7 +23,8 @@ import easik.model.vertex.ModelVertex;
  * @version 2006-07-06 Kevin Green
  * @version 06-2014 Federico Mora
  */
-public class GuideEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends DefaultEdge {
+public class GuideEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends DefaultEdge {
 	/**
 	 *    
 	 */
@@ -35,14 +36,12 @@ public class GuideEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	private boolean _isHighlighted;
 
 	/**
-	 * Creates a guide edge between a constraint vertex and a SketchNode. The
-	 * edge will default to highlighted if the node is the domain or codomain of
-	 * a path of the constraint, non-highlighted otherwise.
+	 * Creates a guide edge between a constraint vertex and a SketchNode. The edge
+	 * will default to highlighted if the node is the domain or codomain of a path
+	 * of the constraint, non-highlighted otherwise.
 	 *
-	 * @param con
-	 *            the Constraint object
-	 * @param node
-	 *            the EntityNode
+	 * @param con  the Constraint object
+	 * @param node the EntityNode
 	 */
 	public GuideEdge(ModelConstraint<F, GM, M, N, E> con, N node) {
 		_isHighlighted = con.isDomainOrCoDomain(node);
@@ -63,8 +62,7 @@ public class GuideEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGra
 	/**
 	 * Sets the edge as highlighted or not
 	 * 
-	 * @param isHighlighted
-	 *            true if the edge is highlighted, false if not.
+	 * @param isHighlighted true if the edge is highlighted, false if not.
 	 */
 	public void setHighlighted(boolean isHighlighted) {
 		_isHighlighted = isHighlighted;

@@ -26,7 +26,8 @@ import easik.model.vertex.ModelVertex;
  * @version 2006-07-26 Kevin Green
  * @version 06-2014 Federico Mora
  */
-public class AddAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class AddAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	private static final long serialVersionUID = 1807969103366326790L;
 
 	/**  */
@@ -46,11 +47,10 @@ public class AddAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	}
 
 	/**
-	 * Inserts an attribute to the currently selected entity (or parent entity
-	 * if attribute is selected) in the tree
+	 * Inserts an attribute to the currently selected entity (or parent entity if
+	 * attribute is selected) in the tree
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -58,7 +58,9 @@ public class AddAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_theFrame.getMModel().isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -74,7 +76,9 @@ public class AddAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 			// Entity is selected so set it as current entity
 			curEntity = (N) selected[0];
 		} else {
-			JOptionPane.showMessageDialog(_theFrame, "You do not have an entity selected. \nPlease select a single entity and try again.", "No Entity Selected", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame,
+					"You do not have an entity selected. \nPlease select a single entity and try again.",
+					"No Entity Selected", JOptionPane.ERROR_MESSAGE);
 
 			return;
 		}
@@ -94,15 +98,14 @@ public class AddAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends
 
 			// TODO
 			/*
-			 * need to find way to do this now with generics. Want to add to
-			 * queryNodes when adding to entityNode
+			 * need to find way to do this now with generics. Want to add to queryNodes when
+			 * adding to entityNode
 			 * 
-			 * for(ViewNode vn :_theFrame.getMModel().getViews()){ HashMap<N,
-			 * QueryNode> nodePairs = vn.getMModel().getEntityNodePairs();
-			 * //potentially throws QueryException but won't in this case since
-			 * we are just adding attributes try {
-			 * nodePairs.get(curEntity).processAttributes(); } catch
-			 * (QueryException e1) { e1.printStackTrace(); } }
+			 * for(ViewNode vn :_theFrame.getMModel().getViews()){ HashMap<N, QueryNode>
+			 * nodePairs = vn.getMModel().getEntityNodePairs(); //potentially throws
+			 * QueryException but won't in this case since we are just adding attributes try
+			 * { nodePairs.get(curEntity).processAttributes(); } catch (QueryException e1) {
+			 * e1.printStackTrace(); } }
 			 */
 			_theFrame.getInfoTreeUI().refreshTree(curEntity); // Refresh view of
 																// entity

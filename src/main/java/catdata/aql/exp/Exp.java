@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit; 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.google.common.base.Supplier;
@@ -32,16 +32,16 @@ import catdata.aql.exp.TyExp.TyExpVisitor;
 import gnu.trove.set.hash.THashSet;
 
 public abstract class Exp<X> {
-	
+
 	public boolean isVar() {
 		return false;
 	}
-	
+
 	public final void map(Consumer<Exp<?>> f) {
 		f.accept(this);
 		mapSubExps(f);
 	}
-	
+
 	public abstract void mapSubExps(Consumer<Exp<?>> f);
 
 	protected abstract void allowedOptions(Set<AqlOption> set);
@@ -51,7 +51,7 @@ public abstract class Exp<X> {
 		ret.add(AqlOption.always_reload);
 		ret.add(AqlOption.timeout);
 		ret.add(AqlOption.num_threads);
-		ret.add(AqlOption.talg_reduction); 
+		ret.add(AqlOption.talg_reduction);
 		allowedOptions(ret);
 		return ret;
 	}
@@ -88,7 +88,7 @@ public abstract class Exp<X> {
 	}
 
 	public abstract Object type(AqlTyping G);
-		
+
 	public synchronized Chc<String, Object> type0(AqlTyping G, Map<String, ?> errs) {
 		Set<String> set = new TreeSet<>();
 		for (Pair<String, Kind> x : deps()) {
@@ -110,7 +110,7 @@ public abstract class Exp<X> {
 			return Chc.inLeftNC(thr.getMessage());
 		}
 	}
-	
+
 	public final synchronized Optional<Chc<String, X>> eval_static(AqlEnv env, Map<String, Optional<String>> exns) {
 		Set<String> set = new TreeSet<>();
 		for (Pair<String, Kind> x : deps()) {
@@ -121,7 +121,7 @@ public abstract class Exp<X> {
 				return Optional.empty();
 			}
 		}
-		
+
 		if (!set.isEmpty()) {
 			return Optional.empty();
 		}
@@ -129,14 +129,13 @@ public abstract class Exp<X> {
 			X x = eval(env, true);
 			Util.assertNotNull(x);
 			return Optional.of(Chc.inRightNC(x));
-		} catch (IgnoreException ex) { 
+		} catch (IgnoreException ex) {
 			return Optional.empty();
 		} catch (Exception thr) {
-			//thr.printStackTrace();
+			// thr.printStackTrace();
 			return Optional.of(Chc.inLeftNC(thr.getMessage()));
 		}
 	}
-	
 
 	public static interface ExpVisitor<P, X, Sch extends X, Ty extends X, Inst extends X, M extends X, Q extends X, Trans extends X, Col extends X, Com extends X, Con extends X, Gr extends X, Prag extends X, E extends Exception>
 			extends SchExpVisitor<Sch, P, E>, TyExpVisitor<Ty, P, E>, InstExpVisitor<Inst, P, E>,
@@ -153,7 +152,7 @@ public abstract class Exp<X> {
 		case CONSTRAINTS:
 			return ((EdsExp) this).accept(params, v);
 		case GRAPH:
-			return ((GraphExp<?, ?>) this).accept(params, v);
+			return ((GraphExp) this).accept(params, v);
 		case INSTANCE:
 			return ((InstExp<?, ?, ?, ?>) this).accept(params, v);
 		case MAPPING:
@@ -165,9 +164,9 @@ public abstract class Exp<X> {
 		case SCHEMA:
 			return ((SchExp) this).accept(params, v);
 		case SCHEMA_COLIMIT:
-			return ((ColimSchExp<?>) this).accept(params, v);
+			return ((ColimSchExp) this).accept(params, v);
 		case TRANSFORM:
-			return ((TransExp< ?, ?, ?, ?, ?, ?, ?, ?>) this).accept(params, v);
+			return ((TransExp<?, ?, ?, ?, ?, ?, ?, ?>) this).accept(params, v);
 		case TYPESIDE:
 			return ((TyExp) this).accept(params, v);
 		default:
@@ -185,7 +184,7 @@ public abstract class Exp<X> {
 	protected abstract X eval0(AqlEnv env, boolean isCompileTime);
 
 	@SuppressWarnings("unchecked")
-	public  final X eval(AqlEnv env, boolean isCompileTime) {
+	public final X eval(AqlEnv env, boolean isCompileTime) {
 		synchronized (env.cache) {
 			X x = (X) env.cache.get(this);
 			if (x != null) {
@@ -195,8 +194,8 @@ public abstract class Exp<X> {
 		X x;
 		synchronized (this) {
 			x = eval0(env, isCompileTime);
-			Util.assertNotNull(x);			
-		
+			Util.assertNotNull(x);
+
 			synchronized (env.cache) {
 				X y = (X) env.cache.get(this);
 				if (y != null) {
@@ -242,8 +241,6 @@ public abstract class Exp<X> {
 		}
 		return sb.toString();
 	}
-	
-	
 
 	public String makeString() {
 		return "undefined expression";

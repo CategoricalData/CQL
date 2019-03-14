@@ -21,8 +21,8 @@ public class FileFilter extends javax.swing.filechooser.FileFilter implements Fi
 	public static final FileFilter EASIK = new FileFilter("EASIK Files", "easik");
 
 	/**
-	 * Returns a filter for EASIK sketch files (.sketch and .xml [for old
-	 * versions of Easik]).
+	 * Returns a filter for EASIK sketch files (.sketch and .xml [for old versions
+	 * of Easik]).
 	 */
 	public static final FileFilter EASIK_SKETCH = new FileFilter("EASIK Files", "sketch", "xml");
 
@@ -33,15 +33,13 @@ public class FileFilter extends javax.swing.filechooser.FileFilter implements Fi
 	private Pattern filenamePattern;
 
 	/**
-	 * Constructs a new FileFilter using the passed in regular expression
-	 * Pattern as the filename filter. Example usage:
+	 * Constructs a new FileFilter using the passed in regular expression Pattern as
+	 * the filename filter. Example usage:
 	 * <code>FileFilter ff = new FileFilter("Image files", Pattern.compile("^.*\\.(?:gif|jpe?g|png)$", Pattern.CASE_INSENSITIVE))</code>
 	 *
-	 * @param pattern
-	 *            a Pattern object representing the regex, typical created with
-	 *            Pattern.compile(...)
-	 * @param desc
-	 *            the file type description that *may* be shown to the user
+	 * @param pattern a Pattern object representing the regex, typical created with
+	 *                Pattern.compile(...)
+	 * @param desc    the file type description that *may* be shown to the user
 	 * @see java.util.regex.Pattern
 	 */
 	public FileFilter(final String desc, final Pattern pattern) {
@@ -55,11 +53,9 @@ public class FileFilter extends javax.swing.filechooser.FileFilter implements Fi
 	 * example:
 	 * <code>FileFilter ff = new FileFilter("Image files", "png", "bmp", "jpg", "gif");</code>
 	 *
-	 * @param desc
-	 *            the file type description that *may* be shown to the user
-	 * @param extensions
-	 *            the filename extensions to match (any number of extensions can
-	 *            be specified)
+	 * @param desc       the file type description that *may* be shown to the user
+	 * @param extensions the filename extensions to match (any number of extensions
+	 *                   can be specified)
 	 */
 	public FileFilter(final String desc, final String... extensions) {
 		final StringBuilder extPat = new StringBuilder("");
@@ -84,13 +80,11 @@ public class FileFilter extends javax.swing.filechooser.FileFilter implements Fi
 	}
 
 	/**
-	 * Returns true if the filename is one we want to include, false otherwise.
-	 * Used automatically when used with an AWT FileDialog.
+	 * Returns true if the filename is one we want to include, false otherwise. Used
+	 * automatically when used with an AWT FileDialog.
 	 *
-	 * @param dir
-	 *            The directory containing the file being considered
-	 * @param filename
-	 *            The filename being considered
+	 * @param dir      The directory containing the file being considered
+	 * @param filename The filename being considered
 	 * @return true if the file is of an acceptable type
 	 */
 	@Override
@@ -103,11 +97,10 @@ public class FileFilter extends javax.swing.filechooser.FileFilter implements Fi
 	}
 
 	/**
-	 * Returns true if the filename is one we want to include, false otherwise.
-	 * Used automatically when used with an swing JFileChooser.
+	 * Returns true if the filename is one we want to include, false otherwise. Used
+	 * automatically when used with an swing JFileChooser.
 	 *
-	 * @param f
-	 *            The file being considered
+	 * @param f The file being considered
 	 * @return true if the file is of an acceptable type
 	 */
 	@Override

@@ -36,10 +36,8 @@ public class ExportDatabaseAction extends AbstractAction {
 	/**
 	 * Create a new ExportXSDAction. Adds a new menu item to the File menu.
 	 *
-	 * @param inFrame
-	 *            The Frame
-	 * @param inSketch
-	 *            The Sketch
+	 * @param inFrame  The Frame
+	 * @param inSketch The Sketch
 	 */
 	public ExportDatabaseAction(final EasikFrame inFrame, final Sketch inSketch) {
 		super(((inFrame instanceof SketchFrame) ? "" : "Export to ") + "DBMS...");
@@ -89,8 +87,7 @@ public class ExportDatabaseAction extends AbstractAction {
 	 * Exports the current sketch as an SQL db. Displays a message if an error
 	 * occurred.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(final ActionEvent e) {
@@ -135,7 +132,8 @@ public class ExportDatabaseAction extends AbstractAction {
 					return;
 				}
 
-				JOptionPane.showMessageDialog(null, "SQL exported successfully. Entering data manipulation mode.", "Export successful.", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, "SQL exported successfully. Entering data manipulation mode.",
+						"Export successful.", JOptionPane.INFORMATION_MESSAGE);
 
 				// we don't have to worry about enableDataManip() failing... if
 				// we were able to export, we know it will work
@@ -144,16 +142,16 @@ public class ExportDatabaseAction extends AbstractAction {
 			} // won't happen if DriverInfo is configured properly
 		} catch (PersistenceDriver.LoadException le) {
 			_theSketch.getDatabase().cleanDatabaseDriver();
-			JOptionPane.showMessageDialog(null, "An error occurred while exporting to database. " + le.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "An error occurred while exporting to database. " + le.getMessage(),
+					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	/**
-	 * At the time this item is added to a menu, the sketch on which it will act
-	 * may not be known. This method sets the sketch to be exported.
+	 * At the time this item is added to a menu, the sketch on which it will act may
+	 * not be known. This method sets the sketch to be exported.
 	 *
-	 * @param sketch
-	 *            The sketch that is set to be exported.
+	 * @param sketch The sketch that is set to be exported.
 	 */
 	public void setSketch(final Sketch sketch) {
 		_theSketch = sketch;

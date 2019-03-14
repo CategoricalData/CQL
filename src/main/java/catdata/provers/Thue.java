@@ -195,7 +195,7 @@ public class Thue<X> {
 				return new Pair<>(x, y);
 			}
 			return new Pair<>(y, x);
-		} 
+		}
 
 		public Pair<ConsList<X>, ConsList<X>> orient(Pair<ConsList<X>, ConsList<X>> z) {
 			if (z.first.size() >= z.second.size()) {
@@ -219,8 +219,7 @@ public class Thue<X> {
 			return rs.keySet();
 		}
 
-		private boolean close1_h(Set<ConsList<X>> ret, ConsList<X> e, int i, 
-				ConsList<X> rule1, ConsList<X> rule2,
+		private boolean close1_h(Set<ConsList<X>> ret, ConsList<X> e, int i, ConsList<X> rule1, ConsList<X> rule2,
 				ConsList<X> f0) {
 			List<X> test = e.list.subList(i, i + rule1.size());
 
@@ -240,7 +239,7 @@ public class Thue<X> {
 
 		// TODO aql bottleneck
 		private synchronized Optional<Set<ConsList<X>>> close1(Set<ConsList<X>> es, ConsList<X> f0) {
-Set<ConsList<X>> ret = new THashSet<>(es.size());
+			Set<ConsList<X>> ret = new THashSet<>(es.size());
 
 			for (ConsList<X> e : es) {
 				int i = 0;
@@ -254,7 +253,7 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 							return Optional.empty();
 						}
 					}
-					for (Pair<ConsList<X>, ConsList<X>> rule0 : es2.get(x)) {						
+					for (Pair<ConsList<X>, ConsList<X>> rule0 : es2.get(x)) {
 						if (rule0.second.size() > e.size() - i) {
 							continue;
 						}
@@ -270,7 +269,6 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 			return Optional.of(ret);
 		}
 
-		
 		private synchronized boolean close(ConsList<X> e, ConsList<X> f0) {
 
 			Set<ConsList<X>> init = (new THashSet<>());
@@ -340,7 +338,7 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 				List<X> w = li.list.subList(i + lj.size(), li.size());
 
 				ConsList<X> urjw = ConsList.new0(u, rj.list, w);
-				//Pair<ConsList<X>, ConsList<X>> xx = new Pair<>(ri, urjw);
+				// Pair<ConsList<X>, ConsList<X>> xx = new Pair<>(ri, urjw);
 				if (!almost_joinable(ri, urjw)) {
 					ret.add(orient(ri, urjw));
 				}
@@ -348,7 +346,8 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 		}
 
 		private synchronized void normalize() {
-			Set<Pair<ConsList<X>, ConsList<X>>> marked = new THashSet<>(rs.size() + es1.size() + es2.size()); // size() * 4
+			Set<Pair<ConsList<X>, ConsList<X>>> marked = new THashSet<>(rs.size() + es1.size() + es2.size()); // size()
+																												// * 4
 			Set<Pair<ConsList<X>, ConsList<X>>> unmarked = new THashSet<>(rs.size() + es1.size() + es2.size());
 			for (Pair<ConsList<X>, ConsList<X>> rule : allRules()) {
 				unmarked.add(rule);
@@ -369,7 +368,8 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 			}
 		}
 
-		private synchronized Pair<ConsList<X>, ConsList<X>> getUnmarked(@SuppressWarnings("unused") Set<Pair<ConsList<X>, ConsList<X>>> marked,
+		private synchronized Pair<ConsList<X>, ConsList<X>> getUnmarked(
+				@SuppressWarnings("unused") Set<Pair<ConsList<X>, ConsList<X>>> marked,
 				Iterable<Pair<ConsList<X>, ConsList<X>>> unmarked) {
 			for (Pair<ConsList<X>, ConsList<X>> rule : unmarked) {
 				// if (!marked.contains(rule)) {
@@ -413,7 +413,7 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 						ConsList<X> z = normal_form(ret);
 						return z;
 					}
-					return e; 
+					return e;
 				}
 			}
 			// t.nf_cache.put(e, e);
@@ -441,14 +441,13 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 			}
 
 			return close(e0, f0);
-			
+
 		}
 
 		private synchronized void cp_h(Set<Pair<ConsList<X>, ConsList<X>>> ret, Pair<ConsList<X>, ConsList<X>> rule1,
 				Pair<ConsList<X>, ConsList<X>> rule2) {
 
-			List<Quad<ConsList<X>, ConsList<X>, ConsList<X>, ConsList<X>>> todo = 
-					new ArrayList<>(5);
+			List<Quad<ConsList<X>, ConsList<X>, ConsList<X>, ConsList<X>>> todo = new ArrayList<>(5);
 
 			if (rule1.first.size() == rule1.second.size()) {
 				todo.add(new Quad<>(rule1.first, rule1.second, rule2.first, rule2.second));
@@ -531,14 +530,15 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 	 */
 	public Thue(List<Pair<List<X>, List<X>>> rules, Collection<X> xs) {
 		this.rules = new Rules(rules, xs);
-	//	slow = new ThueSlow<>(rules);
-	//	slow.complete();
+		// slow = new ThueSlow<>(rules);
+		// slow.complete();
 		complete();
 
-		//Set<Pair<List<X>, List<X>>> a = new HashSet<>();
-	//	this.rules.allRules().iterator().forEachRemaining(x -> a.add(new Pair<>(x.first.list, x.second.list)));
+		// Set<Pair<List<X>, List<X>>> a = new HashSet<>();
+		// this.rules.allRules().iterator().forEachRemaining(x -> a.add(new
+		// Pair<>(x.first.list, x.second.list)));
 
-	//	Set<Pair<List<X>, List<X>>> b = new HashSet<>(slow.rules);
+		// Set<Pair<List<X>, List<X>>> b = new HashSet<>(slow.rules);
 		/*
 		 * if (!a.equals(b)) { System.out.println(Util.sep(a, "\n"));
 		 * System.out.println("----"); System.out.println(Util.sep(b, "\n"));
@@ -548,7 +548,7 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 
 	}
 
-	//ThueSlow<X, ?> slow;
+	// ThueSlow<X, ?> slow;
 
 	public synchronized void complete() {
 
@@ -560,11 +560,11 @@ Set<ConsList<X>> ret = new THashSet<>(es.size());
 	public synchronized boolean equiv0(List<X> a, List<X> b) {
 		ConsList<X> bb = ConsList.new0(b, false);
 		ConsList<X> aa = ConsList.new0(a, false);
-		boolean eq = rules.almost_joinable(aa, bb);	
+		boolean eq = rules.almost_joinable(aa, bb);
 		return eq;
 	}
-	
-	//Map<T,UnionFind<X>> equivs; for length 1, but no time is spent there
+
+	// Map<T,UnionFind<X>> equivs; for length 1, but no time is spent there
 	public synchronized boolean equiv(List<X> a, List<X> b) {
 		ConsList<X> bb = ConsList.new0(b, false);
 		ConsList<X> aa = ConsList.new0(a, false);

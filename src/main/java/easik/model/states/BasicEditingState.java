@@ -18,7 +18,8 @@ import easik.model.vertex.ModelVertex;
  * @version 2006-07-13 Kevin Green
  * @version 06-2014 Federico Mora
  */
-public class BasicEditingState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelState<F, GM, M, N, E> {
+public class BasicEditingState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelState<F, GM, M, N, E> {
 	/**
 	 *
 	 *
@@ -29,8 +30,8 @@ public class BasicEditingState<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 	}
 
 	/**
-	 * There is nowhere to go from basic editing (state-wise) so when it is
-	 * pushed on, it disables Next and Cancel.
+	 * There is nowhere to go from basic editing (state-wise) so when it is pushed
+	 * on, it disables Next and Cancel.
 	 */
 	@Override
 	public void pushedOn() {
@@ -64,8 +65,8 @@ public class BasicEditingState<F extends ModelFrame<F, GM, M, N, E>, GM extends 
 	}
 
 	/**
-	 * Update the selection so that the only selectable items will be those
-	 * within reach of the existing edges.
+	 * Update the selection so that the only selectable items will be those within
+	 * reach of the existing edges.
 	 */
 	@Override
 	public void selectionUpdated() {

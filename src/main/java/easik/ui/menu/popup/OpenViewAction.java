@@ -36,8 +36,7 @@ public class OpenViewAction extends AbstractAction {
 	/**
 	 * Set the view frame associated with the selected view node as visible.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

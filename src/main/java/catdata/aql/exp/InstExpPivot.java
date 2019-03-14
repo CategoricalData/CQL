@@ -16,18 +16,16 @@ import catdata.aql.Kind;
 import catdata.aql.exp.SchExp.SchExpPivot;
 import catdata.aql.fdm.AqlPivot;
 
-public final class InstExpPivot<Gen, Sk, X, Y> extends
-		InstExp<X, Y, X, Y> {
+public final class InstExpPivot<Gen, Sk, X, Y> extends InstExp<X, Y, X, Y> {
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
 	}
-
 
 	@Override
 	public String toString() {

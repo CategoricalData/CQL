@@ -50,8 +50,8 @@ public class EasikSettings extends Properties {
 	private static final Pattern intPattern = Pattern.compile("^(-?\\d+)");
 
 	/**
-	 * Constructs a new EasikSettings object. It loads default.properties as a
-	 * set of defaults, then also loads .easik.properties from the user's home
+	 * Constructs a new EasikSettings object. It loads default.properties as a set
+	 * of defaults, then also loads .easik.properties from the user's home
 	 * directory.
 	 */
 	public EasikSettings() {
@@ -72,8 +72,8 @@ public class EasikSettings extends Properties {
 	}
 
 	/**
-	 * Overrides the default keys() method to sort the keys; this is primarily
-	 * so that the output file is nicer.
+	 * Overrides the default keys() method to sort the keys; this is primarily so
+	 * that the output file is nicer.
 	 *
 	 * @return
 	 */
@@ -123,11 +123,10 @@ public class EasikSettings extends Properties {
 	}
 
 	/**
-	 * Splits the value on | characters (optionally surrounded by whitespace)
-	 * and returns a List of String values.
+	 * Splits the value on | characters (optionally surrounded by whitespace) and
+	 * returns a List of String values.
 	 *
-	 * @param key
-	 *            the property name
+	 * @param key the property name
 	 * @return a Set of Strings
 	 * @see #getPropertySet(String)
 	 * @see #setProperty(String, java.util.Collection<String>)
@@ -144,13 +143,12 @@ public class EasikSettings extends Properties {
 	}
 
 	/**
-	 * Splits the value on | characters (optionally surrounded by whitespace)
-	 * and returns a Set of String values. You'd use this instead of getList
-	 * when you don't want duplicate values. The set will contain entries in the
-	 * same order specified in the properties file.
+	 * Splits the value on | characters (optionally surrounded by whitespace) and
+	 * returns a Set of String values. You'd use this instead of getList when you
+	 * don't want duplicate values. The set will contain entries in the same order
+	 * specified in the properties file.
 	 *
-	 * @param key
-	 *            the property name
+	 * @param key the property name
 	 * @return a Set of Strings
 	 * @see #getPropertyList(String)
 	 * @see #setProperty(String, java.util.Collection<String>)
@@ -167,12 +165,10 @@ public class EasikSettings extends Properties {
 	}
 
 	/**
-	 * Gets a property, but first converts it to a Color object. Returns null if
-	 * the color doesn't exist. The key name should be without the 'color_'
-	 * prefix.
+	 * Gets a property, but first converts it to a Color object. Returns null if the
+	 * color doesn't exist. The key name should be without the 'color_' prefix.
 	 *
-	 * @param keySuffix
-	 *            the property name, without the 'color_' prefix
+	 * @param keySuffix the property name, without the 'color_' prefix
 	 * @return a Color object, null if the key doesn't exist
 	 */
 	public Color getColor(final String keySuffix) {
@@ -186,14 +182,11 @@ public class EasikSettings extends Properties {
 	}
 
 	/**
-	 * Just like getColor, except it takes a second, default Color value to
-	 * return if the color doesn't exist and isn't in the default properties
-	 * file.
+	 * Just like getColor, except it takes a second, default Color value to return
+	 * if the color doesn't exist and isn't in the default properties file.
 	 *
-	 * @param keySuffix
-	 *            the property name, without the 'color_' prefix
-	 * @param defColor
-	 *            the fallback Color
+	 * @param keySuffix the property name, without the 'color_' prefix
+	 * @param defColor  the fallback Color
 	 * @return a Color object
 	 */
 	public Color getColor(final String keySuffix, final Color defColor) {
@@ -209,8 +202,7 @@ public class EasikSettings extends Properties {
 	/**
 	 * Returns the string value from the defaults property file.
 	 *
-	 * @param key
-	 *            the property name
+	 * @param key the property name
 	 * @return the property value from the defaults file.
 	 */
 	public String getDefaultProperty(final String key) {
@@ -220,8 +212,7 @@ public class EasikSettings extends Properties {
 	/**
 	 * Returns the Color for a parameter from the default properties file.
 	 *
-	 * @param keySuffix
-	 *            the property name, without the 'color_' prefix
+	 * @param keySuffix the property name, without the 'color_' prefix
 	 * @return a Color object
 	 */
 	public Color getDefaultColor(final String keySuffix) {
@@ -235,13 +226,11 @@ public class EasikSettings extends Properties {
 	}
 
 	/**
-	 * Saves the Color property as an encoded color string. The key name should
-	 * be without the 'color_' prefix.
+	 * Saves the Color property as an encoded color string. The key name should be
+	 * without the 'color_' prefix.
 	 *
-	 * @param keySuffix
-	 *            the property name, without the 'color_' prefix
-	 * @param color
-	 *            the Color object
+	 * @param keySuffix the property name, without the 'color_' prefix
+	 * @param color     the Color object
 	 */
 	public void setColor(final String keySuffix, final Color color) {
 		if (color.equals(getDefaultColor(keySuffix))) {
@@ -274,20 +263,17 @@ public class EasikSettings extends Properties {
 			remove(key);
 
 			return ret;
-		} 
-			return super.setProperty(key, value);
-		
+		}
+		return super.setProperty(key, value);
+
 	}
 
 	/**
 	 * Sets a Collection of String elements as the value, with elements joined
-	 * together with ' | '. The converse to getPropertyList and
-	 * getPropertySet().
+	 * together with ' | '. The converse to getPropertyList and getPropertySet().
 	 *
-	 * @param key
-	 *            property key
-	 * @param values
-	 *            the Collection (e.g. List or Set) of property value Strings
+	 * @param key    property key
+	 * @param values the Collection (e.g. List or Set) of property value Strings
 	 */
 	public void setProperty(final String key, final Collection<String> values) {
 		String value = "";
@@ -300,23 +286,21 @@ public class EasikSettings extends Properties {
 	}
 
 	/**
-	 * Sets a boolean value, using the string "true" for a true value, and
-	 * "false" for a false value.
+	 * Sets a boolean value, using the string "true" for a true value, and "false"
+	 * for a false value.
 	 *
-	 * @param key
-	 *            the property name to set
-	 * @param value
-	 *            the boolean value to set
+	 * @param key   the property name to set
+	 * @param value the boolean value to set
 	 */
 	public void setBoolean(final String key, final boolean value) {
 		setProperty(key, value ? "true" : "false");
 	}
 
 	/**
-	 * Accesses the default folder. This depends on the 'folder_default'
-	 * setting: if it's set to "last", we use 'folder_last'; if set to
-	 * "specified" we use 'folder_specified'; otherwise, and if either of those
-	 * are null/empty, we use the current directory.
+	 * Accesses the default folder. This depends on the 'folder_default' setting: if
+	 * it's set to "last", we use 'folder_last'; if set to "specified" we use
+	 * 'folder_specified'; otherwise, and if either of those are null/empty, we use
+	 * the current directory.
 	 *
 	 * @return the default folder
 	 */
@@ -339,15 +323,14 @@ public class EasikSettings extends Properties {
 
 	/**
 	 * Adds the specified filename to the list of recent files. In addition to
-	 * adding the file to the file set, the file will be brought to the
-	 * beginning of the set (and removed first, if it already exists), and the
-	 * set will be trimmed to only contain 8 elements.
+	 * adding the file to the file set, the file will be brought to the beginning of
+	 * the set (and removed first, if it already exists), and the set will be
+	 * trimmed to only contain 8 elements.
 	 * <p/>
 	 * You probably want to call updateRecentFilesMenu() on the main
 	 * ApplicationFrame to update the recent files list after calling this.
 	 *
-	 * @param filename
-	 *            recent file
+	 * @param filename recent file
 	 */
 	public void addRecentFile(final String filename) {
 		final Deque<String> recent = (LinkedList<String>) getPropertyList("recent_files");
@@ -365,8 +348,7 @@ public class EasikSettings extends Properties {
 	/**
 	 * Adds the specified File object's filename to the list of recent files.
 	 *
-	 * @param file
-	 *            the File object referencing the file to add to the list
+	 * @param file the File object referencing the file to add to the list
 	 * @see #addRecentFile(String)
 	 */
 	public void addRecentFile(final File file) {
@@ -402,10 +384,8 @@ public class EasikSettings extends Properties {
 	/**
 	 * Parses a value as a double and returns it.
 	 *
-	 * @param id
-	 *            the key the access
-	 * @param defaultVal
-	 *            the value to return if the key does not exist
+	 * @param id         the key the access
+	 * @param defaultVal the value to return if the key does not exist
 	 * @return a double
 	 */
 	public double getDouble(final String id, final double defaultVal) {
@@ -426,10 +406,8 @@ public class EasikSettings extends Properties {
 	 * Parses a value as a float and returns it. This is just a wrapper around
 	 * getDouble().
 	 *
-	 * @param id
-	 *            the key the access
-	 * @param defaultVal
-	 *            the value to return if the key does not exist
+	 * @param id         the key the access
+	 * @param defaultVal the value to return if the key does not exist
 	 * @return a float
 	 */
 	public float getFloat(final String id, final float defaultVal) {
@@ -438,13 +416,11 @@ public class EasikSettings extends Properties {
 
 	/**
 	 * Parses a value as a integer and returns it. We actually are slightly more
-	 * lenient than Integer.parseInt(): we use any leading digits, so all of
-	 * "456", "456.9" and "456abc" would return the integer 456.
+	 * lenient than Integer.parseInt(): we use any leading digits, so all of "456",
+	 * "456.9" and "456abc" would return the integer 456.
 	 *
-	 * @param id
-	 *            the key the access
-	 * @param defaultVal
-	 *            the value to return if the key does not exist
+	 * @param id         the key the access
+	 * @param defaultVal the value to return if the key does not exist
 	 * @return an int
 	 */
 	public int getInt(final String id, final int defaultVal) {
@@ -458,20 +434,17 @@ public class EasikSettings extends Properties {
 
 		if (!m.find()) {
 			return defaultVal;
-		} 
-			return Integer.parseInt(m.group(1));
-		
+		}
+		return Integer.parseInt(m.group(1));
+
 	}
 
 	/**
 	 * Parses a value as a boolean and returns it. This will accept "true"
-	 * (case-insentive) and "1" as true values, and anything else as false
-	 * values.
+	 * (case-insentive) and "1" as true values, and anything else as false values.
 	 *
-	 * @param id
-	 *            the key the access
-	 * @param defaultVal
-	 *            the value to return if the key does not exist
+	 * @param id         the key the access
+	 * @param defaultVal the value to return if the key does not exist
 	 * @return a bool
 	 */
 	public boolean getBoolean(final String id, final boolean defaultVal) {

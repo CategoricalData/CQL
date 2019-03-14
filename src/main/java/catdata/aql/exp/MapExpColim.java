@@ -11,32 +11,32 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
 
-public class MapExpColim<N> 
-extends MapExp {
-	
+public class MapExpColim extends MapExp {
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		exp.map(f);
 	}
 
-
 	@Override
-	public <R, P, E extends Exception> MapExp coaccept(P params,
-			MapExpCoVisitor<R, P, E> v, R r) throws E {
+	public <R, P, E extends Exception> MapExp coaccept(P params, MapExpCoVisitor<R, P, E> v, R r) throws E {
 		return v.visitMapExpColim(params, r);
 	}
-	
-	public <R,P,E extends Exception> R accept(P params, MapExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, MapExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
-	public final N node;
-	
-	public final ColimSchExp<N> exp;
+
+	public final String node;
+
+	public final ColimSchExp exp;
+
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
-	public MapExpColim(N node, ColimSchExp<N> exp) {
+
+	public MapExpColim(String node, ColimSchExp exp) {
 		this.node = node;
 		this.exp = exp;
 	}
@@ -58,7 +58,7 @@ extends MapExp {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MapExpColim<?> other = (MapExpColim<?>) obj;
+		MapExpColim other = (MapExpColim) obj;
 		if (exp == null) {
 			if (other.exp != null)
 				return false;
@@ -75,16 +75,14 @@ extends MapExp {
 	@Override
 	public Pair<SchExp, SchExp> type(AqlTyping G) {
 		try {
-			SchExp dst = new SchExpColim<>(exp);
+			SchExp dst = new SchExpColim(exp);
 			SchExp src = exp.getNode(node, G);
-			return new Pair<>(src, dst);				
+			return new Pair<>(src, dst);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new RuntimeException(ex.getMessage() + "\n\n In " + this);
 		}
 	}
-
-	
 
 	@Override
 	public Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
@@ -104,5 +102,5 @@ extends MapExp {
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 	}
-	
+
 }

@@ -65,8 +65,7 @@ public class UndoAction extends AbstractAction {
 	/**
 	 * When action is performed, do an undo.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

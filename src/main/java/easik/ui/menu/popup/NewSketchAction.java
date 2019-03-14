@@ -31,11 +31,10 @@ public class NewSketchAction extends AbstractAction {
 
 	/**
 	 * Prepare the menu option, as well as pass a reference to the last clicked
-	 * point, which is used when positioning the new sketch. If set to null,
-	 * picks a random point to position sketch node.
+	 * point, which is used when positioning the new sketch. If set to null, picks a
+	 * random point to position sketch node.
 	 *
-	 * @param inPoint
-	 *            The sketch's last-rightclicked-position
+	 * @param inPoint    The sketch's last-rightclicked-position
 	 * @param inOverview
 	 */
 	public NewSketchAction(Point inPoint, Overview inOverview) {
@@ -51,14 +50,14 @@ public class NewSketchAction extends AbstractAction {
 	/**
 	 * Create the new sketch and set up its name
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String newName = _theOverview.getNewSketchName();
 
-		newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new sketch:", "Get name", JOptionPane.QUESTION_MESSAGE, null, null, newName);
+		newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new sketch:", "Get name",
+				JOptionPane.QUESTION_MESSAGE, null, null, newName);
 
 		if (newName == null) {
 			return;
@@ -67,9 +66,13 @@ public class NewSketchAction extends AbstractAction {
 		newName = newName.trim();
 
 		while (newName.equals("") || _theOverview.isNameUsed(newName)) {
-			JOptionPane.showMessageDialog(_theOverview.getFrame(), "Error while naming sketch.\n" + "Please ensure that sketch name is not blank and not already in use\n", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theOverview.getFrame(),
+					"Error while naming sketch.\n"
+							+ "Please ensure that sketch name is not blank and not already in use\n",
+					"Error", JOptionPane.ERROR_MESSAGE);
 
-			newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new sketch:", "Get name", JOptionPane.QUESTION_MESSAGE, null, null, newName);
+			newName = (String) JOptionPane.showInputDialog(_theOverview.getFrame(), "Name for new sketch:", "Get name",
+					JOptionPane.QUESTION_MESSAGE, null, null, newName);
 
 			if (newName == null) {
 				return;

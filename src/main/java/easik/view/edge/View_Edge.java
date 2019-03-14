@@ -49,15 +49,11 @@ public abstract class View_Edge extends ModelEdge<ViewFrame, ViewGraphModel, Vie
 	/**
 	 * Creates a new edge between two entity nodes with the specified name.
 	 *
-	 * @param source
-	 *            The source entity node
-	 * @param target
-	 *            The target entity node
-	 * @param name
-	 *            The unique edge identifier
-	 * @param cascade
-	 *            The Cascade option for this edge (Cascade.CASCADE,
-	 *            Cascade.RESTRICT, Cascade.SET_NULL)
+	 * @param source  The source entity node
+	 * @param target  The target entity node
+	 * @param name    The unique edge identifier
+	 * @param cascade The Cascade option for this edge (Cascade.CASCADE,
+	 *                Cascade.RESTRICT, Cascade.SET_NULL)
 	 * @see NormalEdge
 	 * @see easik.sketch.edge.InjectiveEdge
 	 * @see easik.sketch.edge.PartialEdge
@@ -135,8 +131,7 @@ public abstract class View_Edge extends ModelEdge<ViewFrame, ViewGraphModel, Vie
 	/**
 	 * Sets the name of this edge.
 	 * 
-	 * @param inName
-	 *            The unique name of the edge.
+	 * @param inName The unique name of the edge.
 	 *
 	 *
 	 **/
@@ -150,11 +145,10 @@ public abstract class View_Edge extends ModelEdge<ViewFrame, ViewGraphModel, Vie
 	}
 
 	/**
-	 * Accessor for the injective attribute. For a SketchEdge object, this
-	 * always return false, however injective edge subclasses override this.
+	 * Accessor for the injective attribute. For a SketchEdge object, this always
+	 * return false, however injective edge subclasses override this.
 	 *
-	 * @return true if this edge is an injective edge (one-to-one); false
-	 *         otherwise
+	 * @return true if this edge is an injective edge (one-to-one); false otherwise
 	 */
 	@Override
 	public boolean isInjective() {
@@ -191,6 +185,7 @@ public abstract class View_Edge extends ModelEdge<ViewFrame, ViewGraphModel, Vie
 	 * @return
 	 */
 	public String getForeignKeyName(final String pattern) {
-		return pattern.replaceAll("<target>", getTargetQueryNode().getName()).replaceAll("<source>", getSourceQueryNode().getName()).replaceAll("<edge>", getName());
+		return pattern.replaceAll("<target>", getTargetQueryNode().getName())
+				.replaceAll("<source>", getSourceQueryNode().getName()).replaceAll("<edge>", getName());
 	}
 }

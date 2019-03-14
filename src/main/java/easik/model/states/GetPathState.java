@@ -27,7 +27,8 @@ import easik.model.vertex.ModelVertex;
  * @version 2006-07-13 Kevin Green
  * @version 06-2014 Federico Mora
  */
-public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelState<F, GM, M, N, E> {
+public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelState<F, GM, M, N, E> {
 	/** Stores whether the next state is the finish state */
 	protected boolean _finishState;
 
@@ -54,16 +55,13 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	/**
 	 * Default Constructor
 	 *
-	 * @param next
-	 *            boolean determining whether the user should be allowed to
-	 *            select next on this round. True if next could be selected,
-	 *            false otherwise.
-	 * @param finish
-	 *            boolean determining whether the user should be allowed to
-	 *            select finish on this round. True if finish could be selected,
-	 *            false otherwise.
-	 * @param inSketch
-	 *            the sketch in which this is occurring
+	 * @param next     boolean determining whether the user should be allowed to
+	 *                 select next on this round. True if next could be selected,
+	 *                 false otherwise.
+	 * @param finish   boolean determining whether the user should be allowed to
+	 *                 select finish on this round. True if finish could be
+	 *                 selected, false otherwise.
+	 * @param inSketch the sketch in which this is occurring
 	 */
 	public GetPathState(boolean next, boolean finish, M inModel) {
 		this(next, finish, inModel, null, null);
@@ -72,24 +70,19 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	/**
 	 * Gets a path that must begin at the specified source node.
 	 *
-	 * @param next
-	 *            boolean determining whether the user should be allowed to
-	 *            select next on this round. True if next could be selected,
-	 *            false otherwise.
-	 * @param finish
-	 *            boolean determining whether the user should be allowed to
-	 *            select finish on this round. True if finish could be selected,
-	 *            false otherwise.
-	 * @param inSketch
-	 *            the sketch in which this is occurring
-	 * @param sourceNode
-	 *            N at which the path must begin; only edges with this node as
-	 *            source will be initially selectable. null means the path can
-	 *            start anywhere.
-	 * @param targetNode
-	 *            N at which the path must end; until a path ending at
-	 *            targetNode is selected, the user will be unable to click
-	 *            next/finish. null means the path can end anywhere.
+	 * @param next       boolean determining whether the user should be allowed to
+	 *                   select next on this round. True if next could be selected,
+	 *                   false otherwise.
+	 * @param finish     boolean determining whether the user should be allowed to
+	 *                   select finish on this round. True if finish could be
+	 *                   selected, false otherwise.
+	 * @param inSketch   the sketch in which this is occurring
+	 * @param sourceNode N at which the path must begin; only edges with this node
+	 *                   as source will be initially selectable. null means the path
+	 *                   can start anywhere.
+	 * @param targetNode N at which the path must end; until a path ending at
+	 *                   targetNode is selected, the user will be unable to click
+	 *                   next/finish. null means the path can end anywhere.
 	 */
 	public GetPathState(boolean next, boolean finish, M inModel, N sourceNode, N targetNode) {
 		super(inModel);
@@ -128,9 +121,8 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	}
 
 	/**
-	 * Returns the edges that are to be selectable. Only edges extending from
-	 * the current path are selectable; if there is no path, then any edge
-	 * qualifies.
+	 * Returns the edges that are to be selectable. Only edges extending from the
+	 * current path are selectable; if there is no path, then any edge qualifies.
 	 *
 	 * @return
 	 */
@@ -138,8 +130,8 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	public Object[] getSelectables() {
 		ArrayList<Object> selectable = new ArrayList<>();
 		/*
-		 * if we are allowing the creation of edges and nodes during the
-		 * constraint creation time then everything has to be selectable
+		 * if we are allowing the creation of edges and nodes during the constraint
+		 * creation time then everything has to be selectable
 		 * 
 		 */
 
@@ -152,8 +144,8 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	}
 
 	/**
-	 * Update the selection so that the only selectable items will be those
-	 * within reach of the existing edges.
+	 * Update the selection so that the only selectable items will be those within
+	 * reach of the existing edges.
 	 */
 	@Override
 	public void selectionUpdated() {
@@ -192,9 +184,9 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	}
 
 	/**
-	 * When the state gets popped, then it should tell the new top item what
-	 * path it had collected before being popped. Since this is called AFTER
-	 * popping, it can use peek() to get the top item.
+	 * When the state gets popped, then it should tell the new top item what path it
+	 * had collected before being popped. Since this is called AFTER popping, it can
+	 * use peek() to get the top item.
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -205,8 +197,8 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	}
 
 	/**
-	 * If path collection has been cancelled, then pop off, and set the path to
-	 * be null.
+	 * If path collection has been cancelled, then pop off, and set the path to be
+	 * null.
 	 */
 	@Override
 	public void cancelClicked() {
@@ -217,8 +209,8 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	}
 
 	/**
-	 * When next is clicked, pop off after preparing an array containing the
-	 * edges in the path. Convert to the proper graph edge of the sketch.
+	 * When next is clicked, pop off after preparing an array containing the edges
+	 * in the path. Convert to the proper graph edge of the sketch.
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -242,8 +234,8 @@ public class GetPathState<F extends ModelFrame<F, GM, M, N, E>, GM extends Easik
 	}
 
 	/**
-	 * When finish is clicked, the stack is popped off after an array containing
-	 * the path is created.
+	 * When finish is clicked, the stack is popped off after an array containing the
+	 * path is created.
 	 */
 	@Override
 	public void finishClicked() {

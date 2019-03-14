@@ -36,8 +36,7 @@ public class HelpAction extends AbstractAction {
 	/**
 	 * Registers when the user selects to view the Help
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -57,7 +56,6 @@ public class HelpAction extends AbstractAction {
 
 	}
 
-	
 	private static void error() {
 		java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
 		try {

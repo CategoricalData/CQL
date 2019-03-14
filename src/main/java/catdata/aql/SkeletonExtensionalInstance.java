@@ -25,15 +25,13 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
 	private final Term<Ty, Void, Sym, Void, Void, Void, Integer>[][] talg_eqs;
 	private final BiPredicate<Term<Ty, Void, Sym, Void, Void, Void, Integer>, Term<Ty, Void, Sym, Void, Void, Void, Integer>> talg_dp;
 
-	private final Function<Integer,Chc<Integer, Pair<Integer, Att>>> sks;
-	
+	private final Function<Integer, Chc<Integer, Pair<Integer, Att>>> sks;
+
 	private final AqlOptions ops;
 
-	//check if empty atts and if so don't store
+	// check if empty atts and if so don't store
 	public SkeletonExtensionalInstance(Schema<Ty, En, Sym, Fk, Att> schema, Map<En, Integer> en, Map<Ty, Integer> ty,
-			Map<En, Integer> m, 
-			Map<Ty, Integer> n,
-			Map<Fk, int[]> fks,
+			Map<En, Integer> m, Map<Ty, Integer> n, Map<Fk, int[]> fks,
 			Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Integer>[]> atts,
 			Term<Ty, Void, Sym, Void, Void, Void, Integer>[][] talg_eqs,
 			BiPredicate<Term<Ty, Void, Sym, Void, Void, Void, Integer>, Term<Ty, Void, Sym, Void, Void, Void, Integer>> talg_dp,
@@ -57,9 +55,9 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
 		for (Ty t : ty.keySet()) {
 			x += ty.get(t);
 		}
-		this.tys = x - ens;		
+		this.tys = x - ens;
 	}
-	
+
 	@Override
 	public Schema<Ty, En, Sym, Fk, Att> schema() {
 		return schema;
@@ -74,7 +72,7 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
 	public int ys() {
 		return tys;
 	}
-	
+
 	@Override
 	public int ys(Ty ty) {
 		return this.ys.get(ty);
@@ -134,18 +132,15 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
 		}
 	}
 
-	/*@Override
-	public Term<Ty, En, Sym, Fk, Att, Integer, Integer> reprT_protected(
-			Term<Ty, Void, Sym, Void, Void, Void, Integer> y) {
-		if (y.sk() != null) {
-			return sks.apply(y.sk());
-		}
-		List<Term<Ty, En, Sym, Fk, Att, Integer, Integer>> l = new ArrayList<>(y.args.size());
-		for (Term<Ty, Void, Sym, Void, Void, Void, Integer> z : y.args) {
-			l.add(reprT_protected(z));
-		}
-		return schema().typeSide.js.reduce(Term.Sym(y.sym(), l));
-	}*/
+	/*
+	 * @Override public Term<Ty, En, Sym, Fk, Att, Integer, Integer>
+	 * reprT_protected( Term<Ty, Void, Sym, Void, Void, Void, Integer> y) { if
+	 * (y.sk() != null) { return sks.apply(y.sk()); } List<Term<Ty, En, Sym, Fk,
+	 * Att, Integer, Integer>> l = new ArrayList<>(y.args.size()); for (Term<Ty,
+	 * Void, Sym, Void, Void, Void, Integer> z : y.args) {
+	 * l.add(reprT_protected(z)); } return
+	 * schema().typeSide.js.reduce(Term.Sym(y.sym(), l)); }
+	 */
 
 	@Override
 	public AqlOptions options() {
@@ -165,17 +160,13 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
 	@Override
 	public Chc<Integer, Pair<Integer, Att>> reprT_prot(int y) {
 		return sks.apply(y);
-		/*if (y.sk() != null) {
-			return sks.apply(y.sk());
-		}
-		List<Term<Ty, En, Sym, Fk, Att, Integer, Integer>> l = new ArrayList<>(y.args.size());
-		for (Term<Ty, Void, Sym, Void, Void, Void, Integer> z : y.args) {
-			l.add(reprT_protected(z));
-		}
-		return schema().typeSide.js.reduce(Term.Sym(y.sym(), l)); */
+		/*
+		 * if (y.sk() != null) { return sks.apply(y.sk()); } List<Term<Ty, En, Sym, Fk,
+		 * Att, Integer, Integer>> l = new ArrayList<>(y.args.size()); for (Term<Ty,
+		 * Void, Sym, Void, Void, Void, Integer> z : y.args) {
+		 * l.add(reprT_protected(z)); } return
+		 * schema().typeSide.js.reduce(Term.Sym(y.sym(), l));
+		 */
 	}
 
-	
-
-	
 }

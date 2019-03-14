@@ -74,15 +74,12 @@ public abstract class OptionsDialog extends JDialog {
 	private boolean _ok = false;
 
 	/**
-	 * Sets up a new OptionsDialog attached to the specified parent dialog, with
-	 * the specified title. The dialog will be a modal dialog. The default
-	 * dialog box size is 300x300; subclasses should call setSize() to set this
-	 * for themselves.
+	 * Sets up a new OptionsDialog attached to the specified parent dialog, with the
+	 * specified title. The dialog will be a modal dialog. The default dialog box
+	 * size is 300x300; subclasses should call setSize() to set this for themselves.
 	 *
-	 * @param parent
-	 *            the parent dialog of the modal dialog
-	 * @param title
-	 *            the title of the dialog box
+	 * @param parent the parent dialog of the modal dialog
+	 * @param title  the title of the dialog box
 	 */
 	public OptionsDialog(final JDialog parent, final String title) {
 		super(parent, title, true);
@@ -92,15 +89,12 @@ public abstract class OptionsDialog extends JDialog {
 	}
 
 	/**
-	 * Sets up a new OptionsDialog attached to the specified parent frame, with
-	 * the specified title. The dialog will be a modal dialog. The default
-	 * dialog box size is 300x300; subclasses should call setSize() to set this
-	 * for themselves.
+	 * Sets up a new OptionsDialog attached to the specified parent frame, with the
+	 * specified title. The dialog will be a modal dialog. The default dialog box
+	 * size is 300x300; subclasses should call setSize() to set this for themselves.
 	 *
-	 * @param parent
-	 *            the parent frame of the modal dialog
-	 * @param title
-	 *            the title of the dialog box
+	 * @param parent the parent frame of the modal dialog
+	 * @param title  the title of the dialog box
 	 */
 	public OptionsDialog(final JFrame parent, final String title) {
 		super(parent, title, true);
@@ -110,11 +104,11 @@ public abstract class OptionsDialog extends JDialog {
 	}
 
 	/**
-	 * Returns a list of Option label/component pairs to be displayed in the
-	 * option dialog. Must be overridden by sub-classes unless they implement
-	 * TabbedOptionsDialog. For TabbedOptionsDialog objects, if this method
-	 * returns any options, they will be added to the page *before* the tabs
-	 * returned by getTabs().
+	 * Returns a list of Option label/component pairs to be displayed in the option
+	 * dialog. Must be overridden by sub-classes unless they implement
+	 * TabbedOptionsDialog. For TabbedOptionsDialog objects, if this method returns
+	 * any options, they will be added to the page *before* the tabs returned by
+	 * getTabs().
 	 *
 	 * @return list of Option objects
 	 */
@@ -125,9 +119,8 @@ public abstract class OptionsDialog extends JDialog {
 
 	/**
 	 * Shows the option modal dialog. This method doesn't return until the user
-	 * accepts, cancels, or otherwise dismisses the dialog box. This method
-	 * returns true if the user clicks OK (and, if overridden, verify()
-	 * succeeds).
+	 * accepts, cancels, or otherwise dismisses the dialog box. This method returns
+	 * true if the user clicks OK (and, if overridden, verify() succeeds).
 	 *
 	 * @return true if the user clicked OK and the data was acceptable
 	 * @see #verify()
@@ -205,8 +198,7 @@ public abstract class OptionsDialog extends JDialog {
 	/**
 	 * Creates a JPanel with the specified options. Interal use only.
 	 * 
-	 * @param opts
-	 *            the options
+	 * @param opts the options
 	 * @return a jpanel
 	 */
 	private static JPanel optionsPanel(final List<Option> opts) {
@@ -264,13 +256,12 @@ public abstract class OptionsDialog extends JDialog {
 	}
 
 	/**
-	 * Called when the user clicks the OK button. This method should be
-	 * overridden by subclasses that wish to perform data checks, prompting the
-	 * user if data is invalid, etc. The default behaviour is to do nothing
-	 * (i.e. allow anything).
+	 * Called when the user clicks the OK button. This method should be overridden
+	 * by subclasses that wish to perform data checks, prompting the user if data is
+	 * invalid, etc. The default behaviour is to do nothing (i.e. allow anything).
 	 *
-	 * @return true if the window should be allowed to be closed, false if the
-	 *         close should be aborted
+	 * @return true if the window should be allowed to be closed, false if the close
+	 *         should be aborted
 	 */
 	@SuppressWarnings("static-method")
 	public boolean verify() {
@@ -278,11 +269,11 @@ public abstract class OptionsDialog extends JDialog {
 	}
 
 	/**
-	 * Returns true if the user accepted the options dialog (that is, clicked
-	 * the OK button).
+	 * Returns true if the user accepted the options dialog (that is, clicked the OK
+	 * button).
 	 *
-	 * @return true if the user clicked OK (and the fields verified
-	 *         successfully), false if the user cancelled or closed the dialog.
+	 * @return true if the user clicked OK (and the fields verified successfully),
+	 *         false if the user cancelled or closed the dialog.
 	 */
 	public boolean isAccepted() {
 		return _ok;

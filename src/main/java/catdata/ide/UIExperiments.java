@@ -69,7 +69,6 @@ public class UIExperiments extends JRootPane implements HyperlinkListener, Synta
 
 	}
 
-	
 	public UIExperiments() {
 		textArea = createTextArea();
 		setText("whasabi");
@@ -78,11 +77,11 @@ public class UIExperiments extends JRootPane implements HyperlinkListener, Synta
 		scrollPane = new RTextScrollPane(textArea, true);
 		Gutter gutter = scrollPane.getGutter();
 		gutter.setBookmarkingEnabled(true);
-		 
-		 gutter.setBookmarkIcon(new MissingIcon(Color.BLACK, 14, 14));
+
+		gutter.setBookmarkIcon(new MissingIcon(Color.BLACK, 14, 14));
 		getContentPane().add(scrollPane);
 		ErrorStrip errorStrip = new ErrorStrip(textArea);
-errorStrip.setBackground(java.awt.Color.blue);
+		errorStrip.setBackground(java.awt.Color.blue);
 		getContentPane().add(errorStrip, BorderLayout.LINE_END);
 		setJMenuBar(createMenuBar());
 	}
@@ -92,8 +91,6 @@ errorStrip.setBackground(java.awt.Color.blue);
 		bg.add(item);
 		menu.add(item);
 	}
-
-	
 
 	private static Action createCopyAsStyledTextAction(String themeName) throws IOException {
 		String resource = "/org/fife/ui/rsyntaxtextarea/themes/" + themeName + ".xml";
@@ -156,9 +153,6 @@ errorStrip.setBackground(java.awt.Color.blue);
 		cbItem = new JCheckBoxMenuItem(new TabLinesAction());
 		menu.add(cbItem);
 		mb.add(menu);
-
-	
-	
 
 		return mb;
 
@@ -235,7 +229,6 @@ errorStrip.setBackground(java.awt.Color.blue);
 		textArea.discardAllEdits();
 	}
 
-	
 	/**
 	 * Toggles whether matched brackets are animated.
 	 */
@@ -342,7 +335,6 @@ errorStrip.setBackground(java.awt.Color.blue);
 
 	}
 
-	
 	/**
 	 * Toggles anti-aliasing.
 	 */

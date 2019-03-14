@@ -12,7 +12,9 @@ public class Eq<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public final Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs, rhs;
 	public final Map<Var, Chc<Ty, En>> ctx;
 	private int code;
-	public Eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs, Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
+
+	public Eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
 		if (ctx == null || ctx.isEmpty()) {
 			this.ctx = Collections.emptyMap();
 		} else {
@@ -27,7 +29,7 @@ public class Eq<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public int hashCode() {
 		return code;
 	}
-	
+
 	public int hashCode2() {
 		int prime = 31;
 		int result = 1;
@@ -45,7 +47,7 @@ public class Eq<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Eq<?,?,?,?,?,?,?> other = (Eq<?,?,?,?,?,?,?>) obj;
+		Eq<?, ?, ?, ?, ?, ?, ?> other = (Eq<?, ?, ?, ?, ?, ?, ?>) obj;
 		if (code != other.code) {
 			return false;
 		}
@@ -66,14 +68,14 @@ public class Eq<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return Util.sep(ctx, ":", ", ");
 	}
-	
+
 	public final Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> toTriple() {
 		return new Triple<>(ctx, lhs, rhs);
 	}
-	
+
 }

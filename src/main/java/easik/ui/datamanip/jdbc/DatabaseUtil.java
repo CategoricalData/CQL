@@ -32,15 +32,12 @@ import easik.view.vertex.QueryNode;
  */
 public abstract class DatabaseUtil {
 	/**
-	 * Pops up a dialog for the user to select records from the table
-	 * represented by the given entity node. The primary IDs of the records are
-	 * returned.
+	 * Pops up a dialog for the user to select records from the table represented by
+	 * the given entity node. The primary IDs of the records are returned.
 	 * 
-	 * @param frame
-	 *            the JFrame to attach the dialog to
-	 * @param table
-	 *            The entity node representing the table from which we wish to
-	 *            select the records
+	 * @param frame the JFrame to attach the dialog to
+	 * @param table The entity node representing the table from which we wish to
+	 *              select the records
 	 * @return An array of primary IDs representing the records we selected
 	 */
 	public static int[] selectRowPKs(final JFrame frame, final EntityNode table) {
@@ -72,14 +69,12 @@ public abstract class DatabaseUtil {
 
 	/**
 	 * Pops up a dialog for the user to select a single record from the table
-	 * represented by the given entity node. The primary ID of the selected
-	 * record is returned.
+	 * represented by the given entity node. The primary ID of the selected record
+	 * is returned.
 	 * 
-	 * @param win
-	 *            the JFrame or JDialog to attach the dialog to
-	 * @param table
-	 *            The entity node representing the table from which we wish to
-	 *            select the record
+	 * @param win   the JFrame or JDialog to attach the dialog to
+	 * @param table The entity node representing the table from which we wish to
+	 *              select the record
 	 * @return The primary ID representing the record we selected
 	 */
 	public static int selectRowPK(final Window win, final EntityNode table) {
@@ -104,7 +99,9 @@ public abstract class DatabaseUtil {
 			return 0;
 		}
 
-		final SelectDataDialog sdd = (win instanceof JDialog) ? new SelectDataDialog((JDialog) win, table.getName(), tableData) : new SelectDataDialog((JFrame) win, table.getName(), tableData);
+		final SelectDataDialog sdd = (win instanceof JDialog)
+				? new SelectDataDialog((JDialog) win, table.getName(), tableData)
+				: new SelectDataDialog((JFrame) win, table.getName(), tableData);
 
 		if (sdd.isAccepted()) {
 			// recall that we set our table for singleton selection
@@ -118,12 +115,11 @@ public abstract class DatabaseUtil {
 	}
 
 	/**
-	 * Returns an array of the primary keys found in a given table. An array of
-	 * size 0 is returned in the event of a db access error.
+	 * Returns an array of the primary keys found in a given table. An array of size
+	 * 0 is returned in the event of a db access error.
 	 * 
-	 * @param table
-	 *            The entity node representing the table from which we wish to
-	 *            get the primary IDs
+	 * @param table The entity node representing the table from which we wish to get
+	 *              the primary IDs
 	 * @return The primary IDs of all records found in the given table
 	 */
 	public static int[] getPKs(final EntityNode table) {
@@ -161,15 +157,14 @@ public abstract class DatabaseUtil {
 	}
 
 	/**
-	 * Gets the contents of a given table, and returns them as a JTable. The
-	 * first column is the record's primary key, and the remaining columns are
-	 * layed out in the order EntityNode.getEntityAttributes() is stored.
+	 * Gets the contents of a given table, and returns them as a JTable. The first
+	 * column is the record's primary key, and the remaining columns are layed out
+	 * in the order EntityNode.getEntityAttributes() is stored.
 	 * 
-	 * @param table
-	 *            The EntityNode representing the table we wish to view
+	 * @param table The EntityNode representing the table we wish to view
 	 * @return The contents of the given table wrapped as a JTable
 	 *
-	 * @throws PersistenceDriver.LoadException
+	 * @throws              PersistenceDriver.LoadException
 	 * @throws SQLException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -244,17 +239,15 @@ public abstract class DatabaseUtil {
 	}
 
 	/**
-	 * Returns a Map of column names to their value for a given table/primary
-	 * key pair. If no record exists in the table with the given primary key, we
-	 * return an empty Map. Can throw a Database.LoadException or SQLException
-	 * in the event that a db driver can not be acquired.
+	 * Returns a Map of column names to their value for a given table/primary key
+	 * pair. If no record exists in the table with the given primary key, we return
+	 * an empty Map. Can throw a Database.LoadException or SQLException in the event
+	 * that a db driver can not be acquired.
 	 * 
-	 * @param table
-	 *            The table from which we get the requested row.
-	 * @param pk
-	 *            The primary id of the row which we want
-	 * @return A mapping of column names to their corresponding value for the
-	 *         given table/id pair. If no such row exists, returns an empty Map.
+	 * @param table The table from which we get the requested row.
+	 * @param pk    The primary id of the row which we want
+	 * @return A mapping of column names to their corresponding value for the given
+	 *         table/id pair. If no such row exists, returns an empty Map.
 	 */
 	public static Map<String, String> getRecord(final EntityNode table, final int pk) {
 		final JDBCDriver dbd;
@@ -266,7 +259,8 @@ public abstract class DatabaseUtil {
 			dbd = table.getMModel().getDatabase().getJDBCDriver();
 			cn = new ColumnNaming(dbd);
 
-			final String select = "SELECT * FROM " + dbd.quoteId(table.getName()) + " WHERE " + cn.tablePK(table) + " = " + pk;
+			final String select = "SELECT * FROM " + dbd.quoteId(table.getName()) + " WHERE " + cn.tablePK(table)
+					+ " = " + pk;
 
 			result = dbd.executeQuery(select);
 
@@ -340,7 +334,8 @@ public abstract class DatabaseUtil {
 
 			new SelectDataDialog(parent, node.getName(), asTable);
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(node.getMModel().getSketch().getFrame(), "Could not get record: " + e.getMessage());
+			JOptionPane.showMessageDialog(node.getMModel().getSketch().getFrame(),
+					"Could not get record: " + e.getMessage());
 		}
 	}
 
@@ -353,20 +348,20 @@ public abstract class DatabaseUtil {
 	 * @param node
 	 * @param parent
 	 * 
-	 *            public static void addToQueryNode(final QueryNode node, final
-	 *            JFrame parent) { final JDBCDriver dbd; final ResultSet result;
-	 *            final ResultSetMetaData rsmd; final Vector<Object[]> data;
-	 *            final JTable asTable; final String[] columnNames; final int
-	 *            cols;
+	 *               public static void addToQueryNode(final QueryNode node, final
+	 *               JFrame parent) { final JDBCDriver dbd; final ResultSet result;
+	 *               final ResultSetMetaData rsmd; final Vector<Object[]> data;
+	 *               final JTable asTable; final String[] columnNames; final int
+	 *               cols;
 	 * 
-	 *            try { dbd =
-	 *            node.getMModel().getMModel().getDatabase().getJDBCDriver();
-	 *            result = dbd.executeQuery(node.getQuery()); rsmd =
-	 *            result.getMetaData(); cols = rsmd.getColumnCount();
+	 *               try { dbd =
+	 *               node.getMModel().getMModel().getDatabase().getJDBCDriver();
+	 *               result = dbd.executeQuery(node.getQuery()); rsmd =
+	 *               result.getMetaData(); cols = rsmd.getColumnCount();
 	 * 
 	 * 
-	 *            } catch (SQLException e) {
-	 *            JOptionPane.showMessageDialog(node.getMModel().getMModel().getFrame(),
-	 *            "Could not get record: " + e.getMessage()); } }
+	 *               } catch (SQLException e) {
+	 *               JOptionPane.showMessageDialog(node.getMModel().getMModel().getFrame(),
+	 *               "Could not get record: " + e.getMessage()); } }
 	 */
 }

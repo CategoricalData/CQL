@@ -23,7 +23,7 @@ public class CoEvalEvalUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2,
 	private final Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Q;
 	private final Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> I;
 	private final CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> J;
-	private final EvalInstance<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>, En2, Fk2, Att2, Integer, Chc<Chc<Triple<Var, X, En2>, Y>, Pair<Integer, Att1>>> K; 
+	private final EvalInstance<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>, En2, Fk2, Att2, Integer, Chc<Chc<Triple<Var, X, En2>, Y>, Pair<Integer, Att1>>> K;
 	private final Map<Gen, Term<Void, En2, Void, Fk2, Void, Row<En2, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>>, Void>> gens = new THashMap<>();
 	private final Map<Sk, Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>>, Chc<Chc<Triple<Var, X, En2>, Y>, Pair<Integer, Att1>>>> sks = new THashMap<>();
 
@@ -42,20 +42,21 @@ public class CoEvalEvalUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2,
 			En2 en2 = genX.getValue();
 			X x = I.algebra().gen(gen);
 			List<Var> l = Q.ens.get(en2).order;
-			Map<Var, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>>
-			 tuple = new THashMap<>(l.size());
+			Map<Var, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>> tuple = new THashMap<>(
+					l.size());
 			for (Var v : l) {
 				if (Q.ens.get(en2).gens.containsKey(v)) {
 					Integer id = J.algebra().gen(new Triple<>(v, x, en2));
 					tuple.put(v, Chc.inLeft(id));
 				} else {
-					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> id = J.reprT(Term.Sk(Chc.inLeft(Chc.inLeft(new Triple<>(v, x, en2)))));
-					tuple.put(v, Chc.inRight(id));					
+					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> id = J
+							.reprT(Term.Sk(Chc.inLeft(Chc.inLeft(new Triple<>(v, x, en2)))));
+					tuple.put(v, Chc.inRight(id));
 				}
 			}
-			
-			Row<En2, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>> 
-			row = Row.mkRow(l, tuple, en2, Q.ens.get(en2).gens, Q.ens.get(en2).sks);
+
+			Row<En2, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>> row = Row
+					.mkRow(l, tuple, en2, Q.ens.get(en2).gens, Q.ens.get(en2).sks);
 			Term<Void, En2, Void, Fk2, Void, Row<En2, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>>, Void> term = Term
 					.Gen(row);
 			gens.put(gen, term);

@@ -29,7 +29,8 @@ import easik.model.vertex.ModelVertex;
  * @version Christian Fiddick Summer 2012
  * @version 06-2014 Federico Mora
  */
-public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelState<F, GM, M, N, E> implements PathAcceptingState<F, GM, M, N, E> {
+public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelState<F, GM, M, N, E> implements PathAcceptingState<F, GM, M, N, E> {
 	/** Stores whether the user has finished adding paths to this constraint */
 	@SuppressWarnings("unused")
 	private boolean _finished;
@@ -46,10 +47,8 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 	/**
 	 * Constructor for creating a new state to collect paths and make a diagram.
 	 * 
-	 * @param inModel
-	 *            The sketch being worked with.
-	 * @param width
-	 *            Number of paths to target node
+	 * @param inModel The sketch being worked with.
+	 * @param width   Number of paths to target node
 	 */
 	public AddPullbackConstraintState(M inModel, int width) {
 		super(inModel);
@@ -69,8 +68,7 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 	/**
 	 * Helper method to determine if the ith source path should be injective.
 	 * 
-	 * @param i
-	 *            Path from source to intermediary node to check
+	 * @param i Path from source to intermediary node to check
 	 * @return True if path should be injective, false otherwise
 	 */
 	private boolean shouldBeInjective(int i) {
@@ -92,13 +90,11 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 	}
 
 	/**
-	 * Called when a new path has been completed by a state above this on the
-	 * stack. If it is null, then cancel, otherwise add it to the collection.
-	 * When we get width*2 paths, then we're finished (if they share a domain
-	 * and codomain).
+	 * Called when a new path has been completed by a state above this on the stack.
+	 * If it is null, then cancel, otherwise add it to the collection. When we get
+	 * width*2 paths, then we're finished (if they share a domain and codomain).
 	 *
-	 * @param inPath
-	 *            The last path in, null if it was a cancellation
+	 * @param inPath The last path in, null if it was a cancellation
 	 */
 	@Override
 	public void passPath(ModelPath<F, GM, M, N, E> inPath) {
@@ -124,11 +120,14 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 		if (_round <= width) { // selecting target paths
 			if (_round == 1) {
 				_paths.add(inPath);
-				_ourModel.getFrame().setInstructionText("Select a fully defined path " + (_round + 1) + " to pullback codomain ('" + codomain.getName() + "'), and press 'Next'.");
-				_ourModel.getStateManager().pushState(new GetFullyDefinedPathState<>(next, finished, _ourModel, null, codomain, true));
+				_ourModel.getFrame().setInstructionText("Select a fully defined path " + (_round + 1)
+						+ " to pullback codomain ('" + codomain.getName() + "'), and press 'Next'.");
+				_ourModel.getStateManager()
+						.pushState(new GetFullyDefinedPathState<>(next, finished, _ourModel, null, codomain, true));
 			} else {
 				if (codomain != _paths.get(0).getCoDomain()) {
-					error = "Invalid path selection: Selected codomain did not equal '" + _paths.get(0).getCoDomain().getName() + "'.";
+					error = "Invalid path selection: Selected codomain did not equal '"
+							+ _paths.get(0).getCoDomain().getName() + "'.";
 				} else {
 					_paths.add(inPath);
 
@@ -136,11 +135,16 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 						boolean injective = shouldBeInjective(_round);
 						N target = _paths.get(0).getDomain();
 
-						_ourModel.getFrame().setInstructionText("Select " + (injective ? "an injective" : "a") + " pullback projection with target node '" + target.getName() + "', and press 'Next'");
-						_ourModel.getStateManager().pushState(injective ? new GetInjectivePathState<>(next, finished, false, _ourModel, null, target) : new GetFullyDefinedPathState<>(next, finished, _ourModel, null, target, true));
+						_ourModel.getFrame().setInstructionText("Select " + (injective ? "an injective" : "a")
+								+ " pullback projection with target node '" + target.getName() + "', and press 'Next'");
+						_ourModel.getStateManager().pushState(injective
+								? new GetInjectivePathState<>(next, finished, false, _ourModel, null, target)
+								: new GetFullyDefinedPathState<>(next, finished, _ourModel, null, target, true));
 					} else {
-						_ourModel.getFrame().setInstructionText("Select path " + (_round + 1) + " to pullback codomain ('" + codomain.getName() + "'), and press 'Next'.");
-						_ourModel.getStateManager().pushState(new GetFullyDefinedPathState<>(next, finished, _ourModel, null, codomain, true));
+						_ourModel.getFrame().setInstructionText("Select path " + (_round + 1)
+								+ " to pullback codomain ('" + codomain.getName() + "'), and press 'Next'.");
+						_ourModel.getStateManager().pushState(
+								new GetFullyDefinedPathState<>(next, finished, _ourModel, null, codomain, true));
 					}
 				}
 			}
@@ -149,21 +153,22 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 				_paths.add(inPath);
 
 				if (addDiagram()) {
-					JOptionPane.showMessageDialog(_ourModel.getParent(), "Created a Pullback Constraint", "EASIK", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(_ourModel.getParent(), "Created a Pullback Constraint", "EASIK",
+							JOptionPane.INFORMATION_MESSAGE);
 					_ourModel.getStateManager().popState();
 
 					return;
-				} 
-					if (codomain != _paths.get((_round - width) - 1).getDomain()) {
-						error = "Invalid path selection: Selected codomain did not equal '" + _paths.get(width).getCoDomain() + "'.";
-					} 
-						error = "Paths must be fully defined.";
-					
+				}
+				if (codomain != _paths.get((_round - width) - 1).getDomain()) {
+					error = "Invalid path selection: Selected codomain did not equal '"
+							+ _paths.get(width).getCoDomain() + "'.";
+				}
+				error = "Paths must be fully defined.";
 
-				
 			} else {
 				if (codomain != _paths.get((_round - width) - 1).getDomain()) {
-					error = "Invalid path selection: Selected codomain did not equal '" + _paths.get((_round - width) - 1).getDomain() + "'.";
+					error = "Invalid path selection: Selected codomain did not equal '"
+							+ _paths.get((_round - width) - 1).getDomain() + "'.";
 				} else {
 					_paths.add(inPath);
 
@@ -172,15 +177,22 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 					N target = _paths.get(_round - width).getDomain();
 					String button = (_round == width * 2 - 1) ? "Finish" : "Next";
 
-					_ourModel.getFrame().setInstructionText("Select " + (injective ? "an injective" : "a") + " pullback projection from '" + source.getName() + "' to '" + target.getName() + "', and press '" + button + '\'');
-					_ourModel.getStateManager().pushState(injective ? new GetInjectivePathState<>(next, finished, false, _ourModel, source, target) : new GetFullyDefinedPathState<>(next, finished, _ourModel, source, target, true));
+					_ourModel.getFrame()
+							.setInstructionText("Select " + (injective ? "an injective" : "a")
+									+ " pullback projection from '" + source.getName() + "' to '" + target.getName()
+									+ "', and press '" + button + '\'');
+					_ourModel.getStateManager()
+							.pushState(injective
+									? new GetInjectivePathState<>(next, finished, false, _ourModel, source, target)
+									: new GetFullyDefinedPathState<>(next, finished, _ourModel, source, target, true));
 				}
 			}
 		}
 
 		// if error, tell user and pop this state.
 		if (error != null) {
-			JOptionPane.showMessageDialog(_ourModel.getParent(), error + " Pullback constraint not created.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_ourModel.getParent(), error + " Pullback constraint not created.", "Error",
+					JOptionPane.ERROR_MESSAGE);
 			_ourModel.getGraphModel().cancelInsignificantUpdate();
 			_ourModel.getStateManager().popState();
 		}
@@ -189,12 +201,13 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 	/**
 	 * Add the diagram to the sketch
 	 *
-	 * @return true if the constraint was successfully added to the sketch,
-	 *         false otherwise
+	 * @return true if the constraint was successfully added to the sketch, false
+	 *         otherwise
 	 */
 	@SuppressWarnings("unchecked")
 	private boolean addDiagram() {
-		ArrayList<ModelPath<F, GM, M, N, E>> tmpSkp = (ArrayList<ModelPath<F, GM, M, N, E>>) _ourModel.asPullbackConstraint(_paths);
+		ArrayList<ModelPath<F, GM, M, N, E>> tmpSkp = (ArrayList<ModelPath<F, GM, M, N, E>>) _ourModel
+				.asPullbackConstraint(_paths);
 
 		if (tmpSkp != null) {
 			_paths = tmpSkp;
@@ -216,15 +229,16 @@ public class AddPullbackConstraintState<F extends ModelFrame<F, GM, M, N, E>, GM
 	}
 
 	/**
-	 * When this state is pushed on, it sends a message in a popup and then
-	 * pushes a path collection state.
+	 * When this state is pushed on, it sends a message in a popup and then pushes a
+	 * path collection state.
 	 */
 	@Override
 	public void pushedOn() {
 		_ourModel.clearSelection();
 		_ourModel.getStateManager().resetFinished();
 		_ourModel.getGraphModel().beginInsignificantUpdate();
-		_ourModel.getFrame().setInstructionText("Select first fully defined path to the pullback codomain and click 'Next'.");
+		_ourModel.getFrame()
+				.setInstructionText("Select first fully defined path to the pullback codomain and click 'Next'.");
 		_ourModel.getFrame().getNextButton().setEnabled(true);
 		_ourModel.getFrame().getCancelButton().setEnabled(true);
 		_ourModel.getStateManager().pushState(new GetFullyDefinedPathState<>(true, false, _ourModel, true));

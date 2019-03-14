@@ -52,10 +52,8 @@ public class SketchFileIO {
 	/**
 	 * Converts a sketch to XML and sends to file.
 	 *
-	 * @param outputFile
-	 *            The target file for the sketch to be saved in
-	 * @param inSketch
-	 *            The sketch to be saved
+	 * @param outputFile The target file for the sketch to be saved in
+	 * @param inSketch   The sketch to be saved
 	 * @return the success of the save
 	 */
 	public static boolean sketchToXML(File outputFile, Sketch inSketch) {
@@ -86,12 +84,11 @@ public class SketchFileIO {
 	/**
 	 * Converts a sketch to an Element.
 	 *
-	 * @param document
-	 *            The Document in which our information is being placed.
+	 * @param document The Document in which our information is being placed.
 	 * @param sketch
-	 * @return All of the information needed to rebuild our sketch containted in
-	 *         an Element. Returns null in the event that the element could not
-	 *         be created.
+	 * @return All of the information needed to rebuild our sketch containted in an
+	 *         Element. Returns null in the event that the element could not be
+	 *         created.
 	 */
 	public static Element sketchToElement(Document document, Sketch sketch) {
 		try {
@@ -159,7 +156,8 @@ public class SketchFileIO {
 				entities.appendChild(thisEntity);
 
 				// Loop through attributes, add them to the document
-				for (EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curAttribute : currentEntity.getEntityAttributes()) {
+				for (EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curAttribute : currentEntity
+						.getEntityAttributes()) {
 					Element attributeElmt = document.createElement("attribute");
 
 					attributeElmt.setAttribute("name", curAttribute.getName());
@@ -191,8 +189,11 @@ public class SketchFileIO {
 				thisEdge.setAttribute("id", currentEdge.getName());
 				thisEdge.setAttribute("source", currentEdge.getSourceEntity().getName());
 				thisEdge.setAttribute("target", currentEdge.getTargetEntity().getName());
-				thisEdge.setAttribute("type", (currentEdge instanceof PartialEdge) ? "partial" : (currentEdge instanceof InjectiveEdge) ? "injective" : "normal");
-				thisEdge.setAttribute("cascade", (currentEdge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "set_null" : (currentEdge.getCascading() == SketchEdge.Cascade.CASCADE) ? "cascade" : "restrict");
+				thisEdge.setAttribute("type", (currentEdge instanceof PartialEdge) ? "partial"
+						: (currentEdge instanceof InjectiveEdge) ? "injective" : "normal");
+				thisEdge.setAttribute("cascade",
+						(currentEdge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "set_null"
+								: (currentEdge.getCascading() == SketchEdge.Cascade.CASCADE) ? "cascade" : "restrict");
 				edges.appendChild(thisEdge);
 			}
 
@@ -202,7 +203,8 @@ public class SketchFileIO {
 
 			// Loop through unique keys for every node, add them to the document
 			for (EntityNode currentEntity : sketch.getEntities()) {
-				for (UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curKey : currentEntity.getUniqueKeys()) {
+				for (UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curKey : currentEntity
+						.getUniqueKeys()) {
 					Element uniqueKeyElmt = document.createElement("uniqueKey");
 
 					uniqueKeyElmt.setAttribute("name", curKey.getKeyName());
@@ -221,7 +223,8 @@ public class SketchFileIO {
 							edgeElmt.setAttribute("id", curElem.getName());
 							uniqueKeyElmt.appendChild(edgeElmt);
 						} else {
-							System.err.println("Unknown unique key item encountered: element '" + curElem.getName() + "' is neither EntityAttribute nor SketchEdge");
+							System.err.println("Unknown unique key item encountered: element '" + curElem.getName()
+									+ "' is neither EntityAttribute nor SketchEdge");
 						}
 					}
 				}
@@ -232,7 +235,8 @@ public class SketchFileIO {
 			Element constraints = document.createElement("constraints");
 
 			// Now add the constraints
-			for (ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curConstraint : sketch.getConstraints().values()) {
+			for (ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curConstraint : sketch
+					.getConstraints().values()) {
 				Element thisConstraint = document.createElement(curConstraint.getType());
 
 				thisConstraint.setAttribute("x", curConstraint.getX() + "");
@@ -384,7 +388,8 @@ public class SketchFileIO {
 					continue;
 				}
 
-				for (ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path : curConstraint.getPaths()) {
+				for (ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path : curConstraint
+						.getPaths()) {
 					// Add pathref to constraint
 					Element pathElem = document.createElement("path");
 
@@ -416,10 +421,8 @@ public class SketchFileIO {
 	/**
 	 * Output the document as XML
 	 *
-	 * @param outputFile
-	 *            output file
-	 * @param xml
-	 *            output XML
+	 * @param outputFile output file
+	 * @param xml        output XML
 	 */
 	private static void outputXMLtoFile(File outputFile, Document xml) {
 		try {
@@ -449,10 +452,8 @@ public class SketchFileIO {
 	/**
 	 * Load a sketch from XML.
 	 *
-	 * @param inputFile
-	 *            the file from which the XML will be read
-	 * @param outputSketch
-	 *            The sketch which will be getting the new values
+	 * @param inputFile    the file from which the XML will be read
+	 * @param outputSketch The sketch which will be getting the new values
 	 * @return Returns the success or failure of the reading.
 	 */
 	public static boolean graphicalSketchFromXML(File inputFile, Sketch outputSketch) {
@@ -463,7 +464,9 @@ public class SketchFileIO {
 		}
 
 		// TODO: fix new header part when ready.
-		outputSketch.initializeFromData(sketchHandler.getSyncLock(), sketchHandler.getEntities(), sketchHandler.getEdges(), sketchHandler.getConstraints(), sketchHandler.getDocumentInfo(), sketchHandler.getConnParams());
+		outputSketch.initializeFromData(sketchHandler.getSyncLock(), sketchHandler.getEntities(),
+				sketchHandler.getEdges(), sketchHandler.getConstraints(), sketchHandler.getDocumentInfo(),
+				sketchHandler.getConnParams());
 
 		return true;
 	}
@@ -471,10 +474,8 @@ public class SketchFileIO {
 	/**
 	 * Method to initialize a SketchHandler for a supplied XML file
 	 *
-	 * @param inputFile
-	 *            The XML file containing the sketch information
-	 * @param sketchHandler
-	 *            An instance of a sketchHandler.
+	 * @param inputFile     The XML file containing the sketch information
+	 * @param sketchHandler An instance of a sketchHandler.
 	 * @return true if SketchHandler was initialized, false if an exception
 	 *         occurred.
 	 *

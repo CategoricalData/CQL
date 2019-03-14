@@ -136,9 +136,11 @@ public class DocInfoUI extends OptionsDialog implements ContainedOptionsDialog {
 
 			edgeCascading.setSelectedIndex((sketch.getDefaultCascading() == Cascade.CASCADE) ? 1 : 0);
 
-			edgeCascadingPartial = new JComboBox(new String[] { "Set null", "Restrict deletions", "Cascade deletions" });
+			edgeCascadingPartial = new JComboBox(
+					new String[] { "Set null", "Restrict deletions", "Cascade deletions" });
 
-			edgeCascadingPartial.setSelectedIndex((sketch.getDefaultPartialCascading() == Cascade.CASCADE) ? 2 : (sketch.getDefaultPartialCascading() == Cascade.RESTRICT) ? 1 : 0);
+			edgeCascadingPartial.setSelectedIndex((sketch.getDefaultPartialCascading() == Cascade.CASCADE) ? 2
+					: (sketch.getDefaultPartialCascading() == Cascade.RESTRICT) ? 1 : 0);
 
 			JLabel cascadeLabel = new JLabel("Edge Cascading");
 			String cascadeTT = JUtils.tooltip(
@@ -179,7 +181,8 @@ public class DocInfoUI extends OptionsDialog implements ContainedOptionsDialog {
 			int cascadeIndex = edgeCascading.getSelectedIndex(), partialIndex = edgeCascadingPartial.getSelectedIndex();
 
 			sketch.setDefaultCascading((cascadeIndex == 0) ? Cascade.RESTRICT : Cascade.CASCADE);
-			sketch.setDefaultPartialCascading((partialIndex == 0) ? Cascade.SET_NULL : (partialIndex == 1) ? Cascade.RESTRICT : Cascade.CASCADE);
+			sketch.setDefaultPartialCascading(
+					(partialIndex == 0) ? Cascade.SET_NULL : (partialIndex == 1) ? Cascade.RESTRICT : Cascade.CASCADE);
 			sketch.setDirty(); // Might already have happened above, but no big
 								// deal.
 		}

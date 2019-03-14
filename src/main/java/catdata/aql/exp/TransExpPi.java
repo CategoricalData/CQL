@@ -16,9 +16,9 @@ import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.fdm.Row;
 
-public final class TransExpPi<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> 
-extends TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2> { 
-	
+public final class TransExpPi<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> extends
+		TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2> {
+
 	public final MapExp F;
 	public final TransExp<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> t;
 
@@ -28,21 +28,21 @@ extends TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Ro
 		t.map(f);
 	}
 
-	
-	public final Map<String, String> options1, options2;	 //TODO aql options weirdness
-	
+	public final Map<String, String> options1, options2; // TODO aql options weirdness
+
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
-	
-	public TransExpPi(MapExp F, TransExp<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> t, Map<String, String> options1, Map<String, String> options2) {
+
+	public TransExpPi(MapExp F, TransExp<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> t, Map<String, String> options1,
+			Map<String, String> options2) {
 		this.F = F;
 		this.t = t;
 		this.options1 = options1;
 		this.options2 = options2;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -62,7 +62,7 @@ extends TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Ro
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpPi other = (TransExpPi) obj;
+		TransExpPi<?, ?, ?, ?, ?, ?, ?, ?> other = (TransExpPi<?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (F == null) {
 			if (other.F != null)
 				return false;
@@ -86,22 +86,24 @@ extends TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Ro
 		return true;
 	}
 
-
 	@Override
-	public Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2>> type(AqlTyping G) {
+	public Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2>> type(
+			AqlTyping G) {
 		Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<GEn, Sk2, X2, Y2>> x = t.type(G);
 		if (!G.eq(x.first.type(G), F.type(G).first)) {
-			throw new RuntimeException("In " + this + ", mapping domain is " + F.type(G).first + " but transform domain schema is " + x.first.type(G));
+			throw new RuntimeException("In " + this + ", mapping domain is " + F.type(G).first
+					+ " but transform domain schema is " + x.first.type(G));
 		}
 		InstExpPi<Gen1, Sk1, X1, Y1> a = new InstExpPi<>(F, x.first, options1);
 		InstExpPi<GEn, Sk2, X2, Y2> b = new InstExpPi<>(F, x.second, options2);
-		return new Pair(a,b);
-	} 
+		return new Pair<>(a, b);
+	}
 
 	@Override
-	public synchronized Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2> eval0(AqlEnv env, boolean isC) {
+	public synchronized Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2> eval0(
+			AqlEnv env, boolean isC) {
 		QueryExp q = new QueryExpDeltaCoEval(F, Util.toList(options1));
-		return new TransExpEval(q, t, Util.toList(options2)).eval0(env, isC);
+		return new TransExpEval<>(q, t, Util.toList(options2)).eval0(env, isC);
 	}
 
 	@Override
@@ -113,8 +115,8 @@ extends TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Ro
 	public Collection<Pair<String, Kind>> deps() {
 		return Util.union(F.deps(), t.deps());
 	}
-		
-	public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
 

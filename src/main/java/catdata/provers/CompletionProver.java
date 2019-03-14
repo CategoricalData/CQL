@@ -38,7 +38,7 @@ public class CompletionProver<Ty, En, Sym, Fk, Att, Gen, Sk>
 		Collection<Triple<KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>, Map<Var, Chc<Ty, En>>>> E0 =
 
 				kb.eqs.stream().map(x -> new Triple<>(x.second, x.third, x.first)).collect(Collectors.toList());
-	
+
 		List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec2 = (List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>>) ops
 				.getOrDefault(AqlOption.completion_precedence);
 		if (prec2 == null) {
@@ -51,7 +51,7 @@ public class CompletionProver<Ty, En, Sym, Fk, Att, Gen, Sk>
 		List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec = new TreeList<>(prec2);
 		for (Head<Ty, En, Sym, Fk, Att, Gen, Sk> c : init) {
 			if (!kb.syms.keySet().contains(c)) {
-				prec.remove(c); // simplfied away 
+				prec.remove(c); // simplfied away
 			}
 		}
 		if (!prec.isEmpty() && prec.get(0) == null) {
@@ -61,7 +61,7 @@ public class CompletionProver<Ty, En, Sym, Fk, Att, Gen, Sk>
 				filter_subsumed, compose, syntactic_ac); // this ignores all but 4 options, see LPOUKB
 
 		Util.assertNoDups(prec);
-	
+
 		Set<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> sigMinusPrec = (new THashSet<>(kb.syms.keySet()));
 		sigMinusPrec.removeAll(prec);
 		if (!sigMinusPrec.isEmpty() && !kb.syms.keySet().isEmpty()) {

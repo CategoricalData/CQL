@@ -22,10 +22,8 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 import gnu.trove.strategy.HashingStrategy;
 
-public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> 
- implements KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> {
-	
-	
+public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> {
+
 	public Sym sym() {
 		if (_head == null) {
 			return null;
@@ -74,8 +72,9 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		return _head.ty();
 	}
-	
-	public <X> X visit(Function<Var, X> varf, BiFunction<Object, Ty, X> tyf, BiFunction<Sym, List<X>, X> symf, BiFunction<Fk, X, X> fkf, BiFunction<Att, X, X> attf, Function<Gen, X> genf, Function<Sk, X> skf) {
+
+	public <X> X visit(Function<Var, X> varf, BiFunction<Object, Ty, X> tyf, BiFunction<Sym, List<X>, X> symf,
+			BiFunction<Fk, X, X> fkf, BiFunction<Att, X, X> attf, Function<Gen, X> genf, Function<Sk, X> skf) {
 		if (var != null) {
 			return varf.apply(var);
 		} else if (obj() != null) {
@@ -94,41 +93,47 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 				l.add(x.visit(varf, tyf, symf, fkf, attf, genf, skf));
 			}
 			return symf.apply(sym(), l);
-		} 
+		}
 		throw new RuntimeException("Anomaly: please report");
 	}
-	
-	
-	private static <Ty, En, Sym, Fk, Att, Gen, Sk,Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2> Term<Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2>
-	map(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term, Function<Ty,Ty2> tyf, Function<Sym, Sym2> symf, Function<Fk, Fk2> fkf, Function<Att, Att2> attf, Function<Gen, Gen2> genf, Function<Sk, Sk2> skf) {
-		return term.visit(Term::Var, (obj,ty) -> Obj(obj, tyf.apply(ty)), (sym,args) -> Sym(symf.apply(sym), args), (fk,arg) -> Fk(fkf.apply(fk),arg), (att,arg) -> Att(attf.apply(att),arg), gen -> Gen(genf.apply(gen)), sk -> Sk(skf.apply(sk)));
+
+	private static <Ty, En, Sym, Fk, Att, Gen, Sk, Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2> Term<Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2> map(
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> term, Function<Ty, Ty2> tyf, Function<Sym, Sym2> symf,
+			Function<Fk, Fk2> fkf, Function<Att, Att2> attf, Function<Gen, Gen2> genf, Function<Sk, Sk2> skf) {
+		return term.visit(Term::Var, (obj, ty) -> Obj(obj, tyf.apply(ty)), (sym, args) -> Sym(symf.apply(sym), args),
+				(fk, arg) -> Fk(fkf.apply(fk), arg), (att, arg) -> Att(attf.apply(att), arg),
+				gen -> Gen(genf.apply(gen)), sk -> Sk(skf.apply(sk)));
 	}
-	
-	public <Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2> Term<Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2>
-	map(Function<Ty,Ty2> tyf, Function<Sym, Sym2> symf, Function<Fk, Fk2> fkf, Function<Att, Att2> attf, Function<Gen, Gen2> genf, Function<Sk, Sk2> skf) {
+
+	public <Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2> Term<Ty2, En2, Sym2, Fk2, Att2, Gen2, Sk2> map(Function<Ty, Ty2> tyf,
+			Function<Sym, Sym2> symf, Function<Fk, Fk2> fkf, Function<Att, Att2> attf, Function<Gen, Gen2> genf,
+			Function<Sk, Sk2> skf) {
 		return map(this, tyf, symf, fkf, attf, genf, skf);
 	}
-	
+
 	public <Fk2> Term<Ty, En, Sym, Fk2, Att, Gen, Sk> mapFk(Function<Fk, Fk2> f) {
-		return map(this, Function.identity(), Function.identity(), f, Function.identity(), Function.identity(), Function.identity());
+		return map(this, Function.identity(), Function.identity(), f, Function.identity(), Function.identity(),
+				Function.identity());
 	}
-	
+
 	public <Att2> Term<Ty, En, Sym, Fk, Att2, Gen, Sk> mapAtt(Function<Att, Att2> f) {
-		return map(this, Function.identity(), Function.identity(), Function.identity(), f, Function.identity(), Function.identity());
+		return map(this, Function.identity(), Function.identity(), Function.identity(), f, Function.identity(),
+				Function.identity());
 	}
-	
+
 	public <Gen2> Term<Ty, En, Sym, Fk, Att, Gen2, Sk> mapGen(Function<Gen, Gen2> genf) {
-		return map(this, Function.identity(), Function.identity(), Function.identity(), Function.identity(), genf, Function.identity());
+		return map(this, Function.identity(), Function.identity(), Function.identity(), Function.identity(), genf,
+				Function.identity());
 	}
-	
-	public <Gen2,Sk2> Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> mapGenSk(Function<Gen, Gen2> genf, Function<Sk, Sk2> skf) {
+
+	public <Gen2, Sk2> Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> mapGenSk(Function<Gen, Gen2> genf, Function<Sk, Sk2> skf) {
 		return map(this, Function.identity(), Function.identity(), Function.identity(), Function.identity(), genf, skf);
 	}
 
 	public final Var var;
 	public final List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args;
 	public final Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg;
-	
+
 	public Term<Void, En, Void, Fk, Void, Gen, Void> asArgForAtt() {
 		if (gen() != null) {
 			return convert();
@@ -139,7 +144,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		throw new RuntimeException("Anomaly: please report " + this);
 	}
-	
+
 	public Term<Void, En, Void, Fk, Void, Gen, Void> asArgForFk() {
 		if (fk() != null) {
 			return convert();
@@ -150,7 +155,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		throw new RuntimeException("Anomaly: please report " + this);
 	}
-	
+
 	@SuppressWarnings("hiding")
 	public <Ty, En, Sym, Fk, Att, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> asGen() {
 		if (gen() != null) {
@@ -158,6 +163,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		throw new RuntimeException("Anomaly: please report");
 	}
+
 	@SuppressWarnings("hiding")
 	public <Ty, En, Sym, Fk, Att, Gen> Term<Ty, En, Sym, Fk, Att, Gen, Sk> asSk() {
 		if (sk() != null) {
@@ -165,13 +171,15 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		throw new RuntimeException("Anomaly: please report");
 	}
+
 	@SuppressWarnings("hiding")
-    private <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> asVar() {
+	private <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> asVar() {
 		if (var != null) {
 			return Var(var);
 		}
 		throw new RuntimeException("Anomaly: please report");
 	}
+
 	@SuppressWarnings("hiding")
 	public <En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> asObj() {
 		if (obj() != null) {
@@ -180,7 +188,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		throw new RuntimeException("Anomaly: please report");
 	}
 
-	//these do not care about java
+	// these do not care about java
 	public boolean isTypeSide() {
 		if (var != null) {
 			return true;
@@ -196,8 +204,8 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		return false;
 	}
-	
-	public boolean hasTypeType(Map<Var, Chc<Ty,En>> map) {
+
+	public boolean hasTypeType(Map<Var, Chc<Ty, En>> map) {
 		if (var != null) {
 			return map.get(var).left;
 		}
@@ -206,7 +214,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		} else if (sk() != null) {
 			return true;
 		} else if (gen() != null) {
-			return false; 
+			return false;
 		} else if (sym() != null) {
 			return true;
 		} else if (fk() != null) {
@@ -216,31 +224,31 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		return Util.anomaly();
 	}
-	
+
 	public boolean hasTypeType() {
 		if (obj() != null) {
 			return true;
 		} else if (sk() != null) {
 			return true;
 		} else if (gen() != null) {
-			return false; 
+			return false;
 		} else if (sym() != null) {
 			return true;
 		} else if (fk() != null) {
 			return arg.hasTypeType();
 		} else if (att() != null) {
 			return true;
-		} 
+		}
 		throw new RuntimeException("Encountered variable: " + this + " in hasTypeType, please report.");
 	}
-	
+
 	public boolean monoidal(boolean varIsTy) {
 		if (obj() != null) {
 			return true;
 		} else if (sk() != null) {
 			return true;
 		} else if (gen() != null) {
-			return false; 
+			return false;
 		} else if (sym() != null) {
 			return true;
 		} else if (fk() != null) {
@@ -253,13 +261,13 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		return Util.anomaly();
 	}
 
-	public <Ty,En> boolean monoidal(Map<Var,Chc<Ty,En>> ctx) {
+	public <Ty, En> boolean monoidal(Map<Var, Chc<Ty, En>> ctx) {
 		if (obj() != null) {
 			return true;
 		} else if (sk() != null) {
 			return true;
 		} else if (gen() != null) {
-			return false; 
+			return false;
 		} else if (sym() != null) {
 			return true;
 		} else if (fk() != null) {
@@ -276,101 +284,118 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		if (var != null) {
 			return false;
 		} else if (args != null) {
-            for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> t : args) {
-                if (!t.isGround()) {
-                    return false;
-                }
-            }
-            return true;
-        } else
-            return obj() != null || arg.isGround();
-    }
+			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> t : args) {
+				if (!t.isGround()) {
+					return false;
+				}
+			}
+			return true;
+		} else
+			return obj() != null || arg.isGround();
+	}
 
-	
-	public Chc<Ty, En> type(Map<Var, Ty> ctxt, Map<Var, En> ctxe, Set<Ty> tys, Map<Sym, Pair<List<Ty>, Ty>> syms, Map<Ty, String> java_tys_string, Collection<En> ens, Map<Att, Pair<En, Ty>> atts, Map<Fk, Pair<En, En>> fks, Map<Gen, En> gens, Map<Sk, Ty> sks) {
+	public Chc<Ty, En> type(Map<Var, Ty> ctxt, Map<Var, En> ctxe, Set<Ty> tys, Map<Sym, Pair<List<Ty>, Ty>> syms,
+			Map<Ty, String> java_tys_string, Collection<En> ens, Map<Att, Pair<En, Ty>> atts, Map<Fk, Pair<En, En>> fks,
+			Map<Gen, En> gens, Map<Sk, Ty> sks) {
 		Chc<Ty, En> ret = null;
 		if (var != null) {
 			if (ctxt.containsKey(var) && ctxe.containsKey(var)) {
-				throw new RuntimeException("In " + this + ", " + "name collision on " + var + " in " + ctxt + " and " + ctxe);
+				throw new RuntimeException(
+						"In " + this + ", " + "name collision on " + var + " in " + ctxt + " and " + ctxe);
 			}
 			if (ctxe.containsKey(var)) {
 				ret = Chc.inRight(ctxe.get(var));
 			} else if (ctxt.containsKey(var)) {
 				ret = Chc.inLeft(ctxt.get(var));
 			} else {
-				throw new RuntimeException("In " + this + ", " + var + " is not a variable in context [" + ctxt + "] and [" + ctxe + "]");
+				throw new RuntimeException(
+						"In " + this + ", " + var + " is not a variable in context [" + ctxt + "] and [" + ctxe + "]");
 			}
 		} else if (obj() != null) {
 			if (!java_tys_string.containsKey(ty())) {
 				throw new RuntimeException("In " + this + ", not a declared type: " + ty());
-			} 
+			}
 			Class<?> c = Util.load(java_tys_string.get(ty()));
 			if (!c.isInstance(obj())) {
-				throw new RuntimeException("In " + this + ", " + "primitive " + obj() + " is given type " + ty() + " but is not an instance of " + c + ", is an instance of " + obj().getClass());
+				throw new RuntimeException("In " + this + ", " + "primitive " + obj() + " is given type " + ty()
+						+ " but is not an instance of " + c + ", is an instance of " + obj().getClass());
 			}
-			ret =  Chc.inLeft(ty());
+			ret = Chc.inLeft(ty());
 		} else if (sym() != null) {
 			Pair<List<Ty>, Ty> t = syms.get(sym());
 			if (t == null) {
-				throw new RuntimeException("In " + this + ", " + sym() + " is not a typeside symbol.  Typeside symbols:\n\n" + syms);
+				throw new RuntimeException(
+						"In " + this + ", " + sym() + " is not a typeside symbol.  Typeside symbols:\n\n" + syms);
 			} else if (t.first.size() != args.size()) {
-				throw new RuntimeException("In " + this + ", " + sym() + " given " + args.size() + "arguments but requires " + t.first.size());
+				throw new RuntimeException("In " + this + ", " + sym() + " given " + args.size()
+						+ "arguments but requires " + t.first.size());
 			}
 			for (int i = 0; i < t.first.size(); i++) {
 				Chc<Ty, En> u = args.get(i).type(ctxt, ctxe, tys, syms, java_tys_string, ens, atts, fks, gens, sks);
 				if (!Chc.inLeft(t.first.get(i)).equals(u)) {
-					throw new RuntimeException("In " + this + ", " + "Argument " + args.get(i) + " has sort " + u.toStringMash() + " but requires " + t.first.get(i));
+					throw new RuntimeException("In " + this + ", " + "Argument " + args.get(i) + " has sort "
+							+ u.toStringMash() + " but requires " + t.first.get(i));
 				}
 			}
-			ret =  Chc.inLeft(t.second);
+			ret = Chc.inLeft(t.second);
 		} else if (att() != null) {
 			Pair<En, Ty> t = atts.get(att());
 			if (t == null) {
 				throw new RuntimeException("In " + this + ", " + att() + " is not an attribute");
-			} 
+			}
 			Chc<Ty, En> u = arg.type(ctxt, ctxe, tys, syms, java_tys_string, ens, atts, fks, gens, sks);
 			if (!Chc.inRight(t.first).equals(u)) {
-				throw new RuntimeException("In " + this + ", " + "argument " + arg + " has sort " + u.toStringMash() + " but requires " + t.first);
+				throw new RuntimeException("In " + this + ", " + "argument " + arg + " has sort " + u.toStringMash()
+						+ " but requires " + t.first);
 			}
-			ret =  Chc.inLeft(t.second);
+			ret = Chc.inLeft(t.second);
 		} else if (fk() != null) {
 			Chc<Ty, En> u = arg.type(ctxt, ctxe, tys, syms, java_tys_string, ens, atts, fks, gens, sks);
 			if (u.left) {
-				throw new RuntimeException("In " + this + ", " + arg + " has type " + u.toStringMash() + " which is not an entity");
+				throw new RuntimeException(
+						"In " + this + ", " + arg + " has type " + u.toStringMash() + " which is not an entity");
 			}
 			Pair<En, En> t = fks.get(fk());
 			if (t == null) {
-				throw new RuntimeException("In " + this + ", " + fk() + " is not a foreign key.  Possibilities: " + fks.keySet());
-			}		
+				throw new RuntimeException(
+						"In " + this + ", " + fk() + " is not a foreign key.  Possibilities: " + fks.keySet());
+			}
 			if (!Chc.inRight(t.first).equals(u)) {
-				throw new RuntimeException("In " + this + ", " + "argument " + arg + " has sort " + u.toStringMash() + " but requires " + t.first);
+				throw new RuntimeException("In " + this + ", " + "argument " + arg + " has sort " + u.toStringMash()
+						+ " but requires " + t.first);
 			}
 			ret = Chc.inRight(t.second);
 		} else if (gen() != null) {
 			En en = gens.get(gen());
 			if (en == null) {
-				throw new RuntimeException("In " + toStringUnambig() + ", " + "the entity for generator " + gen() + " is not defined.  Types of available generators are:\n" + gens );	
+				throw new RuntimeException("In " + toStringUnambig() + ", " + "the entity for generator " + gen()
+						+ " is not defined.  Types of available generators are:\n" + gens);
 			}
 			ret = Chc.inRight(en);
 		} else if (sk() != null) {
 			Ty tye = sks.get(sk());
 			if (tye == null) {
 				String xxx = sks.size() > 1024 ? " too big to print " : Util.sep(sks, ":", ", ");
-				throw new RuntimeException("In " + this + ", " + "the type for labelled null " + sk() + " is not defined.\n\nAvailable: " + xxx);	
+				throw new RuntimeException("In " + this + ", " + "the type for labelled null " + sk()
+						+ " is not defined.\n\nAvailable: " + xxx);
 			}
 			ret = Chc.inLeft(tye);
 		}
 		if (ret == null || (ret.left && ret.l == null) || (!ret.left && ret.r == null)) {
-			throw new RuntimeException("In " + this + "," + " typing encountered an ill-formed term.  Should be impossible, report to Ryan.  " + this);
+			throw new RuntimeException("In " + this + ","
+					+ " typing encountered an ill-formed term.  Should be impossible, report to Ryan.  " + this);
 		} else if (ret.left && !tys.contains(ret.l)) {
 			throw new RuntimeException("In " + this + "," + " return type is " + ret.l + " which is not a type");
 		} else if (!ret.left && !ens.contains(ret.r)) {
-			throw new RuntimeException("In " + this + "," + " return type is " + ret.r + " which is not a entity");		
+			throw new RuntimeException("In " + this + "," + " return type is " + ret.r + " which is not a entity");
 		}
 		return ret;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static HashingStrategy<Term> strategy = new HashingStrategy<>() {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public int computeHashCode(Term t) {
 			return t.hashCode2();
@@ -381,51 +406,54 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			return s.equals2(t);
 		}
 	};
-		
-	public static Map<Term, Term> cache = 
-			new TCustomHashMap<>(strategy);
-	
-	private synchronized static  <Ty, En, Sym, Fk, Att, Gen, Sk>  Term<Ty, En, Sym, Fk, Att, Gen, Sk>  mkTerm
-	(Var var, Sym sym, Fk fks, Att att, Gen gen, Sk sk, List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args, Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg, Object obj, Ty ty) {
-		Term ret = new Term<>(var, sym, fks, att, gen, sk, args, arg, obj, ty);
-		
-		Term ret2 = cache.get(ret);
+
+	@SuppressWarnings("rawtypes")
+	public static Map<Term, Term> cache = new TCustomHashMap<>(strategy);
+
+	private synchronized static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> mkTerm(Var var,
+			Sym sym, Fk fks, Att att, Gen gen, Sk sk, List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args,
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg, Object obj, Ty ty) {
+		Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret = new Term<>(var, sym, fks, att, gen, sk, args, arg, obj, ty);
+
+		Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret2 = cache.get(ret);
 		if (ret2 != null) {
 			return ret2;
 		}
 		cache.put(ret, ret);
 		return ret;
 	}
-	
-	//private NonConsTerm back;
-	
-	 private Term(Var var, Sym sym, Fk fk, Att att, Gen gen, Sk sk, List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args, Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg, Object obj, Ty ty) {
+
+	// private NonConsTerm back;
+
+	private Term(Var var, Sym sym, Fk fk, Att att, Gen gen, Sk sk, List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args,
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg, Object obj, Ty ty) {
 		this.var = var;
 		this.args = args;
 		this.arg = arg;
 		if (var == null) {
 			this._head = Head.mkHead(sym, fk, att, gen, sk, obj, ty);
-	 	} else {
-	 		this._head = null;
-	 	}
-		//_hashCode = hashCode2();
-	} 
-	
+		} else {
+			this._head = null;
+		}
+		// _hashCode = hashCode2();
+	}
+
 	public String toStringSql(String tick) {
 		if (var != null) {
 			return var.toString();
 		} else if (sym() != null) {
 			if (args.isEmpty()) {
 				return sym().toString();
-			} 
-			return sym().toString() + "(" + Util.sep(args.stream().map(x -> x.toStringSql(tick)).collect(Collectors.toList()), ", ") + ")";
-			
+			}
+			return sym().toString() + "("
+					+ Util.sep(args.stream().map(x -> x.toStringSql(tick)).collect(Collectors.toList()), ", ") + ")";
+
 		} else if (att() != null) {
 			return arg.toStringSql(tick) + "." + tick + att().toString() + tick;
 		} else if (fk() != null) {
 			return arg.toStringSql(tick) + "." + tick + fk().toString() + tick;
 		} else if (gen() != null) {
-			return gen().toString(); 
+			return gen().toString();
 		} else if (sk() != null) {
 			return sk().toString();
 		} else if (obj() != null) {
@@ -434,26 +462,30 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		throw new RuntimeException("Anomaly: please report");
 	}
 
-	//TODO: eventually, will want to quote, escape, etc
+	// TODO: eventually, will want to quote, escape, etc
 	public String toString(Function<Sk, String> sk_printer, Function<Gen, String> gen_printer) {
 		if (var != null) {
 			return var.toString();
 		} else if (sym() != null) {
 			if (args == null || args.isEmpty()) {
 				return sym().toString();
-			} /* else if (args.size() == 1) {
-				return args.get(0).toString(sk_printer, gen_printer) + "." + sym().toString();
-			} */ else if (args.size() == 2) {
-				return "(" + args.get(0).toString(sk_printer, gen_printer) + " " + sym().toString() + " " + args.get(1).toString(sk_printer, gen_printer) + ")";
+			} /*
+				 * else if (args.size() == 1) { return args.get(0).toString(sk_printer,
+				 * gen_printer) + "." + sym().toString(); }
+				 */ else if (args.size() == 2) {
+				return "(" + args.get(0).toString(sk_printer, gen_printer) + " " + sym().toString() + " "
+						+ args.get(1).toString(sk_printer, gen_printer) + ")";
 			} else {
-				return sym().toString() + "(" + Util.sep(args.stream().map(x -> x.toString(sk_printer, gen_printer)).collect(Collectors.toList()), ", ") + ")";
+				return sym().toString() + "(" + Util.sep(
+						args.stream().map(x -> x.toString(sk_printer, gen_printer)).collect(Collectors.toList()), ", ")
+						+ ")";
 			}
 		} else if (att() != null) {
-			return arg.toString(sk_printer, gen_printer)+ "." + att().toString();
+			return arg.toString(sk_printer, gen_printer) + "." + att().toString();
 		} else if (fk() != null) {
-			return arg.toString(sk_printer, gen_printer)+ "." + fk().toString();
+			return arg.toString(sk_printer, gen_printer) + "." + fk().toString();
 		} else if (gen() != null) {
-			return gen_printer.apply(gen()); 
+			return gen_printer.apply(gen());
 		} else if (sk() != null) {
 			return sk_printer.apply(sk());
 		} else if (obj() != null) {
@@ -461,14 +493,15 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		throw new RuntimeException("Anomaly: please report");
 	}
-	
+
 	public String toStringUnambig() {
 		if (var != null) {
 			return "VAR " + var + "[" + var.getClass() + "]";
 		} else if (sym() != null) {
-			return "SYM " + sym() + "[" + sym().getClass() + "]" + "(" + Util.sep(args.stream().map(x -> x.toStringUnambig()).collect(Collectors.toList()), ", ") + ")";
+			return "SYM " + sym() + "[" + sym().getClass() + "]" + "("
+					+ Util.sep(args.stream().map(x -> x.toStringUnambig()).collect(Collectors.toList()), ", ") + ")";
 		} else if (att() != null) {
-			return "ATT " + arg + "[" + att().getClass() + "]"+ "." + att().toString() + "[" + arg.getClass() + "]";
+			return "ATT " + arg + "[" + att().getClass() + "]" + "." + att().toString() + "[" + arg.getClass() + "]";
 		} else if (fk() != null) {
 			return "FK " + arg + "[" + fk().getClass() + "]" + "." + fk().toString() + "[" + arg.getClass() + "]";
 		} else if (gen() != null) {
@@ -480,14 +513,14 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		return ("Anomaly: please report");
 	}
-	
-	
+
 	@Override
 	public String toString() {
 		return toString(Object::toString, Object::toString);
 	}
 
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Head(Head<Ty, En, Sym, Fk, Att, Gen, Sk> head, List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args) {
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Head(
+			Head<Ty, En, Sym, Fk, Att, Gen, Sk> head, List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args) {
 		Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret = null;
 		if (head.gen() != null) {
 			ret = Gen(head.gen());
@@ -507,32 +540,34 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		throw new RuntimeException("Anomaly: please report: " + head + "(" + args + ")");
 	}
-	
 
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Fks(List<Fk> fks, Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg) {
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Fks(List<Fk> fks,
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg) {
 		for (Fk fk : fks) {
 			arg = Fk(fk, arg);
 		}
 		return arg;
 	}
 
-
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Var(Var var) {
 		return mkTerm(var, null, null, null, null, null, null, null, null, null);
 	}
 
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Sym(Sym sym, List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args) {
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Sym(Sym sym,
+			List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args) {
 		return mkTerm(null, sym, null, null, null, null, args, null, null, null);
 	}
 
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Att(Att att, Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg) {
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Att(Att att,
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg) {
 		return mkTerm(null, null, null, att, null, null, null, arg, null, null);
 	}
 
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Fk(Fk fk, Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg) {
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Fk(Fk fk,
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg) {
 		return mkTerm(null, null, fk, null, null, null, null, arg, null, null);
 	}
-	
+
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Gen(Gen gen) {
 		return mkTerm(null, null, null, null, gen, null, null, null, null, null);
 	}
@@ -550,20 +585,18 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		return System.identityHashCode(this);
 	}
 
-
 	@Override
-	 public boolean equals(Object x) {
-		//boolean b = (this == x);
-		//boolean c = (hashCode() == x.hashCode());
-		//if (b != c) {
-		//	Util.anomaly();
-		//}
+	public boolean equals(Object x) {
+		// boolean b = (this == x);
+		// boolean c = (hashCode() == x.hashCode());
+		// if (b != c) {
+		// Util.anomaly();
+		// }
 		return this == x;
-	 }
-	
+	}
 
-	//returns null if no var
-    Var getOnlyVar() {
+	// returns null if no var
+	Var getOnlyVar() {
 		if (var != null) {
 			return var;
 		} else if (sym() != null) {
@@ -590,11 +623,10 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		throw new RuntimeException("Anomaly: please report");
 	}
 
-	
-
 	public boolean containsProper(Head<Ty, En, Sym, Fk, Att, Gen, Sk> head) {
 		return !equalsH(head) && contains(head);
 	}
+
 	public boolean contains(Head<Ty, En, Sym, Fk, Att, Gen, Sk> head) {
 		if (var != null) {
 			return false;
@@ -608,7 +640,6 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		return false;
 	}
-	
 
 	public synchronized void forEachArg(Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Unit> f) {
 		if (arg != null) {
@@ -619,8 +650,8 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			}
 		}
 	}
-	
-	//private List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> a;
+
+	// private List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> a;
 	public synchronized List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args() {
 		if (args != null) {
 			return args;
@@ -631,11 +662,12 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 	}
 
-	public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(Map<Head<Ty, En, Sym, Fk, Att, Gen, Sk>,Term<Ty, En, Sym, Fk, Att, Gen, Sk>> replacee, List<Var> vars) {
+	public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(
+			Map<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> replacee, List<Var> vars) {
 		if (var != null) {
 			return this;
 		}
-		
+
 		List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args = (new ArrayList<>(argSize()));
 		forEachArg((arg) -> {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> x = arg.replaceHead(replacee, vars);
@@ -652,12 +684,12 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			for (Var var : vars) {
 				map.put(var, args.get(i++));
 			}
-			return ret.subst(map);	
+			return ret.subst(map);
 		}
-				
-		return make(this, args);		
+
+		return make(this, args);
 	}
-	
+
 	private int argSize() {
 		if (arg != null) {
 			return 1;
@@ -667,11 +699,12 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		return 0;
 	}
 
-	public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(Head<Ty, En, Sym, Fk, Att, Gen, Sk> replacee, List<Var> vars, Term<Ty, En, Sym, Fk, Att, Gen, Sk> replacer) {
+	public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(Head<Ty, En, Sym, Fk, Att, Gen, Sk> replacee,
+			List<Var> vars, Term<Ty, En, Sym, Fk, Att, Gen, Sk> replacer) {
 		if (var != null) {
 			return this;
 		}
-		
+
 		List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args = new ArrayList<>(argSize());
 		forEachArg((arg) -> {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> x = arg.replaceHead(replacee, vars, replacer);
@@ -682,14 +715,14 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		if (!equalsH(replacee)) {
 			return make(this, args);
 		}
-				
+
 		Map<Var, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> map = new THashMap<>(vars.size());
 		int i = 0;
 		for (Var var : vars) {
 			map.put(var, args.get(i++));
 		}
 		return replacer.subst(map);
-				
+
 	}
 
 	private Term<Ty, En, Sym, Fk, Att, Gen, Sk> make(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term,
@@ -706,10 +739,9 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		if (att() != null) {
 			return Term.Att(att(), args2.get(0));
 		}
-	
+
 		return Util.anomaly();
 	}
-
 
 	private boolean equalsH(Head<Ty, En, Sym, Fk, Att, Gen, Sk> o) {
 		return _head.equals(o);
@@ -722,7 +754,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 				return z;
 			}
 			return this;
-		} 
+		}
 		List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args = (new ArrayList<>(args().size()));
 		for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : args()) {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> z = x.subst(map);
@@ -736,16 +768,17 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		return this;
 	}
 
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> fromKB(KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> e) {
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> fromKB(
+			KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> e) {
 		return (Term<Ty, En, Sym, Fk, Att, Gen, Sk>) e;
 	}
-	
+
 	public synchronized Set<Sk> sks() {
 		Set<Sk> ret = new THashSet<>();
 		sks(ret);
 		return ret;
 	}
-	
+
 	public void gens(Set<Gen> gens) {
 		if (var != null) {
 		} else if (gen() != null) {
@@ -754,55 +787,55 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : args()) {
 				arg.gens(gens);
 			}
-		} 
+		}
 	}
-	
+
 	public void sks(Set<Sk> sks) {
 		if (var != null) {
-			
+
 		} else if (sk() != null) {
 			sks.add(sk());
 		} else {
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : args()) {
 				arg.sks(sks);
 			}
-		} 
+		}
 	}
-	
+
 	public void fks(Set<Fk> fks) {
 		if (var != null) {
-			
+
 		} else if (fk() != null) {
 			fks.add(fk());
 		} else {
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : args()) {
 				arg.fks(fks);
 			}
-		} 
+		}
 	}
-	
+
 	public void atts(Set<Att> atts) {
 		if (var != null) {
-			
+
 		} else if (att() != null) {
 			atts.add(att());
 		} else {
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : args()) {
 				arg.atts(atts);
 			}
-		} 
+		}
 	}
-	
+
 	public void syms(Set<Sym> syms) {
 		if (var != null) {
-			
+
 		} else if (sym() != null) {
 			syms.add(sym());
 		} else {
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : args()) {
 				arg.syms(syms);
 			}
-		} 
+		}
 	}
 
 	public void objs(Set<Pair<Object, Ty>> objs) {
@@ -814,51 +847,52 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : args()) {
 				arg.objs(objs);
 			}
-		} 
+		}
 	}
 
 	@SuppressWarnings({ "unchecked", "hiding" })
-	//@Deprecated
+	// @Deprecated
 	public <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> convert() {
 		return (Term<Ty, En, Sym, Fk, Att, Gen, Sk>) this;
 	}
 
-
 	public Collection<Var> vars() {
 		return toKB().getVars();
-	} 
-	
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> upTalg(Term<Ty, Void, Sym, Void, Void, Void, Sk> term) {
-		return term.convert(); //.map(Function.identity(), Function.identity(), Util.voidFn(), Util.voidFn(), Util.voidFn(), Function.identity()); 
-	}	
- 
+	}
+
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> upTalg(
+			Term<Ty, Void, Sym, Void, Void, Void, Sk> term) {
+		return term.convert(); // .map(Function.identity(), Function.identity(), Util.voidFn(), Util.voidFn(),
+								// Util.voidFn(), Function.identity());
+	}
 
 	public Set<Gen> gens() {
 		Set<Gen> ret = new THashSet<>();
 		gens(ret);
 		return Collections.unmodifiableSet(ret);
 	}
-	
+
 	public Set<Fk> fks() {
 		Set<Fk> ret = new THashSet<>();
 		fks(ret);
 		return Collections.unmodifiableSet(ret);
 	}
-	
+
 	public Set<Att> atts() {
 		Set<Att> ret = new THashSet<>();
 		atts(ret);
 		return Collections.unmodifiableSet(ret);
 	}
-	
+
 	public Set<Sym> syms() {
 		Set<Sym> ret = new THashSet<>();
 		syms(ret);
 		return Collections.unmodifiableSet(ret);
 	}
-	
-	Set<Pair<Object,Ty>> objs;
-	public synchronized Set<Pair<Object,Ty>> objs() {
+
+	Set<Pair<Object, Ty>> objs;
+
+	public synchronized Set<Pair<Object, Ty>> objs() {
 		if (objs != null) {
 			return objs;
 		}
@@ -866,24 +900,25 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		objs(objs);
 		return objs;
 	}
-	
+
 	public void toFkList(List<Fk> l) {
 		if (var != null || gen() != null) {
 		} else if (fk() != null) {
 			arg.toFkList(l);
-			l.add(fk()); 
+			l.add(fk());
 		} else {
 			Util.anomaly();
 		}
 	}
-	
+
 	public List<Fk> toFkList() {
 		List<Fk> l = new LinkedList<>();
 		toFkList(l);
 		return Collections.unmodifiableList(l);
 	}
 
-	public Term<Ty, En, Sym, Fk, Att, Gen, Sk> replace(Map<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> g) {
+	public Term<Ty, En, Sym, Fk, Att, Gen, Sk> replace(
+			Map<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> g) {
 		if (g.containsKey(this)) {
 			return g.get(this);
 		} else if (obj() != null || gen() != null || sk() != null || var != null) {
@@ -895,7 +930,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		} else if (sym() != null) {
 			if (args.size() == 0) {
 				return this;
-			} 
+			}
 			List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> l = new ArrayList<>(args.size());
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : args) {
 				l.add(x.replace(g));
@@ -904,11 +939,11 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		return Util.anomaly();
 	}
-	
-	public Term<Ty, En, Sym, Fk, Att, Gen, Sk> replace(Term<Ty, En, Sym, Fk, Att, Gen, Sk> s, Term<Ty, En, Sym, Fk, Att, Gen, Sk> t) {
+
+	public Term<Ty, En, Sym, Fk, Att, Gen, Sk> replace(Term<Ty, En, Sym, Fk, Att, Gen, Sk> s,
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> t) {
 		return replace(Collections.singletonMap(s, t));
 	}
-
 
 	public String tptp() {
 		if (var != null) {
@@ -927,21 +962,19 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			if (args.isEmpty()) {
 				return sym().toString().toLowerCase();
 			}
-			List<String> l = args.stream().map(x->x.tptp()).collect(Collectors.toList());
+			List<String> l = args.stream().map(x -> x.tptp()).collect(Collectors.toList());
 			return sym().toString().toLowerCase() + "(" + Util.sep(l, ",") + ")";
 		}
 		return Util.anomaly();
 	}
-
 
 	@SuppressWarnings("unchecked")
 	public <En> Term<Ty, En, Sym, Fk, Att, Gen, Sk> mapEn() {
 		return (Term<Ty, En, Sym, Fk, Att, Gen, Sk>) this;
 	}
 
-	
 	/////////////////////////////////////////////
-	
+
 	@Override
 	public Var getVar() {
 		return var;
@@ -965,24 +998,21 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 	}
 
 	private final Head<Ty, En, Sym, Fk, Att, Gen, Sk> _head;
+
 	@Override
 	public Head<Ty, En, Sym, Fk, Att, Gen, Sk> f() {
 		return _head;
 	}
-
 
 	@Override
 	public List<KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>> getArgs() {
 		return (List<KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, catdata.aql.Var>>) (Object) args();
 	}
 
-
 	@Override
-	public KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> substitute(
-			Map sigma) {
+	public KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> substitute(Map sigma) {
 		return subst(sigma);
 	}
-
 
 	@Override
 	public KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> replace(List<Integer> l,
@@ -991,7 +1021,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			if (l.isEmpty()) {
 				return r;
 			}
-			throw new RuntimeException("Cannot replace");		
+			throw new RuntimeException("Cannot replace");
 		}
 		if (l.isEmpty()) {
 			return r;
@@ -1001,7 +1031,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		Iterator<KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>> it = getArgs().iterator();
 		int i = 0;
 		while (it.hasNext()) {
-			KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> a = it.next(); 
+			KBExp a = it.next();
 			if (i == x) {
 				a = a.replace(l.subList(1, l.size()), r);
 			}
@@ -1011,17 +1041,15 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		return Head(f(), new_args);
 	}
 
-
 	public int hashCode2() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((arg == null) ? 0 : arg.hashCode());
 		result = prime * result + ((args == null) ? 0 : args.hashCode());
 		result = prime * result + ((var == null) ? 0 : var.hashCode());
-		result = prime * result + ((_head == null) ? 0 : _head.hashCode());		
+		result = prime * result + ((_head == null) ? 0 : _head.hashCode());
 		return result;
 	}
-
 
 	public boolean equals2(Object x) {
 		if (this == x) {
@@ -1031,7 +1059,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			return false;
 		}
 		Term o = (Term) x;
-		
+
 		if (ty() != null) {
 			return (o.ty() != null && ty().equals(o.ty()) && obj().equals(o.obj()));
 		}
@@ -1065,8 +1093,5 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		return Util.anomaly();
 	}
-	
-	
 
-	
 }

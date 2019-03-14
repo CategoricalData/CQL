@@ -80,23 +80,21 @@ public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
 
 	}
 
-
 	public Map<X, Set<Y>> toRel(Set<Pair<X, Y>> m) {
 		Map<X, Set<Y>> ret = new THashMap<>();
 		for (Pair<X, Y> p : m) {
 			Set<Y> ys = ret.get(p.first);
 			ys.add(p.second);
-		} 
+		}
 		return ret;
 	}
-	
+
 	private Map<X, Set<Y>> R;
 
 	public BinRelMap(Set<Pair<X, Y>> r) {
 		R = toRel(r);
 	}
 
-	
 	public BinRelMap(BinRelMap<X, Y> r) {
 		R = new THashMap<>();
 		for (X x : r.R.keySet()) {
@@ -108,21 +106,21 @@ public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
 		R = new THashMap<>();
 	}
 
-	 public synchronized boolean add(X x, Y y) {
+	public synchronized boolean add(X x, Y y) {
 		Set<Y> ys = R.get(x);
 		if (ys == null) {
 			ys = new TreeSet<>();
 			R.put(x, ys);
 		}
 		return ys.add(y);
-	} 
-	 
-	 public synchronized void add(X x) {
-		 Set<Y> set = R.putIfAbsent(x, new TreeSet<>());
-		 if (set != null) {
-			 Util.anomaly();
-		 }
-	} 
+	}
+
+	public synchronized void add(X x) {
+		Set<Y> set = R.putIfAbsent(x, new TreeSet<>());
+		if (set != null) {
+			Util.anomaly();
+		}
+	}
 
 	public synchronized void remove(X x, Y y) {
 		Set<Y> ys = R.get(x);
@@ -130,11 +128,10 @@ public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
 			return;
 		}
 		ys.remove(y);
-		//if (ys.isEmpty()) {
-		//	R.remove(x);
-		//}
+		// if (ys.isEmpty()) {
+		// R.remove(x);
+		// }
 	}
-
 
 	public synchronized void remove(X x) {
 		Set<Y> ys = R.get(x);
@@ -199,7 +196,8 @@ public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
 
 	public synchronized int size() {
 		int i = 0;
-		for (@SuppressWarnings("unused") Pair<X, Y> x : this) {
+		for (@SuppressWarnings("unused")
+		Pair<X, Y> x : this) {
 			i++;
 		}
 		return i;

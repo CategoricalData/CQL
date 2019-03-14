@@ -47,8 +47,7 @@ public class XSDElement extends XSDAbstractElement {
 	/**
 	 * Basic constructor, assumes no type, not too useful
 	 *
-	 * @param name
-	 *            Name of the element
+	 * @param name Name of the element
 	 */
 	public XSDElement(final String name) {
 		this(name, false, null, null);
@@ -57,13 +56,11 @@ public class XSDElement extends XSDAbstractElement {
 	/**
 	 * Construct from an EntityNode and parent
 	 * <p/>
-	 * This assumes the EnityNode has already had its "type" set in XML Schema.
-	 * The "type" for this node is then just set to the name of that type
+	 * This assumes the EnityNode has already had its "type" set in XML Schema. The
+	 * "type" for this node is then just set to the name of that type
 	 *
-	 * @param node
-	 *            the node.
-	 * @param parent
-	 *            the parent element
+	 * @param node   the node.
+	 * @param parent the parent element
 	 */
 	public XSDElement(final EntityNode node, final XSDElement parent) {
 		super(node.getName(), parent, node.getXsdType());
@@ -76,27 +73,22 @@ public class XSDElement extends XSDAbstractElement {
 	 * <p/>
 	 * Can be used with things like base types and restrictions
 	 *
-	 * @param name
-	 *            The name
-	 * @param elementType
-	 *            The element type
+	 * @param name        The name
+	 * @param elementType The element type
 	 */
 	public XSDElement(final String name, final XSDType elementType) {
 		this(name, false, elementType, null);
 	}
 
 	/**
-	 * Expands the minimal useful constructor, sets the name and the type and if
-	 * it is nillable
+	 * Expands the minimal useful constructor, sets the name and the type and if it
+	 * is nillable
 	 * <p/>
 	 * Can be used with things like base types and restrictions
 	 *
-	 * @param name
-	 *            The name
-	 * @param nillable
-	 *            Can the element be set to nil (different from empty)
-	 * @param elementType
-	 *            The element type
+	 * @param name        The name
+	 * @param nillable    Can the element be set to nil (different from empty)
+	 * @param elementType The element type
 	 */
 	public XSDElement(final String name, final boolean nillable, final XSDType elementType) {
 		this(name, nillable, elementType, null);
@@ -105,16 +97,13 @@ public class XSDElement extends XSDAbstractElement {
 	/**
 	 * Ful constructor, sets everything except constraints.
 	 *
-	 * @param name
-	 *            The name
-	 * @param nillable
-	 *            Set to nil or not
-	 * @param elementType
-	 *            The type
-	 * @param contents
-	 *            A collection of sub elements.
+	 * @param name        The name
+	 * @param nillable    Set to nil or not
+	 * @param elementType The type
+	 * @param contents    A collection of sub elements.
 	 */
-	public XSDElement(final String name, final boolean nillable, final XSDType elementType, final XSDAbstractCompositor contents) {
+	public XSDElement(final String name, final boolean nillable, final XSDType elementType,
+			final XSDAbstractCompositor contents) {
 		super(name, nillable, elementType);
 
 		setTagName("element");
@@ -124,25 +113,25 @@ public class XSDElement extends XSDAbstractElement {
 	}
 
 	/**
-	 * Use an entity node to set the keys, including foreign keyrefs and
-	 * uniques.
+	 * Use an entity node to set the keys, including foreign keyrefs and uniques.
 	 * <p/>
 	 * Key is set from the primary key. KeyRefs are set from the outgoing edges.
 	 * Uniques are set by Uniques and by noninclusion injective outgoing edges.
 	 *
-	 * @param node
-	 *            we are working with
+	 * @param node we are working with
 	 */
 	@SuppressWarnings("unused")
 	public void setKeys(final EntityNode node) {
-		final List<UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> uniqueKeyList = node.getUniqueKeys();
+		final List<UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> uniqueKeyList = node
+				.getUniqueKeys();
 		final XSDComplexType myType = (XSDComplexType) getElementType();
 
 		constraints = new ArrayList<XSDAbstractKey>(uniqueKeyList.size() + 3);
 
 		final String idName = Easik.getInstance().getSettings().getProperty("xml_id_name");
 		final String keyrefName = Easik.getInstance().getSettings().getProperty("xml_keyref_name");
-		final boolean idIsAttribute = Boolean.valueOf(Easik.getInstance().getSettings().getProperty("xml_id_is_attribute"));
+		final boolean idIsAttribute = Boolean
+				.valueOf(Easik.getInstance().getSettings().getProperty("xml_id_is_attribute"));
 		final XSDKey primaryKey = node.createXMLPrimaryKey(this);
 		final XSDElement theParent = (XSDElement) getParent();
 
@@ -158,7 +147,8 @@ public class XSDElement extends XSDAbstractElement {
 			}
 
 			if (!isInclusion) {
-				theParent.addConstraint(new XSDKeyRef(this, edge.getTargetEntity().getXMLPrimaryKeyName(), edge.getName()));
+				theParent.addConstraint(
+						new XSDKeyRef(this, edge.getTargetEntity().getXMLPrimaryKeyName(), edge.getName()));
 				myType.addAtom(new XSDElement(edge.getName(), edge.isPartial(), XSDBaseType.xsInt));
 			}
 		}
@@ -180,8 +170,7 @@ public class XSDElement extends XSDAbstractElement {
 	/**
 	 * Set the contents to a new compositor.
 	 *
-	 * @param contents
-	 *            Implementation of compositor.
+	 * @param contents Implementation of compositor.
 	 */
 	public void setContents(final XSDAbstractCompositor contents) {
 		this.contents = contents;
@@ -190,8 +179,7 @@ public class XSDElement extends XSDAbstractElement {
 	/**
 	 * Add an abstract element or subclass to the contents of this element
 	 *
-	 * @param content
-	 *            Abstract Element
+	 * @param content Abstract Element
 	 */
 	public void addAtom(final XSDAbstractElement content) {
 		contents.addSubElement(content);
@@ -217,7 +205,8 @@ public class XSDElement extends XSDAbstractElement {
 		final StringBuilder ret = new StringBuilder(400);
 
 		if (null != contents) {
-			ret.append('<').append(nsPrefix).append(":complexType>").append(lineSep).append(contents.toString()).append(lineSep).append("</").append(nsPrefix).append(":complexType>").append(lineSep);
+			ret.append('<').append(nsPrefix).append(":complexType>").append(lineSep).append(contents.toString())
+					.append(lineSep).append("</").append(nsPrefix).append(":complexType>").append(lineSep);
 		} else {
 			if (!getElementType().isReferencable()) {
 				ret.append(getElementType().toString());

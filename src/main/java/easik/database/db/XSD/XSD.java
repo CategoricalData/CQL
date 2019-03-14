@@ -24,8 +24,7 @@ public class XSD extends XMLDBDriver {
 	/**
 	 * Creates a new XSD database driver object. Should not be called directly.
 	 *
-	 * @param opts
-	 *            The options for a MySQL database for compatibility
+	 * @param opts The options for a MySQL database for compatibility
 	 *
 	 * @throws LoadException
 	 */
@@ -38,8 +37,8 @@ public class XSD extends XMLDBDriver {
 	}
 
 	/**
-	 * Creates a new SketchExporter object for this XML:DB driver. The db
-	 * parameter must have been specified when this db driver was created.
+	 * Creates a new SketchExporter object for this XML:DB driver. The db parameter
+	 * must have been specified when this db driver was created.
 	 *
 	 * @param sketch
 	 * @param exportOpts
@@ -56,26 +55,23 @@ public class XSD extends XMLDBDriver {
 	/**
 	 * Takes an object, and returns an appropriate db name.
 	 *
-	 * @param id
-	 *            the identifier to be cleaned up
-	 * @return the db-safe identifier string which, if quoteIdentifiers is
-	 *         enabled, might only be safe after going through quoteId()
+	 * @param id the identifier to be cleaned up
+	 * @return the db-safe identifier string which, if quoteIdentifiers is enabled,
+	 *         might only be safe after going through quoteId()
 	 */
 	@Override
 	public String cleanId(final Object id) {
 		if (optionEnabled("quoteIdentifiers")) {
 			return id.toString().replaceAll("`", "``");
 		}
-			return super.cleanId(id);
-		
+		return super.cleanId(id);
+
 	}
 
 	/**
 	 * Quotes an identifier (table name, column name, etc.).
 	 *
-	 * @param id
-	 *            the name to quote. identifier.toString() will be the value
-	 *            used.
+	 * @param id the name to quote. identifier.toString() will be the value used.
 	 * @return the (possibly) quoted, db-safe string
 	 */
 	@Override
@@ -84,17 +80,16 @@ public class XSD extends XMLDBDriver {
 
 		if (optionEnabled("quoteIdentifiers")) {
 			return '`' + cleaned + '`';
-		} 
-			return cleaned;
-		
+		}
+		return cleaned;
+
 	}
 
 	/**
 	 * Takes an EasikType and returns the string representation of that type, or
 	 * something as close as possible for this particular db.
 	 *
-	 * @param type
-	 *            the EasikType object desired
+	 * @param type the EasikType object desired
 	 * @return the string containing the type
 	 */
 	@Override

@@ -48,8 +48,7 @@ public class RenameInSketchAction extends AbstractAction {
 	/**
 	 * Called when clicked upon, will rename an article.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -57,7 +56,10 @@ public class RenameInSketchAction extends AbstractAction {
 
 		// If we're currently synced, let user cancel operation.
 		if (_ourSketch.isSynced()) {
-			if (JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Caution!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Caution!", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 		}
@@ -76,17 +78,21 @@ public class RenameInSketchAction extends AbstractAction {
 		}
 
 		if (nodeToRename == null) {
-			JOptionPane.showMessageDialog(_ourSketch.getParent(), "Operation must be performed with a single entity selected", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_ourSketch.getParent(),
+					"Operation must be performed with a single entity selected", "Error", JOptionPane.ERROR_MESSAGE);
 		} else {
-			String s = (String) JOptionPane.showInputDialog(_ourSketch.getParent(), "New name:", "Rename entity", JOptionPane.QUESTION_MESSAGE, null, null, originalName);
+			String s = (String) JOptionPane.showInputDialog(_ourSketch.getParent(), "New name:", "Rename entity",
+					JOptionPane.QUESTION_MESSAGE, null, null, originalName);
 
 			if (s != null) {
 				s = s.trim();
 
 				if (s.equals("")) {
-					JOptionPane.showMessageDialog(_ourSketch.getParent(), "Entity name is empty", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(_ourSketch.getParent(), "Entity name is empty", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				} else if (_ourSketch.isNameUsed(s) && !nodeToRename.getName().equals(s)) {
-					JOptionPane.showMessageDialog(_ourSketch.getParent(), "Entity name is already in use", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(_ourSketch.getParent(), "Entity name is already in use", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				} else if (s.equals(originalName)) { // no need to do anything
 					;
 				} else {

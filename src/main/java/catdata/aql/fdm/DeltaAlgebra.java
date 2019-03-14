@@ -16,10 +16,9 @@ import catdata.aql.Schema;
 import catdata.aql.Term;
 import gnu.trove.map.hash.THashMap;
 
-public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> 
-extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
- 
-	
+public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
+		extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
+
 	private final Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F;
 	private final Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> alg;
 
@@ -27,8 +26,9 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 	public String toStringProver() {
 		return alg.algebra().toStringProver();
 	}
-	
-	public DeltaAlgebra(Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F, Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> alg) {
+
+	public DeltaAlgebra(Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F,
+			Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> alg) {
 		this.F = F;
 		this.alg = alg;
 	}
@@ -60,7 +60,7 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 		} else if (e.sk() != null) {
 			return alg.reprT(Term.Sk(e.sk()));
 		}
-		throw new RuntimeException("Anomaly: please report: " + e);	
+		throw new RuntimeException("Anomaly: please report: " + e);
 	}
 
 	@Override
@@ -68,8 +68,8 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 		return gen;
 	}
 
-
 	private final Map<En1, Collection<Pair<En1, X>>> en_cache = new THashMap<>();
+
 	@Override
 	public synchronized Collection<Pair<En1, X>> en(En1 en) {
 		if (en_cache.containsKey(en)) {
@@ -94,12 +94,11 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 		return new Pair<>(en1, x);
 	}
 
-	@Override 
+	@Override
 	public Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
 		return alg.algebra().talg();
 	}
 
-	
 	@Override
 	public Term<Void, En1, Void, Fk1, Void, Pair<En1, X>, Void> repr(En1 en, Pair<En1, X> x) {
 		return Term.Gen(x);
@@ -107,22 +106,23 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 
 	@Override
 	public Term<Ty, Void, Sym, Void, Void, Void, Y> att(Att1 att, Pair<En1, X> e) {
-		Term<Ty, Void, Sym, Void, Void, Void, Y> ret =  attY(F.atts.get(att).third, e);
+		Term<Ty, Void, Sym, Void, Void, Void, Y> ret = attY(F.atts.get(att).third, e);
 		return alg.algebra().intoY(alg.reprT(ret));
 	}
 
-	private Term<Ty, Void, Sym, Void, Void, Void, Y> attY(Term<Ty, En2, Sym, Fk2, Att2, Void, Void> term, Pair<En1, X> x) {
+	private Term<Ty, Void, Sym, Void, Void, Void, Y> attY(Term<Ty, En2, Sym, Fk2, Att2, Void, Void> term,
+			Pair<En1, X> x) {
 		if (term.obj() != null) {
 			return term.convert();
 		} else if (term.att() != null) {
-			return alg.algebra().att(term.att(), attX(term.arg.asArgForAtt().convert(), x.second)); 
+			return alg.algebra().att(term.att(), attX(term.arg.asArgForAtt().convert(), x.second));
 		} else if (term.sym() != null) {
 			List<Term<Ty, Void, Sym, Void, Void, Void, Y>> l = new ArrayList<>(term.args.size());
 			for (Term<Ty, En2, Sym, Fk2, Att2, Void, Void> xx : term.args) {
 				l.add(attY(xx, x));
 			}
 			return Term.Sym(term.sym(), l);
-		} 
+		}
 		throw new RuntimeException("Anomaly: please report: " + term + " and " + x);
 	}
 
@@ -142,16 +142,15 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 		return Term.Sk(sk);
 	}
 
-	
 	@Override
 	public Object printY(Ty ty, Y y) {
 		return alg.algebra().printY(ty, y);
 	}
-	
+
 	@Override
-	public Object printX(En1 en, Pair<En1,X> p) {
-		return p.first + ":" + alg.algebra().printX(F.ens.get(en), p.second); 
-	} 
+	public Object printX(En1 en, Pair<En1, X> p) {
+		return p.first + ":" + alg.algebra().printX(F.ens.get(en), p.second);
+	}
 
 	@Override
 	public boolean hasFreeTypeAlgebra() {
@@ -165,7 +164,7 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 
 	public String talgToString() {
 		return alg.algebra().talgToString();
- 	}
+	}
 
 	@Override
 	public int size(En1 en) {
@@ -177,4 +176,4 @@ extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 		return Chc.inLeft(y);
 	}
 
-}	
+}

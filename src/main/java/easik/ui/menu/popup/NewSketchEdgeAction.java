@@ -46,20 +46,26 @@ public class NewSketchEdgeAction extends AbstractAction {
 	 * @param type
 	 */
 	public NewSketchEdgeAction(SketchFrame inFrame, Edge type) {
-		super("Add " + ((type == Edge.INJECTIVE) ? "injective " : (type == Edge.PARTIAL) ? "partial " : (type == Edge.SELF) ? "self-referencing " : "") + "edge...");
+		super("Add "
+				+ ((type == Edge.INJECTIVE) ? "injective "
+						: (type == Edge.PARTIAL) ? "partial " : (type == Edge.SELF) ? "self-referencing " : "")
+				+ "edge...");
 
 		_theFrame = inFrame;
 		_edgeType = type;
 
-		putValue(Action.SHORT_DESCRIPTION, (type == Edge.SELF) ? "Adds a self-referencing partial map edge from the selected node back to itself" : (type == Edge.PARTIAL) ? "Connect the two selected nodes with a partial map edge" : (type == Edge.INJECTIVE) ? "Connect the two selected nodes with an injective edge" : "Connect the two selected nodes with an edge");
+		putValue(Action.SHORT_DESCRIPTION,
+				(type == Edge.SELF) ? "Adds a self-referencing partial map edge from the selected node back to itself"
+						: (type == Edge.PARTIAL) ? "Connect the two selected nodes with a partial map edge"
+								: (type == Edge.INJECTIVE) ? "Connect the two selected nodes with an injective edge"
+										: "Connect the two selected nodes with an edge");
 	}
 
 	/**
-	 * The action for creating a new edge. Make sure the selection is alright,
-	 * and then create the edge.
+	 * The action for creating a new edge. Make sure the selection is alright, and
+	 * then create the edge.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -68,7 +74,10 @@ public class NewSketchEdgeAction extends AbstractAction {
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_ourSketch.isSynced()) {
-			if (JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 		}
@@ -87,11 +96,14 @@ public class NewSketchEdgeAction extends AbstractAction {
 		}
 
 		if ((_edgeType == Edge.SELF) && (node[0] == null)) {
-			JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with one entity selected", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with one entity selected", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		} else if ((_edgeType != Edge.SELF) && ((node[0] == null) || (node[1] == null))) {
-			JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with two entities selected", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame, "Operation must be performed with two entities selected", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		} else {
-			EdgeOptions opts = new EdgeOptions(_theFrame, _edgeType, node[0], (_edgeType == Edge.SELF) ? null : node[1]);
+			EdgeOptions opts = new EdgeOptions(_theFrame, _edgeType, node[0],
+					(_edgeType == Edge.SELF) ? null : node[1]);
 
 			if (opts.isAccepted()) {
 				SketchEdge edge;

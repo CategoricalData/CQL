@@ -14,14 +14,14 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
 
-public final class InstExpChase<Gen, Sk, X, Y>
-		extends InstExp<Object, Object, Object, Object> {
+public final class InstExpChase<Gen, Sk, X, Y> extends InstExp<Object, Object, Object, Object> {
 
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
 		eds.map(f);
 	}
+
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
@@ -34,7 +34,7 @@ public final class InstExpChase<Gen, Sk, X, Y>
 	public final InstExp<Gen, Sk, X, Y> I;
 
 	public final EdsExp eds;
-	
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.require_consistency);
@@ -49,8 +49,7 @@ public final class InstExpChase<Gen, Sk, X, Y>
 		return options;
 	}
 
-	public InstExpChase(EdsExp eds, InstExp<Gen, Sk, X, Y> i,
-			List<Pair<String, String>> options) {
+	public InstExpChase(EdsExp eds, InstExp<Gen, Sk, X, Y> i, List<Pair<String, String>> options) {
 		I = i;
 		this.eds = eds;
 		this.options = Util.toMapSafely(options);
@@ -115,7 +114,8 @@ public final class InstExpChase<Gen, Sk, X, Y>
 			I.eval(env, true);
 			throw new IgnoreException();
 		}
-		Instance<Ty, En, Sym, Fk, Att, ?, ?, ?, ?> ret = eds.eval(env, false).chase((Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Y>) I.eval(env, false),
+		Instance<Ty, En, Sym, Fk, Att, ?, ?, ?, ?> ret = eds.eval(env, false).chase(
+				(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Y>) I.eval(env, false),
 				new AqlOptions(options, null, env.defaults));
 		return (Instance<Ty, En, Sym, Fk, Att, Object, Object, Object, Object>) ret;
 	}

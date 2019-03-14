@@ -55,12 +55,14 @@ public class XSDComplexType extends XSDType {
 
 		referenceable = true;
 
-		final List<EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> entityAttributes = node.getEntityAttributes();
+		final List<EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> entityAttributes = node
+				.getEntityAttributes();
 
 		contents = new XSDSequenceCompositor(new ArrayList<XSDAbstractElement>(entityAttributes.size()));
 
 		final String idName = Easik.getInstance().getSettings().getProperty("xml_id_name");
-		final boolean idIsAttribute = Boolean.valueOf(Easik.getInstance().getSettings().getProperty("xml_id_is_attribute"));
+		final boolean idIsAttribute = Boolean
+				.valueOf(Easik.getInstance().getSettings().getProperty("xml_id_is_attribute"));
 
 		if (idIsAttribute) {
 			contents.addSubElement(new XSDAttribute(idName, XSDBaseType.xsInt));

@@ -41,8 +41,7 @@ public class UpdateRowAction extends AbstractAction {
 	/**
 	 * Triggers JDBCUpdateMonitor to update a row in the selected table
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

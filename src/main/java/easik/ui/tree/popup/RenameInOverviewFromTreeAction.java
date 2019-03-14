@@ -49,8 +49,7 @@ public class RenameInOverviewFromTreeAction extends AbstractAction {
 	/**
 	 * Called when clicked upon, will rename an article.
 	 *
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -62,7 +61,8 @@ public class RenameInOverviewFromTreeAction extends AbstractAction {
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 		OverviewVertex nodeToRename;
 		String originalName = "";
 
@@ -77,7 +77,8 @@ public class RenameInOverviewFromTreeAction extends AbstractAction {
 
 		originalName = nodeToRename.getName();
 
-		String s = (String) JOptionPane.showInputDialog(_theFrame, "New name:", "Rename", JOptionPane.QUESTION_MESSAGE, null, null, originalName);
+		String s = (String) JOptionPane.showInputDialog(_theFrame, "New name:", "Rename", JOptionPane.QUESTION_MESSAGE,
+				null, null, originalName);
 
 		if (s != null) {
 			s = s.trim();
@@ -85,7 +86,8 @@ public class RenameInOverviewFromTreeAction extends AbstractAction {
 			if (s.equals("")) {
 				JOptionPane.showMessageDialog(_theFrame, "Entity name is empty", "Error", JOptionPane.ERROR_MESSAGE);
 			} else if (_theFrame.getOverview().isNameUsed(s)) {
-				JOptionPane.showMessageDialog(_theFrame, "Entity name is already in use", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(_theFrame, "Entity name is already in use", "Error",
+						JOptionPane.ERROR_MESSAGE);
 			} else {
 				nodeToRename.setName(s);
 				_theFrame.getInfoTreeUI().refreshTree();

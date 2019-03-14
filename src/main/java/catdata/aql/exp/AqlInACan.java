@@ -42,7 +42,6 @@ class AqlInACan {
 		return false;
 	}
 
-
 	@SuppressWarnings("unused")
 	private static String makeHtml() {
 		String s = "";
@@ -68,8 +67,8 @@ class AqlInACan {
 
 	public static void main(String... args) {
 		try {
-		//Util.writeFile(makeHtml(), "tryAql.html");
-		System.out.println(openCan(args[0]));
+			// Util.writeFile(makeHtml(), "tryAql.html");
+			System.out.println(openCan(args[0]));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -93,7 +92,7 @@ class AqlInACan {
 					html += "<p><h2>" + n + " =\n</h2>" + toHtml(env, (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ?, ?>) o)
 							+ "\n</p><br><hr>\n";
 				}
-				
+
 			}
 			return html + "\n\n</body></html>";
 		} catch (Throwable ex) {
@@ -104,10 +103,12 @@ class AqlInACan {
 
 	private static int i = 0;
 
-	public static <X, Y> String toHtml(@SuppressWarnings("unused") AqlEnv env, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I) {
+	public static <X, Y> String toHtml(@SuppressWarnings("unused") AqlEnv env,
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I) {
 		String ret = "<div>";
 
-		Map<En, Pair<List<String>, Object[][]>> tables = AqlViewer.makeEnTables(I.algebra(), false, 256, new HashMap<>()); 
+		Map<En, Pair<List<String>, Object[][]>> tables = AqlViewer.makeEnTables(I.algebra(), false, 256,
+				new HashMap<>());
 
 		for (En t : Util.alphabetical(tables.keySet())) {
 			ret += "<table id=\"table" + i

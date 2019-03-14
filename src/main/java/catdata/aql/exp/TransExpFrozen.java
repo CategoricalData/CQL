@@ -21,8 +21,8 @@ import catdata.aql.Transform;
 import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 
-public class TransExpFrozen extends
-		TransExp<Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att>>, ID, Chc<Var, Pair<ID, Att>>> {
+public class TransExpFrozen
+		extends TransExp<Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att>>, ID, Chc<Var, Pair<ID, Att>>> {
 
 	@Override
 	public int hashCode() {
@@ -35,7 +35,7 @@ public class TransExpFrozen extends
 		result = prime * result + ((var == null) ? 0 : var.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		Q.map(f);
@@ -122,18 +122,17 @@ public class TransExpFrozen extends
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(q.dst.collage());
 		AqlJs<Ty, Sym> js = q.src.typeSide.js;
 
-		Quad<Map<catdata.aql.Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>> 
-		result = RawTerm.infer1x(Map, term, term, expected, col, "", js);
-		
+		Quad<Map<catdata.aql.Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>> result = RawTerm
+				.infer1x(Map, term, term, expected, col, "", js);
+
 		if (expected.left) {
 			return q.composeT(result.second.convert(), En.En(src));
-		} 
+		}
 		return q.compose(q.transP(result.second.convert()), En.En(src));
 
 	}
 
-	public TransExpFrozen(QueryExp q, String var, String src,
-			RawTerm term, String dst) {
+	public TransExpFrozen(QueryExp q, String var, String src, RawTerm term, String dst) {
 		Q = q;
 		this.src = src;
 		this.dst = dst;
@@ -145,7 +144,8 @@ public class TransExpFrozen extends
 	public Collection<Pair<String, Kind>> deps() {
 		return Q.deps();
 	}
-	//frozen qTS lambda x:s0. x.ss.att : Integer
+
+	// frozen qTS lambda x:s0. x.ss.att : Integer
 	@Override
 	public String toString() {
 		return "frozen " + Q + "lambda " + var + ":" + src + ". " + term + " : " + dst;

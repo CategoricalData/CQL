@@ -6,15 +6,15 @@ import java.util.List;
 class SqlPath {
 
 	public SqlTable source, target;
-	
+
 	public List<SqlForeignKey> edges;
-	
+
 	public SqlPath(SqlTable s) {
 		source = s;
 		edges = new LinkedList<>();
 		validate();
 	}
-	
+
 	public SqlPath(List<SqlForeignKey> edges) {
 		if (edges.isEmpty()) {
 			throw new RuntimeException();
@@ -23,18 +23,19 @@ class SqlPath {
 		this.edges = edges;
 		validate();
 	}
-	
+
 	public SqlPath(SqlTable s, List<SqlForeignKey> edges) {
 		source = s;
 		this.edges = edges;
 		validate();
 	}
-	
+
 	private void validate() {
 		target = source;
 		for (SqlForeignKey edge : edges) {
 			if (!edge.source.equals(target)) {
-				throw new RuntimeException("On edge " + edge + ", src is " + edge.source + " but last dst was " + target);
+				throw new RuntimeException(
+						"On edge " + edge + ", src is " + edge.source + " but last dst was " + target);
 			}
 			target = edge.target;
 		}
@@ -76,6 +77,5 @@ class SqlPath {
 			return false;
 		return true;
 	}
-	
-	
+
 }

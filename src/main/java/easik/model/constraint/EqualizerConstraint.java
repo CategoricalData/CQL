@@ -34,22 +34,21 @@ import easik.model.vertex.ModelVertex;
  * where E->A is the equalizer path, A->B->D is the "left" path, and A->C->D is
  * the "right" path.
  */
-public class EqualizerConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelConstraint<F, GM, M, N, E> {
+public class EqualizerConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelConstraint<F, GM, M, N, E> {
 	/**
 	 *    
 	 */
 	private static final long serialVersionUID = 5446022931662474776L;
 
 	/**
-	 * Takes a List of paths, makes them an equalizer. The paths can be
-	 * specified in any order, as long as they can be arranged into an
-	 * equalizer. If the paths are invalid (that is, they cannot form an
-	 * equalizer), a ConstraintException is thrown.
+	 * Takes a List of paths, makes them an equalizer. The paths can be specified in
+	 * any order, as long as they can be arranged into an equalizer. If the paths
+	 * are invalid (that is, they cannot form an equalizer), a ConstraintException
+	 * is thrown.
 	 *
-	 * @param inPaths
-	 *            A List of ModelPath<F,GM,M,N,E>s
-	 * @param inModel
-	 *            the M this constraint belongs to
+	 * @param inPaths A List of ModelPath<F,GM,M,N,E>s
+	 * @param inModel the M this constraint belongs to
 	 *
 	 * @throws ConstraintException
 	 */
@@ -64,23 +63,19 @@ public class EqualizerConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * Takes an ArrayList of paths, with coordinates and a visible boolean,
-	 * makes them an equalizer.
+	 * Takes an ArrayList of paths, with coordinates and a visible boolean, makes
+	 * them an equalizer.
 	 *
-	 * @param paths
-	 *            An ArrayList of ModelPath<F,GM,M,N,E>s
-	 * @param x
-	 *            X coordinate of visual aid
-	 * @param y
-	 *            Y coordinate of visual aid
-	 * @param isVisible
-	 *            If the constraint is visible in the graph or not
-	 * @param inModel
-	 *            the sketch
+	 * @param paths     An ArrayList of ModelPath<F,GM,M,N,E>s
+	 * @param x         X coordinate of visual aid
+	 * @param y         Y coordinate of visual aid
+	 * @param isVisible If the constraint is visible in the graph or not
+	 * @param inModel   the sketch
 	 *
 	 * @throws ConstraintException
 	 */
-	public EqualizerConstraint(List<ModelPath<F, GM, M, N, E>> paths, int x, int y, boolean isVisible, M inModel) throws ConstraintException {
+	public EqualizerConstraint(List<ModelPath<F, GM, M, N, E>> paths, int x, int y, boolean isVisible, M inModel)
+			throws ConstraintException {
 		super("EQ", x, y, isVisible, inModel);
 
 		initPaths(paths);
@@ -89,15 +84,16 @@ public class EqualizerConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * Constructor that accepts ID. Used by views to match with corresponding
-	 * sketch constraints.
+	 * Constructor that accepts ID. Used by views to match with corresponding sketch
+	 * constraints.
 	 * 
 	 * @param inPaths
 	 * @param inModel
 	 * @param id
 	 * @throws ConstraintException
 	 */
-	public EqualizerConstraint(ArrayList<ModelPath<F, GM, M, N, E>> inPaths, M inModel, int id) throws ConstraintException {
+	public EqualizerConstraint(ArrayList<ModelPath<F, GM, M, N, E>> inPaths, M inModel, int id)
+			throws ConstraintException {
 		super(inModel, id);
 
 		setName("EQ");
@@ -120,7 +116,8 @@ public class EqualizerConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extend
 		if (!_theModel.isEqualizerConstraint(_paths)) // This method rearranges
 														// _paths
 		{
-			throw new ConstraintException("Unable to create equalizer constraint: specified paths do not form a valid equalizer constraint");
+			throw new ConstraintException(
+					"Unable to create equalizer constraint: specified paths do not form a valid equalizer constraint");
 		}
 
 		addEdges();
@@ -157,8 +154,8 @@ public class EqualizerConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * Returns the path containing the injective edge from the equalizer node to
-	 * the source node.
+	 * Returns the path containing the injective edge from the equalizer node to the
+	 * source node.
 	 *
 	 * @return
 	 */
@@ -167,8 +164,8 @@ public class EqualizerConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extend
 	}
 
 	/**
-	 * Returns the path containing the injective edge from the equalizer node to
-	 * the source node.
+	 * Returns the path containing the injective edge from the equalizer node to the
+	 * source node.
 	 *
 	 * @return
 	 */

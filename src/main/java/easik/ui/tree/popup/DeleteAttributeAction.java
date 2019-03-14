@@ -29,7 +29,8 @@ import easik.ui.SketchFrame;
  * @since 2006-06-14 Kevin Green
  * @version 2006-07-26 Kevin Green
  */
-public class DeleteAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class DeleteAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -54,8 +55,7 @@ public class DeleteAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM exte
 	/**
 	 * Deletes the currently selected attribute
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -67,7 +67,9 @@ public class DeleteAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM exte
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_theFrame.getMModel().isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -75,7 +77,8 @@ public class DeleteAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM exte
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 
 		// Selection is an attribute
 		if (curSelected instanceof EntityAttribute) {
@@ -84,7 +87,10 @@ public class DeleteAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM exte
 			EntityNode parentEntity = curAttribute.getEntity();
 
 			// Show a confirmation dialog box for the deletion
-			if (JOptionPane.showConfirmDialog(_theFrame, "Are you sure you want to delete the '" + curAttribute.getName() + "' attribute from the '" + parentEntity + "' entity?", "Confirm Delete", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+			if (JOptionPane.showConfirmDialog(_theFrame,
+					"Are you sure you want to delete the '" + curAttribute.getName() + "' attribute from the '"
+							+ parentEntity + "' entity?",
+					"Confirm Delete", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
 				// Delete the attribute from entity
 				parentEntity.removeEntityAttribute(curAttribute);
 				_theFrame.getMModel().setDirty();
@@ -94,7 +100,9 @@ public class DeleteAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM exte
 
 		// Selection is not an attribute
 		else {
-			JOptionPane.showMessageDialog(_theFrame, "You don't have an attribute selected. \nPlease select an attribute and try again.", "No Attribute Selected", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame,
+					"You don't have an attribute selected. \nPlease select an attribute and try again.",
+					"No Attribute Selected", JOptionPane.ERROR_MESSAGE);
 
 			return;
 		}

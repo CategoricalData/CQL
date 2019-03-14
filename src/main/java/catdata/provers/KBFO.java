@@ -8,13 +8,17 @@ import catdata.Pair;
 import catdata.Util;
 import gnu.trove.map.hash.THashMap;
 
-public abstract class KBFO<S,C,V> {
-	
+public abstract class KBFO<S, C, V> {
+
 	public interface KBFOVisitor<S, C, V, R, E> {
 		R visit(E env, AndOr<S, C, V> e);
+
 		R visit(E env, Not<S, C, V> e);
+
 		R visit(E env, Implies<S, C, V> e);
+
 		R visit(E env, Bind<S, C, V> e);
+
 		R visit(E env, Eq<S, C, V> e);
 	}
 
@@ -25,16 +29,17 @@ public abstract class KBFO<S,C,V> {
 	public abstract int hashCode();
 
 	public abstract <R, E> R accept(E env, KBFOVisitor<S, C, V, R, E> e);
-	
+
 	protected abstract void type(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur);
+
 	protected abstract void typeInf(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	public static class AndOr<S,C,V> extends KBFO<S,C,V> {
+
+	public static class AndOr<S, C, V> extends KBFO<S, C, V> {
 		private final boolean isAnd;
-		private final List<KBFO<S,C,V>> es;
-		
+		private final List<KBFO<S, C, V>> es;
+
 		public AndOr(boolean isAnd, List<KBFO<S, C, V>> es) {
 			this.isAnd = isAnd;
 			this.es = es;
@@ -57,7 +62,7 @@ public abstract class KBFO<S,C,V> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			AndOr<?,?,?> other = (AndOr<?,?,?>) obj;
+			AndOr<?, ?, ?> other = (AndOr<?, ?, ?>) obj;
 			if (es == null) {
 				if (other.es != null)
 					return false;
@@ -65,7 +70,7 @@ public abstract class KBFO<S,C,V> {
 				return false;
 			return (isAnd == other.isAnd);
 		}
-		
+
 		@Override
 		public <R, E> R accept(E env, KBFOVisitor<S, C, V, R, E> v) {
 			return v.visit(env, this);
@@ -77,14 +82,14 @@ public abstract class KBFO<S,C,V> {
 				e.type(Map, cur);
 			}
 		}
-		
+
 		@Override
 		public void typeInf(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			for (KBFO<S, C, V> e : es) {
 				e.typeInf(Map, cur);
 			}
 		}
-		
+
 		@Override
 		public String toString() {
 			String sep = isAnd ? " and " : " or ";
@@ -97,10 +102,10 @@ public abstract class KBFO<S,C,V> {
 			return "(" + Util.sep(es, sep) + ")";
 		}
 	}
-	
-	public static class Implies<S,C,V> extends KBFO<S,C,V> {
-		private final KBFO<S,C,V> a, c;
-		
+
+	public static class Implies<S, C, V> extends KBFO<S, C, V> {
+		private final KBFO<S, C, V> a, c;
+
 		public Implies(KBFO<S, C, V> a, KBFO<S, C, V> c) {
 			this.a = a;
 			this.c = c;
@@ -123,7 +128,7 @@ public abstract class KBFO<S,C,V> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Implies<?,?,?> other = (Implies<?,?,?>) obj;
+			Implies<?, ?, ?> other = (Implies<?, ?, ?>) obj;
 			if (a == null) {
 				if (other.a != null)
 					return false;
@@ -141,28 +146,28 @@ public abstract class KBFO<S,C,V> {
 		public <R, E> R accept(E env, KBFOVisitor<S, C, V, R, E> v) {
 			return v.visit(env, this);
 		}
-		
+
 		@Override
 		public void type(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			a.type(Map, cur);
 			c.type(Map, cur);
 		}
-		
+
 		@Override
 		public void typeInf(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			a.typeInf(Map, cur);
 			c.typeInf(Map, cur);
 		}
-		
+
 		@Override
 		public String toString() {
 			return a + " -> " + c;
 		}
 	}
-	
-	public static class Not<S,C,V> extends KBFO<S,C,V> {
-		private final KBFO<S,C,V> e;
-		
+
+	public static class Not<S, C, V> extends KBFO<S, C, V> {
+		private final KBFO<S, C, V> e;
+
 		public Not(KBFO<S, C, V> e) {
 			this.e = e;
 		}
@@ -183,7 +188,7 @@ public abstract class KBFO<S,C,V> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Not<?,?,?> other = (Not<?,?,?>) obj;
+			Not<?, ?, ?> other = (Not<?, ?, ?>) obj;
 			if (e == null) {
 				if (other.e != null)
 					return false;
@@ -196,28 +201,28 @@ public abstract class KBFO<S,C,V> {
 		public <R, E> R accept(E env, KBFOVisitor<S, C, V, R, E> v) {
 			return v.visit(env, this);
 		}
-		
+
 		@Override
 		public void type(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			e.type(Map, cur);
 		}
-		
+
 		@Override
 		public void typeInf(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			e.typeInf(Map, cur);
 		}
-		
+
 		@Override
 		public String toString() {
 			return "not " + e;
 		}
 	}
-	
-	public static class Bind<S,C,V> extends KBFO<S,C,V> {
+
+	public static class Bind<S, C, V> extends KBFO<S, C, V> {
 		private final boolean isForall;
 		private final List<Pair<V, S>> vars;
-		private final KBFO<S,C,V> e;
-		
+		private final KBFO<S, C, V> e;
+
 		public Bind(boolean isForall, List<Pair<V, S>> vars, KBFO<S, C, V> e) {
 			this.isForall = isForall;
 			this.vars = vars;
@@ -245,7 +250,7 @@ public abstract class KBFO<S,C,V> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Bind<?,?,?> other = (Bind<?,?,?>) obj;
+			Bind<?, ?, ?> other = (Bind<?, ?, ?>) obj;
 			if (e == null) {
 				if (other.e != null)
 					return false;
@@ -265,11 +270,11 @@ public abstract class KBFO<S,C,V> {
 		public <R, E> R accept(E env, KBFOVisitor<S, C, V, R, E> v) {
 			return v.visit(env, this);
 		}
-		
+
 		@Override
 		public void type(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			Map<V, S> cur0 = new THashMap<>(cur);
-			
+
 			for (Pair<V, S> vs : vars) {
 				V v = vs.first;
 				S s = vs.second;
@@ -281,43 +286,43 @@ public abstract class KBFO<S,C,V> {
 				}
 				cur0.put(v, s);
 			}
-			
+
 			e.type(Map, cur);
 		}
-		
+
 		@Override
 		public void typeInf(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			Map<V, S> cur0 = new THashMap<>(cur);
-			
+
 			for (Pair<V, S> vs : vars) {
 				V v = vs.first;
-				S s = vs.second; //for inference, can be null
+				S s = vs.second; // for inference, can be null
 				if (cur0.containsKey(v)) {
 					throw new RuntimeException("Shadowed variable: " + v);
 				}
 				cur0.put(v, s);
 			}
-			
+
 			e.type(Map, cur);
-			
+
 			for (Pair<V, S> vs : vars) {
 				V v = vs.first;
-				S s = vs.second; 
-				
+				S s = vs.second;
+
 				if (s != null) {
 					continue;
 				}
-				
+
 				s = cur.get(v);
-				
+
 				if (s == null) {
 					throw new RuntimeException("Variable with unconstrainted sort: " + v);
 				}
-				
+
 				vs.setSecond(s);
 			}
 		}
-		
+
 		@Override
 		public String toString() {
 			List<String> vars0 = vars.stream().map(x -> x.first + ":" + x.second).collect(Collectors.toList());
@@ -325,10 +330,10 @@ public abstract class KBFO<S,C,V> {
 			return pre + Util.sep(vars0, ", ") + " . " + e;
 		}
 	}
-	
-	public static class Eq<S,C,V> extends KBFO<S,C,V> {
-		private final KBExp<C,V> l, r;
-		
+
+	public static class Eq<S, C, V> extends KBFO<S, C, V> {
+		private final KBExp<C, V> l, r;
+
 		public Eq(KBExp<C, V> l, KBExp<C, V> r) {
 			this.l = l;
 			this.r = r;
@@ -351,7 +356,7 @@ public abstract class KBFO<S,C,V> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Eq<?,?,?> other = (Eq<?,?,?>) obj;
+			Eq<?, ?, ?> other = (Eq<?, ?, ?>) obj;
 			if (l == null) {
 				if (other.l != null)
 					return false;
@@ -369,7 +374,7 @@ public abstract class KBFO<S,C,V> {
 		public <R, E> R accept(E env, KBFOVisitor<S, C, V, R, E> v) {
 			return v.visit(env, this);
 		}
-		
+
 		@Override
 		public void type(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			S s0 = l.type(Map, cur);
@@ -378,7 +383,7 @@ public abstract class KBFO<S,C,V> {
 				throw new RuntimeException("Equality not at same sort, lhs is " + s0 + " and " + " rhs is " + s1);
 			}
 		}
-		
+
 		@Override
 		public void typeInf(Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 			S s0 = typeInf(l, Map, cur);
@@ -387,24 +392,23 @@ public abstract class KBFO<S,C,V> {
 				throw new RuntimeException("Equality not at same sort, lhs is " + s0 + " and " + " rhs is " + s1);
 			}
 			if (s0 != null && s1 == null) {
-				V v = r.getVar(); //can't be in cur, otherwise wouldn't be null
+				V v = r.getVar(); // can't be in cur, otherwise wouldn't be null
 				cur.put(v, s0);
 			}
 			if (s0 == null && s1 != null) {
-				V v = l.getVar(); //can't be in cur, otherwise wouldn't be null
+				V v = l.getVar(); // can't be in cur, otherwise wouldn't be null
 				cur.put(v, s1);
-			}			
+			}
 		}
-		
+
 		@Override
 		public String toString() {
 			return l + " = " + r;
 		}
-		
+
 	}
 
-	
-	public static <C,V,S> S typeInf(KBExp<C, V> x, Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
+	public static <C, V, S> S typeInf(KBExp<C, V> x, Map<C, Pair<List<S>, S>> Map, Map<V, S> cur) {
 		if (x.isVar()) {
 			return cur.get(x.getVar());
 		}

@@ -21,7 +21,8 @@ import easik.sketch.edge.NormalEdge;
  * @author Federico Mora
  *
  */
-public abstract class ModelEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends DefaultEdge {
+public abstract class ModelEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends DefaultEdge {
 
 	/**
 	 * 
@@ -39,15 +40,15 @@ public abstract class ModelEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	/**
 	 * The available cascade modes: CASCADE, RESTRICT, and SET_NULL.
 	 *
-	 * CASCADE does cascading deletion on updates and deletions (actually, in
-	 * Easik, since foreign keys always point to primary keys, update cascading
-	 * won't actually happen).
+	 * CASCADE does cascading deletion on updates and deletions (actually, in Easik,
+	 * since foreign keys always point to primary keys, update cascading won't
+	 * actually happen).
 	 *
 	 * RESTRICT prevents updates or deletions that would violate a foreign key
 	 * constraint.
 	 *
-	 * SET_NULL sets referencing foreign keys to NULL when a row is deleted.
-	 * This only works for partial map edges.
+	 * SET_NULL sets referencing foreign keys to NULL when a row is deleted. This
+	 * only works for partial map edges.
 	 *
 	 * @see easik.sketch.edge.SketchEdge#setCascading(easik.sketch.edge.SketchEdge.Cascade)
 	 * @see easik.sketch.edge.SketchEdge#getCascading()
@@ -61,15 +62,11 @@ public abstract class ModelEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	/**
 	 * Creates a new edge between two entity nodes with the specified name.
 	 *
-	 * @param source
-	 *            The source entity N
-	 * @param target
-	 *            The target entity N
-	 * @param name
-	 *            The unique edge identifier
-	 * @param cascade
-	 *            The Cascade option for this edge (Cascade.CASCADE,
-	 *            Cascade.RESTRICT, Cascade.SET_NULL)
+	 * @param source  The source entity N
+	 * @param target  The target entity N
+	 * @param name    The unique edge identifier
+	 * @param cascade The Cascade option for this edge (Cascade.CASCADE,
+	 *                Cascade.RESTRICT, Cascade.SET_NULL)
 	 * @see NormalEdge
 	 * @see easik.sketch.edge.InjectiveEdge
 	 * @see easik.sketch.edge.PartialEdge
@@ -103,9 +100,9 @@ public abstract class ModelEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends
 	public abstract boolean isInjective();
 
 	/**
-	 * Accessor for determing whether this edge is a partial map. For a
-	 * SketchEdge object, this always return false, however partial edge
-	 * subclasses may override this.
+	 * Accessor for determing whether this edge is a partial map. For a SketchEdge
+	 * object, this always return false, however partial edge subclasses may
+	 * override this.
 	 *
 	 * @return true if this edge is a partial map edge; false otherwise
 	 */
@@ -116,12 +113,11 @@ public abstract class ModelEdge<F extends ModelFrame<F, GM, M, N, E>, GM extends
 
 	/**
 	 * Set the cascade mode to the passed-in mode. Note that
-	 * <code>Cascade.SET_NULL</code> will be ignored on a non-partial edge type
-	 * (if being called via the constructor, this means the edge will end up
-	 * with the default, <code>Cascade.RESTRICT</code>).
+	 * <code>Cascade.SET_NULL</code> will be ignored on a non-partial edge type (if
+	 * being called via the constructor, this means the edge will end up with the
+	 * default, <code>Cascade.RESTRICT</code>).
 	 * 
-	 * @param mode
-	 *            the cascade mode
+	 * @param mode the cascade mode
 	 */
 	public void setCascading(final Cascade mode) {
 		if ((mode == Cascade.SET_NULL) && !isPartial()) {

@@ -40,11 +40,10 @@ public abstract class XMLDBExporter extends SketchExporter {
 	}
 
 	/**
-	 * Takes a string, returns either a single-element list containing the
-	 * string formatted as a comment.
+	 * Takes a string, returns either a single-element list containing the string
+	 * formatted as a comment.
 	 *
-	 * @param text
-	 *            to commentize
+	 * @param text to commentize
 	 * @return the comments as a list of strings.
 	 */
 	@Override
@@ -64,77 +63,71 @@ public abstract class XMLDBExporter extends SketchExporter {
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in commutative diagram.
 	 *
-	 * @param constraint
-	 *            the commutative diagram
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the commutative diagram
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in product constraint.
 	 *
-	 * @param constraint
-	 *            the product constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the product constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in equalizer constraint.
 	 *
-	 * @param constraint
-	 *            the equalizer constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the equalizer constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in pullback.
 	 *
-	 * @param constraint
-	 *            the pullback constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the pullback constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in sum constraint.
 	 *
-	 * @param constraint
-	 *            the sum constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the sum constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in FLC constraint.
 	 *
-	 * @param constraint
-	 *            the FLC constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the FLC constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 }

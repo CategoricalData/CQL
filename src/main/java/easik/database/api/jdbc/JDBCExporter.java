@@ -61,7 +61,8 @@ public abstract class JDBCExporter extends SketchExporter {
 	 *
 	 * @throws PersistenceDriver.LoadException
 	 */
-	protected JDBCExporter(final Sketch sk, final JDBCDriver db, final Map<String, ?> exportOpts) throws PersistenceDriver.LoadException {
+	protected JDBCExporter(final Sketch sk, final JDBCDriver db, final Map<String, ?> exportOpts)
+			throws PersistenceDriver.LoadException {
 		super(sk, db, exportOpts);
 
 		if (!db.hasOption("database")) {
@@ -72,14 +73,12 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Takes a string, returns either a single-element list containing the
-	 * string formatted as a comment, or, if comments are suppressed (for
-	 * instance, for a db export), an empty list. By default, commenting
-	 * involves adding "-- " to the beginning of each line, but individual
-	 * drivers may do something else.
+	 * Takes a string, returns either a single-element list containing the string
+	 * formatted as a comment, or, if comments are suppressed (for instance, for a
+	 * db export), an empty list. By default, commenting involves adding "-- " to
+	 * the beginning of each line, but individual drivers may do something else.
 	 *
-	 * @param text
-	 *            to commentize
+	 * @param text to commentize
 	 * @return the comments as a list of strings.
 	 */
 	@Override
@@ -170,14 +169,13 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Some things in initialize may be allowed to fail; if we get an exception,
-	 * it gets passed here, and if this returns true, we ignore that exception
-	 * and keep going.
+	 * Some things in initialize may be allowed to fail; if we get an exception, it
+	 * gets passed here, and if this returns true, we ignore that exception and keep
+	 * going.
 	 *
-	 * @param e
-	 *            the SQLException that occurred
-	 * @return true, if the SQL exception should be ignored, false if it is a
-	 *         proper error.
+	 * @param e the SQLException that occurred
+	 * @return true, if the SQL exception should be ignored, false if it is a proper
+	 *         error.
 	 */
 	protected static boolean ignoreError(final SQLException e) {
 		return false;
@@ -186,8 +184,7 @@ public abstract class JDBCExporter extends SketchExporter {
 	/**
 	 * Writes the db export SQL script to a file.
 	 *
-	 * @param outFile
-	 *            the file to write to
+	 * @param outFile the file to write to
 	 *
 	 * @throws IOException
 	 */
@@ -262,13 +259,11 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Called immediately before initialize() when doing a db export. This turns
-	 * on auto-commit (it'll be turned off after initialization, in postInit(),
-	 * and saved the old auto-commit value to be restored after the export is
-	 * complete.
+	 * Called immediately before initialize() when doing a db export. This turns on
+	 * auto-commit (it'll be turned off after initialization, in postInit(), and
+	 * saved the old auto-commit value to be restored after the export is complete.
 	 *
-	 * @param conn
-	 *            The connection
+	 * @param conn The connection
 	 *
 	 * @throws SQLException
 	 */
@@ -282,8 +277,7 @@ public abstract class JDBCExporter extends SketchExporter {
 	 * Called immediately after initialize() when doing a db export. The default
 	 * operation turns off auto-commit mode (i.e. it begins a transaction).
 	 *
-	 * @param conn
-	 *            The connection
+	 * @param conn The connection
 	 *
 	 * @throws SQLException
 	 */
@@ -293,12 +287,11 @@ public abstract class JDBCExporter extends SketchExporter {
 
 	/**
 	 * Called upon successful completion of the creation queries. By default the
-	 * transaction is committed, the original auto-commit setting of the
-	 * connection is restored and we set a flag in our sketch indicating that
-	 * we've exported to a db.
+	 * transaction is committed, the original auto-commit setting of the connection
+	 * is restored and we set a flag in our sketch indicating that we've exported to
+	 * a db.
 	 *
-	 * @param conn
-	 *            The connection
+	 * @param conn The connection
 	 *
 	 * @throws SQLException
 	 */
@@ -310,12 +303,11 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Called if an SQLException occurs during db creation. The default
-	 * operation is to rollback the current transaction, then restore the
-	 * original auto-commit setting.
+	 * Called if an SQLException occurs during db creation. The default operation is
+	 * to rollback the current transaction, then restore the original auto-commit
+	 * setting.
 	 *
-	 * @param conn
-	 *            The connection
+	 * @param conn The connection
 	 *
 	 * @throws SQLException
 	 */
@@ -326,9 +318,9 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Returns the list of queries that creates the needed tables, including
-	 * foreign key references, but not including data constraints. The default
-	 * operation is to figure out an appropriate creation order and then call
+	 * Returns the list of queries that creates the needed tables, including foreign
+	 * key references, but not including data constraints. The default operation is
+	 * to figure out an appropriate creation order and then call
 	 * createTable(EntityNode, boolean) for each table.
 	 *
 	 * @return list of queries to run to create the tables
@@ -355,14 +347,12 @@ public abstract class JDBCExporter extends SketchExporter {
 	 * EntityNodes remain, arbitrarily removes one (deferring creation of its
 	 * references), and recurses, until all tables have been created.
 	 *
-	 * @param tables
-	 *            the sql for the tables
-	 * @param entities
-	 *            sketch entities to create
-	 * @param created
-	 *            sketch entites already created
+	 * @param tables   the sql for the tables
+	 * @param entities sketch entities to create
+	 * @param created  sketch entites already created
 	 */
-	private void createTables(final List<String> tables, final Set<EntityNode> entities, final Set<EntityNode> created) {
+	private void createTables(final List<String> tables, final Set<EntityNode> entities,
+			final Set<EntityNode> created) {
 		NON_EMPTY: while (!entities.isEmpty()) {
 			// Start out looking for entities with no edges to so-far uncreated
 			// entities
@@ -381,12 +371,11 @@ public abstract class JDBCExporter extends SketchExporter {
 				/**
 				 * Removing all traces of shadow edges
 				 *
-				 * for (final SketchEdge e : n.getShadowEdges()) { final
-				 * EntityNode target = e.getTargetEntity();
+				 * for (final SketchEdge e : n.getShadowEdges()) { final EntityNode target =
+				 * e.getTargetEntity();
 				 * 
-				 * // if an EntityNode target isn't already created, skip this
-				 * vertex (for now) if (!created.contains(target)) { continue
-				 * ENTITIES; } }
+				 * // if an EntityNode target isn't already created, skip this vertex (for now)
+				 * if (!created.contains(target)) { continue ENTITIES; } }
 				 */
 
 				// If we got here, all the entity's targets exist, so we can go
@@ -425,61 +414,71 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Returns the table creation statement. If includeReferences is true, the
-	 * table output should include reference (foreign key) information;
-	 * otherwise, this information should be skipped (generally in such a case,
-	 * createReferences will be called later to access that information.
+	 * Returns the table creation statement. If includeReferences is true, the table
+	 * output should include reference (foreign key) information; otherwise, this
+	 * information should be skipped (generally in such a case, createReferences
+	 * will be called later to access that information.
 	 *
-	 * @param table
-	 *            the EntityNode of the table to create
-	 * @param includeReferences
-	 *            a boolean indicating whether or not the generated table scheme
-	 *            may include references.
+	 * @param table             the EntityNode of the table to create
+	 * @param includeReferences a boolean indicating whether or not the generated
+	 *                          table scheme may include references.
 	 * @return a string of SQL that generates the table
 	 */
 	protected abstract List<String> createTable(EntityNode table, boolean includeReferences);
 
 	/**
-	 * Returns a string creating this table's references to other tables.
-	 * Normally this method is only called when reference loops exist (since at
-	 * least one of the references must be deferred), however implementing
-	 * classes are, of course, free to call this method from createTable (if
-	 * inline references aren't used/supported, for instance).
+	 * Returns a string creating this table's references to other tables. Normally
+	 * this method is only called when reference loops exist (since at least one of
+	 * the references must be deferred), however implementing classes are, of
+	 * course, free to call this method from createTable (if inline references
+	 * aren't used/supported, for instance).
 	 *
-	 * @param table
-	 *            the EntityNode of the table whose outgoing references are to
-	 *            be created
+	 * @param table the EntityNode of the table whose outgoing references are to be
+	 *              created
 	 * @return a string of SQL that generates the references
 	 */
 	protected abstract List<String> createReferences(EntityNode table);
 
 	/**
 	 * Generates db constraints from the sketch constraints. This method is not
-	 * generally overridden by drivers: the individual createConstraint(...)
-	 * methods are called for each existing constraint.
+	 * generally overridden by drivers: the individual createConstraint(...) methods
+	 * are called for each existing constraint.
 	 *
 	 * @return list of queries to create the constraints.
 	 */
 	protected List<String> createConstraints() {
 		final List<String> constraintSQL = new LinkedList<>();
-		final List<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> constraints = new ArrayList<>(sketch.getConstraints().values());
+		final List<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> constraints = new ArrayList<>(
+				sketch.getConstraints().values());
 		int id = 0;
 
 		for (final ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> c : constraints) {
 			id++;
 
 			if (c instanceof CommutativeDiagram) {
-				constraintSQL.addAll(createConstraint((CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c, String.valueOf(id)));
+				constraintSQL.addAll(createConstraint(
+						(CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c,
+						String.valueOf(id)));
 			} else if (c instanceof ProductConstraint) {
-				constraintSQL.addAll(createConstraint((ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c, String.valueOf(id)));
+				constraintSQL.addAll(createConstraint(
+						(ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c,
+						String.valueOf(id)));
 			} else if (c instanceof PullbackConstraint) {
-				constraintSQL.addAll(createConstraint((PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c, String.valueOf(id)));
+				constraintSQL.addAll(createConstraint(
+						(PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c,
+						String.valueOf(id)));
 			} else if (c instanceof EqualizerConstraint) {
-				constraintSQL.addAll(createConstraint((EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c, String.valueOf(id)));
+				constraintSQL.addAll(createConstraint(
+						(EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c,
+						String.valueOf(id)));
 			} else if (c instanceof SumConstraint) {
-				constraintSQL.addAll(createConstraint((SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c, String.valueOf(id)));
+				constraintSQL.addAll(createConstraint(
+						(SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c,
+						String.valueOf(id)));
 			} else if (c instanceof LimitConstraint) {
-				constraintSQL.addAll(createConstraint((LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c, String.valueOf(id)));
+				constraintSQL.addAll(createConstraint(
+						(LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c,
+						String.valueOf(id)));
 			} else {
 				System.err.println("Unknown constraint type encountered: " + c.getClass());
 			}
@@ -492,84 +491,78 @@ public abstract class JDBCExporter extends SketchExporter {
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in commutative diagram.
 	 *
-	 * @param constraint
-	 *            the commutative diagram
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the commutative diagram
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in product constraint.
 	 *
-	 * @param constraint
-	 *            the product constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the product constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in equalizer constraint.
 	 *
-	 * @param constraint
-	 *            the equalizer constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the equalizer constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in pullback.
 	 *
-	 * @param constraint
-	 *            the pullback constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the pullback constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in sum constraint.
 	 *
-	 * @param constraint
-	 *            the sum constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the sum constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
 	 * Returns a list of queries to run to create db constraints enforcing the
 	 * passed-in FLC constraint.
 	 *
-	 * @param constraint
-	 *            the FLC constraint
-	 * @param id
-	 *            a unique ID (typically a number) that can be used in
-	 *            constraint names
+	 * @param constraint the FLC constraint
+	 * @param id         a unique ID (typically a number) that can be used in
+	 *                   constraint names
 	 * @return list of queries to create db enforcement of the constraint
 	 */
-	protected abstract List<String> createConstraint(LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
+	protected abstract List<String> createConstraint(
+			LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id);
 
 	/**
-	 * Used for databases to create any required extra output. This might
-	 * includes some sort of "fail" procedure, for example. The default
-	 * implementation adds nothing.
+	 * Used for databases to create any required extra output. This might includes
+	 * some sort of "fail" procedure, for example. The default implementation adds
+	 * nothing.
 	 *
 	 * @return a String containing the extra SQL
 	 */
@@ -578,14 +571,12 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Used for databases to create any required extra output. This might
-	 * includes some sort of "fail" procedure, for example. The default
-	 * implementation adds nothing. You should specify whether trigger toggling
-	 * is supported on the target database, as this will affect what extra SQL
-	 * is added.
+	 * Used for databases to create any required extra output. This might includes
+	 * some sort of "fail" procedure, for example. The default implementation adds
+	 * nothing. You should specify whether trigger toggling is supported on the
+	 * target database, as this will affect what extra SQL is added.
 	 *
-	 * @param toggleTriggers
-	 *            True to enable trigger toggling, false otherwise.
+	 * @param toggleTriggers True to enable trigger toggling, false otherwise.
 	 * @return a String containing the extra SQL
 	 */
 	protected abstract List<String> createExtras(boolean toggleTriggers);
@@ -609,8 +600,7 @@ public abstract class JDBCExporter extends SketchExporter {
 	/**
 	 * Returns the list view creation statements that will create our view.
 	 *
-	 * @param node
-	 *            The view node containing the query nodes making up our view
+	 * @param node The view node containing the query nodes making up our view
 	 * @return A list of of SQL Strings that will generate the view.
 	 */
 	protected abstract List<String> createView(ViewNode node);
@@ -619,28 +609,24 @@ public abstract class JDBCExporter extends SketchExporter {
 	 * Returns an SQL query string that will generate the view represended by a
 	 * given query node.
 	 *
-	 * @param node
-	 *            The query node containing the SELECT statements that will
-	 *            generate the view.
-	 * @return And SQL query string that will generate the view represented by
-	 *         our node.
+	 * @param node The query node containing the SELECT statements that will
+	 *             generate the view.
+	 * @return And SQL query string that will generate the view represented by our
+	 *         node.
 	 */
 	protected abstract String createView(QueryNode node);
 
 	/**
-	 * Constructs a join clause for this path. For instance, if the path is a
-	 * -&gt; b -&gt; c -&gt; d, this would return
+	 * Constructs a join clause for this path. For instance, if the path is a -&gt;
+	 * b -&gt; c -&gt; d, this would return
 	 * <code>a JOIN b ON b.a_id = a.id JOIN c ON c.b_id = b.id JOIN d ON d.c_id = c.id</code>
 	 * suitable for use in a select query.
 	 *
-	 * @param inEdges
-	 *            the path for which the selection is being made
-	 * @param includeLast
-	 *            true if the last path target should be included. If false, the
-	 *            last path will be omitted.
-	 * @param initialOn
-	 *            if non-null, "ON " + initialOn will be added after the path
-	 *            source table name
+	 * @param inEdges     the path for which the selection is being made
+	 * @param includeLast true if the last path target should be included. If false,
+	 *                    the last path will be omitted.
+	 * @param initialOn   if non-null, "ON " + initialOn will be added after the
+	 *                    path source table name
 	 * @return the string, suitable for use in a SELECT query.
 	 */
 	protected String joinPath(final List<SketchEdge> inEdges, final boolean includeLast, final String initialOn) {
@@ -658,7 +644,8 @@ public abstract class JDBCExporter extends SketchExporter {
 		for (final SketchEdge e : edges) {
 			final EntityNode target = e.getTargetEntity();
 
-			joinClause.append(" JOIN ").append(quoteId(target)).append(" ON ").append(qualifiedFK(e)).append(" = ").append(qualifiedPK(target));
+			joinClause.append(" JOIN ").append(quoteId(target)).append(" ON ").append(qualifiedFK(e)).append(" = ")
+					.append(qualifiedPK(target));
 		}
 
 		return joinClause.toString();
@@ -668,8 +655,7 @@ public abstract class JDBCExporter extends SketchExporter {
 	 * Constructs a special join clause for this path to be used in an update
 	 * statement for constraint consistency in projections.
 	 * 
-	 * @param p
-	 *            the path for which the selection is being made
+	 * @param p the path for which the selection is being made
 	 * @return the string, suitable for use in a SELECT query.
 	 * 
 	 * @author Federico Mora
@@ -688,9 +674,11 @@ public abstract class JDBCExporter extends SketchExporter {
 			final EntityNode target = e.getTargetEntity();
 			if (i == 0) {
 				i++;
-				joinClause.append(quoteId(target) + " LEFT JOIN ").append(quoteId(source)).append(" ON ").append(qualifiedPK(target)).append(" = ").append(qualifiedFK(e));
+				joinClause.append(quoteId(target) + " LEFT JOIN ").append(quoteId(source)).append(" ON ")
+						.append(qualifiedPK(target)).append(" = ").append(qualifiedFK(e));
 			} else {
-				joinClause.append(" LEFT JOIN ").append(quoteId(source)).append(" ON ").append(qualifiedPK(target)).append(" = ").append(qualifiedFK(e));
+				joinClause.append(" LEFT JOIN ").append(quoteId(source)).append(" ON ").append(qualifiedPK(target))
+						.append(" = ").append(qualifiedFK(e));
 			}
 		}
 
@@ -700,10 +688,8 @@ public abstract class JDBCExporter extends SketchExporter {
 	/**
 	 * Shortcut for calling <code>joinPath(edges, wantLast, null)</code>.
 	 *
-	 * @param edges
-	 *            the edges
-	 * @param includeLast
-	 *            Include the last or not
+	 * @param edges       the edges
+	 * @param includeLast Include the last or not
 	 * @return a string of the join path
 	 * @see #joinPath(java.util.List< easik.sketch.edge.SketchEdge>, boolean,
 	 *      String)
@@ -713,26 +699,23 @@ public abstract class JDBCExporter extends SketchExporter {
 	}
 
 	/**
-	 * Shortcut method for calling
-	 * <code>joinPath(path.getEdges(), wantLast)</code>
+	 * Shortcut method for calling <code>joinPath(path.getEdges(), wantLast)</code>
 	 *
-	 * @param path
-	 *            the edges
-	 * @param includeLast
-	 *            Include the last or not
+	 * @param path        the edges
+	 * @param includeLast Include the last or not
 	 * @return a string of the join path
 	 * @see #joinPath(java.util.List< easik.sketch.edge.SketchEdge>, boolean,
 	 *      String)
 	 */
-	protected String joinPath(final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path, final boolean includeLast) {
+	protected String joinPath(final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path,
+			final boolean includeLast) {
 		return joinPath(path.getEdges(), includeLast, null);
 	}
 
 	/**
 	 * Shortcut method for calling <code>joinPath(path.getEdges(), true);</code>
 	 *
-	 * @param edges
-	 *            the edges
+	 * @param edges the edges
 	 * @return a string of the join path
 	 * @see #joinPath(java.util.List< easik.sketch.edge.SketchEdge>, boolean,
 	 *      String)
@@ -744,8 +727,7 @@ public abstract class JDBCExporter extends SketchExporter {
 	/**
 	 * Shortcut method for calling <code>joinPath(path, true);</code>.
 	 *
-	 * @param path
-	 *            the edges
+	 * @param path the edges
 	 * @return a string of the join path
 	 * @see #joinPath(java.util.List< easik.sketch.edge.SketchEdge>, boolean,
 	 *      String)

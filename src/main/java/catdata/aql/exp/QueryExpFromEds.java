@@ -17,10 +17,10 @@ import catdata.aql.Query;
 import catdata.aql.exp.TyExp.TyExpSch;
 
 public class QueryExpFromEds extends QueryExp {
-	
+
 	private final EdsExp eds;
 	private final int n;
-	
+
 	public QueryExpFromEds(EdsExp eds, int n) {
 		this.eds = eds;
 		this.n = n;
@@ -66,8 +66,10 @@ public class QueryExpFromEds extends QueryExp {
 		List<String> e = new ArrayList<>(2);
 		e.add(ED.FRONT.str);
 		e.add(ED.BACK.str);
-		List<Pair<String, Pair<String, String>>> f = Collections.singletonList(new Pair<>(ED.UNIT.str, new Pair<>(ED.BACK.str, ED.FRONT.str)));
-		SchExpRaw z = new SchExpRaw(t, Collections.emptyList(), e, f, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), new Object());
+		List<Pair<String, Pair<String, String>>> f = Collections
+				.singletonList(new Pair<>(ED.UNIT.str, new Pair<>(ED.BACK.str, ED.FRONT.str)));
+		SchExpRaw z = new SchExpRaw(t, Collections.emptyList(), e, f, Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), new Object());
 		return new Pair<>(x, z);
 	}
 
@@ -103,6 +105,5 @@ public class QueryExpFromEds extends QueryExp {
 	public Collection<Pair<String, Kind>> deps() {
 		return eds.deps();
 	}
-
 
 }

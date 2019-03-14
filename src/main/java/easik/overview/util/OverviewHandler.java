@@ -64,8 +64,8 @@ public class OverviewHandler extends DefaultHandler {
 	private HashMap<String, SketchNode> _sketchNodes;
 
 	/**
-	 * The sketch hadler being called when parsing a sketch section of XML - set
-	 * to null if parsing anything else
+	 * The sketch hadler being called when parsing a sketch section of XML - set to
+	 * null if parsing anything else
 	 */
 	private SketchHandler _sketchParser;
 
@@ -138,17 +138,16 @@ public class OverviewHandler extends DefaultHandler {
 	}
 
 	/**
-	 * Overloaded method that is called any time the start of an element is
-	 * found
+	 * Overloaded method that is called any time the start of an element is found
 	 * 
 	 * @param namespace
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param localName
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param qName
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param atts
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 */
 	@Override
 	public void startElement(String namespace, String localName, String qName, Attributes atts) {
@@ -176,7 +175,8 @@ public class OverviewHandler extends DefaultHandler {
 			}
 
 			Cascade c = cascade.equals("cascade") ? Cascade.CASCADE : Cascade.RESTRICT;
-			Cascade cp = pCascade.equals("cascade") ? Cascade.CASCADE : pCascade.equals("restrict") ? Cascade.RESTRICT : Cascade.SET_NULL;
+			Cascade cp = pCascade.equals("cascade") ? Cascade.CASCADE
+					: pCascade.equals("restrict") ? Cascade.RESTRICT : Cascade.SET_NULL;
 
 			_sketchParser = SketchFileIO.getNewSketchHandler(_theFrame.getOverview());
 
@@ -202,7 +202,8 @@ public class OverviewHandler extends DefaultHandler {
 			int y = Integer.parseInt(atts.getValue("y"));
 			String edgeLabel = atts.getValue("viewDefinitionEdge");
 			String sketchName = atts.getValue("on_sketch");
-			ViewFrame viewFrame = new ViewFrame(_theFrame.getOverview(), _sketchNodes.get(sketchName).getFrame().getMModel());
+			ViewFrame viewFrame = new ViewFrame(_theFrame.getOverview(),
+					_sketchNodes.get(sketchName).getFrame().getMModel());
 
 			_newViewNode = new ViewNode(viewName, x, y, viewFrame);
 
@@ -253,7 +254,8 @@ public class OverviewHandler extends DefaultHandler {
 			}
 
 			@SuppressWarnings("unused")
-			SketchEdge.Cascade cascade = cascadeAtt.equals("set_null") ? SketchEdge.Cascade.SET_NULL : cascadeAtt.equals("cascade") ? SketchEdge.Cascade.CASCADE : SketchEdge.Cascade.RESTRICT;
+			SketchEdge.Cascade cascade = cascadeAtt.equals("set_null") ? SketchEdge.Cascade.SET_NULL
+					: cascadeAtt.equals("cascade") ? SketchEdge.Cascade.CASCADE : SketchEdge.Cascade.RESTRICT;
 
 			if (edgeType.equals("injective")) {
 				newEdge = new InjectiveViewEdge(source, target, id);
@@ -271,11 +273,11 @@ public class OverviewHandler extends DefaultHandler {
 	 * Overloaded method that is called any time the end of an element is found
 	 * 
 	 * @param uri
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param localName
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param qName
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) {
@@ -283,7 +285,9 @@ public class OverviewHandler extends DefaultHandler {
 
 		if (qName.equals("easketch")) { // grab what the current sketch handler
 										// instance parsed
-			_warnings = get_warnings() + _newSketchNode.getFrame().getMModel().initializeFromData(_sketchParser.getSyncLock(), _sketchParser.getEntities(), _sketchParser.getEdges(), _sketchParser.getConstraints(), _sketchParser.getDocumentInfo(), _sketchParser.getConnParams());
+			_warnings = get_warnings() + _newSketchNode.getFrame().getMModel().initializeFromData(
+					_sketchParser.getSyncLock(), _sketchParser.getEntities(), _sketchParser.getEdges(),
+					_sketchParser.getConstraints(), _sketchParser.getDocumentInfo(), _sketchParser.getConnParams());
 			_newSketchNode.getFrame().getMModel().updateThumb();
 
 			_sketchParser = null;
@@ -307,11 +311,11 @@ public class OverviewHandler extends DefaultHandler {
 	/**
 	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param ch
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param start
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 * @param length
-	 * 			@see org.xml.sax.helpers.DefaultHandler
+	 * @see org.xml.sax.helpers.DefaultHandler
 	 */
 	@Override
 	public void characters(char[] ch, int start, int length) {
@@ -320,7 +324,9 @@ public class OverviewHandler extends DefaultHandler {
 		}
 
 		// we're parsing a sketch, so hand it off to the current sketch handler
-		if ((_sketchParser != null) && (_currNode.equals("title") || _currNode.equals("author") || _currNode.equals("description") || _currNode.equals("creationDate") || _currNode.equals("lastModificationDate"))) {
+		if ((_sketchParser != null)
+				&& (_currNode.equals("title") || _currNode.equals("author") || _currNode.equals("description")
+						|| _currNode.equals("creationDate") || _currNode.equals("lastModificationDate"))) {
 			_sketchParser.characters(ch, start, length);
 
 			return;

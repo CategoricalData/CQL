@@ -62,25 +62,21 @@ public final class AqlOptions {
 
 	public static final AqlOptions initialOptions = new AqlOptions();
 
-	public enum AqlOption {
-		interpet_as_frozen, static_timeout,
-		prover_simplify_max, talg_reduction, prover_allow_fresh_constants, second_prover,
-		simple_query_entity, quotient_use_chase, chase_style, allow_empty_sorts_unsafe, maedmax_path,
+	public enum AqlOption { diverge_warn, diverge_limit,
+		interpet_as_frozen, static_timeout, prover_simplify_max, talg_reduction, prover_allow_fresh_constants,
+		second_prover, simple_query_entity, quotient_use_chase, chase_style, allow_empty_sorts_unsafe, maedmax_path,
 		program_allow_nonconfluence_unsafe, gui_sample, gui_sample_size, import_dont_check_closure_unsafe, js_env_name,
 		interpret_as_algebra, csv_field_delim_char, csv_escape_char, csv_quote_char, csv_file_extension,
 		csv_generate_ids, csv_emit_ids, id_column_name, always_reload, varchar_length, gui_max_table_size,
-		gui_max_graph_size, gui_max_string_size, gui_rows_to_display, gui_show_atts, random_seed, num_threads, eval_max_temp_size,
-		eval_reorder_joins, eval_max_plan_depth, eval_join_selectivity, eval_use_indices, eval_use_sql_above,
-		eval_approx_sql_unsafe, eval_sql_persistent_indices, query_remove_redundancy, 
-		import_as_theory, import_null_on_err_unsafe,
-		simplify_names, left_bias,
-		jdbc_quote_char,
-		map_nulls_arbitrarily_unsafe, jdbc_default_class, jdbc_default_string, jdbc_no_distinct_unsafe, 
+		gui_max_graph_size, gui_max_string_size, gui_rows_to_display, gui_show_atts, random_seed, num_threads,
+		eval_max_temp_size, eval_reorder_joins, eval_max_plan_depth, eval_join_selectivity, eval_use_indices,
+		eval_use_sql_above, eval_approx_sql_unsafe, eval_sql_persistent_indices, query_remove_redundancy,
+		import_as_theory, import_null_on_err_unsafe, simplify_names, left_bias, jdbc_quote_char,
+		map_nulls_arbitrarily_unsafe, jdbc_default_class, jdbc_default_string, jdbc_no_distinct_unsafe,
 		toCoQuery_max_term_size, program_allow_nontermination_unsafe, completion_precedence, completion_sort,
-		completion_compose, completion_filter_subsumed, completion_syntactic_ac, allow_java_eqs_unsafe, 
-		require_consistency, 
-		timeout, dont_verify_is_appropriate_for_prover_unsafe, dont_validate_unsafe, static_typing, prover,
-		start_ids_at, coproduct_allow_entity_collisions_unsafe, coproduct_allow_type_collisions_unsafe,
+		completion_compose, completion_filter_subsumed, completion_syntactic_ac, allow_java_eqs_unsafe,
+		require_consistency, timeout, dont_verify_is_appropriate_for_prover_unsafe, dont_validate_unsafe, static_typing,
+		prover, start_ids_at, coproduct_allow_entity_collisions_unsafe, coproduct_allow_type_collisions_unsafe,
 		import_col_seperator, csv_import_prefix, csv_prepend_entity, prepend_entity_on_ids, jdbc_export_truncate_after,
 		import_missing_is_empty, jdbc_query_export_convert_type, e_path, completion_unfailing;
 
@@ -147,7 +143,7 @@ public final class AqlOptions {
 		}
 
 	}
-	
+
 	static final int numProc = Runtime.getRuntime().availableProcessors();
 
 	public final Map<AqlOption, Object> options;
@@ -155,7 +151,7 @@ public final class AqlOptions {
 	private AqlOptions() {
 		options = (new THashMap<>());
 	}
-	
+
 	public AqlOptions(AqlOptions ops, AqlOption op, Object o) {
 		options = (new THashMap<>(ops.options));
 		options.put(op, o);
@@ -187,8 +183,8 @@ public final class AqlOptions {
 			return false;
 		case static_timeout:
 			return 5L;
-		//case lax_literals:
-		//	return false;
+		// case lax_literals:
+		// return false;
 		case interpet_as_frozen:
 			return false;
 		case simplify_names:
@@ -233,7 +229,7 @@ public final class AqlOptions {
 			return "csv";
 		case start_ids_at:
 			return 0;
-		
+
 		case map_nulls_arbitrarily_unsafe:
 			return false;
 		case coproduct_allow_type_collisions_unsafe:
@@ -344,6 +340,10 @@ public final class AqlOptions {
 			return true;
 		case second_prover:
 			return ProverName.auto;
+		case diverge_limit:
+			return 32;
+		case diverge_warn:
+			return true;
 		default:
 			throw new RuntimeException("Anomaly: please report: " + option);
 		}
@@ -363,8 +363,7 @@ public final class AqlOptions {
 	 * @param map
 	 * @param col possibly null
 	 */
-	public  AqlOptions(Map<String, String> map,
-			@SuppressWarnings("rawtypes") Collage col, AqlOptions defaults) {
+	public AqlOptions(Map<String, String> map, @SuppressWarnings("rawtypes") Collage col, AqlOptions defaults) {
 		options = new THashMap<>(defaults.options);
 		for (String key : map.keySet()) {
 			AqlOption op = AqlOption.valueOf(key);
@@ -381,8 +380,8 @@ public final class AqlOptions {
 			return op.getBoolean(map);
 		case static_timeout:
 			return op.getLong(map);
-		//case lax_literals:
-		//	return op.getBoolean(map);
+		// case lax_literals:
+		// return op.getBoolean(map);
 		case interpet_as_frozen:
 			return op.getBoolean(map);
 		case simplify_names:
@@ -532,6 +531,10 @@ public final class AqlOptions {
 		case completion_unfailing:
 			return op.getBoolean(map);
 		case prover_allow_fresh_constants:
+			return op.getBoolean(map);
+		case diverge_limit:
+			return op.getInteger(map);
+		case diverge_warn:
 			return op.getBoolean(map);
 		default:
 			break;

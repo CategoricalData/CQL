@@ -14,8 +14,7 @@ public class XSDGeneralTag extends XSDBaseNode {
 	/**
 	 * Create with a tagname only
 	 *
-	 * @param tagName
-	 *            The tag name
+	 * @param tagName The tag name
 	 */
 	public XSDGeneralTag(final String tagName) {
 		super(null);
@@ -26,12 +25,9 @@ public class XSDGeneralTag extends XSDBaseNode {
 	/**
 	 * Create with a tagname and one attribute
 	 *
-	 * @param tagName
-	 *            The tag name
-	 * @param attr
-	 *            The attribute name
-	 * @param value
-	 *            the attribute value
+	 * @param tagName The tag name
+	 * @param attr    The attribute name
+	 * @param value   the attribute value
 	 */
 	public XSDGeneralTag(final String tagName, final String attr, final String value) {
 		this(tagName);

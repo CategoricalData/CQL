@@ -106,10 +106,8 @@ public class ViewFrame extends ModelFrame<ViewFrame, ViewGraphModel, View, Query
 	 * Creates a view frame, sets some sizes, sets up the properties builds the
 	 * menus, and lays out the swing components.
 	 *
-	 * @param inOverview
-	 *            The overivew in which this frame's sketch will exist
-	 * @param inSketch
-	 *            The sketch to which our new view points
+	 * @param inOverview The overivew in which this frame's sketch will exist
+	 * @param inSketch   The sketch to which our new view points
 	 */
 	public ViewFrame(Overview inOverview, Sketch inSketch) {
 		super("EASIK - Untitled");
@@ -251,8 +249,7 @@ public class ViewFrame extends ModelFrame<ViewFrame, ViewGraphModel, View, Query
 	/**
 	 * Sets the InfoTreeUI
 	 *
-	 * @param inInfoTreeUI
-	 *            The new InfoTreeUI
+	 * @param inInfoTreeUI The new InfoTreeUI
 	 */
 	public void setInfoTreeUI(ModelInfoTreeUI<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge> inInfoTreeUI) {
 		_rightPane.remove(_infoTreeUI);
@@ -321,12 +318,12 @@ public class ViewFrame extends ModelFrame<ViewFrame, ViewGraphModel, View, Query
 	}
 
 	/**
-	 * Figures out which popup menu should be displayed, based on the editing
-	 * mode of the sketch on which this is a view. Ensures the the appropriate
-	 * menu items are enabled based on the current selection.
+	 * Figures out which popup menu should be displayed, based on the editing mode
+	 * of the sketch on which this is a view. Ensures the the appropriate menu items
+	 * are enabled based on the current selection.
 	 * 
-	 * @return The popup menu that should be displayed. (i.e. the editing popup
-	 *         if the sketch of which this view in on is in edit mode and the
+	 * @return The popup menu that should be displayed. (i.e. the editing popup if
+	 *         the sketch of which this view in on is in edit mode and the
 	 *         manipulate option otherwise.)
 	 */
 	public JPopupMenu setPopMenu() {
@@ -409,30 +406,30 @@ public class ViewFrame extends ModelFrame<ViewFrame, ViewGraphModel, View, Query
 			_ViewAddPopItem.setToolTipText("Queried entity node is not updatable");
 			_ViewQueryPopItem.setEnabled(true);
 			return;
-		} 
-			for (EntityNode en : selected.getQueriedEntity().getDepend()) {
-				// System.out.println("Does view contain " + en.getName() +
-				// "?");
-				updateable = updateable && selected.getMModel().getEntityNodePairs().containsKey(en);
-				// System.out.println(selected.getMModel().getEntityNodePairs().containsKey(en));
-			}
-			if (!updateable) {
-				// was originally updatable but doesnt have require entitites
-				// don't allow insert
-				_ViewAddPopItem.setToolTipText(selected.getName() + " needs " + selected.getQueriedEntity().getDepend().toString() + " to be in view to be updatable.");
-				_ViewQueryPopItem.setEnabled(true);
-				_ViewUpdatePopItem.setEnabled(true);
-				_ViewDeletePopItem.setEnabled(true);
-				return;
-			} 
-				// everything allowed
-				_ViewQueryPopItem.setEnabled(true);
-				_ViewUpdatePopItem.setEnabled(true);
-				_ViewDeletePopItem.setEnabled(true);
-				_ViewAddPopItem.setEnabled(true);
-				return;
-			
-		
+		}
+		for (EntityNode en : selected.getQueriedEntity().getDepend()) {
+			// System.out.println("Does view contain " + en.getName() +
+			// "?");
+			updateable = updateable && selected.getMModel().getEntityNodePairs().containsKey(en);
+			// System.out.println(selected.getMModel().getEntityNodePairs().containsKey(en));
+		}
+		if (!updateable) {
+			// was originally updatable but doesnt have require entitites
+			// don't allow insert
+			_ViewAddPopItem.setToolTipText(selected.getName() + " needs "
+					+ selected.getQueriedEntity().getDepend().toString() + " to be in view to be updatable.");
+			_ViewQueryPopItem.setEnabled(true);
+			_ViewUpdatePopItem.setEnabled(true);
+			_ViewDeletePopItem.setEnabled(true);
+			return;
+		}
+		// everything allowed
+		_ViewQueryPopItem.setEnabled(true);
+		_ViewUpdatePopItem.setEnabled(true);
+		_ViewDeletePopItem.setEnabled(true);
+		_ViewAddPopItem.setEnabled(true);
+		return;
+
 	}
 
 	/**
@@ -494,9 +491,9 @@ public class ViewFrame extends ModelFrame<ViewFrame, ViewGraphModel, View, Query
 	}
 
 	/**
-	 * Called by view when the view is set as dirty (or clean). We simply set
-	 * the windowModified property for OS-specific window changes (for example,
-	 * the "modified" dot in OS X
+	 * Called by view when the view is set as dirty (or clean). We simply set the
+	 * windowModified property for OS-specific window changes (for example, the
+	 * "modified" dot in OS X
 	 *
 	 * @param dirty
 	 */

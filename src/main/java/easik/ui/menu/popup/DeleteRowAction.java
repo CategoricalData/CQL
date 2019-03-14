@@ -41,8 +41,7 @@ public class DeleteRowAction extends AbstractAction {
 	/**
 	 * Create the new entity and set up its name
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -66,7 +65,11 @@ public class DeleteRowAction extends AbstractAction {
 		}
 
 		if (domains.size() > 0) {
-			if (JOptionPane.showConfirmDialog(_theSketch, "Warning: Rows in this table may have foreign rows in " + domains.toString() + " which will be deleted on cascade", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(_theSketch,
+					"Warning: Rows in this table may have foreign rows in " + domains.toString()
+							+ " which will be deleted on cascade",
+					"Warning", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 		}

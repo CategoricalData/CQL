@@ -9,10 +9,9 @@ public class Null<X> {
 		this.x = x;
 	}
 
-	
 	@Override
 	public String toString() {
-		return x.toString() ;
+		return x.toString();
 	}
 
 	@Override
@@ -39,7 +38,5 @@ public class Null<X> {
 			return false;
 		return true;
 	}
-	
-	
-	
+
 }

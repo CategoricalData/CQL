@@ -26,14 +26,14 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 
 	// in paper this doesn't check label - appears to be typo (!)
 	private boolean congruent(KBExp<C, V> u, KBExp<C, V> v) {
-		//if (!u.f().equals(v.f())) {
-		//	return false;
-		//}
+		// if (!u.f().equals(v.f())) {
+		// return false;
+		// }
 		Iterator<KBExp<C, V>> it = v.getArgs().iterator();
 		Iterator<T> jt = kb.syms.get(u.f()).first.iterator();
 		for (KBExp<C, V> arg : u.getArgs()) {
 			KBExp<C, V> arg2 = it.next();
-			T t = jt.next(); //arg.type(kb.syms, Collections.emptyMap());
+			T t = jt.next(); // arg.type(kb.syms, Collections.emptyMap());
 			if (!ufs.get(t).connected(arg, arg2)) {
 				return false;
 			}
@@ -42,16 +42,15 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 	}
 
 	private void merge1(KBExp<C, V> u, KBExp<C, V> v) {
-		T t = this.kb.syms.get(u.f()).second; //u.type(this.kb.syms, Collections.emptyMap());
+		T t = this.kb.syms.get(u.f()).second; // u.type(this.kb.syms, Collections.emptyMap());
 		UnionFind<KBExp<C, V>> uf = ufs.get(t);
 		if (uf.connected(u, v)) {
 			return;
 		}
 
-		
 		IteratorChain<KBExp<C, V>> lpu = new IteratorChain<>();
 		IteratorChain<KBExp<C, V>> lpv = new IteratorChain<>();
-		
+
 		Map<KBExp<C, V>, Set<KBExp<C, V>>> m = pred.get(t);
 		for (KBExp<C, V> exp : m.keySet()) {
 			Set<KBExp<C, V>> z = null;
@@ -66,14 +65,14 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 				lpv.addIterator(z.iterator());
 			}
 		}
-	
+
 		uf.union(u, v);
 
 		IteratorIterable<KBExp<C, V>> qq = new IteratorIterable<>(lpv, true);
 		for (KBExp<C, V> x : new IteratorIterable<>(lpu, false)) {
 			for (KBExp<C, V> y : qq) {
 				if (x.f().equals(y.f())) {
-					T tt = kb.syms.get(x.f()).second; 
+					T tt = kb.syms.get(x.f()).second;
 					if (!ufs.get(tt).connected(x, y) && congruent(x, y)) {
 						merge1(x, y);
 					}
@@ -89,7 +88,7 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 		for (T t : th.tys) {
 			pred.put(t, new THashMap<>());
 			g.put(t, new THashMap<>());
-			//cache.put(t, new HashMap<>());
+			// cache.put(t, new HashMap<>());
 		}
 		for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : kb.eqs) {
 			if (!eq.first.isEmpty()) {
@@ -104,8 +103,7 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 			if (!t.first.isEmpty()) {
 				continue;
 			}
-			(th.factory.KBApp(c, Collections.emptyList())).allSubExps0(th.syms, t.second,
-					pred);
+			(th.factory.KBApp(c, Collections.emptyList())).allSubExps0(th.syms, t.second, pred);
 		}
 		for (C c : th.syms.keySet()) {
 			Pair<List<T>, T> t = th.syms.get(c);
@@ -124,15 +122,13 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 				KBExp<C, V> dd = th.factory.KBApp(d, Collections.emptyList());
 				KBExp<C, V> zz = th.factory.KBApp(c, Collections.singletonList(dd));
 				zz.allSubExps0(th.syms, t.second, pred);
-				
+
 			}
-			
-			
-		} 
+
+		}
 		doCong();
-		
+
 	}
-	
 
 	private void doCong() {
 		ufs = new THashMap<>(kb.tys.size());
@@ -153,20 +149,17 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 					l.add(kb.factory.freshConst(ty, z));
 				}
 				int z = ufs.get(t).findNoAdd(x);
-				g.get(t).get(c).put(l,
-						kb.factory.freshConst(t, z));
+				g.get(t).get(c).put(l, kb.factory.freshConst(t, z));
 			}
 		}
 	}
-	
-	
 
 	Map<T, Map<C, Map<List<KBExp<C, V>>, KBExp<C, V>>>> g = new THashMap<>();
 
-	//Map<T, Map<KBExp<C, V>, KBExp<C, V>>> cache = new HashMap<>(); 
-	
+	// Map<T, Map<KBExp<C, V>, KBExp<C, V>>> cache = new HashMap<>();
+
 	public KBExp<C, V> nf(T t, KBExp<C, V> lhs) {
-		KBExp<C, V> ret = null; //cache.get(t).get(lhs);
+		KBExp<C, V> ret = null; // cache.get(t).get(lhs);
 		C c = lhs.f();
 		List<KBExp<C, V>> l = new ArrayList<>(lhs.getArgs().size());
 		Iterator<T> tys = this.kb.syms.get(c).first.iterator();
@@ -175,11 +168,11 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 		}
 		ret = g.get(t).get(c).get(l);
 		if (ret != null) {
-	//		cache.get(t).put(lhs, ret);
+			// cache.get(t).put(lhs, ret);
 			return ret;
 		}
 		ret = kb.factory.KBApp(c, l);
-	//	cache.get(t).put(lhs, ret);
+		// cache.get(t).put(lhs, ret);
 		return ret;
 	}
 
@@ -188,8 +181,8 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 		if (!ctx.isEmpty()) {
 			throw new RuntimeException("Congruence prover can only be used with ground equations.");
 		}
-		
-		T t = kb.syms.get(lhs.f()).second; //lhs.type(this.kb.syms, ctx);
+
+		T t = kb.syms.get(lhs.f()).second; // lhs.type(this.kb.syms, ctx);
 
 		int i = ufs.get(t).findNoAdd(lhs);
 		if (i != -1) {
@@ -201,7 +194,7 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 		KBExp<C, V> l = nf(t, lhs);
 		KBExp<C, V> r = nf(t, rhs);
 		boolean b = l.equals(r);
-		
+
 		return b;
 
 	}

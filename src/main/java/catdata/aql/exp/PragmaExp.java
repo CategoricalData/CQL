@@ -38,73 +38,98 @@ import gnu.trove.map.hash.THashMap;
 public abstract class PragmaExp extends Exp<Pragma> {
 
 	@Override
-	public Kind kind() { 
+	public Kind kind() {
 		return Kind.PRAGMA;
 	}
-	
+
 	@Override
 	public Exp<Pragma> Var(String v) {
 		Exp<Pragma> ret = new PragmaExpVar(v);
 		return ret;
 	}
-	
+
 	@Override
-	public Optional<Chc<String,Object>> type(AqlTyping G) {
+	public Optional<Chc<String, Object>> type(AqlTyping G) {
 		return Optional.empty();
 	}
-	
+
 	public static interface PragmaExpCoVisitor<R, P, E extends Exception> {
-		 public <Gen,Sk,X,Y> PragmaExpConsistent<Gen,Sk,X,Y> visitPragmaExpConsistent(P params, R exp) throws E;
-		 public <Gen,Sk,X,Y> PragmaExpCheck<Gen,Sk,X,Y> visitPragmaExpCheck(P params, R exp) throws E;
-		 public <N1, E1, N2, E2> PragmaExpMatch<N1, E1, N2, E2> visitPragmaExpMatch(P params, R exp) throws E; 
-		 public PragmaExpSql visitPragmaExpSql(P params, R exp) throws E;
-		 public <Gen,Sk,X,Y> PragmaExpToCsvInst<Gen,Sk,X,Y> visitPragmaExpToCsvInst(P params, R exp) throws E;
-		 public PragmaExpVar visitPragmaExpVar(P params, R   exp) throws E;
-		 public PragmaExpJs visitPragmaExpJs(P params, R exp) throws E;
-		 public PragmaExpProc visitPragmaExpProc(P params, R exp) throws E;
-		 public <Gen,Sk,X,Y> PragmaExpToJdbcInst<Gen,Sk,X,Y> visitPragmaExpToJdbcInst(P params, R exp)throws E;
-		 public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToJdbcTrans(P params, R exp)throws E;
-		 public  PragmaExpToJdbcQuery visitPragmaExpToJdbcQuery(P params, R exp)throws E;
-	     public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToCsvTrans< Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToCsvTrans(P params, R exp)throws E;
-	  	 public  PragmaExpCheck2 visitPragmaExpCheck2(P params, R exp)throws E;
+		public <Gen, Sk, X, Y> PragmaExpConsistent<Gen, Sk, X, Y> visitPragmaExpConsistent(P params, R exp) throws E;
+
+		public <Gen, Sk, X, Y> PragmaExpCheck<Gen, Sk, X, Y> visitPragmaExpCheck(P params, R exp) throws E;
+
+		public PragmaExpMatch visitPragmaExpMatch(P params, R exp) throws E;
+
+		public PragmaExpSql visitPragmaExpSql(P params, R exp) throws E;
+
+		public <Gen, Sk, X, Y> PragmaExpToCsvInst<Gen, Sk, X, Y> visitPragmaExpToCsvInst(P params, R exp) throws E;
+
+		public PragmaExpVar visitPragmaExpVar(P params, R exp) throws E;
+
+		public PragmaExpJs visitPragmaExpJs(P params, R exp) throws E;
+
+		public PragmaExpProc visitPragmaExpProc(P params, R exp) throws E;
+
+		public <Gen, Sk, X, Y> PragmaExpToJdbcInst<Gen, Sk, X, Y> visitPragmaExpToJdbcInst(P params, R exp) throws E;
+
+		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToJdbcTrans(
+				P params, R exp) throws E;
+
+		public PragmaExpToJdbcQuery visitPragmaExpToJdbcQuery(P params, R exp) throws E;
+
+		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToCsvTrans(
+				P params, R exp) throws E;
+
+		public PragmaExpCheck2 visitPragmaExpCheck2(P params, R exp) throws E;
 	}
 
 	public static interface PragmaExpVisitor<R, P, E extends Exception> {
-		 public <Gen,Sk,X,Y> R visit(P params, PragmaExpConsistent<Gen,Sk,X,Y> exp) throws E;
-		 public <Gen,Sk,X,Y> R visit(P params, PragmaExpCheck<Gen,Sk,X,Y> exp) throws E;
-		 public <N1, E1, N2, E2> R visit(P params, PragmaExpMatch<N1, E1, N2, E2> exp) throws E; 
-		 public R visit(P params, PragmaExpSql exp) throws E;
-		 public <Gen,Sk,X,Y> R visit(P params, PragmaExpToCsvInst<Gen,Sk,X,Y> exp) throws E;
-		 public R visit(P params, PragmaExpVar   exp) throws E;
-		 public R visit(P params, PragmaExpJs exp) throws E;
-		 public R visit(P params, PragmaExpProc exp) throws E;
-		 public <Gen,Sk,X,Y> R visit(P params, PragmaExpToJdbcInst<Gen,Sk,X,Y> exp)throws E;
-		 public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> R visit(P params, PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp)throws E;
-		 public  R visit(P params, PragmaExpToJdbcQuery exp)throws E;
-	     public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> R visit(P params, PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp)throws E;
-	  	 public R visit(P params, PragmaExpCheck2 exp)throws E;
+		public <Gen, Sk, X, Y> R visit(P params, PragmaExpConsistent<Gen, Sk, X, Y> exp) throws E;
+
+		public <Gen, Sk, X, Y> R visit(P params, PragmaExpCheck<Gen, Sk, X, Y> exp) throws E;
+
+		public R visit(P params, PragmaExpMatch exp) throws E;
+
+		public R visit(P params, PragmaExpSql exp) throws E;
+
+		public <Gen, Sk, X, Y> R visit(P params, PragmaExpToCsvInst<Gen, Sk, X, Y> exp) throws E;
+
+		public R visit(P params, PragmaExpVar exp) throws E;
+
+		public R visit(P params, PragmaExpJs exp) throws E;
+
+		public R visit(P params, PragmaExpProc exp) throws E;
+
+		public <Gen, Sk, X, Y> R visit(P params, PragmaExpToJdbcInst<Gen, Sk, X, Y> exp) throws E;
+
+		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> R visit(P params,
+				PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) throws E;
+
+		public R visit(P params, PragmaExpToJdbcQuery exp) throws E;
+
+		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> R visit(P params,
+				PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) throws E;
+
+		public R visit(P params, PragmaExpCheck2 exp) throws E;
 	}
 
-	public abstract <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E;
-	
-	
-	
-	
+	public abstract <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E;
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	@SuppressWarnings("hiding")	
-	public static final class PragmaExpConsistent<Gen,Sk,X,Y> extends PragmaExp {
-		public final InstExp<Gen,Sk,X,Y> I;
-		
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+
+	@SuppressWarnings("hiding")
+	public static final class PragmaExpConsistent<Gen, Sk, X, Y> extends PragmaExp {
+		public final InstExp<Gen, Sk, X, Y> I;
+
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public boolean isVar() {
 			return true;
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			I.map(f);
@@ -114,6 +139,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
+
 		public PragmaExpConsistent(InstExp<Gen, Sk, X, Y> i) {
 			I = i;
 		}
@@ -145,16 +171,17 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return "assert_consistent " + I;
 		}
 
-		
 		@Override
 		public Pragma eval0(AqlEnv env, boolean isC) {
 			return new Pragma() {
 
 				@Override
 				public void execute() {
-					Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk, X, Y> J = I.eval(env, isC);
+					Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk, X, Y> J = I
+							.eval(env, isC);
 					if (!J.algebra().hasFreeTypeAlgebra()) {
-						throw new RuntimeException("Not necessarily consistent: type algebra is\n\n" + J.algebra().talg());
+						throw new RuntimeException(
+								"Not necessarily consistent: type algebra is\n\n" + J.algebra().talg());
 					}
 				}
 
@@ -162,7 +189,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				public String toString() {
 					return "Consistent";
 				}
-				
+
 			};
 		}
 
@@ -174,41 +201,41 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 		}
-		
-		
-		
+
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@SuppressWarnings("hiding")
-	public static final class PragmaExpCheck<Gen,Sk,X,Y> extends PragmaExp {
-		public InstExp<Gen,Sk,X,Y> I;
+	public static final class PragmaExpCheck<Gen, Sk, X, Y> extends PragmaExp {
+		public InstExp<Gen, Sk, X, Y> I;
 		public EdsExp C;
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			C.map(f);
 			I.map(f);
 		}
-		
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		public PragmaExpCheck(InstExp<Gen, Sk, X, Y> i, EdsExp c) {
 			I = i;
 			C = c;
 		}
+
 		@Override
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
+
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
-			
+
 		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -245,8 +272,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return "check " + C + " " + I;
 		}
 
-		
-
 		@Override
 		public synchronized Pragma eval0(AqlEnv env, boolean isC) {
 			if (isC) {
@@ -257,28 +282,31 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				@Override
 				public synchronized void execute() {
 					Instance J = I.eval(env, isC);
-					Collection t 
-					= C.eval(env, isC).triggers(J, env.defaults);
+					Collection t = C.eval(env, isC).triggers(J, env.defaults);
 					if (!t.isEmpty()) {
-						throw new RuntimeException("Not satisfied.\n\n" + printTriggers(t, J)); 
+						throw new RuntimeException("Not satisfied.\n\n" + printTriggers(t, J));
 					}
 				}
 
-				private String printTriggers(Collection<Pair<ED, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> t, @SuppressWarnings("unused") Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J) {
-					Map<ED, List< Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> m = new THashMap<>(t.size());
+				private String printTriggers(
+						Collection<Pair<ED, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> t,
+						@SuppressWarnings("unused") Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J) {
+					Map<ED, List<Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> m = new THashMap<>(
+							t.size());
 					for (Pair<ED, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> p : t) {
 						if (!m.containsKey(p.first)) {
 							m.put(p.first, new LinkedList<>());
 						}
 						List<Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> l = m.get(p.first);
 						l.add(p.second);
-						
+
 					}
 					String ret = "";
 					for (ED ed : m.keySet()) {
 						ret += "======================\n";
 						ret += "On constraint\n\n" + ed.toString() + "\n\nthe failing triggers are:\n\n";
-						ret += Util.sep(m.get(ed).iterator(), "\n", r->Util.sep(r.map((z,e)->z.toStringMash()).asMap(),"->",", "));
+						ret += Util.sep(m.get(ed).iterator(), "\n",
+								r -> Util.sep(r.map((z, e) -> z.toStringMash()).asMap(), "->", ", "));
 						ret += "\n";
 					}
 					if (ret.equals("")) {
@@ -291,7 +319,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				public String toString() {
 					return "Satisfies";
 				}
-				
+
 			};
 		}
 
@@ -299,18 +327,17 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public Collection<Pair<String, Kind>> deps() {
 			return Util.union(C.deps(), I.deps());
 		}
-		
+
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static final class PragmaExpMatch<N1, E1, N2, E2> extends PragmaExp {
+	public static final class PragmaExpMatch extends PragmaExp {
 		public final String String;
 		public final Map<String, String> options;
 
-		public final GraphExp<N1, E1> src;
-		public final GraphExp<N2, E2> dst;
-		
+		public final GraphExp src;
+		public final GraphExp dst;
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -318,16 +345,16 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			dst.map(f);
 		}
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public Map<String, String> options() {
 			return options;
 		}
 
-		public PragmaExpMatch(String String, GraphExp<N1, E1> src, GraphExp<N2, E2> dst, List<Pair<String, String>> options) {
+		public PragmaExpMatch(String String, GraphExp src, GraphExp dst, List<Pair<String, String>> options) {
 			this.String = String;
 			this.options = Util.toMapSafely(options);
 			this.src = src;
@@ -339,8 +366,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			if (isC) {
 				throw new IgnoreException();
 			}
-			DMG<N1, E1> src0 = src.eval(env, false).dmg;
-			DMG<N2, E2> dst0 = dst.eval(env, false).dmg;
+			DMG<String, String> src0 = src.eval(env, false).dmg;
+			DMG<String, String> dst0 = dst.eval(env, false).dmg;
 
 			return new Pragma() {
 
@@ -357,21 +384,22 @@ public abstract class PragmaExp extends Exp<Pragma> {
 						return s;
 					}
 					// TODO aql eventually, this should not catch the exception
-					Matcher<N1, E1, N2, E2, ?> ret0;
+					Matcher<String, String, String, String, ?> ret0;
 					try {
 						switch (String) {
-							case "naive":
-								ret0 = new NaiveMatcher<>(src0, dst0, options);
-								break;
-							case "sf":
-								ret0 = new SimilarityFloodingMatcher<>(src0, dst0, options);
-								break;
-							default:
-								throw new RuntimeException("Please use naive or sf for String match desired, not " + String);
+						case "naive":
+							ret0 = new NaiveMatcher<>(src0, dst0, options);
+							break;
+						case "sf":
+							ret0 = new SimilarityFloodingMatcher<>(src0, dst0, options);
+							break;
+						default:
+							throw new RuntimeException(
+									"Please use naive or sf for String match desired, not " + String);
 						}
 						s = ret0.bestMatch.toString();
 					} catch (Exception e) {
-						//e.printStackTrace();
+						// e.printStackTrace();
 						s = e.getMessage();
 						throw e;
 					}
@@ -409,7 +437,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			PragmaExpMatch<?, ?, ?, ?> other = (PragmaExpMatch<?, ?, ?, ?>) obj;
+			PragmaExpMatch other = (PragmaExpMatch) obj;
 			if (dst == null) {
 				if (other.dst != null)
 					return false;
@@ -435,7 +463,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
-			
+
 		}
 
 	}
@@ -450,16 +478,15 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		private final String clazz;
 
 		private final Map<String, String> options;
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 		}
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public Map<String, String> options() {
 			return options;
@@ -469,7 +496,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			this.clazz = clazz;
 			this.jdbcString = jdbcString;
 			this.options = Util.toMapSafely(options);
-			this.sqls = sqls;		
+			this.sqls = sqls;
 		}
 
 		@Override
@@ -530,8 +557,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("exec_jdbc ").append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString)).append(" {")
+			final StringBuilder sb = new StringBuilder().append("exec_jdbc ").append(Util.quote(clazz)).append(" ")
+					.append(Util.quote(jdbcString)).append(" {")
 					.append(Util.sep(sqls.stream().map(Util::quote).collect(Collectors.toList()), "\n"));
 
 			if (!options.isEmpty()) {
@@ -544,13 +571,12 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public Collection<Pair<String, Kind>> deps() {
 			return Collections.emptyList();
 		}
-		
+
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 			set.add(AqlOption.jdbc_default_class);
 			set.add(AqlOption.jdbc_default_string);
 		}
-
 
 	}
 
@@ -564,7 +590,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public final Map<String, String> options;
 
 		public final InstExp<Gen, Sk, X, Y> inst;
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -584,12 +609,13 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			set.add(AqlOption.id_column_name);
 
 		}
+
 		@Override
 		public Map<String, String> options() {
 			return options;
 		}
-		
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
 
@@ -611,8 +637,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("export_csv_instance ").append(inst).append(" ").append(Util.quote(file));
+			final StringBuilder sb = new StringBuilder().append("export_csv_instance ").append(inst).append(" ")
+					.append(Util.quote(file));
 
 			if (!options.isEmpty()) {
 				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
@@ -661,9 +687,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public Collection<Pair<String, Kind>> deps() {
 			return inst.deps();
 		}
-		
-
-	
 
 	}
 
@@ -673,7 +696,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	public static final class PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> extends PragmaExp {
 
 		public final String file;
-		
+
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 			set.add(AqlOption.csv_field_delim_char);
@@ -685,7 +708,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			set.add(AqlOption.csv_prepend_entity);
 			set.add(AqlOption.prepend_entity_on_ids);
 		}
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -695,18 +717,19 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public final Map<String, String> options1;
 		public final Map<String, String> options2;
 
-		public final TransExp< Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> trans;
+		public final TransExp<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> trans;
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public Map<String, String> options() {
 			return options1;
 		}
 
-		public PragmaExpToCsvTrans(TransExp<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> trans, String file, List<Pair<String, String>> options1, List<Pair<String, String>> options2) {
+		public PragmaExpToCsvTrans(TransExp<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> trans, String file,
+				List<Pair<String, String>> options1, List<Pair<String, String>> options2) {
 			this.file = file;
 			this.options1 = Util.toMapSafely(options1);
 			this.options2 = Util.toMapSafely(options2);
@@ -732,7 +755,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			PragmaExpToCsvTrans other = (PragmaExpToCsvTrans) obj;
+			PragmaExpToCsvTrans<?, ?, ?, ?, ?, ?, ?, ?> other = (PragmaExpToCsvTrans<?, ?, ?, ?, ?, ?, ?, ?>) obj;
 			if (file == null) {
 				if (other.file != null)
 					return false;
@@ -763,8 +786,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("export_csv_transform ").append(trans).append(" ").append(Util.quote(file));
+			final StringBuilder sb = new StringBuilder().append("export_csv_transform ").append(trans).append(" ")
+					.append(Util.quote(file));
 
 			if (!options1.isEmpty()) {
 				sb.append("{\n\toptions").append(Util.sep(options1, "\n\t\t", " = ")).append("\n}");
@@ -795,6 +818,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public Map<String, String> options() {
 			return Collections.emptyMap();
 		}
+
 		@Override
 		public boolean isVar() {
 			return true;
@@ -805,10 +829,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return Collections.singleton(new Pair<>(var, Kind.PRAGMA));
 		}
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		public PragmaExpVar(String var) {
 			this.var = var;
 		}
@@ -842,9 +866,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
-			
+
 		}
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -858,7 +881,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		private final List<String> jss;
 
 		private final Map<String, String> options;
-		
+
 		@Override
 		public Map<String, String> options() {
 			return options;
@@ -868,8 +891,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			this.options = Util.toMapSafely(options);
 			this.jss = jss;
 		}
-		
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
 
@@ -917,13 +940,12 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		protected void allowedOptions(Set<AqlOption> set) {
 			set.add(AqlOption.js_env_name);
 		}
-		
+
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("exec_js {")
+			final StringBuilder sb = new StringBuilder().append("exec_js {")
 					.append(Util.sep(jss.stream().map(Util::quote).collect(Collectors.toList()), ""));
-					
+
 			if (!options.isEmpty()) {
 				sb.append("\n\toptions").append(Util.sep(options, "\n\t\t", " = "));
 			}
@@ -934,11 +956,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public Collection<Pair<String, Kind>> deps() {
 			return Collections.emptyList();
 		}
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
+
 		}
 
 	}
@@ -952,11 +973,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public Map<String, String> options() {
 			return options;
 		}
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
-			
+
 		}
 
 		private final Map<String, String> options;
@@ -966,10 +986,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			this.cmds = cmds;
 		}
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public int hashCode() {
 			int prime = 31;
@@ -1012,10 +1032,9 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("exec_cmdline {")
+			final StringBuilder sb = new StringBuilder().append("exec_cmdline {")
 					.append(Util.sep(cmds.stream().map(Util::quote).collect(Collectors.toList()), "\n"));
-			
+
 			if (!options.isEmpty()) {
 				sb.append("\n\toptions").append(Util.sep(options, "\n\t\t", " = "));
 			}
@@ -1041,7 +1060,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public final String jdbcString;
 		public final String prefix;
 		public final String clazz;
-		
+
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 			set.add(AqlOption.jdbc_default_class);
@@ -1051,7 +1070,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			set.add(AqlOption.varchar_length);
 			set.add(AqlOption.jdbc_export_truncate_after);
 		}
-
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -1067,11 +1085,12 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options;
 		}
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
-		public PragmaExpToJdbcInst(InstExp<Gen, Sk, X, Y> i, String clazz, String jdbcString, String prefix, List<Pair<String, String>> options) {
+
+		public PragmaExpToJdbcInst(InstExp<Gen, Sk, X, Y> i, String clazz, String jdbcString, String prefix,
+				List<Pair<String, String>> options) {
 			this.jdbcString = jdbcString;
 			this.prefix = prefix;
 			this.clazz = clazz;
@@ -1103,10 +1122,9 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("export_jdbc_instance ")
-					.append(I).append(" ").append(Util.quote(clazz)).append(" ")
-					.append(Util.quote(jdbcString)).append(" ").append(Util.quote(prefix));					
+			final StringBuilder sb = new StringBuilder().append("export_jdbc_instance ").append(I).append(" ")
+					.append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString)).append(" ")
+					.append(Util.quote(prefix));
 			if (!options.isEmpty()) {
 				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
 			}
@@ -1170,13 +1188,12 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	public static class PragmaExpToJdbcTrans<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends PragmaExp {
 
 		public final String jdbcString, prefix, clazz;
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			h.map(f);
 		}
-		
+
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
 			set.add(AqlOption.jdbc_default_class);
@@ -1185,7 +1202,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			set.add(AqlOption.id_column_name);
 			set.add(AqlOption.varchar_length);
 		}
-
 
 		public final Map<String, String> options1, options2;
 
@@ -1196,7 +1212,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options1;
 		}
 
-		public PragmaExpToJdbcTrans(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h, String clazz, String jdbcString, String prefix, List<Pair<String, String>> options1, List<Pair<String, String>> options2) {
+		public PragmaExpToJdbcTrans(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h, String clazz, String jdbcString,
+				String prefix, List<Pair<String, String>> options1, List<Pair<String, String>> options2) {
 			this.jdbcString = jdbcString;
 			this.prefix = prefix;
 			this.clazz = clazz;
@@ -1205,10 +1222,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			this.h = h;
 		}
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
 			return h.deps();
@@ -1235,10 +1252,9 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("export_jdbc_transform ")
-					.append(h).append(" ").append(Util.quote(clazz)).append(" ")
-					.append(Util.quote(jdbcString)).append(" ").append(Util.quote(prefix)).append(" ");
+			final StringBuilder sb = new StringBuilder().append("export_jdbc_transform ").append(h).append(" ")
+					.append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString)).append(" ")
+					.append(Util.quote(prefix)).append(" ");
 			if (!options1.isEmpty()) {
 				sb.append("{");
 				sb.append("\n\toptions").append(Util.sep(options1, "\n\t\t", " = ")).append("\n");
@@ -1309,10 +1325,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		}
 
 	}
-	
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	@SuppressWarnings("hiding")	
+
+	@SuppressWarnings("hiding")
 	public static class PragmaExpToJdbcQuery extends PragmaExp {
 
 		public final String jdbcString, prefixSrc, prefixDst, clazz;
@@ -1329,7 +1345,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public final Map<String, String> options;
 
 		public final QueryExp Q;
-		
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -1341,7 +1356,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options;
 		}
 
-		public PragmaExpToJdbcQuery(QueryExp Q, String clazz, String jdbcString, String prefixSrc, String prefixDst, List<Pair<String, String>> options) {
+		public PragmaExpToJdbcQuery(QueryExp Q, String clazz, String jdbcString, String prefixSrc, String prefixDst,
+				List<Pair<String, String>> options) {
 			this.jdbcString = jdbcString;
 			this.prefixSrc = prefixSrc;
 			this.prefixDst = prefixDst;
@@ -1350,10 +1366,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			this.Q = Q;
 		}
 
-		public <R,P,E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
 			return v.visit(params, this);
 		}
-		
+
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
 			return Q.deps();
@@ -1378,16 +1394,14 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder()
-					.append("export_jdbc_query ")
-					.append(Q).append(" ").append(Util.quote(clazz)).append(" ")
-					.append(Util.quote(jdbcString)).append(" ").append(Util.quote(prefixSrc)).append(" ").append(Util.quote(prefixDst));
+			final StringBuilder sb = new StringBuilder().append("export_jdbc_query ").append(Q).append(" ")
+					.append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString)).append(" ")
+					.append(Util.quote(prefixSrc)).append(" ").append(Util.quote(prefixDst));
 			if (!options.isEmpty()) {
 				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
 			}
 			return sb.toString().trim();
 		}
-
 
 		@Override
 		public int hashCode() {

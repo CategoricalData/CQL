@@ -48,11 +48,11 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 		this.Q = Q;
 		this.J = J;
 
-	
-		Collage<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> col 
-		= new Collage<>(Q.src.collage());
-		
-		col.sks.putAll(Util.map(J.algebra().talg().sks, (k, v) -> new Pair<>(Chc.<Triple<Var, X, En2>, Y>inRight(k), v)));
+		Collage<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> col = new Collage<>(
+				Q.src.collage());
+
+		col.sks.putAll(
+				Util.map(J.algebra().talg().sks, (k, v) -> new Pair<>(Chc.<Triple<Var, X, En2>, Y>inRight(k), v)));
 		for (En2 t : J.schema().ens) {
 			for (X j : J.algebra().en(t)) {
 				for (Var v : Q.ens.get(t).gens.keySet()) {
@@ -72,74 +72,79 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 			col.eqs.add(new Eq<>(null, Term.upTalg(eq.lhs.mapGenSk(Util.voidFn(), Chc::inRight)),
 					Term.upTalg(eq.rhs.mapGenSk(Util.voidFn(), Chc::inRight))));
 		}
-		//col.validate();
-		
+		// col.validate();
+
 		for (En2 t : J.schema().ens) {
-			//col.validate();
+			// col.validate();
 			for (X j : J.algebra().en(t)) {
-				for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : Q.ens.get(t).eqs) {
-					col.eqs.add(new Eq<>(null, eq.first.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t))),
+				for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : Q.ens
+						.get(t).eqs) {
+					col.eqs.add(new Eq<>(null,
+							eq.first.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t))),
 							eq.second.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)))));
 				}
-				//col.validate();
-				
+				// col.validate();
+
 				for (Fk2 fk : J.schema().fksFrom(t)) {
 					Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> fk0 = Q.fks
 							.get(fk);
 					En2 tt = J.schema().fks.get(fk).second;
 
 					for (Var v0 : fk0.src().gens().keySet()) {
-						//En1 ttt = fk0.src().gens().get(v0);
-						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.gens().get(v0).map(
-								Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(), x -> new Triple<>(x, j, t),
-								Util::abort);
+						// En1 ttt = fk0.src().gens().get(v0);
+						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.gens()
+								.get(v0).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
+										x -> new Triple<>(x, j, t), Util::abort);
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Gen(new Triple<>(v0, J.algebra().fk(fk, j), tt));
 						col.eqs.add(new Eq<>(null, lhs, rhs));
 
 					}
-					//col.validate();
+					// col.validate();
 
 					for (Var v0 : fk0.src().sks().keySet()) {
-						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.sks().get(v0)
-								.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
+						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.sks()
+								.get(v0).mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Sk(Chc.inLeft(new Triple<>(v0, J.algebra().fk(fk, j), tt)));
 						col.eqs.add(new Eq<>(null, lhs, rhs));
 					}
-					//col.validate();
+					// col.validate();
 				}
 				for (Att2 att : J.schema().attsFrom(t)) {
-					
+
 					Term<Ty, En1, Sym, Fk1, Att1, Var, Var> att0 = Q.atts.get(att);
 					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = att0
 							.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
-					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = J.algebra().att(att, j).map(
-							Function.identity(), Function.identity(), Util.voidFn(), Util.voidFn(), Util.voidFn(),
-							Chc::inRight);
+					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = J.algebra()
+							.att(att, j).map(Function.identity(), Function.identity(), Util.voidFn(), Util.voidFn(),
+									Util.voidFn(), Chc::inRight);
 					col.eqs.add(new Eq<>(null, lhs, rhs));
-					
+
 				}
-			
+
 			}
-			//col.validate();
+			// col.validate();
 		}
-		//col.validate();
-		
+		// col.validate();
+
 		// AqlOptions strat = new AqlOptions(options, col);
 
-		Function<Triple<Var, X, En2>, Object> printGen = (x) -> "[" + x.first + "=" + J.algebra().repr(x.third, x.second) + "]";
-		
-		BiFunction<Ty,Chc<Triple<Var, X, En2>, Y>, Object> printSk = (y,x) -> "[" + (x.left ? x.l.first + " " + J.algebra().printX(x.l.third,x.l.second) : J.algebra().printY(y,x.r).toString()) + "]"  ;
+		Function<Triple<Var, X, En2>, Object> printGen = (x) -> "[" + x.first + "="
+				+ J.algebra().repr(x.third, x.second) + "]";
 
+		BiFunction<Ty, Chc<Triple<Var, X, En2>, Y>, Object> printSk = (y, x) -> "["
+				+ (x.left ? x.l.first + " " + J.algebra().printX(x.l.third, x.l.second)
+						: J.algebra().printY(y, x.r).toString())
+				+ "]";
 
 //		col.validate();
-		
+
 		init = new InitialAlgebra<>(options, schema(), col, printGen, printSk);
 		I = new LiteralInstance<>(schema(), col.gens, col.sks, col.eqsAsPairs(), init.dp(), init,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
-		if (size() < 16*1024) {
+		if (size() < 16 * 1024) {
 			validate();
 		}
 	}

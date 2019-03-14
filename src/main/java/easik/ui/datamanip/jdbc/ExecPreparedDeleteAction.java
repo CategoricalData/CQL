@@ -31,8 +31,7 @@ public class ExecPreparedDeleteAction extends AbstractAction {
 	/**
 	 * Sets up action for executing a free-form query.
 	 * 
-	 * @param inSketch
-	 *            The sketch which contains the valid tables to query.
+	 * @param inSketch The sketch which contains the valid tables to query.
 	 */
 	public ExecPreparedDeleteAction(Sketch inSketch) {
 		super("Delete row(s) via query...");
@@ -45,8 +44,7 @@ public class ExecPreparedDeleteAction extends AbstractAction {
 	/**
 	 * Create the new entity and set up its name
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

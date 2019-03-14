@@ -48,8 +48,8 @@ public class EdgeOptions extends OptionsDialog {
 	private JComboBox _edgeDirection, _cascadeMode;
 
 	/*
-	 * Various JThings containing entered information. Note that not all of
-	 * these are used for every edge type.
+	 * Various JThings containing entered information. Note that not all of these
+	 * are used for every edge type.
 	 */
 
 	/**  */
@@ -74,18 +74,17 @@ public class EdgeOptions extends OptionsDialog {
 	/**
 	 * Creates and displays a new modal edge options dialog.
 	 *
-	 * @param sketchFrame
-	 *            the SketchFrame to attach this modal dialog box to
-	 * @param edge
-	 *            takes an existing edge to set initial values from when
-	 *            modifying an edge
+	 * @param sketchFrame the SketchFrame to attach this modal dialog box to
+	 * @param edge        takes an existing edge to set initial values from when
+	 *                    modifying an edge
 	 */
 	public EdgeOptions(SketchFrame sketchFrame, SketchEdge edge) {
 		super(sketchFrame, "Edit edge");
 
 		_theFrame = sketchFrame;
 		_edge = edge;
-		_type = (edge instanceof PartialEdge) ? ((edge.getSource() == edge.getTarget()) ? Edge.SELF : Edge.PARTIAL) : (edge instanceof InjectiveEdge) ? Edge.INJECTIVE : Edge.NORMAL;
+		_type = (edge instanceof PartialEdge) ? ((edge.getSource() == edge.getTarget()) ? Edge.SELF : Edge.PARTIAL)
+				: (edge instanceof InjectiveEdge) ? Edge.INJECTIVE : Edge.NORMAL;
 
 		setSize(WIDTH, HEIGHT);
 		showDialog();
@@ -94,15 +93,11 @@ public class EdgeOptions extends OptionsDialog {
 	/**
 	 * Creates and displays a new modal edge options dialog for a new edge.
 	 *
-	 * @param sketchFrame
-	 *            the SketchFrame to attach this modal dialog box to
-	 * @param edgeType
-	 *            the edge type (e.g. <code>Edge.INJECTIVE</code>)
-	 * @param source
-	 *            the source entity node
-	 * @param target
-	 *            the target entity node (can be null for an
-	 *            <code>Edge.SELF</code> edge type)
+	 * @param sketchFrame the SketchFrame to attach this modal dialog box to
+	 * @param edgeType    the edge type (e.g. <code>Edge.INJECTIVE</code>)
+	 * @param source      the source entity node
+	 * @param target      the target entity node (can be null for an
+	 *                    <code>Edge.SELF</code> edge type)
 	 */
 	public EdgeOptions(SketchFrame sketchFrame, Edge edgeType, EntityNode source, EntityNode target) {
 		super(sketchFrame, "New edge");
@@ -133,13 +128,15 @@ public class EdgeOptions extends OptionsDialog {
 	public List<Option> getOptions() {
 		LinkedList<Option> opts = new LinkedList<>();
 
-		_edgeName = JUtils.textField((_edge != null) ? _edge.getName() : _theFrame.getMModel().getNewEdgeName(_type == Edge.INJECTIVE));
+		_edgeName = JUtils.textField(
+				(_edge != null) ? _edge.getName() : _theFrame.getMModel().getNewEdgeName(_type == Edge.INJECTIVE));
 
 		opts.add(new Option("Edge name", _edgeName));
 
 		if ((_edge == null) && (_type != Edge.SELF)) { // A new edge, but not a
 														// self-referencing edge
-			_edgeDirection = new JComboBox(new String[] { _source.getName() + " to " + _target.getName(), _target.getName() + " to " + _source.getName() });
+			_edgeDirection = new JComboBox(new String[] { _source.getName() + " to " + _target.getName(),
+					_target.getName() + " to " + _source.getName() });
 
 			opts.add(new Option("Edge direction", _edgeDirection));
 		}
@@ -181,7 +178,8 @@ public class EdgeOptions extends OptionsDialog {
 				// String cascade =
 				// Easik.getInstance().getSettings().getProperty("sql_cascade_partial",
 				// "set_null");
-				_cascadeMode.setSelectedIndex((defCascade == Cascade.CASCADE) ? 2 : (defCascade == Cascade.RESTRICT) ? 1 : 0);
+				_cascadeMode.setSelectedIndex(
+						(defCascade == Cascade.CASCADE) ? 2 : (defCascade == Cascade.RESTRICT) ? 1 : 0);
 			} else {
 				Cascade defCascade = _theFrame.getMModel().getDefaultCascading();
 
@@ -205,7 +203,10 @@ public class EdgeOptions extends OptionsDialog {
 	public Cascade getCascadeMode() {
 		int index = _cascadeMode.getSelectedIndex();
 
-		return (index == 0) ? (((_type == Edge.SELF) || (_type == Edge.PARTIAL)) ? Cascade.SET_NULL : Cascade.RESTRICT) : (index == 1) ? (((_type == Edge.SELF) || (_type == Edge.PARTIAL)) ? Cascade.RESTRICT : Cascade.CASCADE) : Cascade.SET_NULL;
+		return (index == 0) ? (((_type == Edge.SELF) || (_type == Edge.PARTIAL)) ? Cascade.SET_NULL : Cascade.RESTRICT)
+				: (index == 1)
+						? (((_type == Edge.SELF) || (_type == Edge.PARTIAL)) ? Cascade.RESTRICT : Cascade.CASCADE)
+						: Cascade.SET_NULL;
 	}
 
 	/**
@@ -219,8 +220,7 @@ public class EdgeOptions extends OptionsDialog {
 	}
 
 	/**
-	 * Returns true if the direction is to be reversed. Only useful for new
-	 * edges.
+	 * Returns true if the direction is to be reversed. Only useful for new edges.
 	 *
 	 * @return
 	 */
@@ -246,7 +246,8 @@ public class EdgeOptions extends OptionsDialog {
 
 		// the edge name must not already exist
 		else if (((_edge == null) || !s.equals(_edge.getName())) && _theFrame.getMModel().isEdgeNameUsed(s)) {
-			JOptionPane.showMessageDialog(this, "Edge name \"" + s + "\" is already in use", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Edge name \"" + s + "\" is already in use", "Error",
+					JOptionPane.ERROR_MESSAGE);
 
 			return false;
 		}

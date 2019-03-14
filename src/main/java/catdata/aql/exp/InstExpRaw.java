@@ -35,19 +35,18 @@ import catdata.aql.fdm.SaturatedInstance;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>
-		implements Raw {
-	
-	public <R,P,E extends Exception> R accept(P param, InstExpVisitor<R,P,E> v) throws E {
+public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> implements Raw {
+
+	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
 		return v.visit(param, this);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		schema.map(f);
 	}
 
-	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Exp<?>> imports() {
 		return (Collection<Exp<?>>) (Object) imports;
@@ -64,15 +63,15 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
 		Set<Pair<String, Kind>> ret = new THashSet<>(schema.deps());
-		for (InstExp x : imports) {
-			ret.addAll(x.deps()); 
+		for (InstExp<?, ?, ?, ?> x : imports) {
+			ret.addAll(x.deps());
 		}
 		return ret;
 	}
 
 	public final SchExp schema;
 
-	public final Set<InstExp> imports;
+	public final Set<InstExp<?, ?, ?, ?>> imports;
 
 	public final Set<Pair<String, String>> gens;
 
@@ -86,7 +85,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 	}
 
 	// typesafe by covariance of read-only collections
-	public InstExpRaw(SchExp schema, List<InstExp<?,?,?,?>> imports, List<Pair<LocStr, String>> gens,
+	public InstExpRaw(SchExp schema, List<InstExp<?, ?, ?, ?>> imports, List<Pair<LocStr, String>> gens,
 			List<Pair<Integer, Pair<RawTerm, RawTerm>>> eqs, List<Pair<String, String>> options) {
 		this.schema = schema;
 		this.imports = new THashSet<>(imports);
@@ -94,8 +93,8 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 		this.eqs = LocStr.proj2(eqs);
 		this.options = Util.toMapSafely(options);
 
-		//List<InteriorLabel<Object>> i = InteriorLabel.imports("imports", imports);
-		//raw.put("imports", i);
+		// List<InteriorLabel<Object>> i = InteriorLabel.imports("imports", imports);
+		// raw.put("imports", i);
 
 		List<InteriorLabel<Object>> e = new LinkedList<>();
 		for (Pair<LocStr, String> p : gens) {
@@ -230,19 +229,19 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			return false;
 		return true;
 	}
-	
-	
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
+			boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> sch = schema.eval(env, isC);
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(sch.collage());
 
-		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 
-		= (new THashSet<>());
+		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 = (new THashSet<>());
 
-		for (InstExp k : imports) {
-			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>> v = (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>>) k.eval(env, isC);
+		for (InstExp<?, ?, ?, ?> k : imports) {
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>> v = (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>>) k
+					.eval(env, isC);
 			col.addAll(v.collage());
 			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x : v.eqs()) {
 				eqs0.add(x);
@@ -271,7 +270,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 				col.eqs.add(new Eq<>(null, eq0.second, eq0.third));
 
 			} catch (RuntimeException ex) {
-				//ex.printStackTrace();
+				// ex.printStackTrace();
 				throw new LocException(find("equations", eq),
 						"In equation " + eq.first + " = " + eq.second + ", " + ex.getMessage());
 			}
@@ -282,21 +281,21 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 		boolean interpret_as_algebra = (boolean) strat.getOrDefault(AqlOption.interpret_as_algebra);
 		boolean dont_check_closure = (boolean) strat.getOrDefault(AqlOption.import_dont_check_closure_unsafe);
 		boolean interpret_as_frozen = false;
-		
+
 		if (interpret_as_algebra) {
 			return eval0_algebra(sch, col, eqs0, strat, dont_check_closure);
 		}
 
 		if (interpret_as_frozen) {
-			 return (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>) ((Object)new NoAlgInstance(col, sch, strat));
+			return (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>) ((Object) new NoAlgInstance(
+					col, sch, strat));
 		}
 
 		col.validate();
-		
-		
-		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial = new InitialAlgebra<>(strat, sch, col,
-				(y)->y, (x,y)->y);
-		
+
+		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial = new InitialAlgebra<>(strat, sch, col, (y) -> y,
+				(x, y) -> y);
+
 		return new LiteralInstance<>(sch, col.gens, col.sks, eqs0, initial.dp(), initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
@@ -306,8 +305,8 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			Schema<Ty, En, Sym, Fk, Att> sch, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0, AqlOptions strat,
 			boolean dont_check_closure) {
-		Map<En, Collection<Gen>> ens0 = (Map<En, Collection<Gen>>) (Object) Util.newSetsFor(col.ens); 
-		
+		@SuppressWarnings({ "unchecked" })
+		Map<En, Collection<Gen>> ens0 = (Map<En, Collection<Gen>>) (Object) Util.newSetsFor(col.ens);
 
 		if (!col.sks.isEmpty()) {
 			throw new RuntimeException("Cannot have generating labelled nulls with import_as_theory");
@@ -323,7 +322,6 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			atts0.put(gen, new THashMap<>());
 			ens0.get(col.gens.get(gen)).add(gen);
 		}
-		
 
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> e : eqs0) {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs = e.first;
@@ -346,31 +344,30 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			}
 		}
 
-		Map<Null<?>, Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>> extraRepr = null; //Collections.synchronizedMap(new THashMap<>());
+		// Map<Null<?>, Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>> extraRepr = null;
+		// //Collections.synchronizedMap(new THashMap<>());
 		for (Gen gen : col.gens.keySet()) {
 			for (Att att : sch.attsFrom(col.gens.get(gen))) {
 				if (!atts0.get(gen).containsKey(att)) {
-					atts0.get(gen).put(att,
-							InstExpImport.objectToSk(sch, null, gen, att, tys0, extraRepr, false, false));
+					atts0.get(gen).put(att, InstExpImport.objectToSk(sch, null, gen, att, tys0, null, false, false));
 				}
 			}
 		}
 
-
-		ImportAlgebra<Ty, En, Sym, Fk, Att, Gen, Null<?>> alg = new ImportAlgebra<>(
-				sch, ens0, tys0, fks0, atts0, (x,y)->y, (x,y)->y, dont_check_closure, Collections.emptySet());
-
+		ImportAlgebra<Ty, En, Sym, Fk, Att, Gen, Null<?>> alg = new ImportAlgebra<>(sch, ens0, tys0, fks0, atts0,
+				(x, y) -> y, (x, y) -> y, dont_check_closure, Collections.emptySet());
 
 		return new SaturatedInstance(alg, alg, (Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), true, extraRepr);
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), true, null);
 	}
-	
 
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.interpret_as_algebra);
 		set.add(AqlOption.import_dont_check_closure_unsafe);
-;		set.add(AqlOption.require_consistency);
+		set.add(AqlOption.diverge_limit);
+		set.add(AqlOption.diverge_warn);
+		set.add(AqlOption.require_consistency);
 		set.add(AqlOption.allow_java_eqs_unsafe);
 		set.addAll(AqlOptions.proverOptionNames());
 	}
@@ -386,6 +383,4 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 		return Collections.emptySet();
 	}
 
-	
-	
 }

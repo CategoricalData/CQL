@@ -36,56 +36,47 @@ import catdata.ide.IdeOptions.IdeOption;
  */
 public class IDE {
 
-
 	public static void main(String... args) {
 		final Options options = new Options();
 
-       /* options.addOption(Option.builder("p") 
-        		.longOpt("aqlparser") 
-        		.required(false)
-        		.desc("aql parser engine")
-        		.hasArg()
-        		.build()); */
+		/*
+		 * options.addOption(Option.builder("p") .longOpt("aqlparser") .required(false)
+		 * .desc("aql parser engine") .hasArg() .build());
+		 */
 
-        options.addOption(Option.builder("i") 
-        		.longOpt("input") 
-        		.required(false)
-        		.desc("input file")
-        		.hasArgs()
-        		.build());
+		options.addOption(Option.builder("i").longOpt("input").required(false).desc("input file").hasArgs().build());
 
-        final CommandLineParser cmdlineParser = new DefaultParser();
-        final HelpFormatter formatter = new HelpFormatter();
-        
-        CommandLine tempCmdLine = null;
-        try {
-        	tempCmdLine = cmdlineParser.parse(options, args);
-        } catch (ParseException e) {
-            System.out.println(e.getMessage());
-            formatter.printHelp("utility-name", options);
-            System.exit(1);
-        }
-        final CommandLine cmdLine = tempCmdLine;
-        
-        String aqlParser = "combinator"; //cmdLine.getOptionValue("aqlparser","combinator");
-        switch (aqlParser.toLowerCase()) {
-        case "combinator":
-			//System.out.println("combinator parser used");
-        	AqlParserFactory.mode = AqlParserFactory.Mode.COMBINATOR;
-        	break;
-        case "antlr4":
-			//System.out.println("antlr4 parser used");
-        	AqlParserFactory.mode = AqlParserFactory.Mode.ANTLR4;
-        	break;
-        default:
-			//System.out.println("default combinator parser used");
-        	AqlParserFactory.mode = AqlParserFactory.Mode.COMBINATOR;
-        	break;
-        }
-       
-     	
+		final CommandLineParser cmdlineParser = new DefaultParser();
+		final HelpFormatter formatter = new HelpFormatter();
+
+		CommandLine tempCmdLine = null;
+		try {
+			tempCmdLine = cmdlineParser.parse(options, args);
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			formatter.printHelp("utility-name", options);
+			System.exit(1);
+		}
+		final CommandLine cmdLine = tempCmdLine;
+
+		String aqlParser = "combinator"; // cmdLine.getOptionValue("aqlparser","combinator");
+		switch (aqlParser.toLowerCase()) {
+		case "combinator":
+			// System.out.println("combinator parser used");
+			AqlParserFactory.mode = AqlParserFactory.Mode.COMBINATOR;
+			break;
+		case "antlr4":
+			// System.out.println("antlr4 parser used");
+			AqlParserFactory.mode = AqlParserFactory.Mode.ANTLR4;
+			break;
+		default:
+			// System.out.println("default combinator parser used");
+			AqlParserFactory.mode = AqlParserFactory.Mode.COMBINATOR;
+			break;
+		}
+
 		System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
-		//apple.awt.application.name
+		// apple.awt.application.name
 		Toolkit.getDefaultToolkit().setDynamicLayout(true);
 
 		SwingUtilities.invokeLater(() -> {
@@ -108,7 +99,7 @@ public class IDE {
 				f.setSize(1024, 640);
 				f.setLocationRelativeTo(null);
 				f.setVisible(true);
-				
+
 				f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 				f.addWindowListener(new WindowAdapter() {
 					@Override
@@ -116,12 +107,11 @@ public class IDE {
 						GUI.exitAction();
 					}
 				});
-				
-		        String[] inputFilePath = cmdLine.getOptionValues("input");
-		        if (inputFilePath == null) {
-		        	GUI.newAction(null, "", Language.getDefault());
-		        } 
-		        else if (inputFilePath.length == 0) {
+
+				String[] inputFilePath = cmdLine.getOptionValues("input");
+				if (inputFilePath == null) {
+					GUI.newAction(null, "", Language.getDefault());
+				} else if (inputFilePath.length == 0) {
 					GUI.newAction(null, "", Language.getDefault());
 				} else {
 					File[] fs = new File[inputFilePath.length];
@@ -131,31 +121,31 @@ public class IDE {
 					}
 					GUI.openAction(fs);
 				}
-				
-				((CodeEditor<?, ?, ?>) GUI.editors.getComponentAt(0)).topArea.requestFocusInWindow();		
-				
-			//	Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
-				
+
+				((CodeEditor<?, ?, ?>) GUI.editors.getComponentAt(0)).topArea.requestFocusInWindow();
+
+				// Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
+
 				DeadLockDetector.makeDeadLockDetector();
-			} catch (HeadlessException | ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+			} catch (HeadlessException | ClassNotFoundException | IllegalAccessException | InstantiationException
+					| UnsupportedLookAndFeelException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Unrecoverable error, restart IDE: " + e.getMessage());
 			}
 		});
 	}
-	
-	/*public static final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 
-		   @Override  public void uncaughtException(Thread aThread, Throwable aThrowable) {
-		  }
-		  
-		  
-		private String getStackTrace(Throwable aThrowable) {
-		    final Writer result = new StringWriter();
-		    final PrintWriter printWriter = new PrintWriter(result);
-		    aThrowable.printStackTrace(printWriter);
-		    return result.toString();
-		  }
-		}*/
+	/*
+	 * public static final class ExceptionHandler implements
+	 * Thread.UncaughtExceptionHandler {
+	 * 
+	 * @Override public void uncaughtException(Thread aThread, Throwable aThrowable)
+	 * { }
+	 * 
+	 * 
+	 * private String getStackTrace(Throwable aThrowable) { final Writer result =
+	 * new StringWriter(); final PrintWriter printWriter = new PrintWriter(result);
+	 * aThrowable.printStackTrace(printWriter); return result.toString(); } }
+	 */
 
 }

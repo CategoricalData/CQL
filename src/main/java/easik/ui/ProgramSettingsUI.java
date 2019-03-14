@@ -98,7 +98,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 	// Radio buttons for sql settings
 
 	/**  */
-	private JRadioButton _sqlPKid, _sqlPKTable_id, _sqlPKCustomButton, _sqlFKTargetTable, _sqlFKTargetTable_id, _sqlFKEdges, _sqlFKTargetEdge, _sqlFKCustomButton;
+	private JRadioButton _sqlPKid, _sqlPKTable_id, _sqlPKCustomButton, _sqlFKTargetTable, _sqlFKTargetTable_id,
+			_sqlFKEdges, _sqlFKTargetEdge, _sqlFKCustomButton;
 
 	// SQL quoting checkbox and cascading delete checkbox
 
@@ -140,7 +141,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 		// ? "show"
 		// : "hide");
 		s.setProperty("folder_specified", _folderSpecificLoc.getText());
-		s.setProperty("folder_default", _folderSpecific.isSelected() ? "specified" : _folderRunning.isSelected() ? "pwd" : "last");
+		s.setProperty("folder_default",
+				_folderSpecific.isSelected() ? "specified" : _folderRunning.isSelected() ? "pwd" : "last");
 		s.setProperty("thumb_scale_factor", (thumbScaleSlider.getValue() / 100.0) + "");
 
 		for (ColorEditButton c : _colorButtons) {
@@ -154,8 +156,12 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 		}
 
 		s.setProperty("sql_driver", "" + _sqlDriver.getSelectedItem());
-		s.setProperty("sql_pk_columns", _sqlPKid.isSelected() ? "id" : _sqlPKTable_id.isSelected() ? "<table>_id" : _sqlPKCustom.getText());
-		s.setProperty("sql_fk_columns", _sqlFKEdges.isSelected() ? "<edge>" : _sqlFKTargetEdge.isSelected() ? "<target>_<edge>" : _sqlFKTargetTable.isSelected() ? "<target>" : "<target>_id" // _sqlFKTargetTable_id.isSelected()
+		s.setProperty("sql_pk_columns",
+				_sqlPKid.isSelected() ? "id" : _sqlPKTable_id.isSelected() ? "<table>_id" : _sqlPKCustom.getText());
+		s.setProperty("sql_fk_columns",
+				_sqlFKEdges.isSelected() ? "<edge>"
+						: _sqlFKTargetEdge.isSelected() ? "<target>_<edge>"
+								: _sqlFKTargetTable.isSelected() ? "<target>" : "<target>_id" // _sqlFKTargetTable_id.isSelected()
 		);
 		s.setProperty("sql_quoting", _sqlQuoting.isSelected() ? "true" : "false");
 		s.setProperty("sql_cascade", (_sqlCascading.getSelectedIndex() == 0) ? "restrict" : "cascade");
@@ -177,14 +183,19 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 
 		// Check to make sure the custom PK is something valid
 		if (_sqlPKCustomButton.isSelected() && !_sqlPKCustom.getText().matches("^(?:[^<]++|<table>)+$")) {
-			JOptionPane.showMessageDialog(this, "Invalid custom primary key value entered.\n\nThe custom primary key value must be non-empty, and may contain the <table> tag, which will be replaced with the current table name.", "Invalid custom primary key", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this,
+					"Invalid custom primary key value entered.\n\nThe custom primary key value must be non-empty, and may contain the <table> tag, which will be replaced with the current table name.",
+					"Invalid custom primary key", JOptionPane.ERROR_MESSAGE);
 
 			ret = false;
 		}
 
 		// Check to make sure the custom FK is something valid
-		if (_sqlFKCustomButton.isSelected() && !_sqlFKCustom.getText().matches("^(?:[^<]++|<(?:source|target|edge)>)+$")) {
-			JOptionPane.showMessageDialog(this, "Invalid custom foreign key value entered.\n\nThe custom foreign key value must be non-empty, and may contain the <source>, <target>, and <edge> tags, which will be replaced with the source table name, target table name, and edge name, respectively.", "Invalid custom foreign key", JOptionPane.ERROR_MESSAGE);
+		if (_sqlFKCustomButton.isSelected()
+				&& !_sqlFKCustom.getText().matches("^(?:[^<]++|<(?:source|target|edge)>)+$")) {
+			JOptionPane.showMessageDialog(this,
+					"Invalid custom foreign key value entered.\n\nThe custom foreign key value must be non-empty, and may contain the <source>, <target>, and <edge> tags, which will be replaced with the source table name, target table name, and edge name, respectively.",
+					"Invalid custom foreign key", JOptionPane.ERROR_MESSAGE);
 
 			ret = false;
 		}
@@ -231,7 +242,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 
 		settings.setLayout(new BoxLayout(settings, BoxLayout.Y_AXIS));
 
-		_showAttsAndUniqueKeys = new JCheckBox("Show attributes & unique keys", s.getProperty("attrib_display", "show").equals("show"));
+		_showAttsAndUniqueKeys = new JCheckBox("Show attributes & unique keys",
+				s.getProperty("attrib_display", "show").equals("show"));
 
 		// _showWarnings = new JCheckBox("Show warnings",
 		// s.getProperty("warning_display", "show").equals("show"));
@@ -261,7 +273,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 			}
 		});
 
-		String scaleTT = JUtils.tooltip("The scale affects how large the thumbnail of sketches and views shows in the overview will be.  A value of 0.25 (the default) means 1/4 size; 0.5 would mean 1/2 size.");
+		String scaleTT = JUtils.tooltip(
+				"The scale affects how large the thumbnail of sketches and views shows in the overview will be.  A value of 0.25 (the default) means 1/4 size; 0.5 would mean 1/2 size.");
 		JLabel scaleLabel = new JLabel("Thumbnail scale");
 
 		scaleLabel.setToolTipText(scaleTT);
@@ -322,7 +335,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 		_folderSpecificButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e1) {
-				JRadioButton wasSelected = _folderLast.isSelected() ? _folderLast : _folderRunning.isSelected() ? _folderRunning : _folderSpecific;
+				JRadioButton wasSelected = _folderLast.isSelected() ? _folderLast
+						: _folderRunning.isSelected() ? _folderRunning : _folderSpecific;
 
 				// Check the radio button, if it isn't already:
 				_folderSpecific.setSelected(true);
@@ -407,7 +421,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 
 				widthSlider.setPreferredSize(new Dimension(120, d.height));
 
-				final JLabel width = new JLabel((currentValue + "").replaceAll("\\.?0+$", "") + " pixel" + ((currentValue == 1.0) ? "" : "s"));
+				final JLabel width = new JLabel(
+						(currentValue + "").replaceAll("\\.?0+$", "") + " pixel" + ((currentValue == 1.0) ? "" : "s"));
 
 				widthSlider.addChangeListener(new ChangeListener() {
 					@Override
@@ -416,7 +431,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 						@SuppressWarnings("unused")
 						JPanel p = (JPanel) s.getParent();
 
-						width.setText(((s.getValue() / 10.0) + "").replaceAll("\\.?0+$", "") + " pixel" + ((s.getValue() == 10.0) ? "" : "s"));
+						width.setText(((s.getValue() / 10.0) + "").replaceAll("\\.?0+$", "") + " pixel"
+								+ ((s.getValue() == 10.0) ? "" : "s"));
 					}
 				});
 				colors.addOption(new Option(name, c, widthSlider, width));
@@ -574,7 +590,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 		_sqlQuoting.setSelected(s.getProperty("sql_quoting", "false").equals("true"));
 
 		JLabel quoteLabel = new JLabel("Identifier quoting");
-		String quoteTT = JUtils.tooltip("This option makes EASIK quote identifiers, which allows various non-alphanumeric characters (such as spaces and punctuation) in table and column names.\n\nNote also that quoted identifiers are, for many databases, case-sensitive.");
+		String quoteTT = JUtils.tooltip(
+				"This option makes EASIK quote identifiers, which allows various non-alphanumeric characters (such as spaces and punctuation) in table and column names.\n\nNote also that quoted identifiers are, for many databases, case-sensitive.");
 
 		quoteLabel.setToolTipText(quoteTT);
 		_sqlQuoting.setToolTipText(quoteTT);
@@ -588,7 +605,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 
 		String partialCascading = s.getProperty("sql_cascade_partial", "set_null");
 
-		_sqlCascadingPartial.setSelectedIndex(partialCascading.equals("cascade") ? 2 : partialCascading.equals("restrict") ? 1 : 0);
+		_sqlCascadingPartial
+				.setSelectedIndex(partialCascading.equals("cascade") ? 2 : partialCascading.equals("restrict") ? 1 : 0);
 
 		JLabel cascadeLabel = new JLabel("Edge cascading");
 		String cascadeTT = JUtils.tooltip(
@@ -609,8 +627,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 
 	/**
 	 * Returns a map of human-readable colour description keys to EasikSettings
-	 * colour keys. The returned map is ordered: the iteration order of keys is
-	 * the intended iteration order.
+	 * colour keys. The returned map is ordered: the iteration order of keys is the
+	 * intended iteration order.
 	 *
 	 * @return
 	 */
@@ -720,7 +738,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 				i >= bottomStart) || ( // Bottom row
 				i % iconWidth == 0) || ( // Left column
 				i % iconWidth == (iconWidth - 1))) // Right column
-						? edgeRGB : colorRGB;
+						? edgeRGB
+						: colorRGB;
 			}
 
 			img.setRGB(0, 0, iconWidth, iconHeight, pixels, 0, iconWidth);
@@ -752,7 +771,8 @@ public class ProgramSettingsUI extends OptionsDialog implements TabbedOptionsDia
 				}
 			};
 
-			JColorChooser.createDialog(ProgramSettingsUI.this, "Choose color", true, colorChooser, acceptColor, null).setVisible(true);
+			JColorChooser.createDialog(ProgramSettingsUI.this, "Choose color", true, colorChooser, acceptColor, null)
+					.setVisible(true);
 		}
 	}
 

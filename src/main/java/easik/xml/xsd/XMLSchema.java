@@ -172,8 +172,12 @@ public class XMLSchema {
 		final StringBuilder ret = new StringBuilder("<?xml version='1.0' ?>");
 		final String lineSep = EasikTools.systemLineSeparator();
 
-		ret.append(lineSep).append('<').append(getXsNSPrefix()).append("schema ").append(xsNS.toString()).append(attributeFormDefaultUnQualified ? " attributeFormDefault=\"unqualified\" " : " attributeFormDefault=\"qualified\" ").append(elementFormDefaultUnQualified ? " elementFormDefault=\"unqualified\" " : " elementFormDefault=\"qualified\" ").append(targetNS.prettyString("       ", lineSep))
-				.append(" >").append(lineSep);
+		ret.append(lineSep).append('<').append(getXsNSPrefix()).append("schema ").append(xsNS.toString())
+				.append(attributeFormDefaultUnQualified ? " attributeFormDefault=\"unqualified\" "
+						: " attributeFormDefault=\"qualified\" ")
+				.append(elementFormDefaultUnQualified ? " elementFormDefault=\"unqualified\" "
+						: " elementFormDefault=\"qualified\" ")
+				.append(targetNS.prettyString("       ", lineSep)).append(" >").append(lineSep);
 
 		for (final XSDType t : types) {
 			ret.append(t.toString()).append(lineSep);

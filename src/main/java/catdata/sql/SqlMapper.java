@@ -23,7 +23,7 @@ public class SqlMapper extends JPanel {
 
 	private final SqlLoader input1 = new SqlLoader(output, "SQL Source");
 	private final SqlLoader input2 = new SqlLoader(output, "SQL Target");
-	
+
 	private static <X> String print(X[][] c) {
 		String ret = "";
 		for (X[] x : c) {
@@ -31,7 +31,7 @@ public class SqlMapper extends JPanel {
 		}
 		return ret;
 	}
-	
+
 	private void doRun() {
 		if (input1.schema == null) {
 			output.setText("Please Run or Load first");
@@ -41,9 +41,9 @@ public class SqlMapper extends JPanel {
 			output.setText("Please Run or Load first");
 			return;
 		}
-		
+
 		SqlMapping m = SqlMapping.guess(input1.schema, input2.schema);
-	
+
 		output.setText(print(m.toStrings()));
 	}
 
@@ -67,7 +67,7 @@ public class SqlMapper extends JPanel {
 		jspX.setResizeWeight(0.5d);
 		jspX.add(input1);
 		jspX.add(input2);
-		
+
 		JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		jsp.setBorder(BorderFactory.createEmptyBorder());
 		jsp.setDividerSize(4);
@@ -86,9 +86,6 @@ public class SqlMapper extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	
 
 }

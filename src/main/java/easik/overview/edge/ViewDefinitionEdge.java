@@ -27,15 +27,12 @@ public class ViewDefinitionEdge extends DefaultEdge {
 	private String _uniqueName;
 
 	/**
-	 * Creates a new edge between a view node and a sketch node with the
-	 * specified name.
+	 * Creates a new edge between a view node and a sketch node with the specified
+	 * name.
 	 *
-	 * @param a
-	 *            The source view node
-	 * @param b
-	 *            The target sketch node
-	 * @param name
-	 *            The unique edge identifier
+	 * @param a    The source view node
+	 * @param b    The target sketch node
+	 * @param name The unique edge identifier
 	 */
 	public ViewDefinitionEdge(ViewNode a, SketchNode b, String name) {
 		_sourceObj = a;
@@ -107,8 +104,7 @@ public class ViewDefinitionEdge extends DefaultEdge {
 	/**
 	 * Sets the name of this edge.
 	 * 
-	 * @param inName
-	 *            The unique name of the edge.
+	 * @param inName The unique name of the edge.
 	 */
 	public void setName(String inName) {
 		String oldName = getName();

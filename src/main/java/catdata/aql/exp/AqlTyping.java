@@ -17,60 +17,60 @@ public class AqlTyping {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-			
+
 		if (!defs.gs.isEmpty()) {
-			sb.append("graph " + Util.sep(defs.gs.keySet(),"\ngraph ")+ "\n");
+			sb.append("graph " + Util.sep(defs.gs.keySet(), "\ngraph ") + "\n");
 		}
 		if (!defs.tys.isEmpty()) {
 			sb.append("typeside " + Util.sep(defs.tys.keySet(), "\ntypeside ") + "\n");
 		}
 		if (!defs.schs.isEmpty()) {
-			sb.append("schema " + Util.sep(defs.schs, " : ", "\nschema ")+ "\n");
+			sb.append("schema " + Util.sep(defs.schs, " : ", "\nschema ") + "\n");
 		}
 		if (!defs.eds.isEmpty()) {
-			sb.append("constraints " + Util.sep(defs.eds, " : ", "\nconstraints ")+ "\n");
+			sb.append("constraints " + Util.sep(defs.eds, " : ", "\nconstraints ") + "\n");
 		}
 		if (!defs.scs.isEmpty()) {
-			sb.append("schema_colimit " + Util.sep(defs.scs, " : ", "\nschema_colimit ")+ "\n");
+			sb.append("schema_colimit " + Util.sep(defs.scs, " : ", "\nschema_colimit ") + "\n");
 		}
 		if (!defs.maps.isEmpty()) {
-			sb.append("mapping " + Util.sep(defs.maps, " : ", "\nmapping ", x->x.first+" -> "+x.second)+ "\n");
+			sb.append("mapping " + Util.sep(defs.maps, " : ", "\nmapping ", x -> x.first + " -> " + x.second) + "\n");
 		}
 		if (!defs.qs.isEmpty()) {
-			sb.append("query " + Util.sep(defs.qs, " : ", "\nquery ", x->x.first+" -> "+x.second) + "\n") ;
+			sb.append("query " + Util.sep(defs.qs, " : ", "\nquery ", x -> x.first + " -> " + x.second) + "\n");
 		}
 		if (!defs.insts.isEmpty()) {
-			sb.append("instance " + Util.sep(defs.insts, " : ", "\ninstance ")+ "\n");
+			sb.append("instance " + Util.sep(defs.insts, " : ", "\ninstance ") + "\n");
 		}
 		if (!defs.trans.isEmpty()) {
-			sb.append("transform " + Util.sep(defs.trans, " : ", "\ntransform ", x->x.first+" -> "+x.second)+ "\n");
+			sb.append("transform " + Util.sep(defs.trans, " : ", "\ntransform ", x -> x.first + " -> " + x.second)
+					+ "\n");
 		}
 		if (!defs.ps.isEmpty()) {
-			sb.append("command " + Util.sep(defs.ps.keySet(), "\ncommand ")+ "\n");
+			sb.append("command " + Util.sep(defs.ps.keySet(), "\ncommand ") + "\n");
 		}
-		
+
 		return sb.toString();
 	}
 
-	public  boolean eq(TyExp t1, TyExp t2) {
+	public boolean eq(TyExp t1, TyExp t2) {
 		return t1.resolve(prog).equals(t2.resolve(prog));
 	}
 
-	public  boolean eq(SchExp s1, SchExp s2) {
+	public boolean eq(SchExp s1, SchExp s2) {
 		return s1.resolve(this, prog).equals(s2.resolve(this, prog));
 	}
 
-	// TODO aql turn into visitor
 	public final Program<Exp<?>> prog;
 
 	public AqlTyping() {
 		prog = new Program<>(new TreeList<>(), "");
 	}
-	
+
 	public AqlTyping(Program<Exp<?>> p) {
 		prog = p;
 	}
-	
+
 	public AqlTyping(Program<Exp<?>> prog, boolean continue0) {
 		this.prog = prog;
 		for (String s : prog.order) {
@@ -78,7 +78,8 @@ public class AqlTyping {
 				Exp<?> e = prog.exps.get(s);
 				for (Entry<String, String> k : e.options().entrySet()) {
 					if (!e.allowedOptions().contains(AqlOption.valueOf(k.getKey()))) {
-						throw new RuntimeException("Option not allowed: " + k.getKey() + ".  Allowed: " + Util.sep(e.allowedOptions(), ", ") + ". Class: " + e.getClass());						
+						throw new RuntimeException("Option not allowed: " + k.getKey() + ".  Allowed: "
+								+ Util.sep(e.allowedOptions(), ", ") + ". Class: " + e.getClass());
 					}
 				}
 				switch (e.kind()) {
@@ -96,7 +97,7 @@ public class AqlTyping {
 					defs.qs.put(s, new Pair<>(p.first, p.second));
 					continue;
 				case SCHEMA:
-					TyExp qq = ((SchExp)e).type(this);
+					TyExp qq = ((SchExp) e).type(this);
 					defs.schs.put(s, qq);
 					continue;
 				case TRANSFORM:
@@ -105,16 +106,16 @@ public class AqlTyping {
 					defs.trans.put(s, new Pair<>(q.first, q.second));
 					continue;
 				case TYPESIDE:
-					Unit tt = (Unit) ((TyExp)e).type(this);
+					Unit tt = (Unit) ((TyExp) e).type(this);
 					defs.tys.put(s, tt);
 					continue;
 				case GRAPH:
-					defs.gs.put(s, ((GraphExp<?, ?>) e).type(this));
+					defs.gs.put(s, ((GraphExp) e).type(this));
 					continue;
 				case COMMENT:
 					continue;
 				case SCHEMA_COLIMIT:
-					defs.scs.put(s, ((ColimSchExp<?>) e).type(this));
+					defs.scs.put(s, ((ColimSchExp) e).type(this));
 					continue;
 				case CONSTRAINTS:
 					defs.eds.put(s, ((EdsExp) e).type(this));
@@ -131,6 +132,6 @@ public class AqlTyping {
 		}
 	}
 
-	public final KindCtx<String, Unit, Unit, TyExp, SchExp, Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>>, Pair<SchExp, SchExp>, Pair<SchExp, SchExp>, Unit, Unit, Set<?>, SchExp> defs = new KindCtx<>();
+	public final KindCtx<String, Unit, Unit, TyExp, SchExp, Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>>, Pair<SchExp, SchExp>, Pair<SchExp, SchExp>, Unit, Unit, Set<String>, SchExp> defs = new KindCtx<>();
 
 }

@@ -49,8 +49,7 @@ public class ShowConstraint extends AbstractAction {
 	/**
 	 * Makes the selected constraint visible
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -61,16 +60,20 @@ public class ShowConstraint extends AbstractAction {
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 
 		// Selection is a constraint
 		if (curSelected instanceof ModelConstraint) {
-			((ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) curSelected).setVisible(true);
+			((ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) curSelected)
+					.setVisible(true);
 		}
 
 		// Selection is not a constraint
 		else {
-			JOptionPane.showMessageDialog(_theFrame, "You don't have a constraint selected. \nPlease select a constraint and try again.", "No ModelConstraint Selected", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame,
+					"You don't have a constraint selected. \nPlease select a constraint and try again.",
+					"No ModelConstraint Selected", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

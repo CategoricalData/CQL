@@ -15,12 +15,12 @@ import catdata.aql.Comment;
 import catdata.aql.Kind;
 
 public class CommentExp extends Exp<Comment> {
-	
+
 	@Override
-	public Optional<Chc<String,Object>> type(AqlTyping G) {
+	public Optional<Chc<String, Object>> type(AqlTyping G) {
 		return Optional.empty();
 	}
-	
+
 	public static interface CommentExpVisitor<R, P, E extends Exception> {
 		public abstract R visit(P params, CommentExp exp) throws E;
 	}
@@ -29,18 +29,18 @@ public class CommentExp extends Exp<Comment> {
 		public abstract CommentExp visitCommentExp(P params, R exp) throws E;
 	}
 
-	public <R,P,E extends Exception> R accept(P params, CommentExpVisitor<R, P, E> v) throws E  {
-		return v.visit(params, this) ;
+	public <R, P, E extends Exception> R accept(P params, CommentExpVisitor<R, P, E> v) throws E {
+		return v.visit(params, this);
 	}
 
 	public final String s;
 	public final boolean isM;
-	
+
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -74,8 +74,6 @@ public class CommentExp extends Exp<Comment> {
 		this.isM = isM;
 	}
 
-	
-
 	@Override
 	public Kind kind() {
 		return Kind.COMMENT;
@@ -90,7 +88,6 @@ public class CommentExp extends Exp<Comment> {
 	public String toString() {
 		return s;
 	}
-
 
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
@@ -108,9 +105,7 @@ public class CommentExp extends Exp<Comment> {
 
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
-		
-	}
 
-	
+	}
 
 }

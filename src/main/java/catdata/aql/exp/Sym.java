@@ -7,9 +7,9 @@ import gnu.trove.map.hash.THashMap;
 
 public class Sym {
 	public final String str;
-	
+
 	private static Map<String, Sym> cache = new THashMap<>(128);
-	
+
 	public static synchronized Sym Sym(String str) {
 		Sym sym = cache.get(str);
 		if (sym != null) {
@@ -24,7 +24,7 @@ public class Sym {
 		this.str = str;
 	}
 
-	 @Override
+	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
 	}
@@ -32,8 +32,7 @@ public class Sym {
 	@Override
 	public boolean equals(Object obj) {
 		return obj == this;
-	} 
-	
+	}
 
 	@Override
 	public String toString() {

@@ -35,8 +35,7 @@ public class OptionTab {
 	/**
 	 * Creates a new OptionTab with the specified tab name.
 	 *
-	 * @param title
-	 *            the tab title
+	 * @param title the tab title
 	 */
 	public OptionTab(String title) {
 		this(title, null, null);
@@ -45,25 +44,19 @@ public class OptionTab {
 	/**
 	 * Creates a new OptionTab with the specified tab name and tooltip text.
 	 *
-	 * @param title
-	 *            the tab title
-	 * @param tip
-	 *            the tooltip text (may be null)
+	 * @param title the tab title
+	 * @param tip   the tooltip text (may be null)
 	 */
 	public OptionTab(String title, String tip) {
 		this(title, null, tip);
 	}
 
 	/**
-	 * Creates a new OptionTab with the specified tab name, icon, and tooltip
-	 * text.
+	 * Creates a new OptionTab with the specified tab name, icon, and tooltip text.
 	 *
-	 * @param title
-	 *            the tab title
-	 * @param icon
-	 *            the Icon to display next to the title
-	 * @param tip
-	 *            the tooltip text (may be null)
+	 * @param title the tab title
+	 * @param icon  the Icon to display next to the title
+	 * @param tip   the tooltip text (may be null)
 	 */
 	public OptionTab(String title, Icon icon, String tip) {
 		_title = title;
@@ -103,8 +96,7 @@ public class OptionTab {
 	/**
 	 * Sets the keyboard mnemonic for accessing the specified tab.
 	 *
-	 * @param mnemonic
-	 *            the KeyEvent code for accessing the tab
+	 * @param mnemonic the KeyEvent code for accessing the tab
 	 * @see javax.swing.JTabbedPane.setMnemonicAt(int, int)
 	 */
 	public void setMnemonic(int mnemonic) {
@@ -142,8 +134,7 @@ public class OptionTab {
 	/**
 	 * Adds an option to the list of options to be displayed.
 	 *
-	 * @param o
-	 *            the Option object to add
+	 * @param o the Option object to add
 	 */
 	public void addOption(Option o) {
 		_options.add(o);
@@ -153,11 +144,8 @@ public class OptionTab {
 	 * Constructs a new option with the given label and component, and adds that
 	 * option to the list of options to display.
 	 *
-	 * @param label
-	 *            the JLabel for the option
-	 * @param comp
-	 *            the JComponent associated with the option (i.e. the value
-	 *            field)
+	 * @param label the JLabel for the option
+	 * @param comp  the JComponent associated with the option (i.e. the value field)
 	 */
 	public void addOption(JLabel label, JComponent comp) {
 		_options.add(new Option(label, comp));
@@ -172,12 +160,11 @@ public class OptionTab {
 
 	/**
 	 * Sets whether or not this tab should be the initial tab displayed in the
-	 * option dialog. This does *not* clear other OptionTab initial properties:
-	 * if multiple OptionTabs have the initial property, only the first will be
-	 * the initial tab.
+	 * option dialog. This does *not* clear other OptionTab initial properties: if
+	 * multiple OptionTabs have the initial property, only the first will be the
+	 * initial tab.
 	 *
-	 * @param init
-	 *            true if this tab is the initial tab, false otherwise
+	 * @param init true if this tab is the initial tab, false otherwise
 	 */
 	public void setInitial(boolean init) {
 		_isInitial = init;

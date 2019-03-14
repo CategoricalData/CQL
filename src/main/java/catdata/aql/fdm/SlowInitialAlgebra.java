@@ -47,8 +47,7 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 
 	private final Map<En, Set<X>> ens;
 	private final Map<X, Map<Fk, X>> fks = (new THashMap<>());
-	private final Map<X, Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = 
-			(new THashMap<>());
+	private final Map<X, Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = (new THashMap<>());
 	private final Map<Term<Void, En, Void, Fk, Void, Gen, Void>, X> nfs = (new THashMap<>());
 
 	private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
@@ -84,11 +83,9 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 		} catch (InterruptedException exn) {
 			throw new RuntimeInterruptedException(exn);
 		}
-		
-		
+
 	}
 
-	// TODO aql is it really safe to do depth first saturation?
 	private synchronized boolean add(Term<Void, En, Void, Fk, Void, Gen, Void> term) throws InterruptedException {
 		if (Thread.currentThread().isInterrupted()) {
 			throw new InterruptedException();
@@ -118,9 +115,11 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private synchronized boolean saturate1() throws InterruptedException {
 		boolean changed = false;
 		for (Gen gen : col.gens.keySet()) {
+			@SuppressWarnings("rawtypes")
 			Term xx = Term.Gen(gen);
 			if (col.type(Collections.emptyMap(), xx).left) {
 				continue;
@@ -201,7 +200,7 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 	@Override
 	public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> talg0() {
 		if (talg != null) {
-			return talg.talg.out;			
+			return talg.talg.out;
 		}
 		talg = new TalgSimplifier<>(this, col, (Integer) ops.getOrDefault(AqlOption.talg_reduction));
 		return talg.talg.out;
@@ -218,8 +217,6 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 				: schema.typeSide.js.reduce(talg.simpl(Term.Sk(y)));
 	}
 
-	
-
 	private TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Chc<Sk, Pair<X, Att>>> talg;
 
 	Boolean b;
@@ -229,8 +226,8 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 			return b;
 		}
 		talg();
-		Set<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> l = 
-				(new THashSet<>(schema().typeSide.eqs.size()));
+		Set<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> l = (new THashSet<>(
+				schema().typeSide.eqs.size()));
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : schema().typeSide.eqs) {
 			l.add(new Eq<>(Util.inLeft(eq.first), talg.transX(eq.second.convert()), talg.transX(eq.third.convert())));
 		}
@@ -255,19 +252,18 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 
 //	@Override
 	public DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
-		return this; 
+		return this;
 	}
-	
+
 	public String talgToString() {
 		return talg.talg.toString();
- 	}
+	}
 
 	@Override
 	public int size(En en) {
 		return ens.get(en).size();
 	}
 
-		
 	@Override
 	public Chc<Sk, Pair<X, Att>> reprT_prot(Chc<Sk, Pair<X, Att>> y) {
 		return y;

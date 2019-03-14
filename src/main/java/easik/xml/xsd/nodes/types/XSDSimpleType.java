@@ -79,8 +79,8 @@ public class XSDSimpleType extends XSDType {
 	public String getBody() {
 		if (null == restr) {
 			return null;
-		} 
-			return restr.toString();
-		
+		}
+		return restr.toString();
+
 	}
 }

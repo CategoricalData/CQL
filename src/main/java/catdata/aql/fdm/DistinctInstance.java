@@ -21,32 +21,32 @@ import catdata.graph.UnionFind;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
+public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
+		extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
 	private final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
-	
+
 	private final LinkedList<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = new LinkedList<>();
-	
+
 	private final UnionFind<X> uf;
-	
-	
+
 	public DistinctInstance(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
 		I = i;
-		//eqs.addAll();
+		// eqs.addAll();
 		uf = new UnionFind<>(I.size(), I.algebra().allXs());
 		for (En en : schema().ens) {
 			for (X x : I.algebra().en(en)) {
 				for (X y : I.algebra().en(en)) {
-					if (!x.equals(y) && obsEq(en,x,y)) {
-						uf.union(x, y);	
+					if (!x.equals(y) && obsEq(en, x, y)) {
+						uf.union(x, y);
 						eqs.add(new Pair<>(I.algebra().repr(en, x).convert(), I.algebra().repr(en, y).convert()));
 					}
 				}
 			}
 		}
-		//validate();
+		// validate();
 	}
-	
+
 	private boolean obsEq(En en, X x, X y) {
 		for (Fk fk : schema().fksFrom(en)) {
 			if (!I.algebra().fk(fk, x).equals(I.algebra().fk(fk, y))) {
@@ -54,14 +54,13 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Insta
 			}
 		}
 		for (Att att : schema().attsFrom(en)) {
-			if (!I.dp().eq(null, I.reprT(I.algebra().att(att, x)), 
-					I.reprT(I.algebra().att(att, y)))) {
+			if (!I.dp().eq(null, I.reprT(I.algebra().att(att, x)), I.reprT(I.algebra().att(att, y)))) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	private X conv(X x) {
 		return uf.find(x);
 	}
@@ -103,7 +102,7 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Insta
 		private InnerAlgebra() {
 			for (En en : schema().ens) {
 				Set<X> set = new THashSet<>();
-				I.algebra().en(en).forEach(x->set.add(conv(x)));
+				I.algebra().en(en).forEach(x -> set.add(conv(x)));
 				map.put(en, set);
 			}
 		}
@@ -182,7 +181,7 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Insta
 		public Chc<Sk, Pair<X, Att>> reprT_prot(Y y) {
 			return I.algebra().reprT_prot(y);
 		}
-		
+
 	}
 
 	@Override

@@ -6,19 +6,18 @@ public abstract class Pragma implements Semantics {
 	public Kind kind() {
 		return Kind.PRAGMA;
 	}
-	
+
 	public abstract void execute();
-	
+
 	@Override
 	public abstract String toString();
 
-	/**	  
+	/**
 	 * @return length of text string
 	 */
 	@Override
 	public int size() {
 		return toString().length();
 	}
-
 
 }

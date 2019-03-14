@@ -40,7 +40,8 @@ import easik.model.ui.ModelFrame;
  *
  */
 
-public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends DefaultGraphCell {
+public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends DefaultGraphCell {
 	/**
 	 * 
 	 */
@@ -83,8 +84,8 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	protected List<EntityAttribute<F, GM, M, N, E>> _entityAttributes = new ArrayList<>(20);
 
 	/**
-	 * List hidden attributes for this entity. Used for keeping track of what
-	 * rows are part of constraints
+	 * List hidden attributes for this entity. Used for keeping track of what rows
+	 * are part of constraints
 	 */
 	protected List<EntityAttribute<F, GM, M, N, E>> _hiddenAttributes = new ArrayList<>(20);
 
@@ -104,8 +105,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Create a blank sketch vertex, no name, and located at (0, 0)
 	 *
-	 * @param inSketch
-	 *            the Sketch the vertex is being added to
+	 * @param inSketch the Sketch the vertex is being added to
 	 */
 	public ModelVertex(M inModel) {
 		this("", 0, 0, inModel);
@@ -114,14 +114,10 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Create a vertex with basic attributes
 	 * 
-	 * @param name
-	 *            Label
-	 * @param x
-	 *            X coordinate
-	 * @param y
-	 *            Y coordinate
-	 * @param inSketch
-	 *            the sketch the vertex is being added to
+	 * @param name     Label
+	 * @param x        X coordinate
+	 * @param y        Y coordinate
+	 * @param inSketch the sketch the vertex is being added to
 	 */
 	public ModelVertex(String name, int x, int y, M inModel) {
 		_initX = x;
@@ -155,8 +151,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Mutator for the name field
 	 * 
-	 * @param name
-	 *            The new name
+	 * @param name The new name
 	 */
 	public void setName(String name) {
 		_name = name;
@@ -195,9 +190,9 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 
 		if (bounds != null) {
 			return (int) bounds.getX();
-		} 
-			return _initX;
-		
+		}
+		return _initX;
+
 	}
 
 	/**
@@ -210,9 +205,9 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 
 		if (bounds != null) {
 			return (int) bounds.getY();
-		} 
-			return _initY;
-		
+		}
+		return _initY;
+
 	}
 
 	/**
@@ -242,13 +237,12 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	}
 
 	/**
-	 * add to the list of hidden attributes. Used for keeping track of
-	 * intermediate nodes' rows in constraints.
+	 * add to the list of hidden attributes. Used for keeping track of intermediate
+	 * nodes' rows in constraints.
 	 *
-	 * @param inAtt
-	 *            The
-	 *            EntityAttribute<SketchFrame,SketchGraphModel,Sketch,EntityNode,SketchEdge>
-	 *            to add to this EntityNode.
+	 * @param inAtt The
+	 *              EntityAttribute<SketchFrame,SketchGraphModel,Sketch,EntityNode,SketchEdge>
+	 *              to add to this EntityNode.
 	 */
 	public void addHiddenEntityAttribute(final EntityAttribute<F, GM, M, N, E> inAtt) {
 		for (EntityAttribute<F, GM, M, N, E> ea : _hiddenAttributes) {
@@ -264,10 +258,9 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	 * EntityAttribute<SketchFrame,SketchGraphModel,Sketch,EntityNode,SketchEdge>
 	 * and add its to the list of attributes
 	 *
-	 * @param inAtt
-	 *            The
-	 *            EntityAttribute<SketchFrame,SketchGraphModel,Sketch,EntityNode,SketchEdge>
-	 *            to add to this EntityNode.
+	 * @param inAtt The
+	 *              EntityAttribute<SketchFrame,SketchGraphModel,Sketch,EntityNode,SketchEdge>
+	 *              to add to this EntityNode.
 	 */
 	public void addEntityAttribute(final EntityAttribute<F, GM, M, N, E> inAtt) {
 		for (EntityAttribute<F, GM, M, N, E> ea : _entityAttributes) {
@@ -308,8 +301,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Removes an attribute from the list
 	 *
-	 * @param curAttribute
-	 *            The attribute to be removed
+	 * @param curAttribute The attribute to be removed
 	 */
 	public void removeEntityAttribute(final EntityAttribute<F, GM, M, N, E> curAttribute) {
 		final GM model = getMModel().getGraphModel();
@@ -362,10 +354,8 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Adds a unique key to the list
 	 *
-	 * @param inAtts
-	 *            The attributes used in the key
-	 * @param inName
-	 *            The name of the unique key
+	 * @param inAtts The attributes used in the key
+	 * @param inName The name of the unique key
 	 */
 	public void addUniqueKey(final ArrayList<UniqueIndexable> inAtts, final String inName) {
 		addUniqueKey(new UniqueKey<>(this, inAtts, inName));
@@ -374,8 +364,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Adds a unique key to the list
 	 *
-	 * @param inKey
-	 *            The key to be added
+	 * @param inKey The key to be added
 	 */
 	public void addUniqueKey(final UniqueKey<F, GM, M, N, E> inKey) {
 		_uniqueKeys.add(inKey);
@@ -420,8 +409,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Add a constraint to the set of constraints of which this node is a part
 	 *
-	 * @param con
-	 *            the constraint
+	 * @param con the constraint
 	 */
 	public void addConstraint(final ModelConstraint<F, GM, M, N, E> con) {
 		final boolean added = _constraints.add(con);
@@ -449,11 +437,9 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	}
 
 	/**
-	 * Removes a constraint from the set of constraints this node believes to be
-	 * in
+	 * Removes a constraint from the set of constraints this node believes to be in
 	 *
-	 * @param con
-	 *            the constraint
+	 * @param con the constraint
 	 * @return true if removed
 	 */
 	public boolean removeConstraint(final ModelConstraint<F, GM, M, N, E> con) {
@@ -492,8 +478,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	 * 
 	 * Federico Mora
 	 * 
-	 * @param con
-	 *            ModelConstraint to match the attribute
+	 * @param con ModelConstraint to match the attribute
 	 * @return
 	 */
 	private EntityAttribute<F, GM, M, N, E> getHiddenAttribute(ModelConstraint<F, GM, M, N, E> con) {
@@ -527,8 +512,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Removes a unique key from the list
 	 *
-	 * @param inKey
-	 *            The unique key to be removed
+	 * @param inKey The unique key to be removed
 	 */
 	public void removeUniqueKey(final UniqueKey<F, GM, M, N, E> inKey) {
 		final int keyPos = _uniqueKeys.indexOf(inKey);
@@ -601,15 +585,16 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	}
 
 	/**
-	 * Returns a Set of SketchEdges of the outgoing edges of this EntityNode.
-	 * Note that edges for constraints are <b>not</b> included.
+	 * Returns a Set of SketchEdges of the outgoing edges of this EntityNode. Note
+	 * that edges for constraints are <b>not</b> included.
 	 *
 	 * @return Set of outgoing edges from this EntityNode
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<E> getOutgoingEdges() {
 		@SuppressWarnings("rawtypes")
-		final List outEdges = _theModel.getGraphLayoutCache().getOutgoingEdges(this, Collections.emptySet(), false, true);
+		final List outEdges = _theModel.getGraphLayoutCache().getOutgoingEdges(this, Collections.emptySet(), false,
+				true);
 		final Set<E> outgoing = new LinkedHashSet<>(outEdges.size());
 
 		for (final Object out : outEdges) {
@@ -622,8 +607,7 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	}
 
 	/**
-	 * Returns a Set of UniqueIndexable-implementing outgoing edges of this
-	 * node.
+	 * Returns a Set of UniqueIndexable-implementing outgoing edges of this node.
 	 *
 	 * @return set of uniques
 	 */
@@ -643,10 +627,8 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Check to see if an attribute name is already used in the entity
 	 *
-	 * @param inNode
-	 *            The entity being checked against
-	 * @param attName
-	 *            The name being checked for duplication
+	 * @param inNode  The entity being checked against
+	 * @param attName The name being checked for duplication
 	 * @return true if the name is in use, false otherwise
 	 */
 	public boolean isAttNameUsed(final String attName) {
@@ -664,10 +646,8 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Returns if the name of a key is already used
 	 *
-	 * @param inNode
-	 *            The entity being checked against
-	 * @param keyName
-	 *            The name of the key
+	 * @param inNode  The entity being checked against
+	 * @param keyName The name of the key
 	 * @return true if the key name is already used, false otherwise
 	 */
 	public boolean isKeyNameUsed(final String keyName) {
@@ -682,13 +662,12 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 
 	/**
 	 * Finds any empty or duplicate unique keys of the passed-in EntityNode and
-	 * returns a list of them. This is used by cleanup(EntityNode) to remove
-	 * problem keys after removing an attribute or edge.
+	 * returns a list of them. This is used by cleanup(EntityNode) to remove problem
+	 * keys after removing an attribute or edge.
 	 *
-	 * @param inNode
-	 *            the node to check
-	 * @return List of UniqueKey<F,GM,M,N,E> objects that should be removed to
-	 *         clean up the table
+	 * @param inNode the node to check
+	 * @return List of UniqueKey<F,GM,M,N,E> objects that should be removed to clean
+	 *         up the table
 	 */
 	public List<UniqueKey<F, GM, M, N, E>> findBadKeys() {
 		final Collection<Set<UniqueIndexable>> seen = new HashSet<>(5);
@@ -715,13 +694,12 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	}
 
 	/**
-	 * Tests to see if there are any empty or duplicate unique keys in the
-	 * passed-in EntityNode, and if so, removes them. This is typically called
-	 * when removing an attribute to fix up the EntityNode, since the attribute
-	 * will have also been removed from the existing unique keys.
+	 * Tests to see if there are any empty or duplicate unique keys in the passed-in
+	 * EntityNode, and if so, removes them. This is typically called when removing
+	 * an attribute to fix up the EntityNode, since the attribute will have also
+	 * been removed from the existing unique keys.
 	 *
-	 * @param inNode
-	 *            The node whose unique keys should be cleaned
+	 * @param inNode The node whose unique keys should be cleaned
 	 * @return true if any unique keys were removed
 	 */
 	public boolean cleanup() {
@@ -748,8 +726,8 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	}
 
 	/**
-	 * Returns the DefaultPort object that edges pointing to this vertex should
-	 * be attached to.
+	 * Returns the DefaultPort object that edges pointing to this vertex should be
+	 * attached to.
 	 *
 	 * @return
 	 */
@@ -773,19 +751,18 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	}
 
 	/**
-	 * Determines whether a set of attributes would enforce new uniqueness on
-	 * this entity, or whether uniqueness of those attributes is already
-	 * enforced by an existing unique key. Essentially, this boils down to two
-	 * things: there can be no existing unique key that is a duplicate of the
-	 * specified elements, and there can be no unique key that is a subset of
-	 * the specified elements. The latter is because if a unique key on (A, B)
-	 * already exists, then (A, B, C) will be already guaranteed to be unique
-	 * because the (A, B) part has to be unique.
+	 * Determines whether a set of attributes would enforce new uniqueness on this
+	 * entity, or whether uniqueness of those attributes is already enforced by an
+	 * existing unique key. Essentially, this boils down to two things: there can be
+	 * no existing unique key that is a duplicate of the specified elements, and
+	 * there can be no unique key that is a subset of the specified elements. The
+	 * latter is because if a unique key on (A, B) already exists, then (A, B, C)
+	 * will be already guaranteed to be unique because the (A, B) part has to be
+	 * unique.
 	 *
-	 * @param inElems
-	 *            The list/set/collection/array of attributes/edges to check
-	 * @return the unique key that already exists that enforces the uniqueness,
-	 *         or null if the specified items would form new uniqueness.
+	 * @param inElems The list/set/collection/array of attributes/edges to check
+	 * @return the unique key that already exists that enforces the uniqueness, or
+	 *         null if the specified items would form new uniqueness.
 	 */
 	public UniqueKey<F, GM, M, N, E> uniqueKeyOn(final Collection<UniqueIndexable> inElems) {
 		return uniqueKeyOn(new HashSet<>(inElems));
@@ -794,10 +771,9 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Array or multi-value version of uniqueKeyOn(...)
 	 *
-	 * @param inElems
-	 *            The list/set/collection/array of attributes/edges to check
-	 * @return the unique key that already exists that enforces the uniqueness,
-	 *         or null if the specified items would form new uniqueness.
+	 * @param inElems The list/set/collection/array of attributes/edges to check
+	 * @return the unique key that already exists that enforces the uniqueness, or
+	 *         null if the specified items would form new uniqueness.
 	 */
 	public UniqueKey<F, GM, M, N, E> uniqueKeyOn(final UniqueIndexable... inElems) {
 		return uniqueKeyOn(Arrays.asList(inElems));
@@ -806,10 +782,9 @@ public abstract class ModelVertex<F extends ModelFrame<F, GM, M, N, E>, GM exten
 	/**
 	 * Version of uniqueKeyOn() that takes a set of UniqueIndexable edges.
 	 *
-	 * @param inElemSet
-	 *            The list/set/collection/array of attributes/edges to check
-	 * @return the unique key that already exists that enforces the uniqueness,
-	 *         or null if the specified items would form new uniqueness.
+	 * @param inElemSet The list/set/collection/array of attributes/edges to check
+	 * @return the unique key that already exists that enforces the uniqueness, or
+	 *         null if the specified items would form new uniqueness.
 	 */
 	public UniqueKey<F, GM, M, N, E> uniqueKeyOn(final Set<UniqueIndexable> inElemSet) {
 		for (final UniqueKey<F, GM, M, N, E> q : getUniqueKeys()) {

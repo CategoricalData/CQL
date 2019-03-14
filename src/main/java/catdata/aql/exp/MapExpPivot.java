@@ -16,30 +16,26 @@ import catdata.aql.Mapping;
 import catdata.aql.exp.SchExp.SchExpPivot;
 import catdata.aql.fdm.AqlPivot;
 
-public final class MapExpPivot<Gen,Sk,X,Y>
-	extends MapExp {
-	
-	
-	
+public final class MapExpPivot<Gen, Sk, X, Y> extends MapExp {
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.require_consistency);
 		set.add(AqlOption.allow_java_eqs_unsafe);
 	}
-	
-	public <R,P,E extends Exception> R accept(P params, MapExpVisitor<R,P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, MapExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "pivot " + I;
 	}
 
-	public final InstExp<Gen,Sk,X,Y> I;
+	public final InstExp<Gen, Sk, X, Y> I;
 	public final Map<String, String> ops;
-	
-	
+
 	public MapExpPivot(InstExp<Gen, Sk, X, Y> i, List<Pair<String, String>> ops) {
 		I = i;
 		this.ops = Util.toMapSafely(ops);
@@ -56,10 +52,10 @@ public final class MapExpPivot<Gen,Sk,X,Y>
 	}
 
 	@Override
-	public Mapping<Ty, En, Sym, Fk, catdata.aql.exp.Att, En, Fk, Att> eval0(
-			AqlEnv env, boolean isC) {
+	public Mapping<Ty, En, Sym, Fk, catdata.aql.exp.Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		AqlOptions strat = new AqlOptions(ops, null, env.defaults);
-		Mapping<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, En, Fk, Att> l = new AqlPivot<>(I.eval(env, isC), strat).F;
+		Mapping<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, En, Fk, Att> l = new AqlPivot<>(
+				I.eval(env, isC), strat).F;
 		return l;
 	}
 
@@ -100,15 +96,13 @@ public final class MapExpPivot<Gen,Sk,X,Y>
 	}
 
 	@Override
-	public <R, P, E extends Exception> MapExp coaccept(
-			P params, MapExpCoVisitor<R, P, E> v, R r) throws E {
+	public <R, P, E extends Exception> MapExp coaccept(P params, MapExpCoVisitor<R, P, E> v, R r) throws E {
 		return v.visitMapExpPivot(params, r);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
 	}
 
-	
 }

@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import catdata.Unit;
 
 public class LazyPanel extends JPanel {
+	private static final long serialVersionUID = 1L;
 	private volatile boolean lazyConstructorCalled = false;
 	private final Function<Unit, JComponent> lazyConstructor;
 

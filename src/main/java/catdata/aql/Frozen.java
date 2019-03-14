@@ -31,10 +31,9 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 	public final AqlOptions options;
 	public final List<Var> order;
 
-	public Frozen(Map<Var, Ty> params, 
-			Map<Var, Chc<En1, Ty>> gens, 
-			Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>> eqs,
-			Schema<Ty, En1, Sym, Fk1, Att1> schema, AqlOptions options) {
+	public Frozen(Map<Var, Ty> params, Map<Var, Chc<En1, Ty>> gens,
+			Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>> eqs, Schema<Ty, En1, Sym, Fk1, Att1> schema,
+			AqlOptions options) {
 		Util.assertNotNull(options);
 		this.gens = new THashMap<>();
 		this.sks = new THashMap<>(params);
@@ -109,7 +108,7 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 	public boolean allowUnsafeJava() {
 		return true;
 	}
-	
+
 	private <Gen, Sk, X, Y> float estimateCost(List<Var> plan, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I,
 			Map<Pair<Var, Var>, Float> selectivities) {
 		if (plan.isEmpty()) {
@@ -143,10 +142,11 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		}
 		return cost;
 	}
-	
+
 	private Iterable<List<Var>> generatePlans() {
 		return Util.permutationsOf(new ArrayList<>(Util.union(sks.keySet(), gens.keySet())));
 	}
+
 	private Map<Pair<Var, Var>, Float> estimateSelectivities() {
 		Map<Pair<Var, Var>, Float> ret = new THashMap<>();
 		for (Var v1 : gens().keySet()) {
@@ -168,8 +168,6 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		}
 		return ret;
 	}
-	
-	
 
 	private float estimateSelectivity(List<Var> l, Var v, Map<Pair<Var, Var>, Float> sel) {
 		if (!sel.containsKey(new Pair<>(v, v))) {
@@ -187,8 +185,7 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		return ret;
 	}
 
-
-public <Gen, Sk, X, Y> List<Var> order(AqlOptions options, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I) {
+	public <Gen, Sk, X, Y> List<Var> order(AqlOptions options, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I) {
 		if (!(Boolean) options.getOrDefault(AqlOption.eval_reorder_joins)
 				|| gens().size() > (Integer) options.getOrDefault(AqlOption.eval_max_plan_depth)) {
 			return new ArrayList<>(Util.union(gens.keySet(), sks.keySet()));

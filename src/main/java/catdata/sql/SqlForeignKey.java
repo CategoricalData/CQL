@@ -6,14 +6,14 @@ import gnu.trove.map.hash.THashMap;
 
 public class SqlForeignKey {
 	public SqlTable source, target;
-	public final Map<SqlColumn, SqlColumn> map = new THashMap<>(); //target->source
+	public final Map<SqlColumn, SqlColumn> map = new THashMap<>(); // target->source
 	public String name;
-	
+
 	@Override
 	public String toString() {
 		return name;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -59,7 +59,7 @@ public class SqlForeignKey {
 			throw new RuntimeException();
 		}
 		if (!map.keySet().equals(target.pk)) {
-			throw new RuntimeException(map.keySet() + " is not the primary key of " + target);			
+			throw new RuntimeException(map.keySet() + " is not the primary key of " + target);
 		}
 		for (SqlColumn tcol : map.keySet()) {
 			SqlColumn scol = map.get(tcol);
@@ -71,7 +71,5 @@ public class SqlForeignKey {
 			}
 		}
 	}
-	
-	
-	
+
 }

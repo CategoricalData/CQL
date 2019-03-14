@@ -22,7 +22,8 @@ import easik.model.vertex.ModelVertex;
  * @version 12/09/12
  * @author Christian Fiddick
  */
-public class ModelViewFactory<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends DefaultCellViewFactory {
+public class ModelViewFactory<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends DefaultCellViewFactory {
 	/**
 	 *    
 	 */

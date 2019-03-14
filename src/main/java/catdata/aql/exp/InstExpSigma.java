@@ -19,8 +19,7 @@ import catdata.aql.Mapping;
 import catdata.aql.Term;
 import catdata.aql.fdm.SigmaInstance;
 
-public final class InstExpSigma<Gen, Sk, X, Y>
-		extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {
+public final class InstExpSigma<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {
 
 	public final InstExp<Gen, Sk, X, Y> I;
 	public final MapExp F;
@@ -35,6 +34,7 @@ public final class InstExpSigma<Gen, Sk, X, Y>
 		F.map(f);
 		I.map(f);
 	}
+
 	@Override
 	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.singleton(I);
@@ -50,8 +50,7 @@ public final class InstExpSigma<Gen, Sk, X, Y>
 		return Util.union(I.deps(), F.deps());
 	}
 
-	public InstExpSigma(MapExp f,
-			InstExp<Gen, Sk, X, Y> i, Map<String, String> options) {
+	public InstExpSigma(MapExp f, InstExp<Gen, Sk, X, Y> i, Map<String, String> options) {
 		I = i;
 		F = f;
 		this.options = options;
@@ -75,7 +74,7 @@ public final class InstExpSigma<Gen, Sk, X, Y>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpSigma other = (InstExpSigma) obj;
+		InstExpSigma<?, ?, ?, ?> other = (InstExpSigma<?, ?, ?, ?>) obj;
 		if (F == null) {
 			if (other.F != null)
 				return false;
@@ -99,9 +98,9 @@ public final class InstExpSigma<Gen, Sk, X, Y>
 		SchExp t0 = I.type(G);
 		Pair<SchExp, SchExp> t1 = F.type(G);
 
-		if (!G.eq(t1.first, t0)) { 
-			throw new RuntimeException("Type error: In " + this + " domain of mapping is " + t1.first
-					+ " but instance has schema " + t0);
+		if (!G.eq(t1.first, t0)) {
+			throw new RuntimeException(
+					"Type error: In " + this + " domain of mapping is " + t1.first + " but instance has schema " + t0);
 		}
 
 		return t1.second;

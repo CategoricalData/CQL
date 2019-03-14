@@ -28,34 +28,32 @@ public class KBUnifier<C, V> {
 		}
 
 	}
-	
-	
-	
+
 	static class OkExn extends Exception {
 
 		private static final long serialVersionUID = 1L;
-		
+
 	}
-	
-	public static <C, V> Map<V, KBExp<C, V>> findSubst0
-	(List<Pair<KBExp<C, V>, KBExp<C, V>>> l, Map<V, KBExp<C, V>> m) throws OkExn { //throws InterruptedException {
+
+	public static <C, V> Map<V, KBExp<C, V>> findSubst0(List<Pair<KBExp<C, V>, KBExp<C, V>>> l, Map<V, KBExp<C, V>> m)
+			throws OkExn { // throws InterruptedException {
 		if (l.isEmpty()) {
 			return m;
 		}
 		Pair<KBExp<C, V>, KBExp<C, V>> p = l.get(0);
 		KBExp<C, V> s = p.first;
 		KBExp<C, V> t = p.second;
-				
+
 		if (s.isVar()) {
 			V v = s.getVar();
 			if (!m.containsKey(v)) {
 				m.put(v, t);
-				return findSubst0(l.subList(1, l.size()),m);
+				return findSubst0(l.subList(1, l.size()), m);
 			}
 			if (!m.get(v).equals(t)) {
 				throw new OkExn();
 			}
-			return findSubst0(l.subList(1, l.size()),m);
+			return findSubst0(l.subList(1, l.size()), m);
 		}
 		if (t.isVar()) {
 			throw new OkExn();
@@ -63,19 +61,17 @@ public class KBUnifier<C, V> {
 		if (!s.f().equals(t.f())) {
 			throw new OkExn();
 		}
-		List<Pair<KBExp<C,V>,KBExp<C,V>>> ret = new ArrayList<>(s.getArgs().size() + l.size() - 1);
-		Iterator<KBExp<C,V>> it = s.getArgs().iterator();
-		Iterator<KBExp<C,V>> jt = t.getArgs().iterator();
+		List<Pair<KBExp<C, V>, KBExp<C, V>>> ret = new ArrayList<>(s.getArgs().size() + l.size() - 1);
+		Iterator<KBExp<C, V>> it = s.getArgs().iterator();
+		Iterator<KBExp<C, V>> jt = t.getArgs().iterator();
 		while (it.hasNext()) {
 			ret.add(new Pair<>(it.next(), jt.next()));
 		}
 		ret.addAll(l.subList(1, l.size()));
 		return findSubst0(ret, m);
 	}
-	
-	
 
-	public static <C, V> Map<V, KBExp<C, V>> unify0(KBExp<C, V> s, KBExp<C, V> t) { //throws InterruptedException {
+	public static <C, V> Map<V, KBExp<C, V>> unify0(KBExp<C, V> s, KBExp<C, V> t) { // throws InterruptedException {
 		if (s.isVar()) {
 			V v = s.getVar();
 			if (!t.isVar() && t.getVars().contains(v)) {
@@ -114,7 +110,7 @@ public class KBUnifier<C, V> {
 	}
 
 	public static <C, V> Map<V, KBExp<C, V>> andThen(Map<V, KBExp<C, V>> ret, Map<V, KBExp<C, V>> t) {
-		ret.replaceAll((k,v) -> v.substitute(t));
+		ret.replaceAll((k, v) -> v.substitute(t));
 		for (V k : t.keySet()) {
 			if (!ret.containsKey(k)) {
 				ret.put(k, t.get(k));
@@ -123,6 +119,4 @@ public class KBUnifier<C, V> {
 		return ret;
 	}
 
-	
-	
 }

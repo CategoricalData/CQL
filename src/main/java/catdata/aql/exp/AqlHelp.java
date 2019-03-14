@@ -89,7 +89,7 @@ public class AqlHelp implements
 	}
 
 	private static String getProverText(ProverName p) {
-		switch (p) { 
+		switch (p) {
 		case auto:
 			return "The auto theorem proving method attempts the free, congruence, monoidal, and program methods, in that order.";
 		case completion:
@@ -119,7 +119,7 @@ public class AqlHelp implements
 		case left_bias:
 			return "Use the left-biased schema colimit renaming algorithm.";
 //		case lax_literals:
-	//		return "Allows literals to depend on non-literals.";
+		// return "Allows literals to depend on non-literals.";
 		case static_timeout:
 			return "Timeout to use for spellchecker.";
 		case simplify_names:
@@ -279,6 +279,10 @@ public class AqlHelp implements
 			return "If true, display attributes in the GUI schema and mapping viewers.";
 		case interpet_as_frozen:
 			return "Interprets an instance as having a lazy decision procedure and algebra.";
+		case diverge_limit:
+			return "The number of foreign keys in a schema above which not to perform the instance literal divergence warning check.";
+		case diverge_warn:
+			return "Stops CQL on instance literals below the divergence limit, that have cyclic schemas without equations and an instance with generators but no equations.";
 		default:
 			break;
 
@@ -289,238 +293,214 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public String visit(Unit params,
-			SchExpCod exp)  {
+	public String visit(Unit params, SchExpCod exp) {
 		return "Returns the range / codomain of a query.";
 	}
+
 	@Override
-	public  String visit(Unit params,
-			SchExpDom exp)  {
+	public String visit(Unit params, SchExpDom exp) {
 		return "Returns the domain of a query.";
 	}
-	
+
 	@Override
-	public  String visit(Unit params,
-			SchExpDst exp)  {
+	public String visit(Unit params, SchExpDst exp) {
 		return "Returns the range / codomain of a mapping.";
 	}
+
 	@Override
-	public String visit(Unit params,
-			SchExpSrc exp)  {
+	public String visit(Unit params, SchExpSrc exp) {
 		return "Returns the domain of a mapping.";
 	}
 
 	@Override
-	public  String visit(Unit params, SchExpEmpty exp)  {
+	public String visit(Unit params, SchExpEmpty exp) {
 		return "Returns the empty schema on a type side.";
 	}
 
 	@Override
-	public <Gen,Sk,X,Y> String visit(Unit params, SchExpInst<Gen,Sk,X,Y> exp)
-			 {
+	public <Gen, Sk, X, Y> String visit(Unit params, SchExpInst<Gen, Sk, X, Y> exp) {
 		return "Gets the schema of an instance.";
 	}
 
 	@Override
-	public String visit(Unit params, SchExpLit exp)
-			 {
+	public String visit(Unit params, SchExpLit exp) {
 		return null;
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			SchExpPivot<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit params, SchExpPivot<Gen, Sk, X, Y> exp) {
 		return "Converts an instance into a schema.  The schema will be a finite directed graph isomorphic to the term / initial model of the input instance.  Operationally, it is like converting to 'triple' or 'key value' form.";
 	}
 
 	@Override
-	public String visit(Unit params, SchExpVar exp)
-			 {
+	public String visit(Unit params, SchExpVar exp) {
 		return "A schema variable.";
 	}
 
 	@Override
-	public String visit(Unit params, SchExpRaw exp)  {
+	public String visit(Unit params, SchExpRaw exp) {
 		return "A literal schema, or an extension of a type side by attributes (entity to type, unary) and foreign keys (entity to entity, unary) and equations in a single variable with entity sort. See All_Syntax for an example.";
 	}
 
 	@Override
-	public <N> String visit(Unit params, SchExpColim<N> exp)  {
+	public String visit(Unit params, SchExpColim exp) {
 		return "The schema part of a colimit of schemas.";
 	}
 
 	@Override
-	public  String visit(Unit params, TyExpSch exp)  {
+	public String visit(Unit params, TyExpSch exp) {
 		return "The typeside of a schema.";
 	}
 
 	@Override
-	public String visit(Unit params, TyExpEmpty exp)  {
+	public String visit(Unit params, TyExpEmpty exp) {
 		return "The empty typeside with no types.";
 	}
 
 	@Override
-	public  String visit(Unit params, TyExpLit exp)  {
+	public String visit(Unit params, TyExpLit exp) {
 		return null;
 	}
 
 	@Override
-	public  String visit(Unit params, TyExpVar exp)  {
+	public String visit(Unit params, TyExpVar exp) {
 		return "A typeside variable.";
 	}
 
 	@Override
-	public String visit(Unit params, TyExpRaw exp)  {
+	public String visit(Unit params, TyExpRaw exp) {
 		return "A typeside literal: a multi-sorted equational theory.  See All_Syntax for an example.  Note that class names in javascript should be fully qualified.";
 	}
 
 	@Override
-	public String visit(Unit params, TyExpSql exp)  {
+	public String visit(Unit params, TyExpSql exp) {
 		return "The SQL typeside.  Contains only java types and no function symbols.";
 	}
 
 	@Override
-	public String visit(Unit param, InstExpJdbcAll exp)  {
+	public String visit(Unit param, InstExpJdbcAll exp) {
 		return "Imports a SQL database onto an autogenerated CQL schema.  The CQL schema will have one attribute per column in the input DB, and one foreign key per foreign key in the input DB, and equations capturing the input DB's foreign key constraints.  The type side will have a single type, ``dom''.  When the [jdbcclass] and [jdbcuri] are the empty string, their values will be determined by the  jdbc_default_class and  jdbc_default_string options.  See also option  import_col_seperator and schema_only (imports the empty instance).  See also  prepend_entity_on_ids and jdbc_no_distinct_unsafe.";
 
 	}
 
-	
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpSigma<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpSigma<Gen, Sk, X, Y> exp) {
 		return "Performs a left kan extension.  Operationally, each generator g of entity e becomes translated to the target schema as a generator of entity f(e), where f is the mapping.  Hence sigma can be thought of as substitution along a theory morphism.";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpSigmaChase<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpSigmaChase<Gen, Sk, X, Y> exp) {
 		return "Performs a sigma, but using an alternative algorithm that is faster but only on free type sides.";
 	}
 
 	@Override
-	public String visit(Unit param, InstExpVar exp)  {
+	public String visit(Unit param, InstExpVar exp) {
 		return "An instance variable.";
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> String visit(Unit param,
-			InstExpAnonymize<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpAnonymize<Gen, Sk, X, Y> exp) {
 		return "Anonymize an instance by replacing all attributes with fresh strings.  Note: this operation can fail at runtime if there are observation equations or other uses of typeside function symbols.\n"
 				+ "";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,	InstExpChase<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpChase<Gen, Sk, X, Y> exp) {
 		return "Repairs a database that may not conform to a set of constraints.  It can also be used for data integration in the traditional, relational, regular logic / ED style.  If the chase succeeds, the result instance will satisfy the constraints.  The options will be used for the construction of the intermediate instances during the chase process.";
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit param,
-			InstExpCod< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp)  {
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit param,
+			InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
 		return "The codomain (range) of a transform / database homomorphism.";
 	}
 
 	@Override
 	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit param,
-			InstExpCoEq< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp)  {
+			InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
 		return "Co-equalizes two parallel transforms / database homomorphisms.";
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> String visit(Unit param,
-			InstExpCoEval< Gen, Sk,  X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpCoEval<Gen, Sk, X, Y> exp) {
 		return "Co-evaluates a query.  Note: co-evaluation is not inversion, but a kind of one-sided inverse called an adjunction.";
 	}
 
 	@Override
-	public <N, Ex, Gen, Sk, X, Y> String visit(Unit param,
-			InstExpColim<N, Ex, Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpColim<Gen, Sk, X, Y> exp) {
 		return "Computes a colimit of instances and transforms.";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpCoProdFull< Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpCoProdFull<Gen, Sk, X, Y> exp) {
 		return "Does a co-product of instances, with no requirement that input generators be disjoint.";
 	}
 
 	@Override
-	public < Gen, Sk, X, Y, Gen1, Sk1, X1> String visit(Unit param,
-			InstExpDiff<Gen, Sk, X, Y, Gen1, Sk1, X1> exp)  {
+	public <Gen, Sk, X, Y, Gen1, Sk1, X1> String visit(Unit param, InstExpDiff<Gen, Sk, X, Y, Gen1, Sk1, X1> exp) {
 		return "Perform a difference operation on two instances; this operation is adjoint to co-product.";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpDistinct< Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpDistinct<Gen, Sk, X, Y> exp) {
 		return "Relationalizes an instance; that is, equates all rows that are equivalent up to observation of attributes.  Converts from bags to sets.";
 	}
 
 	@Override
 	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit param,
-			InstExpDom< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp)  {
+			InstExpDom<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
 		return "The domain of a transform / database homormorphism.";
 	}
 
 	@Override
-	public  String visit(Unit param, InstExpEmpty exp)
-			 {
+	public String visit(Unit param, InstExpEmpty exp) {
 		return "The instance with no generators or nulls.";
 	}
 
 	@Override
-	public < Gen, Sk,  X, Y> String visit(Unit param,
-			InstExpEval< Gen, Sk,  X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpEval<Gen, Sk, X, Y> exp) {
 		return "Evaluates a query.  Generalizes relational conjunctive queries to the case of multiple tables connected by constraints.";
 	}
 
 	@Override
-	public String visit(Unit param, InstExpFrozen exp)  {
+	public String visit(Unit param, InstExpFrozen exp) {
 		return "If  Q : S to T  is a query and t  is a  T -entity, then  frozen  Q  t  is the ``frozen'' or ``canonical''  S -instance for  t  in  Q .";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpLit<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpLit<Gen, Sk, X, Y> exp) {
 		return null;
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> String visit(Unit param,
-			InstExpPivot< Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpPivot<Gen, Sk, X, Y> exp) {
 		return "Computes the instance pivot i instance j such that sigma f j = i.  Has one row per entity, i.e., is initial on the entity side.";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpPi< Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpPi<Gen, Sk, X, Y> exp) {
 		return "Performs a pi or join-all operation along a mapping.  It is recommended to use eval of queries instead, because pi has non-intuitive semantics and is computationally intractable.";
 	}
 
-
 	@Override
-	public String visit(Unit param, InstExpCsv exp)  {
+	public String visit(Unit param, InstExpCsv exp) {
 		return "For each entity en, expects a file pre + en.csv in the directory, where pre is controlled by option csv_import_file_prefix.  The file extension can be changed with the csv_file_extension option  The file for en should be a CSV file with a header; the fields of the header should be an ID column name (specified using options), as well as any attributes and foreign keys whose domain is en.  The mapping between the schemas entities (ID columns), attributes, and foreign keys and the headers of the CSV file are controlled by the options; see the CSV built-in example for details.  The import_missing_is_empty option will interpret missing files as empty files. See also csv_prepend_entity.  \n"
 				+ "Records can contain nulls (using the string specified in options).  Note that these tables must be complete: this keyword imports a model (set of tables) of a schema, not a presentation of a model of a schema (i.e., as  literal does).  To import an instance as a theory, use the  import_as_theory option.  To auto generate IDs, see  csv_generate_ids option. See also csv related options,  id_column_name, and  require_consistency. \n"
 				+ " See also  prepend_entity_on_ids.";
 	}
 
-	
-
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpDelta<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpDelta<Gen, Sk, X, Y> exp) {
 		return "Performs a projection along a mapping.";
 	}
 
 	@Override
-	public String visit(Unit param, InstExpJdbc exp)  {
+	public String visit(Unit param, InstExpJdbc exp) {
 		return "An instance obtained from a JDBC connection, one SQL query per entity.  The SQL code for each entity should return a table with an ID column and one column per attribute/foreign key from that table.  Note that these tables must be complete: this keyword imports a model (set of tables) of a schema, not a presentation of a model of a schema (i.e., as  literal does).  To import an instance as a theory, use the  import_as_theory option.  When the [jdbcclass] and [jdbcuri] are the empty string, their values will be determined by the  jdbc_default_class and  jdbc_default_string options.  See also import_missing_is_empty.";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param, InstExpQueryQuotient<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpQueryQuotient<Gen, Sk, X, Y> exp) {
 		return "Expects a list of queries, on per entity, e.g.,\n" + "<pre>\n"
 				+ "entity E -> from x:E y:E where x.a = y.b\n" + "entity F -> from x:F y:F\n" + "</pre>\n"
 				+ "each query should have no attributes and no foreign keys.  The resulting matched pairs  (x,y)  are treated\n"
@@ -529,13 +509,13 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public String visit(Unit param, InstExpRandom exp)  {
+	public String visit(Unit param, InstExpRandom exp) {
 		return "Not recommended; returns a random instance that may not satify the given path equations.  Constructs a random instance with the specified number of generators per entity or type. Then for each generator  e:s  and fk/att  f : s -> t , it adds equation  f(e) = y , where  y:t  is a randomly selected generator (or no equation if t has no generators).\n"
 				+ "See option random_seed.";
 	}
 
 	@Override
-	public String visit(Unit param, InstExpRaw exp)  {
+	public String visit(Unit param, InstExpRaw exp) {
 		return "A literal instance, given by generating rows and labelled nulls, and ground equations.  As always, quotes can be used; for example, to write negative numbers.  Convient additional syntax:<pre>\n"
 				+ "multi_equations\n" + "	name -> person1 bill, person2 alice\n" + "</pre>\n" + "is equivalent to\n"
 				+ "<pre>\n" + "equations\n" + "	person1.name = bill\n" + "	person2.name = alice\n" + "</pre>\n"
@@ -545,110 +525,99 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public String visit(Unit params,
-			MapExpComp exp)  {
+	public String visit(Unit params, MapExpComp exp) {
 		return "Composes two mappings left to right.";
 	}
 
 	@Override
-	public  String visit(Unit params, MapExpId exp)
-			 {
+	public String visit(Unit params, MapExpId exp) {
 		return "The identity mapping.  In fact, it can be written as include instead of identity and given a second argument.";
 	}
 
 	@Override
-	public  String visit(Unit params,
-			MapExpLit exp)  {
+	public String visit(Unit params, MapExpLit exp) {
 		return null;
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			MapExpPivot<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit params, MapExpPivot<Gen, Sk, X, Y> exp) {
 		return "Computes the mapping from pivot(I) to I.";
 	}
 
 	@Override
-	public String visit(Unit params, MapExpVar exp)  {
+	public String visit(Unit params, MapExpVar exp) {
 		return "A mapping variable.";
 	}
 
 	@Override
-	public String visit(Unit params, MapExpRaw exp)  {
+	public String visit(Unit params, MapExpRaw exp) {
 		return "A mapping literal, or derived theory morphism, constant on type sides.  Each source entity maps to a target entity, each foreign key to a path, and each attribute to a lambda term with one variable.  See All_Syntax for an example.";
 	}
 
 	@Override
-	public <N> String visit(Unit params, MapExpColim<N> exp)  {
+	public String visit(Unit params, MapExpColim exp) {
 		return "Get the mapping to an input schema in a schema colimit.";
 	}
 
 	@Override
-	public  String visit(Unit params,
-			QueryExpCompose exp)  {
+	public String visit(Unit params, QueryExpCompose exp) {
 		return "Compose two queries, left to right.";
 	}
 
 	@Override
-	public  String visit(Unit params, QueryExpId exp)
-			 {
+	public String visit(Unit params, QueryExpId exp) {
 		return "The identity query.  One can also writte include a b when a appears in b.";
 	}
 
 	@Override
-	public  String visit(Unit params,
-			QueryExpLit exp)  {
+	public String visit(Unit params, QueryExpLit exp) {
 		return null;
 	}
 
 	@Override
-	public String visit(Unit params, QueryExpVar exp)  {
+	public String visit(Unit params, QueryExpVar exp) {
 		return "A query variable.";
 	}
 
 	@Override
-	public String visit(Unit params, QueryExpRaw exp)  {
+	public String visit(Unit params, QueryExpRaw exp) {
 		return "A query literal, known informally as an uber-flower.  Equivalent to a co-span of mapping, and generalizes relational conjunctive queries to multiple target tables with foreign keys. If Q is from S to T, then for each entity t in T we have a from where query or so-called frozen S instance Q(t).  Furthermore, for each foreign key fk taking e1 to e2 Q(fk) is a tranform from Q(e2) to Q(e1), i.e., contravariantly.  Similarly, each attribute att from e to t has a corresponding transform Q(att) from the representable instance y_t to Q(e).  See All_Syntax for an example.";
 	}
 
 	@Override
-	public String visit(Unit params,
-			QueryExpDeltaCoEval exp)  {
+	public String visit(Unit params, QueryExpDeltaCoEval exp) {
 		return "Returns the query that, when co-evaluated, has the same effect as a delta.  And when evaluated, as sigma.";
 	}
 
 	@Override
-	public  String visit(Unit params,
-			QueryExpDeltaEval exp)  {
+	public String visit(Unit params, QueryExpDeltaEval exp) {
 		return "Returns the query that, when evaluated, has the same effect as a delta.  And we co-evaluated, as sigma.";
 	}
 
 	@Override
-	public String visit(Unit params, QueryExpRawSimple exp)  {
+	public String visit(Unit params, QueryExpRawSimple exp) {
 		return "A simplified query syntax for targeting a single output table and inferring the return table columns.  Use * after the word attributes to return all possible attributes.";
 	}
 
 	@Override
 	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit params,
-			TransExpCoEval< Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> exp) {
+			TransExpCoEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
 		return "Computes the transform from co-eval(Q,I) to co-eval(Q,J), given a transform from I to J.";
 	}
 
 	@Override
-	public < Gen, Sk,  X, Y> String visit(Unit params,
-			TransExpCoEvalEvalCoUnit< Gen, Sk,  X, Y> exp) {
+	public <Gen, Sk, X, Y> String visit(Unit params, TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> exp) {
 		return "Computes the round trip transform from co-eval(Q,eval(Q,I)) to I.";
 	}
 
 	@Override
-	public <Gen, Sk,  X, Y> String visit(Unit params,
-			TransExpCoEvalEvalUnit<Gen, Sk, X, Y> exp) {
+	public <Gen, Sk, X, Y> String visit(Unit params, TransExpCoEvalEvalUnit<Gen, Sk, X, Y> exp) {
 		return "Computes the round trip transform from I to eval(Q,co-eval(Q,I)).";
 	}
 
 	@Override
 	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit params,
-			TransExpDelta<Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> exp) {
+			TransExpDelta<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
 		return "Computes the transform delta(F,I) to delta(F,J) from a transform I to J";
 	}
 
@@ -660,19 +629,18 @@ public class AqlHelp implements
 
 	@Override
 	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit params,
-			TransExpEval<Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> exp) {
+			TransExpEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
 		return "Computes the transform eval q i to eval q j from the transform h from i to j";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			TransExpId< Gen, Sk, X, Y> exp) {
+	public <Gen, Sk, X, Y> String visit(Unit params, TransExpId<Gen, Sk, X, Y> exp) {
 		return "The identity transform on an instance.  One can also write include i1 i2 when i1 appears in i2.";
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit params,
-			TransExpLit< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit params,
+			TransExpLit<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> exp) {
 		return null;
 	}
 
@@ -683,14 +651,12 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> String visit(Unit params,
-			TransExpSigmaDeltaCounit< Gen, Sk,  X, Y> exp) {
+	public <Gen, Sk, X, Y> String visit(Unit params, TransExpSigmaDeltaCounit<Gen, Sk, X, Y> exp) {
 		return "Computes the round trip transform from sigma m delta m i to j";
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> String visit(Unit params,
-			TransExpSigmaDeltaUnit< Gen, Sk, X, Y> exp) {
+	public <Gen, Sk, X, Y> String visit(Unit params, TransExpSigmaDeltaUnit<Gen, Sk, X, Y> exp) {
 		return "Computes the injection-like transform from i to delta m sigma m i";
 	}
 
@@ -705,8 +671,8 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public < Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> String visit(Unit params,
-			TransExpCompose< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> exp) {
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> String visit(Unit params,
+			TransExpCompose<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3> exp) {
 		return "Compose two morphism from left to right.";
 	}
 
@@ -723,13 +689,12 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			TransExpDistinct2< Gen, Sk, X, Y> exp) {
+	public <Gen, Sk, X, Y> String visit(Unit params, TransExpDistinct2<Gen, Sk, X, Y> exp) {
 		return "Computes the transform distinct(I) to I, taking each row to its equivalence class representative";
 	}
 
 	@Override
-	public <N> String visit(Unit params, ColimSchExpQuotient<N> exp)  {
+	public String visit(Unit params, ColimSchExpQuotient exp) {
 		return "quotient <schema> + ... + <schema> : <typeside> "
 				+ "constructs a colimit of schemas as a quotient of a co-product.  Each schema must be a variable, whose name will serve as a prefix for attributes and foreign keys in the resulting colimit schema.  For this reason, the variable names must be distinct.  The entities of the resulting colimit schema are canonicalized strings describing equivalence classes of source entities.\n"
 				+ "Each entity equation has the form  v_1.e_1 = v_2.e_2 , where  v_1, v_2  are schema names and  e_1, e_2  are entities in  v_1, v_2 , respectively.\n"
@@ -738,22 +703,22 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public <N, Ex> String visit(Unit params, ColimSchExpRaw<N, Ex> exp)  {
+	public String visit(Unit params, ColimSchExpRaw exp) {
 		return "Computes a colimit of schemas and mappings given by a graph.  The option static_typing when disabled causes CQL to type check the colimit at runtime rather than compile time.  This will reduce the number of transforms required to compute any particular colimit, at the cost of potential runtime failure.  See All_Syntax for an example.";
 	}
 
 	@Override
-	public <N> String visit(Unit params, ColimSchExpVar<N> exp)  {
+	public String visit(Unit params, ColimSchExpVar exp) {
 		return "A colimit of schemas variable.";
 	}
 
 	@Override
-	public <N> String visit(Unit params, ColimSchExpWrap<N> exp)  {
+	public String visit(Unit params, ColimSchExpWrap exp) {
 		return "Wraps a colimit of schemas as another schema by providing two mappings witnessing the isomorphism.";
 	}
 
 	@Override
-	public <N> String visit(Unit params, ColimSchExpModify<N> exp)  {
+	public String visit(Unit params, ColimSchExpModify exp) {
 		return "Modifies a schema colimit by a sequence of entity and column renamings and removals.  A mapping name to name to  specifying a renaming of entities, foreign keys, and attributes.  Then, mapping name to path specifying that the foreign key named by name can be deleted by replacing all occurrences of it by the given path.  CQL checks if the removal is semantics-preserving. \n"
 				+ "\n"
 				+ "Finally a mapping name to lambda x. term specifying that the attribute name can be deleted by replacing all occurrences of it by the given term.  CQL checks if the removal is semantics-preserving. \n"
@@ -766,103 +731,96 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public String visit(Unit params, EdsExpVar exp)  {
+	public String visit(Unit params, EdsExpVar exp) {
 		return "A constraints variable.";
 	}
 
 	@Override
-	public String visit(Unit params, EdsExpRaw exp)  {
+	public String visit(Unit params, EdsExpRaw exp) {
 		return "A set of data integrity constraints, i.e., a theory in regular logic or a set of embedded dependencies (EDs), or finite limit logic plus epis.  Each constraint is also a transform; satisfying it is tantamount to solving a lifting problem.  See All_Syntax for an example.  Note that you can write 'exists unique'.";
 	}
 
 	@Override
-	public String visit(Unit params, GraphExpRaw exp)  {
+	public String visit(Unit params, GraphExpRaw exp) {
 		return "A literal directed multi graph, given as nodes and edges.  See All_Syntax for an example.";
 	}
 
 	@Override
-	public String visit(Unit params, GraphExpVar exp)  {
+	public String visit(Unit params, GraphExpVar exp) {
 		return "A graph variable.";
 	}
 
 	@Override
-	public <N, Ex> String visit(Unit params, GraphExpLiteral<N, Ex> exp)  {
+	public String visit(Unit params, GraphExpLiteral exp) {
 		return null;
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			PragmaExpConsistent<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit params, PragmaExpConsistent<Gen, Sk, X, Y> exp) {
 		return "Checks if an instance has a free type algebra by repeated definitional simplification.  This is an over zealous check for the undecidable condition of being conservative over the type side.";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			PragmaExpCheck<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit params, PragmaExpCheck<Gen, Sk, X, Y> exp) {
 		return "Checks if an instance satifies a constraint.";
 	}
 
 	@Override
-	public <N1, E1, N2, E2> String visit(Unit params, PragmaExpMatch<N1, E1, N2, E2> exp)  {
+	public String visit(Unit params, PragmaExpMatch exp) {
 		return "Computes a match between graphs based on similar measures.";
 	}
 
 	@Override
-	public String visit(Unit params, PragmaExpSql exp)  {
+	public String visit(Unit params, PragmaExpSql exp) {
 		return "Executes a list of SQL/PSM expressions over JDBC.";
 	}
 
 	@Override
-	public < Gen, Sk, X, Y> String visit(Unit params,
-			PragmaExpToCsvInst<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit params, PragmaExpToCsvInst<Gen, Sk, X, Y> exp) {
 		return "Emites an instance as a set of CSV files, one file per entity and one column per attribute and foreign key.  \n"
 				+ "The file for en will be a CSV file with a header; the fields of the header will be an ID column name (specified using options), as well as any attributes and foreign keys whose domain is en .   CQL values that are not constants will be exported as nulls.  \n"
 				+ "See id_column_name, and start_ids_at and csv_emit_ids";
 	}
 
 	@Override
-	public String visit(Unit params, PragmaExpVar exp)  {
+	public String visit(Unit params, PragmaExpVar exp) {
 		return "A command variable.";
 	}
 
 	@Override
-	public String visit(Unit params, PragmaExpJs exp)  {
+	public String visit(Unit params, PragmaExpJs exp) {
 		return "Executes java script code in the java virtual machine a la type sides.  Used to intialize type side state, usually.  The CQL environment being constructed can be accessed by the variable named by the option  js_env_name.";
 	}
 
 	@Override
-	public String visit(Unit params, PragmaExpProc exp)  {
+	public String visit(Unit params, PragmaExpProc exp) {
 		return "Execute a command line process.";
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			PragmaExpToJdbcInst<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit params, PragmaExpToJdbcInst<Gen, Sk, X, Y> exp) {
 		return "Emit an instance (on SQL type side) over a JDBC connection, one table per entity with one column per foreign key and attribute.  There will be a table prefixed by each entity en.  The columns will be the attributes and foreign keys whose domain is en , and an ID column whose name is set in options.  CQL rows that are not syntactically constants will be exported as NULL.  When the [jdbcclass] and [jdbcuri] are the empty string, their values will be determined by the  jdbc_default_class and jdbc_default_string options.  See start_ids_at and id_column_name and varchar_length.";
 	}
 
 	@Override
 	public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> String visit(Unit params,
-			PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp)  {
+			PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) {
 		return "Exports a transform using JDBC.  There will be a two-column table prefixed for each entity en.  The two columns will be srcidcol  and dstidcol , where idcol  is the ID column name set in the options.   When the [jdbcclass] and [jdbcuri] are the empty string, their values will be determined by the  jdbc_default_class and  jdbc_default_string options.  See varchar_length, and  start_ids_at.  Note that  start_ids_at is not inherited from the source instance.  Can take two option blocks.";
 	}
 
 	@Override
-	public  String visit(Unit params,
-			PragmaExpToJdbcQuery exp)  {
+	public String visit(Unit params, PragmaExpToJdbcQuery exp) {
 		return "Emits a query over JDBC as a set of views.";
 	}
 
 	@Override
-	public < Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> String visit(Unit params,
-			PragmaExpToCsvTrans< Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp)
-			 {
+	public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> String visit(Unit params,
+			PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) {
 		return "Emit a transform to a set of CSV files, one two-column table per entity with one column per foreign key and attribute.  There will be no headers, column 1 is the source.";
 	}
 
 	@Override
-	public  String visit(Unit params,
-			PragmaExpCheck2 exp)  {
+	public String visit(Unit params, PragmaExpCheck2 exp) {
 		return "Checks if a query from s1 to s2 with constraints c1 on s1 to c2 on s2 is valid.";
 	}
 
@@ -882,67 +840,30 @@ public class AqlHelp implements
 			if (!dir.exists()) {
 				dir.mkdir();
 			}
-			
+
 			String css = "\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/simple.css\" />";
 
-			String search = "<html><head>\n" + 
-					"\n" + 
-					"<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/simple.css\" /></head><body><h1>Search (case/space sensitive)</h1>\n" + 
-					"\n" + 
-					"<div>\n" + 
-					"  <form action=\"search.php\" method=\"get\">\n" + 
-					"       <input type=\"text\" name=\"text\" value=<?php echo \"\\\"\" . $_GET[\"text\"] . \"\\\"\" ; ?> > \n" + 
-					"              <input type=\"submit\" name=\"submit\" value=\"Search\">\n" + 
-					"              \n" + 
-					"              <br>\n" + 
-					"    </form>\n" + 
-					"\n" + 
-					"</div>\n" + 
-					"\n" + 
-					"\n" + 
-					"<?php\n" + 
-					"\n" + 
-					"$string = $_GET[\"text\"];\n" + 
-					"\n" + 
-					"\n" + 
-					"if (strpos(file_get_contents('../help.html'), $string) !== false) {\n" + 
-					"        echo \"<a href=\\\"../help.html\\\">CQL Manual</a><br/>\";\n" + 
-					"}\n" + 
-					"    \n" + 
-					"$dir = new DirectoryIterator('.');\n" + 
-					"foreach ($dir as $file) {\n" + 
-					"    if ($file == 'search.php') {\n" + 
-					"        continue;   \n" + 
-					"    }\n" + 
-					"    if ($file == 'logo.html') {\n" + 
-					"        continue;   \n" + 
-					"    }\n" + 
-					"    if ($file == 'options.html') {\n" + 
-					"        continue;   \n" + 
-					"    }\n" + 
-					"    if ($file == 'examples.html') {\n" + 
-					"        continue;   \n" + 
-					"    }\n" + 
-					"    if ($file == 'errata.html') {\n" + 
-					"        continue;   \n" + 
-					"    }\n" + 
-					"    if ($file == 'syntax.html') {\n" + 
-					"        continue;   \n" + 
-					"    }\n" + 
-					"    $content = file_get_contents($file->getPathname());\n" + 
-					"    \n" + 
-					"    if (strpos($content, $string) !== false) {\n" + 
-					"        echo \"<a href=\\\"\" . $file . \"\\\">\" . $file . \"</a><br/>\";\n" + 
-					"    }\n" + 
-					"}\n" + 
-					"\n" + 
-					"?>\n" + 
-					"\n" + 
-					"\n" + 
-					"\n" + 
-					"</body></html>";
+			String search = "<html><head>\n" + "\n"
+					+ "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/simple.css\" /></head><body><h1>Search (case/space sensitive)</h1>\n"
+					+ "\n" + "<div>\n" + "  <form action=\"search.php\" method=\"get\">\n"
+					+ "       <input type=\"text\" name=\"text\" value=<?php echo \"\\\"\" . $_GET[\"text\"] . \"\\\"\" ; ?> > \n"
+					+ "              <input type=\"submit\" name=\"submit\" value=\"Search\">\n" + "              \n"
+					+ "              <br>\n" + "    </form>\n" + "\n" + "</div>\n" + "\n" + "\n" + "<?php\n" + "\n"
+					+ "$string = $_GET[\"text\"];\n" + "\n" + "\n"
+					+ "if (strpos(file_get_contents('../help.html'), $string) !== false) {\n"
+					+ "        echo \"<a href=\\\"../help.html\\\">CQL Manual</a><br/>\";\n" + "}\n" + "    \n"
+					+ "$dir = new DirectoryIterator('.');\n" + "foreach ($dir as $file) {\n"
+					+ "    if ($file == 'search.php') {\n" + "        continue;   \n" + "    }\n"
+					+ "    if ($file == 'logo.html') {\n" + "        continue;   \n" + "    }\n"
+					+ "    if ($file == 'options.html') {\n" + "        continue;   \n" + "    }\n"
+					+ "    if ($file == 'examples.html') {\n" + "        continue;   \n" + "    }\n"
+					+ "    if ($file == 'errata.html') {\n" + "        continue;   \n" + "    }\n"
+					+ "    if ($file == 'syntax.html') {\n" + "        continue;   \n" + "    }\n"
+					+ "    $content = file_get_contents($file->getPathname());\n" + "    \n"
+					+ "    if (strpos($content, $string) !== false) {\n"
+					+ "        echo \"<a href=\\\"\" . $file . \"\\\">\" . $file . \"</a><br/>\";\n" + "    }\n" + "}\n"
+					+ "\n" + "?>\n" + "\n" + "\n" + "\n" + "</body></html>";
 			Util.writeFile(search, new File(dir, "search.php").getAbsolutePath());
-			
 
 			Map<Example, Set<AqlSyntax>> index = new THashMap<>();
 
@@ -963,8 +884,8 @@ public class AqlHelp implements
 				for (Exp<?> e : prog.exps.values()) {
 					if (!set.contains(e.getSyntax())) {
 						set.add(e.getSyntax());
-					other.append("\t\t\t<a href=\"" + e.kind() + e.getKeyword() + ".html" + "\" >"
-							+ e.getKeyword() + "</a><br />\n");
+						other.append("\t\t\t<a href=\"" + e.kind() + e.getKeyword() + ".html" + "\" >" + e.getKeyword()
+								+ "</a><br />\n");
 					}
 					for (String k : e.options().keySet()) {
 						if (opSeen.contains(k)) {
@@ -989,7 +910,7 @@ public class AqlHelp implements
 							insts.append("<hr/>");
 							insts.append("<h3>instance " + k + "</h3>");
 							insts.append(AqlInACan.toHtml(dr.env,
-									(Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk, Object, Object>) i)); 
+									(Instance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk, Object, Object>) i));
 						}
 						for (String k : dr.env.defs.ps.keySet()) {
 							Pragma i = dr.env.defs.ps.get(k);
@@ -1002,14 +923,15 @@ public class AqlHelp implements
 						exe.printStackTrace();
 					}
 				}
-				
+
 				String sss = "<html><head>" + css + "</head><body><h1>" + "example " + ex.getName() + "</h1><pre>\n"
-						+ AqlInACan.strip(ex.getText().trim()) + "\n</pre> " + other.toString() + "\n<br/></br>" + insts.toString() + "</body></html>";
+						+ AqlInACan.strip(ex.getText().trim()) + "\n</pre> " + other.toString() + "\n<br/></br>"
+						+ insts.toString() + "</body></html>";
 
 				Util.writeFile(sss, new File(dir, ex.getName() + ".html").getAbsolutePath());
 			}
 			examples.append("\n</body></html>");
-			
+
 			StringBuffer errata = new StringBuffer("");
 			errata.append("<html><head>" + css + "</head><body>");
 			errata.append("<h1>Errata</h1>");
@@ -1019,7 +941,6 @@ public class AqlHelp implements
 			errata.append("\n<li>The CQL IDE's memory usage increases monotonically.</li>");
 			errata.append("\n</ul>");
 			errata.append("\n</body></html>");
-
 
 			StringBuffer logo = new StringBuffer("");
 			logo.append("<html><head>" + css + "</head><body>");
@@ -1032,7 +953,7 @@ public class AqlHelp implements
 			logo.append("\n<a href=\"examples.html\" target=\"tree\">Examples</a><br />");
 			logo.append("\n<a href=\"search.php\" target=\"primary\">Search</a><br />");
 			logo.append("\n<a href=\"errata.html\" target=\"primary\">Errata</a><br />");
-		
+
 			logo.append("\n<br />");
 			logo.append("\n<a href=\"https://catinf.com\" target=\"_blank\">CI Website</a><br />");
 			logo.append("\n<a href=\"https://categoricaldata.net/aql.html\" target=\"_blank\">MIT Website</a><br />");
@@ -1125,14 +1046,14 @@ public class AqlHelp implements
 				for (Example example : Util.alphabetical(
 						Util.union(Examples.getExamples(Language.CQL), Examples.getExamples(Language.CQL_ALT)))) {
 					if (example.getText().contains(ex.toString())) {
-						yyy.append("\n<a href=\"" + example.getName() + ".html\" target=\"primary\">" + example.getName()
-								+ "</a><br />");
+						yyy.append("\n<a href=\"" + example.getName() + ".html\" target=\"primary\">"
+								+ example.getName() + "</a><br />");
 					}
 				}
-				
-				
+
 				String sss = "<html><head>" + css + "</head><body><h1>" + "option " + ex.name() + "</h1>\n"
-						+ AqlHelp.getOptionText(ex) + "<br/><br/>Keyword:</br><br/>" + zzz + "<br/>Appears in:</br><br/>" + yyy + "</body></html>";
+						+ AqlHelp.getOptionText(ex) + "<br/><br/>Keyword:</br><br/>" + zzz
+						+ "<br/>Appears in:</br><br/>" + yyy + "</body></html>";
 				Util.writeFile(sss, new File(dir, ex.name() + ".html").getAbsolutePath());
 			}
 			options.append("\n</body></html>");
@@ -1171,26 +1092,24 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit params,
-			TransExpDiffReturn<Gen, Sk, X, Y> exp) {
+	public <Gen, Sk, X, Y> String visit(Unit params, TransExpDiffReturn<Gen, Sk, X, Y> exp) {
 		return "Computes the transform (except i1 i2) -> i1.";
 	}
 
 	@Override
-	public < Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> String visit(Unit params,
+	public <Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> String visit(Unit params,
 			TransExpDiff<Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2> exp) {
 		return "Computes the transform (except i1 i) -> (except i2 i) from a transform i1 -> i2.";
 	}
 
 	@Override
 	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> String visit(Unit params,
-			TransExpPi< Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> transExpPi) {
+			TransExpPi<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> transExpPi) {
 		return "Computes the transform (pi m i1) -> (pi m i2) from a transform i1 -> i2.";
 	}
 
 	@Override
-	public  String visit(Unit params,
-			QueryExpFromCoSpan exp)  {
+	public String visit(Unit params, QueryExpFromCoSpan exp) {
 		return "Computes the query that when evaluated will pi along the first mapping then delta along the second.";
 	}
 
@@ -1200,8 +1119,7 @@ public class AqlHelp implements
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> String visit(Unit param,
-			InstExpCascadeDelete<Gen, Sk, X, Y> exp)  {
+	public <Gen, Sk, X, Y> String visit(Unit param, InstExpCascadeDelete<Gen, Sk, X, Y> exp) {
 		return "Populate a schema S by doing a cascade delete of the input instance, removing any tuples violating a path or observation equation.";
 	}
 

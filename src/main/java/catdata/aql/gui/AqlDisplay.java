@@ -89,7 +89,7 @@ public final class AqlDisplay implements Disp {
 	}
 
 	public static String doLookup(boolean prefix, String c, Kind k, AqlTyping typing) {
-		String s = prefix ? k + " " + c : c ;
+		String s = prefix ? k + " " + c : c;
 		if (!typing.defs.keySet().contains(c)) {
 			return s;
 		}
@@ -97,18 +97,15 @@ public final class AqlDisplay implements Disp {
 		case INSTANCE:
 			return s + " : " + typing.defs.insts.get(c);
 		case MAPPING:
-			return s + " : " + typing.defs.maps.get(c).first + " -> "
-					+ typing.defs.maps.get(c).second;
+			return s + " : " + typing.defs.maps.get(c).first + " -> " + typing.defs.maps.get(c).second;
 		case PRAGMA:
 			return s;
 		case QUERY:
-			return s + " : " + typing.defs.qs.get(c).first + " -> "
-					+ typing.defs.qs.get(c).second;
+			return s + " : " + typing.defs.qs.get(c).first + " -> " + typing.defs.qs.get(c).second;
 		case SCHEMA:
 			return s;
 		case TRANSFORM:
-			return s + " : " + typing.defs.trans.get(c).first + " -> "
-					+ typing.defs.trans.get(c).second;
+			return s + " : " + typing.defs.trans.get(c).first + " -> " + typing.defs.trans.get(c).second;
 		case TYPESIDE:
 			return s;
 		case GRAPH:
@@ -159,15 +156,13 @@ public final class AqlDisplay implements Disp {
 		if (obj.size() > maxSize) {
 			String s = doSample ? obj.sample(sampleSize) : null;
 			s = s == null ? "" : "\n\nSample (may not include all tables, columns, or rows):\n\n" + s;
-			return new CodeTextPanel("",
-					"Display supressed, size " + obj.size()
-							+ ".\n\nSee manual for a description of size, or try options gui_max_Z_size = X for X > "
-							+ obj.size()
-							+ " (the size of this object) and Z one of table, graph, string.  \n\nWarning: sizes that are too large will hang the viewer.\n\nCompute time: "
-							+ env.performance.get(c)
-							+ s);
-		} 
-		
+			return new CodeTextPanel("", "Display supressed, size " + obj.size()
+					+ ".\n\nSee manual for a description of size, or try options gui_max_Z_size = X for X > "
+					+ obj.size()
+					+ " (the size of this object) and Z one of table, graph, string.  \n\nWarning: sizes that are too large will hang the viewer.\n\nCompute time: "
+					+ env.performance.get(c) + s);
+		}
+
 		boolean showAtts = (boolean) exp.getOrDefault(env, AqlOption.gui_show_atts);
 		int max_rows = (int) exp.getOrDefault(env, AqlOption.gui_rows_to_display);
 //		JComponent comp = AqlViewer.view(obj, max_rows, exp, env, showAtts);
@@ -178,24 +173,22 @@ public final class AqlDisplay implements Disp {
 	public AqlDisplay(String title, Program<Exp<?>> p, AqlEnv env, long start, long middle) {
 		this.env = env;
 		this.title = title;
-	
+
 		yyy.addMouseListener(new MouseAdapter() {
 
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                JList<?> list = (JList<?>) e.getSource();
-                if (list.locationToIndex(e.getPoint()) == -1 && !e.isShiftDown()
-                        && !isMenuShortcutKeyDown(e)) {
-                    list.clearSelection();
-                }
-            }
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JList<?> list = (JList<?>) e.getSource();
+				if (list.locationToIndex(e.getPoint()) == -1 && !e.isShiftDown() && !isMenuShortcutKeyDown(e)) {
+					list.clearSelection();
+				}
+			}
 
-            private boolean isMenuShortcutKeyDown(InputEvent event) {
-                return (event.getModifiers() & Toolkit.getDefaultToolkit()
-                        .getMenuShortcutKeyMask()) != 0;
-            }
-        });
-		
+			private boolean isMenuShortcutKeyDown(InputEvent event) {
+				return (event.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+			}
+		});
+
 		exn = env.exn;
 		for (String c : p.order) {
 			Exp<?> exp = p.exps.get(c);
@@ -206,8 +199,7 @@ public final class AqlDisplay implements Disp {
 				Semantics obj = (Semantics) env.defs.get(c, exp.kind());
 
 				try {
-					frames.add(
-							new Pair<>(doLookup(true, c, exp.kind(), env.typing), wrapDisplay(c, exp, obj, env)));
+					frames.add(new Pair<>(doLookup(true, c, exp.kind(), env.typing), wrapDisplay(c, exp, obj, env)));
 				} catch (RuntimeException ex) {
 					ex.printStackTrace();
 					throw new LineException(ex.getMessage(), c, exp.kind().toString());
@@ -270,8 +262,17 @@ public final class AqlDisplay implements Disp {
 			text += "\n" + k + " computation total time: " + df.format(perfs.get(k)) + "s";
 		}
 
-		text += "\n\nGlobal options:\n";
-		text += Util.sep(prog.options.options, " = ", "\n");
+		if (!prog.options.options.isEmpty()) {
+			text += "\n\nGlobal options:\n";
+			text += Util.sep(prog.options.options, " = ", "\n");
+			//text += "\n";
+		}
+		
+		text += ("\n\nJVM Memory: ");
+		text += (Runtime.getRuntime().freeMemory() / (1024*1024));
+		text += (" MB Free, ");
+		text += (Runtime.getRuntime().totalMemory() / (1024*1024));
+		text += (" MB Total. ");
 
 		jtb.addTab("Text", new CodeTextPanel("", text));
 		jtb.addTab("Performance", pan);
@@ -279,21 +280,21 @@ public final class AqlDisplay implements Disp {
 		jtb.addTab("Graphs", moreViewer(prog));
 		return jtb;
 	}
-	
+
 	private JPanel moreViewer(Program<Exp<?>> prog) {
-		JPanel ret = new JPanel(); //new GridLayout(3,1));
+		JPanel ret = new JPanel(); // new GridLayout(3,1));
 		JButton b1 = new JButton("Dependency Graph");
 		JButton b2 = new JButton("Schema Graph");
 		JButton b3 = new JButton("Instance Graph");
 		ret.add(b1);
 		ret.add(b2);
 		ret.add(b3);
-		b1.addActionListener(x -> showDepGraph (prog));
-		b2.addActionListener(x -> showSchGraph (prog));
+		b1.addActionListener(x -> showDepGraph(prog));
+		b2.addActionListener(x -> showSchGraph(prog));
 		b3.addActionListener(x -> showInstGraph(prog));
 		return ret;
 	}
-	
+
 	public static Paint getColor(Kind k) {
 		switch (k) {
 		case CONSTRAINTS:
@@ -322,64 +323,60 @@ public final class AqlDisplay implements Disp {
 		return Util.anomaly();
 	}
 
-	public JComponent showGraph0(Graph<Exp<?>, Triple<Exp<?>,Exp<?>,Exp<?>>> sgv, Function<Exp<?>, Paint> vertexPaint) {
+	public JComponent showGraph0(Graph<Exp<?>, Triple<Exp<?>, Exp<?>, Exp<?>>> sgv,
+			Function<Exp<?>, Paint> vertexPaint) {
 		if (sgv.getVertexCount() == 0) {
 			return new JPanel();
 		}
-		Layout<Exp<?>, Triple<Exp<?>,Exp<?>,Exp<?>>> 
-		layout = new edu.uci.ics.jung.algorithms.layout.FRLayout2<>(sgv);
-		
+		Layout<Exp<?>, Triple<Exp<?>, Exp<?>, Exp<?>>> layout = new edu.uci.ics.jung.algorithms.layout.FRLayout2<>(sgv);
+
 		layout.setSize(new Dimension(600, 400));
-		VisualizationViewer<Exp<?>, Triple<Exp<?>,Exp<?>,Exp<?>>> vv = new VisualizationViewer<>(layout);
-		
-		
-		
+		VisualizationViewer<Exp<?>, Triple<Exp<?>, Exp<?>, Exp<?>>> vv = new VisualizationViewer<>(layout);
+
 		vv.getPickedVertexState().addItemListener((ItemEvent e) -> {
-            if (e.getStateChange() != ItemEvent.SELECTED) {
-                return;
-            }
-            vv.getPickedEdgeState().clear();
-            Exp<?> str = (Exp<?>) e.getItem();
-            if (str instanceof SchExpColim) {
-            	str = ((SchExpColim<?>)str).exp;
-            }
-            if (indices.containsKey(str.toString())) {
-            	yyy.setSelectedValue(indices.get(str.toString()), true);
-            }
-        });
+			if (e.getStateChange() != ItemEvent.SELECTED) {
+				return;
+			}
+			vv.getPickedEdgeState().clear();
+			Exp<?> str = (Exp<?>) e.getItem();
+			if (str instanceof SchExpColim) {
+				str = ((SchExpColim) str).exp;
+			}
+			if (indices.containsKey(str.toString())) {
+				yyy.setSelectedValue(indices.get(str.toString()), true);
+			}
+		});
 
 		vv.getPickedEdgeState().addItemListener((ItemEvent e) -> {
-            if (e.getStateChange() != ItemEvent.SELECTED) {
-                return;
-            }
-            vv.getPickedVertexState().clear();
-            @SuppressWarnings("unchecked")
-			Exp<?> str = ((Triple<Exp<?>,Exp<?>,Exp<?>>) e.getItem()).first;
-            if (str instanceof SchExpColim) {
-            	str = ((SchExpColim<?>)str).exp;
-            }
-            if (indices.containsKey(str.toString())) {
-            	yyy.setSelectedValue(indices.get(str.toString()), true);
-            }
-           
-        });
+			if (e.getStateChange() != ItemEvent.SELECTED) {
+				return;
+			}
+			vv.getPickedVertexState().clear();
+			@SuppressWarnings("unchecked")
+			Exp<?> str = ((Triple<Exp<?>, Exp<?>, Exp<?>>) e.getItem()).first;
+			if (str instanceof SchExpColim) {
+				str = ((SchExpColim) str).exp;
+			}
+			if (indices.containsKey(str.toString())) {
+				yyy.setSelectedValue(indices.get(str.toString()), true);
+			}
 
-		
-		DefaultModalGraphMouse<Exp<?>, Triple<Exp<?>,Exp<?>,Exp<?>>> gm = new DefaultModalGraphMouse<>();
+		});
+
+		DefaultModalGraphMouse<Exp<?>, Triple<Exp<?>, Exp<?>, Exp<?>>> gm = new DefaultModalGraphMouse<>();
 		gm.setMode(Mode.TRANSFORMING);
 		vv.setGraphMouse(gm);
 		gm.setMode(Mode.PICKING);
 		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 		vv.getRenderContext().setEdgeStrokeTransformer(x -> {
-			//if (x.first.toString().startsWith("literal")) {
-			//	Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{4}, 0);
-				//return dashed;
-			//}
+			// if (x.first.toString().startsWith("literal")) {
+			// Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT,
+			// BasicStroke.JOIN_BEVEL, 0, new float[]{4}, 0);
+			// return dashed;
+			// }
 			return new BasicStroke();
 		});
 
-	
-		
 		Function<Exp<?>, String> vt = x -> {
 			String ret = x.toString();
 			if (ret.startsWith("literal")) {
@@ -397,11 +394,11 @@ public final class AqlDisplay implements Disp {
 			}
 			return ret;
 		};
-		
-		Function<Triple<Exp<?>,Exp<?>,Exp<?>>, String> et = x -> {
-			return vt.apply(x.first); 
+
+		Function<Triple<Exp<?>, Exp<?>, Exp<?>>, String> et = x -> {
+			return vt.apply(x.first);
 		};
-		
+
 		vv.getRenderContext().setEdgeLabelTransformer(et);
 		vv.getRenderContext().setVertexLabelTransformer(vt);
 
@@ -409,36 +406,37 @@ public final class AqlDisplay implements Disp {
 		JPanel ret = new JPanel(new GridLayout(1, 1));
 		ret.add(zzz);
 		ret.setBorder(BorderFactory.createEtchedBorder());
-		
+
 		vv.getRenderContext().setLabelOffset(16);
 		vv.setBackground(Color.white);
-		
+
 		return ret;
 	}
-	
+
 	private void showGraph(JComponent j, String str) {
 		JFrame f = new JFrame();
 
-		ActionListener escListener = (ActionEvent e) -> { env = null; f.dispose(); };
-		f.getRootPane().registerKeyboardAction(escListener,
-				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		ActionListener escListener = (ActionEvent e) -> {
+			env = null;
+			f.dispose();
+		};
+		f.getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		KeyStroke ctrlW = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK);
 		KeyStroke commandW = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK);
-		f.getRootPane().registerKeyboardAction(escListener, ctrlW,
-				JComponent.WHEN_IN_FOCUSED_WINDOW);
-		f.getRootPane().registerKeyboardAction(escListener, commandW,
-				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		f.getRootPane().registerKeyboardAction(escListener, ctrlW, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		f.getRootPane().registerKeyboardAction(escListener, commandW, JComponent.WHEN_IN_FOCUSED_WINDOW);
 
 		f.add(j);
-		
+
 		f.setSize(600, 540);
 		f.setTitle(str + " for " + title);
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 	}
-	
+
 	private void showSchGraph(Program<Exp<?>> p) {
-		Graph<Exp<?>, Triple<Exp<?>,Exp<?>,Exp<?>>> sgv = new DirectedSparseMultigraph<>();
+		Graph<Exp<?>, Triple<Exp<?>, Exp<?>, Exp<?>>> sgv = new DirectedSparseMultigraph<>();
 
 		for (String e : p.keySet()) {
 			if (!p.kind(e).equals("schema")) {
@@ -456,7 +454,7 @@ public final class AqlDisplay implements Disp {
 				if (!sgv.containsVertex(n0)) {
 					sgv.addVertex(n0);
 				}
-				sgv.addEdge(new Triple<>(new CommentExp("import", false), n0, m0), n0, m0);								
+				sgv.addEdge(new Triple<>(new CommentExp("import", false), n0, m0), n0, m0);
 			}
 		}
 
@@ -464,7 +462,7 @@ public final class AqlDisplay implements Disp {
 			if (!p.kind(e).equals("mapping")) {
 				continue;
 			}
-			Pair<SchExp, SchExp> x = env.typing.defs.maps.get(e);	
+			Pair<SchExp, SchExp> x = env.typing.defs.maps.get(e);
 			if (!sgv.containsVertex(x.first)) {
 				sgv.addVertex(x.first);
 			}
@@ -472,13 +470,13 @@ public final class AqlDisplay implements Disp {
 				sgv.addVertex(x.second);
 			}
 			Exp<?> m0 = p.exps.get(e).Var(e);
-			sgv.addEdge(new Triple<>(m0, x.first, x.second), x.first, x.second);				
+			sgv.addEdge(new Triple<>(m0, x.first, x.second), x.first, x.second);
 		}
 		for (String e : p.exps.keySet()) {
 			if (!p.kind(e).equals("query")) {
 				continue;
 			}
-			Pair<SchExp, SchExp> x = env.typing.defs.qs.get(e);	
+			Pair<SchExp, SchExp> x = env.typing.defs.qs.get(e);
 			if (!sgv.containsVertex(x.first)) {
 				sgv.addVertex(x.first);
 			}
@@ -486,24 +484,24 @@ public final class AqlDisplay implements Disp {
 				sgv.addVertex(x.second);
 			}
 			Exp<?> m0 = p.exps.get(e).Var(e);
-			sgv.addEdge(new Triple<>(m0, x.first, x.second), x.first, x.second);				
+			sgv.addEdge(new Triple<>(m0, x.first, x.second), x.first, x.second);
 		}
 		for (String e : p.exps.keySet()) {
 			if (!p.kind(e).equals("schema_colimit")) {
 				continue;
 			}
-			ColimSchExp<?> y = (ColimSchExp<?>) env.prog.exps.get(e);	
-			for (Pair<SchExp, SchExp> x : y.gotos(new ColimSchExpVar<>(e))) {
+			ColimSchExp y = (ColimSchExp) env.prog.exps.get(e);
+			for (Pair<SchExp, SchExp> x : y.gotos(new ColimSchExpVar(e))) {
 				if (!sgv.containsVertex(x.first)) {
 					sgv.addVertex(x.first);
 				}
 				if (!sgv.containsVertex(x.second)) {
 					sgv.addVertex(x.second);
-				} 
-				sgv.addEdge(new Triple<>(y, x.first, x.second), x.first, x.second);					
+				}
+				sgv.addEdge(new Triple<>(y, x.first, x.second), x.first, x.second);
 			}
 		}
-		showGraph(showGraph0(sgv, x->getColor(x.kind())), "Schema graph"); 
+		showGraph(showGraph0(sgv, x -> getColor(x.kind())), "Schema graph");
 	}
 
 	private Exp<?> unresolve(Program<Exp<?>> p, Exp<?> e) {
@@ -512,9 +510,9 @@ public final class AqlDisplay implements Disp {
 		}
 		return e;
 	}
-	
+
 	private void showInstGraph(Program<Exp<?>> p) {
-		Graph<Exp<?>, Triple<Exp<?>,Exp<?>,Exp<?>>> sgv = new DirectedSparseMultigraph<>();
+		Graph<Exp<?>, Triple<Exp<?>, Exp<?>, Exp<?>>> sgv = new DirectedSparseMultigraph<>();
 
 		for (String e : p.keySet()) {
 			if (!p.kind(e).equals("instance")) {
@@ -532,25 +530,25 @@ public final class AqlDisplay implements Disp {
 				if (!sgv.containsVertex(n0)) {
 					sgv.addVertex(n0);
 				}
-				sgv.addEdge(new Triple<>(new CommentExp("import", false), n0, m0), n0, m0);								
+				sgv.addEdge(new Triple<>(new CommentExp("import", false), n0, m0), n0, m0);
 			}
-			
-			InstExp<?,?,?,?> x = (InstExp<?,?,?,?>) p.exps.get(e);
+
+			InstExp<?, ?, ?, ?> x = (InstExp<?, ?, ?, ?>) p.exps.get(e);
 			for (Exp<?> n1 : x.direct(env.typing)) {
-				//System.out.println("n1 " + n1);
+				// System.out.println("n1 " + n1);
 				Exp<?> n0 = unresolve(p, n1);
-				//System.out.println("unr " + n0);
+				// System.out.println("unr " + n0);
 				if (!sgv.containsVertex(n0)) {
 					sgv.addVertex(n0);
 				}
-				sgv.addEdge(new Triple<>(x, n0, m0), n0, m0);												
-			} 
+				sgv.addEdge(new Triple<>(x, n0, m0), n0, m0);
+			}
 		}
 		for (String e : p.exps.keySet()) {
 			if (!p.kind(e).equals("transform")) {
 				continue;
 			}
-			Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>> x = env.typing.defs.trans.get(e);	
+			Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>> x = env.typing.defs.trans.get(e);
 			Exp<?> xx = unresolve(p, x.first);
 			if (!sgv.containsVertex(xx)) {
 				sgv.addVertex(xx);
@@ -560,38 +558,39 @@ public final class AqlDisplay implements Disp {
 				sgv.addVertex(yy);
 			}
 			Exp<?> m0 = p.exps.get(e).Var(e);
-			sgv.addEdge(new Triple<>(m0, xx, yy), xx, yy);				
+			sgv.addEdge(new Triple<>(m0, xx, yy), xx, yy);
 		}
-	
+
 		Map<SchExp, Paint> map = new THashMap<>();
 		Function<Exp<?>, Paint> vertexPaint = y -> {
-			InstExp<?,?,?,?> z = (InstExp<?,?,?,?>) y;
+			InstExp<?, ?, ?, ?> z = (InstExp<?, ?, ?, ?>) y;
 			SchExp x = z.type(env.typing);
 			if (map.containsKey(x)) {
 				return map.get(x);
 			}
 			Color c = nColor();
 			map.put(x, c);
-			return c;			
+			return c;
 		};
-		
-		showGraph(showGraph0(sgv,vertexPaint), "Instance graph"); 
+
+		showGraph(showGraph0(sgv, vertexPaint), "Instance graph");
 	}
-	
+
 	private int cindex = 0;
-	private static final Color[] colors_arr = new Color[] {  Color.BLACK, Color.white, Color.GRAY, Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA, Color.yellow, Color.CYAN, Color.ORANGE, Color.PINK, };
+	private static final Color[] colors_arr = new Color[] { Color.BLACK, Color.white, Color.GRAY, Color.RED,
+			Color.GREEN, Color.BLUE, Color.MAGENTA, Color.yellow, Color.CYAN, Color.ORANGE, Color.PINK, };
+
 	private Color nColor() {
 		if (cindex < colors_arr.length) {
 			return colors_arr[cindex++];
-		} 
-			cindex = 0;
-			return nColor();
-		
+		}
+		cindex = 0;
+		return nColor();
+
 	}
-	
 
 	private void showDepGraph(Program<Exp<?>> p) {
-		Graph<Exp<?>, Triple<Exp<?>,Exp<?>,Exp<?>>> sgv = new DirectedSparseMultigraph<>();
+		Graph<Exp<?>, Triple<Exp<?>, Exp<?>, Exp<?>>> sgv = new DirectedSparseMultigraph<>();
 		for (String n : p.keySet()) {
 			Exp<?> n0 = p.exps.get(n).Var(n);
 			sgv.addVertex(n0);
@@ -600,12 +599,11 @@ public final class AqlDisplay implements Disp {
 			Exp<?> n0 = p.exps.get(n).Var(n);
 			for (Pair<String, Kind> v : p.exps.get(n).deps()) {
 				Exp<?> m0 = p.exps.get(v.first).Var(v.first);
-				sgv.addEdge(new Triple<>(p.exps.get(n), n0, m0), n0, m0);				
+				sgv.addEdge(new Triple<>(p.exps.get(n), n0, m0), n0, m0);
 			}
 		}
-		showGraph(showGraph0(sgv, x->getColor(x.kind())), "Dependency graph"); 
+		showGraph(showGraph0(sgv, x -> getColor(x.kind())), "Dependency graph");
 	}
-	
 
 	private JFrame frame = null;
 	private final List<Pair<String, JComponent>> frames = new LinkedList<>();
@@ -621,9 +619,9 @@ public final class AqlDisplay implements Disp {
 			int index = super.locationToIndex(location);
 			if (index != -1 && !getCellBounds(index, index).contains(location)) {
 				return -1;
-			} 
-				return index;
-			
+			}
+			return index;
+
 		}
 	};
 
@@ -662,14 +660,14 @@ public final class AqlDisplay implements Disp {
 		yyy.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		yyy.addListSelectionListener((ListSelectionEvent e) -> {
-                    int i = yyy.getSelectedIndex();
-                    if (i == -1) {
-                        cl.show(x, "blank");
-                    } else {
-                        cl.show(x, ooo.get(i));
-                    }
-                });
-		
+			int i = yyy.getSelectedIndex();
+			if (i == -1) {
+				cl.show(x, "blank");
+			} else {
+				cl.show(x, ooo.get(i));
+			}
+		});
+
 		yyy.addKeyListener(new KeyListener() {
 
 			@Override
@@ -742,7 +740,10 @@ public final class AqlDisplay implements Disp {
 		frame.setContentPane(px);
 		frame.setSize(900, 600);
 
-		ActionListener escListener = e -> {env = null; frame.dispose(); };
+		ActionListener escListener = e -> {
+			env = null;
+			frame.dispose();
+		};
 
 		frame.getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);

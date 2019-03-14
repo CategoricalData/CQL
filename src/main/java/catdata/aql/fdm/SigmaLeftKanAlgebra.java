@@ -25,9 +25,8 @@ import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-
-public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> extends
-		Algebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>>
+public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y>
+		extends Algebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>>
 		implements DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> {
 
 	public boolean hasFreeTypeAlgebra() {
@@ -105,7 +104,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 
 		BinRelSet<Term<Void, En2, Void, Fk2, Void, Gen, Void>, Term<Void, En2, Void, Fk2, Void, Gen, Void>> set0 = new BinRelSet<>(
 				(new THashSet<>(Sb.get(b1).R)));
-	
+
 		for (Pair<Term<Void, En2, Void, Fk2, Void, Gen, Void>, Term<Void, En2, Void, Fk2, Void, Gen, Void>> k : Sb
 				.get(b1)) {
 			if (k.first.equals(y)) {
@@ -156,8 +155,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		}
 	}
 
-	private void replace(Term<Void, En2, Void, Fk2, Void, Gen, Void> x,
-			Term<Void, En2, Void, Fk2, Void, Gen, Void> y) {
+	private void replace(Term<Void, En2, Void, Fk2, Void, Gen, Void> x, Term<Void, En2, Void, Fk2, Void, Gen, Void> y) {
 
 		for (List<Pair<X, Term<Void, En2, Void, Fk2, Void, Gen, Void>>> a : ua.values()) {
 			for (Pair<X, Term<Void, En2, Void, Fk2, Void, Gen, Void>> s : a) {
@@ -192,12 +190,13 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		while (bgd()) {
 			ret = true;
 		}
-		return ret || alpha(); 
+		return ret || alpha();
 	}
 
 	// true = success
 	public boolean compute() {
-		while (!step());
+		while (!step())
+			;
 		return true;
 	}
 
@@ -236,7 +235,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		}
 		return ret;
 	}
-	
+
 	private <Z> boolean addCoincidences(BinRelSet<Z, Term<Void, En2, Void, Fk2, Void, Gen, Void>> lhs,
 			BinRelSet<Z, Term<Void, En2, Void, Fk2, Void, Gen, Void>> rhs, En2 n) {
 		boolean ret = false;
@@ -264,7 +263,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		}
 		return ret;
 	}
-	
+
 	// private final It fr = new It();
 	private int fresh() {
 		return fresh++;
@@ -338,7 +337,9 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 
 	// private final int max;
 
+	@SuppressWarnings("rawtypes")
 	Map<Term, Integer> rank = Util.mk();
+	@SuppressWarnings("rawtypes")
 	List<Term> rankInv = new ArrayList<>();
 
 	private final Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col;
@@ -367,7 +368,6 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 			Pg.put(e, new BinRelSet<>());
 		}
 
-
 		for (En1 n : A.ens) {
 			List<Pair<X, Term<Void, En2, Void, Fk2, Void, Gen, Void>>> j = (new ArrayList<>(X.algebra().size(n)));
 			Set<Term<Void, En2, Void, Fk2, Void, Gen, Void>> i = Pb.get(F.ens.get(n));
@@ -375,7 +375,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 				Term<Ty, En2, Sym, Fk2, Att2, Gen, Void> tt = F.trans(X.algebra().repr(n, v).convert());
 
 				int fr = fresh();
-				Term<Void, En2, Void, Fk2, Void, Gen, Void> ii = tt.convert(); 
+				Term<Void, En2, Void, Fk2, Void, Gen, Void> ii = tt.convert();
 				rank.put(ii, fr);
 				rankInv.add(ii);
 				j.add(new Pair<>(v, ii));
@@ -389,15 +389,16 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		}
 
 		for (Fk2 fk : Pg.keySet()) {
-			Map<Integer,Integer> m = new THashMap<>();
-			for (Pair<Term<Void, En2, Void, Fk2, Void, Gen, Void>, Term<Void, En2, Void, Fk2, Void, Gen, Void>> k : Pg.get(fk).R) {
+			Map<Integer, Integer> m = new THashMap<>();
+			for (Pair<Term<Void, En2, Void, Fk2, Void, Gen, Void>, Term<Void, En2, Void, Fk2, Void, Gen, Void>> k : Pg
+					.get(fk).R) {
 				m.put(rank.get(k.first), rank.get(k.second));
 			}
 			fkMap.put(fk, m);
 		}
 
 		talg0();
-		
+
 	}
 
 	@Override
@@ -418,7 +419,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		}
 		return this.intoY(lhs).equals(intoY(rhs));
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////
 
 	@Override
@@ -427,7 +428,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	}
 
 	private final Map<En2, Collection<Integer>> enCache = Util.mk();
-	
+
 	@Override
 	public synchronized Collection<Integer> en(En2 en) {
 		Collection<Integer> ret = enCache.get(en);
@@ -449,8 +450,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 
 	Map<Fk2, Map<Integer, Integer>> fkMap = Util.mk();
 
-	private Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> reprT0(
-			Chc<Sk, Pair<Integer, Att2>> y) {
+	private Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> reprT0(Chc<Sk, Pair<Integer, Att2>> y) {
 		return schema().typeSide.js.java_tys.isEmpty() ? talg.simpl(Term.Sk(y))
 				: schema().typeSide.js.reduce(talg.simpl(Term.Sk(y)));
 	}
@@ -461,14 +461,12 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	}
 
 	@Override
-	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> att(
-			Att2 att, Integer x) {
+	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> att(Att2 att, Integer x) {
 		return reprT0(Chc.inRight(new Pair<>(x, att)));
 	}
 
 	@Override
-	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> sk(
-			Sk sk) {
+	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> sk(Sk sk) {
 		return reprT0(Chc.inLeft(sk));
 	}
 
@@ -501,9 +499,6 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	public Object printY(Ty ty, Chc<Sk, Pair<Integer, Att2>> y) {
 		return y.toString();
 	}
-
-	
-
 
 	@Override
 	public int size(En2 en) {

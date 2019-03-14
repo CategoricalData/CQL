@@ -18,8 +18,9 @@ import catdata.ide.Language;
 import gnu.trove.map.hash.THashMap;
 
 public class AqlTester {
-	
+
 	static String message = "This self-test will run all the built-in CQL examples and check for exceptions.  This test cannot be aborted.  This window will disappear for a while. Continue?";
+
 	public static void doSelfTests() {
 		int c = JOptionPane.showConfirmDialog(null, message, "Run Self-Test?", JOptionPane.YES_NO_OPTION);
 		if (c != JOptionPane.YES_OPTION) {
@@ -43,21 +44,20 @@ public class AqlTester {
 
 	private static Map<String, Throwable> runMany(Map<String, String> progs) {
 		Map<String, Throwable> result = new THashMap<>();
-		//int i = 0;
-		for (String k : Util.alphabetical(progs.keySet()))
-		{	
-			
+		// int i = 0;
+		for (String k : Util.alphabetical(progs.keySet())) {
+
 			try {
 				System.out.println(k);
 				Program<Exp<?>> prog = AqlParserFactory.getParser().parseProgram(progs.get(k));
 				String[] toUpdate = new String[] { "" };
 				AqlMultiDriver driver = new AqlMultiDriver(prog, toUpdate, null);
-				driver.start(); //blocks
+				driver.start(); // blocks
 				AqlEnv env = driver.env;
 				if (env.exn != null) {
 					result.put(k, env.exn);
 				}
-				//Thread.sleep(3000);
+				// Thread.sleep(3000);
 			} catch (Throwable ex) {
 				ex.printStackTrace();
 				result.put(k, ex);
@@ -65,5 +65,5 @@ public class AqlTester {
 		}
 		return result;
 	}
-	
+
 }

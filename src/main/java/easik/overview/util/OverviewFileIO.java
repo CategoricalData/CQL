@@ -46,10 +46,8 @@ public class OverviewFileIO {
 	/**
 	 * Converts an overview to an XML file. Returns the success of the save.
 	 *
-	 * @param outputFile
-	 *            The file we will output to
-	 * @param overview
-	 *            The sketch we're reading to
+	 * @param outputFile The file we will output to
+	 * @param overview   The sketch we're reading to
 	 * @return True if successful, false otherwise
 	 */
 	public static boolean overviewToXML(File outputFile, Overview overview) {
@@ -87,18 +85,21 @@ public class OverviewFileIO {
 
 			Element creationDate = overviewAsXML.createElement("creationDate");
 
-			creationDate.appendChild(overviewAsXML.createTextNode(EasikConstants.XML_DATETIME.format(d.getCreationDate())));
+			creationDate
+					.appendChild(overviewAsXML.createTextNode(EasikConstants.XML_DATETIME.format(d.getCreationDate())));
 			header.appendChild(creationDate);
 
 			Element modDate = overviewAsXML.createElement("lastModificationDate");
 
-			modDate.appendChild(overviewAsXML.createTextNode(EasikConstants.XML_DATETIME.format(d.getModificationDate())));
+			modDate.appendChild(
+					overviewAsXML.createTextNode(EasikConstants.XML_DATETIME.format(d.getModificationDate())));
 			header.appendChild(modDate);
 
 			// Loop through sketches, add them to the document
 			for (SketchNode currentSketch : overview.getSketches()) {
 				if (currentSketch != null) {
-					Element thisSketch = SketchFileIO.sketchToElement(overviewAsXML, currentSketch.getFrame().getMModel());
+					Element thisSketch = SketchFileIO.sketchToElement(overviewAsXML,
+							currentSketch.getFrame().getMModel());
 
 					thisSketch.setAttribute("name", currentSketch.toString());
 					thisSketch.setAttribute("x", currentSketch.getX() + "");
@@ -108,7 +109,8 @@ public class OverviewFileIO {
 					Cascade cp = currentSketch.getFrame().getMModel().getDefaultPartialCascading();
 
 					thisSketch.setAttribute("cascade", (c == Cascade.CASCADE) ? "cascade" : "restrict");
-					thisSketch.setAttribute("partial-cascade", (cp == Cascade.CASCADE) ? "cascade" : (cp == Cascade.RESTRICT) ? "restrict" : "set_null");
+					thisSketch.setAttribute("partial-cascade",
+							(cp == Cascade.CASCADE) ? "cascade" : (cp == Cascade.RESTRICT) ? "restrict" : "set_null");
 					sketches.appendChild(thisSketch);
 				}
 			}
@@ -148,10 +150,8 @@ public class OverviewFileIO {
 	/**
 	 * Output the document as XML
 	 *
-	 * @param outputFile
-	 *            output file
-	 * @param xml
-	 *            output XML
+	 * @param outputFile output file
+	 * @param xml        output XML
 	 */
 	private static void outputXMLtoFile(File outputFile, Document xml) {
 		try {
@@ -168,8 +168,7 @@ public class OverviewFileIO {
 	/**
 	 * Load an overview from XML.
 	 *
-	 * @param inputFile
-	 *            the file from which the XML will be read
+	 * @param inputFile      the file from which the XML will be read
 	 * @param outputOverview
 	 * @return Returns the success or failure of the reading.
 	 */
@@ -180,7 +179,8 @@ public class OverviewFileIO {
 			return false;
 		}
 
-		outputOverview.initializeFromData(overviewHandler.getSketches(), overviewHandler.getViews(), overviewHandler.getViewEdges(), overviewHandler.getDocumentInfo());
+		outputOverview.initializeFromData(overviewHandler.getSketches(), overviewHandler.getViews(),
+				overviewHandler.getViewEdges(), overviewHandler.getDocumentInfo());
 		outputOverview.getFrame().getInfoTreeUI().refreshTree();
 		outputOverview.getFrame().setTreeName(overviewHandler.getDocumentInfo().getName());
 
@@ -195,8 +195,7 @@ public class OverviewFileIO {
 	/**
 	 * Method to initialize an OverviewHandler for a supplied XML file
 	 *
-	 * @param inputFile
-	 *            The XML file containing the sketch information
+	 * @param inputFile       The XML file containing the sketch information
 	 * @param overviewHandler
 	 * @return true if SketchHandler was initialized, false if an exception
 	 *         occurred.
@@ -224,10 +223,8 @@ public class OverviewFileIO {
 	/**
 	 * Converts a view to an Element
 	 * 
-	 * @param document
-	 *            The Document in which our information will be placed.
-	 * @param view
-	 *            The view we're reading
+	 * @param document The Document in which our information will be placed.
+	 * @param view     The view we're reading
 	 * @return All of the information needed to rebuild the view contained in an
 	 *         Element. Returns null in the event that the element could not be
 	 *         created.
@@ -297,8 +294,10 @@ public class OverviewFileIO {
 				thisEdge.setAttribute("id", currentEdge.getName());
 				thisEdge.setAttribute("source", currentEdge.getSourceQueryNode().getName());
 				thisEdge.setAttribute("target", currentEdge.getTargetQueryNode().getName());
-				thisEdge.setAttribute("type", (currentEdge instanceof PartialViewEdge) ? "partial" : (currentEdge instanceof InjectiveViewEdge) ? "injective" : "normal");
-				thisEdge.setAttribute("cascade", (currentEdge.getCascading() == View_Edge.Cascade.SET_NULL) ? "set_null" : (currentEdge.getCascading() == View_Edge.Cascade.CASCADE) ? "cascade" : "restrict");
+				thisEdge.setAttribute("type", (currentEdge instanceof PartialViewEdge) ? "partial"
+						: (currentEdge instanceof InjectiveViewEdge) ? "injective" : "normal");
+				thisEdge.setAttribute("cascade", (currentEdge.getCascading() == View_Edge.Cascade.SET_NULL) ? "set_null"
+						: (currentEdge.getCascading() == View_Edge.Cascade.CASCADE) ? "cascade" : "restrict");
 				edges.appendChild(thisEdge);
 			}
 

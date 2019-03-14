@@ -77,17 +77,15 @@ public class OverviewInfoTreeUI extends JScrollPane {
 	private DefaultMutableTreeNode _tree_views;
 
 	/**
-	 * An ArrayList of Strings which represent an expansion state of the info
-	 * tree. The tree can then be reverted back to the state as defined in
-	 * expanState.
+	 * An ArrayList of Strings which represent an expansion state of the info tree.
+	 * The tree can then be reverted back to the state as defined in expanState.
 	 */
 	private ArrayList<String> expanState;
 
 	/**
 	 * Constructs new overview info tree.
 	 * 
-	 * @param inFrame
-	 *            The application frame in which this exists.
+	 * @param inFrame The application frame in which this exists.
 	 */
 	public OverviewInfoTreeUI(ApplicationFrame inFrame) {
 		// Create the top node.
@@ -137,8 +135,10 @@ public class OverviewInfoTreeUI extends JScrollPane {
 	private void buildPopupMenu() {
 		_popupMenu.add(_addSketchItem = new JMenuItem(new NewSketchAction(_newPosition, _theFrame.getOverview())));
 		_popupMenu.add(_addViewItem = new JMenuItem(new NewViewFromTreeAction(_theFrame.getOverview())));
-		_popupMenu.add(_renameSketchItem = new JMenuItem(new RenameInOverviewFromTreeAction(_theFrame, "Rename Sketch")));
-		_popupMenu.add(_deleteSketchItem = new JMenuItem(new DeleteFromOverviewFromTreeAction(_theFrame, "Delete Sketch")));
+		_popupMenu
+				.add(_renameSketchItem = new JMenuItem(new RenameInOverviewFromTreeAction(_theFrame, "Rename Sketch")));
+		_popupMenu.add(
+				_deleteSketchItem = new JMenuItem(new DeleteFromOverviewFromTreeAction(_theFrame, "Delete Sketch")));
 		_popupMenu.add(_renameViewItem = new JMenuItem(new RenameInOverviewFromTreeAction(_theFrame, "Rename View")));
 		_popupMenu.add(_deleteViewItem = new JMenuItem(new DeleteFromOverviewFromTreeAction(_theFrame, "Delete View")));
 		_infoTree.addMouseListener(new MouseAdapter() {
@@ -193,7 +193,8 @@ public class OverviewInfoTreeUI extends JScrollPane {
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 
 		// Hide all elements
 		for (Component c : _popupMenu.getComponents()) {
@@ -229,8 +230,7 @@ public class OverviewInfoTreeUI extends JScrollPane {
 	/**
 	 * Refreshes the tree so updates visualize properly
 	 *
-	 * @param inNode
-	 *            The node to be refreshed
+	 * @param inNode The node to be refreshed
 	 */
 	public void refreshTree(DefaultMutableTreeNode inNode) {
 		storeExpansion();
@@ -279,8 +279,7 @@ public class OverviewInfoTreeUI extends JScrollPane {
 	/**
 	 * Adds a view to the tree
 	 * 
-	 * @param inView
-	 *            The view to be added to the tree
+	 * @param inView The view to be added to the tree
 	 */
 	public void addView(ViewNode inView) {
 		_tree_views.add(inView.getTreeNode());
@@ -290,8 +289,7 @@ public class OverviewInfoTreeUI extends JScrollPane {
 	/**
 	 * Removes an entity from the tree
 	 *
-	 * @param toRemove
-	 *            Entity to be removed from the tree
+	 * @param toRemove Entity to be removed from the tree
 	 */
 	public void removeSketch(SketchNode toRemove) {
 		_tree_sketches.remove(toRemove.getTreeNode());
@@ -301,8 +299,7 @@ public class OverviewInfoTreeUI extends JScrollPane {
 	/**
 	 * Removes a view from the tree
 	 * 
-	 * @param toRemove
-	 *            View to be removed from the tree
+	 * @param toRemove View to be removed from the tree
 	 */
 	public void removeView(ViewNode toRemove) {
 		_tree_views.remove(toRemove.getTreeNode());

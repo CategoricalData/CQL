@@ -118,16 +118,15 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		topArea.addParser(aqlStatic);
 		getOutline().validateBox.addActionListener(x -> {
 			getOutline().oLabel.setText("");
-			((AqlCodeEditor)getOutline().codeEditor).topArea.forceReparsing(aqlStatic);
+			((AqlCodeEditor) getOutline().codeEditor).topArea.forceReparsing(aqlStatic);
 		});
-		
-		
+
 	}
 
 	final AqlStatic aqlStatic;
-	
-	//DefaultParseResult result; 
-	
+
+	// DefaultParseResult result;
+
 	public void emitDoc() {
 		try {
 			if (last_env == null || last_prog == null) {
@@ -186,7 +185,9 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			ac.uninstall();
 		}
 	}
+
 	volatile List<AutoCompletion> acs;
+
 	@Override
 	protected synchronized void doTemplates() {
 		CompletionProvider provider = createCompletionProvider();
@@ -198,15 +199,13 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		if (acs == null) {
 			acs = Collections.synchronizedList(new LinkedList<>());
 		}
-		acs.add(ac); //System.out.println("...");
+		acs.add(ac); // System.out.println("...");
 	}
 
-	//private void addCompletionProviders(CompletionProvider prover) {
+	// private void addCompletionProviders(CompletionProvider prover) {
 
-	
-		
-	//}
-	
+	// }
+
 	private static CompletionProvider createCompletionProvider() {
 		DefaultCompletionProvider provider = new DefaultCompletionProvider();
 
@@ -271,7 +270,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 	}
 
 	// private String last_str;
-	private IAqlParser last_parser; 
+	private IAqlParser last_parser;
 	private Program<Exp<?>> last_prog; // different that env's
 	public AqlEnv last_env;
 	private AqlMultiDriver driver;
@@ -282,8 +281,8 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		driver.start();
 		last_env = driver.env; // constructor blocks
 		last_prog = init;
-		//topArea.forceReparsing(parser);
-		//clearSpellCheck();
+		// topArea.forceReparsing(parser);
+		// clearSpellCheck();
 		if (last_env.exn != null && last_env.defs.keySet().isEmpty()) {
 			throw last_env.exn;
 		}
@@ -312,7 +311,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 	@Override
 	protected Collection<String> reservedWords() {
 		return Collections.emptyList();
-		
+
 	}
 
 	protected synchronized AqlOutline getOutline() {

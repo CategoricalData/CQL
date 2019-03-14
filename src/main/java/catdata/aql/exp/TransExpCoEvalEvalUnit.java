@@ -18,22 +18,23 @@ import catdata.aql.Var;
 import catdata.aql.fdm.CoEvalEvalUnitTransform;
 import catdata.aql.fdm.Row;
 
-public class TransExpCoEvalEvalUnit<Gen, Sk, X, Y>  
-extends TransExp<Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> {
-	public final QueryExp Q; 
+public class TransExpCoEvalEvalUnit<Gen, Sk, X, Y> extends
+		TransExp<Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> {
+	public final QueryExp Q;
 	public final InstExp<Gen, Sk, X, Y> I;
 	public final Map<String, String> options;
-	
+
 	@Override
 	public Map<String, String> options() {
 		return options;
 	}
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		I.map(f);
 		Q.map(f);
 	}
-	
+
 	public TransExpCoEvalEvalUnit(QueryExp q, InstExp<Gen, Sk, X, Y> i, Map<String, String> options) {
 		Q = q;
 		I = i;
@@ -58,7 +59,7 @@ extends TransExp<Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpCoEvalEvalUnit other = (TransExpCoEvalEvalUnit) obj;
+		TransExpCoEvalEvalUnit<?, ?, ?, ?> other = (TransExpCoEvalEvalUnit<?, ?, ?, ?>) obj;
 		if (I == null) {
 			if (other.I != null)
 				return false;
@@ -83,30 +84,37 @@ extends TransExp<Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple
 	}
 
 	@Override
-	public Pair<InstExp<Gen, Sk, X, Y>, InstExp<Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>>> type(AqlTyping G) {
+	public Pair<InstExp<Gen, Sk, X, Y>, InstExp<Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>>> type(
+			AqlTyping G) {
 		if (!Q.type(G).second.equals(I.type(G))) {
-			throw new RuntimeException("Q has dst schema " + Q.type(G).second + " but instance has schema " + I.type(G));
+			throw new RuntimeException(
+					"Q has dst schema " + Q.type(G).second + " but instance has schema " + I.type(G));
 		}
-		return new Pair(I, new InstExpEval(Q,new InstExpCoEval(Q, I, Util.toList(options)), Util.toList(options)));
+		return new Pair<>(I,
+				new InstExpEval<>(Q, new InstExpCoEval<>(Q, I, Util.toList(options)), Util.toList(options)));
 	}
 
 	@Override
-	public Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> eval0(AqlEnv env, boolean isC) {
+	public Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> eval0(
+			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);
 			I.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new CoEvalEvalUnitTransform(Q.eval(env, false), I.eval(env, false), new AqlOptions(options, null, env.defaults));
+		return new CoEvalEvalUnitTransform<>(Q.eval(env, false), I.eval(env, false),
+				new AqlOptions(options, null, env.defaults));
 	}
 
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
 		return Util.union(Q.deps(), I.deps());
 	}
-	public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.eval_max_temp_size);

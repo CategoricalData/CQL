@@ -73,11 +73,10 @@ public class DocumentInfo {
 	}
 
 	/**
-	 * Sets the name of this sketch in the information tree, document info, and
-	 * the node representing it in the overview
+	 * Sets the name of this sketch in the information tree, document info, and the
+	 * node representing it in the overview
 	 *
-	 * @param name
-	 *            The name of this sketch
+	 * @param name The name of this sketch
 	 */
 	public void setName(String name) {
 		_theFrame.setTreeName(name);
@@ -122,16 +121,15 @@ public class DocumentInfo {
 			author = author.substring(0, author.length() - 2);
 
 			return author;
-		} 
-			return "";
-		
+		}
+		return "";
+
 	}
 
 	/**
 	 * Adds an author to the list of authors.
 	 * 
-	 * @param author
-	 *            The authors name
+	 * @param author The authors name
 	 */
 	public void addAuthor(String author) {
 		_authors.add(author);
@@ -149,8 +147,7 @@ public class DocumentInfo {
 	/**
 	 * Sets the description of the current sketch
 	 * 
-	 * @param desc
-	 *            The description of the sketch
+	 * @param desc The description of the sketch
 	 */
 	public void setDesc(String desc) {
 		_desc = desc;
@@ -159,8 +156,8 @@ public class DocumentInfo {
 	/**
 	 * Gets the creation date.
 	 * 
-	 * @return The creation date, or <code>null</code> if no creation date has
-	 *         been set
+	 * @return The creation date, or <code>null</code> if no creation date has been
+	 *         set
 	 */
 	public Date getCreationDate() {
 		return _creationDate;
@@ -169,9 +166,8 @@ public class DocumentInfo {
 	/**
 	 * Sets the creation date.
 	 *
-	 * @param date
-	 *            The date of creation of this sketch, based on the first save.
-	 *            If null, the current date/time will be used.
+	 * @param date The date of creation of this sketch, based on the first save. If
+	 *             null, the current date/time will be used.
 	 */
 	public void setCreationDate(Date date) {
 		_creationDate = (date == null) ? new Date() : (Date) date.clone();
@@ -190,10 +186,8 @@ public class DocumentInfo {
 	/**
 	 * Sets the last modification date.
 	 * 
-	 * @param date
-	 *            The date of the last modification, or null if the last
-	 *            modification date should be updated to the current date and
-	 *            time.
+	 * @param date The date of the last modification, or null if the last
+	 *             modification date should be updated to the current date and time.
 	 */
 	public void setModificationDate(Date date) {
 		_lastMod = (date == null) ? new Date() : (Date) date.clone();
@@ -207,18 +201,15 @@ public class DocumentInfo {
 	}
 
 	/**
-	 * Sets all editable information, with the parameters determined by the
-	 * user. If any parameters have been changed, the sketch is set to dirty so
-	 * user will be prompted for a save if an attempt to discard the current
-	 * sketch is made before a save. If a name change results in a conflict, we
-	 * add numbers. If no name is specified, we keep the old name.
+	 * Sets all editable information, with the parameters determined by the user. If
+	 * any parameters have been changed, the sketch is set to dirty so user will be
+	 * prompted for a save if an attempt to discard the current sketch is made
+	 * before a save. If a name change results in a conflict, we add numbers. If no
+	 * name is specified, we keep the old name.
 	 * 
-	 * @param name
-	 *            The name of the sketch
-	 * @param author
-	 *            The string of all authors of the sketch
-	 * @param desc
-	 *            The description of the sketch
+	 * @param name   The name of the sketch
+	 * @param author The string of all authors of the sketch
+	 * @param desc   The description of the sketch
 	 */
 	public void setAllInfo(String name, String author, String desc) {
 		name = name.trim();

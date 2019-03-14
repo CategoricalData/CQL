@@ -37,13 +37,13 @@ public interface KBExp<C, V> {
 	abstract V getVar();
 
 	abstract C f();
-	
-	abstract List<KBExp<C,V>> getArgs();
+
+	abstract List<KBExp<C, V>> getArgs();
 
 	public KBExp<C, V> substitute(Map<V, KBExp<C, V>> sigma);
 
 	public KBExp<C, V> replace(List<Integer> l, KBExp<C, V> r);
-		
+
 	/////////////////////////////////////////////////////////////////////////////////
 
 	public default int size() {
@@ -51,9 +51,9 @@ public interface KBExp<C, V> {
 			return 0;
 		}
 		int i = 1;
-			for (KBExp<C, V> x : getArgs()) {
-				i += x.size();
-			}
+		for (KBExp<C, V> x : getArgs()) {
+			i += x.size();
+		}
 		return i + 1;
 	}
 
@@ -74,7 +74,7 @@ public interface KBExp<C, V> {
 		symbols(mm);
 		return mm.keySet();
 	}
-	
+
 	public default void symbols(Map<C, Integer> symbols) {
 		if (isVar()) {
 			return;
@@ -91,7 +91,7 @@ public interface KBExp<C, V> {
 			}
 		}
 	}
-	
+
 	public default Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, KBExp<C, V>>>> cp(List<Integer> p, KBExp<C, V> a,
 			KBExp<C, V> b, KBExp<C, V> g, KBExp<C, V> d) {
 //		try {
@@ -103,7 +103,7 @@ public interface KBExp<C, V> {
 
 		int q = 0;
 		for (KBExp<C, V> arg : getArgs()) {
-			List<Integer> p0 = new ArrayList<>(p.size()+1);
+			List<Integer> p0 = new ArrayList<>(p.size() + 1);
 			p0.addAll(p);
 			p0.add(q++);
 			ret.addAll(arg.cp(p0, a, b, g, d));
@@ -123,7 +123,6 @@ public interface KBExp<C, V> {
 		// }
 
 	}
-	
 
 	public default <S> S type(Map<C, Pair<List<S>, S>> ctx, Map<V, S> cur) {
 		if (isVar()) {
@@ -159,8 +158,7 @@ public interface KBExp<C, V> {
 		}
 		return false;
 	}
-	
-	
+
 	public default void vars(Collection<V> vars) {
 		if (isVar()) {
 			vars.add(getVar());
@@ -174,12 +172,11 @@ public interface KBExp<C, V> {
 			e.vars(vars);
 		}
 	}
-	
-	
+
 	public default <T> boolean allSubExps0(Map<C, Pair<List<T>, T>> fn, T o,
 			Map<T, Map<KBExp<C, V>, Set<KBExp<C, V>>>> pred) {
 		synchronized (pred) {
-			
+
 			if (isVar()) {
 				if (!pred.get(o).containsKey(this)) {
 					pred.get(o).put(this, (new THashSet<>()));
@@ -187,8 +184,7 @@ public interface KBExp<C, V> {
 				}
 				return false;
 			}
-			
-			
+
 			boolean ret = false;
 			if (!pred.containsKey(o)) {
 				throw new RuntimeException("Anomaly: " + o + " not in " + Util.sep(pred, " -> ", "\n"));
@@ -206,13 +202,6 @@ public interface KBExp<C, V> {
 			}
 			return ret;
 		}
-	} 
-	
-	
-	
-	
-	
+	}
 
-	
-	
 }

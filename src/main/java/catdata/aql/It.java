@@ -6,10 +6,10 @@ import java.util.Iterator;
 import catdata.aql.It.ID;
 
 @SuppressWarnings("serial")
-public class It implements Iterator<ID>, Serializable { 
-	
+public class It implements Iterator<ID>, Serializable {
+
 	private int next = 0;
-		
+
 	@Override
 	public boolean hasNext() {
 		return true;
@@ -19,11 +19,11 @@ public class It implements Iterator<ID>, Serializable {
 	public synchronized ID next() {
 		return new ID("id" + next++);
 	}
-	
-	public static class ID implements Serializable {  
-		
+
+	public static class ID implements Serializable {
+
 		public final String str;
-		
+
 		@Override
 		public int hashCode() {
 			return str.hashCode();
@@ -39,12 +39,12 @@ public class It implements Iterator<ID>, Serializable {
 				return false;
 			}
 			ID other = (ID) obj;
-			/*if (!getOuterType().equals(other.getOuterType())) {
-				System.out.println("Please report this message to Ryan.");
-				return false;
-				//throw new RuntimeException("Anomaly: please report");
-			}*/
-			
+			/*
+			 * if (!getOuterType().equals(other.getOuterType())) {
+			 * System.out.println("Please report this message to Ryan."); return false;
+			 * //throw new RuntimeException("Anomaly: please report"); }
+			 */
+
 			if (str == null) {
 				if (other.str != null)
 					return false;
@@ -62,16 +62,11 @@ public class It implements Iterator<ID>, Serializable {
 			return str;
 		}
 
-		//breaks query composition 
-/*		private It getOuterType() {
-			return It.this;
-		}
-*/
+		// breaks query composition
+		/*
+		 * private It getOuterType() { return It.this; }
+		 */
 
-		
-		
 	}
-
-
 
 }

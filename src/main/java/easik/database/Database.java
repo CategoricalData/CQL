@@ -70,8 +70,7 @@ public class Database {
 	/**
 	 * Not much to the constructor. Just associate the object with a Sketch.
 	 * 
-	 * @param sketch
-	 *            Client Sketch
+	 * @param sketch Client Sketch
 	 */
 	public Database(Sketch sketch) {
 		this.sketch = sketch;
@@ -97,10 +96,8 @@ public class Database {
 	/**
 	 * Wrapper to set a driver up to be used for text exporting.
 	 * 
-	 * @param type
-	 *            The database name
-	 * @param opts
-	 *            Export options
+	 * @param type The database name
+	 * @param opts Export options
 	 * @return True if successful, false otherwise
 	 */
 	public boolean setTextExport(String type, final Map<String, ?> opts) {
@@ -110,10 +107,8 @@ public class Database {
 	/**
 	 * Wrapper for exporting to a file.
 	 * 
-	 * @param selected
-	 *            File to export to
-	 * @param opts
-	 *            Export options
+	 * @param selected File to export to
+	 * @param opts     Export options
 	 * @return True if successful, false otherwise
 	 */
 	public boolean exportToFile(File selected, Map<String, ?> opts) {
@@ -141,10 +136,8 @@ public class Database {
 	/**
 	 * Wrapper to set up a driver to be used for server exporting.
 	 * 
-	 * @param type
-	 *            The database name
-	 * @param paramMap
-	 *            Export options
+	 * @param type     The database name
+	 * @param paramMap Export options
 	 * @return True if successful, false otherwise
 	 */
 	public boolean setDatabaseExport(final String type, final Map<String, String> paramMap) {
@@ -165,11 +158,10 @@ public class Database {
 	}
 
 	/**
-	 * Sets the parameters for a database to be loaded (but doesn't actually
-	 * load the database).
+	 * Sets the parameters for a database to be loaded (but doesn't actually load
+	 * the database).
 	 * 
-	 * @param dbn
-	 *            Name of the database to be loaded
+	 * @param dbn Name of the database to be loaded
 	 * @return True if successful, false otherwise
 	 */
 	private boolean setDb(String dbn) {
@@ -194,8 +186,7 @@ public class Database {
 	/**
 	 * Loads the driver if the name and API have been set.
 	 * 
-	 * @param opts
-	 *            Driver options
+	 * @param opts Driver options
 	 * @return True if successful, false otherwise
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -259,8 +250,7 @@ public class Database {
 	/**
 	 * Wrapper for exporting to a database server.
 	 * 
-	 * @param opts
-	 *            Export options
+	 * @param opts Export options
 	 * @return True if successful, false otherwise
 	 */
 	public boolean exportToNative(Map<String, ?> opts) {
@@ -281,8 +271,8 @@ public class Database {
 	}
 
 	/**
-	 * Does this database object have an active driver? This does not mean that
-	 * the driver works...
+	 * Does this database object have an active driver? This does not mean that the
+	 * driver works...
 	 * 
 	 * @return true if a driver is loaded, false otherwise
 	 */
@@ -353,9 +343,8 @@ public class Database {
 	public JDBCDriver getJDBCDriver() {
 		if (activeDriver instanceof JDBCDriver) {
 			return (JDBCDriver) activeDriver;
-		} 
-			error("The currently loaded driver is not a JDBC based driver, but is trying to be used as such", null);
-		
+		}
+		error("The currently loaded driver is not a JDBC based driver, but is trying to be used as such", null);
 
 		return null;
 	}
@@ -405,10 +394,8 @@ public class Database {
 	/**
 	 * Alert the user about an error (show a dialog and print the stack trace)
 	 * 
-	 * @param info
-	 *            Some background to the Exception
-	 * @param e
-	 *            The Exception to get the message from
+	 * @param info Some background to the Exception
+	 * @param e    The Exception to get the message from
 	 */
 	public void error(String info, Exception e) {
 		String exceptionMessage = "";
@@ -419,6 +406,7 @@ public class Database {
 			exceptionMessage = ": " + e.getMessage();
 		}
 
-		JOptionPane.showMessageDialog(sketch.getFrame(), info + exceptionMessage, "Database Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(sketch.getFrame(), info + exceptionMessage, "Database Error",
+				JOptionPane.ERROR_MESSAGE);
 	}
 }

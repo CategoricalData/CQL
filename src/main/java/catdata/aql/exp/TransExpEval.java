@@ -18,51 +18,52 @@ import catdata.aql.Transform;
 import catdata.aql.fdm.EvalTransform;
 import catdata.aql.fdm.Row;
 
-public class TransExpEval<Gen1, Sk1,  Gen2, Sk2, X1, Y1, X2, Y2> 
-extends TransExp< 
-Row<En,Chc<X1,Term<Ty,En,Sym,Fk,Att,Gen1,Sk1>>>, Y1, 
-Row<En,Chc<X2,Term<Ty,En,Sym,Fk,Att,Gen2,Sk2>>>, Y2, 
-Row<En,Chc<X1,Term<Ty,En,Sym,Fk,Att,Gen1,Sk1>>>, Y1, 
-Row<En,Chc<X2,Term<Ty,En,Sym,Fk,Att,Gen2,Sk2>>>, Y2>  {
+public class TransExpEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
+		TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2> {
 
 	public final QueryExp Q;
 	public final TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t;
 	public final Map<String, String> options;
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		Q.map(f);
 		t.map(f);
 	}
-	
+
 	@Override
 	public Map<String, String> options() {
 		return options;
 	}
-	public TransExpEval(QueryExp q,TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t, List<Pair<String, String>> options) {
+
+	public TransExpEval(QueryExp q, TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t,
+			List<Pair<String, String>> options) {
 		this.t = t;
 		Q = q;
 		this.options = Util.toMapSafely(options);
 	}
 
 	@Override
-	public Pair<InstExp<Row<En, Chc<X1, Term<Ty,En,Sym,Fk,Att,Gen1, Sk1>>>, Y1, Row<En, Chc<X1, Term<Ty,En,Sym,Fk,Att,Gen1, Sk1>>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty,En,Sym,Fk,Att,Gen2, Sk2>>>, Y2, Row<En, Chc<X2, Term<Ty,En,Sym,Fk,Att,Gen2, Sk2>>>, Y2>> type(AqlTyping G) {
+	public Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2>> type(
+			AqlTyping G) {
 		if (!t.type(G).first.type(G).equals(Q.type(G).first)) {
-			throw new RuntimeException("Source of query is " + t.type(G).first.type(G) + " but transform is on " + t.type(G).first);
+			throw new RuntimeException(
+					"Source of query is " + t.type(G).first.type(G) + " but transform is on " + t.type(G).first);
 		}
 		InstExpEval<Gen1, Sk1, X1, Y1> a = new InstExpEval<>(Q, t.type(G).first, Collections.emptyList());
 		InstExpEval<Gen2, Sk2, X2, Y2> b = new InstExpEval<>(Q, t.type(G).second, Collections.emptyList());
-		return new Pair(a, b);
+		return new Pair<>(a, b);
 	}
 
 	@Override
-	public Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty,En,Sym,Fk,Att,Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty,En,Sym,Fk,Att,Gen2, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty,En,Sym,Fk,Att,Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty,En,Sym,Fk,Att,Gen2, Sk2>>>, Y2> eval0(AqlEnv env, boolean isC) {
+	public Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2> eval0(
+			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);
 			t.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new EvalTransform(Q.eval(env, false), t.eval(env, false), new AqlOptions(options, null, env.defaults));
+		return new EvalTransform<>(Q.eval(env, false), t.eval(env, false), new AqlOptions(options, null, env.defaults));
 	}
 
 	@Override
@@ -88,7 +89,7 @@ Row<En,Chc<X2,Term<Ty,En,Sym,Fk,Att,Gen2,Sk2>>>, Y2>  {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpEval other = (TransExpEval) obj;
+		TransExpEval<?, ?, ?, ?, ?, ?, ?, ?> other = (TransExpEval<?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (Q == null) {
 			if (other.Q != null)
 				return false;
@@ -111,10 +112,11 @@ Row<En,Chc<X2,Term<Ty,En,Sym,Fk,Att,Gen2,Sk2>>>, Y2>  {
 	public Collection<Pair<String, Kind>> deps() {
 		return Util.union(Q.deps(), t.deps());
 	}
-	
-	public <R,P,E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.eval_max_temp_size);
@@ -132,6 +134,5 @@ Row<En,Chc<X2,Term<Ty,En,Sym,Fk,Att,Gen2,Sk2>>>, Y2>  {
 		set.add(AqlOption.allow_java_eqs_unsafe);
 		set.addAll(AqlOptions.proverOptionNames());
 	}
-	
 
 }

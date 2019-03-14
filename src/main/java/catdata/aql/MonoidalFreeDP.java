@@ -12,14 +12,11 @@ import catdata.provers.KBExp;
 import catdata.provers.KBTheory;
 import catdata.provers.MonoidalProver;
 
-public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk> extends DPKB<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> {
+public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
+		extends DPKB<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> {
 
-	
 	private final DPKB<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> dpkb;
 
-	
-	
-	
 	@Override
 	public String toString() {
 		return dpkb.toString();
@@ -53,8 +50,6 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk> extends DPKB<Chc<Ty, 
 		return true;
 	}
 
-	
-
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs) {
 			if (!ok(eq.lhs) || !ok(eq.rhs)) {
@@ -65,7 +60,8 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk> extends DPKB<Chc<Ty, 
 	}
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(Term<Ty, En, Sym, Fk, Att, Gen, Sk> e) {
-		if (e.var != null || e.gen() != null || e.sk() != null || e.obj() != null || (e.sym() != null && e.args().size() == 0) || (e.sym() != null && e.args().size() == 1)) {
+		if (e.var != null || e.gen() != null || e.sk() != null || e.obj() != null
+				|| (e.sym() != null && e.args().size() == 0) || (e.sym() != null && e.args().size() == 1)) {
 			return true;
 		} else if (e.args().size() > 1) {
 			return false;
@@ -89,8 +85,6 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk> extends DPKB<Chc<Ty, 
 		return true;
 	}
 
-	
-	
 	@Override
 	public synchronized boolean eq(Map<Var, Chc<Ty, En>> ctx, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> lhs,
 			KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> rhs) {
@@ -117,9 +111,5 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk> extends DPKB<Chc<Ty, 
 		this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
 		dpkb.add(c, t);
 	}
-
-	
-
-	
 
 };

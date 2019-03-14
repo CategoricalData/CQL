@@ -7,7 +7,7 @@ public final class Var implements Comparable<Var> {
 	public final String var;
 
 	static THashMap<String, Var> cache = new THashMap<>();
-	
+
 	public static synchronized Var Var(String var) {
 		Var v = cache.get(var);
 		if (v != null) {
@@ -17,18 +17,16 @@ public final class Var implements Comparable<Var> {
 		cache.put(var, v);
 		return v;
 	}
-	
+
 	private Var(String var) {
 		this.var = var;
 	}
-	
+
 	@Override
 	public String toString() {
 		return var;
 	}
-	
-	
-	
+
 	@Override
 	public int hashCode() {
 		return var.hashCode();
@@ -43,14 +41,12 @@ public final class Var implements Comparable<Var> {
 		if (getClass() != obj.getClass())
 			return false;
 		Var other = (Var) obj;
-        return var.equals(other.var);
-    }
+		return var.equals(other.var);
+	}
 
 	@Override
 	public int compareTo(Var o) {
 		return this.var.compareTo(o.var);
 	}
-	
-	
-	
+
 }

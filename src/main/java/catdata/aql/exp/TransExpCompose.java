@@ -13,30 +13,34 @@ import catdata.aql.Kind;
 import catdata.aql.Transform;
 import catdata.aql.fdm.ComposeTransform;
 
-public class TransExpCompose<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2,Gen3,Sk3,X3,Y3> 
-	extends TransExp<Gen1,Sk1,Gen3,Sk3,X1,Y1,X3,Y3> {
+public class TransExpCompose<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Gen3, Sk3, X3, Y3>
+		extends TransExp<Gen1, Sk1, Gen3, Sk3, X1, Y1, X3, Y3> {
 
-	public final TransExp<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2> t1;
-	public final TransExp<Gen2,Sk2,Gen3,Sk3,X2,Y2,X3,Y3> t2;
-	
+	public final TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t1;
+	public final TransExp<Gen2, Sk2, Gen3, Sk3, X2, Y2, X3, Y3> t2;
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		t1.map(f);
 		t2.map(f);
 	}
-	
-	public <R,P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
+
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
-		
+
 	}
+
 	@Override
 	public Map<String, String> options() {
 		return Collections.emptyMap();
 	}
-	public TransExpCompose(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t1, TransExp<Gen2, Sk2, Gen3, Sk3, X2, Y2, X3, Y3> t2) {
+
+	public TransExpCompose(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t1,
+			TransExp<Gen2, Sk2, Gen3, Sk3, X2, Y2, X3, Y3> t2) {
 		this.t1 = t1;
 		this.t2 = t2;
 	}
@@ -58,7 +62,7 @@ public class TransExpCompose<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2,Gen3,Sk3,X3,Y3>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TransExpCompose other = (TransExpCompose) obj;
+		TransExpCompose<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> other = (TransExpCompose<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) obj;
 		if (t1 == null) {
 			if (other.t1 != null)
 				return false;
@@ -73,16 +77,15 @@ public class TransExpCompose<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2,Gen3,Sk3,X3,Y3>
 	}
 
 	@Override
-	public Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp< Gen3, Sk3, X3, Y3>> type(AqlTyping G) {
-		Pair<InstExp< Gen1, Sk1, X1, Y1>, InstExp< Gen2, Sk2, X2, Y2>> l = t1.type(G);
-		Pair<InstExp< Gen2, Sk2, X2, Y2>, InstExp< Gen3, Sk3, X3, Y3>> r = t2.type(G);
+	public Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<Gen3, Sk3, X3, Y3>> type(AqlTyping G) {
+		Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<Gen2, Sk2, X2, Y2>> l = t1.type(G);
+		Pair<InstExp<Gen2, Sk2, X2, Y2>, InstExp<Gen3, Sk3, X3, Y3>> r = t2.type(G);
 		if (!l.second.equals(r.first)) {
-			throw new RuntimeException("Anomaly: in compose transform, dst of t1 is \n\n" + l.second +" \n\n but src of t2 is \n\n" + r.first);
+			throw new RuntimeException("Anomaly: in compose transform, dst of t1 is \n\n" + l.second
+					+ " \n\n but src of t2 is \n\n" + r.first);
 		}
 		return new Pair<>(l.first, r.second);
 	}
-
-	
 
 	@Override
 	public Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen3, Sk3, X1, Y1, X3, Y3> eval0(AqlEnv env, boolean isC) {
@@ -96,7 +99,7 @@ public class TransExpCompose<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2,Gen3,Sk3,X3,Y3>
 
 	@Override
 	public String toString() {
-		return "[" + t1 + " ; " + t2 + "]"; 
+		return "[" + t1 + " ; " + t2 + "]";
 	}
 
 	@Override
@@ -104,6 +107,4 @@ public class TransExpCompose<Gen1,Sk1,Gen2,Sk2,X1,Y1,X2,Y2,Gen3,Sk3,X3,Y3>
 		return Util.union(t1.deps(), t2.deps());
 	}
 
-	
-	
 }

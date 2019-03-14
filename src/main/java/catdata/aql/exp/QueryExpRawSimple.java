@@ -133,7 +133,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens0 = new THashMap<>();
 		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts0 = new THashMap<>();
-	
+
 		Map<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols = new THashMap<>();
 
 		QueryExpRaw.processBlock(block.get().options, env, src0, ens0, cols, block.get(), Collections.emptyMap());
@@ -142,9 +142,9 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 		colForDst.ens.add(EEn);
 		for (Pair<Att, RawTerm> p : block.get().atts) {
 			Map<String, Chc<Ty, En>> s = Util.inRight(QueryExpRaw.unVar(cols.get(EEn).gens));
-			Term<Ty, catdata.aql.exp.En, Sym, Fk, Att, Gen, Sk> term = RawTerm.infer1x(s, p.second, p.second,
-					null, srcCol.convert(), "", src0.typeSide.js).second;
-			Chc<Ty, En> ty = srcCol.type(Util.map(s,(k, v) -> new Pair<>(Var.Var(k), v)), term.convert());
+			Term<Ty, catdata.aql.exp.En, Sym, Fk, Att, Gen, Sk> term = RawTerm.infer1x(s, p.second, p.second, null,
+					srcCol.convert(), "", src0.typeSide.js).second;
+			Chc<Ty, En> ty = srcCol.type(Util.map(s, (k, v) -> new Pair<>(Var.Var(k), v)), term.convert());
 			if (!ty.left) {
 				throw new LocException(find("attributes", p),
 						"In return clause for " + p.first + ", the type is " + ty.r + ", which is an entity.");

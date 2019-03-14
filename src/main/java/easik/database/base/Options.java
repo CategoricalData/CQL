@@ -17,8 +17,7 @@ public abstract class Options {
 	/**
 	 * Returns the value of an option.
 	 *
-	 * @param key
-	 *            - key of option
+	 * @param key - key of option
 	 * @return the value of the key
 	 */
 	public Object getOption(final String key) {
@@ -26,11 +25,9 @@ public abstract class Options {
 	}
 
 	/**
-	 * Returns the String value of an option, or null if the option doesn't
-	 * exist.
+	 * Returns the String value of an option, or null if the option doesn't exist.
 	 * 
-	 * @param key
-	 *            - key of option
+	 * @param key - key of option
 	 * @return the value of the key
 	 */
 	public String getOptionString(final String key) {
@@ -45,13 +42,11 @@ public abstract class Options {
 
 	/**
 	 * Returns true if the option with key specified by <code>key</code> is
-	 * stringwise-equal to the value specified by <code>value</code>. Returns
-	 * false if <code>key</code> is not set, is null, or is not equal.
+	 * stringwise-equal to the value specified by <code>value</code>. Returns false
+	 * if <code>key</code> is not set, is null, or is not equal.
 	 *
-	 * @param key
-	 *            the key to look up
-	 * @param value
-	 *            the value to test it against
+	 * @param key   the key to look up
+	 * @param value the value to test it against
 	 * @return boolean indicating that the key is present and equal
 	 */
 	public boolean optionEquals(final String key, final String value) {
@@ -61,11 +56,10 @@ public abstract class Options {
 	}
 
 	/**
-	 * Returns true if the option exists and is equal to <code>"true"</code>.
-	 * This is a shortcut for calling <code>optionEquals(key, "true")</code>.
+	 * Returns true if the option exists and is equal to <code>"true"</code>. This
+	 * is a shortcut for calling <code>optionEquals(key, "true")</code>.
 	 *
-	 * @param key
-	 *            the key to look up
+	 * @param key the key to look up
 	 * @return boolean indicating that the key is present and is "true"
 	 */
 	public boolean optionEnabled(final String key) {
@@ -73,13 +67,11 @@ public abstract class Options {
 	}
 
 	/**
-	 * Returns true if the option exists, is non-null, and its string value
-	 * matches the provided pattern.
+	 * Returns true if the option exists, is non-null, and its string value matches
+	 * the provided pattern.
 	 *
-	 * @param key
-	 *            the key name
-	 * @param pattern
-	 *            the regular expression
+	 * @param key     the key name
+	 * @param pattern the regular expression
 	 * @return true if the key exists and matches the pattern
 	 * @see String#matches(String)
 	 */
@@ -90,11 +82,10 @@ public abstract class Options {
 	}
 
 	/**
-	 * Returns true if the option exists, is not null, and has a positive,
-	 * non-zero string length.
+	 * Returns true if the option exists, is not null, and has a positive, non-zero
+	 * string length.
 	 *
-	 * @param key
-	 *            the key name
+	 * @param key the key name
 	 * @return true if the key exists, is not null, and is not empty
 	 */
 	public boolean hasOption(final String key) {

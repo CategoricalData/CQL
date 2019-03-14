@@ -36,8 +36,7 @@ public class Easik {
 	private ApplicationFrame _theFrame;
 
 	/**
-	 * Creates an instance of the application frame and then sets it to be
-	 * visible.
+	 * Creates an instance of the application frame and then sets it to be visible.
 	 * <p>
 	 * Creating an instance of this class will start running an instance of the
 	 * application.
@@ -53,8 +52,7 @@ public class Easik {
 	/**
 	 * Entry point of the Application. Creates an instance of the application.
 	 *
-	 * @param args
-	 *            Program parameters; currently ignored
+	 * @param args Program parameters; currently ignored
 	 */
 	public static void main(final String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -74,10 +72,10 @@ public class Easik {
 		// On a mac, set the application to use the normal menus at the top of
 		// the screen
 		// This has to be *first*, before other AWT/Swing items load up
-		//if (EasikConstants.RUNNING_ON_MAC) {
-		//	System.setProperty("apple.laf.useScreenMenuBar", "true");
-		//}
-		//this seems to throw lots of null pointer exceptions - ryan TODO aql easik
+		// if (EasikConstants.RUNNING_ON_MAC) {
+		// System.setProperty("apple.laf.useScreenMenuBar", "true");
+		// }
+		// this seems to throw lots of null pointer exceptions - ryan TODO aql easik
 
 		final Easik e = Easik.getInstance();
 		e._theFrame.toFront();
@@ -87,15 +85,16 @@ public class Easik {
 
 			e.getFrame().getOverview().openOverview(f);
 		} else { // Otherwise open the most recently used overview if possible
-			/* for (final String file : getInstance().getSettings().getPropertySet("recent_files")) {
-				File f = new File(file);
-
-				if (f.exists() && f.length() != 0) {
-					getInstance().getFrame().getOverview().openOverview(f);
-
-					break;
-				}
-			} */
+			/*
+			 * for (final String file :
+			 * getInstance().getSettings().getPropertySet("recent_files")) { File f = new
+			 * File(file);
+			 * 
+			 * if (f.exists() && f.length() != 0) {
+			 * getInstance().getFrame().getOverview().openOverview(f);
+			 * 
+			 * break; } }
+			 */
 		}
 	}
 

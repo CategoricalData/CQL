@@ -24,7 +24,8 @@ import easik.model.vertex.ModelVertex;
  * @version 2006-07-13 Vera Ranieri
  * @version 06-2014 Federico Mora
  */
-public class SumConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends ModelConstraint<F, GM, M, N, E> {
+public class SumConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends ModelConstraint<F, GM, M, N, E> {
 	/**
 	 *    
 	 */
@@ -33,8 +34,7 @@ public class SumConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 	/**
 	 * Default Constructor takes a List of ModelPath<EntityNode, E>s
 	 *
-	 * @param inPaths
-	 *            A List of ModelPath<EntityNode, E>s
+	 * @param inPaths A List of ModelPath<EntityNode, E>s
 	 * @param inModel
 	 */
 	public SumConstraint(List<ModelPath<F, GM, M, N, E>> inPaths, M inModel) {
@@ -63,14 +63,10 @@ public class SumConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 	/**
 	 * Constructor for specifying position on graph
 	 *
-	 * @param inPaths
-	 *            A List of ModelPath<F,GM,M,N,E>s
-	 * @param x
-	 *            X coordinate of visual on graph
-	 * @param y
-	 *            Y coordinate of visual on graph
-	 * @param isVisible
-	 *            If the constraint is visible in the graph or not
+	 * @param inPaths   A List of ModelPath<F,GM,M,N,E>s
+	 * @param x         X coordinate of visual on graph
+	 * @param y         Y coordinate of visual on graph
+	 * @param isVisible If the constraint is visible in the graph or not
 	 * @param inModel
 	 */
 	public SumConstraint(List<ModelPath<F, GM, M, N, E>> inPaths, int x, int y, boolean isVisible, M inModel) {
@@ -96,8 +92,8 @@ public class SumConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 	}
 
 	/**
-	 * Constructor that accepts ID. Used by views to match with corresponding
-	 * sketch constraints.
+	 * Constructor that accepts ID. Used by views to match with corresponding sketch
+	 * constraints.
 	 * 
 	 * @param inPaths
 	 * @param inModel
@@ -129,8 +125,7 @@ public class SumConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 	/**
 	 * Sets the path array, updates edge list, and updates display
 	 *
-	 * @param inPaths
-	 *            The new array of paths
+	 * @param inPaths The new array of paths
 	 */
 	public void setPaths(List<ModelPath<F, GM, M, N, E>> inPaths) {
 		_paths = new ArrayList<>(inPaths);
@@ -147,9 +142,9 @@ public class SumConstraint<F extends ModelFrame<F, GM, M, N, E>, GM extends Easi
 
 	@Override
 	/**
-	 * There are no projection paths in Sums, BUT, for the purpose of creating
-	 * the belongs to constraint column in each intermediate table we will
-	 * return all paths.
+	 * There are no projection paths in Sums, BUT, for the purpose of creating the
+	 * belongs to constraint column in each intermediate table we will return all
+	 * paths.
 	 * 
 	 * This is used in the method assignToEntitties in Model
 	 */

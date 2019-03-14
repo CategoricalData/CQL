@@ -4,8 +4,7 @@ import javax.swing.JSplitPane;
 
 @SuppressWarnings("serial")
 /*
-  @author ryan
- * A split panel, but doesn't work well.
+ * @author ryan A split panel, but doesn't work well.
  */
 public class Split extends JSplitPane {
 

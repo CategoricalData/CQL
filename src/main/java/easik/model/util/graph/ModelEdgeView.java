@@ -19,7 +19,8 @@ import easik.model.vertex.ModelVertex;
  * completely useless. Instead, we change it to go to the middle point, instead
  * of to the average point.
  */
-public class ModelEdgeView<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends EdgeView {
+public class ModelEdgeView<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends EdgeView {
 	/**
 	 *    
 	 */

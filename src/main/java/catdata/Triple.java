@@ -3,9 +3,9 @@ package catdata;
 public class Triple<S1, S2, S3> implements Comparable<Triple<S1, S2, S3>> {
 
 	public Triple(S1 a, S2 b, S3 c) {
-        first = a;
-        second = b;
-        third = c;
+		first = a;
+		second = b;
+		third = c;
 	}
 
 	@Override
@@ -69,15 +69,15 @@ public class Triple<S1, S2, S3> implements Comparable<Triple<S1, S2, S3>> {
 				Comparable j = (Comparable) o.third;
 				return i.compareTo(j);
 			}
-				return c;
-			
-		} 
 			return c;
-		
+
+		}
+		return c;
+
 	}
-	
+
 	public Pair<S1, S2> first2() {
-		return new Pair<>(first,second);
+		return new Pair<>(first, second);
 	}
 
 	public Triple<S2, S1, S3> reverse12() {

@@ -68,85 +68,92 @@ import catdata.sql.SqlType;
 public class SqlChecker {
 
 	private static int count = 0;
+
 	private static String next() {
 		return "v" + count++;
 	}
-	
+
 	private static String pr(Pair<String, List<Pair<String, String>>> y) {
 		List<String> l = y.second.stream().map(x -> x.first + "->" + x.second).collect(Collectors.toList());
 		return y.first + "," + Util.sep(l, ",");
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	private void doChecks(List<Pair<String, Pair<Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>, Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>>>> tocheck)  throws SQLException {
+
+	private void doChecks(
+			List<Pair<String, Pair<Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>, Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>>>> tocheck)
+			throws SQLException {
 		for (Pair<String, Pair<Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>, Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>>> eq : tocheck) {
 			JTabbedPane ret = new JTabbedPane();
 
 			Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>> lhs = eq.second.first;
 			Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>> rhs = eq.second.second;
-			
+
 			if (!lhs.first.equals(rhs.first)) {
-				throw new RuntimeException(eq.first + " starts at two different tables, " + lhs.first + " and " + rhs.first);
+				throw new RuntimeException(
+						eq.first + " starts at two different tables, " + lhs.first + " and " + rhs.first);
 			}
-			
-			Triple<String, Set<String>, String> q1 = path(lhs.first, lhs.second, lhs.third, info);			
+
+			Triple<String, Set<String>, String> q1 = path(lhs.first, lhs.second, lhs.third, info);
 			Triple<String, Set<String>, String> q2 = path(rhs.first, rhs.second, rhs.third, info);
-			
+
 			endMatches(eq.first, q1.third, q2.third, lhs.third, rhs.third);
-			
-			
+
 			Statement stmt = conn.createStatement();
 			stmt.execute(q1.first);
 			ResultSet q1r = stmt.getResultSet();
-			
+
 			stmt = conn.createStatement();
 			stmt.execute(q2.first);
 			ResultSet q2r = stmt.getResultSet();
-			
+
 			Set<Map<String, String>> tuples1 = toTuples(q1r);
 			Set<Map<String, String>> tuples2 = toTuples(q2r);
-			
+
 			boolean b = tuples1.equals(tuples2);
 			if (b) {
 				CodeTextPanel p2 = new CodeTextPanel(BorderFactory.createEtchedBorder(), "", "OK");
 				ret.add(p2, "Result");
 			} else {
-				ret.add(showDiff(lhs.first, q1.third, tuples1, tuples2, new LinkedList<>(endType(info, q1.third, lhs.third).keySet())), "Result");				
+				ret.add(showDiff(lhs.first, q1.third, tuples1, tuples2,
+						new LinkedList<>(endType(info, q1.third, lhs.third).keySet())), "Result");
 			}
-			
+
 			if (!q1.second.isEmpty() || !q2.second.isEmpty()) {
-				String exns = "LHS warnings:\n\n" + Util.sep(q1.second, "\n") + "\n\nRHS warnings:\n\n" + Util.sep(q2.second, "\n");
+				String exns = "LHS warnings:\n\n" + Util.sep(q1.second, "\n") + "\n\nRHS warnings:\n\n"
+						+ Util.sep(q2.second, "\n");
 				CodeTextPanel p = new CodeTextPanel(BorderFactory.createEtchedBorder(), "", exns);
 				ret.add("Warnings", p);
 			}
-			
-			CodeTextPanel p = new CodeTextPanel(BorderFactory.createEtchedBorder(), "", q1.first + "\n\n = \n\n" + q2.first);
+
+			CodeTextPanel p = new CodeTextPanel(BorderFactory.createEtchedBorder(), "",
+					q1.first + "\n\n = \n\n" + q2.first);
 			ret.add(p, "Query");
 
-			frames.add(new Pair<>(eq.first, ret));			
+			frames.add(new Pair<>(eq.first, ret));
 		}
-		
+
 	}
-	
-	private Triple<String, Set<String>, String> path(String start, List<Pair<String, List<Pair<String,String>>>> path, List<Pair<String,String>> last, SqlSchema info) {
+
+	private Triple<String, Set<String>, String> path(String start, List<Pair<String, List<Pair<String, String>>>> path,
+			List<Pair<String, String>> last, SqlSchema info) {
 		String init = start;
 		String v = next();
 		String init_v = v;
 		Set<String> from = new HashSet<>();
 		Set<String> where = new HashSet<>();
-		
+
 		Set<String> ret = new HashSet<>();
-		
+
 		from.add(start + " AS " + v);
-		
+
 		info.getTable(start);
-				
+
 		for (Pair<String, List<Pair<String, String>>> edge : path) {
 			String target = edge.first;
-			
+
 			info.getTable(target);
-			
+
 			if (!match(start, target, edge.second)) {
 				String exn = pr(edge) + " is a not declared as a foreign key from " + start + " to " + target;
 				ret.add(exn);
@@ -166,55 +173,57 @@ public class SqlChecker {
 			from.add(target + " AS " + v2);
 			for (Pair<String, String> p : edge.second) {
 				where.add(v + "." + p.first + " = " + v2 + "." + p.second);
-			}	
+			}
 			v = v2;
 			start = target;
 		}
 
 		Set<String> select = new HashSet<>();
 		for (SqlColumn col : info.getTable(init).columns) {
-			select.add(init_v + "." + col.name + " AS " + "I_" + col.name );
+			select.add(init_v + "." + col.name + " AS " + "I_" + col.name);
 		}
 
 		if (last != null) {
 			for (Pair<String, String> col : last) {
 				info.getTable(start).getColumn(col.first);
-				select.add(v + "." + col.first  + " AS " + "O_" + col.second);
-			} 
+				select.add(v + "." + col.first + " AS " + "O_" + col.second);
+			}
 		} else {
 			for (SqlColumn col : info.getTable(start).columns) {
-				select.add(v + "." + col.name  + " AS " + "O_" + col.name);
+				select.add(v + "." + col.name + " AS " + "O_" + col.name);
 			}
 		}
-		//TODO: aql must check end is the same in path eq too
-		
-		String str = "SELECT DISTINCT " + Util.sep(select, ", ") + "\nFROM " + Util.sep(from, ", ") 
-			+ (where.isEmpty() ? "" : "\nWHERE " + Util.sep(where, " AND "));
-		
-		return new Triple<>(str, ret, start); 
+		// TODO: aql must check end is the same in path eq too
+
+		String str = "SELECT DISTINCT " + Util.sep(select, ", ") + "\nFROM " + Util.sep(from, ", ")
+				+ (where.isEmpty() ? "" : "\nWHERE " + Util.sep(where, " AND "));
+
+		return new Triple<>(str, ret, start);
 	}
-	
+
 	private Set<String> typeCheck(String source, String target, Pair<String, List<Pair<String, String>>> edge) {
 		Set<String> ret = new HashSet<>();
 		for (Pair<String, String> p : edge.second) {
 			SqlType src_t = info.getTable(source).getColumn(p.first).type;
 			SqlType dst_t = info.getTable(target).getColumn(p.second).type;
 			if (!src_t.equals(dst_t)) {
-				ret.add("In " + pr(edge) + ", types do not agree for " + p.first + "->" + p.second + ", is " + src_t + "->" + dst_t);
+				ret.add("In " + pr(edge) + ", types do not agree for " + p.first + "->" + p.second + ", is " + src_t
+						+ "->" + dst_t);
 			}
 		}
-		return ret; 
+		return ret;
 	}
-	
-	//TODO aql sql checker
-	private boolean targetIsPK(@SuppressWarnings("unused") String source, String target, Pair<String, List<Pair<String, String>>> edge) {
+
+	// TODO aql sql checker
+	private boolean targetIsPK(@SuppressWarnings("unused") String source, String target,
+			Pair<String, List<Pair<String, String>>> edge) {
 		Set<String> cand = new HashSet<>();
 		for (Pair<String, String> p : edge.second) {
 			cand.add(p.second);
 		}
 		Set<String> cand2 = info.getTable(target).pk.stream().map(x -> x.name).collect(Collectors.toSet());
-        return cand2.equals(cand);
-    }
+		return cand2.equals(cand);
+	}
 
 	private boolean match(String source, String target, List<Pair<String, String>> cand) {
 		for (SqlForeignKey fk : info.fks) {
@@ -228,7 +237,7 @@ public class SqlChecker {
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -242,7 +251,7 @@ public class SqlChecker {
 
 		Map<String, String> t1 = endType(info, end1, proj1);
 		Map<String, String> t2 = endType(info, end2, proj2);
-		
+
 		if (!t1.equals(t2)) {
 			throw new RuntimeException(err + " ends on two different schemas, " + t1 + " and " + t2);
 		}
@@ -259,26 +268,28 @@ public class SqlChecker {
 				throw new RuntimeException("Duplicate col: " + p.second);
 			}
 			ret.put(p.second, t);
-		} 
+		}
 		return ret;
-	} 
-	
-	private JComponent showDiff(String src, String dst, Set<Map<String, String>> lhs, Set<Map<String, String>> rhs, List<String> tCols) {
+	}
+
+	private JComponent showDiff(String src, String dst, Set<Map<String, String>> lhs, Set<Map<String, String>> rhs,
+			List<String> tCols) {
 		List<JPanel> tbls = new LinkedList<>();
 
-		List<String> sCols = new LinkedList<>(info.getTable(src).columns.stream().map(x -> x.name).collect(Collectors.toList()));
-		
+		List<String> sCols = new LinkedList<>(
+				info.getTable(src).columns.stream().map(x -> x.name).collect(Collectors.toList()));
+
 		for (Map<String, String> row : lhs) {
 			List<String> lhs_out = new LinkedList<>();
 			List<String> rhs_out = new LinkedList<>();
-			
-			Map<String, String> lhsM = row; //match(row, lhs, sCols);
+
+			Map<String, String> lhsM = row; // match(row, lhs, sCols);
 			Map<String, String> rhsM = matchRow(row, rhs, sCols);
 
 			if (lhsM.equals(rhsM)) {
 				continue;
 			}
-			
+
 			List<String> inRow = new LinkedList<>();
 			for (String sCol : sCols) {
 				inRow.add(row.get("I_" + sCol));
@@ -288,16 +299,18 @@ public class SqlChecker {
 				lhs_out.add(lhsM.get("O_" + tCol));
 				rhs_out.add(rhsM.get("O_" + tCol));
 			}
-			
-			JPanel inTable = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Input " + src, new Object[][] { inRow.toArray() }, sCols.toArray());
-			JPanel diffTable = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Output " + dst, new Object[][] { lhs_out.toArray(), rhs_out.toArray() }, tCols.toArray());
+
+			JPanel inTable = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Input " + src,
+					new Object[][] { inRow.toArray() }, sCols.toArray());
+			JPanel diffTable = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Output " + dst,
+					new Object[][] { lhs_out.toArray(), rhs_out.toArray() }, tCols.toArray());
 			JPanel p = new JPanel(new GridLayout(2, 1));
 			p.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Mismatch"));
 			p.add(inTable);
 			p.add(diffTable);
 			tbls.add(p);
 		}
-		
+
 		JPanel ret = new JPanel(new GridLayout(tbls.size(), 1, 0, 6));
 		for (JPanel p : tbls) {
 			ret.add(p);
@@ -306,7 +319,7 @@ public class SqlChecker {
 		xxx.setBorder(BorderFactory.createEmptyBorder());
 		return xxx;
 	}
-	
+
 	private static Map<String, String> matchRow(Map<String, String> row, Set<Map<String, String>> rows,
 			List<String> cols) {
 		outer: for (Map<String, String> row0 : rows) {
@@ -322,25 +335,25 @@ public class SqlChecker {
 
 	private static Set<Map<String, String>> toTuples(ResultSet resultSet) throws SQLException {
 		Set<Map<String, String>> rows = new HashSet<>();
-		
+
 		ResultSetMetaData rsmd = resultSet.getMetaData();
 		int columnsNumber = rsmd.getColumnCount();
-		
+
 		while (resultSet.next()) {
 			Map<String, String> row = new HashMap<>();
-		    for (int i = 1; i <= columnsNumber; i++) {
-		        String columnValue = resultSet.getString(i);
-		        String columnName = rsmd.getColumnLabel(i);
-		        row.put(columnName, columnValue);
-		    }
+			for (int i = 1; i <= columnsNumber; i++) {
+				String columnValue = resultSet.getString(i);
+				String columnName = rsmd.getColumnLabel(i);
+				row.put(columnName, columnValue);
+			}
 			rows.add(row);
 		}
-		
+
 		return rows;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-		
+
 	private Connection conn;
 	private SqlSchema info;
 
@@ -348,14 +361,13 @@ public class SqlChecker {
 
 	private final JCheckBox haltOnErrors = new JCheckBox("Require FK Decls", true);
 
-	private final CodeTextPanel output = new CodeTextPanel(BorderFactory.createEtchedBorder(),
-			"Response", "");
+	private final CodeTextPanel output = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Response", "");
 
-	private static final Example[] examples = { new EmpExample()  };
+	private static final Example[] examples = { new EmpExample() };
 
 	private final CodeTextPanel input = new CodeTextPanel("Path Equalities", "");
 	private final SqlLoader loader = new SqlLoader(output, "SQL Loader");
-	
+
 	public SqlChecker() {
 
 		JButton transButton = new JButton("Check");
@@ -365,7 +377,7 @@ public class SqlChecker {
 		box.addActionListener((ActionEvent e) -> input.setText(((Example) box.getSelectedItem()).getText()));
 
 		transButton.addActionListener(x -> check());
-		
+
 		JPanel p = new JPanel(new BorderLayout());
 
 		JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -381,23 +393,23 @@ public class SqlChecker {
 		tp.add(haltOnErrors);
 		tp.add(new JLabel("Load Example", SwingConstants.RIGHT));
 		tp.add(box);
-			
+
 		p.add(jsp, BorderLayout.CENTER);
 		p.add(tp, BorderLayout.NORTH);
-	
+
 		JSplitPane jspX = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		jspX.setBorder(BorderFactory.createEmptyBorder());
 
-		JPanel panX = new JPanel(new GridLayout(1,1));
+		JPanel panX = new JPanel(new GridLayout(1, 1));
 		jspX.setDividerSize(2);
 		jspX.setResizeWeight(0.4d);
 
 		panX.add(jspX);
 		jspX.add(loader);
 		jspX.add(p);
-		
+
 		p.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "SQL Checker"));
-		
+
 		JFrame f = new JFrame("SQL Checker");
 		f.setContentPane(panX);
 		f.pack();
@@ -414,17 +426,16 @@ public class SqlChecker {
 		}
 		conn = loader.conn;
 		info = loader.schema;
-		
+
 		frames = new LinkedList<>();
-		frames.add(new Pair<>("", new JPanel())); 
-		
+		frames.add(new Pair<>("", new JPanel()));
+
 		try {
 			String[] strings = input.getText().trim().split(";");
-			
-			List<Pair<String, Pair<Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>, 
-		       Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>>>> tocheck = new LinkedList<>();
-		
-			//TODO: aql move this into the parser
+
+			List<Pair<String, Pair<Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>, Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>>>> tocheck = new LinkedList<>();
+
+			// TODO: aql move this into the parser
 			for (String string0 : strings) {
 				String string = string0.trim();
 				if (string.isEmpty()) {
@@ -437,10 +448,10 @@ public class SqlChecker {
 					tocheck.add(new Pair<>(string.substring(6), eq(string.substring(6))));
 					continue;
 				}
-				
+
 				throw new RuntimeException("Does not start with CHECK " + string0);
 			}
-			
+
 			doChecks(tocheck);
 			new DisplayThingy();
 			output.setText("OK");
@@ -450,9 +461,9 @@ public class SqlChecker {
 		}
 
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	public class DisplayThingy {
 
 		public DisplayThingy() {
@@ -469,7 +480,7 @@ public class SqlChecker {
 
 		public void display(String s) {
 			frame = new JFrame();
-            name = s;
+			name = s;
 
 			Vector<String> ooo = new Vector<>();
 			int index = 0;
@@ -481,20 +492,19 @@ public class SqlChecker {
 
 			yyy.setListData(ooo);
 			JPanel temp1 = new JPanel(new GridLayout(1, 1));
-			temp1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(),
-					"Select:"));
+			temp1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Select:"));
 			JScrollPane yyy1 = new JScrollPane(yyy);
 			temp1.add(yyy1);
 			yyy.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 			yyy.addListSelectionListener((ListSelectionEvent e) -> {
-                            int i = yyy.getSelectedIndex();
-                            if (i == -1) {
-                                cl.show(x, "");
-                            } else {
-                                cl.show(x, ooo.get(i));
-                            }
-                        });
+				int i = yyy.getSelectedIndex();
+				if (i == -1) {
+					cl.show(x, "");
+				} else {
+					cl.show(x, ooo.get(i));
+				}
+			});
 
 			JPanel north = new JPanel(new GridLayout(1, 1));
 			JSplitPane px = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -518,15 +528,12 @@ public class SqlChecker {
 
 			ActionListener escListener = (ActionEvent e) -> frame.dispose();
 
-			frame.getRootPane().registerKeyboardAction(escListener,
-					KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+			frame.getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 					JComponent.WHEN_IN_FOCUSED_WINDOW);
 			KeyStroke ctrlW = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK);
 			KeyStroke commandW = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK);
-			frame.getRootPane().registerKeyboardAction(escListener, ctrlW,
-					JComponent.WHEN_IN_FOCUSED_WINDOW);
-			frame.getRootPane().registerKeyboardAction(escListener, commandW,
-					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			frame.getRootPane().registerKeyboardAction(escListener, ctrlW, JComponent.WHEN_IN_FOCUSED_WINDOW);
+			frame.getRootPane().registerKeyboardAction(escListener, commandW, JComponent.WHEN_IN_FOCUSED_WINDOW);
 
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
@@ -535,24 +542,21 @@ public class SqlChecker {
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	static final Parser<Integer> NUMBER = IntegerLiteral.PARSER
-			.map(Integer::valueOf);
 
-	private static final String[] ops = new String[] { ",", ".", ";", ":", "{", "}", "(",
-			")", "=", "->", "+", "*", "^", "|" };
+	static final Parser<Integer> NUMBER = IntegerLiteral.PARSER.map(Integer::valueOf);
 
-	private static final String[] res = new String[] {  };
+	private static final String[] ops = new String[] { ",", ".", ";", ":", "{", "}", "(", ")", "=", "->", "+", "*", "^",
+			"|" };
+
+	private static final String[] res = new String[] {};
 
 	private static final Terminals RESERVED = Terminals.caseSensitive(ops, res);
 
-	private static final Parser<Void> IGNORED = Parsers.or(Scanners.JAVA_LINE_COMMENT,
-			Scanners.JAVA_BLOCK_COMMENT, Scanners.WHITESPACES).skipMany();
+	private static final Parser<Void> IGNORED = Parsers
+			.or(Scanners.JAVA_LINE_COMMENT, Scanners.JAVA_BLOCK_COMMENT, Scanners.WHITESPACES).skipMany();
 
-	private static final Parser<?> TOKENIZER = Parsers.or(
-			(Parser<?>) StringLiteral.DOUBLE_QUOTE_TOKENIZER,
-			RESERVED.tokenizer(), (Parser<?>) Identifier.TOKENIZER,
-			(Parser<?>) IntegerLiteral.TOKENIZER);
+	private static final Parser<?> TOKENIZER = Parsers.or((Parser<?>) StringLiteral.DOUBLE_QUOTE_TOKENIZER,
+			RESERVED.tokenizer(), (Parser<?>) Identifier.TOKENIZER, (Parser<?>) IntegerLiteral.TOKENIZER);
 
 	private static Parser<?> term(String... names) {
 		return RESERVED.token(names);
@@ -568,64 +572,65 @@ public class SqlChecker {
 		Parser<?> att = Parsers.tuple(term("|"), p.sepBy1(term(",")));
 		return Parsers.tuple(ident(), edge.many(), att.optional());
 	}
-	
+
 	private static Parser<?> program() {
 		return Parsers.tuple(path(), term("="), path());
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-    private static Pair<String, List<Pair<String,String>>> toEdge(Object a) {
-			Tuple4 t = (Tuple4) a;
-			String n = (String) t.b;
-			List z = (List) t.d;
-			List<Pair<String,String>> y = new LinkedList<>();
-			for (Object q : z) {
-				Tuple3 q2 = (Tuple3) q;
-				Pair<String, String> pair = new Pair<>(((String)q2.a).toUpperCase(), ((String)q2.c).toUpperCase());
-				y.add(pair);
-			}
-			Pair<String, List<Pair<String,String>>> u = new Pair<>(n.toUpperCase(), y);
-			return u;
+	private static Pair<String, List<Pair<String, String>>> toEdge(Object a) {
+		Tuple4 t = (Tuple4) a;
+		String n = (String) t.b;
+		List z = (List) t.d;
+		List<Pair<String, String>> y = new LinkedList<>();
+		for (Object q : z) {
+			Tuple3 q2 = (Tuple3) q;
+			Pair<String, String> pair = new Pair<>(((String) q2.a).toUpperCase(), ((String) q2.c).toUpperCase());
+			y.add(pair);
+		}
+		Pair<String, List<Pair<String, String>>> u = new Pair<>(n.toUpperCase(), y);
+		return u;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-    private static Triple<String, List<Pair<String, List<Pair<String,String>>>>, List<Pair<String,String>>> toPath(Object ox) {
-		Tuple3  o = (Tuple3) ox;
+	private static Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>> toPath(
+			Object ox) {
+		Tuple3 o = (Tuple3) ox;
 		String start = (String) o.a;
 		List l = (List) o.b;
-		List<Pair<String, List<Pair<String,String>>>> x = new LinkedList<>();
+		List<Pair<String, List<Pair<String, String>>>> x = new LinkedList<>();
 		for (Object a : l) {
 			x.add(toEdge(a));
 		}
-		
+
 		Set<String> seen = new HashSet<>();
-		List<Pair<String,String>> y = null;
+		List<Pair<String, String>> y = null;
 		org.jparsec.functors.Pair qq = (org.jparsec.functors.Pair) o.c;
 		if (qq != null) {
 			y = new LinkedList<>();
 			List z = (List) qq.b;
 			for (Object q : z) {
 				Tuple3 q2 = (Tuple3) q;
-				Pair<String, String> pair = new Pair<>(((String)q2.a).toUpperCase(), ((String)q2.c).toUpperCase());
+				Pair<String, String> pair = new Pair<>(((String) q2.a).toUpperCase(), ((String) q2.c).toUpperCase());
 				if (seen.contains(pair.second)) {
 					throw new RuntimeException("Duplicate col: " + pair.second);
 				}
 				seen.add(pair.second);
 				y.add(pair);
 			}
-		}		
+		}
 		return new Triple<>(start.toUpperCase(), x, y);
-		
+
 	}
-	
+
 	@SuppressWarnings({ "rawtypes" })
-    private static Pair<Triple<String, List<Pair<String, List<Pair<String,String>>>>, List<Pair<String, String>>>,
-	Triple<String, List<Pair<String, List<Pair<String,String>>>>, List<Pair<String, String>>>> eq(String s) {
+	private static Pair<Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>, Triple<String, List<Pair<String, List<Pair<String, String>>>>, List<Pair<String, String>>>> eq(
+			String s) {
 		Tuple3 decl = (Tuple3) program().from(TOKENIZER, IGNORED).parse(s);
 		return new Pair<>(toPath(decl.a), toPath(decl.c));
 	}
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////	
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	static class EmpExample extends Example {
 
@@ -636,19 +641,14 @@ public class SqlChecker {
 
 		@Override
 		public String getText() {
-			return  "CHECK Employee . Employee,manager->id . Employee,manager->id"
-					+ "\n = Employee . Employee,manager->id;"
-					+ "\n"
+			return "CHECK Employee . Employee,manager->id . Employee,manager->id"
+					+ "\n = Employee . Employee,manager->id;" + "\n"
 					+ "\nCHECK Employee . Employee,manager->id . Department,worksIn->id"
-					+ "\n = Employee . Department,worksIn->id;"
-					+ "\n"
-					+ "\nCHECK Department . Employee,secretary->id . Department,worksIn->id"
-					+ "\n = Department;"
-					+ "\n"
-					+ "\nCHECK Department . Employee,secretary->id | first->n"
-					+ "\n= Department | name->n";
+					+ "\n = Employee . Department,worksIn->id;" + "\n"
+					+ "\nCHECK Department . Employee,secretary->id . Department,worksIn->id" + "\n = Department;" + "\n"
+					+ "\nCHECK Department . Employee,secretary->id | first->n" + "\n= Department | name->n";
 
 		}
 	}
-	
+
 }

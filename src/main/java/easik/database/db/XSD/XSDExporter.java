@@ -69,20 +69,17 @@ public class XSDExporter extends XMLDBExporter {
 	private boolean useTargetNS;
 
 	/**
-	 * Create an exporter based on a sketch, the persistence driver and the
-	 * options
+	 * Create an exporter based on a sketch, the persistence driver and the options
 	 *
-	 * @param sk
-	 *            The sketch to export
-	 * @param db
-	 *            The persistance driver - will always be the XMLDBDriver
-	 *            direver here.
-	 * @param exportOpts
-	 *            Options from {@link easik.ui.menu.popup.XSDWriteOptions}
+	 * @param sk         The sketch to export
+	 * @param db         The persistance driver - will always be the XMLDBDriver
+	 *                   direver here.
+	 * @param exportOpts Options from {@link easik.ui.menu.popup.XSDWriteOptions}
 	 *
 	 * @throws PersistenceDriver.LoadException
 	 */
-	public XSDExporter(final Sketch sk, final XSD db, final Map<String, ?> exportOpts) throws PersistenceDriver.LoadException {
+	public XSDExporter(final Sketch sk, final XSD db, final Map<String, ?> exportOpts)
+			throws PersistenceDriver.LoadException {
 		super(sk, db, exportOpts);
 
 		useTargetNS = Boolean.valueOf(exportOpts.get("targetNS").toString());
@@ -108,8 +105,7 @@ public class XSDExporter extends XMLDBExporter {
 	 * <p/>
 	 * Uses {@link #exportToString()} to do the work.
 	 *
-	 * @param outFile
-	 *            the file to write to
+	 * @param outFile the file to write to
 	 *
 	 * @throws IOException
 	 */
@@ -168,8 +164,8 @@ public class XSDExporter extends XMLDBExporter {
 	/**
 	 * First pass - create the XML Schema types and the associated elements.
 	 * <p/>
-	 * Loop through the entities in the sketch. For each one, create a complex
-	 * type and a corresponding element.
+	 * Loop through the entities in the sketch. For each one, create a complex type
+	 * and a corresponding element.
 	 *
 	 * @see easik.xml.xsd.nodes.types.XSDComplexType
 	 * @see easik.xml.xsd.nodes.elements.XSDElement
@@ -189,16 +185,17 @@ public class XSDExporter extends XMLDBExporter {
 	}
 
 	/**
-	 * Loop through the sketch's categorical constraints and add the Schema
-	 * elements for them
+	 * Loop through the sketch's categorical constraints and add the Schema elements
+	 * for them
 	 *
 	 * @todo Implement this via a factory pattern rather than using instanceOf
 	 *       <p/>
-	 *       Delegate to the various createConstraint methods based on the type
-	 *       of the constraint.
+	 *       Delegate to the various createConstraint methods based on the type of
+	 *       the constraint.
 	 */
 	private void addConstraints() {
-		final List<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> constraints = (List<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>>) sketch.getConstraints().values();
+		final List<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> constraints = (List<ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>>) sketch
+				.getConstraints().values();
 
 		for (final ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> c : constraints) {
 			if (c instanceof CommutativeDiagram) {
@@ -208,7 +205,8 @@ public class XSDExporter extends XMLDBExporter {
 			} else if (c instanceof PullbackConstraint) {
 				createConstraint((PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c);
 			} else if (c instanceof EqualizerConstraint) {
-				createConstraint((EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c);
+				createConstraint(
+						(EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c);
 			} else if (c instanceof SumConstraint) {
 				createConstraint((SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) c);
 			} else if (c instanceof LimitConstraint) {
@@ -220,12 +218,12 @@ public class XSDExporter extends XMLDBExporter {
 	}
 
 	/**
-	 * After constraints have been handled, the types and elements remaining can
-	 * be added to the schema.
+	 * After constraints have been handled, the types and elements remaining can be
+	 * added to the schema.
 	 * <p/>
-	 * Note that adding constraints may remove elements from the sketch
-	 * entities, e.g., in equalizers or sums, the isA relationship means that
-	 * containment can be used.
+	 * Note that adding constraints may remove elements from the sketch entities,
+	 * e.g., in equalizers or sums, the isA relationship means that containment can
+	 * be used.
 	 */
 	private void addTypesandElementsToSchema() {
 		final Collection<EntityNode> nodeCollection = sketch.getEntities();
@@ -268,10 +266,10 @@ public class XSDExporter extends XMLDBExporter {
 	 * &lt;/xs:annotation>
 	 * </pre>
 	 *
-	 * @param cd
-	 *            the commutative diagram constraint.
+	 * @param cd the commutative diagram constraint.
 	 */
-	private void createConstraint(final CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> cd) {
+	private void createConstraint(
+			final CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> cd) {
 		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = cd.getPaths();
 		final EntityNode dom = paths.get(0).getDomain();
 		final XSDType domType = dom.getXsdType();
@@ -286,7 +284,8 @@ public class XSDExporter extends XMLDBExporter {
 			if (tmpPath.size() == 0) {
 				values.add(dom.getName() + '(' + path.getFirstEdge().getForeignKeyName(keyrefName) + ')');
 			} else {
-				values.add(dom.getName() + '(' + path.getFirstEdge().getForeignKeyName(keyrefName) + ')' + xmlJoinPath(tmpPath, true));
+				values.add(dom.getName() + '(' + path.getFirstEdge().getForeignKeyName(keyrefName) + ')'
+						+ xmlJoinPath(tmpPath, true));
 			}
 		}
 
@@ -308,10 +307,10 @@ public class XSDExporter extends XMLDBExporter {
 	 * &lt;/xs:annotation>
 	 * </pre>
 	 *
-	 * @param prod
-	 *            the product diagram constraint.
+	 * @param prod the product diagram constraint.
 	 */
-	private void createConstraint(final ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> prod) {
+	private void createConstraint(
+			final ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> prod) {
 		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = prod.getPaths();
 		final EntityNode dom = paths.get(0).getDomain();
 		final XSDType domType = dom.getXsdType();
@@ -361,10 +360,10 @@ public class XSDExporter extends XMLDBExporter {
 	 * &lt;/xs:annotation>
 	 * </pre>
 	 *
-	 * @param pb
-	 *            the product diagram constraint.
+	 * @param pb the product diagram constraint.
 	 */
-	private void createConstraint(final PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> pb) {
+	private void createConstraint(
+			final PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> pb) {
 		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = pb.getPaths();
 		final EntityNode dom = paths.get(0).getDomain();
 		final XSDType domType = dom.getXsdType();
@@ -395,8 +394,8 @@ public class XSDExporter extends XMLDBExporter {
 	/**
 	 * Add an annotation explaining the equalizer and effect the isA.
 	 * <p/>
-	 * Today, this has two parts. First the annotation. For example in the
-	 * standard equalizer constraint in constraints.easik gives this annotation:
+	 * Today, this has two parts. First the annotation. For example in the standard
+	 * equalizer constraint in constraints.easik gives this annotation:
 	 * 
 	 * <pre>
 	 * &lt;xs:annotation>
@@ -407,23 +406,23 @@ public class XSDExporter extends XMLDBExporter {
 	 * &lt;/xs:annotation>
 	 * </pre>
 	 * <p/>
-	 * In addition, the equalizer entity has an "isA" relationship to another
-	 * entity at the start of the diagram, so this is reflected in the typing.
-	 * First, an element of equalizer type is added to the target of the "isA"
-	 * relationship. Second, since there is no need for a separate element in
-	 * the schema for the equalizer entity, its element is removed from the
-	 * sketch entity.
+	 * In addition, the equalizer entity has an "isA" relationship to another entity
+	 * at the start of the diagram, so this is reflected in the typing. First, an
+	 * element of equalizer type is added to the target of the "isA" relationship.
+	 * Second, since there is no need for a separate element in the schema for the
+	 * equalizer entity, its element is removed from the sketch entity.
 	 *
-	 * @param eq
-	 *            the equalizer diagram constraint.
+	 * @param eq the equalizer diagram constraint.
 	 * @todo Why not do this with standard isA relationships as well?
 	 * @todo The equalizer element should be added in some way so there is a
 	 *       "minoccurs" of zero.
-	 * @todo The equalizer does not really need a "key" element, but what if
-	 *       other constraints refer to it.
+	 * @todo The equalizer does not really need a "key" element, but what if other
+	 *       constraints refer to it.
 	 */
-	private void createConstraint(final EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> eq) {
-		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = eq.getEqualizerPaths();
+	private void createConstraint(
+			final EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> eq) {
+		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = eq
+				.getEqualizerPaths();
 		final EntityNode equalizer = eq.getEqualizerEntity();
 		final XSDType domType = equalizer.getXsdType();
 		final String keyrefName = Easik.getInstance().getSettings().getProperty("xml_keyref_name");
@@ -437,7 +436,8 @@ public class XSDExporter extends XMLDBExporter {
 			if (tmpPath.size() == 0) {
 				values.add(equalizer.getName() + '(' + path.getFirstEdge().getForeignKeyName(keyrefName) + ')');
 			} else {
-				values.add(equalizer.getName() + '(' + path.getFirstEdge().getForeignKeyName(keyrefName) + ')' + xmlJoinPath(tmpPath, true));
+				values.add(equalizer.getName() + '(' + path.getFirstEdge().getForeignKeyName(keyrefName) + ')'
+						+ xmlJoinPath(tmpPath, true));
 			}
 		}
 
@@ -454,11 +454,11 @@ public class XSDExporter extends XMLDBExporter {
 	/**
 	 * Add an annotation explaining the sum constraint and effect the isAs.
 	 * <p/>
-	 * Today, this has two parts. First the annotation is truly just
-	 * documentation in this case. The second part of the constraint creation,
-	 * where the isA parts are added as elements of the type suffices to explain
-	 * everything that is needed. In the standard sum constraint in
-	 * constraints.easik gives this annotation:
+	 * Today, this has two parts. First the annotation is truly just documentation
+	 * in this case. The second part of the constraint creation, where the isA parts
+	 * are added as elements of the type suffices to explain everything that is
+	 * needed. In the standard sum constraint in constraints.easik gives this
+	 * annotation:
 	 * 
 	 * <pre>
 	 * &lt;xs:annotation>
@@ -468,21 +468,21 @@ public class XSDExporter extends XMLDBExporter {
 	 * &lt;/xs:annotation>
 	 * </pre>
 	 * <p/>
-	 * Each of the Summand entities have an "isA" relationship to the Sum entity
-	 * at the start of the diagram, so this is reflected in the typing. First,
-	 * an element of each Summand type is added to the target of the "isA"
-	 * relationship. Second, since there is no need for a separate element in
-	 * the schema for the Summand entity, its element is removed from the sketch
-	 * entity.
+	 * Each of the Summand entities have an "isA" relationship to the Sum entity at
+	 * the start of the diagram, so this is reflected in the typing. First, an
+	 * element of each Summand type is added to the target of the "isA"
+	 * relationship. Second, since there is no need for a separate element in the
+	 * schema for the Summand entity, its element is removed from the sketch entity.
 	 *
-	 * @param sum
-	 *            the summand diagram constraint.
+	 * @param sum the summand diagram constraint.
 	 * @todo Why not do this with standard isA relationships as well?
 	 */
-	private static void createConstraint(final SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> sum) {
+	private static void createConstraint(
+			final SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> sum) {
 		final Map<String, StringBuilder> codMap = new HashMap<>(10);
 		final Map<String, XSDType> codToXMLType = new HashMap<>(10);
-		XSDChoiceCompositor summands = new XSDChoiceCompositor(new ArrayList<XSDAbstractElement>(sum.getPaths().size()));
+		XSDChoiceCompositor summands = new XSDChoiceCompositor(
+				new ArrayList<XSDAbstractElement>(sum.getPaths().size()));
 		String cdTypeName = "";
 		XSDComplexType lastCodomainType = null;
 
@@ -499,7 +499,8 @@ public class XSDExporter extends XMLDBExporter {
 			} else {
 				coDomainAnnotation = new StringBuilder(100);
 
-				coDomainAnnotation.append(coDomain.getName()).append(" is a disjoint generalization of ").append(dom.getName());
+				coDomainAnnotation.append(coDomain.getName()).append(" is a disjoint generalization of ")
+						.append(dom.getName());
 			}
 
 			final XSDComplexType codomainType = (XSDComplexType) coDomain.getXsdType();
@@ -545,7 +546,8 @@ public class XSDExporter extends XMLDBExporter {
 	 *
 	 * @param constraint
 	 */
-	public void createConstraint(final LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint) {
+	public void createConstraint(
+			final LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint) {
 		// TODO CF2012 Incomplete
 	}
 
@@ -553,10 +555,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * protected method to assist in building "path" strings for the constraint
 	 * annotations
 	 *
-	 * @param inEdges
-	 *            List of sketchedges
-	 * @param includeLast
-	 *            Include the last or not
+	 * @param inEdges     List of sketchedges
+	 * @param includeLast Include the last or not
 	 * @return path like string
 	 */
 	protected String xmlJoinPath(final List<SketchEdge> inEdges, final boolean includeLast) {
@@ -582,10 +582,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * protected method to assist in building "pullbackpath" strings for the
 	 * pullback constraint annotations
 	 *
-	 * @param inEdges
-	 *            List of sketchedges
-	 * @param includeLast
-	 *            Include the last or not
+	 * @param inEdges     List of sketchedges
+	 * @param includeLast Include the last or not
 	 * @return path like string
 	 */
 	protected String xmlPBJoinPath(final List<SketchEdge> inEdges, final boolean includeLast) {
@@ -606,13 +604,11 @@ public class XSDExporter extends XMLDBExporter {
 	}
 
 	/**
-	 * protected method to assist in building "pullback element path" strings
-	 * for the pullback constraint annotations
+	 * protected method to assist in building "pullback element path" strings for
+	 * the pullback constraint annotations
 	 *
-	 * @param inEdges
-	 *            List of sketchedges
-	 * @param includeLast
-	 *            Include the last or not
+	 * @param inEdges     List of sketchedges
+	 * @param includeLast Include the last or not
 	 * @return path like string
 	 */
 	protected static String xmlPBelemJoinPath(final List<SketchEdge> inEdges, final boolean includeLast) {
@@ -645,7 +641,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
+	public List<String> createConstraint(
+			SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
 		return null;
 	}
 
@@ -658,7 +655,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
+	public List<String> createConstraint(
+			PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
 		return null;
 	}
 
@@ -671,7 +669,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
+	public List<String> createConstraint(
+			EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
 		return null;
 	}
 
@@ -684,7 +683,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
+	public List<String> createConstraint(
+			ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
 		return null;
 	}
 
@@ -697,7 +697,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
+	public List<String> createConstraint(
+			CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
 		return null;
 	}
 
@@ -710,7 +711,8 @@ public class XSDExporter extends XMLDBExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
+	public List<String> createConstraint(
+			LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, String id) {
 		return null;
 	}
 }

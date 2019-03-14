@@ -18,8 +18,8 @@ import catdata.aql.Kind;
 import catdata.aql.Var;
 import catdata.aql.fdm.CoEvalInstance;
 
-public final class InstExpCoEval<Gen, Sk, X, Y>
-		extends InstExp<Triple<Var, X, En>, Chc<Triple<Var,X,En>,Y>, Integer, Chc<Chc<Triple<Var,X,En>,Y>, Pair<Integer, Att>>> {
+public final class InstExpCoEval<Gen, Sk, X, Y> extends
+		InstExp<Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>, Integer, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> {
 
 	public final QueryExp Q;
 	public final InstExp<Gen, Sk, X, Y> J;
@@ -33,7 +33,7 @@ public final class InstExpCoEval<Gen, Sk, X, Y>
 	public Collection<InstExp<?, ?, ?, ?>> direct(AqlTyping G) {
 		return Collections.singleton(J);
 	}
-	
+
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
 		J.map(f);
@@ -45,8 +45,7 @@ public final class InstExpCoEval<Gen, Sk, X, Y>
 		return options;
 	}
 
-	public InstExpCoEval(QueryExp q,
-			InstExp<Gen, Sk, X, Y> j, List<Pair<String, String>> options) {
+	public InstExpCoEval(QueryExp q, InstExp<Gen, Sk, X, Y> j, List<Pair<String, String>> options) {
 		Q = q;
 		J = j;
 		this.options = Util.toMapSafely(options);
@@ -67,13 +66,15 @@ public final class InstExpCoEval<Gen, Sk, X, Y>
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Triple<catdata.aql.Var, X, En>, Chc<Triple<catdata.aql.Var, X, En>, Y>, Integer, Chc<Chc<Triple<catdata.aql.Var, X, En>, Y>, Pair<Integer, Att>>> eval0(AqlEnv env, boolean isC) {
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Triple<catdata.aql.Var, X, En>, Chc<Triple<catdata.aql.Var, X, En>, Y>, Integer, Chc<Chc<Triple<catdata.aql.Var, X, En>, Y>, Pair<Integer, Att>>> eval0(
+			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);
 			J.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new CoEvalInstance(Q.eval(env, false), J.eval(env, false), new AqlOptions(options, null, env.defaults));
+		return new CoEvalInstance<>(Q.eval(env, false), J.eval(env, false),
+				new AqlOptions(options, null, env.defaults));
 	}
 
 	@Override
@@ -99,7 +100,7 @@ public final class InstExpCoEval<Gen, Sk, X, Y>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InstExpCoEval other = (InstExpCoEval) obj;
+		InstExpCoEval<?, ?, ?, ?> other = (InstExpCoEval<?, ?, ?, ?>) obj;
 		if (J == null) {
 			if (other.J != null)
 				return false;

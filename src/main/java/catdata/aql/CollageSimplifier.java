@@ -17,10 +17,10 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public Collage<Ty, En, Sym, Fk, Att, Gen, Sk> in;
 
 	public Collage<Ty, En, Sym, Fk, Att, Gen, Sk> simplified;
-	
+
 	private List<Triple<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, List<Var>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> list = (new TreeList<>());
-	
-	public Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> 
+
+	public Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>
 
 	simp = term -> {
 		for (Triple<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, List<Var>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> t : list) {
@@ -28,20 +28,15 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		}
 		return term;
 	};
-	
-	
 
 	public CollageSimplifier(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> in) {
 		simplified = new Collage<>(in);
 		this.in = in;
-		
-	
-		while (simplify1()) {
-			
-		}
-			
 
-		
+		while (simplify1()) {
+
+		}
+
 		Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> it = simplified.eqs.iterator();
 		while (it.hasNext()) {
 			Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq = it.next();
@@ -49,8 +44,6 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 				it.remove();
 			}
 		}
-
-	
 
 	}
 
@@ -91,9 +84,5 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		}
 		return false;
 	}
-
-	
-
-	
 
 }

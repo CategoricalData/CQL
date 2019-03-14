@@ -27,14 +27,15 @@ import gnu.trove.set.hash.THashSet;
 public final class AqlMultiDriver implements Callable<Unit> {
 
 	public void abort() {
-		interruptAll();		
-		exn.add(new RuntimeException("Execution interrupted while waiting.  If execution was not aborted manually, please report."));
+		interruptAll();
+		exn.add(new RuntimeException(
+				"Execution interrupted while waiting.  If execution was not aborted manually, please report."));
 	}
-	
+
 	private void interruptAll() {
-		//synchronized(this) {
-		//	stop = true;
-		//}
+		// synchronized(this) {
+		// stop = true;
+		// }
 		for (Thread t : threads) {
 			t.interrupt();
 		}
@@ -65,8 +66,12 @@ public final class AqlMultiDriver implements Callable<Unit> {
 
 	@Override
 	public String toString() {
-		
-		StringBuffer sb = new StringBuffer("Processing: ");
+		StringBuffer sb = new StringBuffer();
+		sb.append("JVM Memory: ");
+		sb.append(Runtime.getRuntime().freeMemory() / (1024*1024));
+		sb.append(" MB Free, ");
+		sb.append(Runtime.getRuntime().totalMemory() / (1024*1024));
+		sb.append(" MB Total\nProcessing:");
 		for (String x : Util.alphabetical(processing)) {
 			if (env.prog.exps.get(x).kind().equals(Kind.COMMENT)) {
 				continue;
@@ -82,63 +87,78 @@ public final class AqlMultiDriver implements Callable<Unit> {
 			sb.append(x);
 			sb.append(" ");
 		}
-	
+		
+
 		return sb.toString();
-		
+
 //		return "Completed: " + Util.sep(completed.stream().filter(x -> !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()), " ") + "\nTodo: " + Util.sep(todo.stream().filter(x -> !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()), " ") + "\nProcessing: " + Util.sep(processing.stream().filter(x -> !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()), " ");
-		
-	//	return "Completed: " + Util.sep(completed.stream().filter(x -> !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()), " ") + "\nTodo: " + Util.sep(todo.stream().filter(x -> !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()), " ") + "\nProcessing: " + Util.sep(processing.stream().filter(x -> !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()), " ");
+
+		// return "Completed: " + Util.sep(completed.stream().filter(x ->
+		// !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()),
+		// " ") + "\nTodo: " + Util.sep(todo.stream().filter(x ->
+		// !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()),
+		// " ") + "\nProcessing: " + Util.sep(processing.stream().filter(x ->
+		// !env.prog.exps.get(x).kind().equals(Kind.COMMENT)).collect(Collectors.toList()),
+		// " ");
 	}
 
 	public final AqlEnv env;
 
 	public final List<String> todo = Collections.synchronizedList(new TreeList<>());
 	public final List<String> processing = Collections.synchronizedList(new TreeList<>());
-	public final List<String> completed =Collections.synchronizedList(new TreeList<>());
+	public final List<String> completed = Collections.synchronizedList(new TreeList<>());
 
-	//private final Program<Exp<?>> env.prog;
+	// private final Program<Exp<?>> env.prog;
 	public final String[] toUpdate;
-	//private final Program<Exp<?>> last_prog;
+	// private final Program<Exp<?>> last_prog;
 	public final AqlEnv last_env;
 
 	public final List<RuntimeException> exn = Collections.synchronizedList(new TreeList<>());
 
 //	boolean stop = false;
 
-	public AqlMultiDriver(Program<Exp<?>> prog, String[] toUpdate, /*Program<Exp<?>> last_prog, */ AqlEnv last_env) {
+	public AqlMultiDriver(Program<Exp<?>> prog, String[] toUpdate, /* Program<Exp<?>> last_prog, */ AqlEnv last_env) {
 		this.env = new AqlEnv(prog);
-		this.toUpdate = toUpdate;		
+		this.toUpdate = toUpdate;
 		this.last_env = last_env;
-		//this.last_env.env.prog = last_env.env.prog;
-		//this.env.env.prog = env.env.env.prog;
+		// this.last_env.env.prog = last_env.env.prog;
+		// this.env.env.prog = env.env.env.prog;
 
 		this.numProcs = (int) this.env.defaults.getOrDefault(AqlOption.num_threads);
 		if (numProcs < 1) {
 			throw new RuntimeException("num_procs must be > 0");
 		}
 	}
-	
+
 	public void start() {
 		checkAcyclic();
-		//set the defaults here
+		// set the defaults here
 		env.typing = new AqlTyping(env.prog, false); // TODO aql line exceptions in typing
-		
+
 		init();
 		update();
 		process();
+		System.gc();
 	}
 
 	private void checkAcyclic() {
 		DAG<String> dag = new DAG<>();
 		for (String n : env.prog.order) {
+			Exp<?> e = env.prog.exps.get(n);
+			if (e.isVar()) {
+				continue;
+			}
 			for (Pair<String, Kind> d : /* wrapDeps(n, */ env.prog.exps.get(n).deps() /* , env.prog) */) { // crushes
-																									// performance
+				// performance
 				if (!env.prog.order.contains(d.first)) {
-					throw new LineException("Does not exist: " + d.second + " " + d.first, n, env.prog.exps.get(n).kind().toString());
+					throw new LineException("Does not exist: " + d.second + " " + d.first, n,
+							env.prog.exps.get(n).kind().toString());
 				}
 				boolean ok = dag.addEdge(n, d.first);
 				if (!ok) {
-					throw new LineException("Adding dependency on " + d + " causes circularity", n, env.prog.exps.get(n).kind().toString());
+					System.out.println(dag);
+					throw new LineException("Adding " + n + " dependency on " + d + " causes circularity", n,
+							env.prog.exps.get(n).kind().toString());
 				}
 			}
 		}
@@ -149,8 +169,8 @@ public final class AqlMultiDriver implements Callable<Unit> {
 			return ended.i == numProcs || (todo.isEmpty() && processing.isEmpty());
 		}
 	}
-	
-	//static int numProcs = 2; //Runtime.getRuntime().availableProcessors();
+
+	// static int numProcs = 2; //Runtime.getRuntime().availableProcessors();
 
 	private void barrier() {
 		synchronized (ended) {
@@ -158,7 +178,7 @@ public final class AqlMultiDriver implements Callable<Unit> {
 				try {
 					ended.wait();
 				} catch (InterruptedException e) {
-					//e.printStackTrace();
+					// e.printStackTrace();
 					abort();
 				}
 			}
@@ -174,17 +194,17 @@ public final class AqlMultiDriver implements Callable<Unit> {
 
 	private final IntRef ended = new IntRef(0);
 	private final List<Thread> threads = Collections.synchronizedList(new TreeList<>());
-	private final int  numProcs;
+	private final int numProcs;
 
 	private void process() {
 		for (int i = 0; i < numProcs; i++) {
 			Thread thr = new Thread(this::call);
-			threads.add(thr);			
+			threads.add(thr);
 			thr.start();
 		}
 		barrier();
 		//
-		//System.out.println("through barrier");
+		// System.out.println("through barrier");
 
 		if (!exn.isEmpty()) {
 			for (RuntimeException t : exn) {
@@ -196,7 +216,7 @@ public final class AqlMultiDriver implements Callable<Unit> {
 				env.exn = new RuntimeException("Anomaly: please report");
 			}
 			// when uncommented, partial results will not appear
-			// throw env.exn; 
+			// throw env.exn;
 		}
 	}
 
@@ -207,10 +227,10 @@ public final class AqlMultiDriver implements Callable<Unit> {
 			todo.addAll(env.prog.order);
 			return;
 		}
-		
+
 		for (String n : env.prog.order) {
 			if (/* (!last_env.defs.keySet().contains(n)) || */ changed(n)) {
-					todo.add(n);
+				todo.add(n);
 			} else {
 				Kind k = env.prog.exps.get(n).kind();
 				env.defs.put(n, k, last_env.defs.get(n, k));
@@ -231,8 +251,9 @@ public final class AqlMultiDriver implements Callable<Unit> {
 			return changed.get(n);
 		}
 		Exp<?> prev = last_env.prog.exps.get(n);
-		//System.out.println(xprog.exps.get(n));
-		if (prev == null || last_env == null || !last_env.defs.keySet().contains(n) || (Boolean) env.prog.exps.get(n).getOrDefault(env, AqlOption.always_reload) ) {
+		// System.out.println(xprog.exps.get(n));
+		if (prev == null || last_env == null || !last_env.defs.keySet().contains(n)
+				|| (Boolean) env.prog.exps.get(n).getOrDefault(env, AqlOption.always_reload)) {
 			changed.put(n, true);
 			return true;
 		}
@@ -247,8 +268,8 @@ public final class AqlMultiDriver implements Callable<Unit> {
 		return b;
 	}
 
-	private Unit notifyOfDeath() {	
-		synchronized (this) { 
+	private Unit notifyOfDeath() {
+		synchronized (this) {
 			notifyAll();
 		}
 		synchronized (ended) {
@@ -268,13 +289,13 @@ public final class AqlMultiDriver implements Callable<Unit> {
 				n = null;
 
 				synchronized (this) {
-					if (/*stop == true ||*/ todo.isEmpty() || Thread.currentThread().isInterrupted()) {
+					if (/* stop == true || */ todo.isEmpty() || Thread.currentThread().isInterrupted()) {
 						break;
 					}
 					n = nextAvailable();
 					if (n == null) {
 						update();
-						wait(5000); //just in case
+						wait(5000); // just in case
 						continue;
 					}
 					processing.add(n);
@@ -283,16 +304,17 @@ public final class AqlMultiDriver implements Callable<Unit> {
 				}
 				Exp<?> exp = env.prog.exps.get(n);
 				Kind k = exp.kind();
-			//	k2 = k.toString();
+				// k2 = k.toString();
 				long time1 = System.currentTimeMillis();
-				Object val = Util.timeout(() -> exp.eval(env, false), (Long)exp.getOrDefault(env, AqlOption.timeout) * 1000);
+				Object val = Util.timeout(() -> exp.eval(env, false),
+						(Long) exp.getOrDefault(env, AqlOption.timeout) * 1000);
 				if (val == null) {
 					throw new RuntimeException("anomaly, please report: null result on " + exp);
 				} else if (k.equals(Kind.PRAGMA)) {
 					((Pragma) val).execute();
 				}
 				long time2 = System.currentTimeMillis();
-		
+
 				synchronized (this) {
 					env.defs.put(n, k, val);
 					env.performance.put(n, (time2 - time1) / (1000f));
@@ -310,7 +332,7 @@ public final class AqlMultiDriver implements Callable<Unit> {
 			e.printStackTrace();
 			synchronized (this) {
 				if (e instanceof LocException) {
-					exn.add((LocException)e);					
+					exn.add((LocException) e);
 				} else {
 					exn.add(new LineException(e.getMessage(), n, k2));
 				}

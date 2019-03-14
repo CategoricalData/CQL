@@ -12,8 +12,7 @@ import catdata.aql.exp.Sk;
 import catdata.aql.exp.Sym;
 import catdata.aql.exp.Ty;
 
-public class NoAlgInstance
-		extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Void, Void> {
+public class NoAlgInstance extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Void, Void> {
 
 	public final Schema<Ty, En, Sym, Fk, Att> schema;
 
@@ -22,9 +21,9 @@ public class NoAlgInstance
 	public final AqlOptions options;
 
 	private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
-	
-	public NoAlgInstance(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
-			Schema<Ty, En, Sym, Fk, Att> schema, AqlOptions options) {
+
+	public NoAlgInstance(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, Schema<Ty, En, Sym, Fk, Att> schema,
+			AqlOptions options) {
 		Util.assertNotNull(options);
 		this.schema = schema;
 		this.options = options;
@@ -49,7 +48,7 @@ public class NoAlgInstance
 
 	@Override
 	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs() {
-		return col.eqsAsPairs(); //eqs.stream().map(x -> new Pair<>(x.lhs, x.rhs)).collect(Collectors.toSet());
+		return col.eqsAsPairs(); // eqs.stream().map(x -> new Pair<>(x.lhs, x.rhs)).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -60,7 +59,6 @@ public class NoAlgInstance
 		}
 		return dp;
 	}
-
 
 	@Override
 	public synchronized Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, Void, Void> algebra() {
@@ -76,5 +74,5 @@ public class NoAlgInstance
 	public boolean allowUnsafeJava() {
 		return (boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe);
 	}
-	
+
 }

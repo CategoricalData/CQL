@@ -33,44 +33,44 @@ public class SqlLoader extends JPanel {
 	public static void showLoader() {
 		CodeTextPanel output = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Response", "");
 		SqlLoader input = new SqlLoader(output, "");
-		
+
 		JSplitPane jsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		jsp.setBorder(BorderFactory.createEmptyBorder());
 		jsp.setDividerSize(4);
 		jsp.setResizeWeight(0.5d);
 		jsp.add(input);
 		jsp.add(output);
-		JPanel ret = new JPanel(new GridLayout(1,1));
+		JPanel ret = new JPanel(new GridLayout(1, 1));
 		ret.add(jsp);
-		
+
 		GuiUtil.show(ret, 700, 600, "SQL Loader");
 	}
-	
+
 	public SqlSchema schema;
 	public SqlInstance instance;
 	public Connection conn;
-	
+
 	private static final String help = "";
 
 	private static final Example[] examples = { new EmpExample(), new CompoundExample(), new EmpAutoExample() };
 
 	private final String name;
-	
+
 	private final CodeTextPanel input = new CodeTextPanel(BorderFactory.createEtchedBorder(), "SQL Input", "");
-	private  final CodeTextPanel output; // = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Response", "");
-	
+	private final CodeTextPanel output; // = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Response", "");
+
 	private final JCheckBox loadInstBox = new JCheckBox("Import Data?", true);
 	private final JCheckBox showBox = new JCheckBox("Visualize?", true);
-	
+
 	private void handleError(String msg) {
 		output.setText("Error in " + name + ": " + msg);
 	}
-	
-	//TODO: aql print OK only
+
+	// TODO: aql print OK only
 	private void populate() throws SQLException {
 		schema = new SqlSchema(conn.getMetaData(), "\"");
 		output.setText(schema.toString());
-		
+
 		if (loadInstBox.isSelected()) {
 			instance = new SqlInstance(schema, conn, false, true, "\"");
 			output.area.append("\n\n");
@@ -80,14 +80,14 @@ public class SqlLoader extends JPanel {
 			GuiUtil.show(new SqlViewer(Color.RED, schema, instance), 600, 500, "Viewer");
 		}
 	}
-	
+
 	private void doRun() {
 		try {
 			Class.forName("org.h2.Driver");
 			conn = DriverManager.getConnection("jdbc:h2:mem:");
-			
+
 			String[] strings = input.getText().split(";");
-			
+
 			for (String string0 : strings) {
 				String string = string0.trim();
 				if (string.isEmpty()) {
@@ -100,21 +100,21 @@ public class SqlLoader extends JPanel {
 					stmt.execute(string);
 				}
 			}
-			
+
 			populate();
 		} catch (ClassNotFoundException | SQLException ex) {
 			ex.printStackTrace();
 			handleError(ex.getLocalizedMessage());
 		}
 	}
-	
+
 	private void doLoad() {
 		try {
 			if (!input.getText().trim().isEmpty()) {
 				throw new RuntimeException("Cannot load if text entered");
 			}
 
-			JPanel pan = new JPanel(new GridLayout(2,2));
+			JPanel pan = new JPanel(new GridLayout(2, 2));
 			pan.add(new JLabel("JDBC Driver Class"));
 			JTextField f1 = new JTextField("com.mysql.jdbc.Driver");
 			pan.add(f1);
@@ -125,22 +125,22 @@ public class SqlLoader extends JPanel {
 			if (i != JOptionPane.OK_OPTION) {
 				return;
 			}
-			
+
 			Class.forName(f1.getText().trim());
 			conn = DriverManager.getConnection(f2.getText().trim());
 			populate();
 		} catch (ClassNotFoundException | RuntimeException | SQLException ex) {
 			ex.printStackTrace();
 			handleError(ex.getLocalizedMessage());
-		}	
+		}
 	}
-	
+
 	public SqlLoader(CodeTextPanel output, String name) {
 		super(new BorderLayout());
-		
+
 		this.output = output;
 		this.name = name;
-		
+
 		JButton transButton = new JButton("Run SQL");
 		JButton loadButton = new JButton("Load JDBC");
 		JButton helpButton = new JButton("Help");
@@ -164,13 +164,12 @@ public class SqlLoader extends JPanel {
 		tp.add(loadInstBox);
 		tp.add(new JLabel());
 		tp.add(showBox);
-		
+
 		add(input, BorderLayout.CENTER);
 		add(tp, BorderLayout.NORTH);
-		
+
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), name));
 	}
-	
 
 	private static void doHelp() {
 		JTextArea jta = new JTextArea(help);
@@ -200,42 +199,23 @@ public class SqlLoader extends JPanel {
 
 		@Override
 		public String getText() {
-			return "CREATE TABLE Employee("
-					+ "\n id INT PRIMARY KEY,"
-					+ "\n first VARCHAR(255),"
-					+ "\n last VARCHAR(255),"
-					+ "\n manager INT,"
-					+ "\n worksIn INT"
-					+ "\n);"
-					+ "\n"
-					+ "\nCREATE TABLE Department("
-					+ "\n id INT PRIMARY KEY,"
-					+ "\n name VARCHAR(255),"
-					+ "\n secretary INT,"
-					+ "\n);"
-					+ "\n "
-					+ "\nINSERT INTO Employee VALUES "
-					+ "\n (101, 'Alan', 'Turing', 103, 10), "
-					+ "\n (102, 'Camille', 'Jordan', 102, 2), "
-					+ "\n (103, 'Andrey', 'Markov', 103, 10);"
-					+ "\n"
-					+ "\nINSERT INTO Department VALUES"
-					+ "\n (10, 'Applied Math', 101),"
-					+ "\n (2, 'Pure Math', 102);"
-					+ "\n"
-					+ "\nALTER TABLE Employee ADD CONSTRAINT e1"
-					+ "\n FOREIGN KEY (manager) REFERENCES Employee (id);"
-					+ "\n"
-					+ "\nALTER TABLE Employee ADD CONSTRAINT e2 "
-					+ "\n FOREIGN KEY (worksIn) REFERENCES Department (id);"
-					+ "\n"
+			return "CREATE TABLE Employee(" + "\n id INT PRIMARY KEY," + "\n first VARCHAR(255),"
+					+ "\n last VARCHAR(255)," + "\n manager INT," + "\n worksIn INT" + "\n);" + "\n"
+					+ "\nCREATE TABLE Department(" + "\n id INT PRIMARY KEY," + "\n name VARCHAR(255),"
+					+ "\n secretary INT," + "\n);" + "\n " + "\nINSERT INTO Employee VALUES "
+					+ "\n (101, 'Alan', 'Turing', 103, 10), " + "\n (102, 'Camille', 'Jordan', 102, 2), "
+					+ "\n (103, 'Andrey', 'Markov', 103, 10);" + "\n" + "\nINSERT INTO Department VALUES"
+					+ "\n (10, 'Applied Math', 101)," + "\n (2, 'Pure Math', 102);" + "\n"
+					+ "\nALTER TABLE Employee ADD CONSTRAINT e1" + "\n FOREIGN KEY (manager) REFERENCES Employee (id);"
+					+ "\n" + "\nALTER TABLE Employee ADD CONSTRAINT e2 "
+					+ "\n FOREIGN KEY (worksIn) REFERENCES Department (id);" + "\n"
 					+ "\nALTER TABLE Department ADD CONSTRAINT d1"
 					+ "\n FOREIGN KEY (secretary) REFERENCES Employee (id);";
 
 		}
 
 	}
-	
+
 	private static class EmpAutoExample extends Example {
 
 		@Override
@@ -245,82 +225,43 @@ public class SqlLoader extends JPanel {
 
 		@Override
 		public String getText() {
-			return "CREATE TABLE Employee("
-					+ "\n id INT PRIMARY KEY AUTO_INCREMENT,"
-					+ "\n first VARCHAR(255),"
-					+ "\n last VARCHAR(255),"
-					+ "\n manager INT,"
-					+ "\n worksIn INT"
-					+ "\n);"
-					+ "\n"
-					+ "\nCREATE TABLE Department("
-					+ "\n id INT PRIMARY KEY AUTO_INCREMENT,"
-					+ "\n name VARCHAR(255),"
-					+ "\n secretary INT,"
-					+ "\n);"
-					+ "\n "
-					+ "\nINSERT INTO Employee VALUES "
-					+ "\n (101, 'Alan', 'Turing', 103, 10), "
-					+ "\n (102, 'Camille', 'Jordan', 102, 2), "
-					+ "\n (103, 'Andrey', 'Markov', 103, 10);"
-					+ "\n"
-					+ "\nINSERT INTO Department VALUES"
-					+ "\n (10, 'Applied Math', 101),"
-					+ "\n (2, 'Pure Math', 102);"
-					+ "\n"
-					+ "\nALTER TABLE Employee ADD CONSTRAINT e1"
-					+ "\n FOREIGN KEY (manager) REFERENCES Employee (id);"
-					+ "\n"
-					+ "\nALTER TABLE Employee ADD CONSTRAINT e2 "
-					+ "\n FOREIGN KEY (worksIn) REFERENCES Department (id);"
-					+ "\n"
+			return "CREATE TABLE Employee(" + "\n id INT PRIMARY KEY AUTO_INCREMENT," + "\n first VARCHAR(255),"
+					+ "\n last VARCHAR(255)," + "\n manager INT," + "\n worksIn INT" + "\n);" + "\n"
+					+ "\nCREATE TABLE Department(" + "\n id INT PRIMARY KEY AUTO_INCREMENT," + "\n name VARCHAR(255),"
+					+ "\n secretary INT," + "\n);" + "\n " + "\nINSERT INTO Employee VALUES "
+					+ "\n (101, 'Alan', 'Turing', 103, 10), " + "\n (102, 'Camille', 'Jordan', 102, 2), "
+					+ "\n (103, 'Andrey', 'Markov', 103, 10);" + "\n" + "\nINSERT INTO Department VALUES"
+					+ "\n (10, 'Applied Math', 101)," + "\n (2, 'Pure Math', 102);" + "\n"
+					+ "\nALTER TABLE Employee ADD CONSTRAINT e1" + "\n FOREIGN KEY (manager) REFERENCES Employee (id);"
+					+ "\n" + "\nALTER TABLE Employee ADD CONSTRAINT e2 "
+					+ "\n FOREIGN KEY (worksIn) REFERENCES Department (id);" + "\n"
 					+ "\nALTER TABLE Department ADD CONSTRAINT d1"
-					+ "\n FOREIGN KEY (secretary) REFERENCES Employee (id);"
-					+ "\n";
+					+ "\n FOREIGN KEY (secretary) REFERENCES Employee (id);" + "\n";
 
 		}
 
 	}
-	
+
 	private static class CompoundExample extends Example {
 		@Override
 		public String getName() {
 			return "Compound";
 		}
-		
+
 		@Override
 		public String getText() {
-			return "CREATE TABLE CUSTOMER("
-					+ "\nSID integer primary key,"
-					+ "\nLast_Name varchar(255),"
-					+ "\nFirst_Name varchar(255));"
-					+ "\n"
-					+ "\nCREATE TABLE ORDERS("
-					+ "\nOrder_ID integer primary key,"
-					+ "\nOrder_Date date,"
-					+ "\nCustomer_SID integer REFERENCES CUSTOMER(SID),"
-					+ "\nAmount double);"
-					+ "\n"
-					+ "\nCREATE TABLE INVOICE("
-					+ "\nInvoice_ID integer,"
-					+ "\nStore_ID integer,"
-					+ "\nCUSTOMER_ID integer,"
-					+ "\nFOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMER (SID),"
-					+ "\nPRIMARY KEY(Invoice_ID, Store_ID));"
-					+ "\n"
-					+ "\nCREATE TABLE PAYMENT("
-					+ "\nPayment_ID integer,"
-					+ "\nInvoice_ID integer,"
-					+ "\nStore_ID integer,"
-					+ "\nPayment_Date datetime,"
-					+ "\nPayment_Amount float,"
-					+ "\nPRIMARY KEY (Payment_ID),"
-					+ "\nFOREIGN KEY (Invoice_ID, Store_ID) REFERENCES INVOICE (Invoice_ID, Store_ID));"
-					+ "\n";
+			return "CREATE TABLE CUSTOMER(" + "\nSID integer primary key," + "\nLast_Name varchar(255),"
+					+ "\nFirst_Name varchar(255));" + "\n" + "\nCREATE TABLE ORDERS("
+					+ "\nOrder_ID integer primary key," + "\nOrder_Date date,"
+					+ "\nCustomer_SID integer REFERENCES CUSTOMER(SID)," + "\nAmount double);" + "\n"
+					+ "\nCREATE TABLE INVOICE(" + "\nInvoice_ID integer," + "\nStore_ID integer,"
+					+ "\nCUSTOMER_ID integer," + "\nFOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMER (SID),"
+					+ "\nPRIMARY KEY(Invoice_ID, Store_ID));" + "\n" + "\nCREATE TABLE PAYMENT("
+					+ "\nPayment_ID integer," + "\nInvoice_ID integer," + "\nStore_ID integer,"
+					+ "\nPayment_Date datetime," + "\nPayment_Amount float," + "\nPRIMARY KEY (Payment_ID),"
+					+ "\nFOREIGN KEY (Invoice_ID, Store_ID) REFERENCES INVOICE (Invoice_ID, Store_ID));" + "\n";
 		}
-
 
 	}
 
-	
 }

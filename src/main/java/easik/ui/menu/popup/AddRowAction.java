@@ -27,8 +27,7 @@ public class AddRowAction extends AbstractAction {
 	/**
 	 * Prepare the menu option.
 	 *
-	 * @param inSketch
-	 *            The sketch in which any table we wish to add to exists.
+	 * @param inSketch The sketch in which any table we wish to add to exists.
 	 */
 	public AddRowAction(Sketch inSketch) {
 		super("Add row to table...");
@@ -39,11 +38,10 @@ public class AddRowAction extends AbstractAction {
 	}
 
 	/**
-	 * Checks that our sketch has a db driver, and sends the selected entity
-	 * node off to the sketch's update monitor.
+	 * Checks that our sketch has a db driver, and sends the selected entity node
+	 * off to the sketch's update monitor.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

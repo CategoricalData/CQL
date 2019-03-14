@@ -56,10 +56,10 @@ import easik.view.vertex.QueryNode;
  */
 public class MySQLExporter extends JDBCExporter {
 	/**
-	 * The table options we want to use--usually just the storage engine we
-	 * want. InnoDB is by far the most reliable, and typically the fastest
-	 * (especially under concurrent, mixed read/write access), and most
-	 * importantly, it is the only engine that supports foreign keys.
+	 * The table options we want to use--usually just the storage engine we want.
+	 * InnoDB is by far the most reliable, and typically the fastest (especially
+	 * under concurrent, mixed read/write access), and most importantly, it is the
+	 * only engine that supports foreign keys.
 	 */
 	public static final String TABLE_OPTIONS = " ENGINE=InnoDB";
 
@@ -83,7 +83,8 @@ public class MySQLExporter extends JDBCExporter {
 	 *
 	 * @throws PersistenceDriver.LoadException
 	 */
-	public MySQLExporter(final Sketch sketch, final JDBCDriver db, final Map<String, ?> options) throws PersistenceDriver.LoadException {
+	public MySQLExporter(final Sketch sketch, final JDBCDriver db, final Map<String, ?> options)
+			throws PersistenceDriver.LoadException {
 		super(sketch, db, options);
 	}
 
@@ -136,17 +137,21 @@ public class MySQLExporter extends JDBCExporter {
 		final StringBuilder tableDef = new StringBuilder("CREATE TABLE ");
 
 		tableDef.append(quoteId(table)).append(" (").append(lineSep);
-		tableDef.append('\t').append(quoteId(tablePK(table))).append(' ').append(pkType()).append(" PRIMARY KEY AUTO_INCREMENT");
+		tableDef.append('\t').append(quoteId(tablePK(table))).append(' ').append(pkType())
+				.append(" PRIMARY KEY AUTO_INCREMENT");
 
-		for (final EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> attr : table.getEntityAttributes()) {
+		for (final EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> attr : table
+				.getEntityAttributes()) {
 			// FIXME -- what about NOT NULL, etc. on the column? Defaults?
-			tableDef.append(',').append(lineSep).append('\t').append(quoteId(attr.getName())).append(' ').append(dbDriver.getTypeString(attr.getType()));
+			tableDef.append(',').append(lineSep).append('\t').append(quoteId(attr.getName())).append(' ')
+					.append(dbDriver.getTypeString(attr.getType()));
 		}
 
 		// Include the foreign key columns, and the actual foreign keys (if
 		// includeRefs set)
 		for (final SketchEdge edge : table.getOutgoingEdges()) {
-			tableDef.append(',').append(lineSep).append('\t').append(quoteId(tableFK(edge))).append(' ').append(pkType());
+			tableDef.append(',').append(lineSep).append('\t').append(quoteId(tableFK(edge))).append(' ')
+					.append(pkType());
 
 			if (!edge.isPartial()) {
 				tableDef.append(" NOT NULL");
@@ -157,25 +162,28 @@ public class MySQLExporter extends JDBCExporter {
 			}
 
 			if (includeRefs) {
-				tableDef.append(',').append(lineSep).append("   FOREIGN KEY (").append(quoteId(tableFK(edge))).append(") REFERENCES ").append(quoteId(edge.getTargetEntity())).append(" (").append(quoteId(tablePK(edge.getTargetEntity()))).append(')');
+				tableDef.append(',').append(lineSep).append("   FOREIGN KEY (").append(quoteId(tableFK(edge)))
+						.append(") REFERENCES ").append(quoteId(edge.getTargetEntity())).append(" (")
+						.append(quoteId(tablePK(edge.getTargetEntity()))).append(')');
 
-				final String refMode = (edge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "SET NULL" : (edge.getCascading() == SketchEdge.Cascade.CASCADE) ? "CASCADE" : "NO ACTION"; // Effectively
-																																															// the
-																																															// same
-																																															// as
-																																															// RESTRICT,
-																																															// but
-																																															// RESTRICT
-																																															// won't
-																																															// even
-																																															// work
-																																															// if
-																																															// cleaned
-																																															// up
-																																															// in
-																																															// the
-																																															// same
-																																															// transaction
+				final String refMode = (edge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "SET NULL"
+						: (edge.getCascading() == SketchEdge.Cascade.CASCADE) ? "CASCADE" : "NO ACTION"; // Effectively
+																											// the
+																											// same
+																											// as
+																											// RESTRICT,
+																											// but
+																											// RESTRICT
+																											// won't
+																											// even
+																											// work
+																											// if
+																											// cleaned
+																											// up
+																											// in
+																											// the
+																											// same
+																											// transaction
 
 				tableDef.append(" ON DELETE ").append(refMode).append(" ON UPDATE ").append(refMode);
 			}
@@ -183,8 +191,10 @@ public class MySQLExporter extends JDBCExporter {
 		}
 
 		// Add the unique keys
-		for (final UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> key : table.getUniqueKeys()) {
-			tableDef.append(',').append(lineSep).append("       UNIQUE ").append(quoteId(table.getName() + '_' + key.getKeyName())).append(" (");
+		for (final UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> key : table
+				.getUniqueKeys()) {
+			tableDef.append(',').append(lineSep).append("       UNIQUE ")
+					.append(quoteId(table.getName() + '_' + key.getKeyName())).append(" (");
 
 			final List<String> keyCols = new LinkedList<>();
 
@@ -200,27 +210,29 @@ public class MySQLExporter extends JDBCExporter {
 		}
 
 		// add hidden attributes last
-		for (final EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> attr : table.getHiddenEntityAttributes()) {
+		for (final EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> attr : table
+				.getHiddenEntityAttributes()) {
 			// Default is false so that when user adds rows manually we don't
 			// give option for hidden attributes
 			// and just leave them false
-			tableDef.append(',').append(lineSep).append('\t').append(quoteId(attr.getName())).append(' ').append(dbDriver.getTypeString(attr.getType())).append(" Default " + false);
+			tableDef.append(',').append(lineSep).append('\t').append(quoteId(attr.getName())).append(' ')
+					.append(dbDriver.getTypeString(attr.getType())).append(" Default " + false);
 		}
 
 		// commented out by Sarah van der Laan -- caused error in generated SQL
 		// file (invalid foreign keys)
 		/**
-		 * if (includeRefs) { // We need a copy of any sum tables' not-null
-		 * columns (which are simply the // outgoing, non-partial edges) if this
-		 * table is a summand; we shadow the // columns here, then handle
-		 * propagating them in the SumConstraint triggers. for (final SketchEdge
-		 * edge : table.getShadowEdges()) {
+		 * if (includeRefs) { // We need a copy of any sum tables' not-null columns
+		 * (which are simply the // outgoing, non-partial edges) if this table is a
+		 * summand; we shadow the // columns here, then handle propagating them in the
+		 * SumConstraint triggers. for (final SketchEdge edge : table.getShadowEdges())
+		 * {
 		 * tableDef.append(',').append(lineSep).append('\t').append(quoteId(tableFK(edge))).append('
-		 * ').append(pkType()); tableDef.append(',').append(lineSep).append("
-		 * FOREIGN KEY (").append(quoteId(tableFK(edge))).append(") REFERENCES
-		 * ").append( quoteId(edge.getTargetEntity())).append("
-		 * (").append(quoteId(tablePK(edge.getTargetEntity()))).append( ") ON
-		 * DELETE SET NULL ON UPDATE SET NULL"); } }
+		 * ').append(pkType()); tableDef.append(',').append(lineSep).append(" FOREIGN
+		 * KEY (").append(quoteId(tableFK(edge))).append(") REFERENCES ").append(
+		 * quoteId(edge.getTargetEntity())).append("
+		 * (").append(quoteId(tablePK(edge.getTargetEntity()))).append( ") ON DELETE SET
+		 * NULL ON UPDATE SET NULL"); } }
 		 */
 
 		tableDef.append(lineSep).append(')').append(TABLE_OPTIONS).append($);
@@ -242,45 +254,47 @@ public class MySQLExporter extends JDBCExporter {
 
 		for (final SketchEdge edge : table.getOutgoingEdges()) {
 			final EntityNode target = edge.getTargetEntity();
-			final String refMode = (edge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "SET NULL" : (edge.getCascading() == SketchEdge.Cascade.CASCADE) ? "CASCADE" : "NO ACTION"; // No
-																																														// different
-																																														// from
-																																														// RESTRICT
-																																														// under
-																																														// MySQL
-																																														// (in
-																																														// theory,
-																																														// RESTRICT
-																																														// shouldn't
-																																														// work
-																																														// even
-																																														// if
-																																														// cleaned
-																																														// up
-																																														// in
-																																														// the
-																																														// same
-																																														// transaction,
-																																														// while
-																																														// NO
-																																														// ACTION
-																																														// should)
+			final String refMode = (edge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "SET NULL"
+					: (edge.getCascading() == SketchEdge.Cascade.CASCADE) ? "CASCADE" : "NO ACTION"; // No
+																										// different
+																										// from
+																										// RESTRICT
+																										// under
+																										// MySQL
+																										// (in
+																										// theory,
+																										// RESTRICT
+																										// shouldn't
+																										// work
+																										// even
+																										// if
+																										// cleaned
+																										// up
+																										// in
+																										// the
+																										// same
+																										// transaction,
+																										// while
+																										// NO
+																										// ACTION
+																										// should)
 
-			refs.add("ALTER TABLE " + tableQ + " ADD FOREIGN KEY (" + quoteId(tableFK(edge)) + ") " + "REFERENCES " + quoteId(target) + " (" + quoteId(tablePK(target)) + ") " + "ON DELETE " + refMode + " ON UPDATE " + refMode + $);
+			refs.add("ALTER TABLE " + tableQ + " ADD FOREIGN KEY (" + quoteId(tableFK(edge)) + ") " + "REFERENCES "
+					+ quoteId(target) + " (" + quoteId(tablePK(target)) + ") " + "ON DELETE " + refMode + " ON UPDATE "
+					+ refMode + $);
 		}
 
 		// commented out by Sarah van der Laan -- caused error in generated SQL
 		// file (invalid foreign keys)
 		/**
-		 * // We need a copy of any sum tables' not-null columns (which are
-		 * simply the // outgoing, non-partial edges) if this table is a
-		 * summand; we shadow the // columns here, then handle propagating them
-		 * in the SumConstraint triggers. for (final SketchEdge edge :
-		 * table.getShadowEdges()) { refs.add("ALTER TABLE " + tableQ + " ADD
-		 * COLUMN " + quoteId(tableFK(edge)) + ' ' + pkType()); refs.add("ALTER
-		 * TABLE " + tableQ + " ADD FOREIGN KEY (" + quoteId(tableFK(edge)) + ")
-		 * REFERENCES " + quoteId(edge.getTargetEntity()) + " (" +
-		 * quoteId(tablePK(edge.getTargetEntity())) + ") " + "ON DELETE SET NULL
+		 * // We need a copy of any sum tables' not-null columns (which are simply the
+		 * // outgoing, non-partial edges) if this table is a summand; we shadow the //
+		 * columns here, then handle propagating them in the SumConstraint triggers. for
+		 * (final SketchEdge edge : table.getShadowEdges()) { refs.add("ALTER TABLE " +
+		 * tableQ + " ADD COLUMN " + quoteId(tableFK(edge)) + ' ' + pkType());
+		 * refs.add("ALTER TABLE " + tableQ + " ADD FOREIGN KEY (" +
+		 * quoteId(tableFK(edge)) + ") REFERENCES " + quoteId(edge.getTargetEntity()) +
+		 * " (" + quoteId(tablePK(edge.getTargetEntity())) + ") " + "ON DELETE SET NULL
 		 * ON UPDATE SET NULL"); }
 		 */
 		return refs;
@@ -296,7 +310,9 @@ public class MySQLExporter extends JDBCExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(final CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> cd, final String id) {
+	public List<String> createConstraint(
+			final CommutativeDiagram<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> cd,
+			final String id) {
 		final List<String> sql = new LinkedList<>();
 		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = cd.getPaths();
 		final EntityNode dom = paths.get(0).getDomain();
@@ -323,11 +339,16 @@ public class MySQLExporter extends JDBCExporter {
 			if (tmpPath.size() == 0) {
 				values.add("    SELECT " + fk + " INTO _cdTarget" + targetNum + ';' + lineSep);
 			} else {
-				values.add("    SELECT " + qualifiedFK(path.getLastEdge()) + " INTO _cdTarget" + targetNum + " FROM " + joinPath(tmpPath, false) + " WHERE " + qualifiedPK(tmpPath.getFirst().getSourceEntity()) + " = " + fk + ';' + lineSep);
+				values.add("    SELECT " + qualifiedFK(path.getLastEdge()) + " INTO _cdTarget" + targetNum + " FROM "
+						+ joinPath(tmpPath, false) + " WHERE " + qualifiedPK(tmpPath.getFirst().getSourceEntity())
+						+ " = " + fk + ';' + lineSep);
 			}
 		}
 
-		proc.append("CREATE PROCEDURE ").append(quoteId("commutativeDiagram" + id)).append('(').append(EasikTools.join(", ", args)).append(") BEGIN").append(lineSep).append("       DECLARE ").append(EasikTools.join(", ", declarations)).append(' ').append(pkType()).append(';').append(lineSep).append(EasikTools.join("", values)).append("       IF").append(lineSep);
+		proc.append("CREATE PROCEDURE ").append(quoteId("commutativeDiagram" + id)).append('(')
+				.append(EasikTools.join(", ", args)).append(") BEGIN").append(lineSep).append("       DECLARE ")
+				.append(EasikTools.join(", ", declarations)).append(' ').append(pkType()).append(';').append(lineSep)
+				.append(EasikTools.join("", values)).append("       IF").append(lineSep);
 
 		for (int i = 2; i <= targetNum; i++) {
 			proc.append("               NOT (_cdTarget1 <=> _cdTarget").append(i).append(')');
@@ -339,12 +360,14 @@ public class MySQLExporter extends JDBCExporter {
 			proc.append(lineSep);
 		}
 
-		proc.append("       THEN CALL constraint_failure('Commutative diagram constraint failure.');").append(lineSep).append("       END IF;").append(lineSep).append("END");
+		proc.append("       THEN CALL constraint_failure('Commutative diagram constraint failure.');").append(lineSep)
+				.append("       END IF;").append(lineSep).append("END");
 
 		addFail = true;
 
 		sql.addAll(delimit("$$", proc));
-		addTrigger(dom, "BEFORE INSERT", "CALL " + quoteId("commutativeDiagram" + id) + '(' + EasikTools.join(", ", params) + ')');
+		addTrigger(dom, "BEFORE INSERT",
+				"CALL " + quoteId("commutativeDiagram" + id) + '(' + EasikTools.join(", ", params) + ')');
 
 		return sql;
 	}
@@ -358,12 +381,15 @@ public class MySQLExporter extends JDBCExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(final ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, final String id) {
+	public List<String> createConstraint(
+			final ProductConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint,
+			final String id) {
 		final List<String> sql = new LinkedList<>();
 		final String delConName = "productConstraint" + id + "Delete";
 		StringBuilder proc = new StringBuilder(500);
 
-		proc.append("CREATE PROCEDURE ").append(quoteId(delConName)).append("(id ").append(pkType()).append(") BEGIN").append(lineSep);
+		proc.append("CREATE PROCEDURE ").append(quoteId(delConName)).append("(id ").append(pkType()).append(") BEGIN")
+				.append(lineSep);
 
 		EntityNode begin = null;
 
@@ -376,14 +402,18 @@ public class MySQLExporter extends JDBCExporter {
 				begin = p.getDomain();
 			}
 
-			proc.append("   DELETE ").append(quoteId(p.getCoDomain())).append(" FROM ").append(joinPath(p)).append(lineSep).append("           WHERE ").append(qualifiedPK(begin)).append(" = id;").append(lineSep);
+			proc.append("   DELETE ").append(quoteId(p.getCoDomain())).append(" FROM ").append(joinPath(p))
+					.append(lineSep).append("           WHERE ").append(qualifiedPK(begin)).append(" = id;")
+					.append(lineSep);
 
 			// Federico Mora
 			StringBuilder proc1 = new StringBuilder(500);
 			StringBuilder body = new StringBuilder(50);
 
-			proc1.append("CREATE PROCEDURE ").append("Update" + constraint.getID() + "Proj" + j++).append("() BEGIN").append(lineSep);
-			for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : constraint.getPaths()) {
+			proc1.append("CREATE PROCEDURE ").append("Update" + constraint.getID() + "Proj" + j++).append("() BEGIN")
+					.append(lineSep);
+			for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : constraint
+					.getPaths()) {
 				if (p == q) {
 					// do nothing, cascade will take care of it
 				} else {
@@ -397,7 +427,8 @@ public class MySQLExporter extends JDBCExporter {
 						body.append("   SET");
 						while (iter.hasNext()) {
 							SketchEdge ske = iter.next();
-							body.append(" " + quoteId(ske.getSourceEntity()) + ".BC" + constraint.getID() + " = " + false + ",");
+							body.append(" " + quoteId(ske.getSourceEntity()) + ".BC" + constraint.getID() + " = "
+									+ false + ",");
 						}
 						body.delete(body.length() - 1, body.length());
 						body.append(" WHERE " + qualifiedFK(e) + " IS NULL;" + lineSep);
@@ -410,7 +441,8 @@ public class MySQLExporter extends JDBCExporter {
 				proc1.append("END");
 				sql.add(proc1.toString());
 				// Now create the triggers to call the new procedure
-				addTrigger(p.getCoDomain(), "AFTER DELETE", "CALL " + quoteId("Update" + constraint.getID() + "Proj" + (j - 1)) + "()");
+				addTrigger(p.getCoDomain(), "AFTER DELETE",
+						"CALL " + quoteId("Update" + constraint.getID() + "Proj" + (j - 1)) + "()");
 			}
 			// end Federico Mora
 		}
@@ -436,18 +468,21 @@ public class MySQLExporter extends JDBCExporter {
 			// SQL file (invalid foreign keys)
 			/**
 			 * for (final SketchEdge shadow : dest.getShadowEdges()) {
-			 * args.add(quoteId("NEW_shadow_" + tableFK(shadow)) + ' ' +
-			 * pkType()); params.add("NEW." + quoteId(tableFK(shadow))); }
+			 * args.add(quoteId("NEW_shadow_" + tableFK(shadow)) + ' ' + pkType());
+			 * params.add("NEW." + quoteId(tableFK(shadow))); }
 			 */
 
 			proc = new StringBuilder(500);
 
-			proc.append("CREATE PROCEDURE ").append(quoteId(conName)).append('(').append(EasikTools.join(", ", args)).append(") BEGIN").append(lineSep).append(" DECLARE _lastId ").append(pkType()).append(';').append(lineSep);
+			proc.append("CREATE PROCEDURE ").append(quoteId(conName)).append('(').append(EasikTools.join(", ", args))
+					.append(") BEGIN").append(lineSep).append(" DECLARE _lastId ").append(pkType()).append(';')
+					.append(lineSep);
 
 			final StringBuilder createIntermediates = new StringBuilder(250);
 			final Collection<String> clauses = new LinkedList<>();
 
-			for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : constraint.getPaths()) {
+			for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : constraint
+					.getPaths()) {
 				if (p == q) {
 					continue;
 				}
@@ -472,7 +507,9 @@ public class MySQLExporter extends JDBCExporter {
 					final EntityNode target = e.getTargetEntity();
 
 					// after source there used to be dest.getShadowEdges();
-					createIntermediates.append("                        ").append(insertInto(true, source, qualifiedPK(target), quoteId(target), Collections.singletonList(quoteId(tableFK(e))), null));
+					createIntermediates.append("                        ")
+							.append(insertInto(true, source, qualifiedPK(target), quoteId(target),
+									Collections.singletonList(quoteId(tableFK(e))), null));
 				}
 			}
 
@@ -484,7 +521,9 @@ public class MySQLExporter extends JDBCExporter {
 				// If we just inserted the first row, we're going to have to
 				// build a path of intermediate tables
 				// for the other paths, which we built in createIntermediate.
-				proc.append("           IF (SELECT COUNT(*) FROM (SELECT 1 FROM ").append(quoteId(dest)).append(" LIMIT 2) a) = 1 THEN").append(lineSep).append(createIntermediates).append("               END IF;").append(lineSep).append("").append(lineSep);
+				proc.append("           IF (SELECT COUNT(*) FROM (SELECT 1 FROM ").append(quoteId(dest))
+						.append(" LIMIT 2) a) = 1 THEN").append(lineSep).append(createIntermediates)
+						.append("               END IF;").append(lineSep).append("").append(lineSep);
 			}
 
 			// Produce the intermediate path insertion strings
@@ -499,7 +538,9 @@ public class MySQLExporter extends JDBCExporter {
 					final EntityNode target = e.getTargetEntity();
 
 					// after source there used to be dest.getShadowEdges();
-					proc.append("               ").append(insertInto(true, source, null, null, Collections.singletonList(quoteId(tableFK(e))), Collections.singletonList((i == edges.length - 1) ? "id" : "LAST_INSERT_ID()")));
+					proc.append("               ")
+							.append(insertInto(true, source, null, null, Collections.singletonList(quoteId(tableFK(e))),
+									Collections.singletonList((i == edges.length - 1) ? "id" : "LAST_INSERT_ID()")));
 				}
 
 				proc.append("           SET _lastId = LAST_INSERT_ID();").append(lineSep);
@@ -513,7 +554,8 @@ public class MySQLExporter extends JDBCExporter {
 			final Collection<String> from = new LinkedList<>();
 			EntityNode thisTarget = null;
 
-			for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : constraint.getPaths()) {
+			for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q : constraint
+					.getPaths()) {
 				final EntityNode target = q.getFirstEdge().getTargetEntity();
 
 				columns.add(quoteId(tableFK(q.getFirstEdge())));
@@ -525,7 +567,11 @@ public class MySQLExporter extends JDBCExporter {
 				}
 			}
 			// after begin there used to be dest.getShadowEdges();
-			proc.append("               ").append(insertInto(true, begin, EasikTools.join(", ", values), EasikTools.join(" CROSS JOIN ", from) + " WHERE " + qualifiedPK(thisTarget) + " = _lastId", columns, null)).append("   END IF;").append(lineSep).append("END");
+			proc.append("               ")
+					.append(insertInto(true, begin, EasikTools.join(", ", values),
+							EasikTools.join(" CROSS JOIN ", from) + " WHERE " + qualifiedPK(thisTarget) + " = _lastId",
+							columns, null))
+					.append("   END IF;").append(lineSep).append("END");
 			sql.add(proc.toString());
 
 			addTrigger(dest, "AFTER INSERT", "CALL " + quoteId(conName) + '(' + EasikTools.join(", ", params) + ')');
@@ -543,7 +589,9 @@ public class MySQLExporter extends JDBCExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(final PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, final String id) {
+	public List<String> createConstraint(
+			final PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint,
+			final String id) {
 		final List<String> sql = new LinkedList<>();
 		String tmpS = null;
 
@@ -580,7 +628,9 @@ public class MySQLExporter extends JDBCExporter {
 		final String targetPK = qualifiedPK(target);
 
 		for (int i = 0; i < constraintWidth; i++) {
-			proc.append("       SELECT ").append(targetPK).append(" INTO " + BASE_PATH_NAME + i).append(lineSep).append("           FROM ").append(joinPath(constraint.getFullPath(i))).append(lineSep).append("           WHERE ").append(basePK).append(" = _newPBid;").append(lineSep);
+			proc.append("       SELECT ").append(targetPK).append(" INTO " + BASE_PATH_NAME + i).append(lineSep)
+					.append("           FROM ").append(joinPath(constraint.getFullPath(i))).append(lineSep)
+					.append("           WHERE ").append(basePK).append(" = _newPBid;").append(lineSep);
 		}
 
 		// Make sure the paths match
@@ -594,7 +644,9 @@ public class MySQLExporter extends JDBCExporter {
 			}
 		}
 
-		proc.append(" THEN").append(lineSep).append("               CALL constraint_failure('Invalid entry in pullback constraint.');").append(lineSep).append("       END IF;").append(lineSep);
+		proc.append(" THEN").append(lineSep)
+				.append("               CALL constraint_failure('Invalid entry in pullback constraint.');")
+				.append(lineSep).append("       END IF;").append(lineSep);
 
 		addFail = true;
 
@@ -628,7 +680,8 @@ public class MySQLExporter extends JDBCExporter {
 
 		for (int i = 0; i < constraintWidth; i++) {
 			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> tar = constraint.getTargetPath(i);
-			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> pro = constraint.getProjectionPath(i);
+			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> pro = constraint
+					.getProjectionPath(i);
 
 			pbAfterInsertProcs(sql, id, constraint, tar, pro, i);
 		}
@@ -638,7 +691,8 @@ public class MySQLExporter extends JDBCExporter {
 
 		proc = new StringBuilder(500);
 
-		proc.append("CREATE PROCEDURE ").append(quoteId(delConName)).append("(toDeleteId ").append(pkType()).append(") BEGIN").append(lineSep);
+		proc.append("CREATE PROCEDURE ").append(quoteId(delConName)).append("(toDeleteId ").append(pkType())
+				.append(") BEGIN").append(lineSep);
 		proc.append("   DELETE ").append(quoteId(target)).append(" FROM ").append(pbQ).append(" JOIN ").append('(');
 
 		for (int i = 0; i < constraintWidth; i++) {
@@ -685,7 +739,8 @@ public class MySQLExporter extends JDBCExporter {
 			EntityNode first = firstEdge.getTargetEntity();
 
 			if (tmpPath.size() > 0) {
-				proc.append(" JOIN ").append(joinPath(tmpPath, false, qualifiedFK(secondEdge) + " = " + qualifiedPK(secondEdge.getTargetEntity())));
+				proc.append(" JOIN ").append(joinPath(tmpPath, false,
+						qualifiedFK(secondEdge) + " = " + qualifiedPK(secondEdge.getTargetEntity())));
 			}
 		}
 
@@ -707,7 +762,8 @@ public class MySQLExporter extends JDBCExporter {
 			}
 		}
 
-		proc.append(lineSep).append("           WHERE ").append(qualifiedPK(pb)).append(" = toDeleteId;").append(lineSep).append("END");
+		proc.append(lineSep).append("           WHERE ").append(qualifiedPK(pb)).append(" = toDeleteId;")
+				.append(lineSep).append("END");
 		sql.add(proc.toString());
 		addTrigger(pb, "BEFORE DELETE", "CALL " + quoteId(delConName) + "(OLD." + quoteId(tablePK(pb)) + ')');
 
@@ -717,13 +773,16 @@ public class MySQLExporter extends JDBCExporter {
 		// Delete <p.getCodDomain> FROM <a JOIN b ON b.a_id = a.id JOIN c ON
 		// c.b_id = b.id JOIN d ON d.c_id = c.id...> WHERE <begin> = id;
 		for (int i = 0; i < constraintWidth; i++) {
-			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> p = constraint.getProjectionPath(i);
+			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> p = constraint
+					.getProjectionPath(i);
 			StringBuilder proc1 = new StringBuilder(500);
 			StringBuilder body = new StringBuilder(50);
 
-			proc1.append("CREATE PROCEDURE ").append("Update" + constraint.getID() + "Proj" + j++).append("() BEGIN").append(lineSep);
+			proc1.append("CREATE PROCEDURE ").append("Update" + constraint.getID() + "Proj" + j++).append("() BEGIN")
+					.append(lineSep);
 			for (int k = 0; k < constraintWidth; k++) {
-				ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q = constraint.getProjectionPath(k);
+				ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> q = constraint
+						.getProjectionPath(k);
 				if (p == q) {
 					// do nothing, cascade will take care of it
 				} else {
@@ -737,7 +796,8 @@ public class MySQLExporter extends JDBCExporter {
 						body.append("   SET");
 						while (iter.hasNext()) {
 							SketchEdge ske = iter.next();
-							body.append(" " + quoteId(ske.getSourceEntity()) + ".BC" + constraint.getID() + " = " + false + ",");
+							body.append(" " + quoteId(ske.getSourceEntity()) + ".BC" + constraint.getID() + " = "
+									+ false + ",");
 						}
 						body.delete(body.length() - 1, body.length());
 						body.append(" WHERE " + qualifiedFK(e) + " IS NULL;" + lineSep);
@@ -750,8 +810,10 @@ public class MySQLExporter extends JDBCExporter {
 				proc1.append("END");
 				sql.add(proc1.toString());
 				// Now create the triggers to call the new procedure
-				addTrigger(p.getCoDomain(), "AFTER DELETE", "CALL Update" + constraint.getID() + "Proj" + (j - 1) + "()");
-				addTrigger(p.getCoDomain(), "AFTER UPDATE", "CALL Update" + constraint.getID() + "Proj" + (j - 1) + "()");
+				addTrigger(p.getCoDomain(), "AFTER DELETE",
+						"CALL Update" + constraint.getID() + "Proj" + (j - 1) + "()");
+				addTrigger(p.getCoDomain(), "AFTER UPDATE",
+						"CALL Update" + constraint.getID() + "Proj" + (j - 1) + "()");
 			}
 		}
 		// end Federico Mora
@@ -769,7 +831,10 @@ public class MySQLExporter extends JDBCExporter {
 	 * @param thisFirstPath
 	 * @param index
 	 */
-	private void pbAfterInsertProcs(final List<String> sql, final String id, final PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> thisPath, final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> thisFirstPath, int index) {
+	private void pbAfterInsertProcs(final List<String> sql, final String id,
+			final PullbackConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint,
+			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> thisPath,
+			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> thisFirstPath, int index) {
 		final EntityNode source = thisPath.getDomain();
 		final EntityNode pb = thisFirstPath.getDomain();
 		final EntityNode target = thisPath.getCoDomain();
@@ -790,19 +855,22 @@ public class MySQLExporter extends JDBCExporter {
 
 		final StringBuilder proc = new StringBuilder(500);
 
-		proc.append("CREATE PROCEDURE ").append(quoteId(insConName)).append('(').append(EasikTools.join(", ", args)).append(") BEGIN").append(lineSep);
+		proc.append("CREATE PROCEDURE ").append(quoteId(insConName)).append('(').append(EasikTools.join(", ", args))
+				.append(") BEGIN").append(lineSep);
 
 		// trigger body
 		final String thisJoinPath = joinPath(thisPath, false); // omitting last
 																// edge
-		String lastJoinOn = "JOIN " + quoteId(target) + " ON " + qualifiedFK(thisPath.getLastEdge()) + " = " + qualifiedPK(target);
+		String lastJoinOn = "JOIN " + quoteId(target) + " ON " + qualifiedFK(thisPath.getLastEdge()) + " = "
+				+ qualifiedPK(target);
 
 		for (int i = 0; i < constraint.getWidth(); i++) {
 			if (i == index) {
 				continue;
 			}
 
-			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherPath = constraint.getTargetPath(i);
+			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherPath = constraint
+					.getTargetPath(i);
 
 			lastJoinOn += " AND ";
 			lastJoinOn += qualifiedFK(otherPath.getLastEdge()) + " = " + qualifiedPK(target);
@@ -815,12 +883,14 @@ public class MySQLExporter extends JDBCExporter {
 				continue;
 			}
 
-			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherPath = constraint.getTargetPath(i);
+			ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherPath = constraint
+					.getTargetPath(i);
 
 			proc.append(", ").append(joinPath(otherPath, false));
 		}
 
-		proc.append(") ").append(lastJoinOn).append(" WHERE ").append(qualifiedPK(source)).append(" = _newId) > 0 THEN").append(lineSep);
+		proc.append(") ").append(lastJoinOn).append(" WHERE ").append(qualifiedPK(source)).append(" = _newId) > 0 THEN")
+				.append(lineSep);
 
 		// constraint condition met
 		SketchEdge[] edges;
@@ -830,22 +900,28 @@ public class MySQLExporter extends JDBCExporter {
 				continue;
 			}
 
-			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherPath = constraint.getTargetPath(i);
-			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherFirstPath = constraint.getProjectionPath(i);
+			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherPath = constraint
+					.getTargetPath(i);
+			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherFirstPath = constraint
+					.getProjectionPath(i);
 			final LinkedList<SketchEdge> sketchEdgeLinkedList = otherFirstPath.getEdges();
 
 			edges = sketchEdgeLinkedList.toArray(new SketchEdge[sketchEdgeLinkedList.size()]);
 
 			if (edges.length >= 2) {
-				final String joinOn = "JOIN " + quoteId(target) + " ON " + qualifiedFK(thisPath.getLastEdge()) + " = " + qualifiedPK(target) + " AND " + qualifiedFK(otherPath.getLastEdge()) + " = " + qualifiedPK(target);
+				final String joinOn = "JOIN " + quoteId(target) + " ON " + qualifiedFK(thisPath.getLastEdge()) + " = "
+						+ qualifiedPK(target) + " AND " + qualifiedFK(otherPath.getLastEdge()) + " = "
+						+ qualifiedPK(target);
 
 				// proc.append("\t\tIF (SELECT COUNT(*) FROM
 				// (").append(joinPath(sketchEdgeLinkedList, true));
-				proc.append("\t\tIF (SELECT COUNT(*) FROM (").append(joinPath(constraint.getFullPath(i).getEdges(), false));
+				proc.append("\t\tIF (SELECT COUNT(*) FROM (")
+						.append(joinPath(constraint.getFullPath(i).getEdges(), false));
 
 				// TODO might have the same bug if the target path is longer
 				// than 1, check this
-				proc.append(", ").append(thisJoinPath).append(") ").append(joinOn).append(" WHERE ").append(qualifiedPK(source)).append(" = _newId) = 0 THEN").append(lineSep);
+				proc.append(", ").append(thisJoinPath).append(") ").append(joinOn).append(" WHERE ")
+						.append(qualifiedPK(source)).append(" = _newId) = 0 THEN").append(lineSep);
 
 				final LinkedList<SketchEdge> partialPath = new LinkedList<>(otherPath.getEdges());
 
@@ -857,7 +933,9 @@ public class MySQLExporter extends JDBCExporter {
 					proc.append("\t\t\t").append(insertInto(true, s, qualifiedPK(t), // SELECT
 																						// this
 																						// FROM:
-							'(' + joinPath(partialPath, false) + ", " + thisJoinPath + ") " + joinOn + " WHERE " + qualifiedPK(source) + " = _newId", Collections.singletonList(quoteId(tableFK(edges[j]))), null));
+							'(' + joinPath(partialPath, false) + ", " + thisJoinPath + ") " + joinOn + " WHERE "
+									+ qualifiedPK(source) + " = _newId",
+							Collections.singletonList(quoteId(tableFK(edges[j]))), null));
 					partialPath.addFirst(edges[j]);
 				}
 
@@ -877,7 +955,10 @@ public class MySQLExporter extends JDBCExporter {
 			final EntityNode t = e.getTargetEntity();
 
 			// after s there used to be dest.getShadowEdges();
-			proc.append("\t\t").append(insertInto(true, s, qualifiedPK(t), joinPath(partialPath) + " WHERE " + qualifiedPK(source) + " = _newId", Collections.singletonList(quoteId(tableFK(e))), null));
+			proc.append("\t\t")
+					.append(insertInto(true, s, qualifiedPK(t),
+							joinPath(partialPath) + " WHERE " + qualifiedPK(source) + " = _newId",
+							Collections.singletonList(quoteId(tableFK(e))), null));
 			partialPath.addFirst(e);
 		}
 
@@ -894,7 +975,8 @@ public class MySQLExporter extends JDBCExporter {
 		String tmpStr2 = '(' + joinPath(tmpPath, false);
 
 		for (int i = 0; i < constraint.getWidth(); i++) {
-			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherFirstPath = constraint.getProjectionPath(i);
+			final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> otherFirstPath = constraint
+					.getProjectionPath(i);
 			final EntityNode otherFirstStop = otherFirstPath.getFirstCoDomain();
 
 			if (otherFirstPath != thisFirstPath) {
@@ -913,7 +995,8 @@ public class MySQLExporter extends JDBCExporter {
 		}
 
 		// after pb there used to be dest.getShadowEdges();
-		proc.append("\t\t").append(insertInto(true, pb, tmpStr1, tmpStr2 + ") " + lastJoinOn + " WHERE " + qualifiedPK(source) + " = _newId", cols, null));
+		proc.append("\t\t").append(insertInto(true, pb, tmpStr1,
+				tmpStr2 + ") " + lastJoinOn + " WHERE " + qualifiedPK(source) + " = _newId", cols, null));
 
 		// end constraint condition met
 		proc.append("\tEND IF;");
@@ -935,13 +1018,16 @@ public class MySQLExporter extends JDBCExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(final EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, final String id) {
+	public List<String> createConstraint(
+			final EqualizerConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint,
+			final String id) {
 		final List<String> sql = new LinkedList<>();
 		final EntityNode eq = constraint.getEqualizerEntity();
 		final EntityNode source = constraint.getSourceEntity();
 		final EntityNode target = constraint.getTargetEntity();
 		final InjectiveEdge projEdge = (InjectiveEdge) constraint.getProjection().getFirstEdge();
-		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = constraint.getEqualizerPaths();
+		final List<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = constraint
+				.getEqualizerPaths();
 		final String insConName = "eqCon" + id + "InsUpd" + cleanId(source);
 		final Collection<String> args = new LinkedList<>();
 		final Collection<String> params = new LinkedList<>();
@@ -959,7 +1045,8 @@ public class MySQLExporter extends JDBCExporter {
 
 		final StringBuilder proc = new StringBuilder(500);
 
-		proc.append("CREATE PROCEDURE ").append(quoteId(insConName)).append('(').append(EasikTools.join(", ", args)).append(") BEGIN").append(lineSep);
+		proc.append("CREATE PROCEDURE ").append(quoteId(insConName)).append('(').append(EasikTools.join(", ", args))
+				.append(") BEGIN").append(lineSep);
 		proc.append("   DECLARE _path0Id");
 
 		// Add a variable for each path, _path0Id, _path1Id, etc.:
@@ -975,7 +1062,9 @@ public class MySQLExporter extends JDBCExporter {
 		int i = 0;
 
 		for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> p : paths) {
-			proc.append("   SELECT ").append(targetPK).append(" INTO _path").append(i).append("Id").append(lineSep).append("           FROM ").append(joinPath(p)).append(lineSep).append("           WHERE ").append(sourcePK).append(" = ").append(newPK).append(';').append(lineSep);
+			proc.append("   SELECT ").append(targetPK).append(" INTO _path").append(i).append("Id").append(lineSep)
+					.append("           FROM ").append(joinPath(p)).append(lineSep).append("           WHERE ")
+					.append(sourcePK).append(" = ").append(newPK).append(';').append(lineSep);
 
 			++i;
 		}
@@ -988,13 +1077,14 @@ public class MySQLExporter extends JDBCExporter {
 			proc.append(" OR NOT (_path0Id <=> _path").append(j).append("Id)");
 		}
 
-		proc.append(" THEN").append(lineSep)
-				.append(
+		proc.append(" THEN").append(lineSep).append(
 
-						// If one of the paths doesn't match, we need to need to
-						// delete it from the equalizer (if it's there)
-						"               DELETE FROM ")
-				.append(quoteId(eq)).append(" WHERE ").append(qualifiedFK(projEdge)).append(" = ").append(newPK).append(';').append(lineSep).append("       ELSEIF (SELECT COUNT(*) FROM ").append(quoteId(eq)).append(" WHERE ").append(qualifiedFK(projEdge)).append(" = ").append(newPK).append(") = 0 THEN").append(lineSep).append(
+				// If one of the paths doesn't match, we need to need to
+				// delete it from the equalizer (if it's there)
+				"               DELETE FROM ").append(quoteId(eq)).append(" WHERE ").append(qualifiedFK(projEdge))
+				.append(" = ").append(newPK).append(';').append(lineSep).append("       ELSEIF (SELECT COUNT(*) FROM ")
+				.append(quoteId(eq)).append(" WHERE ").append(qualifiedFK(projEdge)).append(" = ").append(newPK)
+				.append(") = 0 THEN").append(lineSep).append(
 
 						// Otherwise, if it isn't already in the equalizer, we
 						// need to
@@ -1013,16 +1103,21 @@ public class MySQLExporter extends JDBCExporter {
 
 			if (j == edges.length - 1) {
 				// after s there used to be dest.getShadowEdges();
-				proc.append(insertInto(false, s, null, null, Collections.singletonList(quoteId(tableFK(edges[j]))), Collections.singletonList("_newId")));
+				proc.append(insertInto(false, s, null, null, Collections.singletonList(quoteId(tableFK(edges[j]))),
+						Collections.singletonList("_newId")));
 			} else {
 				// after source there used to be dest.getShadowEdges();
-				proc.append(insertInto(false, s, null, null, Collections.singletonList(quoteId(tableFK(edges[j]))), Collections.singletonList("LAST_INSERT_ID()")));
+				proc.append(insertInto(false, s, null, null, Collections.singletonList(quoteId(tableFK(edges[j]))),
+						Collections.singletonList("LAST_INSERT_ID()")));
 			}
 		}
 
 		// done - deal with intermediate nodes in projection
 		// after eq there used to be dest.getShadowEdges();
-		proc.append("               ").append(insertInto(true, eq, null, null, Collections.singletonList(quoteId(tableFK(projEdge))), Collections.singletonList("LAST_INSERT_ID()"))).append("       END IF;").append(lineSep).append("END").append(lineSep);
+		proc.append("               ")
+				.append(insertInto(true, eq, null, null, Collections.singletonList(quoteId(tableFK(projEdge))),
+						Collections.singletonList("LAST_INSERT_ID()")))
+				.append("       END IF;").append(lineSep).append("END").append(lineSep);
 		sql.add(proc.toString());
 
 		// Create the trigger for inserting into the source table:
@@ -1033,13 +1128,15 @@ public class MySQLExporter extends JDBCExporter {
 
 		// If the projection isn't a cascading edge, cascade:
 		if (projEdge.getCascading() != SketchEdge.Cascade.CASCADE) {
-			addTrigger(source, "BEFORE DELETE", "DELETE FROM " + quoteId(eq) + " WHERE " + qualifiedFK(projEdge) + " = OLD." + quoteId(tablePK(source)));
+			addTrigger(source, "BEFORE DELETE", "DELETE FROM " + quoteId(eq) + " WHERE " + qualifiedFK(projEdge)
+					+ " = OLD." + quoteId(tablePK(source)));
 		}
 
 		// Federico Mora
 		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> p = constraint.getProjection();
 		StringBuilder proc1 = new StringBuilder(500);
-		proc1.append("CREATE PROCEDURE ").append("Update" + constraint.getID() + "Proj").append("() BEGIN").append(lineSep);
+		proc1.append("CREATE PROCEDURE ").append("Update" + constraint.getID() + "Proj").append("() BEGIN")
+				.append(lineSep);
 		// making the update string which is used by all the delete
 		// procedures.
 		final LinkedList<SketchEdge> egs = p.getEdges();
@@ -1057,7 +1154,8 @@ public class MySQLExporter extends JDBCExporter {
 			proc1.append("END");
 			sql.add(proc1.toString());
 			// Now create the triggers to call the new procedure
-			addTrigger(p.getCoDomain(), "AFTER UPDATE", "CALL " + quoteId("Update" + constraint.getID() + "Proj") + "()");
+			addTrigger(p.getCoDomain(), "AFTER UPDATE",
+					"CALL " + quoteId("Update" + constraint.getID() + "Proj") + "()");
 		}
 		// end Federico Mora
 
@@ -1073,16 +1171,21 @@ public class MySQLExporter extends JDBCExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(final SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, final String id) {
+	public List<String> createConstraint(
+			final SumConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint,
+			final String id) {
 		final List<String> sql = new LinkedList<>();
 
-		for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path : constraint.getPaths()) {
+		for (final ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path : constraint
+				.getPaths()) {
 			final EntityNode dom = path.getDomain();
 			final EntityNode codo = path.getCoDomain();
 			final String baseConName = "sumConstraint" + id + cleanId(dom);
 			final StringBuilder proc = new StringBuilder(500);
 
-			proc.append("CREATE PROCEDURE ").append(quoteId(baseConName + "Delete")).append("(_deleteFK ").append(pkType()).append(") BEGIN").append(lineSep).append("   DELETE FROM ").append(quoteId(codo)).append(" WHERE ").append(qualifiedPK(codo)).append(" = ");
+			proc.append("CREATE PROCEDURE ").append(quoteId(baseConName + "Delete")).append("(_deleteFK ")
+					.append(pkType()).append(") BEGIN").append(lineSep).append("   DELETE FROM ").append(quoteId(codo))
+					.append(" WHERE ").append(qualifiedPK(codo)).append(" = ");
 
 			if (path.getEdges().size() == 1) {
 				proc.append("_deleteFK");
@@ -1090,12 +1193,15 @@ public class MySQLExporter extends JDBCExporter {
 				final LinkedList<SketchEdge> trailing = new LinkedList<>(path.getEdges());
 
 				trailing.removeFirst();
-				proc.append("(SELECT ").append(qualifiedFK(trailing.getLast())).append(" FROM ").append(joinPath(trailing, false)).append(" WHERE ").append(qualifiedPK(path.getFirstCoDomain())).append(" = _deleteFK)");
+				proc.append("(SELECT ").append(qualifiedFK(trailing.getLast())).append(" FROM ")
+						.append(joinPath(trailing, false)).append(" WHERE ")
+						.append(qualifiedPK(path.getFirstCoDomain())).append(" = _deleteFK)");
 			}
 
 			proc.append(';').append(lineSep).append("END");
 			sql.add(proc.toString());
-			addTrigger(dom, "AFTER DELETE", "CALL " + quoteId(baseConName + "Delete") + "(OLD." + quoteId(tableFK(path.getFirstEdge())) + ')');
+			addTrigger(dom, "AFTER DELETE",
+					"CALL " + quoteId(baseConName + "Delete") + "(OLD." + quoteId(tableFK(path.getFirstEdge())) + ')');
 
 			final List<String> insertions = new LinkedList<>();
 
@@ -1108,7 +1214,9 @@ public class MySQLExporter extends JDBCExporter {
 				final EntityNode source = edges[i].getSourceEntity();
 
 				// after source there used to be dest.getShadowEdges();
-				insertions.add(insertInto(false, source, null, null, Collections.singletonList(quoteId(tableFK(edges[i]))), Collections.singletonList("LAST_INSERT_ID()")));
+				insertions.add(
+						insertInto(false, source, null, null, Collections.singletonList(quoteId(tableFK(edges[i]))),
+								Collections.singletonList("LAST_INSERT_ID()")));
 			}
 
 			insertions.add("SET NEW." + quoteId(tableFK(edges[0])) + " = LAST_INSERT_ID()");
@@ -1127,7 +1235,9 @@ public class MySQLExporter extends JDBCExporter {
 	 * @return
 	 */
 	@Override
-	public List<String> createConstraint(final LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint, final String id) {
+	public List<String> createConstraint(
+			final LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> constraint,
+			final String id) {
 		final List<String> sql = new LinkedList<>();
 		StringBuilder proc = new StringBuilder(500);
 		final List<String> declarations = new LinkedList<>();
@@ -1146,21 +1256,26 @@ public class MySQLExporter extends JDBCExporter {
 		tmpEdges.addAll(coneBC.getEdges());
 
 		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> coneABC = new ModelPath<>(tmpEdges);
-		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitConeAB = constraint.getLimitCone1().AB;
-		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone1BC = constraint.getLimitCone1().BC;
-		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone2BC = constraint.getLimitCone2().BC;
+		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitConeAB = constraint
+				.getLimitCone1().AB;
+		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone1BC = constraint
+				.getLimitCone1().BC;
+		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone2BC = constraint
+				.getLimitCone2().BC;
 
 		tmpEdges = limitConeAB.getEdges();
 
 		tmpEdges.addAll(limitCone1BC.getEdges());
 
-		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone1ABC = new ModelPath<>(tmpEdges);
+		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone1ABC = new ModelPath<>(
+				tmpEdges);
 
 		tmpEdges = limitConeAB.getEdges();
 
 		tmpEdges.addAll(limitCone2BC.getEdges());
 
-		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone2ABC = new ModelPath<>(tmpEdges);
+		ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> limitCone2ABC = new ModelPath<>(
+				tmpEdges);
 		ArrayList<ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> paths = new ArrayList<>();
 
 		paths.add(coneABC);
@@ -1188,11 +1303,16 @@ public class MySQLExporter extends JDBCExporter {
 			if (tmpPath.size() == 0) {
 				values.add("    SELECT " + fk + " INTO _cdTarget" + targetNum + ';' + lineSep);
 			} else {
-				values.add("    SELECT " + qualifiedFK(path.getLastEdge()) + " INTO _cdTarget" + targetNum + " FROM " + joinPath(tmpPath, false) + " WHERE " + qualifiedPK(tmpPath.getFirst().getSourceEntity()) + " = " + fk + ';' + lineSep);
+				values.add("    SELECT " + qualifiedFK(path.getLastEdge()) + " INTO _cdTarget" + targetNum + " FROM "
+						+ joinPath(tmpPath, false) + " WHERE " + qualifiedPK(tmpPath.getFirst().getSourceEntity())
+						+ " = " + fk + ';' + lineSep);
 			}
 		}
 
-		proc.append("CREATE PROCEDURE ").append(quoteId("limitConstraint" + id)).append('(').append(EasikTools.join(", ", args)).append(") BEGIN").append(lineSep).append("    DECLARE ").append(EasikTools.join(", ", declarations)).append(' ').append(pkType()).append(';').append(lineSep).append(EasikTools.join("", values)).append("    IF").append(lineSep);
+		proc.append("CREATE PROCEDURE ").append(quoteId("limitConstraint" + id)).append('(')
+				.append(EasikTools.join(", ", args)).append(") BEGIN").append(lineSep).append("    DECLARE ")
+				.append(EasikTools.join(", ", declarations)).append(' ').append(pkType()).append(';').append(lineSep)
+				.append(EasikTools.join("", values)).append("    IF").append(lineSep);
 
 		// cone commutativity check
 		proc.append("        NOT (_cdTarget1 <=> _cdTarget2) OR");
@@ -1205,13 +1325,15 @@ public class MySQLExporter extends JDBCExporter {
 		// limitCone2 commutativity check
 		proc.append("        NOT (_cdTarget5 <=> _cdTarget2)");
 		proc.append(lineSep);
-		proc.append("    THEN CALL constraint_failure('Limit constraint failure.');").append(lineSep).append("    END IF;").append(lineSep).append("END");
+		proc.append("    THEN CALL constraint_failure('Limit constraint failure.');").append(lineSep)
+				.append("    END IF;").append(lineSep).append("END");
 
 		addFail = true;
 
 		sql.addAll(delimit("$$", proc));
 		// cast because we will only do this in sketches
-		addTrigger(constraint.getCone().getA(), "BEFORE INSERT", "CALL " + quoteId("limitConstraint" + id) + '(' + EasikTools.join(", ", params) + ')');
+		addTrigger(constraint.getCone().getA(), "BEFORE INSERT",
+				"CALL " + quoteId("limitConstraint" + id) + '(' + EasikTools.join(", ", params) + ')');
 
 		return sql;
 	}
@@ -1219,28 +1341,27 @@ public class MySQLExporter extends JDBCExporter {
 	/**
 	 * Creates various extra statements that we need.
 	 * <p/>
-	 * One of these is to create a constraint_failure() procedure, since MySQL
-	 * has no way to abort a transaction other than performing an invalid query
+	 * One of these is to create a constraint_failure() procedure, since MySQL has
+	 * no way to abort a transaction other than performing an invalid query
 	 * (constraint_failure() attempts an "UPDATE" of "fail = 1" on a table named
-	 * whatever failure message is passed in; that way at least the error
-	 * appears in the MySQL error message. This sucks, I know. Blame MySQL.)
+	 * whatever failure message is passed in; that way at least the error appears in
+	 * the MySQL error message. This sucks, I know. Blame MySQL.)
 	 * <p/>
 	 * FIXME: Right now, MySQL <b>does not support</b> updating the same table a
 	 * trigger applies to in an AFTER trigger, so we have no way to clear shadow
 	 * columns. This was presumably a result of MySQL incompetence, or MySQL's
-	 * philosophy of limiting itself in order to prevent idiot PHP programmers
-	 * from shooting themselves in the foot with--*GASP*--a recursive trigger.
-	 * While it would be very nice to clear the shadow columns, we simply can't
-	 * do so: the values are often needed in AFTER INSERT or AFTER UPDATE
-	 * triggers, so we can't clear them before then, however the only entry
-	 * point for clearing these with MySQL is doing a 'SET NEW.col = NULL'
-	 * inside the BEFORE trigger.
+	 * philosophy of limiting itself in order to prevent idiot PHP programmers from
+	 * shooting themselves in the foot with--*GASP*--a recursive trigger. While it
+	 * would be very nice to clear the shadow columns, we simply can't do so: the
+	 * values are often needed in AFTER INSERT or AFTER UPDATE triggers, so we can't
+	 * clear them before then, however the only entry point for clearing these with
+	 * MySQL is doing a 'SET NEW.col = NULL' inside the BEFORE trigger.
 	 * <p/>
-	 * If MySQL some day supports an update on the same table a trigger is
-	 * applied to, the following will work. Until then, MySQL tables will end up
-	 * retaining values in the shadow columns. N.B. that these values are actual
-	 * references to the appropriate tables and columns, but are 'ON DELETE SET
-	 * NULL ON UPDATE SET NULL', so should not pose data manipulation problems.
+	 * If MySQL some day supports an update on the same table a trigger is applied
+	 * to, the following will work. Until then, MySQL tables will end up retaining
+	 * values in the shadow columns. N.B. that these values are actual references to
+	 * the appropriate tables and columns, but are 'ON DELETE SET NULL ON UPDATE SET
+	 * NULL', so should not pose data manipulation problems.
 	 *
 	 * @param toggleTriggers
 	 *
@@ -1257,8 +1378,14 @@ public class MySQLExporter extends JDBCExporter {
 			// fails.
 			// This is disgusting, but is what MySQL documentation recommends
 			// doing.
-			extras.addAll(delimit("$$", "CREATE PROCEDURE constraint_failure(_message VARCHAR(255)) BEGIN" + lineSep + "   -- This update is going to fail: this hack is needed because MySQL" + lineSep + "   -- lacks the ability to do an (SQL-standard) SIGNAL from a procedure." + lineSep + "   SET @sql = CONCAT('UPDATE `', _message, '` SET fail=1');" + lineSep
-					+ "   PREPARE constraint_fail_statement_handle FROM @sql;" + lineSep + "   EXECUTE contraint_fail_statement_handle;" + lineSep + "   DEALLOCATE PREPARE contraint_fail_statement_handle;" + lineSep + "END"));
+			extras.addAll(delimit("$$",
+					"CREATE PROCEDURE constraint_failure(_message VARCHAR(255)) BEGIN" + lineSep
+							+ "   -- This update is going to fail: this hack is needed because MySQL" + lineSep
+							+ "   -- lacks the ability to do an (SQL-standard) SIGNAL from a procedure." + lineSep
+							+ "   SET @sql = CONCAT('UPDATE `', _message, '` SET fail=1');" + lineSep
+							+ "   PREPARE constraint_fail_statement_handle FROM @sql;" + lineSep
+							+ "   EXECUTE contraint_fail_statement_handle;" + lineSep
+							+ "   DEALLOCATE PREPARE contraint_fail_statement_handle;" + lineSep + "END"));
 		}
 
 		final List<StringBuilder> trigs = new LinkedList<>();
@@ -1270,7 +1397,10 @@ public class MySQLExporter extends JDBCExporter {
 				final LinkedList<String> actions = tableTriggers.get(when);
 				final StringBuilder commands = new StringBuilder(200);
 
-				commands.append("CREATE TRIGGER ").append(quoteId(table + "_" + when.replaceAll("(\\w)\\w*\\s*", "$1").toLowerCase() + "Trig")).append(' ').append(when).append(" ON ").append(quoteId(table)).append(" FOR EACH ROW").append(lineSep);
+				commands.append("CREATE TRIGGER ")
+						.append(quoteId(table + "_" + when.replaceAll("(\\w)\\w*\\s*", "$1").toLowerCase() + "Trig"))
+						.append(' ').append(when).append(" ON ").append(quoteId(table)).append(" FOR EACH ROW")
+						.append(lineSep);
 
 				if (toggleTriggers) {
 					commands.append("\tIF (@DISABLE_TRIGGER IS NULL) THEN ").append(lineSep);
@@ -1282,7 +1412,8 @@ public class MySQLExporter extends JDBCExporter {
 					commands.append(toggleTriggers ? "\t\t" : "\t").append("BEGIN").append(lineSep);
 
 					for (final String action : actions) {
-						commands.append(toggleTriggers ? "\t\t\t" : "\t\t").append(action.replaceFirst(";\\s*$", "")).append(';').append(lineSep);
+						commands.append(toggleTriggers ? "\t\t\t" : "\t\t").append(action.replaceFirst(";\\s*$", ""))
+								.append(';').append(lineSep);
 					}
 
 					commands.append(toggleTriggers ? "\t\t" : "\t").append("END;");
@@ -1317,15 +1448,12 @@ public class MySQLExporter extends JDBCExporter {
 	 * Adds a trigger to triggers, which is used in createExtras to add the
 	 * triggers.
 	 *
-	 * @param table
-	 *            the table the trigger applies to
-	 * @param when
-	 *            the trigger time, such as "BEFORE UPDATE", "AFTER DELETE",
-	 *            "BEFORE INSERT", etc.
-	 * @param action
-	 *            one or more SQL statements (or array or list of SQL
-	 *            statements) to execute in the trigger (statements should not
-	 *            end with ; or $).
+	 * @param table  the table the trigger applies to
+	 * @param when   the trigger time, such as "BEFORE UPDATE", "AFTER DELETE",
+	 *               "BEFORE INSERT", etc.
+	 * @param action one or more SQL statements (or array or list of SQL statements)
+	 *               to execute in the trigger (statements should not end with ; or
+	 *               $).
 	 */
 
 	// triggers is a: LinkedHashMap<EntityNode, LinkedHashMap<String,
@@ -1366,14 +1494,12 @@ public class MySQLExporter extends JDBCExporter {
 	}
 
 	/**
-	 * Takes statement(s) (typically of a procedure) and, if for a non-db
-	 * export, adds the delimiter change statement and adds the specified
-	 * delimiter to the end of each provided statement.
+	 * Takes statement(s) (typically of a procedure) and, if for a non-db export,
+	 * adds the delimiter change statement and adds the specified delimiter to the
+	 * end of each provided statement.
 	 *
-	 * @param delimiter
-	 *            The delimiter
-	 * @param statements
-	 *            Which statements need it
+	 * @param delimiter  The delimiter
+	 * @param statements Which statements need it
 	 * @return a delimited list of strings
 	 */
 	private List<String> delimit(final String delimiter, final List<? extends CharSequence> statements) {
@@ -1418,38 +1544,33 @@ public class MySQLExporter extends JDBCExporter {
 	}
 
 	/**
-	 * Appends an INSERT INTO statement to the provided StringBuilder, and
-	 * stores the shadow edges to be cleared at the end of the trigger. Note
-	 * that MySQL currently has limitations preventing us from clearing shadow
-	 * edges; see the createExtra() documentation for why.
+	 * Appends an INSERT INTO statement to the provided StringBuilder, and stores
+	 * the shadow edges to be cleared at the end of the trigger. Note that MySQL
+	 * currently has limitations preventing us from clearing shadow edges; see the
+	 * createExtra() documentation for why.
 	 *
-	 * @param inProcedure
-	 *            true if the INSERT is in a procedure called by a trigger,
-	 *            false if the INSERT is to be used directly inside the trigger.
-	 *            If in a procedure, NEW_shadow_shadowCol will be used (and
-	 *            assumed passed in to the procedure); when used within a
-	 *            trigger the row value will be accessed using NEW.shadowCol.
-	 *            This shouldn't be necessary, but MySQL doesn't support passing
-	 *            a row to a procedure.
-	 * @param node
-	 *            the EntityNode of the table the trigger applies to
-	 * @param inShadowEdges
-	 *            the shadowEdges available from the original insert, which may
-	 *            not have been into node
-	 * @param selectWhat
-	 *            if non-null, this generates a "INSERT INTO ... SELECT
-	 *            <i>selectWhat</i> FROM <i>selectFrom</i>" statement, with
-	 *            appropriate shadow columns added.
-	 * @param selectFrom
-	 *            see the selectWhat parameter.
-	 * @param cols
-	 *            if selectWhat is non-null, this is a list of column names that
-	 *            are being inserted (not including the shadow columns). This
-	 *            will be treated as an empty list if null.
-	 * @param vals
-	 *            if selectWhat is non-null, this is a list of values associated
-	 *            with the names provided by cols that are to be inserted. This
-	 *            will be treated as an empty list if null.
+	 * @param inProcedure   true if the INSERT is in a procedure called by a
+	 *                      trigger, false if the INSERT is to be used directly
+	 *                      inside the trigger. If in a procedure,
+	 *                      NEW_shadow_shadowCol will be used (and assumed passed in
+	 *                      to the procedure); when used within a trigger the row
+	 *                      value will be accessed using NEW.shadowCol. This
+	 *                      shouldn't be necessary, but MySQL doesn't support
+	 *                      passing a row to a procedure.
+	 * @param node          the EntityNode of the table the trigger applies to
+	 * @param inShadowEdges the shadowEdges available from the original insert,
+	 *                      which may not have been into node
+	 * @param selectWhat    if non-null, this generates a "INSERT INTO ... SELECT
+	 *                      <i>selectWhat</i> FROM <i>selectFrom</i>" statement,
+	 *                      with appropriate shadow columns added.
+	 * @param selectFrom    see the selectWhat parameter.
+	 * @param cols          if selectWhat is non-null, this is a list of column
+	 *                      names that are being inserted (not including the shadow
+	 *                      columns). This will be treated as an empty list if null.
+	 * @param vals          if selectWhat is non-null, this is a list of values
+	 *                      associated with the names provided by cols that are to
+	 *                      be inserted. This will be treated as an empty list if
+	 *                      null.
 	 * @return A string that is typically appended to the ongoing stringbuilder
 	 */
 	private String insertInto(final boolean inProcedure, // If we're producing
@@ -1489,7 +1610,8 @@ public class MySQLExporter extends JDBCExporter {
 		// then it is because it is part of a constraint so we want to label it
 		// as such
 		// if not then lets label it as false
-		for (final EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> col : node.getHiddenEntityAttributes()) {
+		for (final EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> col : node
+				.getHiddenEntityAttributes()) {
 			proc.append(col.getName()).append(", ");
 			values.append(true).append(", ");
 		}
@@ -1518,7 +1640,8 @@ public class MySQLExporter extends JDBCExporter {
 		}
 
 		if (selectWhat != null) {
-			proc.append(") SELECT ").append(selectWhat).append((values.length() > 0) ? ", " + values : "").append(" FROM ").append(selectFrom);
+			proc.append(") SELECT ").append(selectWhat).append((values.length() > 0) ? ", " + values : "")
+					.append(" FROM ").append(selectFrom);
 		} else {
 			proc.append(") VALUES (").append(values).append(')');
 		}

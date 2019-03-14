@@ -55,23 +55,21 @@ public class NewViewEdgeAction extends AbstractAction {
 		_theFrame = inFrame;
 
 		/**
-		 * putValue(AbstractAction.SHORT_DESCRIPTION, (type == Edge.SELF) ?
-		 * "Adds a self-referencing partial map edge from the selected node back
-		 * to itself" : (type == Edge.PARTIAL) ? "Connect the two selected nodes
-		 * with a partial map edge" : (type == Edge.INJECTIVE) ? "Connect the
-		 * two selected nodes with an injective edge" : "Connect the two
-		 * selected nodes with an edge");
+		 * putValue(AbstractAction.SHORT_DESCRIPTION, (type == Edge.SELF) ? "Adds a
+		 * self-referencing partial map edge from the selected node back to itself" :
+		 * (type == Edge.PARTIAL) ? "Connect the two selected nodes with a partial map
+		 * edge" : (type == Edge.INJECTIVE) ? "Connect the two selected nodes with an
+		 * injective edge" : "Connect the two selected nodes with an edge");
 		 */
 
 		putValue(Action.SHORT_DESCRIPTION, "Adds an edge which was present in original sketch - if applicable");
 	}
 
 	/**
-	 * The action for creating a new edge. Make sure the selection is alright,
-	 * and then create the edge.
+	 * The action for creating a new edge. Make sure the selection is alright, and
+	 * then create the edge.
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -82,7 +80,10 @@ public class NewViewEdgeAction extends AbstractAction {
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_ourSketch.isSynced()) {
-			if (JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 		}
@@ -145,22 +146,27 @@ public class NewViewEdgeAction extends AbstractAction {
 					if (edge.isPartial()) {
 
 						// ***NEED TO FIGURE OUT CASCADING
-						vEdge = new PartialViewEdge((QueryNode) currentSelection[0], (QueryNode) currentSelection[0], edge.getName());
+						vEdge = new PartialViewEdge((QueryNode) currentSelection[0], (QueryNode) currentSelection[0],
+								edge.getName());
 
 					} else if (edge.isInjective()) {
 						// System.out.println("Edge is injective");
 						// **NEED TO FIGURE OUT CASCADING
 						if (forward) {
-							vEdge = new InjectiveViewEdge((QueryNode) currentSelection[1], (QueryNode) currentSelection[0], edge.getName(), Cascade.RESTRICT);
+							vEdge = new InjectiveViewEdge((QueryNode) currentSelection[1],
+									(QueryNode) currentSelection[0], edge.getName(), Cascade.RESTRICT);
 						} else {
-							vEdge = new InjectiveViewEdge((QueryNode) currentSelection[0], (QueryNode) currentSelection[1], edge.getName(), Cascade.RESTRICT);
+							vEdge = new InjectiveViewEdge((QueryNode) currentSelection[0],
+									(QueryNode) currentSelection[1], edge.getName(), Cascade.RESTRICT);
 						}
 						// System.out.println(vEdge.getName());
 					} else {
 						if (forward) {
-							vEdge = new NormalViewEdge((QueryNode) currentSelection[1], (QueryNode) currentSelection[0], edge.getName());
+							vEdge = new NormalViewEdge((QueryNode) currentSelection[1], (QueryNode) currentSelection[0],
+									edge.getName());
 						} else {
-							vEdge = new NormalViewEdge((QueryNode) currentSelection[0], (QueryNode) currentSelection[1], edge.getName());
+							vEdge = new NormalViewEdge((QueryNode) currentSelection[0], (QueryNode) currentSelection[1],
+									edge.getName());
 						}
 
 					}

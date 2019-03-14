@@ -39,8 +39,7 @@ public class FileChooser {
 	/**
 	 * Shows a file chooser dialog for loading a file without any file filter.
 	 *
-	 * @param title
-	 *            the title of the file dialog
+	 * @param title the title of the file dialog
 	 * @return the File selected, or null if no file was selected.
 	 */
 	public static File loadFile(String title) {
@@ -48,14 +47,11 @@ public class FileChooser {
 	}
 
 	/**
-	 * Shows a file chooser dialog for loading a file with the specified
-	 * FileFilter. This is used with easik.ui.menu.FileFilter to filter by
-	 * extension(s).
+	 * Shows a file chooser dialog for loading a file with the specified FileFilter.
+	 * This is used with easik.ui.menu.FileFilter to filter by extension(s).
 	 *
-	 * @param title
-	 *            the title of the file dialog
-	 * @param filter
-	 *            a FileFilter object specifying the filter
+	 * @param title  the title of the file dialog
+	 * @param filter a FileFilter object specifying the filter
 	 * @return the File selected, or null if no file was selected.
 	 */
 	public static File loadFile(String title, FileFilter filter) {
@@ -65,8 +61,7 @@ public class FileChooser {
 	/**
 	 * Shows a file chooser dialog for saving a file without any filter.
 	 *
-	 * @param title
-	 *            the title of the file dialog
+	 * @param title the title of the file dialog
 	 * @return the File entered, or null if no file was entered or Cancel was
 	 *         pressed.
 	 */
@@ -75,14 +70,11 @@ public class FileChooser {
 	}
 
 	/**
-	 * Shows a file chooser dialog for loading a file with the specified
-	 * FileFilter. This is used with easik.ui.menu.FileFilter to filter by
-	 * extension(s).
+	 * Shows a file chooser dialog for loading a file with the specified FileFilter.
+	 * This is used with easik.ui.menu.FileFilter to filter by extension(s).
 	 *
-	 * @param title
-	 *            the title of the file dialog
-	 * @param filter
-	 *            the FileFilter filtering the desired file type
+	 * @param title  the title of the file dialog
+	 * @param filter the FileFilter filtering the desired file type
 	 * @return the File entered, or null if no file was entered or Cancel was
 	 *         pressed.
 	 */
@@ -91,17 +83,14 @@ public class FileChooser {
 	}
 
 	/**
-	 * Shows a file chooser dialog for loading a file with the specified
-	 * FileFilter, and the specified default file extension. This is used with
+	 * Shows a file chooser dialog for loading a file with the specified FileFilter,
+	 * and the specified default file extension. This is used with
 	 * easik.ui.menu.FileFilter to filter by extension(s).
 	 *
-	 * @param title
-	 *            the title of the file dialog
-	 * @param filter
-	 *            the FileFilter filtering the desired file type
-	 * @param extension
-	 *            the default extension to add to the filename if the filename
-	 *            entered doesn't match the filter
+	 * @param title     the title of the file dialog
+	 * @param filter    the FileFilter filtering the desired file type
+	 * @param extension the default extension to add to the filename if the filename
+	 *                  entered doesn't match the filter
 	 * @return the File entered, or null if no file was entered or Cancel was
 	 *         pressed.
 	 */
@@ -110,19 +99,15 @@ public class FileChooser {
 	}
 
 	/**
-	 * Shows a file chooser dialog for loading a file with the specified
-	 * FileFilter, and the specified default file extension. This is used with
+	 * Shows a file chooser dialog for loading a file with the specified FileFilter,
+	 * and the specified default file extension. This is used with
 	 * easik.ui.menu.FileFilter to filter by extension(s).
 	 *
-	 * @param title
-	 *            the title of the file dialog
-	 * @param filter
-	 *            the FileFilter filtering the desired file type
-	 * @param extension
-	 *            the default extension to add to the filename if the filename
-	 *            entered doesn't match the filter
-	 * @param name
-	 *            the default name used to save the file
+	 * @param title     the title of the file dialog
+	 * @param filter    the FileFilter filtering the desired file type
+	 * @param extension the default extension to add to the filename if the filename
+	 *                  entered doesn't match the filter
+	 * @param name      the default name used to save the file
 	 * @return the File entered, or null if no file was entered or Cancel was
 	 *         pressed.
 	 */
@@ -133,8 +118,7 @@ public class FileChooser {
 	/**
 	 * Shows a file chooser dialog that selects a directory.
 	 *
-	 * @param title
-	 *            the title of the file dialog
+	 * @param title the title of the file dialog
 	 * @return the File pointing to the directory selected
 	 */
 	public static File directory(String title) {
@@ -180,19 +164,20 @@ public class FileChooser {
 	 * @return
 	 */
 	private static File chooseFile(String title, Mode mode, FileFilter filter, String extension, String defaultName) {
-		boolean useSwing = "swing".equals(System.getenv("EASIK_FILECHOOSER")) ? true : "awt".equals(System.getenv("EASIK_FILECHOOSER")) ? false : EasikConstants.RUNNING_ON_MAC ? false : // On
-																																															// Mac
-																																															// we
-																																															// always
-																																															// want
-																																															// to
-																																															// use
-																																															// AWT
-																																															// because
-																																															// JFileChooser
-																																															// is
-																																															// terrible
-				true; // Otherwise, use JFileChooser
+		boolean useSwing = "swing".equals(System.getenv("EASIK_FILECHOOSER")) ? true
+				: "awt".equals(System.getenv("EASIK_FILECHOOSER")) ? false : EasikConstants.RUNNING_ON_MAC ? false : // On
+																														// Mac
+																														// we
+																														// always
+																														// want
+																														// to
+																														// use
+																														// AWT
+																														// because
+																														// JFileChooser
+																														// is
+																														// terrible
+						true; // Otherwise, use JFileChooser
 		File result = useSwing ? chooseFileSwing(title, mode, filter, defaultName) : chooseFileAWT(title, mode, filter);
 
 		// User hit cancel
@@ -217,7 +202,9 @@ public class FileChooser {
 		// DON'T do this on OS X with AWT, because there the native control
 		// already asks
 		if ((!EasikConstants.RUNNING_ON_MAC || useSwing) && (mode == Mode.SAVE) && result.exists()) {
-			int choice = JOptionPane.showConfirmDialog(null, "A file with this name already exists and will be overwritten.  Continue anyway?", "Warning", JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(null,
+					"A file with this name already exists and will be overwritten.  Continue anyway?", "Warning",
+					JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return chooseFile(title, mode, filter, extension, defaultName);
@@ -229,8 +216,8 @@ public class FileChooser {
 
 	/*
 	 * AWT FileDialog implementation of the file chooser. This is because
-	 * JFileChooser doesn't work very well on non-Windows, but FileDialog
-	 * doesn't work on Windows (it doesn't support file filters on Windows).
+	 * JFileChooser doesn't work very well on non-Windows, but FileDialog doesn't
+	 * work on Windows (it doesn't support file filters on Windows).
 	 */
 
 	/**
@@ -245,7 +232,8 @@ public class FileChooser {
 	private static File chooseFileAWT(String title, Mode mode, FileFilter filter) {
 		Easik e = Easik.getInstance();
 		EasikSettings s = e.getSettings();
-		FileDialog dialog = new FileDialog(e.getFrame(), title, (mode == Mode.SAVE) ? FileDialog.SAVE : FileDialog.LOAD);
+		FileDialog dialog = new FileDialog(e.getFrame(), title,
+				(mode == Mode.SAVE) ? FileDialog.SAVE : FileDialog.LOAD);
 
 		dialog.setDirectory(s.getDefaultFolder());
 

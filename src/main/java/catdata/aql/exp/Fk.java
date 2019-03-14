@@ -13,7 +13,7 @@ public class Fk {
 		this.str = str;
 		this.en = en;
 	}
-	
+
 	public synchronized static Fk Fk(En en, String str) {
 		Map<String, Fk> m = SchExpRaw.fkCache.get(en);
 		if (m == null) {
@@ -33,7 +33,7 @@ public class Fk {
 	public String toString() {
 		return Util.maybeQuote(str);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);

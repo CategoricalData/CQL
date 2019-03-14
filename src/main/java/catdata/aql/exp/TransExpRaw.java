@@ -22,81 +22,82 @@ import catdata.aql.fdm.LiteralTransform;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public final class TransExpRaw extends TransExp<Gen,Sk,Gen,Sk,String,String,String,String> implements Raw {
-	
+public final class TransExpRaw extends TransExp<Gen, Sk, Gen, Sk, String, String, String, String> implements Raw {
+
 	@Override
 	public Collection<Exp<?>> imports() {
 		return (Collection<Exp<?>>) (Object) imports;
 	}
-	
+
 	Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
-	
+
 	@Override
 	public Map<String, List<InteriorLabel<Object>>> raw() {
-		return raw ;
-	} 
-	
-	public <R,P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+		return raw;
+	}
+
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
+
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
 		Set<Pair<String, Kind>> ret = new THashSet<>(src.deps());
 		ret.addAll(dst.deps());
-		for (TransExp x : imports) {
-			ret.addAll(x.deps()); 
+		for (TransExp<?, ?, ?, ?, ?, ?, ?, ?> x : imports) {
+			ret.addAll(x.deps());
 		}
 		return ret;
 	}
-	public final InstExp<Gen,Sk,String,String> src;
-	public final InstExp<Gen,Sk,String,String> dst;
-	
-	public final Set<TransExp> imports;
-	
+
+	public final InstExp<Gen, Sk, String, String> src;
+	public final InstExp<Gen, Sk, String, String> dst;
+
+	public final Set<TransExp<?, ?, ?, ?, ?, ?, ?, ?>> imports;
+
 	public final Set<Pair<String, RawTerm>> gens;
-	
+
 	public final Map<String, String> options;
-	
+
 	@Override
 	public Map<String, String> options() {
 		return options;
 	}
-	 
+
 	@Override
 	public String makeString() {
-		final StringBuilder sb = new StringBuilder()
-				.append("literal : ").append(src).append(" -> ").append(dst).append(" {");
-		
+		final StringBuilder sb = new StringBuilder().append("literal : ").append(src).append(" -> ").append(dst)
+				.append(" {");
+
 		if (!imports.isEmpty()) {
 			sb.append("\n\timports");
 			sb.append("\n\t\t").append(Util.sep(imports, " ")).append("\n");
 		}
-			
+
 		List<String> temp = new LinkedList<>();
-		
+
 		if (!gens.isEmpty()) {
 			sb.append("\n\tgenerators");
-					
+
 			for (Pair<String, RawTerm> x : Util.alphabetical(gens)) {
 				temp.add(x.first + " -> " + x.second);
 			}
-			
+
 			sb.append("\n\t\t").append(Util.sep(temp, "\n\t\t")).append("\n");
 		}
-			
+
 		if (!options.isEmpty()) {
 			sb.append("\n\toptions");
 			temp = new LinkedList<>();
 			for (Entry<String, String> sym : options.entrySet()) {
 				temp.add(sym.getKey() + " = " + sym.getValue());
 			}
-			
+
 			sb.append("\n\t\t").append(Util.sep(temp, "\n\t\t")).append("\n");
 		}
-		
-		return  sb.append("}").toString();
-	} 
 
+		return sb.append("}").toString();
+	}
 
 	@Override
 	public int hashCode() {
@@ -148,76 +149,81 @@ public final class TransExpRaw extends TransExp<Gen,Sk,Gen,Sk,String,String,Stri
 	}
 
 	@SuppressWarnings("unchecked")
-	public TransExpRaw(InstExp<?, ?, ?, ?> src, InstExp<?, ?, ?, ?> dst, List<TransExp<?,?,?,?,?,?,?,?>> imports, List<Pair<LocStr, RawTerm>> gens, List<Pair<String, String>> options) {
+	public TransExpRaw(InstExp<?, ?, ?, ?> src, InstExp<?, ?, ?, ?> dst, List<TransExp<?, ?, ?, ?, ?, ?, ?, ?>> imports,
+			List<Pair<LocStr, RawTerm>> gens, List<Pair<String, String>> options) {
 		this.src = (InstExp<Gen, Sk, String, String>) src;
 		this.dst = (InstExp<Gen, Sk, String, String>) dst;
 		this.imports = new THashSet<>(imports);
 		this.gens = LocStr.set2(gens);
-		Util.toMapSafely(this.gens); //do here rather than wait
+		Util.toMapSafely(this.gens); // do here rather than wait
 		this.options = Util.toMapSafely(options);
-		
-		//List<InteriorLabel<Object>> t = InteriorLabel.imports("imports", imports);
-		//raw.put("imports", t);
-		
+
+		// List<InteriorLabel<Object>> t = InteriorLabel.imports("imports", imports);
+		// raw.put("imports", t);
+
 		List<InteriorLabel<Object>> f = new LinkedList<>();
 		for (Pair<LocStr, RawTerm> p : gens) {
 			f.add(new InteriorLabel<>("generators", new Pair<>(p.first.str, p.second), p.first.loc,
-					x -> x.first + " -> " + x.second ).conv());
+					x -> x.first + " -> " + x.second).conv());
 		}
 		raw.put("generators", f);
 	}
 
 	@Override
-	public synchronized Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> eval0(AqlEnv env, boolean isC) {
+	public synchronized Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> eval0(
+			AqlEnv env, boolean isC) {
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, String, String> src0 = src.eval(env, isC);
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, String, String> dst0 = dst.eval(env, isC);
-		//Collage<String, String, String, String, String, Void, Void> scol = new Collage<>(src0);
+		// Collage<String, String, String, String, String, Void, Void> scol = new
+		// Collage<>(src0);
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> dcol = new Collage<>(dst0.collage());
-		
-		Map<Gen, Term<Void,En,Void,Fk,Void,Gen,Void>> gens0 = new THashMap<>();
-		Map<Sk, Term<Ty,En,Sym,Fk,Att,Gen,Sk>> sks0 = new THashMap<>();
-		for (TransExp k : imports) {
-			Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> v = (Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String>) k.eval(env,isC); 
+
+		Map<Gen, Term<Void, En, Void, Fk, Void, Gen, Void>> gens0 = new THashMap<>();
+		Map<Sk, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> sks0 = new THashMap<>();
+		for (TransExp<?, ?, ?, ?, ?, ?, ?, ?> k : imports) {
+			@SuppressWarnings("unchecked")
+			Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> v = (Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String>) k
+					.eval(env, isC);
 			Util.putAllSafely(gens0, v.gens());
 			Util.putAllSafely(sks0, v.sks());
 		}
-		
+
 		for (Pair<String, RawTerm> gen : gens) {
 			try {
 				RawTerm term = gen.second;
 				Map<String, Chc<Ty, En>> ctx = new THashMap<>();
-					
-				Chc<Ty,En> required;
+
+				Chc<Ty, En> required;
 				if (src0.gens().containsKey(Gen.Gen(gen.first)) && src0.sks().containsKey(Sk.Sk(gen.first))) {
 					throw new RuntimeException(gen.first + " is ambiguous");
 				} else if (src0.gens().containsKey(Gen.Gen(gen.first))) {
 					required = Chc.inRight(src0.gens().get(Gen.Gen(gen.first)));
 				} else if (src0.sks().containsKey(Sk.Sk(gen.first))) {
-					required = Chc.inLeft(src0.sks().get(Sk.Sk(gen.first)));				
+					required = Chc.inLeft(src0.sks().get(Sk.Sk(gen.first)));
 				} else {
 					throw new RuntimeException(gen.first + " is not a source generator/labelled null");
 				}
-				
-				Term<Ty, En, Sym, Fk, Att, Gen, Sk> term0 = RawTerm.infer1x(ctx, term, null, required, dcol, "", src0.schema().typeSide.js).second;
-				
+
+				Term<Ty, En, Sym, Fk, Att, Gen, Sk> term0 = RawTerm.infer1x(ctx, term, null, required, dcol, "",
+						src0.schema().typeSide.js).second;
+
 				if (required.left) {
-					Util.putSafely(sks0, Sk.Sk(gen.first), term0.convert());				
+					Util.putSafely(sks0, Sk.Sk(gen.first), term0.convert());
 				} else {
 					Util.putSafely(gens0, Gen.Gen(gen.first), term0.convert());
 				}
 			} catch (RuntimeException ex) {
 				ex.printStackTrace();
-				throw new LocException(find("generators", gen), "In transform for " + gen.first + ", " + ex.getMessage());
+				throw new LocException(find("generators", gen),
+						"In transform for " + gen.first + ", " + ex.getMessage());
 			}
 		}
-		
+
 		AqlOptions ops = new AqlOptions(options, null, env.defaults);
-		
-		
-		LiteralTransform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> ret 
-		= new LiteralTransform<>
-		(gens0, sks0, src0, dst0, (Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe) );
-		return ret; 
+
+		LiteralTransform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> ret = new LiteralTransform<>(
+				gens0, sks0, src0, dst0, (Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));
+		return ret;
 	}
 
 	@Override
@@ -227,7 +233,7 @@ public final class TransExpRaw extends TransExp<Gen,Sk,Gen,Sk,String,String,Stri
 		if (!G.eq(a, b)) {
 			throw new RuntimeException("Mismatched schemas:\n\n" + a + "\n\nand\n\n" + b);
 		}
-		return new Pair(src, dst);		
+		return new Pair<>(src, dst);
 	}
 
 	@Override
@@ -240,5 +246,5 @@ public final class TransExpRaw extends TransExp<Gen,Sk,Gen,Sk,String,String,Stri
 		src.map(f);
 		dst.map(f);
 	}
-	
+
 }

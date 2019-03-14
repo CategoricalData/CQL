@@ -29,12 +29,11 @@ public class Char extends EasikType {
 	private int size;
 
 	/**
-	 * Creates a new Char object. The n specifies the required size of this
-	 * char. Where possible, the db should try to use a CHAR(n), but db
-	 * limitations may convert this into other text types.
+	 * Creates a new Char object. The n specifies the required size of this char.
+	 * Where possible, the db should try to use a CHAR(n), but db limitations may
+	 * convert this into other text types.
 	 *
-	 * @param n
-	 *            size
+	 * @param n size
 	 */
 	public Char(final int n) {
 		size = n;
@@ -43,8 +42,7 @@ public class Char extends EasikType {
 	/**
 	 * Recreates the object from the attributes returned by attributes().
 	 *
-	 * @param attr
-	 *            size attribute
+	 * @param attr size attribute
 	 */
 	public Char(final Map<String, String> attr) {
 		this(Integer.parseInt(attr.get("size")));
@@ -122,6 +120,7 @@ public class Char extends EasikType {
 	 */
 	@Override
 	public XSDType getXMLSchemaType() {
-		return new XSDSimpleType(new XSDRestriction("char" + size, XSDBaseType.xsString, FacetEnum.LENGTH, String.valueOf(size)));
+		return new XSDSimpleType(
+				new XSDRestriction("char" + size, XSDBaseType.xsString, FacetEnum.LENGTH, String.valueOf(size)));
 	}
 }

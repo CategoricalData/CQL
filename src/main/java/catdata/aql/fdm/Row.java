@@ -11,9 +11,8 @@ import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 
 // these have to be tagged with the entity to be unique across entities
-public class Row<En2, X> { 
+public class Row<En2, X> {
 
-	
 	public <Z, T> Row<En2, Z> map(BiFunction<X, T, Z> f) {
 		if (tail == null) {
 			return new Row<>(en2);
@@ -103,7 +102,7 @@ public class Row<En2, X> {
 	}
 
 	public String toString(Function<X, String> printX) {
-		return map((x,y)->printX.apply(x)).toString();
+		return map((x, y) -> printX.apply(x)).toString();
 	}
 
 	@Override
@@ -149,16 +148,15 @@ public class Row<En2, X> {
 		return true;
 	}
 
-	//use provable equality as equals fn?
-	public boolean rowEquals(BiPredicate<X,X> f,
-			Row<En2, X> e) {
+	// use provable equality as equals fn?
+	public boolean rowEquals(BiPredicate<X, X> f, Row<En2, X> e) {
 		if (!this.en2.equals(e.en2)) {
 			return false;
 		}
 		if (tail == null) {
 			return e.tail == null;
 		} else if (v.equals(e.v)) {
-			return f.test(x,e.x);		
+			return f.test(x, e.x);
 		}
 		return Util.anomaly();
 	}

@@ -21,7 +21,8 @@ import easik.model.vertex.ModelVertex;
  *
  * @author Rob Fletcher 2005
  */
-public class NewEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends AbstractAction {
+public class NewEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends AbstractAction {
 	/**
 	 *    
 	 */
@@ -37,8 +38,7 @@ public class NewEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	 * Prepare the menu option, as well as pass a reference to the last clicked
 	 * point, which is used when positioning the new entity.
 	 *
-	 * @param inPoint
-	 *            The sketch's last-rightclicked-position
+	 * @param inPoint    The sketch's last-rightclicked-position
 	 * @param _theFrame2
 	 */
 	public NewEntityAction(Point inPoint, F _theFrame2) {
@@ -54,8 +54,7 @@ public class NewEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Create the new entity and set up its name
 	 * 
-	 * @param e
-	 *            The action event
+	 * @param e The action event
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -64,7 +63,9 @@ public class NewEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 		// If we're currently synced with a db, give the user the chance to
 		// cancel operation
 		if (_ourModel.isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame, "Warning: this sketch is currently synced with a db; continue and break synchronization?", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			int choice = JOptionPane.showConfirmDialog(_theFrame,
+					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
+					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (choice == JOptionPane.CANCEL_OPTION) {
 				return;
@@ -73,7 +74,8 @@ public class NewEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 
 		String newName = _ourModel.getNewName();
 
-		newName = (String) JOptionPane.showInputDialog(_theFrame, "Name for new entity:", "Get name", JOptionPane.QUESTION_MESSAGE, null, null, newName);
+		newName = (String) JOptionPane.showInputDialog(_theFrame, "Name for new entity:", "Get name",
+				JOptionPane.QUESTION_MESSAGE, null, null, newName);
 
 		if ((newName == null) || (newName.trim() == null)) {
 			return;
@@ -82,9 +84,12 @@ public class NewEntityAction<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 		newName = newName.trim();
 
 		while (newName.equals("") || _theFrame.getMModel().isNameUsed(newName)) {
-			JOptionPane.showMessageDialog(_theFrame, "Error while naming entity.\n" + "Please ensure that entity name is:\n" + "1) Not blank\n" + "2) Not already in use", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theFrame, "Error while naming entity.\n"
+					+ "Please ensure that entity name is:\n" + "1) Not blank\n" + "2) Not already in use", "Error",
+					JOptionPane.ERROR_MESSAGE);
 
-			newName = (String) JOptionPane.showInputDialog(_theFrame, "Name for new entity:", "Get name", JOptionPane.QUESTION_MESSAGE, null, null, newName);
+			newName = (String) JOptionPane.showInputDialog(_theFrame, "Name for new entity:", "Get name",
+					JOptionPane.QUESTION_MESSAGE, null, null, newName);
 
 			if (newName == null) {
 				return;

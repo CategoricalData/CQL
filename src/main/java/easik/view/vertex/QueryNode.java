@@ -59,8 +59,7 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	private String _update;
 
 	/**
-	 * Node representing the attributes for the information tree Federico Mora
-	 * 2014
+	 * Node representing the attributes for the information tree Federico Mora 2014
 	 */
 	@SuppressWarnings("hiding")
 	private DefaultMutableTreeNode _attribNode = new DefaultMutableTreeNode("Attributes");
@@ -71,12 +70,9 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	/**
 	 * Creates a new query node with the name provided.
 	 *
-	 * @param nodeName
-	 *            The name of the new node
-	 * @param inView
-	 *            The frame containing this node
-	 * @param inQuery
-	 *            The query represented by this node
+	 * @param nodeName The name of the new node
+	 * @param inView   The frame containing this node
+	 * @param inQuery  The query represented by this node
 	 * @throws QueryException
 	 */
 	public QueryNode(String nodeName, View inView, String inQuery) throws QueryException {
@@ -85,19 +81,14 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	}
 
 	/**
-	 * Creates a new query node with the name provided. Stores visual
-	 * representation information.
+	 * Creates a new query node with the name provided. Stores visual representation
+	 * information.
 	 *
-	 * @param nodeName
-	 *            Name of the new node
-	 * @param x
-	 *            X Coordinate of the new node
-	 * @param y
-	 *            Y Coordinate of the new node
-	 * @param inView
-	 *            The frame in which this node exists
-	 * @param inQuery
-	 *            The query represented by this node
+	 * @param nodeName Name of the new node
+	 * @param x        X Coordinate of the new node
+	 * @param y        Y Coordinate of the new node
+	 * @param inView   The frame in which this node exists
+	 * @param inQuery  The query represented by this node
 	 * @throws QueryException
 	 */
 	public QueryNode(String nodeName, int x, int y, View inView, String inQuery) throws QueryException {
@@ -124,8 +115,7 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	/**
 	 * Processes the inQuery, assigning to instance variables
 	 *
-	 * @param String
-	 *            inQuery of the new node
+	 * @param String inQuery of the new node
 	 * @author Federico Mora
 	 * @throws QueryException
 	 */
@@ -198,7 +188,8 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 				// because it would think it was already being queried even
 				// though it is the
 				// same node.
-				if (_theModel.getEntityNodePairs().containsKey(sketchNode) && !sketchNode.getName().equals(oldEntityNodeName)) {
+				if (_theModel.getEntityNodePairs().containsKey(sketchNode)
+						&& !sketchNode.getName().equals(oldEntityNodeName)) {
 					// this node is already being queried. Not allowed.
 					throw new QueryException("Entity Node is already being queried.");
 				}
@@ -212,7 +203,9 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 		}
 
 		if (!errMess.isEmpty() && warnings) {
-			JOptionPane.showMessageDialog(_theModel, this.getMModel().getName() + ", due to node " + this.getName() + ": " + errMess, "Warning", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(_theModel,
+					this.getMModel().getName() + ", due to node " + this.getName() + ": " + errMess, "Warning",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -233,16 +226,16 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	}
 
 	/**
-	 * Processes queried columns. A helper method to processQuery but can also
-	 * be called publicly. It is called in AdAttributeAction.java so that when
-	 * attributes are added to entities, their corresponding queryNodes are
-	 * updated.
+	 * Processes queried columns. A helper method to processQuery but can also be
+	 * called publicly. It is called in AdAttributeAction.java so that when
+	 * attributes are added to entities, their corresponding queryNodes are updated.
 	 *
 	 * @author Federico Mora
 	 * @throws QueryException
 	 */
 	public void processAttributes() throws QueryException {
-		List<EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> entityAtts = _queriedEntityNode.getEntityAttributes();
+		List<EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>> entityAtts = _queriedEntityNode
+				.getEntityAttributes();
 		boolean alreadyAdded = false;
 
 		ArrayList<String> tempQColumns = new ArrayList<>();
@@ -290,7 +283,8 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 						this.addEntityAttribute(ea.getName(), ea.getType());
 					}
 				} else {
-					ArrayList<EntityAttribute<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge>> tempEAs = new ArrayList<>(_entityAttributes);
+					ArrayList<EntityAttribute<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge>> tempEAs = new ArrayList<>(
+							_entityAttributes);
 					for (EntityAttribute<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge> vea : tempEAs) {
 						if (vea.getName().equals(ea.getName())) {
 							this.removeEntityAttribute(vea);
@@ -304,13 +298,11 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 
 	/**
 	 * Creates a new
-	 * EntityAttribute<ViewFrame,ViewGraphModel,View,QueryNode,View_Edge> and
-	 * add its to the list of attributes
+	 * EntityAttribute<ViewFrame,ViewGraphModel,View,QueryNode,View_Edge> and add
+	 * its to the list of attributes
 	 *
-	 * @param inName
-	 *            Name of attribute
-	 * @param inAttributeType
-	 *            SQL EasikType of the attribute
+	 * @param inName          Name of attribute
+	 * @param inAttributeType SQL EasikType of the attribute
 	 */
 	public void addEntityAttribute(final String inName, final EasikType inAttributeType) {
 		addEntityAttribute(new EntityAttribute<>(inName, inAttributeType, this));
@@ -318,13 +310,12 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 
 	/**
 	 * Creates a new
-	 * EntityAttribute<ViewFrame,ViewGraphModel,View,QueryNode,View_Edge> and
-	 * add its to the list of attributes
+	 * EntityAttribute<ViewFrame,ViewGraphModel,View,QueryNode,View_Edge> and add
+	 * its to the list of attributes
 	 *
-	 * @param inAtt
-	 *            The
-	 *            EntityAttribute<ViewFrame,ViewGraphModel,View,QueryNode,View_Edge>
-	 *            to add to this EntityNode.
+	 * @param inAtt The
+	 *              EntityAttribute<ViewFrame,ViewGraphModel,View,QueryNode,View_Edge>
+	 *              to add to this EntityNode.
 	 */
 	@Override
 	public void addEntityAttribute(final EntityAttribute<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge> inAtt) {
@@ -429,16 +420,14 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 
 	/**
 	 * Changes the name of the QueryNode. This also updates the name in the
-	 * QueryNode's ViewFrame, to maintain consistency. Note that if you attempt
-	 * to rename a QueryNode to one that already exists in the same frame, a
-	 * trailing number will be added to make the name unique. This means,
-	 * however, that the name might not end up being what you set--if that's a
-	 * problem, make sure the new name isn't taken yet yourself, via
-	 * ViewFrame.getEntity().
+	 * QueryNode's ViewFrame, to maintain consistency. Note that if you attempt to
+	 * rename a QueryNode to one that already exists in the same frame, a trailing
+	 * number will be added to make the name unique. This means, however, that the
+	 * name might not end up being what you set--if that's a problem, make sure the
+	 * new name isn't taken yet yourself, via ViewFrame.getEntity().
 	 *
-	 * @param newName
-	 *            the new name to attempt to set. The actual name set may have a
-	 *            trailing number appended/incremented.
+	 * @param newName the new name to attempt to set. The actual name set may have a
+	 *                trailing number appended/incremented.
 	 */
 	@Override
 	public void setName(String newName) {
@@ -453,8 +442,7 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	/**
 	 * Sets the tree node used to display entity
 	 *
-	 * @param inNode
-	 *            The tree node used to display entity
+	 * @param inNode The tree node used to display entity
 	 */
 	public void setNode(DefaultMutableTreeNode inNode) {
 		_treeNode = inNode;
@@ -492,8 +480,7 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	/**
 	 * Sets updateable to true or false
 	 * 
-	 * @param inUpdateable,
-	 *            true if we can update
+	 * @param inUpdateable, true if we can update
 	 * @author Federico Mora public void setUpdateable(boolean inUpdateable) {
 	 *         updateable = inUpdateable; }
 	 */
@@ -501,12 +488,12 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 	/**
 	 * Removes an attribute from the list
 	 *
-	 * @param inAttribute
-	 *            The attribute to be removed
+	 * @param inAttribute The attribute to be removed
 	 * @author Federico Mora
 	 */
 	@Override
-	public void removeEntityAttribute(final EntityAttribute<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge> inAttribute) {
+	public void removeEntityAttribute(
+			final EntityAttribute<ViewFrame, ViewGraphModel, View, QueryNode, View_Edge> inAttribute) {
 		final SketchGraphModel model = _ourSketch.getGraphModel();
 
 		model.beginUpdate();
@@ -549,12 +536,11 @@ public class QueryNode extends ModelVertex<ViewFrame, ViewGraphModel, View, Quer
 		/**
 		 * might be needed if we unique keys
 		 * 
-		 * // Remove references to the attribute from unique keys for (final
-		 * UniqueKey curKey : _uniqueKeys) { curKey.removeElement(inAttribute);
-		 * }
+		 * // Remove references to the attribute from unique keys for (final UniqueKey
+		 * curKey : _uniqueKeys) { curKey.removeElement(inAttribute); }
 		 * 
-		 * // Fix up any empty/duplicate unique keys resulting from the
-		 * attribute removal UniqueKey.cleanup(this);
+		 * // Fix up any empty/duplicate unique keys resulting from the attribute
+		 * removal UniqueKey.cleanup(this);
 		 */
 		model.endUpdate();
 	}

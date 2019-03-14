@@ -4,11 +4,12 @@ import java.lang.reflect.Field;
 import java.sql.Types;
 
 public class SqlType {
-	
+
 	public String name;
 
-	private SqlType() { }
-	
+	private SqlType() {
+	}
+
 	public static SqlType resolve(String t) {
 		Class<Types> c = Types.class;
 		try {
@@ -24,7 +25,7 @@ public class SqlType {
 		}
 		throw new RuntimeException("Couldn't find type " + t);
 	}
-	
+
 	private SqlType(String name) {
 		if (name == null) {
 			throw new RuntimeException();
@@ -61,6 +62,5 @@ public class SqlType {
 	public String toString() {
 		return name;
 	}
-	
 
 }

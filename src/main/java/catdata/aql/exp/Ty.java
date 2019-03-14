@@ -7,9 +7,9 @@ import gnu.trove.map.hash.THashMap;
 
 public class Ty {
 	public final String str;
-	
+
 	private static Map<String, Ty> cache = new THashMap<>(128);
-	
+
 	public static synchronized Ty Ty(String str) {
 		Ty ty = cache.get(str);
 		if (ty != null) {
@@ -19,6 +19,7 @@ public class Ty {
 		cache.put(str, ty);
 		return ty;
 	}
+
 	private Ty(String str) {
 		this.str = str;
 	}
@@ -28,7 +29,7 @@ public class Ty {
 		return Util.maybeQuote(str);
 	}
 
-	 @Override
+	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
 	}
@@ -36,6 +37,6 @@ public class Ty {
 	@Override
 	public boolean equals(Object obj) {
 		return obj == this;
-	} 
+	}
 
 }

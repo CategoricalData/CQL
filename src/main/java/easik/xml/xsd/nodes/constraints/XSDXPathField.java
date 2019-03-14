@@ -25,8 +25,7 @@ public class XSDXPathField extends XSDAbstractXPath {
 	/**
 	 * Create with no name.
 	 *
-	 * @param elt
-	 *            The element to get the PATH
+	 * @param elt The element to get the PATH
 	 */
 	public XSDXPathField(final XSDAbstractElement elt) {
 		super(elt);

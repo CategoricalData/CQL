@@ -15,16 +15,17 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 @SuppressWarnings("unused")
-public class ThueSlow<Y,Z> {
+public class ThueSlow<Y, Z> {
 
 	final List<Pair<List<Y>, List<Y>>> rules;
 	private boolean finished = false;
 	private final Map<Pair<List<Y>, List<Y>>, Boolean> equivs = new THashMap<>();
 	private final int max_iterations;
 	private int iteration = 0;
-	
+
 	/**
-	 * @param rules to be completed. DOES NOT copy, and MUTATES IN PLACE the pairs inside of rules 
+	 * @param rules          to be completed. DOES NOT copy, and MUTATES IN PLACE
+	 *                       the pairs inside of rules
 	 * @param max_iterations to run (-1 for infinity)
 	 */
 	public ThueSlow(List<Pair<List<Y>, List<Y>>> rules) {
@@ -34,15 +35,17 @@ public class ThueSlow<Y,Z> {
 		complete();
 	}
 
-	public void complete() { 
+	public void complete() {
 		go(rules);
 		finished = true;
 	}
 
 	/**
-	 * DANGEROUS! THIS DOES NOT PROVIDE A TRUE NORMAL FORM!!! ONLY NORMAL WRT LENGTH-PRESERVING EQUATIONS!!
+	 * DANGEROUS! THIS DOES NOT PROVIDE A TRUE NORMAL FORM!!! ONLY NORMAL WRT
+	 * LENGTH-PRESERVING EQUATIONS!!
 	 *
-	 * @param s this parameter is ignore, but required to make sure users read the document to note that this is not a true normal form
+	 * @param s this parameter is ignore, but required to make sure users read the
+	 *          document to note that this is not a true normal form
 	 * @param e the word to normalize
 	 * @return the normalized word
 	 */
@@ -68,7 +71,7 @@ public class ThueSlow<Y,Z> {
 			equivs.put(pair, true);
 			return true;
 		}
-		
+
 		finished = step(rules);
 		return equiv(a, b);
 	}
@@ -91,28 +94,29 @@ public class ThueSlow<Y,Z> {
 	}
 
 	private <X> void go(List<Pair<List<X>, List<X>>> t) {
-		while (!step(t));
+		while (!step(t))
+			;
 	}
 
 	public <X> boolean step(List<Pair<List<X>, List<X>>> t) {
 		if (iteration++ > max_iterations && max_iterations != -1) {
 			throw new RuntimeException("Max iterations exceeded: " + max_iterations);
 		}
-		//System.out.print(this);
+		// System.out.print(this);
 		orient(t);
 		normalize(t);
 		Collection<Pair<List<X>, List<X>>> ce = new THashSet<>(cp(t));
-        if (ce.isEmpty()) {
-        	//simplify(t);
-            return true;
-        } 
-            t.addAll(ce);
-          
-           // simplify(t); simplify not fair game here!
-   //         normalize(t);
-         //   cp(t); //has side effect, more than just orient
-            return false;
-        
+		if (ce.isEmpty()) {
+			// simplify(t);
+			return true;
+		}
+		t.addAll(ce);
+
+		// simplify(t); simplify not fair game here!
+		// normalize(t);
+		// cp(t); //has side effect, more than just orient
+		return false;
+
 	}
 
 	private static <X> Pair<List<X>, List<X>> getUnmarked(List<Pair<List<X>, List<X>>> marked,
@@ -134,9 +138,9 @@ public class ThueSlow<Y,Z> {
 			t0.remove(rule);
 			if (!normal_form(rule.first, t0).equals(rule.first)) {
 				it.remove();
-				
+
 			}
-			
+
 		}
 	}
 
@@ -157,14 +161,11 @@ public class ThueSlow<Y,Z> {
 		}
 	}
 
-	/* private static <X> void check_oriented(List<Pair<List<X>, List<X>>> t) {
-			return;
-		for (Pair<List<X>, List<X>> r : t) {
-			if (r.first.size() < r.second.size()) {
-				throw new RuntimeException(t.toString());
-			}
-		}
-	} */
+	/*
+	 * private static <X> void check_oriented(List<Pair<List<X>, List<X>>> t) {
+	 * return; for (Pair<List<X>, List<X>> r : t) { if (r.first.size() <
+	 * r.second.size()) { throw new RuntimeException(t.toString()); } } }
+	 */
 
 	private <X> List<X> normal_form(List<X> e, List<Pair<List<X>, List<X>>> t) {
 		List<X> ret = new LinkedList<>(e);
@@ -240,16 +241,16 @@ public class ThueSlow<Y,Z> {
 		List<List<X>> init = new LinkedList<>();
 		init.add(e);
 
-        while (true) {
-        	List<List<X>> next = close1(init, t);
-            if (init.equals(next)) {
-                return init;
-            }
-            init = next;
-        }
+		while (true) {
+			List<List<X>> next = close1(init, t);
+			if (init.equals(next)) {
+				return init;
+			}
+			init = next;
+		}
 	}
 
-	//TODO aql bottleneck
+	// TODO aql bottleneck
 	private static <X> List<List<X>> close1(List<List<X>> List, List<Pair<List<X>, List<X>>> t) {
 		Set<List<X>> ret = new THashSet<>(List);
 
@@ -271,18 +272,17 @@ public class ThueSlow<Y,Z> {
 		List<Pair<List<X>, List<X>>> ret = new LinkedList<>();
 		for (Pair<List<X>, List<X>> rule1 : t) {
 			for (Pair<List<X>, List<X>> rule2 : t) {
-				if (rule1.first.size() == rule1.second.size()
-						&& rule2.first.size() == rule2.second.size()) {
+				if (rule1.first.size() == rule1.second.size() && rule2.first.size() == rule2.second.size()) {
 					continue;
 				}
 				List<Quad<List<X>, List<X>, List<X>, List<X>>> todo = new LinkedList<>();
 				if (rule1.first.size() == rule1.second.size()) {
 					if (rule2.first.size() == rule2.second.size()) {
 						throw new RuntimeException();
-					} 
-						todo.add(new Quad<>(rule1.first, rule1.second, rule2.first, rule2.second));
-						todo.add(new Quad<>(rule1.second, rule1.first, rule2.first, rule2.second));
-					
+					}
+					todo.add(new Quad<>(rule1.first, rule1.second, rule2.first, rule2.second));
+					todo.add(new Quad<>(rule1.second, rule1.first, rule2.first, rule2.second));
+
 				} else {
 					if (rule2.first.size() == rule2.second.size()) {
 						todo.add(new Quad<>(rule1.first, rule1.second, rule2.first, rule2.second));
@@ -302,7 +302,7 @@ public class ThueSlow<Y,Z> {
 	}
 
 	// does not include 0 length lists
-	//TODO aql can be list
+	// TODO aql can be list
 	private static <X> Collection<Pair<List<X>, List<X>>> split(List<X> l) {
 		List<Pair<List<X>, List<X>>> ret = new LinkedList<>();
 		for (int i = 1; i < l.size(); i++) {
@@ -311,8 +311,8 @@ public class ThueSlow<Y,Z> {
 		return ret;
 	}
 
-	private <X> void addCP1(List<X> li, List<X> ri, List<X> lj, List<X> rj,
-			List<Pair<List<X>, List<X>>> t, Collection<Pair<List<X>, List<X>>> ret) {
+	private <X> void addCP1(List<X> li, List<X> ri, List<X> lj, List<X> rj, List<Pair<List<X>, List<X>>> t,
+			Collection<Pair<List<X>, List<X>>> ret) {
 		for (Pair<List<X>, List<X>> uv : split(li)) {
 			for (Pair<List<X>, List<X>> vw : split(lj)) {
 				if (!uv.second.equals(vw.first)) {
@@ -329,14 +329,14 @@ public class ThueSlow<Y,Z> {
 		}
 	}
 
-	private <X> void addCP2(List<X> li, List<X> ri, List<X> lj, List<X> rj,
-			List<Pair<List<X>, List<X>>> t, Collection<Pair<List<X>, List<X>>> ret) {
+	private <X> void addCP2(List<X> li, List<X> ri, List<X> lj, List<X> rj, List<Pair<List<X>, List<X>>> t,
+			Collection<Pair<List<X>, List<X>>> ret) {
 		List<Integer> uws = middle(li, lj);
 		for (Integer i : uws) {
 			List<X> u = li.subList(0, i);
 			List<X> w = li.subList(i + lj.size(), li.size());
 
-				List<X> urjw = new LinkedList<>(u);
+			List<X> urjw = new LinkedList<>(u);
 			urjw.addAll(rj);
 			urjw.addAll(w);
 			if (!almost_joinable(ri, urjw, t) && !ret.contains(new Pair<>(ri, urjw))) {
@@ -354,7 +354,6 @@ public class ThueSlow<Y,Z> {
 		}
 		return ret;
 	}
-
 
 	@Override
 	public String toString() {

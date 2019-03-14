@@ -20,8 +20,7 @@ public class XSDChoiceCompositor extends XSDAbstractCompositor {
 	/**
 	 * Default constructor, no explicit min or max occurs
 	 *
-	 * @param elements
-	 *            The sub elements.
+	 * @param elements The sub elements.
 	 */
 	public XSDChoiceCompositor(final List<XSDAbstractElement> elements) {
 		super("choice", elements);
@@ -30,10 +29,8 @@ public class XSDChoiceCompositor extends XSDAbstractCompositor {
 	/**
 	 * Partial constructor including the elements and only the min occurences.
 	 *
-	 * @param elements
-	 *            The elements
-	 * @param minOccurs
-	 *            The minimum number for each element
+	 * @param elements  The elements
+	 * @param minOccurs The minimum number for each element
 	 */
 	public XSDChoiceCompositor(final List<XSDAbstractElement> elements, final int minOccurs) {
 		super("choice", elements);
@@ -44,12 +41,9 @@ public class XSDChoiceCompositor extends XSDAbstractCompositor {
 	/**
 	 * Full constructor including the elements and the min/max occurences.
 	 *
-	 * @param elements
-	 *            The elements
-	 * @param minOccurs
-	 *            The minimum number for each element
-	 * @param maxOccurs
-	 *            The Max number for each element
+	 * @param elements  The elements
+	 * @param minOccurs The minimum number for each element
+	 * @param maxOccurs The Max number for each element
 	 */
 	public XSDChoiceCompositor(final List<XSDAbstractElement> elements, final int minOccurs, final int maxOccurs) {
 		super("choice", elements);
@@ -61,8 +55,7 @@ public class XSDChoiceCompositor extends XSDAbstractCompositor {
 	/**
 	 * Set the minimum number of occurences
 	 *
-	 * @param minOccurs
-	 *            The min number
+	 * @param minOccurs The min number
 	 */
 	public void setMinOccurs(final int minOccurs) {
 		addTagAttribute("minOccurs", String.valueOf(minOccurs));
@@ -87,8 +80,7 @@ public class XSDChoiceCompositor extends XSDAbstractCompositor {
 	/**
 	 * Set the maximum number of occurences
 	 *
-	 * @param maxOccurs
-	 *            The max number
+	 * @param maxOccurs The max number
 	 */
 	public void setMaxOccurs(final int maxOccurs) {
 		addTagAttribute("maxOccurs", String.valueOf(maxOccurs));

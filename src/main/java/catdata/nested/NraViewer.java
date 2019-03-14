@@ -54,14 +54,19 @@ public class NraViewer {
 
 	private final Example[] examples = { new PeopleExample() };
 
-	private static final String help = ""; // "SQL schemas and instances in categorical normal form (CNF) can be treated as FQL instances directly.  To be in CNF, every table must have a primary key column called id.  This column will be treated as a meaningless ID.  Every column in a table must either be a string, an integer, or a foreign key to another table.  Inserted values must be quoted.  See the People example for details.";
+	private static final String help = ""; // "SQL schemas and instances in categorical normal form (CNF) can be treated
+											// as FQL instances directly. To be in CNF, every table must have a primary
+											// key column called id. This column will be treated as a meaningless ID.
+											// Every column in a table must either be a string, an integer, or a foreign
+											// key to another table. Inserted values must be quoted. See the People
+											// example for details.";
 
 	protected static String kind() {
 		return "NR Schema";
 	}
 
 	private static class PeopleExample extends Example {
-		
+
 		@Override
 		public Language lang() {
 			return null;
@@ -77,132 +82,78 @@ public class NraViewer {
 			return extext1;
 		}
 	}
-/*
-	public abstract static class Inst {
+	/*
+	 * public abstract static class Inst {
+	 * 
+	 * }
+	 * 
+	 * public abstract static class Ty {
+	 * 
+	 * }
+	 * 
+	 * public static class Const extends Inst {
+	 * 
+	 * String s;
+	 * 
+	 * public Const(String s) { this.s = s; }
+	 * 
+	 * @Override public String toString() { return s; } }
+	 * 
+	 * public static class Dom extends Ty {
+	 * 
+	 * @Override public String toString() { return "string"; } }
+	 * 
+	 * public static class Rcd extends Ty { Map<String, Ty> row;
+	 * 
+	 * public Rcd(Map<String, Ty> row) { this.row = row; }
+	 * 
+	 * @Override public String toString() { boolean first = false; String ret = "";
+	 * for (Entry<String, Ty> e : row.entrySet()) { if (first) { ret += ", "; } ret
+	 * += e.getKey() + ": " + e.getValue(); first = true; } return "(" + ret + ")";
+	 * } }
+	 * 
+	 * public static class Tpl extends Inst { Map<String, Inst> row;
+	 * 
+	 * public Tpl(Map<String, Inst> row) { this.row = row; }
+	 * 
+	 * @Override public String toString() { boolean first = false; String ret = "";
+	 * for (Entry<String, Inst> e : row.entrySet()) { if (first) { ret += ", "; }
+	 * ret += e.getKey() + ": " + e.getValue(); first = true; } return "(" + ret +
+	 * ")"; } }
+	 * 
+	 * public static class St extends Inst { Set<Tpl> row;
+	 * 
+	 * public St(Set<Tpl> row) { this.row = row; }
+	 * 
+	 * @Override public String toString() { boolean first = false; String ret = "";
+	 * for (Tpl e : row) { if (first) { ret += ", "; } ret += e; first = true; }
+	 * return "{" + ret + "}"; } }
+	 * 
+	 * public static class Pow extends Ty { Rcd row;
+	 * 
+	 * public Pow(Rcd row) { this.row = row; }
+	 * 
+	 * @Override public String toString() { return "set " + row; } }
+	 */
 
-	}
-
-	public abstract static class Ty {
-
-	}
-
-	public static class Const extends Inst {
-
-		String s;
-
-		public Const(String s) {
-			this.s = s;
+	private static final TableCellRenderer jTableCellRenderer = (JTable table, Object value, boolean isSelected,
+			boolean hasFocus, int row, int column) -> {
+		Component c = (Component) value;
+		int h = table.getRowHeight(row);
+		int j = 20 + c.getPreferredSize().height;
+		if (j > h) {
+			table.setRowHeight(row, j);
 		}
+		return c;
+	};
 
-		@Override
-		public String toString() {
-			return s;
-		}
-	}
-
-	public static class Dom extends Ty {
-		@Override
-		public String toString() {
-			return "string";
-		}
-	}
-
-	public static class Rcd extends Ty {
-		Map<String, Ty> row;
-
-		public Rcd(Map<String, Ty> row) {
-			this.row = row;
-		}
-
-		@Override
-		public String toString() {
-			boolean first = false;
-			String ret = "";
-			for (Entry<String, Ty> e : row.entrySet()) {
-				if (first) {
-					ret += ", ";
-				}
-				ret += e.getKey() + ": " + e.getValue();
-				first = true;
-			}
-			return "(" + ret + ")";
-		}
-	}
-
-	public static class Tpl extends Inst {
-		Map<String, Inst> row;
-
-		public Tpl(Map<String, Inst> row) {
-			this.row = row;
-		}
-
-		@Override
-		public String toString() {
-			boolean first = false;
-			String ret = "";
-			for (Entry<String, Inst> e : row.entrySet()) {
-				if (first) {
-					ret += ", ";
-				}
-				ret += e.getKey() + ": " + e.getValue();
-				first = true;
-			}
-			return "(" + ret + ")";
-		}
-	}
-
-	public static class St extends Inst {
-		Set<Tpl> row;
-
-		public St(Set<Tpl> row) {
-			this.row = row;
-		}
-
-		@Override
-		public String toString() {
-			boolean first = false;
-			String ret = "";
-			for (Tpl e : row) {
-				if (first) {
-					ret += ", ";
-				}
-				ret += e;
-				first = true;
-			}
-			return "{" + ret + "}";
-		}
-	}
-
-	public static class Pow extends Ty {
-		Rcd row;
-
-		public Pow(Rcd row) {
-			this.row = row;
-		}
-
-		@Override
-		public String toString() {
-			return "set " + row;
-		}
-	} */
-
-	private static final TableCellRenderer jTableCellRenderer = (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) -> {
-            Component c = (Component) value;
-            int h = table.getRowHeight(row);
-            int j = 20 + c.getPreferredSize().height;
-            if (j > h) {
-                table.setRowHeight(row, j);
-            }
-            return c;
-        };
-	
 	public static class NRel {
 		private final Map<String, Optional<NRel>> t;
-		
+
 		public NRel(Map<String, Optional<NRel>> t) {
 			this.t = t;
 		}
-		
+
 		@Override
 		public String toString() {
 			String ret = "";
@@ -214,22 +165,21 @@ public class NraViewer {
 				first = false;
 				ret += e.getKey() + ": " + (e.getValue().isPresent() ? e.getValue().get().toString() : "string");
 			}
-			return "set (" + ret + ")"; //t.toString();
+			return "set (" + ret + ")"; // t.toString();
 		}
 	}
 
 	private Triple<String, Component, Component> translate(String in) {
 		Pair<NRel, Object> p = program(in);
-		
+
 		return new Triple<>("OK", conv(p.first, p.second), disp(shred(p.first, (Set<Map>) p.second)));
 	}
 
-	
-	private static Component disp(Map<NRel, Set<Map>> O){
+	private static Component disp(Map<NRel, Set<Map>> O) {
 		int n = (int) Math.ceil(Math.sqrt(O.size()));
-		
-		JPanel ret = new JPanel(new GridLayout(n,n));
-		
+
+		JPanel ret = new JPanel(new GridLayout(n, n));
+
 		for (Entry<NRel, Set<Map>> e : O.entrySet()) {
 			Set<Map> s = e.getValue();
 			NRel t = e.getKey();
@@ -247,24 +197,24 @@ public class NraViewer {
 				for (Entry<String, Optional<NRel>> k : t.t.entrySet()) {
 					if (k.getValue().isPresent()) {
 						throw new RuntimeException("Not totally shredded");
-					} 
-						rowData[r][col++] = o.get(k.getKey());
-					
+					}
+					rowData[r][col++] = o.get(k.getKey());
+
 				}
 				r++;
 			}
-			JPanel tbl = GuiUtil.makeTable(BorderFactory.createEtchedBorder(), e.getKey().toString(), rowData, colNames);
+			JPanel tbl = GuiUtil.makeTable(BorderFactory.createEtchedBorder(), e.getKey().toString(), rowData,
+					colNames);
 			ret.add(tbl);
 		}
-		
+
 		return ret;
 	}
-
 
 	private static Map<NRel, Set<Map>> shred(NRel t, Set<Map> s) {
 		Map<NRel, Set<Map>> ret = new HashMap<>();
 		ret.put(t, s);
-		
+
 		int[] ref = new int[] { 0 };
 		while (true) {
 			Map<NRel, Set<Map>> ret2 = new HashMap<>();
@@ -277,10 +227,10 @@ public class NraViewer {
 			ret = ret2;
 		}
 	}
-	
-	private static <X,Y> Set<Pair<X, Y>> unnest1(Map<X, Set<Y>> s) {
+
+	private static <X, Y> Set<Pair<X, Y>> unnest1(Map<X, Set<Y>> s) {
 		Set<Pair<X, Y>> ret = new HashSet<>();
-		
+
 		for (Entry<X, Set<Y>> x : s.entrySet()) {
 			for (Y y : x.getValue()) {
 				ret.add(new Pair<>(x.getKey(), y));
@@ -289,8 +239,7 @@ public class NraViewer {
 
 		return ret;
 	}
-	
-	
+
 	private static Map<NRel, Set<Map>> unnest(NRel t, Set<Map> s, int... ref) {
 		Set<Map> ret = new HashSet<>();
 		Map<NRel, Map<Integer, Set<Map>>> temp = new HashMap<>();
@@ -301,7 +250,7 @@ public class NraViewer {
 				if (k.getValue().isPresent()) {
 					Map<Integer, Set<Map>> u = temp.computeIfAbsent(k.getValue().get(), k1 -> new HashMap<>());
 					int z = ref[0]++;
-					//	tempX.put(m, z);
+					// tempX.put(m, z);
 					u.put(z, (Set<Map>) m.get(k.getKey()));
 					n.put(k.getKey(), Integer.toString(z));
 					nw.put(k.getKey(), Optional.empty());
@@ -311,14 +260,14 @@ public class NraViewer {
 				}
 			}
 			ret.add(n);
-		}	
-		
+		}
+
 		Map<NRel, Set<Pair<Integer, Map>>> temp2 = new HashMap<>();
 		for (Entry<NRel, Map<Integer, Set<Map>>> k : temp.entrySet()) {
 			Set<Pair<Integer, Map>> w = unnest1(k.getValue());
 			temp2.put(k.getKey(), w);
 		}
-		
+
 		Map<NRel, Set<Map>> retX = new HashMap<>();
 		retX.put(new NRel(nw), ret);
 		for (Entry<NRel, Set<Pair<Integer, Map>>> e : temp2.entrySet()) {
@@ -326,12 +275,10 @@ public class NraViewer {
 			vvv.put("ID", Optional.empty());
 			retX.put(new NRel(vvv), conv1(e.getValue()));
 		}
-		
+
 		return retX;
 	}
-	
-	
-	
+
 	private static Set<Map> conv1(Set<Pair<Integer, Map>> set) {
 		Set<Map> ret = new HashSet<>();
 		for (Pair<Integer, Map> e : set) {
@@ -342,7 +289,6 @@ public class NraViewer {
 		}
 		return ret;
 	}
-
 
 	private Component conv(NRel t, Object i) {
 		Set<Map<String, Object>> s = (Set<Map<String, Object>>) i;
@@ -359,7 +305,8 @@ public class NraViewer {
 		for (Map<String, Object> o : s) {
 			col = 0;
 			for (Entry<String, Optional<NRel>> k : t.t.entrySet()) {
-				rowData[r][col++] = !k.getValue().isPresent() ? new JLabel((String) o.get(k.getKey())) : conv(k.getValue().get(), o.get(k.getKey()));
+				rowData[r][col++] = !k.getValue().isPresent() ? new JLabel((String) o.get(k.getKey()))
+						: conv(k.getValue().get(), o.get(k.getKey()));
 			}
 			r++;
 		}
@@ -367,37 +314,36 @@ public class NraViewer {
 		@SuppressWarnings("serial")
 		JTable tbl = new JTable(rowData, colNames) {
 			@Override
-			public boolean isCellEditable(int row, int column) {                
-	                return false;               
-	        }
-	        @Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+
+			@Override
 			public Dimension getPreferredScrollableViewportSize() {
 				Dimension d = getPreferredSize();
 				return new Dimension(d.width, d.height);
 			}
 		};
-		
+
 //		JTable tbl = new JTable(rowData, colNames);
-	//	tbl.set
-		//tbl.setDefaultRenderer(JLabel.class, jTableCellRenderer);
-	//	tbl.setDefaultRenderer(JTable.class, jTableCellRenderer);
-		
+		// tbl.set
+		// tbl.setDefaultRenderer(JLabel.class, jTableCellRenderer);
+		// tbl.setDefaultRenderer(JTable.class, jTableCellRenderer);
+
 		TableColumnModel tcm = tbl.getColumnModel();
-		for(int it = 0; it < tcm.getColumnCount(); it++){
-		tcm.getColumn(it).setCellRenderer(jTableCellRenderer);
-		} 
-		
-	//	JPanel ret = new JPanel(new GridLayout(1,1));
-	//	ret.add(tbl);
-		
+		for (int it = 0; it < tcm.getColumnCount(); it++) {
+			tcm.getColumn(it).setCellRenderer(jTableCellRenderer);
+		}
+
+		// JPanel ret = new JPanel(new GridLayout(1,1));
+		// ret.add(tbl);
+
 		return new JScrollPane(tbl);
 	}
 
 	public NraViewer() {
-		CodeTextPanel input = new CodeTextPanel(BorderFactory.createEtchedBorder(),
-				"Input schema and instance", "");
-		CodeTextPanel output = new CodeTextPanel(BorderFactory.createEtchedBorder(),
-				"Response", "");
+		CodeTextPanel input = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Input schema and instance", "");
+		CodeTextPanel output = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Response", "");
 
 		// JButton jdbcButton = new JButton("Load using JDBC");
 		// JButton runButton = new JButton("Run " + kind());
@@ -406,7 +352,8 @@ public class NraViewer {
 		// JButton runButton2 = new JButton("Run FQL");
 		// JCheckBox jdbcBox = new JCheckBox("Run using JDBC");
 		// JLabel lbl = new JLabel("Suffix (optional):", JLabel.RIGHT);
-		// lbl.setToolTipText("FQL will translate table T to T_suffix, and generate SQL to load T into T_suffix");
+		// lbl.setToolTipText("FQL will translate table T to T_suffix, and generate SQL
+		// to load T into T_suffix");
 		// final JTextField field = new JTextField(8);
 		// field.setText("fql");
 
@@ -415,50 +362,50 @@ public class NraViewer {
 		box.addActionListener((ActionEvent e) -> input.setText(((Example) box.getSelectedItem()).getText()));
 
 		transButton.addActionListener((ActionEvent e) -> {
-                    try {
-                        Triple<String, Component, Component> p = translate(input.getText());
-                        output.setText(p.first);
-                        
-                        JPanel pan = new JPanel(new GridLayout(1,1));
-                        pan.add(p.second);
-                        JFrame f = new JFrame("NR Shredder Input");
-                        f.setContentPane(pan);
-                        f.pack();
-                        f.setSize(new Dimension(600, 500));
-                        f.setLocationRelativeTo(null);
-                        f.setVisible(true);
-                        
-                        pan = new JPanel(new GridLayout(1,1));
-                        pan.add(p.third);
-                        f = new JFrame("NR Shredder Output");
-                        f.setContentPane(pan);
-                        f.pack();
-                        f.setSize(new Dimension(650, 450));
-                        f.setLocationRelativeTo(null);
-                        f.setVisible(true);
-                        
-                    } catch (HeadlessException ex) {
-                        ex.printStackTrace();
-                        output.setText(ex.getLocalizedMessage());
-                    }
-                });
+			try {
+				Triple<String, Component, Component> p = translate(input.getText());
+				output.setText(p.first);
+
+				JPanel pan = new JPanel(new GridLayout(1, 1));
+				pan.add(p.second);
+				JFrame f = new JFrame("NR Shredder Input");
+				f.setContentPane(pan);
+				f.pack();
+				f.setSize(new Dimension(600, 500));
+				f.setLocationRelativeTo(null);
+				f.setVisible(true);
+
+				pan = new JPanel(new GridLayout(1, 1));
+				pan.add(p.third);
+				f = new JFrame("NR Shredder Output");
+				f.setContentPane(pan);
+				f.pack();
+				f.setSize(new Dimension(650, 450));
+				f.setLocationRelativeTo(null);
+				f.setVisible(true);
+
+			} catch (HeadlessException ex) {
+				ex.printStackTrace();
+				output.setText(ex.getLocalizedMessage());
+			}
+		});
 
 		helpButton.addActionListener((ActionEvent e) -> {
-                    JTextArea jta = new JTextArea(help);
-                    jta.setWrapStyleWord(true);
-                    // jta.setEditable(false);
-                    jta.setLineWrap(true);
-                    JScrollPane p = new JScrollPane(jta, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-                    p.setPreferredSize(new Dimension(300, 200));
-                    
-                    JOptionPane pane = new JOptionPane(p);
-                    // Configure via set methods
-                    JDialog dialog = pane.createDialog(null, "Help on NR shredder");
-                    dialog.setModal(false);
-                    dialog.setVisible(true);
-                    dialog.setResizable(true);
-                });
+			JTextArea jta = new JTextArea(help);
+			jta.setWrapStyleWord(true);
+			// jta.setEditable(false);
+			jta.setLineWrap(true);
+			JScrollPane p = new JScrollPane(jta, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			p.setPreferredSize(new Dimension(300, 200));
+
+			JOptionPane pane = new JOptionPane(p);
+			// Configure via set methods
+			JDialog dialog = pane.createDialog(null, "Help on NR shredder");
+			dialog.setModal(false);
+			dialog.setVisible(true);
+			dialog.setResizable(true);
+		});
 
 		JPanel p = new JPanel(new BorderLayout());
 
@@ -498,36 +445,30 @@ public class NraViewer {
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 	}
+
 	private static final String extext1 = "set (name:string, age:string, kids:set (name:string, gender:string, friends: set (name:string)))"
-	+ "\n"
-	+ "\n{(name:bill, age:30, kids:{(name:alice, gender:F, friends: {(name: kid1), (name: kid2), (name: kid3)}),"
-	+ "\n                           (name:sue,   gender:F, friends: {(name: kid1), (name: kid3)}),"
-	+ "\n                           (name:joe,   gender:M, friends: {(name: kid3)})}),"
-	+ "\n (name:bob , age:40, kids:{(name:chuck, gender:M, friends: {}),  "
-	+ "\n                           (name:kim,   gender:F, friends: {(name: kid1), (name: kid2), (name: kid3)})})"
-	+ "\n}"
-	+ "\n";
+			+ "\n"
+			+ "\n{(name:bill, age:30, kids:{(name:alice, gender:F, friends: {(name: kid1), (name: kid2), (name: kid3)}),"
+			+ "\n                           (name:sue,   gender:F, friends: {(name: kid1), (name: kid3)}),"
+			+ "\n                           (name:joe,   gender:M, friends: {(name: kid3)})}),"
+			+ "\n (name:bob , age:40, kids:{(name:chuck, gender:M, friends: {}),  "
+			+ "\n                           (name:kim,   gender:F, friends: {(name: kid1), (name: kid2), (name: kid3)})})"
+			+ "\n}" + "\n";
 
+	static final Parser<Integer> NUMBER = IntegerLiteral.PARSER.map(Integer::valueOf);
 
-
-
-	static final Parser<Integer> NUMBER = IntegerLiteral.PARSER
-			.map(Integer::valueOf);
-
-	private static final String[] ops = new String[] { ",", ".", ";", ":", "{", "}", "(", ")", "=", "->", "+",
-			"*", "^", "|" };
+	private static final String[] ops = new String[] { ",", ".", ";", ":", "{", "}", "(", ")", "=", "->", "+", "*", "^",
+			"|" };
 
 	private static final String[] res = new String[] { "set", "string" };
 
 	private static final Terminals RESERVED = Terminals.caseSensitive(ops, res);
 
-	private static final Parser<Void> IGNORED = Parsers.or(Scanners.JAVA_LINE_COMMENT,
-			Scanners.JAVA_BLOCK_COMMENT, Scanners.WHITESPACES).skipMany();
+	private static final Parser<Void> IGNORED = Parsers
+			.or(Scanners.JAVA_LINE_COMMENT, Scanners.JAVA_BLOCK_COMMENT, Scanners.WHITESPACES).skipMany();
 
-	private static final Parser<?> TOKENIZER = Parsers.or(
-			(Parser<?>) StringLiteral.DOUBLE_QUOTE_TOKENIZER, RESERVED.tokenizer(),
-			(Parser<?>) Identifier.TOKENIZER,
-			(Parser<?>) IntegerLiteral.TOKENIZER);
+	private static final Parser<?> TOKENIZER = Parsers.or((Parser<?>) StringLiteral.DOUBLE_QUOTE_TOKENIZER,
+			RESERVED.tokenizer(), (Parser<?>) Identifier.TOKENIZER, (Parser<?>) IntegerLiteral.TOKENIZER);
 
 	private static Parser<?> term(String... names) {
 		return RESERVED.token(names);
@@ -552,11 +493,11 @@ public class NraViewer {
 
 	private static NRel toTy(Object o) {
 		Tuple4 e = (Tuple4) o;
-		
+
 		List l = (List) e.c;
-		
+
 		Map<String, Optional<NRel>> m = new HashMap();
-		
+
 		for (Object x : l) {
 			Tuple3 u = (Tuple3) x;
 			if (u.c.toString().equals("string")) {
@@ -583,19 +524,19 @@ public class NraViewer {
 			}
 			return m;
 		}
-			Set m = new HashSet<>();
-			for (Object lx : l) {
-				m.add(toInst(lx));
-			}
-			return m;
-		
+		Set m = new HashSet<>();
+		for (Object lx : l) {
+			m.add(toInst(lx));
+		}
+		return m;
+
 	}
 
 	private static Parser<?> inst() {
 		Reference ref = Parser.newReference();
 
-		Parser rcd = Parsers.tuple(term("("),
-				Parsers.tuple(ident(), term(":"), ref.lazy()).sepBy(term(",")), term(")"));
+		Parser rcd = Parsers.tuple(term("("), Parsers.tuple(ident(), term(":"), ref.lazy()).sepBy(term(",")),
+				term(")"));
 		Parser set = Parsers.tuple(term("{"), rcd.sepBy(term(",")), term("}"));
 		Parser p = Parsers.or(string(), rcd, set);
 
@@ -609,16 +550,14 @@ public class NraViewer {
 
 		Parser p = Parsers.tuple(term("set"), term("("),
 				Parsers.tuple(ident(), term(":"), ref.lazy().or(term("string"))).sepBy(term(",")), term(")"));
-		
+
 		ref.set(p);
 
 		return p;
 	}
 
 	private static Parser<?> string() {
-		return Parsers.or(StringLiteral.PARSER, IntegerLiteral.PARSER,
-				Identifier.PARSER);
+		return Parsers.or(StringLiteral.PARSER, IntegerLiteral.PARSER, Identifier.PARSER);
 	}
-	
 
 }

@@ -24,8 +24,7 @@ public class NormalEdge extends SketchEdge implements UniqueIndexable {
 	 *
 	 * @param a
 	 * @param b
-	 * @param name
-	 *            The unique edge identifier
+	 * @param name The unique edge identifier
 	 * @see easik.sketch.edge.SketchEdge( easik.sketch.vertex.EntityNode,
 	 *      easik.sketch.vertex.EntityNode, String)
 	 * @see easik.sketch.edge.PartialEdge( easik.sketch.vertex.EntityNode,
@@ -42,10 +41,8 @@ public class NormalEdge extends SketchEdge implements UniqueIndexable {
 	 *
 	 * @param a
 	 * @param b
-	 * @param name
-	 *            The unique edge identifier
-	 * @param cascade
-	 *            The cascade value, such as SketchEdge.Cascade.RESTRICT
+	 * @param name    The unique edge identifier
+	 * @param cascade The cascade value, such as SketchEdge.Cascade.RESTRICT
 	 * @see easik.sketch.edge.SketchEdge.Cascade
 	 * @see easik.sketch.edge.SketchEdge( easik.sketch.vertex.EntityNode,
 	 *      easik.sketch.vertex.EntityNode, String)

@@ -62,7 +62,8 @@ import easik.ui.tree.popup.RenameEntityAction;
  * @author Vera Ranieri 2006
  * @version 2006-08-02 Kevin Green
  */
-public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> extends JScrollPane {
+public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
+		extends JScrollPane {
 	private static final long serialVersionUID = -5090284794437931334L;
 
 	/** Tree popup menu item */
@@ -162,9 +163,8 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	private DefaultMutableTreeNode _tree_entities;
 
 	/**
-	 * An ArrayList of Strings which represent an expansion state of the info
-	 * tree. The tree can then be reverted back to the state as defined in
-	 * expanState.
+	 * An ArrayList of Strings which represent an expansion state of the info tree.
+	 * The tree can then be reverted back to the state as defined in expanState.
 	 */
 	private ArrayList<String> expanState;
 
@@ -320,7 +320,8 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 		}
 
 		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree().getSelectionPath().getLastPathComponent();
+		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+				.getSelectionPath().getLastPathComponent();
 
 		// Hide all elements
 		for (Component c : _popupMenu.getComponents()) {
@@ -345,7 +346,8 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 			}
 		} else if (curSelected instanceof ModelConstraint) {
 			if (_theFrame.getMModel() instanceof Sketch) {
-				if ((curSelected instanceof SumConstraint) || (curSelected instanceof ProductConstraint) || (curSelected instanceof CommutativeDiagram)) {
+				if ((curSelected instanceof SumConstraint) || (curSelected instanceof ProductConstraint)
+						|| (curSelected instanceof CommutativeDiagram)) {
 					_addPathItem.setVisible(true);
 				}
 
@@ -354,7 +356,8 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 		} else if (curSelected instanceof ModelPath) {
 			Object myConst = curSelected.getParent();
 
-			if ((myConst instanceof SumConstraint) || (myConst instanceof ProductConstraint) || (myConst instanceof CommutativeDiagram)) {
+			if ((myConst instanceof SumConstraint) || (myConst instanceof ProductConstraint)
+					|| (myConst instanceof CommutativeDiagram)) {
 				_deletePathItem.setVisible(true);
 			}
 		} else if (curSelected == _tree_entities) {
@@ -396,8 +399,7 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Refreshes the tree so updates visualize properly
 	 *
-	 * @param inNode
-	 *            The node to be refreshed
+	 * @param inNode The node to be refreshed
 	 */
 	public void refreshTree(DefaultMutableTreeNode inNode) {
 		storeExpansion();
@@ -444,8 +446,7 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Adds an entity and its attributes to the tree
 	 *
-	 * @param entity
-	 *            The entity to be added to the tree
+	 * @param entity The entity to be added to the tree
 	 */
 	public void addNode(final N entity) {
 		EasikGraphModel model = _theFrame.getMModel().getGraphModel();
@@ -471,8 +472,8 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	}
 
 	/**
-	 * Internal method to actually add an entity from the tree. Separated
-	 * because of undo/redo support.
+	 * Internal method to actually add an entity from the tree. Separated because of
+	 * undo/redo support.
 	 *
 	 * @param entity
 	 */
@@ -485,8 +486,7 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	/**
 	 * Removes an entity from the tree. Undoable.
 	 *
-	 * @param toRemove
-	 *            Entity to be removed from the tree
+	 * @param toRemove Entity to be removed from the tree
 	 */
 	public void removeNode(final N toRemove) {
 		EasikGraphModel model = _theFrame.getMModel().getGraphModel();
@@ -512,8 +512,8 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	}
 
 	/**
-	 * Internal method to actually remove an entity from the tree. Separated
-	 * because of undo/redo support.
+	 * Internal method to actually remove an entity from the tree. Separated because
+	 * of undo/redo support.
 	 *
 	 * @param toRemove
 	 */
@@ -523,11 +523,10 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	}
 
 	/**
-	 * Add a constraint to the info tree. This action will factor into the
-	 * Sketch's undo/redo history as a single action.
+	 * Add a constraint to the info tree. This action will factor into the Sketch's
+	 * undo/redo history as a single action.
 	 *
-	 * @param constraint
-	 *            The constraint to add
+	 * @param constraint The constraint to add
 	 * @since 2006-05-30 Vera Ranieri
 	 */
 	public void addConstraint(final ModelConstraint<F, GM, M, N, E> constraint) {
@@ -558,9 +557,9 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	}
 
 	/**
-	 * Internal method that actually does the work of adding the constraint to
-	 * the info tree; this is separate from the public method so that the public
-	 * method can handle undo/redo controlling.
+	 * Internal method that actually does the work of adding the constraint to the
+	 * info tree; this is separate from the public method so that the public method
+	 * can handle undo/redo controlling.
 	 *
 	 * @param constraint
 	 */
@@ -593,8 +592,7 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	 * Remove a constraint from the info tree. This action will factor into the
 	 * Sketch's undo/redo history as a single action.
 	 *
-	 * @param constraint
-	 *            The constraint to remove
+	 * @param constraint The constraint to remove
 	 * @since 2006-05-30 Vera Ranieri
 	 */
 	public void removeConstraint(final ModelConstraint<F, GM, M, N, E> constraint) {
@@ -624,9 +622,9 @@ public class ModelInfoTreeUI<F extends ModelFrame<F, GM, M, N, E>, GM extends Ea
 	}
 
 	/**
-	 * Internal method that actually does the work of adding the constraint to
-	 * the info tree; this is separate from the public method so that the public
-	 * method can handle undo/redo controlling.
+	 * Internal method that actually does the work of adding the constraint to the
+	 * info tree; this is separate from the public method so that the public method
+	 * can handle undo/redo controlling.
 	 *
 	 * @param c
 	 */
