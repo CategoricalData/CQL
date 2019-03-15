@@ -1,6 +1,6 @@
 
 //create some example data in a local temporary sql database. (close delay keeps H2 database alive across connections)
-command load = exec_jdbc "org.h2.Driver" "jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1" { 
+command load = exec_jdbc "jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1" { 
 "
 DROP TABLE IF EXISTS Employee;
 DROP TABLE IF EXISTS Department;" //multiple statements can be used, but many SQL engines (such as H2, CQL's internal engine) will only print the output of the first statement, and some require ?allowMultiQueries=true in the jdbc string 
@@ -48,16 +48,16 @@ ALTER TABLE Department ADD CONSTRAINT d1
 // options always_reload = true //true forces pragmas to not be cached between runs (i.e., always run)
 }  
  
-/* When the JDBC class name and string are left blank, CQL uses the value of the options
-   jdbc_default_class and jdbc_default_string.  These can be set globally by placing,
+/* When the JDBC class name and string are left blank, CQL uses the value of the option
+    jdbc_default_string.  These can be set globally by placing,
    at the beginning of the file, for example:
    
   options
-    jdbc_default_class = "org.h2.Driver" 
+   
     jdbc_default_string = "jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1"
  */
 //look at the example data
-command view0 = exec_jdbc "" "" {  //see note above!!!
+command view0 = exec_jdbc "" {  //see note above!!!
 "SELECT * FROM Department"
 "SELECT * FROM Employee"
 }
@@ -83,7 +83,7 @@ schema S = literal : sql {
  }
 
 //import an instance by providing queries for each entity
-instance J = import_jdbc "" "" : S {
+instance J = import_jdbc ""  : S {
 //use name as first name
   //use null as last name
   //use id as age	
@@ -99,7 +99,7 @@ instance J = import_jdbc "" "" : S {
 
 
 //import a transform by providing queries for each entity
-transform Jid = import_jdbc "" "" : J -> J {
+transform Jid = import_jdbc ""  : J -> J {
 	Employee -> "SELECT id, id FROM Employee"
 	Department -> "SELECT id, id FROM Department"
 
@@ -108,32 +108,32 @@ transform Jid = import_jdbc "" "" : J -> J {
 }
 
 //export the instance to SQL
-command store1 = export_jdbc_instance J "" "" "Exported"
+command store1 = export_jdbc_instance J ""  "Exported"
 { options start_ids_at = 100 }
 
 //view exported SQL instance
-command view1 = exec_jdbc "" "" { 
+command view1 = exec_jdbc ""  { 
 	"SELECT * FROM \"ExportedEmployee\""
 	"SELECT * FROM \"ExportedDepartment\""
 }
 
 //export the transform to SQL
-command store2 = export_jdbc_transform Jid "" "" "ExportedTrans" 
+command store2 = export_jdbc_transform Jid ""  "ExportedTrans" 
  { options start_ids_at = 100 } //src
  { options start_ids_at = 100 } //dst
 
 //view the exported SQL transform
-command view2 = exec_jdbc "" "" { 
+command view2 = exec_jdbc ""  { 
 	"SELECT * FROM ExportedTransEmployee"
 	"SELECT * FROM ExportedTransDepartment"
 }
 
 //to import all the data in a SQL DB at once onto an auto-generated schema, use the following:
-instance import_all_inst = import_jdbc_all "" "" 
+instance import_all_inst = import_jdbc_all "" 
 //the schema can be obtained as
 schema import_all_schema = schemaOf import_all_inst
 //or
-schema import_all_schema_2 = import_jdbc_all "" "" 
+schema import_all_schema_2 = import_jdbc_all "" 
 
 
 ////////////////////////////////////////////////////////////
@@ -174,9 +174,9 @@ query Q = literal : S -> S {
 		
 }
 
-command store_id_query = export_jdbc_query Q "" "" "Exported" "View"
+command store_id_query = export_jdbc_query Q "" "Exported" "View"
 
-command view_view = exec_jdbc "" "" { 
+command view_view = exec_jdbc ""  { 
 	"SELECT * FROM \"ViewEmployee\""
 	"SELECT * FROM \"ViewDepartment\""
 	"DROP VIEW \"ViewEmployee\""

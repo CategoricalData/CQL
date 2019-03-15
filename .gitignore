@@ -1,0 +1,6 @@
+
+.DS_Store
+*.lock
+buildSrc/.gradle/4.10.1/taskHistory/taskHistory.bin
+buildSrc/.gradle/buildOutputCleanup/cache.properties
+src/main/antlr/notes.txt

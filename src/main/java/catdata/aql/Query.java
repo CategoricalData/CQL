@@ -744,7 +744,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	private Map<En2, String> ret;
 
 	// this is used internally
-	public static final String internal_id_col_name = "aqlid";
+	public static final String internal_id_col_name = "rowid";
 
 	public synchronized Map<En2, String> toSQL(String tick) {
 		if (ret != null) {

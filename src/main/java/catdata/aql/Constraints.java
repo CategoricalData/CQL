@@ -12,7 +12,6 @@ import java.util.function.BiPredicate;
 
 import catdata.Chc;
 import catdata.Pair;
-import catdata.Triple;
 import catdata.Util;
 import catdata.aql.It.ID;
 import catdata.aql.exp.Att;

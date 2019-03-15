@@ -3,6 +3,7 @@ package catdata.ide;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.GridLayout;
 import java.awt.Menu;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
+import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -217,7 +219,7 @@ public class GUI extends JPanel {
 		MenuShortcut q2 = new MenuShortcut(ctrlR.getKeyCode());
 		runItem.setShortcut(q2);
 
-		MenuItem abortItem = new MenuItem("Cancel");
+		MenuItem abortItem = new MenuItem("Stop");
 		toolsMenu.add(abortItem);
 		abortItem.addActionListener(e -> abortAction());
 
@@ -412,11 +414,40 @@ public class GUI extends JPanel {
 		return editMenu;
 	}
 
-	private static JPanel makeToolBar() {
-		JPanel toolBar = new JPanel(new GridLayout(1, 10));
+	public static class ComboBoxFullMenu<E> extends JComboBox<E> {
 
-		JButton helpb = new JButton("Help");
-		helpb.addActionListener(e -> IdeOptions.showAbout());
+        public ComboBoxFullMenu(E[] items) {
+            super(items);
+            addActionListener(this);
+        }
+
+        public ComboBoxFullMenu(Vector<E> items) {
+            super(items);
+            addActionListener(this);
+        }
+
+        public ComboBoxFullMenu(ComboBoxModel<E> aModel) {
+            super(aModel);
+            addActionListener(this);
+        }
+
+       
+
+        @Override
+        public Dimension getPreferredSize(){ 
+            Dimension dim = super.getPreferredSize(); 
+          //  if ( !layingOut ) {
+                dim.width = 20 + dim.width;
+           // }
+            return dim; 
+        }
+    }
+	
+	private static JPanel makeToolBar() {
+		JPanel toolBar = new JPanel(new GridLayout(1, 11));
+
+		//JButton helpb = new JButton("Help");
+		//helpb.addActionListener(e -> IdeOptions.showAbout());
 
 		JButton compileB = new JButton("Run");
 		compileB.addActionListener(e -> {
@@ -426,7 +457,7 @@ public class GUI extends JPanel {
 			}
 		});
 
-		JButton abortB = new JButton("Cancel");
+		JButton abortB = new JButton("Stop");
 		abortB.addActionListener(e -> {
 			CodeEditor<?, ?, ?> ed = (CodeEditor<?, ?, ?>) editors.getComponentAt(editors.getSelectedIndex());
 			if (ed != null) {
@@ -449,12 +480,12 @@ public class GUI extends JPanel {
 		CardLayout cl = new CardLayout();
 		JPanel boxPanel = new JPanel(cl);
 		@SuppressWarnings("rawtypes")
-		JComboBox allBox = new JComboBox<>(Examples.filterBy(Language.getDefault().toString()));
+		JComboBox allBox = new ComboBoxFullMenu<>(Examples.filterBy(Language.getDefault().toString()));
 		allBox.setSelectedIndex(-1);
 		allBox.addActionListener(x -> doExample((Example) allBox.getSelectedItem()));
 		for (Language l : Language.values()) {
 			@SuppressWarnings({ "rawtypes" })
-			JComboBox box = new JComboBox<>(Examples.filterBy(l.toString()));
+			JComboBox box = new ComboBoxFullMenu<>(Examples.filterBy(l.toString()));
 			box.setSelectedIndex(-1);
 			box.addActionListener(x -> doExample((Example) box.getSelectedItem()));
 			boxPanel.add(box, l.toString());
@@ -496,9 +527,11 @@ public class GUI extends JPanel {
 		toolBar.add(back);
 		toolBar.add(fwd);
 		toolBar.add(optionsb);
-		toolBar.add(helpb);
+		//toolBar.add(helpb);
+		//JPanel p = new JPanel(new BorderLayout());
 		toolBar.add(new JLabel("Example:", SwingConstants.RIGHT));
 		toolBar.add(modeBox);
+		//toolBar.add(p);
 		toolBar.add(boxPanel);
 		return toolBar;
 	}

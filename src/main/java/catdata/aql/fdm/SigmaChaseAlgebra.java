@@ -133,7 +133,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		if (!lhs.hasTypeType()) {
 			return this.intoX(lhs).equals(intoX(rhs));
 		}
-		return dp_ty.eq(null, intoY0(lhs.convert()), intoY0(rhs.convert()));
+		return dp_ty.eq(null, intoY(lhs.convert()), intoY(rhs.convert()));
 	}
 
 	@Override

@@ -234,7 +234,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		if (!x.left) {
 			return nf0(x.r, lhs.convert()) == nf0(x.r, rhs.convert());
 		}
-		return dp_ty.eq(null, intoY0(lhs.convert()), intoY0(rhs.convert()));
+		return dp_ty.eq(null, intoY(lhs.convert()), intoY(rhs.convert()));
 	}
 
 	@Override

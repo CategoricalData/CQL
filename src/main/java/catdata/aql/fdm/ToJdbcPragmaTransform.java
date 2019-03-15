@@ -40,12 +40,8 @@ public class ToJdbcPragmaTransform<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
 
 	// TODO aql column type mapping for jdbc instance export
 	public ToJdbcPragmaTransform(String prefix, Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h,
-			String clazz, String jdbcString, AqlOptions options1, AqlOptions options2) {
-		try {
-			Class.forName(clazz);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+			 String jdbcString, AqlOptions options1, AqlOptions options2) {
+		
 		this.jdbcString = jdbcString;
 		this.prefix = prefix;
 		this.h = h;

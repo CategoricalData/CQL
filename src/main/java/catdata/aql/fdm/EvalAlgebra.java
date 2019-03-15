@@ -32,6 +32,7 @@ import catdata.aql.Var;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> extends
 		Algebra<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> {
@@ -103,14 +104,9 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	@Override
 	public Term<Ty, Void, Sym, Void, Void, Void, Y> att(Att2 att,
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
-		Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> l = trans1(x, Q.atts.get(att), I,
+		Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> l = trans1x(x, Q.atts.get(att), I,
 				Q.ens.get(Q.dst.atts.get(att).first));
-		if (!l.isPresent()) {
-			System.out.flush();
-			throw new RuntimeException("Anomly: please report: cannot translate " + att + ", term " + Q.atts.get(att)
-					+ ", " + x + " alg is " + this.ens);
-		}
-		return I.algebra().intoY(l.get());
+		return I.algebra().intoY(l);
 	}
 
 	@Override
@@ -248,6 +244,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		List<Var> plan = q.order(options, I);
 		boolean useIndices = useIndices() && q.gens.size() > 1 && I.algebra().hasFreeTypeAlgebra();
 		ret.add(new Row<>(en2));
+		Collection<Object> done = new THashSet<>(plan.size());
 		for (Var v : plan) {
 			Chc<En1, Ty> x;
 			if (q.gens().containsKey(v)) {
@@ -255,7 +252,8 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			} else {
 				x = Chc.inRight(q.sks.get(v));
 			}
-			ret = EvalAlgebra.extend(ret, v, q, I, useIndices, x);
+			ret = EvalAlgebra.extend(ret, v, q, I, useIndices, x, done);
+			done.add(v);
 		}
 		return new Pair<>(plan, ret);
 
@@ -299,18 +297,18 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 
 	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y, En2> List<Pair<Fk1, X>> getAccessPath(Var v,
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
-			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2) {
+			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Collection<Object> done) {
 		List<Pair<Fk1, X>> ret = (new LinkedList<>());
 		for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : q2.eqs()) {
 			if (eq.first.fk() != null && eq.first.arg.equals(Term.Gen(v))) {
-				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = trans1(tuple, eq.first, i2, q2);
+				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = trans1(tuple, eq.first, i2, q2, done);
 				if (!rhs.isPresent()) {
 					continue;
 				}
 				X x = i2.algebra().nf(rhs.get().convert());
 				ret.add(new Pair<>(eq.first.fk(), x));
 			} else if (eq.second.fk() != null && eq.second.arg.equals(Term.Gen(v))) {
-				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = trans1(tuple, eq.second, i2, q2);
+				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = trans1(tuple, eq.second, i2, q2, done);
 				if (!lhs.isPresent()) {
 					continue;
 				}
@@ -323,11 +321,11 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 
 	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y, En2> List<Pair<Att1, Object>> getAccessPath2(Var v,
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
-			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2) {
+			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Collection<Object> done) {
 		List<Pair<Att1, Object>> ret = (new LinkedList<>());
 		for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : q2.eqs()) {
 			if (eq.first.att() != null && eq.first.arg.equals(Term.Gen(v))) {
-				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = trans1(tuple, eq.second, i2, q2);
+				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = trans1(tuple, eq.second, i2, q2, done);
 				if (!rhs.isPresent()) {
 					continue;
 				}
@@ -336,7 +334,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 					ret.add(new Pair<>(eq.first.att(), x.obj()));
 				}
 			} else if (eq.second.att() != null && eq.second.arg.equals(Term.Gen(v))) {
-				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = trans1(tuple, eq.first, i2, q2);
+				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = trans1(tuple, eq.first, i2, q2, done);
 				if (!lhs.isPresent()) {
 					continue;
 				}
@@ -348,21 +346,66 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		}
 		return ret;
 	}
-
-	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> trans1(
+	
+	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> trans1x(
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple,
 			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2,
 			Frozen<Ty, En1, Sym, Fk1, Att1> Q) {
 		if (first.gen() != null) {
 			En1 en1 = Q.gens.get(first.gen());
-			return tuple.containsKey(first.gen())
-					? Optional.of(i2.algebra().repr(en1, tuple.get(first.gen()).l).convert())
-					: Optional.empty();
+			return i2.algebra().repr(en1, tuple.get(first.gen()).l).convert();
 		} else if (first.sk() != null) {
-			if (!tuple.containsKey(first.sk())) {
+			Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> z = tuple.get(first.sk());
+			if (!z.left) {
+				return z.r;
+			}
+			return Util.anomaly(); // Optional.of(i2.algebra().repr(z.l).convert());
+		}
+
+		else if (first.obj() != null) {
+			return first.asObj();
+		} else if (first.fk() != null) {
+			Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> arg = trans1x(tuple, first.arg, i2, Q);
+			return(Term.Fk(first.fk(), arg));
+		} else if (first.att() != null) {
+			Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> arg = trans1x(tuple, first.arg, i2, Q);
+			return Term.Att(first.att(), arg);
+		} else if (first.sym() != null) {
+			List<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> args = (new ArrayList<>(first.args.size()));
+			for (Term<Ty, En1, Sym, Fk1, Att1, Var, Var> arg : first.args) {
+				Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> arg2 = trans1x(tuple, arg, i2, Q);
+				args.add(arg2);
+			}
+			return (Term.Sym(first.sym(), args));
+		}
+		throw new RuntimeException("Anomaly: please report");
+	}
+
+	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> trans1(
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple,
+			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2,
+			Frozen<Ty, En1, Sym, Fk1, Att1> Q, Collection<Object> done) {
+		//if (!tuple.asMap().keySet().equals(done)) {
+		//	System.out.println(tuple + " and " + done);
+		//	Util.anomaly();
+		//}
+		
+		if (first.gen() != null) {
+			//if (!tuple.containsKey(first.gen())) {
+			//	return Optional.empty();
+			//}
+			if (!done.contains(first.gen())) {
 				return Optional.empty();
 			}
-			// Ty ty = Q.sks.get(first.sk());
+			En1 en1 = Q.gens.get(first.gen());
+			return Optional.of(i2.algebra().repr(en1, tuple.get(first.gen()).l).convert());
+		} else if (first.sk() != null) {
+			//if (!tuple.containsKey(first.sk())) {
+			//	return Optional.empty();
+			//}
+			if (!done.contains(first.sk())) {
+				return Optional.empty();
+			}
 			Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> z = tuple.get(first.sk());
 			if (!z.left) {
 				return Optional.of(z.r);
@@ -373,13 +416,13 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		else if (first.obj() != null) {
 			return Optional.of(first.asObj());
 		} else if (first.fk() != null) {
-			Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> arg = trans1(tuple, first.arg, i2, Q);
+			Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> arg = trans1(tuple, first.arg, i2, Q, done);
 			if (!arg.isPresent()) {
 				return Optional.empty();
 			}
 			return Optional.of(Term.Fk(first.fk(), arg.get()));
 		} else if (first.att() != null) {
-			Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> arg = trans1(tuple, first.arg, i2, Q);
+			Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> arg = trans1(tuple, first.arg, i2, Q, done);
 			if (!arg.isPresent()) {
 				return Optional.empty();
 			}
@@ -387,7 +430,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		} else if (first.sym() != null) {
 			List<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> args = (new ArrayList<>(first.args.size()));
 			for (Term<Ty, En1, Sym, Fk1, Att1, Var, Var> arg : first.args) {
-				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> arg2 = trans1(tuple, arg, i2, Q);
+				Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> arg2 = trans1(tuple, arg, i2, Q, done);
 				if (!arg2.isPresent()) {
 					return Optional.empty();
 				}
@@ -412,18 +455,20 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	public static <En2, X, Y, Ty, En1, Sym, Fk1, Att1, Gen, Sk> Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> extend(
 			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> tuples, Var v,
 			Frozen<Ty, En1, Sym, Fk1, Att1> q, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I, boolean useIndices,
-			Chc<En1, Ty> enOrTy) {
+			Chc<En1, Ty> enOrTy, Collection<Object> done) {
 		List<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = new LinkedList<>();
 
 		Iterator<Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> dom;
 		for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple : tuples) {
 			if (useIndices && enOrTy.left) {
-				List<Pair<Fk1, X>> l1 = EvalAlgebra.getAccessPath(v, tuple, q, I);
-				List<Pair<Att1, Object>> l2 = EvalAlgebra.getAccessPath2(v, tuple, q, I);
+				List<Pair<Fk1, X>> l1 = EvalAlgebra.getAccessPath(v, tuple, q, I, done);
+				List<Pair<Att1, Object>> l2 = EvalAlgebra.getAccessPath2(v, tuple, q, I, done);
 				dom = Chc.leftIterator(I.algebra().en_indexed(q.gens.get(v), l1, l2).iterator());
 			} else {
 				dom = I.enOrTy(enOrTy);
 			}
+			done.add(v);
+
 			outer: while (dom.hasNext()) {
 				Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> x = dom.next();
 
@@ -431,8 +476,11 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 						enOrTy);
 				for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : q
 						.eqs()) {
-					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = EvalAlgebra.trans1(row, eq.first, I, q);
-					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = EvalAlgebra.trans1(row, eq.second, I, q);
+					
+					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = EvalAlgebra.trans1(row, eq.first, I, q,
+							done);
+					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = EvalAlgebra.trans1(row, eq.second, I, q, done);
+					
 					if (!lhs.isPresent() || !rhs.isPresent()) {
 						ret.add(row);
 						continue outer;
@@ -443,7 +491,9 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 				}
 				ret.add(row);
 			}
+			done.remove(v);
 		}
+		
 		return ret;
 	}
 

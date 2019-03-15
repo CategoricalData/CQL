@@ -22,12 +22,7 @@ public class ToJdbcPragmaQuery<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> extends 
 	private final String tick;
 
 	public ToJdbcPragmaQuery(String prefixSrc, String prefixDst, Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Q,
-			String clazz, String jdbcString, AqlOptions options) {
-		try {
-			Class.forName(clazz);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+			 String jdbcString, AqlOptions options) {
 		this.jdbcString = jdbcString;
 		this.prefixSrc = prefixSrc;
 		this.prefixDst = prefixDst;

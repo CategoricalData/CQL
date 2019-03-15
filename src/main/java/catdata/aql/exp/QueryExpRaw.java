@@ -55,7 +55,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 
 	private final Map<String, String> options;
 
-	private final Set<Block> blocks;
+	private final Map<String, Block> blocks;
 
 	public final Map<String, String> params;
 	public final Map<String, RawTerm> consts;
@@ -550,7 +550,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 					.append(this.imports.stream().map(x -> x.toString()).collect(Collectors.joining("\n\t")));
 		}
 
-		sb.append(this.blocks.stream().map(x -> x.toString()).collect(Collectors.joining("\n\t")));
+		sb.append(this.blocks.values().stream().map(x -> x.toString()).collect(Collectors.joining("\n\t")));
 
 		if (!this.options.isEmpty()) {
 			sb.append(" options ").append(this.options.entrySet().stream()
@@ -568,8 +568,13 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		this.options = Util.toMapSafely(options);
 		this.consts = new THashMap<>(Util.toMapSafely(LocStr.set2(consts)));
 		this.params = new THashMap<>(Util.toMapSafely(LocStr.set2(params)));
-		this.blocks = Util.toSetSafely(list).stream().map(x -> new Block(x.second, x.first, x.second.star))
+	
+		Set<Block> bb = Util.toSetSafely(list).stream().map(x -> new Block(x.second, x.first, x.second.star))
 				.collect(Collectors.toSet());
+		blocks = new THashMap<>();
+		for (Block x : bb) {
+			blocks.put(x.en.str, x);
+		}
 
 		for (Pair<LocStr, PreBlock> x : list) {
 			En z = En.En(x.first.str);
@@ -585,17 +590,15 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			for (Pair<LocStr, RawTerm> y : x.second.atts) {
 				b3.put(Att.Att(z, y.first.str), y.first.loc);
 			}
-		}
-
-//		raw.put("imports", InteriorLabel.imports("imports", imports));
-
-		for (Pair<LocStr, PreBlock> p : list) {
+			
 			List<InteriorLabel<Object>> f = new LinkedList<>();
+			
+			f.add(new InteriorLabel<>("entities", blocks.get(z.str), x.first.loc, y -> x.first.str).conv());
 
-			f.add(new InteriorLabel<>("entities", p.second, p.first.loc, x -> p.first.str).conv());
-
-			raw.put(p.first.str, f);
+			raw.put(x.first.str, f);
 		}
+
+
 
 	}
 
@@ -667,7 +670,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		}
 
 		Map<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols = new THashMap<>();
-		for (Block p : blocks) {
+		for (Block p : blocks.values()) {
 			try {
 				if (!dst0.ens.contains(p.en)) {
 					throw new RuntimeException(
@@ -696,7 +699,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		}
 
 		// two loops bc need stuff in en to do this part
-		for (Block p : blocks) {
+		for (Block p : blocks.values()) {
 			Set<Var> set = new THashSet<>();
 			for (Pair<catdata.aql.Var, String> z : p.gens) {
 				if (src0.typeSide.tys.contains(Ty.Ty(z.second))) {

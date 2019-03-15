@@ -864,16 +864,16 @@ public class AqlHelp implements
 					+ "        echo \"<a href=\\\"\" . $file . \"\\\">\" . $file . \"</a><br/>\";\n" + "    }\n" + "}\n"
 					+ "\n" + "?>\n" + "\n" + "\n" + "\n" + "</body></html>";
 			Util.writeFile(search, new File(dir, "search.php").getAbsolutePath());
-
 			Map<Example, Set<AqlSyntax>> index = new THashMap<>();
 
 			StringBuffer examples = new StringBuffer("<html><head>" + css + "</head><body>");
 			for (Example ex : Util.alphabetical(
+			
 					Util.union(Examples.getExamples(Language.CQL), Examples.getExamples(Language.CQL_ALT)))) {
 				examples.append(
-						"\n<a href=\"" + ex.getName() + ".html\" target=\"primary\">" + ex.getName() + "</a><br />");
+						"\n<a href=\"" + ex.getName().trim() + ".html\" target=\"primary\">" + ex.getName().trim() + "</a><br />");
 
-//				System.out.println(ex.getName());
+				System.out.println(ex.getName());
 				Program<Exp<?>> prog = new CombinatorParser().parseProgram(ex.getText());
 
 				StringBuffer other = new StringBuffer();
@@ -982,6 +982,7 @@ public class AqlHelp implements
 			Map<Kind, Set<Pair<AqlTyping, Exp<?>>>> z = new TypingInversion().covisit(Unit.unit, x -> new AqlTyping());
 			Map<String, Set<Exp<?>>> opInv = Util.newSetsFor(AqlOptions.optionNames());
 			for (Kind k : Util.alphabetical(Arrays.asList(Kind.class.getEnumConstants()))) {
+				
 				if (k.equals(Kind.COMMENT)) {
 					continue;
 				}
@@ -990,15 +991,17 @@ public class AqlHelp implements
 				Collections.sort(ee, (x, y) -> x.second.getKeyword().compareTo(y.second.getKeyword()));
 
 				for (Pair<AqlTyping, Exp<?>> pair : ee) {
-					AqlTyping g = pair.first;
-					Exp<?> e = pair.second;
-					if (e == null) {
+					if (pair.second.isVar()) {
 						continue;
 					}
+				
+					AqlTyping g = pair.first;
+					Exp<?> e = pair.second;
 					String desc = e.accept0(Unit.unit, new AqlHelp());
+					
 					String str = e.printNicely(g);
 					String str2 = "<br/>Appears in:<br/><br/>";
-
+					
 					Set<AqlOption> xx = e.allowedOptions();
 					for (AqlOption op : xx) {
 						opInv.get(op.name()).add(e);
@@ -1011,11 +1014,11 @@ public class AqlHelp implements
 					for (Example ex : Util.alphabetical(
 							Util.union(Examples.getExamples(Language.CQL), Examples.getExamples(Language.CQL_ALT)))) {
 						if (index.get(ex).contains(e.getSyntax())) {
-							str2 += "\n<a href=\"" + ex.getName() + ".html\" target=\"primary\">" + ex.getName()
+							str2 += "\n<a href=\"" + ex.getName().trim() + ".html\" target=\"primary\">" + ex.getName().trim()
 									+ "</a><br />";
 						}
 					}
-
+					
 					String dstFile = new File(dir, e.kind() + e.getKeyword() + ".html").getAbsolutePath();
 					Util.writeFile(
 							"<html><head>" + css + "</head><h1>" + e.kind() + " " + e.getKeyword() + "</h1>\n<pre>\n"
@@ -1023,6 +1026,7 @@ public class AqlHelp implements
 							dstFile);
 					syntax.append("\t\t\t<a href=\"" + e.kind() + e.getKeyword() + ".html" + "\" target=\"primary\">"
 							+ e.getKeyword() + "</a><br />\n");
+					
 				}
 //				syntax.append("\t<br");				
 			}
@@ -1030,6 +1034,7 @@ public class AqlHelp implements
 
 			StringBuffer options = new StringBuffer("<html><head>" + css + "</head><body>");
 			for (AqlOption ex : Util.alphabetical(Arrays.asList(AqlOption.class.getEnumConstants()))) {
+				
 				options.append("\n<a href=\"" + ex.name() + ".html\" target=\"primary\">" + ex.name() + "</a><br />");
 				StringBuffer zzz = new StringBuffer();
 				Set<AqlSyntax> seen = new THashSet<>();
@@ -1045,8 +1050,9 @@ public class AqlHelp implements
 				StringBuffer yyy = new StringBuffer();
 				for (Example example : Util.alphabetical(
 						Util.union(Examples.getExamples(Language.CQL), Examples.getExamples(Language.CQL_ALT)))) {
+					
 					if (example.getText().contains(ex.toString())) {
-						yyy.append("\n<a href=\"" + example.getName() + ".html\" target=\"primary\">"
+						yyy.append("\n<a href=\"" + example.getName().trim() + ".html\" target=\"primary\">"
 								+ example.getName() + "</a><br />");
 					}
 				}
@@ -1057,6 +1063,7 @@ public class AqlHelp implements
 				Util.writeFile(sss, new File(dir, ex.name() + ".html").getAbsolutePath());
 			}
 			options.append("\n</body></html>");
+			
 
 			Util.writeFile(errata.toString(), new File(dir, "errata.html").getAbsolutePath());
 			Util.writeFile(options.toString(), new File(dir, "options.html").getAbsolutePath());
@@ -1069,6 +1076,7 @@ public class AqlHelp implements
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
 		}
+		
 	}
 
 	public String report() {

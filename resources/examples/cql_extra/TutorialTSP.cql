@@ -1044,7 +1044,7 @@ are listed using the `pShwTbls` pragma.
 
 First clean out the target tables if present from a previous run.
 " *) }
-command pCleanUp = exec_jdbc "com.mysql.cj.jdbc.Driver"
+command pCleanUp = exec_jdbc 
 "jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
 "DROP TABLE IF EXISTS sts_SkillNdFrTask"
 "DROP TABLE IF EXISTS sts_Skill"
@@ -1056,14 +1056,14 @@ Export the results of the above construction of the span and its representative 
 `export_jdbc_instance` defaults strings varchar(64). In this case we illustrate how that default 
 can be overridden using the varchar_length option.
 " *) }
-command eSTS = export_jdbc_instance iSTSpn "com.mysql.cj.jdbc.Driver"
+command eSTS = export_jdbc_instance iSTSpn 
 "jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" "sts_"
   { options varchar_length = 256 }
 
 md { (* "
 Display the contents of the `ci_test` schema in MySQL.
 " *) }
-command pShwTbls = exec_jdbc "com.mysql.cj.jdbc.Driver"
+command pShwTbls = exec_jdbc 
 "jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
 "SHOW  TABLES"}
  
@@ -1075,7 +1075,7 @@ of different options that can be used to provide flexibility. We make use of the
 for this import but will return to import options in a later example. The import defaults require
 a complete specification of all foreign key and attribute columns.
 " *) }
-instance iSTSpnImp = import_jdbc "com.mysql.cj.jdbc.Driver"
+instance iSTSpnImp = import_jdbc 
 "jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" : sSTSpn {
    Skill -> "select id, fk_HasClass, SName, SCNameOnSkl from sts_Skill"
    SkillClass -> "select id, SCName from sts_SkillClass"
@@ -1123,7 +1123,7 @@ md { (* "
 We have already set up a set of tables and associated instance in our source RDBMS so we import
 that instance using a command analogous to the `iSTSpnImp` imported instance.
 " *) }
-instance iSPSpnImp = import_jdbc "com.mysql.cj.jdbc.Driver"
+instance iSPSpnImp = import_jdbc
     "jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" : sSPSpn {
    SpecificSkill -> "select id, fk_IsType, SSName, SSGSName, SSSCName from sps_SpecificSkill"
    GeneralSkill -> "select id, fk_HasClass, GSName, GSSCName from sps_GeneralSkill"

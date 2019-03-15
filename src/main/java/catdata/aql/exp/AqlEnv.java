@@ -42,6 +42,10 @@ public final class AqlEnv {
 
 	Map<Exp<?>, Object> cache = Util.mk();
 
+	public long fd = Long.MAX_VALUE, md = Long.MAX_VALUE, ud = Long.MAX_VALUE; //memory deltas
+
+	public long fl = Long.MAX_VALUE, mh = Long.MIN_VALUE, uh = Long.MIN_VALUE;
+	
 	public Semantics get(Kind k, String s) {
 		return (Semantics) defs.get(s, k);
 	}

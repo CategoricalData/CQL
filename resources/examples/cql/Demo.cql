@@ -107,10 +107,10 @@ options
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // export the warehouse to SQL
-command storeWH = export_jdbc_instance Warehouse "" "" ""
+command storeWH = export_jdbc_instance Warehouse "" ""
 
 //view exported SQL instance
-command view1 = exec_jdbc "" "" { 
+command view1 = exec_jdbc ""  { 
 	"SELECT * FROM \"Animal\""
 	"SELECT * FROM \"Amphibian\""
 	"SELECT * FROM \"Land\""

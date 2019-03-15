@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +17,8 @@ import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Instance;
 import catdata.aql.Pragma;
+import catdata.aql.Query;
+import catdata.aql.Schema;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 
@@ -32,7 +35,7 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 	private final int len;
 	private AqlOptions options;
 
-	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, String clazz,
+	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, 
 			String jdbcString, AqlOptions options) {
 		// try {
 		this.jdbcString = jdbcString;
@@ -54,8 +57,7 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		for (En en : I.schema().ens) {
 			for (String x : m.get(en).second) {
 				// TODO aql drop foreign keys here first
-				stmt.execute(x); // .replace("Varchar", "Varchar(" + len + ")").replace("Nvarchar", "Nvarchar(" +
-									// len + ")").replace("varchar", "Varchar(" + len + ")"));
+				stmt.execute(x); 
 			}
 		}
 		stmt.close();
@@ -71,10 +73,25 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 			deleteThenCreate(conn);
 			Pair<TObjectIntMap<X>, TIntObjectMap<X>> II = I.algebra()
 					.intifyX((int) options.getOrDefault(AqlOption.start_ids_at));
+		
 			for (En en : I.schema().ens) {
 				List<Chc<Fk, Att>> header = headerFor(en);
+				List<String> hdrQ = new ArrayList<>(header.size() + 1);
+				List<String> hdr = new ArrayList<>(header.size() + 1);
+				
+				hdr.add(tick + idCol + tick);
+				hdrQ.add("?");
+				for (Chc<Fk, Att> aHeader : header) {
+					hdrQ.add("?");
+					Chc<Fk, Att> chc = aHeader;
+					if (chc.left) {
+						hdr.add(tick + Schema.truncate(chc.l.toString(), truncate) + tick); // TODO aql unsafe
+					} else {
+						hdr.add(tick + Schema.truncate(chc.r.toString(), truncate) + tick); // TODO aql unsafe
+					}
+				}
 				for (X x : I.algebra().en(en)) {
-					I.algebra().storeMyRecord(II, conn, x, header, enToString(en), prefix, truncate, tick, idCol);
+					I.algebra().storeMyRecord(hdrQ, hdr, II, conn, x, header, enToString(en), prefix, tick);
 				}
 			}
 			Statement stmt = conn.createStatement();

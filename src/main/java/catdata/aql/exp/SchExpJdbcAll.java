@@ -33,7 +33,7 @@ public class SchExpJdbcAll extends SchExp {
 
 	private final Map<String, String> options;
 
-	private final String clazz;
+//	private final String clazz;
 	private final String jdbcString;
 
 	@Override
@@ -41,8 +41,8 @@ public class SchExpJdbcAll extends SchExp {
 		return options;
 	}
 
-	public SchExpJdbcAll(String clazz, String jdbcString, List<Pair<String, String>> options) {
-		this.clazz = clazz;
+	public SchExpJdbcAll(/*String clazz,*/ String jdbcString, List<Pair<String, String>> options) {
+		//this.clazz = clazz;
 		this.jdbcString = jdbcString;
 		this.options = Util.toMapSafely(options);
 	}
@@ -58,7 +58,7 @@ public class SchExpJdbcAll extends SchExp {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder().append("import_jdbc_all ").append(Util.quote(clazz)).append(" ")
+		final StringBuilder sb = new StringBuilder().append("import_jdbc_all ").append(" ")
 				.append(Util.quote(jdbcString));
 		if (!options.isEmpty()) {
 			sb.append(" {\n\t").append("\n\toptions\n\t\t").append(Util.sep(options, " = ", "\n\t\t")).append("}");
@@ -75,7 +75,7 @@ public class SchExpJdbcAll extends SchExp {
 	public int hashCode() {
 		int prime = 31;
 		int result = 1;
-		result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+		//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 		result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		return result;
@@ -90,12 +90,7 @@ public class SchExpJdbcAll extends SchExp {
 		if (getClass() != obj.getClass())
 			return false;
 		SchExpJdbcAll other = (SchExpJdbcAll) obj;
-		if (clazz == null) {
-			if (other.clazz != null)
-				return false;
-		} else if (!clazz.equals(other.clazz))
-			return false;
-		if (jdbcString == null) {
+	if (jdbcString == null) {
 			if (other.jdbcString != null)
 				return false;
 		} else if (!jdbcString.equals(other.jdbcString))

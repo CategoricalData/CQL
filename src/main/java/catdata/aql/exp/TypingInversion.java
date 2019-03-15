@@ -499,7 +499,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 	@Override
 	public PragmaExpSql visitPragmaExpSql(Unit params, AqlTyping exp) throws RuntimeException {
-		return new PragmaExpSql("class", "jdbc_string", Collections.emptyList(), new LinkedList());
+		return new PragmaExpSql( "jdbc_string", Collections.emptyList(), new LinkedList());
 	}
 
 	@Override
@@ -540,7 +540,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
-		return new PragmaExpToJdbcInst(i, "class", "jdbc_string", "prefix", new LinkedList());
+		return new PragmaExpToJdbcInst(i, "jdbc_string", "prefix", new LinkedList());
 
 	}
 
@@ -557,7 +557,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		InstExp<Object, Object, Object, Object> i2 = new InstExpVar("i2");
 		TransExp<Object, Object, Object, Object, Object, Object, Object, Object> h = new TransExpVar("h");
 		exp.defs.trans.put("h", new Pair(i1, i2));
-		return new PragmaExpToJdbcTrans(h, "class", "jdbc_string", "prefix", new LinkedList(), new LinkedList());
+		return new PragmaExpToJdbcTrans(h, "jdbc_string", "prefix", new LinkedList(), new LinkedList());
 	}
 
 	@Override
@@ -570,7 +570,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		SchExp s2 = new SchExpVar("s2");
 		exp.defs.qs.put("q", new Pair(s1, s2));
 		QueryExpVar q = new QueryExpVar("q");
-		return new PragmaExpToJdbcQuery(q, "class", "jdbc_string", "prefix_src", "prefix_dst", new LinkedList());
+		return new PragmaExpToJdbcQuery(q, "jdbc_string", "prefix_src", "prefix_dst", new LinkedList());
 	}
 
 	@Override
@@ -677,7 +677,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 	@Override
 	public InstExpJdbcAll visitInstExpJdbcAll(Unit param, AqlTyping exp) throws RuntimeException {
-		return new InstExpJdbcAll("class", "jdbc_string", Collections.emptyList());
+		return new InstExpJdbcAll("jdbc_string", Collections.emptyList());
 	}
 
 	@Override
@@ -996,7 +996,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		TyExp t = new TyExpVar("t");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
-		return new InstExpJdbc(s, new LinkedList(), "class", "jdbc_string", new LinkedList());
+		return new InstExpJdbc(s, new LinkedList(), "jdbc_string", new LinkedList());
 	}
 
 	@Override
@@ -1346,7 +1346,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.trans.put("h", new Pair(i1, i2));
 		exp.prog.exps.put("s", new SchExpEmpty(t));
 		exp.prog.exps.put("t", new TyExpEmpty());
-		return new TransExpJdbc("class", "jdbc_string", i1, i2, new LinkedList(), new LinkedList());
+		return new TransExpJdbc("jdbc_string", i1, i2, new LinkedList(), new LinkedList());
 	}
 
 	@Override
@@ -1505,7 +1505,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 	@Override
 	public SchExpJdbcAll visitSchExpJdbcAll(Unit params, AqlTyping r) {
-		return new SchExpJdbcAll("class", "jdbc_string", new LinkedList());
+		return new SchExpJdbcAll("jdbc_string", new LinkedList());
 	}
 
 	@Override

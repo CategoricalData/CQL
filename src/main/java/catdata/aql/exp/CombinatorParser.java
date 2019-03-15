@@ -156,9 +156,9 @@ public class CombinatorParser implements IAqlParser {
 				cod2 = Parsers.tuple(token("cod_m"), map_ref.lazy()).map(x -> new SchExpDst(x.b)),
 				dom2 = Parsers.tuple(token("dom_m"), map_ref.lazy()).map(x -> new SchExpSrc(x.b)),
 				all = Parsers
-						.tuple(token("import_jdbc_all"), ident, ident,
+						.tuple(token("import_jdbc_all"), ident,
 								options.between(token("{"), token("}")).optional())
-						.map(x -> new SchExpJdbcAll(x.b, x.c, Util.newIfNull(x.d))),
+						.map(x -> new SchExpJdbcAll(x.b, Util.newIfNull(x.c))),
 
 				ret = Parsers.or(inst, empty, schExpRaw(), var, all, colim, parens(sch_ref), pivot, cod, dom, cod2,
 						dom2);
@@ -185,30 +185,30 @@ public class CombinatorParser implements IAqlParser {
 						.map(x -> new PragmaExpToCsvTrans(x.b, x.c, x.d == null ? Collections.emptyList() : x.d,
 								x.e == null ? Collections.emptyList() : x.e)),
 
-				sql = Parsers.tuple(token("exec_jdbc"), ident, ident, p)
-						.map(x -> new PragmaExpSql(x.b, x.c, x.d.a, x.d.b)),
+				sql = Parsers.tuple(token("exec_jdbc"), ident, p)
+						.map(x -> new PragmaExpSql(x.b, x.c.a, x.c.b)),
 
 				js = Parsers.tuple(token("exec_js"), p).map(x -> new PragmaExpJs(x.b.a, x.b.b)),
 				proc = Parsers.tuple(token("exec_cmdline"), p).map(x -> new PragmaExpProc(x.b.a, x.b.b)),
 
 				jdbcInst = Parsers
-						.tuple(Parsers.tuple(token("export_jdbc_instance"), inst_ref.lazy()), ident, ident, ident,
+						.tuple(Parsers.tuple(token("export_jdbc_instance"), inst_ref.lazy()), ident, ident,
 								options.between(token("{"), token("}")).optional())
-						.map(x -> new PragmaExpToJdbcInst(x.a.b, x.b, x.c, x.d,
-								x.e == null ? Collections.emptyList() : x.e)),
+						.map(x -> new PragmaExpToJdbcInst(x.a.b, x.b, x.c,
+								x.d == null ? Collections.emptyList() : x.d)),
 
 				jdbcQuery = Parsers.tuple(Parsers.tuple(token("export_jdbc_query"), query_ref.lazy()),
-						Parsers.tuple(ident, ident, ident, ident), options.between(token("{"), token("}")).optional())
-						.map(x -> new PragmaExpToJdbcQuery(x.a.b, x.b.a, x.b.b, x.b.c, x.b.d,
+						Parsers.tuple(ident, ident, ident), options.between(token("{"), token("}")).optional())
+						.map(x -> new PragmaExpToJdbcQuery(x.a.b, x.b.a, x.b.b, x.b.c, 
 								x.c == null ? Collections.emptyList() : x.c)),
 
 				jdbcTrans = Parsers
-						.tuple(Parsers.tuple(token("export_jdbc_transform"), trans_ref.lazy()), ident, ident, ident,
+						.tuple(Parsers.tuple(token("export_jdbc_transform"), trans_ref.lazy()), ident, ident,
 								Parsers.tuple(options.between(token("{"), token("}")).optional(),
 										options.between(token("{"), token("}")).optional()))
-						.map(x -> new PragmaExpToJdbcTrans(x.a.b, x.b, x.c, x.d,
-								x.e.a == null ? Collections.emptyList() : x.e.a,
-								x.e.b == null ? Collections.emptyList() : x.e.b)),
+						.map(x -> new PragmaExpToJdbcTrans(x.a.b, x.b, x.c, 
+								x.d.a == null ? Collections.emptyList() : x.d.a,
+								x.d.b == null ? Collections.emptyList() : x.d.b)),
 
 				match = Parsers
 						.tuple(token("match"), ident.followedBy(token(":")), graph_ref.lazy().followedBy(token("->")),
@@ -526,9 +526,8 @@ public class CombinatorParser implements IAqlParser {
 		Parser<Pair<List<catdata.Pair<LocStr, String>>, List<catdata.Pair<String, String>>>> qs = Parsers
 				.tuple(env(ident, "->"), options).between(token("{"), token("}"));
 
-		Parser<TransExpJdbc> ret = Parsers.tuple(token("import_jdbc"), ident, ident.followedBy(token(":")), st, qs)
-				.map(x -> new TransExpJdbc(x.b, x.c, x.d.a, x.d.b, x.e.a, x.e.b)); // too
-																					// hard
+		Parser<TransExpJdbc> ret = Parsers.tuple(token("import_jdbc"), ident.followedBy(token(":")), st, qs)
+				.map(x -> new TransExpJdbc(x.b, x.c.a, x.c.b, x.d.a, x.d.b)); 
 		return ret;
 	}
 
@@ -1035,15 +1034,15 @@ public class CombinatorParser implements IAqlParser {
 				.tuple(env(ident, "->"), options).between(token("{"), token("}"));
 
 		Parser<InstExpJdbc> ret = Parsers
-				.tuple(token("import_jdbc"), ident, ident.followedBy(token(":")), sch_ref.lazy(), qs)
-				.map(x -> new InstExpJdbc(x.d, x.e.b, x.b, x.c, x.e.a));
+				.tuple(token("import_jdbc"), ident.followedBy(token(":")), sch_ref.lazy(), qs)
+				.map(x -> new InstExpJdbc(x.c, x.d.b, x.b, x.d.a));
 		return ret;
 	}
 
 	private static Parser<InstExpJdbcAll> instExpJdbcAll() {
 		Parser<InstExpJdbcAll> ret = Parsers
-				.tuple(token("import_jdbc_all"), ident, ident, options.between(token("{"), token("}")).optional())
-				.map(x -> new InstExpJdbcAll(x.b, x.c, Util.newIfNull(x.d)));
+				.tuple(token("import_jdbc_all"), ident, options.between(token("{"), token("}")).optional())
+				.map(x -> new InstExpJdbcAll(x.b, Util.newIfNull(x.c)));
 
 		return ret;
 	}

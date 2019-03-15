@@ -1,12 +1,10 @@
 package catdata.aql.exp;
 
 import java.awt.Color;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import javax.swing.JCheckBox;
 import javax.swing.text.BadLocationException;

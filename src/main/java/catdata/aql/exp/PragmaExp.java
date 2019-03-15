@@ -475,7 +475,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		private final String jdbcString;
 
-		private final String clazz;
+	//	private final String clazz;
 
 		private final Map<String, String> options;
 
@@ -492,8 +492,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options;
 		}
 
-		public PragmaExpSql(String clazz, String jdbcString, List<String> sqls, List<Pair<String, String>> options) {
-			this.clazz = clazz;
+		public PragmaExpSql( String jdbcString, List<String> sqls, List<Pair<String, String>> options) {
+		//	this.clazz = clazz;
 			this.jdbcString = jdbcString;
 			this.options = Util.toMapSafely(options);
 			this.sqls = sqls;
@@ -503,7 +503,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public int hashCode() {
 			int prime = 31;
 			int result = 1;
-			result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options == null) ? 0 : options.hashCode());
 			result = prime * result + ((sqls == null) ? 0 : sqls.hashCode());
@@ -519,11 +519,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			if (getClass() != obj.getClass())
 				return false;
 			PragmaExpSql other = (PragmaExpSql) obj;
-			if (clazz == null) {
-				if (other.clazz != null)
-					return false;
-			} else if (!clazz.equals(other.clazz))
-				return false;
 			if (jdbcString == null) {
 				if (other.jdbcString != null)
 					return false;
@@ -557,7 +552,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder().append("exec_jdbc ").append(Util.quote(clazz)).append(" ")
+			final StringBuilder sb = new StringBuilder().append("exec_jdbc ").append(" ")
 					.append(Util.quote(jdbcString)).append(" {")
 					.append(Util.sep(sqls.stream().map(Util::quote).collect(Collectors.toList()), "\n"));
 
@@ -1059,7 +1054,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		public final String jdbcString;
 		public final String prefix;
-		public final String clazz;
+		//public final String clazz;
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
@@ -1089,11 +1084,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return v.visit(params, this);
 		}
 
-		public PragmaExpToJdbcInst(InstExp<Gen, Sk, X, Y> i, String clazz, String jdbcString, String prefix,
+		public PragmaExpToJdbcInst(InstExp<Gen, Sk, X, Y> i, String jdbcString, String prefix,
 				List<Pair<String, String>> options) {
 			this.jdbcString = jdbcString;
 			this.prefix = prefix;
-			this.clazz = clazz;
+			//this.clazz = clazz;
 			this.options = Util.toMapSafely(options);
 			I = i;
 		}
@@ -1106,24 +1101,24 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		@Override
 		public synchronized Pragma eval0(AqlEnv env, boolean isC) {
 			String toGet = jdbcString;
-			String driver = clazz;
+			//String driver = clazz;
 			AqlOptions op = new AqlOptions(options, null, env.defaults);
-			if (clazz.trim().isEmpty()) {
-				driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
-			}
+			//if (clazz.trim().isEmpty()) {
+			//	driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
+			//}
 			if (jdbcString.trim().isEmpty()) {
 				toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 			}
 			if (isC) {
 				throw new IgnoreException();
 			}
-			return new ToJdbcPragmaInstance<>(prefix, I.eval(env, false), driver, toGet, op);
+			return new ToJdbcPragmaInstance<>(prefix, I.eval(env, false), toGet, op);
 		}
 
 		@Override
 		public String makeString() {
 			final StringBuilder sb = new StringBuilder().append("export_jdbc_instance ").append(I).append(" ")
-					.append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString)).append(" ")
+					.append(" ").append(Util.quote(jdbcString)).append(" ")
 					.append(Util.quote(prefix));
 			if (!options.isEmpty()) {
 				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
@@ -1136,7 +1131,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			int prime = 31;
 			int result = 1;
 			result = prime * result + ((I == null) ? 0 : I.hashCode());
-			result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options == null) ? 0 : options.hashCode());
 			result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
@@ -1157,11 +1152,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				if (other.I != null)
 					return false;
 			} else if (!I.equals(other.I))
-				return false;
-			if (clazz == null) {
-				if (other.clazz != null)
-					return false;
-			} else if (!clazz.equals(other.clazz))
 				return false;
 			if (jdbcString == null) {
 				if (other.jdbcString != null)
@@ -1187,7 +1177,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 	public static class PragmaExpToJdbcTrans<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends PragmaExp {
 
-		public final String jdbcString, prefix, clazz;
+		public final String jdbcString, prefix;
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -1212,11 +1202,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options1;
 		}
 
-		public PragmaExpToJdbcTrans(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h, String clazz, String jdbcString,
+		public PragmaExpToJdbcTrans(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h,String jdbcString,
 				String prefix, List<Pair<String, String>> options1, List<Pair<String, String>> options2) {
 			this.jdbcString = jdbcString;
 			this.prefix = prefix;
-			this.clazz = clazz;
+			//this.clazz = clazz;
 			this.options1 = Util.toMapSafely(options1);
 			this.options2 = Util.toMapSafely(options2);
 			this.h = h;
@@ -1237,23 +1227,23 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				throw new IgnoreException();
 			}
 			String toGet = jdbcString;
-			String driver = clazz;
+		//	String driver = clazz;
 			AqlOptions op1 = new AqlOptions(options1, null, env.defaults);
 			AqlOptions op2 = new AqlOptions(options2, null, env.defaults);
 
-			if (clazz.trim().isEmpty()) {
-				driver = (String) op1.getOrDefault(AqlOption.jdbc_default_class);
-			}
+			//if (clazz.trim().isEmpty()) {
+			//	driver = (String) op1.getOrDefault(AqlOption.jdbc_default_class);
+			//}
 			if (jdbcString.trim().isEmpty()) {
 				toGet = (String) op1.getOrDefault(AqlOption.jdbc_default_string);
 			}
-			return new ToJdbcPragmaTransform<>(prefix, h.eval(env, false), driver, toGet, op1, op2);
+			return new ToJdbcPragmaTransform<>(prefix, h.eval(env, false), toGet, op1, op2);
 		}
 
 		@Override
 		public String makeString() {
 			final StringBuilder sb = new StringBuilder().append("export_jdbc_transform ").append(h).append(" ")
-					.append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString)).append(" ")
+					.append(" ").append(Util.quote(jdbcString)).append(" ")
 					.append(Util.quote(prefix)).append(" ");
 			if (!options1.isEmpty()) {
 				sb.append("{");
@@ -1273,7 +1263,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			int prime = 31;
 			int result = 1;
 			result = prime * result + ((h == null) ? 0 : h.hashCode());
-			result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options1 == null) ? 0 : options1.hashCode());
 			result = prime * result + ((options2 == null) ? 0 : options2.hashCode());
@@ -1296,12 +1286,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 					return false;
 			} else if (!h.equals(other.h))
 				return false;
-			if (clazz == null) {
-				if (other.clazz != null)
-					return false;
-			} else if (!clazz.equals(other.clazz))
-				return false;
-			if (jdbcString == null) {
+		if (jdbcString == null) {
 				if (other.jdbcString != null)
 					return false;
 			} else if (!jdbcString.equals(other.jdbcString))
@@ -1331,7 +1316,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	@SuppressWarnings("hiding")
 	public static class PragmaExpToJdbcQuery extends PragmaExp {
 
-		public final String jdbcString, prefixSrc, prefixDst, clazz;
+		public final String jdbcString, prefixSrc, prefixDst;
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
@@ -1356,12 +1341,12 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options;
 		}
 
-		public PragmaExpToJdbcQuery(QueryExp Q, String clazz, String jdbcString, String prefixSrc, String prefixDst,
+		public PragmaExpToJdbcQuery(QueryExp Q, String jdbcString, String prefixSrc, String prefixDst,
 				List<Pair<String, String>> options) {
 			this.jdbcString = jdbcString;
 			this.prefixSrc = prefixSrc;
 			this.prefixDst = prefixDst;
-			this.clazz = clazz;
+			//this.clazz = clazz;
 			this.options = Util.toMapSafely(options);
 			this.Q = Q;
 		}
@@ -1381,21 +1366,21 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				throw new IgnoreException();
 			}
 			String toGet = jdbcString;
-			String driver = clazz;
+			//String driver = clazz;
 			AqlOptions op = new AqlOptions(options, null, env.defaults);
-			if (clazz.trim().isEmpty()) {
-				driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
-			}
+			////if (clazz.trim().isEmpty()) {
+			//	driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
+			//}
 			if (jdbcString.trim().isEmpty()) {
 				toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 			}
-			return new ToJdbcPragmaQuery<>(prefixSrc, prefixDst, Q.eval(env, false), driver, toGet, op);
+			return new ToJdbcPragmaQuery<>(prefixSrc, prefixDst, Q.eval(env, false), toGet, op);
 		}
 
 		@Override
 		public String makeString() {
 			final StringBuilder sb = new StringBuilder().append("export_jdbc_query ").append(Q).append(" ")
-					.append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString)).append(" ")
+					.append(" ").append(Util.quote(jdbcString)).append(" ")
 					.append(Util.quote(prefixSrc)).append(" ").append(Util.quote(prefixDst));
 			if (!options.isEmpty()) {
 				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
@@ -1408,7 +1393,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((Q == null) ? 0 : Q.hashCode());
-			result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options == null) ? 0 : options.hashCode());
 			result = prime * result + ((prefixDst == null) ? 0 : prefixDst.hashCode());
@@ -1430,12 +1415,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 					return false;
 			} else if (!Q.equals(other.Q))
 				return false;
-			if (clazz == null) {
-				if (other.clazz != null)
-					return false;
-			} else if (!clazz.equals(other.clazz))
-				return false;
-			if (jdbcString == null) {
+		if (jdbcString == null) {
 				if (other.jdbcString != null)
 					return false;
 			} else if (!jdbcString.equals(other.jdbcString))

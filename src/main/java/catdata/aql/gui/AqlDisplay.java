@@ -268,12 +268,13 @@ public final class AqlDisplay implements Disp {
 			//text += "\n";
 		}
 		
-		text += ("\n\nJVM Memory: ");
-		text += (Runtime.getRuntime().freeMemory() / (1024*1024));
-		text += (" MB Free, ");
-		text += (Runtime.getRuntime().totalMemory() / (1024*1024));
-		text += (" MB Total. ");
-
+		text += ("\n\nJVM Used Change: ");
+		//text += (env.fd / (1024*1024));
+		//text += (" MB to Free, ");
+		//text += (env.md / (1024*1024));
+		//text += (" MB to Limit, ");
+		text += (env.ud / (1024*1024)) + " MB";
+		text += ".  Used Max: " + (env.uh/ (1024*1024))+ " MB.";//.  Free Minimum MB: " + (env.fl / (1024*1024)) + ".";  
 		jtb.addTab("Text", new CodeTextPanel("", text));
 		jtb.addTab("Performance", pan);
 		jtb.addTab("TSV", new CodeTextPanel("", tsv));

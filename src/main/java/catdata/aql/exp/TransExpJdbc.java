@@ -23,17 +23,17 @@ public class TransExpJdbc<X1, Y1, X2, Y2> extends TransExpImport<Gen, Sk, Gen, S
 		this.dst.map(f);
 	}
 
-	public final String clazz;
+	//public final String clazz;
 	public final String jdbcString;
 
 	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
 		return v.visit(params, this);
 	}
 
-	public TransExpJdbc(String clazz, String jdbcString, InstExp<Gen, Sk, X1, Y1> src, InstExp<Gen, Sk, X2, Y2> dst,
+	public TransExpJdbc(/*String clazz,*/ String jdbcString, InstExp<Gen, Sk, X1, Y1> src, InstExp<Gen, Sk, X2, Y2> dst,
 			List<Pair<LocStr, String>> map, List<Pair<String, String>> options) {
 		super(src, dst, map, options);
-		this.clazz = clazz;
+	//	this.clazz = clazz;
 		this.jdbcString = jdbcString;
 	}
 
@@ -51,7 +51,7 @@ public class TransExpJdbc<X1, Y1, X2, Y2> extends TransExpImport<Gen, Sk, Gen, S
 	@Override
 	public String makeString() {
 
-		StringBuilder sb = new StringBuilder().append("import_jdbc ").append(Util.quote(clazz)).append(" ")
+		StringBuilder sb = new StringBuilder().append("import_jdbc ").append(" ")
 				.append(Util.quote(jdbcString)).append(" : ").append(src).append(" -> ").append(dst).append(" {\n\t")
 				.append(Util.sep(map, " -> ", "\n\t"));
 		sb = new StringBuilder(sb.toString().trim());
@@ -65,7 +65,7 @@ public class TransExpJdbc<X1, Y1, X2, Y2> extends TransExpImport<Gen, Sk, Gen, S
 	public int hashCode() {
 		int prime = 31;
 		int result = super.hashCode(); // TODO aql note
-		result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+	//	result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 		result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 		return result;
 	}
@@ -79,11 +79,11 @@ public class TransExpJdbc<X1, Y1, X2, Y2> extends TransExpImport<Gen, Sk, Gen, S
 		if (getClass() != obj.getClass())
 			return false;
 		TransExpJdbc<?, ?, ?, ?> other = (TransExpJdbc<?, ?, ?, ?>) obj;
-		if (clazz == null) {
-			if (other.clazz != null)
-				return false;
-		} else if (!clazz.equals(other.clazz))
-			return false;
+	//	if (clazz == null) {
+		//	if (other.clazz != null)
+		//		return false;
+		//} else if (!clazz.equals(other.clazz))
+		//	return false;
 		if (map == null) {
 			if (other.map != null)
 				return false;
@@ -126,10 +126,10 @@ public class TransExpJdbc<X1, Y1, X2, Y2> extends TransExpImport<Gen, Sk, Gen, S
 	@Override
 	protected Connection start(Schema<Ty, En, Sym, Fk, Att> sch) throws Exception {
 		String toGet = jdbcString;
-		if (clazz.trim().isEmpty()) {
-			String driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
-			Util.checkClass(driver);
-		}
+		//if (clazz.trim().isEmpty()) {
+		//	String driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
+		//	Util.checkClass(driver);
+		//}
 		if (jdbcString.trim().isEmpty()) {
 			toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 		}

@@ -6,7 +6,6 @@ public abstract class Example implements Comparable<Example> {
 
 	public abstract String getText();
 
-	@SuppressWarnings("static-method")
 	public Language lang() {
 		return null;
 	}
@@ -14,7 +13,7 @@ public abstract class Example implements Comparable<Example> {
 	@Override
 	public String toString() {
 		String pre = lang() == null ? "" : lang().prefix();
-		return (pre + "  " + getName()).trim();
+		return (pre + "  " + getName()).trim() + "   ";
 	}
 
 	@Override

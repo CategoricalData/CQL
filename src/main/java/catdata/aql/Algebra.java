@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -191,17 +192,13 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	/**
 	 * @param term of type sort
 	 */
-	public synchronized Term<Ty, Void, Sym, Void, Void, Void, Y> intoY(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
-		return intoY0(term);
-	}
-
-	protected final Term<Ty, Void, Sym, Void, Void, Void, Y> intoY0(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
+	public final Term<Ty, Void, Sym, Void, Void, Void, Y> intoY(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
 		if (term.obj() != null) {
 			return term.convert();
 		} else if (term.sym() != null) {
 			List<Term<Ty, Void, Sym, Void, Void, Void, Y>> l = new ArrayList<>(term.args.size());
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : term.args) {
-				l.add(intoY0(x));
+				l.add(intoY(x));
 			}
 			return Term.Sym(term.sym(), l);
 		} else if (term.sk() != null) {
@@ -318,6 +315,10 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> xxx = schema().toSQL("", "integer",
 					Query.internal_id_col_name, -1, Object::toString, vlen, "");
 			Connection conn = DriverManager.getConnection("jdbc:h2:mem:db_temp_" + session_id++ + ";DB_CLOSE_DELAY=-1");
+			String tick = "";
+			String idcol = Query.internal_id_col_name;
+			int truncate = -1;
+
 			try (Statement stmt = conn.createStatement()) {
 				for (En en1 : schema().ens) {
 					Triple<List<Chc<Fk, Att>>, List<String>, List<String>> qqq = xxx.get(en1);
@@ -333,8 +334,23 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 					for (String s : indices.get(en1)) {
 						stmt.execute(s);
 					}
+					List<Chc<Fk, Att>> header = qqq.first;
+					List<String> hdrQ = new ArrayList<>(header.size() + 1);
+					List<String> hdr = new ArrayList<>(header.size() + 1);
+					
+					hdr.add(tick + idcol + tick);
+					hdrQ.add("?");
+					for (Chc<Fk, Att> aHeader : header) {
+						hdrQ.add("?");
+						Chc<Fk, Att> chc = aHeader;
+						if (chc.left) {
+							hdr.add(tick + Schema.truncate(chc.l.toString(), truncate) + tick); // TODO aql unsafe
+						} else {
+							hdr.add(tick + Schema.truncate(chc.r.toString(), truncate) + tick); // TODO aql unsafe
+						}
+					}
 					for (X x : en(en1)) {
-						storeMyRecord(j, conn, x, qqq.first, en1.toString(), "", -1, "", Query.internal_id_col_name);
+						storeMyRecord(hdrQ, hdr, j, conn, x, qqq.first, en1.toString(), "", "");
 					}
 				}
 
@@ -382,40 +398,54 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		}
 	}
 
-	// TODO aql refactor
-	public synchronized void storeMyRecord(Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, Connection conn2, X x,
-			List<Chc<Fk, Att>> header, String table, String prefix, int truncate, String tick, String idcol)
+	
+	public synchronized void storeMyRecord(
+			List<String> hdrQ,
+			List<String> hdr,
+			Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, Connection conn2, X x,
+			List<Chc<Fk, Att>> header, String table, String prefix, String tick)
 			throws Exception {
-
-		List<String> hdrQ = new LinkedList<>();
-		List<String> hdr = new LinkedList<>();
-		hdr.add(tick + idcol + tick);
-		hdrQ.add("?");
-		for (Chc<Fk, Att> aHeader : header) {
-			hdrQ.add("?");
-			Chc<Fk, Att> chc = aHeader;
-			if (chc.left) {
-				hdr.add(tick + Schema.truncate(chc.l.toString(), truncate) + tick); // TODO aql unsafe
-			} else {
-				hdr.add(tick + Schema.truncate(chc.r.toString(), truncate) + tick); // TODO aql unsafe
+		
+		StringBuffer sb = new StringBuffer("INSERT INTO ");
+		sb.append(tick);
+		sb.append(prefix);
+		sb.append(table);
+		sb.append(tick);
+		sb.append("(");
+		boolean b = false;
+		for (String o : hdr) {
+			if (b) {
+				sb.append(",");
 			}
+			b = true;
+			sb.append(o);
 		}
-
-		String insertSQL = "INSERT INTO " + tick + prefix + table + tick + "(" + Util.sep(hdr, ",") + ") values ("
-				+ Util.sep(hdrQ, ",") + ")";
+		sb.append(") values (");
+		b = false;
+		for (String o : hdrQ) {
+			if (b) {
+				sb.append(",");
+			}
+			b = true;
+			sb.append(o);
+		}
+		sb.append(")");
+		String insertSQL = sb.toString();
 		PreparedStatement ps = conn2.prepareStatement(insertSQL);
 
 		ps.setObject(1, j.first.get(x), Types.INTEGER);
 
-		for (int i = 0; i < header.size(); i++) {
-			Chc<Fk, Att> chc = header.get(i);
+		int i = 0;
+		for (Chc<Fk, Att> chc : header) {
 			if (chc.left) {
 				ps.setObject(i + 1 + 1, j.first.get(fk(chc.l, x)), Types.INTEGER);
 			} else {
 				Object o = fromTerm(att(chc.r, x));
 				ps.setObject(i + 1 + 1, o, SqlTypeSide.getSqlType(schema().atts.get(chc.r).second.toString()));
 			}
+			i++;
 		}
+		
 
 		ps.executeUpdate();
 	}

@@ -27,7 +27,7 @@ import gnu.trove.map.hash.THashMap;
 //TODO this type is actually a lie bc of import_as_theory option
 public class InstExpJdbc extends InstExpImport<Connection, String> {
 
-	public final String clazz;
+	//public final String clazz;
 	public final String jdbcString;
 
 	@Override
@@ -40,10 +40,10 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 		return Collections.emptySet();
 	}
 
-	public InstExpJdbc(SchExp schema, List<Pair<String, String>> options, String clazz, String jdbcString,
+	public InstExpJdbc(SchExp schema, List<Pair<String, String>> options, String jdbcString,
 			List<Pair<LocStr, String>> map) {
 		super(schema, map, options);
-		this.clazz = clazz;
+	//	this.clazz = clazz;
 		this.jdbcString = jdbcString;
 	}
 
@@ -63,11 +63,11 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 		}
 
 		String toGet = jdbcString;
-		String driver = clazz;
-		if (clazz.trim().isEmpty()) {
-			driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
-			Util.checkClass(driver);
-		}
+		//String driver = clazz;
+		//if (clazz.trim().isEmpty()) {
+		//	driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
+			//Util.checkClass(driver);
+	//	}
 		if (jdbcString.trim().isEmpty()) {
 			toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 		}
@@ -91,7 +91,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder().append("import_jdbc ").append(schema).append(" ")
-				.append(Util.quote(clazz)).append(" ").append(Util.quote(jdbcString));
+				.append(" ").append(Util.quote(jdbcString));
 
 		if (!options.isEmpty() || !map.isEmpty()) {
 			sb.append(" {\n\t").append(Util.sep(map, " -> ", "\n\t", Util::quote));
@@ -294,7 +294,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(clazz).append(jdbcString).append(map).append(options).append(schema)
+		return new HashCodeBuilder().append(jdbcString).append(map).append(options).append(schema)
 				.toHashCode();
 	}
 
@@ -310,7 +310,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 			return false;
 		}
 		InstExpJdbc rhs = (InstExpJdbc) obj;
-		return new EqualsBuilder().append(clazz, rhs.clazz).append(jdbcString, rhs.jdbcString).append(map, rhs.map)
+		return new EqualsBuilder().append(jdbcString, rhs.jdbcString).append(map, rhs.map)
 				.append(options, rhs.options).append(schema, rhs.schema).isEquals();
 	}
 

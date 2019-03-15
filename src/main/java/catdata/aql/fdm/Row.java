@@ -42,7 +42,7 @@ public class Row<En2, X> {
 			r = r.tail;
 		}
 	}
-
+/*
 	public final boolean containsKey(Var vv) {
 		if (tail == null) {
 			return false;
@@ -51,18 +51,15 @@ public class Row<En2, X> {
 		}
 		return tail.containsKey(vv);
 	}
-
+*/
 	public final X get(Var vv) {
-		if (tail == null) {
-			throw new RuntimeException("Not found: " + vv + ", please report.\n\n" + asMap());
-		} else if (v.equals(vv)) {
+		if (v.equals(vv)) {
 			return x;
 		}
 		return tail.get(vv);
 	}
 
 	public Row(En2 en2) {
-		Util.assertNotNull(en2);
 		this.en2 = en2;
 		this.v = null;
 		this.x = null;
@@ -84,9 +81,6 @@ public class Row<En2, X> {
 			Object t1 = ctx2.get(v);
 			if (t1 == null) {
 				t1 = ctx3.get(v);
-			}
-			if (t1 == null) {
-				Util.anomaly();
 			}
 			r = new Row<>(r, v, ctx.get(v), en2, t1);
 		}
