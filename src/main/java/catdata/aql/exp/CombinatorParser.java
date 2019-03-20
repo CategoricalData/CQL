@@ -1194,7 +1194,7 @@ public class CombinatorParser implements IAqlParser {
 				decl("constraints", eds_ref.get()));
 
 		return Parsers.tuple(options, p.many())
-				.map(x -> new Program((x.b), s, x.a, q -> ((EdsExp) q).kind().toString()));
+				.map(x -> new Program((x.b), s, x.a, q -> ((Exp) q).kind().toString()));
 	}
 
 	private static Parser<Triple<String, Integer, ? extends Exp<?>>> comment() {

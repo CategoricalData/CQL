@@ -124,19 +124,6 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
 
 	}
 
-	/*
-	 * public static class BST { public final int node; private BST left, right;
-	 * //true if added public boolean add(int n) { if (node == n) { return false; }
-	 * else if (n < node) { if (left != null) { return left.add(n); } left = new
-	 * BST(n); return true; } if (right != null) { return right.add(n); } right =
-	 * new BST(n); return true; }
-	 * 
-	 * public BST(int n) { this.node = n; } public void foreach(IntConsumer f) {
-	 * f.accept(node); if (left != null) { left.foreach(f); } if (right != null) {
-	 * right.foreach(f); } } public void foreachNoRoot(IntConsumer f) { if (left !=
-	 * null) { left.foreach(f); } if (right != null) { right.foreach(f); } } }
-	 */
-
 	class En2Stuff {
 		public int top;
 		public int[] parent;
@@ -151,9 +138,6 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
 			top = 0;
 			en2 = en;
 			parent = new int[m];
-			// for (int x = 0; x < m; x++) {
-			// parent[x] = -10000;
-			// }
 			iso1 = new Term[m];
 			iso2 = new TObjectIntHashMap<>(m);
 			// iso2 = new THashMap<>(m);
