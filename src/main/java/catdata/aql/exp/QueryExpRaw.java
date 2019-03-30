@@ -802,7 +802,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 				col.sks.put(v, tt);
 			} else {
 				throw new RuntimeException("From clause contains " + v + ":" + en + ", but " + en
-						+ " is not a source entity.  Available: " + Util.sep(src0.ens, ", "));
+						+ " is not a source entity.  Available: " + Util.sep(src0.ens, ", ") + ". ");
 			}
 		}
 

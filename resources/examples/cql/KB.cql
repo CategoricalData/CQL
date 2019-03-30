@@ -120,6 +120,29 @@ typeside ACUIN = literal {
 //		timeout = 10
 }
 
+typeside DistributiveLattice = literal {
+	types
+		DL
+	constants
+		t f : DL
+	functions
+		n : DL, DL -> DL
+		u : DL, DL -> DL
+	equations
+		 forall x. (x n t)=x
+		 forall x y. (y n x) = (x n y)
+		 forall x y z. (x n (y n z)) = ((x n y) n z)
+		 forall x. (x n f)=f
+		 forall x. (x u f)=x
+		 forall x y. (y u x) = (x u y)
+		 forall x y z. (x u (y u z)) = ((x u y) u z)
+		 forall x. (x u t) = t		 
+		 //forall x y z. (x n (y u z)) = ((x n y) u (x n z))
+	options
+		prover=completion
+		completion_precedence = "t f n u"
+}
+
 // still too hard
 /*
 typeside BooleanRing = literal {

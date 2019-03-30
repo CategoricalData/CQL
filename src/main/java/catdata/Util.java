@@ -84,7 +84,7 @@ public class Util {
 			return future.get(timeout, TimeUnit.MILLISECONDS);
 		} catch (TimeoutException ex) {
 			future.cancel(true);
-			throw new RuntimeException("Timout after " + (timeout / 1000)
+			throw new RuntimeException("Timeout after " + (timeout / 1000)
 							+ " seconds. \n\nPossible solution: add options timeout=X where X > " + (timeout / 1000)
 							+ " is how many seconds to wait.");
 		} catch (ExecutionException ex) {
