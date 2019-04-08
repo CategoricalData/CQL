@@ -140,4 +140,97 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 		}
 		return Util.anomaly();
 	}
+
+	@Override
+	public String toString() {
+		return "KindCtx [gs=" + gs + ", tys=" + tys + ", schs=" + schs + ", insts=" + insts + ", trans=" + trans
+				+ ", maps=" + maps + ", qs=" + qs + ", ps=" + ps + ", cs=" + cs + ", scs=" + scs + ", eds=" + eds + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((cs == null) ? 0 : cs.hashCode());
+		result = prime * result + ((eds == null) ? 0 : eds.hashCode());
+		result = prime * result + ((gs == null) ? 0 : gs.hashCode());
+		result = prime * result + ((insts == null) ? 0 : insts.hashCode());
+		result = prime * result + ((maps == null) ? 0 : maps.hashCode());
+		result = prime * result + ((ps == null) ? 0 : ps.hashCode());
+		result = prime * result + ((qs == null) ? 0 : qs.hashCode());
+		result = prime * result + ((schs == null) ? 0 : schs.hashCode());
+		result = prime * result + ((scs == null) ? 0 : scs.hashCode());
+		result = prime * result + ((trans == null) ? 0 : trans.hashCode());
+		result = prime * result + ((tys == null) ? 0 : tys.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		KindCtx other = (KindCtx) obj;
+		if (cs == null) {
+			if (other.cs != null)
+				return false;
+		} else if (!cs.equals(other.cs))
+			return false;
+		if (eds == null) {
+			if (other.eds != null)
+				return false;
+		} else if (!eds.equals(other.eds))
+			return false;
+		if (gs == null) {
+			if (other.gs != null)
+				return false;
+		} else if (!gs.equals(other.gs))
+			return false;
+		if (insts == null) {
+			if (other.insts != null)
+				return false;
+		} else if (!insts.equals(other.insts))
+			return false;
+		if (maps == null) {
+			if (other.maps != null)
+				return false;
+		} else if (!maps.equals(other.maps))
+			return false;
+		if (ps == null) {
+			if (other.ps != null)
+				return false;
+		} else if (!ps.equals(other.ps))
+			return false;
+		if (qs == null) {
+			if (other.qs != null)
+				return false;
+		} else if (!qs.equals(other.qs))
+			return false;
+		if (schs == null) {
+			if (other.schs != null)
+				return false;
+		} else if (!schs.equals(other.schs))
+			return false;
+		if (scs == null) {
+			if (other.scs != null)
+				return false;
+		} else if (!scs.equals(other.scs))
+			return false;
+		if (trans == null) {
+			if (other.trans != null)
+				return false;
+		} else if (!trans.equals(other.trans))
+			return false;
+		if (tys == null) {
+			if (other.tys != null)
+				return false;
+		} else if (!tys.equals(other.tys))
+			return false;
+		return true;
+	}
+	
+	
 }

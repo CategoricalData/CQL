@@ -1,5 +1,5 @@
 
-package catdata.aql.exp;
+package catdata;
 
 public class LocException extends RuntimeException {
 

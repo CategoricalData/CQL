@@ -10,8 +10,11 @@ import org.apache.commons.collections4.list.TreeList;
 
 import catdata.Chc;
 import catdata.IntRef;
+import catdata.InteriorLabel;
+import catdata.LocStr;
 import catdata.Null;
 import catdata.Pair;
+import catdata.Raw;
 import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;

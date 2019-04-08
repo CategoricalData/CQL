@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import catdata.InteriorLabel;
+import catdata.LocStr;
 import catdata.Pair;
+import catdata.Raw;
 import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;

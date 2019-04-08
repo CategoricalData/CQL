@@ -132,8 +132,12 @@ public abstract class Exp<X> {
 		} catch (IgnoreException ex) {
 			return Optional.empty();
 		} catch (Exception thr) {
+			if (thr.getMessage() == null) {
+				thr.printStackTrace();
+			}
+			String s = thr.getMessage() == null ? "Anomaly: please report.  (Null pointer)" : thr.getMessage();
 			// thr.printStackTrace();
-			return Optional.of(Chc.inLeftNC(thr.getMessage()));
+			return Optional.of(Chc.inLeftNC(s));
 		}
 	}
 

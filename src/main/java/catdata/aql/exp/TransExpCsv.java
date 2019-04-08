@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import catdata.LocStr;
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;

@@ -1,8 +1,10 @@
 package catdata.mpl;
 
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 import javax.swing.KeyStroke;
 
@@ -22,6 +24,8 @@ public class MplCodeEditor extends CodeEditor<Program<MplExp<String, String>>, E
 
 	public MplCodeEditor(String title, int id, String content) {
 		super(title, id, content, new GridLayout(1, 1));
+		
+
 	}
 
 	@Override
@@ -38,6 +42,8 @@ public class MplCodeEditor extends CodeEditor<Program<MplExp<String, String>>, E
 	protected String getATMFrhs() {
 		return null; // "catdata.mpl.MplTokenMaker";
 	}
+	
+	 protected void doUpdate() {}
 
 	@Override
 	protected void doTemplates() {
@@ -79,5 +85,8 @@ public class MplCodeEditor extends CodeEditor<Program<MplExp<String, String>>, E
 	protected String textFor(Environment<MplObject> env) {
 		return "Done.";
 	}
+
+	
+	
 
 }

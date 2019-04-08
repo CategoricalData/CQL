@@ -9,35 +9,27 @@ import java.util.TreeSet;
 import javax.swing.JCheckBox;
 import javax.swing.text.BadLocationException;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
-import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
-import org.fife.ui.rsyntaxtextarea.parser.Parser;
 
 import catdata.Chc;
-import catdata.ParseException;
+import catdata.Pair;
 import catdata.Program;
 import catdata.Unit;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.Kind;
 import catdata.aql.Pragma;
+import catdata.aql.gui.AqlCodeEditor.StaticParserNotice;
 
 public class AqlStatic extends AbstractParser {
 
-	private static String truncate(String w) {
-		w = w.substring(0, Integer.min(80 * 80, w.length()));
-		w = WordUtils.wrap(w, 80);
-		return w;
-//		
-//		List<String> s = w.lines().map(x -> x.substring(0, Integer.min(80, x.length()))).collect(Collectors.toList());
-//		return Util.sep(s.subList(0, Integer.min(s.size(), 80)), "\n");
-	}
+	
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public synchronized void validate() {
+	public void validate(RSyntaxTextArea area) {
 		Set<String> done = new TreeSet<>(exns.keySet());
 		for (String n : env.prog.order) {
 			if (exns.containsKey(n)) {
@@ -51,7 +43,17 @@ public class AqlStatic extends AbstractParser {
 					if (oo.isEmpty()) {
 						if (exp instanceof InstExpQueryQuotient) {
 							try {
-								exp.eval0(env, true);
+								boolean ok = true;
+								for (Object o : exp.deps()) {
+									Pair<String, Kind> z = (Pair<String, Kind>) o;
+									if (null == env.get(z.second, z.first)) {
+										ok = false;
+										break;
+									}
+								}
+								if (ok) {
+									exp.eval0(env, true);
+								}
 							} catch (IgnoreException ex) {
 							}
 						}
@@ -95,7 +97,7 @@ public class AqlStatic extends AbstractParser {
 		}
 	}
 
-	public synchronized void typeCheck() {
+	public void typeCheck(RSyntaxTextArea area) {
 		env.typing = new AqlTyping(env.prog);
 		for (String n : env.prog.order) {
 			try {
@@ -125,71 +127,27 @@ public class AqlStatic extends AbstractParser {
 		}
 	}
 
-	private boolean spPrev = true;
-
 	public final DefaultParseResult result;
-	private final RSyntaxTextArea area;
-	public final JCheckBox box;
-
+	
 	@Override
 	public synchronized DefaultParseResult parse(RSyntaxDocument doc1, String style) {
-		boolean spNow = box.isSelected();
-		if (!spNow) {
-			env = null;
-			exns = Util.mk();
-			result.clearNotices();
-			return result;
-		}
-		if (spNow != spPrev) {
-			spPrev = spNow;
-			return parse(doc1, style);
-		}
-
-		spPrev = spNow;
 		return result;
+		
 	}
 
-	public synchronized void doIt(String program) {
-		env = null;
-		exns = Util.mk();
-		try {
-			Program<Exp<?>> p = AqlParserFactory.getParser().parseProgram(program);
-			env = new AqlEnv(p);
-		} catch (ParseException exn) {
-			DefaultParserNotice notice = new StaticParserNotice(this, exn.getMessage(), exn.line, Color.red);
-			result.addNotice(notice);
-			return;
-		}
-		result.clearNotices();
-		area.forceReparsing(this);
-		typeCheck();
-		area.forceReparsing(this);
-		validate();
-		area.forceReparsing(this);
-	}
+	public final AqlEnv env;
+	public final Map<String, Optional<String>> exns = Util.mk();
 
-	public AqlEnv env;
-	Map<String, Optional<String>> exns = Util.mk();
-
-	public AqlStatic(RSyntaxTextArea area, JCheckBox box) {
-		this.box = box;
-		this.area = area;
+	public AqlStatic(Program<Exp<?>> p) {
 		this.result = new DefaultParseResult(this);
-		result.clearNotices();
-		area.forceReparsing(this);
+		this.env = new AqlEnv(p);
 	}
 
-	private static class StaticParserNotice extends DefaultParserNotice {
-		Color c;
-
-		public StaticParserNotice(Parser parser, String msg, int line, Color c) {
-			super(parser, truncate(msg), line);
-			this.c = c;
-		}
-
-		@Override
-		public Color getColor() {
-			return c;
-		}
+	@Override
+	public String toString() {
+		return "AqlStatic [result=" + result + ", env=" + env + ", exns=" + exns + "]";
 	}
+	
+	
+	
 }

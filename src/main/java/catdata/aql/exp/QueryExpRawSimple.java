@@ -10,7 +10,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import catdata.Chc;
+import catdata.InteriorLabel;
+import catdata.LocException;
+import catdata.LocStr;
 import catdata.Pair;
+import catdata.Raw;
 import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions;

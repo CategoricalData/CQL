@@ -1,16 +1,17 @@
-package catdata.aql.exp;
+package catdata;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import catdata.InteriorLabel;
 import catdata.Pair;
 import catdata.Quad;
 import catdata.Triple;
-import catdata.aql.RawTerm;
 import gnu.trove.map.hash.THashMap;
 
 public class LocStr {
@@ -80,10 +81,6 @@ public class LocStr {
 		return f.stream().map(x -> new Pair<>(x.first.str, x.second)).collect(Collectors.toUnmodifiableSet());
 	}
 
-	public static Set<Triple<List<Pair<String, String>>, RawTerm, RawTerm>> eqs1(
-			Collection<Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>>> eqs) {
-		return eqs.stream().map(x -> x.second).collect(Collectors.toSet());
-	}
 
 	public static <X> Set<Pair<String, X>> set2(Collection<Pair<LocStr, X>> l) {
 		return set2y(l, Function.identity()); // l.stream().map(x -> new Pair<>(x.first.str,
@@ -105,22 +102,16 @@ public class LocStr {
 			Collection<Pair<LocStr, Triple<List<String>, String, String>>> f) {
 		return f.stream().map(x -> new Pair<>(x.first.str, x.second)).collect(Collectors.toUnmodifiableSet());
 	}
-
-	/*
-	 * public static Set<Pair<String, Pair<String, String>>>
-	 * functions3(List<Pair<LocStr, Pair<String, String>>> fks) { return
-	 * fks.stream().map(x -> new Pair<>(x.first, x.second)) }
-	 *//*
-		 * 
-		 * public static Set<Pair<List<String>, List<String>>> eqs3( List<Pair<LocStr,
-		 * Pair<List<String>, List<String>>>> p_eqs) { return p_eqs.stream().map(x ->
-		 * x.second).collect(Collectors.toSet()); }
-		 */
-	public static Set<Quad<String, String, RawTerm, RawTerm>> eqs2(
-			List<Pair<LocStr, Quad<String, String, RawTerm, RawTerm>>> t_eqs) {
-		return t_eqs.stream().map(x -> x.second).collect(Collectors.toUnmodifiableSet());
+	
+	public static List<InteriorLabel<Object>> imports(String section, List<LocStr> imports) {
+		List<InteriorLabel<Object>> ret = new LinkedList<>();
+		for (LocStr str : imports) {
+			ret.add(new InteriorLabel<>(section, str.str, str.loc, x -> x.toString()));
+		}
+		return ret;
 	}
 
+	
 	public static <X> Set<X> proj2(Collection<Pair<Integer, X>> eqs) {
 		return eqs.stream().map(x -> x.second).collect(Collectors.toSet());
 	}

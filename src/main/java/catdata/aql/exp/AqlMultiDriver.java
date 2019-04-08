@@ -11,6 +11,7 @@ import org.apache.commons.collections4.list.TreeList;
 
 import catdata.IntRef;
 import catdata.LineException;
+import catdata.LocException;
 import catdata.Pair;
 import catdata.Program;
 import catdata.RuntimeInterruptedException;

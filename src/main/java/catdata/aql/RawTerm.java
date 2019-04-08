@@ -1,5 +1,6 @@
 package catdata.aql;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import catdata.Chc;
+import catdata.LocStr;
 import catdata.Pair;
 import catdata.Quad;
 import catdata.Triple;
@@ -40,6 +42,17 @@ public final class RawTerm {
 		// }
 		return Util.maybeQuote(head) + "(" + Util.sep(args, ", ") + ")";
 	}
+	
+	public static Set<Triple<List<Pair<String, String>>, RawTerm, RawTerm>> eqs1(
+			Collection<Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>>> eqs) {
+		return eqs.stream().map(x -> x.second).collect(Collectors.toSet());
+	}
+
+	public static Set<Quad<String, String, RawTerm, RawTerm>> eqs2(
+			List<Pair<LocStr, Quad<String, String, RawTerm, RawTerm>>> t_eqs) {
+		return t_eqs.stream().map(x -> x.second).collect(Collectors.toUnmodifiableSet());
+	}
+
 
 	/**
 	 * Decend the RawTerms tree so long as args are singular.
@@ -420,7 +433,9 @@ public final class RawTerm {
 			if (!misses.isEmpty()) {
 				msg += "\nAttempted LHS and RHS types: " + Util.sep(misses, "\n");
 			}
-
+			if (pre == null) {
+				pre = "";
+			}
 			throw new RuntimeException((pre + msg).trim());
 		}
 		if (pre == null) {
@@ -546,13 +561,13 @@ public final class RawTerm {
 		this(head, Collections.emptyList(), null);
 	}
 
-	public RawTerm clone() {
+	/*public RawTerm clone() {
 		final List<RawTerm> args = new LinkedList<>();
 		for (final RawTerm term : this.args) {
 			args.add(term.clone());
 		}
 		return new RawTerm(this.head, args);
-	}
+	}*/
 
 	/**
 	 * Make a clone (deep-copy) first.

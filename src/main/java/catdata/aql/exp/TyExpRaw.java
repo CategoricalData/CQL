@@ -11,7 +11,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import catdata.Chc;
+import catdata.InteriorLabel;
+import catdata.LocException;
+import catdata.LocStr;
 import catdata.Pair;
+import catdata.Raw;
 import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
@@ -87,7 +91,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 		this.imports = Util.toSetSafely(imports);
 		this.types = LocStr.set1(types);
 		this.functions = LocStr.functions1(functions);
-		this.eqs = LocStr.eqs1(eqsX);
+		this.eqs = RawTerm.eqs1(eqsX);
 		this.java_tys = LocStr.set2(java_tys_string);
 		this.java_parser = LocStr.set2(java_parser_string);
 		this.java_fns = LocStr.functions2(java_fns_string);

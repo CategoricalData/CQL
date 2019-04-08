@@ -9,8 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import catdata.InteriorLabel;
+import catdata.LocStr;
 import catdata.Pair;
 import catdata.Program;
+import catdata.Raw;
 import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;

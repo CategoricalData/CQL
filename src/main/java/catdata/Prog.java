@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface Prog {
 
-	Integer getLine(String s);
+	int getLine(String s);
 
 	Collection<String> keySet();
 

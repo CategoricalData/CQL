@@ -14,7 +14,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.list.TreeList;
 
 import catdata.Chc;
+import catdata.InteriorLabel;
+import catdata.LocStr;
 import catdata.Pair;
+import catdata.Raw;
 import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions;

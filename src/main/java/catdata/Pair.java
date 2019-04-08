@@ -57,7 +57,9 @@ public class Pair<T1, T2> /* Comparable<Pair<T1, T2>>, */ {
 		if (getClass() != obj.getClass())
 			return false;
 		Pair<?, ?> other = (Pair<?, ?>) obj;
-		return (first.equals(other.first) && second.equals(other.second));
+		
+		return ((first  == null && other.first  == null) || first .equals(other.first )) &&
+			   ((second == null && other.second == null) || second.equals(other.second));
 	}
 
 	// public Pair<T2, T1> reverse() {

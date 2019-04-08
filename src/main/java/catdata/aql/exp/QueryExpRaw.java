@@ -12,7 +12,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import catdata.Chc;
+import catdata.InteriorLabel;
+import catdata.LocException;
+import catdata.LocStr;
 import catdata.Pair;
+import catdata.Raw;
 import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
@@ -26,6 +30,7 @@ import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
+import catdata.aql.exp.QueryExpRaw.Block;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 

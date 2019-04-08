@@ -932,7 +932,7 @@ public class ColimitSchema<N> implements Semantics {
 		boolean shorten = (boolean) options.getOrDefault(AqlOption.simplify_names);
 		boolean left = (boolean) options.getOrDefault(AqlOption.left_bias);
 		if (left && shorten) {
-			throw new RuntimeException("Shorten and left bias are incompatible");
+			throw new RuntimeException("simplify_names and left_bias cannot both be true");
 		}
 		if (left) {
 			Renamer2 r2 = new Renamer2(order, new THashMap<>(eqcs), col, mappings, options);

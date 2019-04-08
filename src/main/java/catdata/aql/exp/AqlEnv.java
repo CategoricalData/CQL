@@ -20,6 +20,15 @@ import catdata.aql.fdm.ColimitSchema;
 import catdata.graph.DMG;
 
 public final class AqlEnv {
+	
+	
+
+	@Override
+	public String toString() {
+		return "AqlEnv [prog=" + prog + ", defs=" + defs + ", exn=" + exn + ", typing=" + typing + ", defaults="
+				+ defaults + ", performance=" + performance + ", cache=" + cache + ", fd=" + fd + ", md=" + md + ", ud="
+				+ ud + ", fl=" + fl + ", mh=" + mh + ", uh=" + uh + "]";
+	}
 
 	public AqlEnv(Program<Exp<?>> prog) {
 		Util.assertNotNull(prog);

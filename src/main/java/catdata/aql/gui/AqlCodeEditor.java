@@ -1,6 +1,7 @@
 package catdata.aql.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.GridLayout;
 import java.awt.event.InputEvent;
@@ -11,7 +12,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.function.Function;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -19,15 +24,25 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
+import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
+import org.fife.ui.rsyntaxtextarea.parser.Parser;
 
+import catdata.InteriorLabel;
 import catdata.ParseException;
 import catdata.Program;
+import catdata.Raw;
+import catdata.Unit;
 import catdata.Util;
 import catdata.aql.Kind;
 import catdata.aql.exp.AqlDoc;
@@ -35,6 +50,7 @@ import catdata.aql.exp.AqlEnv;
 import catdata.aql.exp.AqlMultiDriver;
 import catdata.aql.exp.AqlParserFactory;
 import catdata.aql.exp.AqlStatic;
+import catdata.aql.exp.AqlTyping;
 import catdata.aql.exp.Exp;
 import catdata.aql.exp.IAqlParser;
 import catdata.ide.CodeEditor;
@@ -95,7 +111,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 	public AqlCodeEditor(String title, int id, String content) {
 		super(title, id, content, new BorderLayout());
-
+		// aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
 		JMenuItem im = new JMenuItem("Infer Mapping");
 		im.addActionListener(x -> infer(Kind.MAPPING));
 		topArea.getPopupMenu().add(im, 0);
@@ -109,21 +125,40 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		ii.addActionListener(x -> infer(Kind.INSTANCE));
 		topArea.getPopupMenu().add(ii, 0);
 
-		getOutline();
+		DocumentListener listener = new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				doUpdate();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				doUpdate();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+			}
+		};
+		topArea.getDocument().addDocumentListener(listener);
+
+//		getOutline();
 
 		JMenuItem html = new JMenuItem("Emit HTML");
 		html.addActionListener(x -> emitDoc());
 		topArea.getPopupMenu().add(html, 0);
-		aqlStatic = new AqlStatic(topArea, getOutline().validateBox);
-		topArea.addParser(aqlStatic);
-		getOutline().validateBox.addActionListener(x -> {
-			getOutline().oLabel.setText("");
-			((AqlCodeEditor) getOutline().codeEditor).topArea.forceReparsing(aqlStatic);
-		});
+
+//		topArea.addParser(aqlStatic);
+//		getOutline().validateBox.addActionListener(x -> {
+//			getOutline().oLabel.setText("");
+//			((AqlCodeEditor) getOutline().codeEditor).topArea.forceReparsing(aqlStatic);
+//		});
+
+		q.add(Unit.unit);
 
 	}
 
-	final AqlStatic aqlStatic;
+	AqlStatic aqlStatic;
 
 	// DefaultParseResult result;
 
@@ -314,11 +349,188 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 	}
 
-	protected synchronized AqlOutline getOutline() {
-		if (outline == null) {
-			outline = new AqlOutline(this);
+	protected void doUpdate() {
+		if (q.isEmpty()) {
+			q.add(Unit.unit);
 		}
-		return (AqlOutline) outline;
+		// qt = System.currentTimeMillis();
+	}
+
+	@Override
+	protected void threadBody() {
+		while (!isClosed) {
+			String s;
+			try {
+				q.takeFirst();
+				s = topArea.getText();
+				if (s.isEmpty()) {
+					continue;
+				}
+			} catch (InterruptedException e) {
+				return; /// ?
+			}
+			if (parsed_prog_string != null && parsed_prog_string.equals(s)) {
+				continue;
+			}
+			parsed_prog_string = s;
+			// aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
+			// topArea.forceReparsing(aqlStatic);
+			oLabel.setText("?");
+
+			try {
+				parsed_prog = parse(s);
+				// if (z.equals(parsed_prog)) {
+				// oLabel.setText("");
+				// continue;
+				// }
+				if (q.peek() != null) {
+					continue;
+				}
+				// parsed_prog = z;
+				aqlStatic = new AqlStatic(parsed_prog);
+				topArea.clearParsers();
+				topArea.addParser(aqlStatic);
+				SwingUtilities.invokeLater(() -> topArea.forceReparsing(aqlStatic));
+				aqlStatic.typeCheck(topArea);
+				if (q.peek() != null) {
+					continue;
+				}
+				build();
+				if (!validateBox.isSelected() || q.peek() != null) {
+					continue;
+				}
+				aqlStatic.validate(topArea);
+				SwingUtilities.invokeLater(() -> topArea.forceReparsing(aqlStatic));
+//				topArea.revalidate();
+				// System.out.println(aqlStatic.exns);
+				if (aqlStatic.result.getNotices().isEmpty()) {
+					oLabel.setText("");
+				} else {
+					oLabel.setText("err");
+				}
+			} catch (ParseException exn) {
+				DefaultParserNotice notice = new StaticParserNotice((Parser) aqlStatic, exn.getMessage(), exn.line,
+						Color.red);
+				aqlStatic.result.addNotice(notice);
+				topArea.forceReparsing(aqlStatic);
+				oLabel.setText("err");
+				// continue;
+			} catch (Throwable exn) {
+				//exn.printStackTrace();
+				// DefaultParserNotice notice = new StaticParserNotice((Parser)aqlStatic,
+				// exn.getMessage(), exn.line, Color.red);
+				topArea.forceReparsing(aqlStatic);
+				oLabel.setText("err");
+			}
+
+		}
+	}
+
+	public static class StaticParserNotice extends DefaultParserNotice {
+		Color c;
+
+		public StaticParserNotice(Parser parser, String msg, int line, Color c) {
+			super(parser, truncate(msg), line);
+			this.c = c;
+		}
+
+		@Override
+		public Color getColor() {
+			return c;
+		}
+	}
+
+	private static String truncate(String w) {
+		w = w.substring(0, Integer.min(80 * 80, w.length()));
+		w = WordUtils.wrap(w, 80);
+		return w;
+//		
+//		List<String> s = w.lines().map(x -> x.substring(0, Integer.min(80, x.length()))).collect(Collectors.toList());
+//		return Util.sep(s.subList(0, Integer.min(s.size(), 80)), "\n");
+	}
+
+	
+
+	@Override
+	protected DefaultMutableTreeNode makeTree(List<String> set) {
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+		AqlTyping G = aqlStatic.env.typing;
+		
+		for (String k : set) {
+			Exp<?> e = aqlStatic.env.prog.exps.get(k);
+			if (e == null) {
+				// System.out.println(k + " " + s);
+				Util.anomaly();
+			}
+			if (e.kind().equals(Kind.COMMENT)) {
+				continue;
+			}
+			String k0 = k;
+			if (G.prog.exps.containsKey(k)) {
+				Kind kk = G.prog.exps.get(k).kind();
+				if (outline_types) {
+					k0 = AqlDisplay.doLookup(outline_prefix_kind, k, kk, G);
+				} else {
+					k0 = outline_prefix_kind ? kk + k : k;
+				}
+			}
+			
+			
+			DefaultMutableTreeNode n = new DefaultMutableTreeNode();
+			n.setUserObject(new TreeLabel(k0,k));
+			asTree(n, e);
+			root.add(n);
+		}
+		return root;
+
+	}
+
+	private void asTree(DefaultMutableTreeNode root, Exp<?> e) {
+		if (e instanceof Raw) {
+			Raw T = (Raw) e;
+			for (String k : T.raw().keySet()) {
+				List<InteriorLabel<Object>> v = T.raw().get(k);
+				add(root, v, k, t -> t);
+			}
+		}
+	}
+
+//	final AqlCodeEditor codeEditor;
+
+	private <X, Y, Z> void add(DefaultMutableTreeNode root, Collection<X> x, Y y, Function<X, Z> f) {
+		if (x.size() > 0) {
+			DefaultMutableTreeNode n = new DefaultMutableTreeNode();
+			n.setUserObject(y);
+			for (X t : Util.alphaMaybe(outline_alphabetical, x)) {
+				DefaultMutableTreeNode m = new DefaultMutableTreeNode();
+				m.setUserObject(f.apply(t));
+				if (t instanceof Exp) {
+					asTree(m, (Exp<?>) t);
+				} else if (t instanceof InteriorLabel) {
+					InteriorLabel<?> l = (InteriorLabel<?>) t;
+					if (l.s instanceof Exp) {
+						asTree(m, (Exp<?>) l.s);
+					}
+				}
+				n.add(m);
+			}
+			root.add(n);
+		}
+	}
+
+	protected DefaultListModel<String> foo() {
+		DefaultListModel<String> model = new DefaultListModel<>();
+
+		// synchronized (parsed_prog_lock) {
+		if (parsed_prog != null) {
+			for (String s : Util.alphabetical(parsed_prog.keySet())) {
+				if (Kind.COMMENT.toString() != parsed_prog.kind(s)) {
+					model.addElement(s);
+				}
+			}
+		}
+		// }
+		return model;
 	}
 
 }

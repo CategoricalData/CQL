@@ -25,6 +25,7 @@ import org.jparsec.functors.Tuple3;
 import org.jparsec.functors.Tuple4;
 import org.jparsec.functors.Tuple5;
 
+import catdata.LocStr;
 import catdata.ParseException;
 import catdata.Program;
 import catdata.Quad;

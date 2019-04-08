@@ -25,6 +25,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 
+import catdata.LocStr;
 import catdata.Null;
 import catdata.Pair;
 import catdata.Util;

@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
@@ -23,7 +25,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -31,6 +36,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -41,14 +47,22 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.commons.collections4.list.TreeList;
 import org.fife.rsta.ui.GoToDialog;
@@ -70,13 +84,13 @@ import org.fife.ui.rtextarea.SearchResult;
 //import org.jparsec.error.ParserException;
 import org.jparsec.error.ParserException;
 
+import catdata.InteriorLabel;
 import catdata.LineException;
+import catdata.LocException;
 import catdata.ParseException;
 import catdata.Prog;
 import catdata.Unit;
 import catdata.Util;
-import catdata.aql.Kind;
-import catdata.aql.exp.LocException;
 
 /**
  * 
@@ -121,16 +135,16 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	public void showGotoDialog2() {
 		String selected = getClickedWord().trim();
-		synchronized (parsed_prog_lock) {
-			if (parsed_prog != null) {
-				Integer line = parsed_prog.getLine(selected);
-				if (line != null) {
-					setCaretPos(line);
-				} else {
-					showGotoDialog();
-				}
+		// synchronized (parsed_prog_lock) {
+		if (parsed_prog != null) {
+			int line = parsed_prog.getLine(selected);
+			if (line != -1) {
+				setCaretPos(line);
+			} else {
+				showGotoDialog();
 			}
 		}
+		// }
 	}
 
 	public void showGotoDialog() {
@@ -138,18 +152,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		JList<String> list = GuiUtil.makeList();
 
-		DefaultListModel<String> model = new DefaultListModel<>();
-		synchronized (parsed_prog_lock) {
-			if (parsed_prog != null) {
-				for (String s : Util.alphabetical(parsed_prog.keySet())) {
-					if (Kind.COMMENT.toString() != parsed_prog.kind(s)) {
-						model.addElement(s);
-					}
-				}
-			}
-		}
+		DefaultListModel<String> model = foo();
+
 		list.setModel(model);
+
 		JTextField field = new JTextField();
+
 		// field.setBorder(BorderFactory.createTitledBorder("Goto definition:"));
 
 		panel.add(field, BorderLayout.NORTH);
@@ -194,18 +202,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			@Override
 			public void keyPressed(KeyEvent e) {
 				SwingUtilities.invokeLater(() -> {
-					DefaultListModel<String> model = new DefaultListModel<>();
-					synchronized (parsed_prog_lock) {
-						if (parsed_prog != null) {
-							for (String s : Util.alphabetical(parsed_prog.keySet())) {
-								if (Kind.COMMENT.toString() != parsed_prog.kind(s)) {
-									if (s.toLowerCase().contains(field.getText().toLowerCase())) {
-										model.addElement(s);
-									}
-								}
-							}
-						}
-					}
+					DefaultListModel<String> model = foo();
 					list.setModel(model);
 				});
 			}
@@ -248,14 +245,14 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			}
 		}
 
-		synchronized (parsed_prog_lock) {
-			if (parsed_prog != null) {
-				Integer line = parsed_prog.getLine(selected);
-				if (line != null) {
-					setCaretPos(line);
-				}
+		// synchronized (parsed_prog_lock) {
+		if (parsed_prog != null) {
+			Integer line = parsed_prog.getLine(selected);
+			if (line != null) {
+				setCaretPos(line);
 			}
 		}
+		// }
 	}
 
 	public void copyAsRtf() {
@@ -265,7 +262,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	public abstract Language lang();
 
 	final Integer id;
-	protected final String title;
+	protected volatile String title;
 
 	private DDisp display;
 
@@ -320,12 +317,11 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	protected final RTextScrollPane sp;
 
-	protected synchronized Outline<Progg, Env, DDisp> getOutline() {
-		if (outline == null) {
-			outline = new ListOutline<>(this);
-		}
-		return outline;
-	}
+	/*
+	 * protected synchronized Outline<Progg, Env, DDisp> getOutline() { if (outline
+	 * == null) { outline = new ListOutline<>(this, parsed_prog); } return outline;
+	 * }
+	 */
 
 	volatile List<Integer> history = Collections.synchronizedList(new TreeList<>());
 	int position = 0;
@@ -355,6 +351,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		super(l);
 		this.id = id;
 		this.title = title;
+		p = new JPanel(new BorderLayout());
 		Util.assertNotNull(id);
 		history.add(0);
 		last_keystroke = System.currentTimeMillis();
@@ -364,9 +361,9 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		atmf.putMapping(getATMFlhs(), getATMFrhs());
 		FoldParserManager.get().addFoldParserMapping(getATMFlhs(), new CurlyFoldParser());
 
+		startThread();
+
 		topArea = new RSyntaxTextArea();
-		// topArea.setHighlightSecondaryLanguages(true);
-		// topArea.ge
 		errorStrip = new ErrorStrip(topArea);
 		errorStrip.setShowMarkedOccurrences(false);
 		errorStrip.setShowMarkAll(true);
@@ -386,9 +383,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 				last_keystroke = System.currentTimeMillis();
 			}
 		});
-
-		// topArea.setMarkOccurrences(true);
-		// topArea.setFractionalFontMetricsEnabled(true);
 
 		if (getATMFrhs() != null) {
 			topArea.setSyntaxEditingStyle(getATMFlhs());
@@ -559,23 +553,58 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		respArea.setPreferredSize(new Dimension(600, 200));
 		topArea.setOpaque(true);
 		respArea.setOpaque(true);
+
 		IdeOptions.theCurrentOptions.apply(this);
 
 		initSearchDialogs();
 
-		situate();
-
 		last_keystroke = System.currentTimeMillis();
+
+		jsp = new JScrollPane(getComp());
+		jsp.setBorder(BorderFactory.createEmptyBorder());
+
+		JPanel q = new JPanel(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1;
+		q.add(validateBox, gbc);
+		gbc.weightx = 0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		q.add(oLabel, gbc);
+		JCheckBox alphaBox = new JCheckBox("Sort");
+		alphaBox.addActionListener(x -> {
+			outline_alphabetical(alphaBox.isSelected());
+		});
+		alphaBox.setHorizontalTextPosition(SwingConstants.LEFT);
+		alphaBox.setHorizontalAlignment(SwingConstants.RIGHT);
+		validateBox.setHorizontalTextPosition(SwingConstants.LEFT);
+		validateBox.setHorizontalAlignment(SwingConstants.LEFT);
+		validateBox.addActionListener(x -> {
+			outline_alphabetical(alphaBox.isSelected()); //just triggers
+		});
+
+		gbc.weightx = 1;
+		gbc.anchor = GridBagConstraints.EAST;
+		q.add(alphaBox, gbc);
+		p.add(q, BorderLayout.NORTH);
+		p.add(jsp, BorderLayout.CENTER);
+		p.setBorder(BorderFactory.createEtchedBorder());
+
+		// build();
+
+		p.setMinimumSize(new Dimension(0, 0));
+
 	}
 
 	public synchronized void addToHistory(int i) {
 		history.add(0, i);
 		if (history.size() > 128) {
-			history = Collections.synchronizedList(history.subList(0, 32));
+			history = new LinkedList<>(history.subList(0, 32));
 		}
 	}
 
-	private void situate() {
+	protected void situate() {
 		if (outline_elongated) {
 			situateElongated();
 		} else {
@@ -584,7 +613,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	}
 
 	private void situateElongated() {
-		JComponent outline = getOutline().p;
 
 		JSplitPane xx1 = new Split(.8, JSplitPane.VERTICAL_SPLIT);
 		xx1.setDividerSize(6);
@@ -604,12 +632,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			// xx1.setForeground(xx2.getForeground());
 			if (outline_on_left) {
 				// xx2.setResizeWeight(.2);
-				xx2.add(outline);
+				xx2.add(p);
 				xx2.add(xx1);
 			} else {
 				// xx2.setResizeWeight(.8);
 				xx2.add(xx1);
-				xx2.add(outline);
+				xx2.add(p);
 			}
 			xx2.setBorder(BorderFactory.createEmptyBorder());
 			newtop = xx2;
@@ -620,9 +648,9 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		// revalidate();
 	}
 
-	private void situateNotElongated() {
-		JComponent outline = getOutline().p;
+	// public final JComponent outline;
 
+	private void situateNotElongated() {
 		JPanel cp = new JPanel(new BorderLayout());
 		cp.add(sp);
 		cp.add(errorStrip, BorderLayout.LINE_END);
@@ -636,12 +664,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 			if (outline_on_left) {
 				xx2.setResizeWeight(.2);
-				xx2.add(outline);
+				xx2.add(p);
 				xx2.add(cp);
 			} else {
 				xx2.setResizeWeight(.8);
 				xx2.add(cp);
-				xx2.add(outline);
+				xx2.add(p);
 			}
 			xx2.setBorder(BorderFactory.createEmptyBorder());
 			newtop = xx2;
@@ -918,9 +946,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			toDisplay = "Syntax error: " + e.getLocalizedMessage();
 			e.printStackTrace();
 			return null;
-		}
-
-		catch (LocException e) {
+		} catch (LocException e) {
 			setCaretPos(e.loc);
 			toDisplay = "Type error: " + e.getLocalizedMessage();
 			e.printStackTrace();
@@ -1003,13 +1029,11 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	}
 
-	protected Outline<Progg, Env, DDisp> outline;
-
 	public volatile boolean isClosed = false;
 
-	public Progg parsed_prog;
-	public String parsed_prog_string;
-	public Unit parsed_prog_lock;
+	public volatile Progg parsed_prog;
+	public volatile String parsed_prog_string;
+	// public volatile Unit parsed_prog_lock;
 
 	public void close() {
 		isClosed = true;
@@ -1064,7 +1088,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	public void outline_alphabetical(Boolean bool) {
 		outline_alphabetical = bool;
-		getOutline().build();
+		if (q.isEmpty()) {
+			parsed_prog_string = "";
+			//parsed_prog = null;
+			q.add(Unit.unit);
+		}
+		//doUpdate();
 	}
 
 	public void outline_on_left(Boolean bool) {
@@ -1080,6 +1109,272 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	public void outline_elongated(Boolean bool) {
 		outline_elongated = bool;
 		situate();
+	}
+
+	///////////////////////////////////////////////////////////
+
+	protected abstract void doUpdate();
+
+	protected DefaultMutableTreeNode makeTree(List<String> set) {
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+
+		for (String k : set) {
+			DefaultMutableTreeNode n = new DefaultMutableTreeNode();
+			n.setUserObject(new TreeLabel(k, k));
+			root.add(n);
+		}
+		return root;
+	}
+
+	public final JPanel p;
+
+	private void setComp(List<String> set) {
+		TreePath t1 = tree.getSelectionPath();
+
+		Enumeration<TreePath> p = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
+		
+		DefaultTreeModel zz = new DefaultTreeModel(makeTree(set));
+		SwingUtilities.invokeLater(() -> {
+			tree.setModel(zz);
+		
+			if (p == null) {
+				return;
+			}
+			while (p.hasMoreElements()) {
+				try {
+					TreePath path = p.nextElement();
+					if (conv(path) != null) {
+						tree.expandPath(conv(path));
+					}
+				} catch (Exception ex) {
+				}
+			}
+	
+			if (t1 != null) {
+				TreePath t2 = conv(t1);
+				if (t2 != null) {
+					tree.setSelectionPath(t2);
+					tree.scrollPathToVisible(t2);
+				}
+			}
+		});
+	}
+
+	private TreePath conv(TreePath path) {
+		TreePath parent = path.getParentPath();
+		if (parent == null) {
+			return new TreePath(tree.getModel().getRoot());
+		}
+		TreePath rest = conv(parent);
+		DefaultMutableTreeNode last = (DefaultMutableTreeNode) rest.getLastPathComponent();
+		DefaultMutableTreeNode us = (DefaultMutableTreeNode) path.getLastPathComponent();
+		Enumeration<TreeNode> cs = last.children();
+		if (cs == null) {
+			return null;
+		}
+		while (cs.hasMoreElements()) {
+			DefaultMutableTreeNode m = (DefaultMutableTreeNode) cs.nextElement();
+			if (nodeEq(m, us)) {
+				return rest.pathByAddingChild(m);
+			}
+		}
+		return null;
+	}
+
+	private boolean nodeEq(DefaultMutableTreeNode m, DefaultMutableTreeNode n) {
+		if (!n.getUserObject().equals(m.getUserObject())) {
+			return false;
+		}
+		if (m.getChildCount() != n.getChildCount()) {
+			return false;
+		}
+		Enumeration<TreeNode> e1 = m.children();
+		Enumeration<TreeNode> e2 = m.children();
+		if (e1 == null && e2 == null) {
+			return true;
+		}
+		if (e1 == null || e2 == null) {
+			return false;
+		}
+		while (e1.hasMoreElements()) {
+			boolean b = nodeEq((DefaultMutableTreeNode) e1.nextElement(), (DefaultMutableTreeNode) e2.nextElement());
+			if (!b) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void build() {
+
+		if (parsed_prog == null) {
+			return;
+		}
+		List<String> set = new LinkedList<>(parsed_prog.keySet());
+		if (outline_alphabetical) {
+			set.sort(Util.AlphabeticalComparator);
+		}
+		// Point p = jsp.getViewport().getViewPosition();
+		setComp(set);
+		// revalidate();
+		// jsp.getViewport().setViewPosition(p);
+	}
+
+	public final JLabel oLabel = new JLabel("", JLabel.CENTER);
+	public final JScrollPane jsp;
+	public final JCheckBox validateBox = new JCheckBox("Prove", true);
+	/*
+	 * public void startThread() { Thread t = new Thread(new Runnable() {
+	 * 
+	 * @Override public void run() { long x = 0; for (;;) { long l =
+	 * System.currentTimeMillis(); // threadBody(); long r =
+	 * System.currentTimeMillis(); x = r - l;
+	 * 
+	 * try { long todo = sleepDelay - x; if (todo > 100) { Thread.sleep(todo); } }
+	 * catch (Throwable e1) { return; } if (isClosed) { return; } } }
+	 * 
+	 * }); t.setDaemon(true); t.setPriority(Thread.MIN_PRIORITY); t.start(); }
+	 */
+	protected JTree tree;
+
+	protected DefaultTreeCellRenderer makeRenderer() {
+		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		renderer.setLeafIcon(null);
+		renderer.setOpenIcon(null);
+		renderer.setClosedIcon(null);
+		return renderer;
+	}
+
+	protected synchronized JTree getComp() {
+		if (tree != null) {
+			return tree;
+		}
+		tree = new JTree(new DefaultMutableTreeNode());
+		tree.setCellRenderer(makeRenderer());
+		tree.setShowsRootHandles(true);
+		tree.setRootVisible(false);
+		tree.setCellRenderer(makeRenderer());
+		tree.setEditable(true);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+
+				if (node == null) {
+					return;
+				}
+				Object o = node.getUserObject();
+				if (o instanceof CodeEditor.TreeLabel) {
+					TreeLabel l = (TreeLabel) o;
+					if (parsed_prog != null) {
+						int line = parsed_prog.getLine(l.name);
+						if (line != -1) {
+							setCaretPos(line);
+							addToHistory(line);
+						}
+					}
+				} else if (o instanceof InteriorLabel) {
+					InteriorLabel<?> l = (InteriorLabel<?>) o;
+					setCaretPos(l.loc);
+					addToHistory(l.loc);
+				}
+
+			}
+		});
+
+		return tree;
+	}
+
+	protected void threadBody() {
+		while (!isClosed) {
+			try {
+				String s = topArea.getText();
+				if (!s.equals(parsed_prog_string)) {
+					Progg e = parse(s);
+					parsed_prog_string = s;
+					parsed_prog = e;
+					oLabel.setText("");
+
+					// if (System.currentTimeMillis() - last_keystroke > sleepDelay) {
+					build();
+					// }
+
+				}
+			} catch (Throwable ex) {
+				ex.printStackTrace();
+				oLabel.setText("err");
+			}
+		}
+	}
+
+	protected LinkedBlockingDeque<Unit> q = new LinkedBlockingDeque<>(1);
+	protected volatile long qt = -1;
+
+
+	
+
+	public void setOutlineFont(Font font) {
+		getComp().setFont(font);
+	}
+
+	
+
+	public class TreeLabel {
+		public final String s;
+		public final String name;
+
+		public TreeLabel(String s, String name) {
+			super();
+			Util.assertNotNull(s);
+			this.s = s;
+			this.name = name;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (s.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TreeLabel other = (TreeLabel) obj;
+			if (!s.equals(other.s))
+				return false;
+			return true;
+		}
+
+		public String toString() {
+			return s;
+		}
+
+	}
+
+	private void startThread() {
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				threadBody();
+			}
+
+		});
+		t.setDaemon(true);
+		t.setPriority(Thread.MIN_PRIORITY);
+		t.start();
+	}
+
+	protected DefaultListModel<String> foo() {
+		return new DefaultListModel<>();
 	}
 
 }

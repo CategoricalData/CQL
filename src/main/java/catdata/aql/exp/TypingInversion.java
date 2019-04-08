@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import catdata.LocStr;
 import catdata.Pair;
 import catdata.Unit;
 import catdata.aql.RawTerm;

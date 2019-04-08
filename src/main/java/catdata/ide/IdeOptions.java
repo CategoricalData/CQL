@@ -663,7 +663,7 @@ public class IdeOptions {
 			a.set_delay(getNat(o));
 			return;
 		case OUTLINE_FONT:
-			a.getOutline().setFont(getFont(o));
+			a.setOutlineFont(getFont(o));
 			return;
 		default:
 			Util.anomaly();

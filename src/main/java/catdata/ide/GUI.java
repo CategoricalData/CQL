@@ -406,8 +406,7 @@ public class GUI extends JPanel {
 		clear.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
 			if (ed != null) {
-				ed.getOutline().build();
-				;
+				ed.doUpdate();
 			}
 		});
 
@@ -849,7 +848,7 @@ public class GUI extends JPanel {
 		files.put(e.id, file);
 		titles.put(e.id, file.getName());
 		doSave(file, e.getText(), e.id);
-
+		e.title = file.getName();
 	}
 
 	public static void setDirty(Integer i, boolean b) {
@@ -905,7 +904,7 @@ public class GUI extends JPanel {
 			return untitled_count;
 		}
 		CodeEditor<?, ?, ?> c = lang.createEditor(title, untitled_count, content);
-		c.getOutline().startThread();
+	//	c.startOutlineThread();
 		int i = editors.getTabCount();
 		keys.put(untitled_count, c);
 		setDirty(untitled_count, false);

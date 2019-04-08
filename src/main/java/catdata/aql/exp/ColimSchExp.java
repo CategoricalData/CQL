@@ -11,8 +11,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.list.TreeList;
 
+import catdata.InteriorLabel;
+import catdata.LocStr;
 import catdata.Pair;
 import catdata.Quad;
+import catdata.Raw;
 import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
@@ -280,6 +283,7 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 
 		@Override
 		public Set<String> type(AqlTyping G) {
+			ty.type(G);
 			return nodes.keySet();
 		}
 
@@ -685,6 +689,7 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 
 		@Override
 		public Set<String> type(AqlTyping G) {
+			ty.type(G);
 			return nodes.keySet();
 		}
 
@@ -697,6 +702,7 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 
 		@Override
 		public TyExp typeOf(AqlTyping G) {
+			ty.type(G);
 			return ty;
 		}
 

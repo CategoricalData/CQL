@@ -175,13 +175,62 @@ public class Program<X> implements Prog {
 	}
 
 	@Override
-	public Integer getLine(String s) {
-		return lines.get(s);
+	public int getLine(String s) {
+		Integer i = lines.get(s);
+		if (i == null) {
+			return -1;
+		}
+		return i.intValue();
 	}
 
 	@Override
 	public Collection<String> keySet() {
 		return order;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((exps == null) ? 0 : exps.hashCode());
+		result = prime * result + ((lines == null) ? 0 : lines.hashCode());
+		result = prime * result + ((options == null) ? 0 : options.hashCode());
+		result = prime * result + ((order == null) ? 0 : order.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Program other = (Program) obj;
+		if (exps == null) {
+			if (other.exps != null)
+				return false;
+		} else if (!exps.equals(other.exps))
+			return false;
+		if (lines == null) {
+			if (other.lines != null)
+				return false;
+		} else if (!lines.equals(other.lines))
+			return false;
+		if (options == null) {
+			if (other.options != null)
+				return false;
+		} else if (!options.equals(other.options))
+			return false;
+		if (order == null) {
+			if (other.order != null)
+				return false;
+		} else if (!order.equals(other.order))
+			return false;
+		return true;
+	}
+	
+	
 
 }
