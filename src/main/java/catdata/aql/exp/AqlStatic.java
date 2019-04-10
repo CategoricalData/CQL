@@ -127,7 +127,7 @@ public class AqlStatic extends AbstractParser {
 		}
 	}
 
-	public final DefaultParseResult result;
+	public final DefaultParseResult result = new DefaultParseResult(this);
 	
 	@Override
 	public synchronized DefaultParseResult parse(RSyntaxDocument doc1, String style) {
@@ -139,7 +139,7 @@ public class AqlStatic extends AbstractParser {
 	public final Map<String, Optional<String>> exns = Util.mk();
 
 	public AqlStatic(Program<Exp<?>> p) {
-		this.result = new DefaultParseResult(this);
+		//this.result = new DefaultParseResult(this);
 		this.env = new AqlEnv(p);
 	}
 

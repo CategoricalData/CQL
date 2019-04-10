@@ -363,9 +363,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			try {
 				q.takeFirst();
 				s = topArea.getText();
-				if (s.isEmpty()) {
-					continue;
-				}
+				//todo: shortcut on ""?
 			} catch (InterruptedException e) {
 				return; /// ?
 			}
@@ -379,10 +377,6 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 			try {
 				parsed_prog = parse(s);
-				// if (z.equals(parsed_prog)) {
-				// oLabel.setText("");
-				// continue;
-				// }
 				if (q.peek() != null) {
 					continue;
 				}
@@ -409,20 +403,30 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					oLabel.setText("err");
 				}
 			} catch (ParseException exn) {
-				DefaultParserNotice notice = new StaticParserNotice((Parser) aqlStatic, exn.getMessage(), exn.line,
-						Color.red);
-				aqlStatic.result.addNotice(notice);
-				topArea.forceReparsing(aqlStatic);
-				oLabel.setText("err");
+				try {
+					DefaultParserNotice notice = new StaticParserNotice((Parser) aqlStatic, exn.getMessage(), exn.line,
+							Color.red);
+					aqlStatic.result.addNotice(notice);
+					topArea.forceReparsing(aqlStatic);
+					oLabel.setText("err");
+				} catch (Throwable thr) {
+					thr.printStackTrace();
+					oLabel.setText("anomaly");
+				}
 				// continue;
 			} catch (Throwable exn) {
-				//exn.printStackTrace();
-				// DefaultParserNotice notice = new StaticParserNotice((Parser)aqlStatic,
-				// exn.getMessage(), exn.line, Color.red);
-				topArea.forceReparsing(aqlStatic);
-				oLabel.setText("err");
+				try {
+					// exn.printStackTrace();
+					// DefaultParserNotice notice = new StaticParserNotice((Parser)aqlStatic,
+					// exn.getMessage(), exn.line, Color.red);
+					topArea.forceReparsing(aqlStatic);
+					oLabel.setText("err");
+				} catch (Throwable thr) {
+					thr.printStackTrace();
+					oLabel.setText("anomaly");
+				}
 			}
-
+			// oLabel.setText(text);
 		}
 	}
 
@@ -449,13 +453,11 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 //		return Util.sep(s.subList(0, Integer.min(s.size(), 80)), "\n");
 	}
 
-	
-
 	@Override
 	protected DefaultMutableTreeNode makeTree(List<String> set) {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		AqlTyping G = aqlStatic.env.typing;
-		
+
 		for (String k : set) {
 			Exp<?> e = aqlStatic.env.prog.exps.get(k);
 			if (e == null) {
@@ -474,10 +476,9 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					k0 = outline_prefix_kind ? kk + k : k;
 				}
 			}
-			
-			
+
 			DefaultMutableTreeNode n = new DefaultMutableTreeNode();
-			n.setUserObject(new TreeLabel(k0,k));
+			n.setUserObject(new TreeLabel(k0, k));
 			asTree(n, e);
 			root.add(n);
 		}

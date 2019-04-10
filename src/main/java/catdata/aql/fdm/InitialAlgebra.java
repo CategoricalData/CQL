@@ -107,7 +107,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		for (Entry<Fk, Pair<En, En>> fk : c.fks.entrySet()) {
 			if (!dag.addEdge(fk.getValue().second, fk.getValue().first)) {
 				throw new RuntimeException(
-						"An instance with a cyclic schema, generators, and no equations may diverge.  Set diverge_warn=false to continue.");
+						"An instance with a cyclic schema, generators, and no equations may diverge.  Set diverge_warn=false to continue.  This warning may be the benign consequence of theory simplification; consider prover_simplify_max = 0 as well.");
 			}
 		}
 
