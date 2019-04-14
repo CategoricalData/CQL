@@ -847,20 +847,20 @@ public class AqlHelp implements
 				dir.mkdir();
 			}
 
-			String css = "\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/simple.css\" />";
+			String css = "\n<link rel=\"stylesheet\" href=\"http://categoricaldata.github.io/CQL/assets/css/style.css?v=9a8c768291dd8352661db3113e4cce2e313a0e0b\">";
 
 			String search = "<html><head>\n" + "\n"
-					+ "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/simple.css\" /></head><body><h1>Search (case/space sensitive)</h1>\n"
+					+ css 
 					+ "\n" + "<div>\n" + "  <form action=\"search.php\" method=\"get\">\n"
 					+ "       <input type=\"text\" name=\"text\" value=<?php echo \"\\\"\" . $_GET[\"text\"] . \"\\\"\" ; ?> > \n"
 					+ "              <input type=\"submit\" name=\"submit\" value=\"Search\">\n" + "              \n"
 					+ "              <br>\n" + "    </form>\n" + "\n" + "</div>\n" + "\n" + "\n" + "<?php\n" + "\n"
 					+ "$string = $_GET[\"text\"];\n" + "\n" + "\n"
-					+ "if (strpos(file_get_contents('../help.html'), $string) !== false) {\n"
-					+ "        echo \"<a href=\\\"../help.html\\\">CQL Manual</a><br/>\";\n" + "}\n" + "    \n"
+					+ "if (strpos(file_get_contents('../logo.html'), $string) !== false) {\n"
+					+ "        echo \"<a href=\\\"../logo.html\\\">CQL Manual</a><br/>\";\n" + "}\n" + "    \n"
 					+ "$dir = new DirectoryIterator('.');\n" + "foreach ($dir as $file) {\n"
 					+ "    if ($file == 'search.php') {\n" + "        continue;   \n" + "    }\n"
-					+ "    if ($file == 'help.html') {\n" + "        continue;   \n" + "    }\n"
+					+ "    if ($file == 'logo.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'options.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'examples.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'syntax.html') {\n" + "        continue;   \n" + "    }\n"
@@ -874,7 +874,7 @@ public class AqlHelp implements
 			StringBuffer examples = new StringBuffer("<html><head>" + css + "</head><body>");
 			for (Example ex : Util.alphabetical(
 			
-					Util.union(Examples.getExamples(Language.CQL), Examples.getExamples(Language.CQL_ALT)))) {
+					Examples.getExamples(Language.CQL))) {
 				examples.append(
 						"\n<a href=\"" + ex.getName().trim() + ".html\" target=\"primary\">" + ex.getName().trim() + "</a><br />");
 
@@ -940,9 +940,7 @@ public class AqlHelp implements
 		
 			StringBuffer logo = new StringBuffer("");
 			logo.append("<html><head>" + css + "</head><body>");
-			logo.append("<h1>CQL Docs</h1>");
-			logo.append("\n<br/>");
-			logo.append("\n<a href=\"https://categoricaldata.github.io/CQL/\" target=\"primary\">Help</a><br />");
+			logo.append("\n<a href=\"http://categoricaldata.github.io/CQL/\" target=\"primary\">Help</a><br />");
 			logo.append("\n<br />");
 			logo.append("\n<a href=\"syntax.html\" target=\"tree\">Syntax</a><br />");
 			logo.append("\n<a href=\"options.html\" target=\"tree\">Options</a><br />");
@@ -950,8 +948,8 @@ public class AqlHelp implements
 			logo.append("\n<a href=\"search.php\" target=\"primary\">Search</a><br />");
 		
 			logo.append("\n<br />");
-			logo.append("\n<a href=\"https://catinf.com\" target=\"_blank\">CI Website</a><br />");
-			logo.append("\n<a href=\"https://categoricaldata.net/aql.html\" target=\"_blank\">MIT Website</a><br />");
+			logo.append("\n<a href=\"http://categorical.info\" target=\"_blank\">CI Website</a><br />");
+			logo.append("\n<a href=\"https://github.com/CategoricalData/CQL/wiki\" target=\"_blank\">Wiki</a><br />");
 			logo.append("\n</body></html>");
 
 			StringBuffer main = new StringBuffer();
@@ -960,15 +958,14 @@ public class AqlHelp implements
 			main.append("\n<HTML>");
 			main.append("\n<HEAD>");
 			main.append("\n<TITLE>CQL</TITLE>");
-			main.append(
-					"\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/simple.css\" />");
+			main.append(css);
 			main.append("\n</HEAD>");
 			main.append("\n<FRAMESET cols=\"20%, 80%\">");
 			main.append("\n  <FRAMESET rows=\"100, 200\">");
-			main.append("\n      <FRAME src=\"help.html\" name=\"logo\">");
+			main.append("\n      <FRAME src=\"logo.html\" name=\"logo\">");
 			main.append("\n      <FRAME src=\"syntax.html\" name=\"tree\">");
 			main.append("\n  </FRAMESET>");
-			main.append("\n  <FRAME src=\"https://categoricaldata.net/help.html\" name=\"primary\">");
+			main.append("\n  <FRAME src=\"https://categoricaldata.github.io/CQL\" name=\"primary\">");
 			main.append("\n</FRAMESET>");
 			main.append("\n</HTML>");
 
@@ -976,12 +973,19 @@ public class AqlHelp implements
 			syntax.append("<html><head>" + css + "</head>\n\t");
 			Map<Kind, Set<Pair<AqlTyping, Exp<?>>>> z = new TypingInversion().covisit(Unit.unit, x -> new AqlTyping());
 			Map<String, Set<Exp<?>>> opInv = Util.newSetsFor(AqlOptions.optionNames());
+			
+			boolean isFirstK = true;
 			for (Kind k : Util.alphabetical(Arrays.asList(Kind.class.getEnumConstants()))) {
 				
 				if (k.equals(Kind.COMMENT)) {
 					continue;
 				}
-				syntax.append("\t\t<h3>" + k + "\n\t\t</h3>");
+				if (!isFirstK) {
+					syntax.append("<br/>");
+					isFirstK = false;
+				}
+				isFirstK=false;
+				syntax.append("<h3>" + k + "</h3>");
 				List<Pair<AqlTyping, Exp<?>>> ee = new ArrayList<>(z.get(k));
 				Collections.sort(ee, (x, y) -> x.second.getKeyword().compareTo(y.second.getKeyword()));
 
@@ -1007,7 +1011,7 @@ public class AqlHelp implements
 					String str3 = "Options:<br/><br/>" + Util.sep(Util.alphabetical(yy), "<br/>\n");
 
 					for (Example ex : Util.alphabetical(
-							Util.union(Examples.getExamples(Language.CQL), Examples.getExamples(Language.CQL_ALT)))) {
+							Examples.getExamples(Language.CQL))) {
 						if (index.get(ex).contains(e.getSyntax())) {
 							str2 += "\n<a href=\"" + ex.getName().trim() + ".html\" target=\"primary\">" + ex.getName().trim()
 									+ "</a><br />";
@@ -1019,7 +1023,7 @@ public class AqlHelp implements
 							"<html><head>" + css + "</head><h1>" + e.kind() + " " + e.getKeyword() + "</h1>\n<pre>\n"
 									+ str + "\n\t</pre>\n" + desc + "<br/>" + str2 + "<br/>" + str3 + "</html>",
 							dstFile);
-					syntax.append("\t\t\t<a href=\"" + e.kind() + e.getKeyword() + ".html" + "\" target=\"primary\">"
+					syntax.append("<a href=\"" + e.kind() + e.getKeyword() + ".html" + "\" target=\"primary\">"
 							+ e.getKeyword() + "</a><br />\n");
 					
 				}
@@ -1044,7 +1048,7 @@ public class AqlHelp implements
 				}
 				StringBuffer yyy = new StringBuffer();
 				for (Example example : Util.alphabetical(
-						Util.union(Examples.getExamples(Language.CQL), Examples.getExamples(Language.CQL_ALT)))) {
+						Examples.getExamples(Language.CQL))) {
 					
 					if (example.getText().contains(ex.toString())) {
 						yyy.append("\n<a href=\"" + example.getName().trim() + ".html\" target=\"primary\">"
@@ -1064,7 +1068,7 @@ public class AqlHelp implements
 			Util.writeFile(examples.toString(), new File(dir, "examples.html").getAbsolutePath());
 			Util.writeFile(main.toString(), new File(dir, "index.html").getAbsolutePath());
 			Util.writeFile(syntax.toString(), new File(dir, "syntax.html").getAbsolutePath());
-			Util.writeFile(logo.toString(), new File(dir, "help.html").getAbsolutePath());
+			Util.writeFile(logo.toString(), new File(dir, "logo.html").getAbsolutePath());
 
 		} catch (Exception ex) {
 			ex.printStackTrace();

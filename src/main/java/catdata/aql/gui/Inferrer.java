@@ -6,55 +6,58 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import catdata.Pair;
+import catdata.Quad;
 import catdata.Util;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.Schema;
+import catdata.aql.exp.AqlEnv;
 import catdata.aql.exp.CombinatorParser;
 import gnu.trove.set.hash.THashSet;
 
 class Inferrer {
 
 	@SuppressWarnings("unchecked")
-	public static void infer(AqlCodeEditor editor, Kind k) {
-		if (editor.last_env == null) {
-			throw new RuntimeException("Must compile before using inference");
+	public static String infer(String in, AqlEnv last_env) {
+		if (last_env == null || in == null || in.trim().isEmpty()) {
+			return null;
 		}
-		String in = editor.topArea.getSelectedText();
+		boolean isInstance = false;
+		if (in.trim().startsWith("instance")) {
+			isInstance = true;
+		}
 		String repl = " {\n";
 
-		if (k.equals(Kind.MAPPING) || k.equals(Kind.QUERY) || k.equals(Kind.TRANSFORM)) {
-			Pair<String, String> s = CombinatorParser.parseInfer(in);
-			String a = s.first;
-			String b = s.second;
+		if (!isInstance) { 
+			Quad<Kind, String, String, String> s = CombinatorParser.parseInfer(in);
+			Kind k = s.first;
+			//String n = s.second;
+			String a = s.third;
+			String b = s.fourth;
 			switch (k) {
 			case MAPPING:
-				repl += inferMapping(editor.last_env.defs.schs.get(a), editor.last_env.defs.schs.get(b));
+				repl += inferMapping(last_env.defs.schs.get(a), last_env.defs.schs.get(b));
 				break;
 			case QUERY:
-				repl += inferQuery(editor.last_env.defs.schs.get(a), editor.last_env.defs.schs.get(b));
+				repl += inferQuery(last_env.defs.schs.get(a), last_env.defs.schs.get(b));
 				break;
 			case TRANSFORM:
-				repl += inferTransform(editor.last_env.defs.insts.get(a), editor.last_env.defs.insts.get(b));
+				repl += inferTransform(last_env.defs.insts.get(a), last_env.defs.insts.get(b));
 				break;
-			case GRAPH:
-			case INSTANCE:
-			case PRAGMA:
-			case SCHEMA:
-			case TYPESIDE:
-			case COMMENT:
-			case SCHEMA_COLIMIT:
-			case THEORY_MORPHISM:
-			case CONSTRAINTS:
+				//$CASES-OMITTED$
 			default:
-				break;
+				return null;
+				
+			
 			}
-		} else if (k.equals(Kind.INSTANCE)) {
+		} else {
 			String a = CombinatorParser.parseInfer1(in);
-			repl += inferInstance(editor.last_env.defs.schs.get(a));
+			repl += inferInstance(last_env.defs.schs.get(a));
 		}
 		repl += "\n}";
-		editor.topArea.insert(repl, editor.topArea.getSelectionEnd());
+		
+		
+		return repl; //editor.topArea.insert(repl, editor.topArea.getSelectionEnd());
 	}
 
 	private static <Ty, En, Sym, Fk, Att> String inferInstance(Schema<Ty, En, Sym, Fk, Att> a) {

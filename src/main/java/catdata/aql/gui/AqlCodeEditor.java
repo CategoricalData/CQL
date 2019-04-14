@@ -112,18 +112,18 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 	public AqlCodeEditor(String title, int id, String content) {
 		super(title, id, content, new BorderLayout());
 		// aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
-		JMenuItem im = new JMenuItem("Infer Mapping");
-		im.addActionListener(x -> infer(Kind.MAPPING));
+		JMenuItem im = new JMenuItem("Infer Map/Query/Trans/Inst");
+		im.addActionListener(x -> infer());
 		topArea.getPopupMenu().add(im, 0);
-		JMenuItem iq = new JMenuItem("Infer Query");
-		iq.addActionListener(x -> infer(Kind.QUERY));
-		topArea.getPopupMenu().add(iq, 0);
-		JMenuItem it = new JMenuItem("Infer Transform");
-		it.addActionListener(x -> infer(Kind.TRANSFORM));
-		topArea.getPopupMenu().add(it, 0);
-		JMenuItem ii = new JMenuItem("Infer Instance");
-		ii.addActionListener(x -> infer(Kind.INSTANCE));
-		topArea.getPopupMenu().add(ii, 0);
+//		JMenuItem iq = new JMenuItem("Infer Query");
+////		iq.addActionListener(x -> infer(Kind.QUERY));
+	//	topArea.getPopupMenu().add(iq, 0);
+	//	JMenuItem it = new JMenuItem("Infer Transform");
+//		it.addActionListener(x -> infer(Kind.TRANSFORM));
+//		topArea.getPopupMenu().add(it, 0);
+//		JMenuItem ii = new JMenuItem("Infer Instance");
+	//	ii.addActionListener(x -> infer(Kind.INSTANCE));
+	//	topArea.getPopupMenu().add(ii, 0);
 
 		DocumentListener listener = new DocumentListener() {
 			@Override
@@ -329,12 +329,19 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		return "Done.";
 	}
 
-	public void infer(Kind k) {
+	public void infer() {
 		try {
-			Inferrer.infer(this, k);
+			String s = Inferrer.infer(topArea.getSelectedText(), aqlStatic.env);
+			if (s != null) {
+				topArea.insert(s, topArea.getSelectionEnd());
+			}
 		} catch (Throwable thr) {
 			thr.printStackTrace();
-			respArea.setText(thr.getMessage());
+			String z = "Anomaly, please report";
+			if (thr.getMessage() != null) {
+				z = thr.getMessage();
+			}
+			respArea.setText(z);
 		}
 	}
 

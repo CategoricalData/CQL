@@ -33,6 +33,7 @@ import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
 import catdata.aql.AqlOptions;
+import catdata.aql.Kind;
 import catdata.aql.RawTerm;
 import catdata.aql.exp.ColimSchExp.ColimSchExpQuotient;
 import catdata.aql.exp.ColimSchExp.ColimSchExpRaw;
@@ -1248,10 +1249,19 @@ public class CombinatorParser implements IAqlParser {
 		}
 	}
 
-	public static catdata.Pair<String, String> parseInfer(String s) {
-		Parser<catdata.Pair<String, String>> p = Parsers
-				.tuple(token("literal").followedBy(token(":")), ident.followedBy(token("->")), ident)
-				.map(x -> new catdata.Pair<>(x.b, x.c));
+	static Parser<Kind> kind() {
+		Parser<Kind> p = Parsers.fail("Not a kind");
+		for (Kind k : Kind.values()) {
+			if (!k.equals(Kind.COMMENT)) {
+				p = Parsers.or(p, token(k.toString().toLowerCase()).map(x->k));
+			}
+		}
+		return p;
+	}
+	public static Quad<Kind, String, String, String> parseInfer(String s) {
+		Parser<Quad<Kind, String, String, String>> p = Parsers
+				.tuple(kind(), ident, token("=").followedBy(token("literal")).followedBy(token(":")), ident.followedBy(token("->")), ident)
+				.map(x -> new catdata.Quad<>(x.a, x.b, x.d, x.e));
 		return p.from(TOKENIZER, IGNORED).parse(s);
 	}
 

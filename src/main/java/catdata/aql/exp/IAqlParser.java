@@ -31,7 +31,7 @@ public interface IAqlParser {
 			"coeval", "ed", "chase", "from", "where", "return", "pivot", "copivot", "colimit", "nodes", "edges",
 			"typesideOf", "schemaOf", "distinct", "import_csv", "export_csv_instance", "export_csv_transform",
 			"import_jdbc", "import_jdbc_all", "export_jdbc_transform", "export_jdbc_instance", "export_jdbc_query",
-			"unit_query", "counit_query", "union", "wrap", "fromConstraints" };
+			"unit_query", "counit_query", "union", "wrap", "fromConstraints", "theory_morphism" };
 
 	public static final String[] opts = AqlOptions.optionNames().toArray(new String[0]);
 

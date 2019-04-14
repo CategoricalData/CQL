@@ -231,17 +231,17 @@ public class GUI extends JPanel {
 //		toolsMenu.add(chaseItem);
 //		chaseItem.addActionListener(x -> Chase.dostuff());
 
-		MenuItem sqlLoaderItem = new MenuItem("SQL Loader");
-		toolsMenu.add(sqlLoaderItem);
-		sqlLoaderItem.addActionListener(x -> SqlLoader.showLoader());
+		//MenuItem sqlLoaderItem = new MenuItem("SQL Loader");
+		//toolsMenu.add(sqlLoaderItem);
+		//sqlLoaderItem.addActionListener(x -> SqlLoader.showLoader());
 
-		MenuItem sqlMapperItem = new MenuItem("SQL Mapper");
+		/* MenuItem sqlMapperItem = new MenuItem("SQL Mapper");
 		toolsMenu.add(sqlMapperItem);
 		sqlMapperItem.addActionListener(x -> SqlMapper.showGuesser());
 
 		MenuItem sqlCheckItem = new MenuItem("SQL Checker");
 		toolsMenu.add(sqlCheckItem);
-		sqlCheckItem.addActionListener(x -> new SqlChecker());
+		sqlCheckItem.addActionListener(x -> new SqlChecker()); */
 
 		MenuItem shredItem = new MenuItem("NR Shredder");
 		toolsMenu.add(shredItem);
@@ -482,25 +482,25 @@ public class GUI extends JPanel {
 		JComboBox allBox = new ComboBoxFullMenu<>(Examples.filterBy(Language.getDefault().toString()));
 		allBox.setSelectedIndex(-1);
 		allBox.addActionListener(x -> doExample((Example) allBox.getSelectedItem()));
-		for (Language l : Language.values()) {
-			@SuppressWarnings({ "rawtypes" })
-			JComboBox box = new ComboBoxFullMenu<>(Examples.filterBy(l.toString()));
-			box.setSelectedIndex(-1);
-			box.addActionListener(x -> doExample((Example) box.getSelectedItem()));
-			boxPanel.add(box, l.toString());
-		}
+		//for (Language l : Language.values()) {
+		//	@SuppressWarnings({ "rawtypes" })
+		//	JComboBox box = new ComboBoxFullMenu<>(Examples.filterBy(l.toString()));
+			//box.setSelectedIndex(-1);
+			//box.addActionListener(x -> doExample((Example) box.getSelectedItem()));
+		//	boxPanel.add(box, l.toString());
+		//}
 
 		boxPanel.add(allBox, Language.getDefault().prefix());
 		cl.show(boxPanel, Language.getDefault().prefix());
 
 		Vector<String> vec = new Vector<>();
 
-		for (Language l : Language.values0()) {
-			vec.add(l.toString());
-		}
-		JComboBox<String> modeBox = new JComboBox<>(vec);
-		modeBox.setSelectedItem(Language.getDefault().toString());
-		modeBox.addActionListener(x -> cl.show(boxPanel, (String) modeBox.getSelectedItem()));
+		//for (Language l : Language.values0()) {
+		//	vec.add(l.toString());
+		//}
+		//JComboBox<String> modeBox = new JComboBox<>(vec);
+	//	modeBox.setSelectedItem(Language.getDefault().toString());
+	//	modeBox.addActionListener(x -> cl.show(boxPanel, (String) modeBox.getSelectedItem()));
 
 		JButton back = new JButton("< Back");
 		back.addActionListener(x -> {
@@ -529,18 +529,18 @@ public class GUI extends JPanel {
 		//toolBar.add(helpb);
 		//JPanel p = new JPanel(new BorderLayout());
 		toolBar.add(new JLabel("Example:", SwingConstants.RIGHT));
-		toolBar.add(modeBox);
+		//toolBar.add(modeBox);
 		//toolBar.add(p);
 		toolBar.add(boxPanel);
 		return toolBar;
 	}
 
-	private static void infer(Kind k) {
+	private static void infer() {
 		int i = editors.getSelectedIndex();
 		Object o = editors.getComponentAt(i);
 		if (o instanceof AqlCodeEditor) {
 			AqlCodeEditor a = (AqlCodeEditor) o;
-			a.infer(k);
+			a.infer();
 		}
 	}
 
@@ -550,18 +550,10 @@ public class GUI extends JPanel {
 		st.addActionListener(x -> AqlTester.doSelfTests());
 		menu.add(st);
 
-		MenuItem im = new MenuItem("Infer Mapping");
-		im.addActionListener(x -> infer(Kind.MAPPING));
+		MenuItem im = new MenuItem("Infer Map/Query/Trans/Inst");
+		im.addActionListener(x -> infer());
 		menu.add(im);
-		MenuItem iq = new MenuItem("Infer Query");
-		iq.addActionListener(x -> infer(Kind.QUERY));
-		menu.add(iq);
-		MenuItem it = new MenuItem("Infer Transform");
-		it.addActionListener(x -> infer(Kind.TRANSFORM));
-		menu.add(it);
-		MenuItem ii = new MenuItem("Infer Instance");
-		it.addActionListener(x -> infer(Kind.INSTANCE));
-		menu.add(ii);
+		
 
 		MenuItem ih = new MenuItem("Emit HTML");
 		ih.addActionListener(x -> {
