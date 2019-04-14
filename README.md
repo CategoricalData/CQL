@@ -2,7 +2,7 @@ Categorical Query Language
 ====
 
 For more information, please see:
-- [Academic CQL page](categoricaldata.net/cql.html)
+- [Academic CQL page](http://categoricaldata.net/cql.html)
 - [Commercial CQL page](http://categorical.info/)
 - [CQL Wiki](https://github.com/CategoricalData/CQL/wiki)
 
@@ -26,9 +26,7 @@ For best results, compile using the [Eclipse IDE](https://eclipse.org/jdt/).
 Related projects:
 --------------
 
-- Archived FQL code: https://github.com/CategoricalData/FQL
-- CQL mode for Emacs: https://github.com/epost/aql-mode
-- Statebox CQL Haskell implementation (coming soon)
+- [Archived FQL code](https://github.com/CategoricalData/FQL)
 
 License
 -------
