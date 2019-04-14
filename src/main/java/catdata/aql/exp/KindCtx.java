@@ -20,6 +20,7 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 	public final Map<V, C> cs = Util.mk();
 	public final Map<V, SC> scs = Util.mk();
 	public final Map<V, ED> eds = Util.mk();
+	public final Map<V, Object> tms = Util.mk();
 
 	public Map<V, ?> get(Kind kind) {
 		switch (kind) {
@@ -45,6 +46,8 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 			return scs;
 		case CONSTRAINTS:
 			return eds;
+		case THEORY_MORPHISM:
+			return tms;
 		default:
 			throw new RuntimeException();
 		}
@@ -90,6 +93,8 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 		case CONSTRAINTS:
 			eds.put(k, (ED) o);
 			break;
+		case THEORY_MORPHISM:
+			tms.put(k, o);
 		default:
 			throw new RuntimeException();
 		}
@@ -136,6 +141,8 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 			return trans.size();
 		case TYPESIDE:
 			return tys.size();
+		case THEORY_MORPHISM:
+			return tms.size();
 
 		}
 		return Util.anomaly();

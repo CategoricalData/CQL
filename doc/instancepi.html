@@ -1,0 +1,72 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>instance pi</h1>
+<pre>
+typeside t
+schema s2 : t
+schema s1 : t
+mapping m : s1 -> s2
+instance i : s1
+----------------------------------
+instance (pi m i) : s2
+	</pre>
+Performs a pi or join-all operation along a mapping.  It is recommended to use eval of queries instead, because pi has non-intuitive semantics and is computationally intractable.<br/><br/>Appears in:<br/><br/>
+<a href="All_Syntax.html" target="primary">All_Syntax</a><br /><br/>Options:<br/><br/><a href="allow_empty_sorts_unsafe.html" target="primary">allow_empty_sorts_unsafe</a>
+<br/>
+<a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="completion_compose.html" target="primary">completion_compose</a>
+<br/>
+<a href="completion_filter_subsumed.html" target="primary">completion_filter_subsumed</a>
+<br/>
+<a href="completion_precedence.html" target="primary">completion_precedence</a>
+<br/>
+<a href="completion_sort.html" target="primary">completion_sort</a>
+<br/>
+<a href="completion_syntactic_ac.html" target="primary">completion_syntactic_ac</a>
+<br/>
+<a href="completion_unfailing.html" target="primary">completion_unfailing</a>
+<br/>
+<a href="dont_verify_is_appropriate_for_prover_unsafe.html" target="primary">dont_verify_is_appropriate_for_prover_unsafe</a>
+<br/>
+<a href="e_path.html" target="primary">e_path</a>
+<br/>
+<a href="eval_approx_sql_unsafe.html" target="primary">eval_approx_sql_unsafe</a>
+<br/>
+<a href="eval_join_selectivity.html" target="primary">eval_join_selectivity</a>
+<br/>
+<a href="eval_max_plan_depth.html" target="primary">eval_max_plan_depth</a>
+<br/>
+<a href="eval_max_temp_size.html" target="primary">eval_max_temp_size</a>
+<br/>
+<a href="eval_reorder_joins.html" target="primary">eval_reorder_joins</a>
+<br/>
+<a href="eval_sql_persistent_indices.html" target="primary">eval_sql_persistent_indices</a>
+<br/>
+<a href="eval_use_indices.html" target="primary">eval_use_indices</a>
+<br/>
+<a href="eval_use_sql_above.html" target="primary">eval_use_sql_above</a>
+<br/>
+<a href="maedmax_path.html" target="primary">maedmax_path</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="program_allow_nonconfluence_unsafe.html" target="primary">program_allow_nonconfluence_unsafe</a>
+<br/>
+<a href="program_allow_nontermination_unsafe.html" target="primary">program_allow_nontermination_unsafe</a>
+<br/>
+<a href="prover.html" target="primary">prover</a>
+<br/>
+<a href="prover_simplify_max.html" target="primary">prover_simplify_max</a>
+<br/>
+<a href="query_remove_redundancy.html" target="primary">query_remove_redundancy</a>
+<br/>
+<a href="second_prover.html" target="primary">second_prover</a>
+<br/>
+<a href="start_ids_at.html" target="primary">start_ids_at</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+<br/>
+<a href="varchar_length.html" target="primary">varchar_length</a>
+</html>

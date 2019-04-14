@@ -115,7 +115,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Triple<Map<Var, Chc<Ty, Void>>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> infer1x(
+	static Triple<Map<Var, Chc<Ty, Void>>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> infer1x(
 			Map<String, Chc<Ty, En>> Map0, RawTerm e0, RawTerm f, Chc<Ty, Void> expected,
 			@SuppressWarnings("rawtypes") Collage col, String pre, AqlJs<Ty, Sym> js) {
 		return RawTerm.infer1x(Map0, e0, f, (Chc<Ty, En>) ((Object) expected), col, pre, js).first3();
@@ -387,7 +387,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 		return Util.map(x, (k, v) -> new Pair<>(k, v.l));
 	}
 
-	private static Map<String, Chc<Ty, En>> yyy(List<Pair<String, String>> l) {
+	static Map<String, Chc<Ty, En>> yyy(List<Pair<String, String>> l) {
 		Map<String, Chc<Ty, En>> ret = (new THashMap<>(l.size()));
 		for (Pair<String, String> p : l) {
 			if (ret.containsKey(p.first)) {

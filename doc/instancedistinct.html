@@ -1,0 +1,21 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>instance distinct</h1>
+<pre>
+typeside t
+schema s : t
+instance i : s
+----------------------------------
+instance (distinct i) : s
+	</pre>
+Relationalizes an instance; that is, equates all rows that are equivalent up to observation of attributes.  Converts from bags to sets.<br/><br/>Appears in:<br/><br/>
+<a href="All_Syntax.html" target="primary">All_Syntax</a><br />
+<a href="FinanceColim1.html" target="primary">FinanceColim1</a><br />
+<a href="FinanceColim2.html" target="primary">FinanceColim2</a><br />
+<a href="LambdaConf.html" target="primary">LambdaConf</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

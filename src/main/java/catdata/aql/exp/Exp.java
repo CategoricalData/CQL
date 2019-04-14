@@ -25,6 +25,7 @@ import catdata.aql.exp.EdsExp.EdsExpVisitor;
 import catdata.aql.exp.GraphExp.GraphExpVisitor;
 import catdata.aql.exp.InstExp.InstExpVisitor;
 import catdata.aql.exp.MapExp.MapExpVisitor;
+import catdata.aql.exp.MorExp.MorExpVisitor;
 import catdata.aql.exp.PragmaExp.PragmaExpVisitor;
 import catdata.aql.exp.QueryExp.QueryExpVisitor;
 import catdata.aql.exp.SchExp.SchExpVisitor;
@@ -141,15 +142,15 @@ public abstract class Exp<X> {
 		}
 	}
 
-	public static interface ExpVisitor<P, X, Sch extends X, Ty extends X, Inst extends X, M extends X, Q extends X, Trans extends X, Col extends X, Com extends X, Con extends X, Gr extends X, Prag extends X, E extends Exception>
+	public static interface ExpVisitor<P, X, Sch extends X, Mor extends X, Ty extends X, Inst extends X, M extends X, Q extends X, Trans extends X, Col extends X, Com extends X, Con extends X, Gr extends X, Prag extends X, E extends Exception>
 			extends SchExpVisitor<Sch, P, E>, TyExpVisitor<Ty, P, E>, InstExpVisitor<Inst, P, E>,
 			MapExpVisitor<M, P, E>, QueryExpVisitor<Q, P, E>, TransExpVisitor<Trans, P, E>,
 			ColimSchExpVisitor<Col, P, E>, CommentExpVisitor<Com, P, E>, EdsExpVisitor<Con, P, E>,
-			GraphExpVisitor<Gr, P, E>, PragmaExpVisitor<Prag, P, E> {
+			GraphExpVisitor<Gr, P, E>, PragmaExpVisitor<Prag, P, E>, MorExpVisitor<Mor, P, E> {
 	}
 
-	public <P, Z, Sch extends Z, Ty extends Z, Inst extends Z, M extends Z, Q extends Z, Trans extends Z, Col extends Z, Com extends Z, Con extends Z, Gr extends Z, Prag extends Z, E extends Exception> Z accept0(
-			P params, ExpVisitor<P, Z, Sch, Ty, Inst, M, Q, Trans, Col, Com, Con, Gr, Prag, E> v) throws E {
+	public <P, Z, Sch extends Z, Ty extends Z, Inst extends Z, Mor extends Z, M extends Z, Q extends Z, Trans extends Z, Col extends Z, Com extends Z, Con extends Z, Gr extends Z, Prag extends Z, E extends Exception> Z accept0(
+			P params, ExpVisitor<P, Z, Sch, Mor, Ty, Inst, M, Q, Trans, Col, Com, Con, Gr, Prag, E> v) throws E {
 		switch (kind()) {
 		case COMMENT:
 			return ((CommentExp) this).accept(params, v);
@@ -161,6 +162,8 @@ public abstract class Exp<X> {
 			return ((InstExp<?, ?, ?, ?>) this).accept(params, v);
 		case MAPPING:
 			return ((MapExp) this).accept(params, v);
+		case THEORY_MORPHISM:
+			return ((MorExp) this).accept(params, v);	
 		case PRAGMA:
 			return ((PragmaExp) this).accept(params, v);
 		case QUERY:

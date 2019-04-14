@@ -1,0 +1,21 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>instance random</h1>
+<pre>
+typeside t
+schema s : t
+----------------------------------
+instance (random : s {}) : s
+	</pre>
+Not recommended; returns a random instance that may not satify the given path equations.  Constructs a random instance with the specified number of generators per entity or type. Then for each generator  e:s  and fk/att  f : s -> t , it adds equation  f(e) = y , where  y:t  is a randomly selected generator (or no equation if t has no generators).
+See option random_seed.<br/><br/>Appears in:<br/><br/>
+<a href="Delta.html" target="primary">Delta</a><br />
+<a href="Dopfib.html" target="primary">Dopfib</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="random_seed.html" target="primary">random_seed</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

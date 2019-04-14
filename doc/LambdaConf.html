@@ -1,0 +1,163 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example LambdaConf</h1><pre>
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Example schema and instance about employees
+
+typeside Ty = literal { 
+	java_types
+		String = "java.lang.String"
+		Int = "java.lang.Integer"
+	java_constants
+		String = "return input[0]"
+		Int = "return java.lang.Integer.parseInt(input[0])"
+	java_functions
+		plus : Int,Int -&gt; Int = "return (input[0] + input[1]).intValue()"
+}
+
+schema EmpSchema = literal : Ty {
+	entities
+		Employee 
+		Department
+	foreign_keys
+		manager   : Employee -&gt; Employee
+		worksIn   : Employee -&gt; Department
+		secretary : Department -&gt; Employee
+	path_equations 
+		Employee.manager.worksIn = Employee.worksIn
+  		Department.secretary.worksIn = Department
+//  	Employee.manager.manager = Employee.manager
+  	attributes
+  		first last	: Employee -&gt; String
+     	name 		: Department -&gt; String
+}
+
+instance EmpInstance = literal : EmpSchema {
+	generators 
+		101 102 103 : Employee
+		q10 x02 : Department
+	equations 
+		manager(101) = 103  worksIn(101) = q10  first(101) = Al    last(101) = Akin
+		manager(102) = 102  worksIn(102) = x02  first(102) = Bob   last(102) = Bo
+		manager(103) = 103  worksIn(103) = q10  first(103) = Carl  last(103) = Cork
+
+		secretary(q10) = 101  name(q10) = Math
+		secretary(x02) = 102  name(x02) = CS
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// example sigma/delta data migrations 
+
+schema S = literal : Ty {
+	entities
+		N1 N2
+	foreign_keys
+		f : N1 -&gt; N2 //
+	attributes		
+		name : N1 -&gt; String
+		salary : N1 -&gt; Int
+		age : N2 -&gt; Int
+}
+
+schema T = literal : Ty {
+	entities
+		N
+	attributes		
+		name : N -&gt; String
+		salary : N -&gt; Int
+		age : N -&gt; Int
+}
+
+mapping F = literal : S -&gt; T {
+	entity
+		N1 -&gt; N
+	foreign_keys
+		f -&gt; identity //
+	attributes
+		name -&gt; name
+		salary -&gt; salary
+
+	entity
+		N2 -&gt; N
+	attributes
+		age -&gt; age
+}
+
+instance I = literal : S {
+	generators
+		1 2 3 : N1
+		4 5 6 : N2
+	equations
+		name(1) = Alice  salary(1) = 100  
+		name(2) = Bob    salary(2) = 250  
+		name(3) = Sue    salary(3) = 300  
+
+		age(4) = 20  age(5) = 20  age(6) = 30
+
+		f(1) = 4  f(2) = 5  f(3) = 6 //
+}
+
+instance sigmaFI = sigma F I
+instance deltaFsigmaFI = delta F sigmaFI
+transform unitSigmaFDeltaF = unit F I //is identity
+
+query Q = literal : T -&gt; S {
+	entity
+		N1 -&gt; {from n1:N attributes name -&gt; n1.name salary -&gt; n1.salary 
+		foreign_keys f -&gt; {n2 -&gt; n1}}
+	entity	N2 -&gt; {from n2:N attributes age -&gt; n2.age}
+	
+}
+
+instance coevalQI = coeval Q I
+instance evalcoevalQI = eval Q coevalQI
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// select-from-where syntax to find the name of every manager's department
+
+schema DeptNameSchema = literal : Ty {
+	entities
+		Manager
+	attributes
+		deptName : Manager -&gt; String	
+}
+
+query Query = literal : EmpSchema -&gt; DeptNameSchema {
+	entity
+		Manager -&gt; {from e:Employee
+					attributes deptName -&gt; e.manager.worksIn.name}		
+}
+
+instance QueryResult = eval Query EmpInstance //has bag semantics
+
+instance QueryResultDistinct = distinct QueryResult //has set semantics
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// example richer constraint - name is a key for department
+
+constraints NameIsDeptKey = literal : EmpSchema {
+	forall d1 d2 : Department
+	where name(d1) = name(d2)
+	-&gt;
+	where d1 = d2
+}
+
+command CheckNameIsDeptKey = check NameIsDeptKey EmpInstance //the constraint holds 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// see 'Pharma Colim' example for schema and data integration
+</pre> Keywords:<br/></br>			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+			<a href="queryquery_literal.html" >query_literal</a><br />
+			<a href="instancedelta.html" >delta</a><br />
+			<a href="instancedistinct.html" >distinct</a><br />
+			<a href="instancecoeval.html" >coeval</a><br />
+			<a href="instanceeval.html" >eval</a><br />
+			<a href="schemaschema_literal.html" >schema_literal</a><br />
+			<a href="transformunit.html" >unit</a><br />
+			<a href="constraintsconstraints_literal.html" >constraints_literal</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="mappingmapping_literal.html" >mapping_literal</a><br />
+			<a href="commandcheck.html" >check</a><br />
+			<a href="instancesigma.html" >sigma</a><br />
+<br/>Options:<br/></br>
+<br/></br>
+<hr/><h3>instance evalcoevalQI</h3><div><table id="table384" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N1</b></caption><tr><th onclick="sortTable('table384', 0)">ID</th><th onclick="sortTable('table384', 1)">name</th><th onclick="sortTable('table384', 2)">salary</th><th onclick="sortTable('table384', 3)">f</th></tr><tr><td>0</td><td>Bob</td><td>250</td><td>3</td></tr><tr><td>1</td><td>Alice</td><td>100</td><td>4</td></tr><tr><td>2</td><td>Sue</td><td>300</td><td>5</td></tr></table><table id="table385" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N2</b></caption><tr><th onclick="sortTable('table385', 0)">ID</th><th onclick="sortTable('table385', 1)">age</th></tr><tr><td>3</td><td>20</td></tr><tr><td>4</td><td>20</td></tr><tr><td>5</td><td>30</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance deltaFsigmaFI</h3><div><table id="table386" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N1</b></caption><tr><th onclick="sortTable('table386', 0)">ID</th><th onclick="sortTable('table386', 1)">name</th><th onclick="sortTable('table386', 2)">salary</th><th onclick="sortTable('table386', 3)">f</th></tr><tr><td>0</td><td>Bob</td><td>250</td><td>3</td></tr><tr><td>1</td><td>Sue</td><td>300</td><td>4</td></tr><tr><td>2</td><td>Alice</td><td>100</td><td>5</td></tr></table><table id="table387" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N2</b></caption><tr><th onclick="sortTable('table387', 0)">ID</th><th onclick="sortTable('table387', 1)">age</th></tr><tr><td>3</td><td>20</td></tr><tr><td>4</td><td>30</td></tr><tr><td>5</td><td>20</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance QueryResultDistinct</h3><div><table id="table388" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Manager</b></caption><tr><th onclick="sortTable('table388', 0)">ID</th><th onclick="sortTable('table388', 1)">deptName</th></tr><tr><td>0</td><td>CS</td></tr><tr><td>1</td><td>Math</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance sigmaFI</h3><div><table id="table389" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N</b></caption><tr><th onclick="sortTable('table389', 0)">ID</th><th onclick="sortTable('table389', 1)">age</th><th onclick="sortTable('table389', 2)">name</th><th onclick="sortTable('table389', 3)">salary</th></tr><tr><td>0</td><td>20</td><td>Bob</td><td>250</td></tr><tr><td>1</td><td>30</td><td>Sue</td><td>300</td></tr><tr><td>2</td><td>20</td><td>Alice</td><td>100</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance EmpInstance</h3><div><table id="table390" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table390', 0)">ID</th><th onclick="sortTable('table390', 1)">name</th><th onclick="sortTable('table390', 2)">secretary</th></tr><tr><td>0</td><td>CS</td><td>2</td></tr><tr><td>1</td><td>Math</td><td>3</td></tr></table><table id="table391" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table391', 0)">ID</th><th onclick="sortTable('table391', 1)">first</th><th onclick="sortTable('table391', 2)">last</th><th onclick="sortTable('table391', 3)">manager</th><th onclick="sortTable('table391', 4)">worksIn</th></tr><tr><td>2</td><td>Bob</td><td>Bo</td><td>2</td><td>0</td></tr><tr><td>3</td><td>Al</td><td>Akin</td><td>4</td><td>1</td></tr><tr><td>4</td><td>Carl</td><td>Cork</td><td>4</td><td>1</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance I</h3><div><table id="table392" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N1</b></caption><tr><th onclick="sortTable('table392', 0)">ID</th><th onclick="sortTable('table392', 1)">name</th><th onclick="sortTable('table392', 2)">salary</th><th onclick="sortTable('table392', 3)">f</th></tr><tr><td>0</td><td>Bob</td><td>250</td><td>3</td></tr><tr><td>1</td><td>Sue</td><td>300</td><td>4</td></tr><tr><td>2</td><td>Alice</td><td>100</td><td>5</td></tr></table><table id="table393" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N2</b></caption><tr><th onclick="sortTable('table393', 0)">ID</th><th onclick="sortTable('table393', 1)">age</th></tr><tr><td>3</td><td>20</td></tr><tr><td>4</td><td>30</td></tr><tr><td>5</td><td>20</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance coevalQI</h3><div><table id="table394" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>N</b></caption><tr><th onclick="sortTable('table394', 0)">ID</th><th onclick="sortTable('table394', 1)">age</th><th onclick="sortTable('table394', 2)">name</th><th onclick="sortTable('table394', 3)">salary</th></tr><tr><td>0</td><td>20</td><td>Bob</td><td>250</td></tr><tr><td>1</td><td>20</td><td>Alice</td><td>100</td></tr><tr><td>2</td><td>30</td><td>Sue</td><td>300</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance QueryResult</h3><div><table id="table395" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Manager</b></caption><tr><th onclick="sortTable('table395', 0)">ID</th><th onclick="sortTable('table395', 1)">deptName</th></tr><tr><td>0</td><td>CS</td></tr><tr><td>1</td><td>Math</td></tr><tr><td>2</td><td>Math</td></tr></table></div><br style="clear:both;"/><hr/><h3>command CheckNameIsDeptKey</h3><pre>Satisfies</pre></body></html>

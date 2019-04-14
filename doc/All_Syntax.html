@@ -1,0 +1,338 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example All_Syntax</h1><pre>
+/* see options button to disable spellcheck or outline */
+
+//global options at start of file, see manual or options button
+options
+	timeout = 30
+	
+//////////// Kind comment 
+
+html { (* "some html" *) } //be sure to escape slashes and quotes
+md { (* "some markdown" *) }
+
+//////////// Kind graph
+
+graph g1 = literal {
+	nodes
+		n1 n2
+	edges
+		f : n1 -&gt; n2		
+}
+
+//////////// Kind typeside
+
+typeside ty1 = empty
+typeside ty2 = sql
+typeside ty3 = typesideOf (empty : ty1)
+typeside ty4 = literal {
+	imports //order of sections (imports, types, ...) matters, but sections can be omitted
+		ty1 
+	types
+		Nat	
+	constants
+		zero : Nat
+	functions
+		succ : Nat -&gt; Nat
+		plus : Nat, Nat -&gt; Nat
+	java_types 
+	 	String = "java.lang.String"
+	java_constants
+	 	String = "return input[0]"	
+	java_functions
+	 	append : String, String -&gt; String = "return input[0] + input[1]"		
+	equations	
+		forall x. plus(zero, x) = x
+	 	forall x, y. plus(succ(x),y) = succ(plus(x,y))
+	 options
+	 	prover = completion	
+}
+
+//////////// Kind schema
+
+schema s1 = empty : ty2
+schema s2 = schemaOf (empty : s1)
+schema s3 = literal : ty4 {
+	imports 
+		s1
+	entities
+		Employee 
+		Department
+	foreign_keys
+		manager   : Employee -&gt; Employee
+		worksIn   : Employee -&gt; Department
+		secretary : Department -&gt; Employee
+	path_equations 
+		Employee.manager.manager = Employee.manager
+		Employee.manager.worksIn = Employee.worksIn
+  		Department.secretary.worksIn = Department 
+  	attributes
+  		ename	: Employee -&gt; String
+     	age			: Employee -&gt; Nat
+     	cummulative_age: Employee -&gt; Nat
+     	dname 		: Department -&gt; String
+     observation_equations
+     	forall e. cummulative_age(e) = plus(age(e), age(manager(e)))
+	options
+		prover = completion		
+}
+// getSchema - see Tutorial\ TSP.aql for an example
+
+//////////// Kind mapping
+
+mapping m0 = include s1 s1
+mapping m1 = identity s1
+mapping m2 = [m1 ; m1]
+mapping m3 = literal : s3 -&gt; s3 {
+	entity
+		Employee -&gt; Employee
+	foreign_keys
+		manager -&gt; manager.manager
+		worksIn -&gt; worksIn
+	attributes
+		ename -&gt; manager.ename
+		age -&gt; manager.age
+		cummulative_age -&gt; lambda e. (age(e) plus age(e))
+
+	entity
+		Department -&gt; Department
+	foreign_keys	
+		secretary -&gt; secretary
+	attributes
+		dname -&gt; dname	
+		
+	options
+		dont_validate_unsafe = true // this isn't a real mapping		
+}
+//getMapping - see FinanceColim2
+
+//////////// Kind query
+
+query q1 = identity s1
+query q0 = include s1 s1
+query q2 = literal : s3 -&gt; s3 {
+	entity
+		Employee -&gt; {from e:Employee d:Department
+		 		      where e.worksIn = d
+		 		      attributes ename -&gt; e.ename
+		 		      	     age -&gt; e.age
+		 		      	     cummulative_age -&gt; e.cummulative_age
+		 		      foreign_keys 
+		 		      manager -&gt; {e -&gt; e.manager d -&gt; d}
+					worksIn -&gt; {d -&gt; e.worksIn}
+   }
+	entity	Department -&gt; {from d:Department
+						attributes dname -&gt; d.dname
+						foreign_keys secretary -&gt; {d -&gt; d e -&gt; d.secretary} }
+	options
+		dont_validate_unsafe = true // this isn't a real query		
+}
+query q3 = simple : s3 {
+	from e:Employee
+	where e.ename = bill
+	attributes * mgrName -&gt; e.manager.ename
+	options
+		prover = completion
+}
+//eval q4 ~ delta m3 and coeval q4 ~ sigma m3
+query q4 = toQuery m3 { options dont_validate_unsafe = true } // this isn't a real query 
+
+//coeval q4 ~ delta (id s3) and eval q4 ~ pi (id s3)
+query q5 = toCoQuery identity s2 { 
+	options 
+		prover = completion 
+		query_remove_redundancy = false //this increases the proving burden on this example
+}
+query q6 = [ identity s2 ; identity s2 ]
+query q7 = fromCoSpan m0 m0
+schema s4 = dom_q q1
+schema s5 = cod_q q1
+schema s6 = dom_m m1
+schema s7 = cod_m m1
+//import_jdbc_all - see JDBCSQL example
+
+//////////// Kind instance
+instance i1 = empty : s3
+instance i0 = except (empty : s1) (empty : s1)
+instance i2 = distinct i1
+instance i3 = dom_t (identity i1)
+instance i4 = cod_t (identity i1)
+instance i5 = eval (identity s3) i1
+instance i6 = coeval (identity s3) i1 { options prover = completion }
+instance i7 = sigma (identity s3) i1 { options prover = completion }
+instance i8 = delta (identity s3) i1
+instance i20 = coproduct i1 + i2 : s3 { options prover = completion }
+instance i11 = coequalize (identity i1) (identity i1) { options prover = completion }
+instance i12 = chase literal : s3 { } i3 
+instance i15 = anonymize i12
+instance i16 = frozen q3 Q
+instance i17 = pi (identity s2) (empty : s2) { options prover = completion }
+instance i18 = cascade_delete i1 : s3
+//random -- see delta example
+//import_jdbc -- see JDBC example
+//import_jdbc_all -- see JDBC example
+//quotient_jdbc -- see JDBC example
+//quotient_csv -- see JDBC example (yes, JDBC example)
+//import_csv -- See FinanceColim1 example
+//quotient_query - see Link example
+
+instance i13 = literal : s3 {
+	generators 
+		e : Employee
+	equations 
+		e.manager = e
+		e.worksIn.secretary = e
+	multi_equations
+		ename -&gt; {e Al, e.manager Al}		
+	options
+		prover = completion
+} 
+
+
+
+//////////// Kind transform
+
+transform ta = except_return (empty : s1) (empty : s1)
+transform tb = except (identity (empty : s1)) (empty : s1)
+transform t0 = include i1 i1
+transform t1 = identity i1
+transform t2 = [t1 ; t1]
+transform t3 = distinct t1
+transform t3x= distinct_return i1
+transform t4 = eval (identity s3) t1
+//the { options } blocks are optional
+transform t5 = coeval (identity s3) t1 { options prover = completion } { options prover = completion } 
+transform t6 = sigma (identity s3) t1 { options prover = completion } { options prover = completion } 
+transform t6x= pi (identity s1) (identity (empty : s1)) { options prover = completion } { options prover = completion } 
+transform t7 = delta (identity s3) t1
+transform t8 = unit (identity s3) i1 { options prover = completion } 
+transform t9 = counit (identity s3) i1 { options prover = completion } 
+transform t10= counit_query (identity s3) i1 { options prover = completion }
+//import_jdbc - see JDBC example
+//import_csv - see Finance Colim example
+transform t11= literal : i13 -&gt; i13 {
+	generators
+		e -&gt; e.manager
+}
+//frozen transform - see compose example
+
+//////////// Kind constraints
+constraints c0 = empty : s3
+constraints c1 = literal : s3 {
+	forall e:Employee d:Department
+	where e.worksIn = d
+	-&gt;
+	exists e0:Employee
+	where e0.ename = e.ename
+
+	forall e:Employee
+	-&gt;
+	where e = e
+
+	options prover = completion
+	 prover_simplify_max = 64
+}
+
+//////////// Kind pragma
+
+command p1 = check c1 i3 //check instance against constraints
+command p2 = assert_consistent i3 
+command p3 = exec_cmdline {
+//	"echo hello"
+//	"echo world"
+}
+command p4 = exec_js {
+	"1+2;"
+	"2+3;"
+}
+query q8 = fromConstraints 0 c1  
+constraints cx = fromSchema s1
+
+//check_query -- see Query ED example
+
+//exec_jdbc - see JDBC example
+//export_jdbc_instance - see JDBC example
+//export_jdbc_query - see JDBC example
+//export_jdbc_transform - see JDBC example
+
+//export_instance_csv - see FinanceColim1 example
+//export_transform_csv - see FinanceColim1 example
+
+
+//////////// Kind colimit_schema
+
+//quotient - see PharmaColim2
+//coproduct - see PharmaColim2
+//modify - see PharmaColim2
+//colimit - unnecessarily verbose; recommend quotient instead 
+//wrap - see manual; recommend quotient instead
+</pre> Keywords:<br/></br>			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="commandexec_js.html" >exec_js</a><br />
+			<a href="commandexec_cmdline.html" >exec_cmdline</a><br />
+			<a href="commandassert_consistent.html" >assert_consistent</a><br />
+			<a href="commandcheck.html" >check</a><br />
+			<a href="constraintsconstraints_literal.html" >constraints_literal</a><br />
+			<a href="constraintsfromSchema.html" >fromSchema</a><br />
+			<a href="transformtransform_literal.html" >transform_literal</a><br />
+			<a href="typesidetypesideOf.html" >typesideOf</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="instancedistinct.html" >distinct</a><br />
+			<a href="instanceempty.html" >empty</a><br />
+			<a href="instanceexcept.html" >except</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="transformexcept_return.html" >except_return</a><br />
+			<a href="commentsome.html" >some</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="transformdistinct.html" >distinct</a><br />
+			<a href="transformtransform_compose.html" >transform_compose</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="graphgraph_literal.html" >graph_literal</a><br />
+			<a href="mappingmapping_literal.html" >mapping_literal</a><br />
+			<a href="mappingmapping_compose.html" >mapping_compose</a><br />
+			<a href="mappingmapping_identity.html" >mapping_identity</a><br />
+			<a href="schemacod_m.html" >cod_m</a><br />
+			<a href="schemadom_m.html" >dom_m</a><br />
+			<a href="schemacod_q.html" >cod_q</a><br />
+			<a href="schemadom_q.html" >dom_q</a><br />
+			<a href="schemaschema_literal.html" >schema_literal</a><br />
+			<a href="schemaschemaOf.html" >schemaOf</a><br />
+			<a href="schemaempty.html" >empty</a><br />
+			<a href="instancecoproduct.html" >coproduct</a><br />
+			<a href="instancecascade_delete.html" >cascade_delete</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="instancefrozen.html" >frozen</a><br />
+			<a href="instanceanonymize.html" >anonymize</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="instanceinstance_identity.html" >instance_identity</a><br />
+			<a href="typesidesql.html" >sql</a><br />
+			<a href="typesideempty.html" >empty</a><br />
+			<a href="transformtransform_identity.html" >transform_identity</a><br />
+			<a href="transformdistinct_return.html" >distinct_return</a><br />
+			<a href="queryfromConstraints.html" >fromConstraints</a><br />
+			<a href="queryfromCoSpan.html" >fromCoSpan</a><br />
+			<a href="queryquery_compose.html" >query_compose</a><br />
+			<a href="queryquery_identity.html" >query_identity</a><br />
+			<a href="querytoQuery.html" >toQuery</a><br />
+			<a href="querysimple.html" >simple</a><br />
+			<a href="queryquery_literal.html" >query_literal</a><br />
+			<a href="queryquery_identity.html" >query_identity</a><br />
+<br/>Options:<br/></br><a href="prover.html" >prover</a><br/>
+<a href="dont_validate_unsafe.html" >dont_validate_unsafe</a><br/>
+<a href="query_remove_redundancy.html" >query_remove_redundancy</a><br/>
+<a href="prover_simplify_max.html" >prover_simplify_max</a><br/>
+
+<br/></br>
+<hr/><h3>instance i20</h3><div><table id="table0" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table0', 0)">ID</th><th onclick="sortTable('table0', 1)">dname</th><th onclick="sortTable('table0', 2)">secretary</th></tr></table><table id="table1" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table1', 0)">ID</th><th onclick="sortTable('table1', 1)">age</th><th onclick="sortTable('table1', 2)">cummulative_age</th><th onclick="sortTable('table1', 3)">ename</th><th onclick="sortTable('table1', 4)">manager</th><th onclick="sortTable('table1', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i11</h3><div><table id="table2" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table2', 0)">ID</th><th onclick="sortTable('table2', 1)">dname</th><th onclick="sortTable('table2', 2)">secretary</th></tr></table><table id="table3" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table3', 0)">ID</th><th onclick="sortTable('table3', 1)">age</th><th onclick="sortTable('table3', 2)">cummulative_age</th><th onclick="sortTable('table3', 3)">ename</th><th onclick="sortTable('table3', 4)">manager</th><th onclick="sortTable('table3', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i12</h3><div><table id="table4" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table4', 0)">ID</th><th onclick="sortTable('table4', 1)">dname</th><th onclick="sortTable('table4', 2)">secretary</th></tr></table><table id="table5" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table5', 0)">ID</th><th onclick="sortTable('table5', 1)">age</th><th onclick="sortTable('table5', 2)">cummulative_age</th><th onclick="sortTable('table5', 3)">ename</th><th onclick="sortTable('table5', 4)">manager</th><th onclick="sortTable('table5', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i13</h3><div><table id="table6" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table6', 0)">ID</th><th onclick="sortTable('table6', 1)">dname</th><th onclick="sortTable('table6', 2)">secretary</th></tr><tr><td>0</td><td>?0</td><td>1</td></tr></table><table id="table7" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table7', 0)">ID</th><th onclick="sortTable('table7', 1)">age</th><th onclick="sortTable('table7', 2)">cummulative_age</th><th onclick="sortTable('table7', 3)">ename</th><th onclick="sortTable('table7', 4)">manager</th><th onclick="sortTable('table7', 5)">worksIn</th></tr><tr><td>1</td><td>?1</td><td>(?1 plus ?1)</td><td>Al</td><td>1</td><td>0</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance i15</h3><div><table id="table8" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table8', 0)">ID</th><th onclick="sortTable('table8', 1)">dname</th><th onclick="sortTable('table8', 2)">secretary</th></tr></table><table id="table9" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table9', 0)">ID</th><th onclick="sortTable('table9', 1)">age</th><th onclick="sortTable('table9', 2)">cummulative_age</th><th onclick="sortTable('table9', 3)">ename</th><th onclick="sortTable('table9', 4)">manager</th><th onclick="sortTable('table9', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i16</h3><div><table id="table10" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table10', 0)">ID</th><th onclick="sortTable('table10', 1)">dname</th><th onclick="sortTable('table10', 2)">secretary</th></tr><tr><td>0</td><td>?0</td><td>3</td></tr></table><table id="table11" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table11', 0)">ID</th><th onclick="sortTable('table11', 1)">age</th><th onclick="sortTable('table11', 2)">cummulative_age</th><th onclick="sortTable('table11', 3)">ename</th><th onclick="sortTable('table11', 4)">manager</th><th onclick="sortTable('table11', 5)">worksIn</th></tr><tr><td>1</td><td>?1</td><td>(?1 plus ?2)</td><td>bill</td><td>2</td><td>0</td></tr><tr><td>2</td><td>?2</td><td>(?2 plus ?2)</td><td>?3</td><td>2</td><td>0</td></tr><tr><td>3</td><td>?4</td><td>(?4 plus ?5)</td><td>?6</td><td>4</td><td>0</td></tr><tr><td>4</td><td>?5</td><td>(?5 plus ?5)</td><td>?7</td><td>4</td><td>0</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance i18</h3><div><table id="table12" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table12', 0)">ID</th><th onclick="sortTable('table12', 1)">dname</th><th onclick="sortTable('table12', 2)">secretary</th></tr></table><table id="table13" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table13', 0)">ID</th><th onclick="sortTable('table13', 1)">age</th><th onclick="sortTable('table13', 2)">cummulative_age</th><th onclick="sortTable('table13', 3)">ename</th><th onclick="sortTable('table13', 4)">manager</th><th onclick="sortTable('table13', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i8</h3><div><table id="table14" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table14', 0)">ID</th><th onclick="sortTable('table14', 1)">dname</th><th onclick="sortTable('table14', 2)">secretary</th></tr></table><table id="table15" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table15', 0)">ID</th><th onclick="sortTable('table15', 1)">age</th><th onclick="sortTable('table15', 2)">cummulative_age</th><th onclick="sortTable('table15', 3)">ename</th><th onclick="sortTable('table15', 4)">manager</th><th onclick="sortTable('table15', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i7</h3><div><table id="table16" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table16', 0)">ID</th><th onclick="sortTable('table16', 1)">dname</th><th onclick="sortTable('table16', 2)">secretary</th></tr></table><table id="table17" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table17', 0)">ID</th><th onclick="sortTable('table17', 1)">age</th><th onclick="sortTable('table17', 2)">cummulative_age</th><th onclick="sortTable('table17', 3)">ename</th><th onclick="sortTable('table17', 4)">manager</th><th onclick="sortTable('table17', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i6</h3><div><table id="table18" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table18', 0)">ID</th><th onclick="sortTable('table18', 1)">dname</th><th onclick="sortTable('table18', 2)">secretary</th></tr></table><table id="table19" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table19', 0)">ID</th><th onclick="sortTable('table19', 1)">age</th><th onclick="sortTable('table19', 2)">cummulative_age</th><th onclick="sortTable('table19', 3)">ename</th><th onclick="sortTable('table19', 4)">manager</th><th onclick="sortTable('table19', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i5</h3><div><table id="table20" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table20', 0)">ID</th><th onclick="sortTable('table20', 1)">dname</th><th onclick="sortTable('table20', 2)">secretary</th></tr></table><table id="table21" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table21', 0)">ID</th><th onclick="sortTable('table21', 1)">age</th><th onclick="sortTable('table21', 2)">cummulative_age</th><th onclick="sortTable('table21', 3)">ename</th><th onclick="sortTable('table21', 4)">manager</th><th onclick="sortTable('table21', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i4</h3><div><table id="table22" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table22', 0)">ID</th><th onclick="sortTable('table22', 1)">dname</th><th onclick="sortTable('table22', 2)">secretary</th></tr></table><table id="table23" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table23', 0)">ID</th><th onclick="sortTable('table23', 1)">age</th><th onclick="sortTable('table23', 2)">cummulative_age</th><th onclick="sortTable('table23', 3)">ename</th><th onclick="sortTable('table23', 4)">manager</th><th onclick="sortTable('table23', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i3</h3><div><table id="table24" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table24', 0)">ID</th><th onclick="sortTable('table24', 1)">dname</th><th onclick="sortTable('table24', 2)">secretary</th></tr></table><table id="table25" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table25', 0)">ID</th><th onclick="sortTable('table25', 1)">age</th><th onclick="sortTable('table25', 2)">cummulative_age</th><th onclick="sortTable('table25', 3)">ename</th><th onclick="sortTable('table25', 4)">manager</th><th onclick="sortTable('table25', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i2</h3><div><table id="table26" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table26', 0)">ID</th><th onclick="sortTable('table26', 1)">dname</th><th onclick="sortTable('table26', 2)">secretary</th></tr></table><table id="table27" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table27', 0)">ID</th><th onclick="sortTable('table27', 1)">age</th><th onclick="sortTable('table27', 2)">cummulative_age</th><th onclick="sortTable('table27', 3)">ename</th><th onclick="sortTable('table27', 4)">manager</th><th onclick="sortTable('table27', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i1</h3><div><table id="table28" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Department</b></caption><tr><th onclick="sortTable('table28', 0)">ID</th><th onclick="sortTable('table28', 1)">dname</th><th onclick="sortTable('table28', 2)">secretary</th></tr></table><table id="table29" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Employee</b></caption><tr><th onclick="sortTable('table29', 0)">ID</th><th onclick="sortTable('table29', 1)">age</th><th onclick="sortTable('table29', 2)">cummulative_age</th><th onclick="sortTable('table29', 3)">ename</th><th onclick="sortTable('table29', 4)">manager</th><th onclick="sortTable('table29', 5)">worksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>instance i0</h3><div></div><br style="clear:both;"/><hr/><h3>instance i17</h3><div></div><br style="clear:both;"/><hr/><h3>command p4</h3><pre>1+2; : 3
+2+3; : 5</pre><hr/><h3>command p3</h3><pre></pre><hr/><h3>command p2</h3><pre>Consistent</pre><hr/><h3>command p1</h3><pre>Satisfies</pre></body></html>

@@ -1,0 +1,74 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example Joinless</h1><pre>
+typeside Ty = literal { 
+	java_types
+		String = "java.lang.String"
+	java_constants
+		String = "return input[0]"
+}
+
+schema Schools = literal : Ty {
+	entities 
+		Person
+		School
+		Dept
+	foreign_keys
+	     instituteOf : Person -&gt; School 
+	     deptOf      : Person -&gt; Dept
+	     biggestDept : School -&gt; Dept
+	attributes
+		lastName    : Person -&gt; String
+	     schoolName  : School -&gt; String
+	     deptName    : Dept   -&gt; String
+}
+
+instance BostonSchools = literal : Schools {
+	generators 
+		ryan david adam greg gregory jason : Person
+	     harvard mit : School
+	     math cs : Dept
+	multi_equations 
+		lastName -&gt; {ryan Wisnesky, david Spivak, adam Chlipala, greg Morrisett, gregory Malecha, jason Gross}
+		schoolName -&gt; {harvard Harvard, mit MIT}
+		deptName -&gt; {math Mathematics, cs CompSci}
+		instituteOf -&gt; {ryan harvard, david mit, adam mit, greg harvard, gregory harvard, jason mit}
+		deptOf -&gt; {ryan math, david math, adam cs, greg cs, gregory cs, jason cs}
+		biggestDept -&gt; {harvard math, mit cs}
+}
+
+
+schema Person = literal : Ty {
+	entities 
+		Person
+	attributes
+		lastName   : Person -&gt; String
+		schoolName : Person -&gt; String
+}
+
+//Find all the people whose school's biggest department is Mathematics
+query BiggestDeptIsMathQuery = literal : Schools -&gt; Person {
+	entity
+		Person -&gt; {from   p:Person
+				 where  p.instituteOf.biggestDept.deptName = Mathematics
+				 attributes lastName -&gt; p.lastName 
+			  		   schoolName -&gt; p.instituteOf.schoolName}
+} 
+
+//simpler, dynamic version of the above query
+query BiggestDeptIsMathQuery_simple = simple : Schools  {
+	from   p:Person
+	where  p.instituteOf.biggestDept.deptName = Mathematics
+    attributes lastName -&gt; p.lastName 
+    schoolName -&gt; p.instituteOf.schoolName
+} 
+
+instance BiggestDeptIsMathInBoston = eval BiggestDeptIsMathQuery BostonSchools
+</pre> Keywords:<br/></br>			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+			<a href="schemaschema_literal.html" >schema_literal</a><br />
+			<a href="queryquery_literal.html" >query_literal</a><br />
+			<a href="querysimple.html" >simple</a><br />
+			<a href="instanceeval.html" >eval</a><br />
+<br/>Options:<br/></br>
+<br/></br>
+<hr/><h3>instance BostonSchools</h3><div><table id="table380" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Dept</b></caption><tr><th onclick="sortTable('table380', 0)">ID</th><th onclick="sortTable('table380', 1)">deptName</th></tr><tr><td>0</td><td>Mathematics</td></tr><tr><td>1</td><td>CompSci</td></tr></table><table id="table381" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Person</b></caption><tr><th onclick="sortTable('table381', 0)">ID</th><th onclick="sortTable('table381', 1)">lastName</th><th onclick="sortTable('table381', 2)">deptOf</th><th onclick="sortTable('table381', 3)">instituteOf</th></tr><tr><td>2</td><td>Chlipala</td><td>1</td><td>9</td></tr><tr><td>3</td><td>Morrisett</td><td>1</td><td>8</td></tr><tr><td>4</td><td>Wisnesky</td><td>0</td><td>8</td></tr><tr><td>5</td><td>Gross</td><td>1</td><td>9</td></tr><tr><td>6</td><td>Spivak</td><td>0</td><td>9</td></tr><tr><td>7</td><td>Malecha</td><td>1</td><td>8</td></tr></table><table id="table382" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>School</b></caption><tr><th onclick="sortTable('table382', 0)">ID</th><th onclick="sortTable('table382', 1)">schoolName</th><th onclick="sortTable('table382', 2)">biggestDept</th></tr><tr><td>8</td><td>Harvard</td><td>0</td></tr><tr><td>9</td><td>MIT</td><td>1</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance BiggestDeptIsMathInBoston</h3><div><table id="table383" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Person</b></caption><tr><th onclick="sortTable('table383', 0)">ID</th><th onclick="sortTable('table383', 1)">lastName</th><th onclick="sortTable('table383', 2)">schoolName</th></tr><tr><td>0</td><td>Morrisett</td><td>Harvard</td></tr><tr><td>1</td><td>Wisnesky</td><td>Harvard</td></tr><tr><td>2</td><td>Malecha</td><td>Harvard</td></tr></table></div><br style="clear:both;"/></body></html>

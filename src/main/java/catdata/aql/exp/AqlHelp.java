@@ -34,6 +34,7 @@ import catdata.aql.exp.InstExp.InstExpLit;
 import catdata.aql.exp.InstExp.InstExpVar;
 import catdata.aql.exp.MapExp.MapExpLit;
 import catdata.aql.exp.MapExp.MapExpVar;
+import catdata.aql.exp.MorExp.MorExpVar;
 import catdata.aql.exp.PragmaExp.PragmaExpCheck;
 import catdata.aql.exp.PragmaExp.PragmaExpConsistent;
 import catdata.aql.exp.PragmaExp.PragmaExpJs;
@@ -72,7 +73,7 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class AqlHelp implements
-		ExpVisitor<Unit, String, String, String, String, String, String, String, String, String, String, String, String, RuntimeException> {
+		ExpVisitor<Unit, String, String, String, String, String, String, String, String, String, String, String, String, String, RuntimeException> {
 
 	static String xxx = "Associated with each object is a size, according to its kind:"
 			+ "\nitem command, constraints: length of the text string" + "\n instance: rows in the algebra"
@@ -553,6 +554,11 @@ public class AqlHelp implements
 	public String visit(Unit params, MapExpRaw exp) {
 		return "A mapping literal, or derived theory morphism, constant on type sides.  Each source entity maps to a target entity, each foreign key to a path, and each attribute to a lambda term with one variable.  See All_Syntax for an example.";
 	}
+	
+	@Override
+	public String visit(Unit params, MorExpRaw exp) {
+		return "A theory morphism literal, or derived theory morphism.  Each source type maps to a target type, each function to a lambda term.  See Theory_Mor for an example.";
+	}
 
 	@Override
 	public String visit(Unit params, MapExpColim exp) {
@@ -857,7 +863,6 @@ public class AqlHelp implements
 					+ "    if ($file == 'logo.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'options.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'examples.html') {\n" + "        continue;   \n" + "    }\n"
-					+ "    if ($file == 'errata.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'syntax.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    $content = file_get_contents($file->getPathname());\n" + "    \n"
 					+ "    if (strpos($content, $string) !== false) {\n"
@@ -932,28 +937,18 @@ public class AqlHelp implements
 			}
 			examples.append("\n</body></html>");
 
-			StringBuffer errata = new StringBuffer("");
-			errata.append("<html><head>" + css + "</head><body>");
-			errata.append("<h1>Errata</h1>");
-			errata.append("\n<br/>");
-			errata.append("\n<ul>");
-			errata.append("\n<li>MySQL JDBC driver version 8 is buggy, version 5 works correctly.</li>");
-			errata.append("\n<li>The CQL IDE's memory usage increases monotonically.</li>");
-			errata.append("\n</ul>");
-			errata.append("\n</body></html>");
-
+		
 			StringBuffer logo = new StringBuffer("");
 			logo.append("<html><head>" + css + "</head><body>");
 			logo.append("<h1>CQL Docs</h1>");
 			logo.append("\n<br/>");
-			logo.append("\n<a href=\"https://categoricaldata.net/help.html\" target=\"primary\">Help</a><br />");
+			logo.append("\n<a href=\"https://categoricaldata.github.io/CQL/\" target=\"primary\">Help</a><br />");
 			logo.append("\n<br />");
 			logo.append("\n<a href=\"syntax.html\" target=\"tree\">Syntax</a><br />");
 			logo.append("\n<a href=\"options.html\" target=\"tree\">Options</a><br />");
 			logo.append("\n<a href=\"examples.html\" target=\"tree\">Examples</a><br />");
 			logo.append("\n<a href=\"search.php\" target=\"primary\">Search</a><br />");
-			logo.append("\n<a href=\"errata.html\" target=\"primary\">Errata</a><br />");
-
+		
 			logo.append("\n<br />");
 			logo.append("\n<a href=\"https://catinf.com\" target=\"_blank\">CI Website</a><br />");
 			logo.append("\n<a href=\"https://categoricaldata.net/aql.html\" target=\"_blank\">MIT Website</a><br />");
@@ -1065,7 +1060,6 @@ public class AqlHelp implements
 			options.append("\n</body></html>");
 			
 
-			Util.writeFile(errata.toString(), new File(dir, "errata.html").getAbsolutePath());
 			Util.writeFile(options.toString(), new File(dir, "options.html").getAbsolutePath());
 			Util.writeFile(examples.toString(), new File(dir, "examples.html").getAbsolutePath());
 			Util.writeFile(main.toString(), new File(dir, "index.html").getAbsolutePath());
@@ -1144,6 +1138,11 @@ public class AqlHelp implements
 	@Override
 	public String visit(Unit params, EdsExpSch exp) throws RuntimeException {
 		return "Turns path / observation equations intro constraints.";
+	}
+
+	@Override
+	public String visit(Unit params, MorExpVar exp) throws RuntimeException {
+		return "A theory morphism variable.";
 	}
 
 }

@@ -4,19 +4,20 @@ import com.github.rjeschke.txtmark.Processor;
 
 import catdata.Program;
 import catdata.Unit;
+import catdata.aql.ColimitSchema;
 import catdata.aql.Comment;
 import catdata.aql.Constraints;
 import catdata.aql.Graph;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
+import catdata.aql.Mor;
 import catdata.aql.Pragma;
 import catdata.aql.Query;
 import catdata.aql.Schema;
 import catdata.aql.SemanticsVisitor;
 import catdata.aql.Transform;
 import catdata.aql.TypeSide;
-import catdata.aql.fdm.ColimitSchema;
 import catdata.graph.DMG;
 
 public final class AqlDoc implements SemanticsVisitor<String, Unit, RuntimeException> {
@@ -133,6 +134,11 @@ public final class AqlDoc implements SemanticsVisitor<String, Unit, RuntimeExcep
 
 	@Override
 	public String visit(String k, Unit arg, Constraints S) throws RuntimeException {
+		return "";
+	}
+
+	@Override
+	public <T, C, T0, C0> String visit(String k, Unit arg, Mor<T, C, T0, C0> M) throws RuntimeException {
 		return "";
 	}
 

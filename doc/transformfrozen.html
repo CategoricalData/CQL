@@ -1,0 +1,19 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>transform frozen</h1>
+<pre>
+typeside t
+schema s2 : t
+schema s1 : t
+query q : s1 -> s2
+----------------------------------
+transform (frozen qlambda var:entity. term : entity_or_type) : frozen q entity_or_type -> frozen q entity
+	</pre>
+Given a term in context x:E |- e : t in the target of a query, returns a transform frozen t -> frozen E.<br/><br/>Appears in:<br/><br/>
+<a href="Compose.html" target="primary">Compose</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

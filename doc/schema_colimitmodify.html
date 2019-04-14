@@ -1,0 +1,22 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>schema_colimit modify</h1>
+<pre>
+typeside t
+schema_colimit sc : {}
+----------------------------------
+schema_colimit (modify sc {})
+	</pre>
+Modifies a schema colimit by a sequence of entity and column renamings and removals.  A mapping name to name to  specifying a renaming of entities, foreign keys, and attributes.  Then, mapping name to path specifying that the foreign key named by name can be deleted by replacing all occurrences of it by the given path.  CQL checks if the removal is semantics-preserving. 
+
+Finally a mapping name to lambda x. term specifying that the attribute name can be deleted by replacing all occurrences of it by the given term.  CQL checks if the removal is semantics-preserving. 
+<br/><br/>Appears in:<br/><br/>
+<a href="Demo.html" target="primary">Demo</a><br />
+<a href="PharmaColim2.html" target="primary">PharmaColim2</a><br />
+<a href="TutorialTSP.html" target="primary">TutorialTSP</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

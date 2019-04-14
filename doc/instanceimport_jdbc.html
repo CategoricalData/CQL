@@ -1,0 +1,74 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>instance import_jdbc</h1>
+<pre>
+typeside t
+schema s : t
+----------------------------------
+instance (import_jdbc s  "jdbc_string") : s
+	</pre>
+An instance obtained from a JDBC connection, one SQL query per entity.  The SQL code for each entity should return a table with an ID column and one column per attribute/foreign key from that table.  Note that these tables must be complete: this keyword imports a model (set of tables) of a schema, not a presentation of a model of a schema (i.e., as  literal does).  To import an instance as a theory, use the  import_as_theory option.  When the [jdbcclass] and [jdbcuri] are the empty string, their values will be determined by the  jdbc_default_class and  jdbc_default_string options.  See also import_missing_is_empty.<br/><br/>Appears in:<br/><br/>
+<a href="JDBCSQL.html" target="primary">JDBCSQL</a><br />
+<a href="TutorialTSP.html" target="primary">TutorialTSP</a><br /><br/>Options:<br/><br/><a href="allow_empty_sorts_unsafe.html" target="primary">allow_empty_sorts_unsafe</a>
+<br/>
+<a href="allow_java_eqs_unsafe.html" target="primary">allow_java_eqs_unsafe</a>
+<br/>
+<a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="completion_compose.html" target="primary">completion_compose</a>
+<br/>
+<a href="completion_filter_subsumed.html" target="primary">completion_filter_subsumed</a>
+<br/>
+<a href="completion_precedence.html" target="primary">completion_precedence</a>
+<br/>
+<a href="completion_sort.html" target="primary">completion_sort</a>
+<br/>
+<a href="completion_syntactic_ac.html" target="primary">completion_syntactic_ac</a>
+<br/>
+<a href="completion_unfailing.html" target="primary">completion_unfailing</a>
+<br/>
+<a href="csv_import_prefix.html" target="primary">csv_import_prefix</a>
+<br/>
+<a href="dont_verify_is_appropriate_for_prover_unsafe.html" target="primary">dont_verify_is_appropriate_for_prover_unsafe</a>
+<br/>
+<a href="e_path.html" target="primary">e_path</a>
+<br/>
+<a href="id_column_name.html" target="primary">id_column_name</a>
+<br/>
+<a href="import_as_theory.html" target="primary">import_as_theory</a>
+<br/>
+<a href="import_col_seperator.html" target="primary">import_col_seperator</a>
+<br/>
+<a href="import_dont_check_closure_unsafe.html" target="primary">import_dont_check_closure_unsafe</a>
+<br/>
+<a href="import_missing_is_empty.html" target="primary">import_missing_is_empty</a>
+<br/>
+<a href="import_null_on_err_unsafe.html" target="primary">import_null_on_err_unsafe</a>
+<br/>
+<a href="jdbc_default_class.html" target="primary">jdbc_default_class</a>
+<br/>
+<a href="jdbc_default_string.html" target="primary">jdbc_default_string</a>
+<br/>
+<a href="jdbc_quote_char.html" target="primary">jdbc_quote_char</a>
+<br/>
+<a href="maedmax_path.html" target="primary">maedmax_path</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="prepend_entity_on_ids.html" target="primary">prepend_entity_on_ids</a>
+<br/>
+<a href="program_allow_nonconfluence_unsafe.html" target="primary">program_allow_nonconfluence_unsafe</a>
+<br/>
+<a href="program_allow_nontermination_unsafe.html" target="primary">program_allow_nontermination_unsafe</a>
+<br/>
+<a href="prover.html" target="primary">prover</a>
+<br/>
+<a href="prover_simplify_max.html" target="primary">prover_simplify_max</a>
+<br/>
+<a href="require_consistency.html" target="primary">require_consistency</a>
+<br/>
+<a href="second_prover.html" target="primary">second_prover</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

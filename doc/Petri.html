@@ -1,0 +1,96 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example Petri</h1><pre>
+options  
+	diverge_warn = false
+
+schema Net = literal : empty {
+	entities
+		Input Place Trans Output
+	foreign_keys
+		place : Input -&gt; Place
+	    trans : Input -&gt; Trans
+	    place : Output -&gt; Place
+	    trans : Output -&gt; Trans
+} 
+
+/*
+ * p1 -&gt;t1-&gt; p2 -&gt;t2-&gt; p3
+ */
+instance N = literal : Net {
+	generators
+		p1 p2 p3 : Place
+		t1 t2 : Trans
+		i1 i2 : Input
+		o1 o2 : Output
+	equations
+		i1.place = p1
+		i1.trans = t1
+		o1.trans = t1
+		o1.place = p2
+
+		i2.place = p2
+		i2.trans = t2
+		o2.trans = t2
+		o2.place = p3
+		
+	options
+		interpret_as_algebra = true	
+}
+
+/*
+ entities
+	i1 i2 o1 o2 p1 p2 p3 t1 t2
+foreign_keys
+	trans : o2 -&gt; t2
+	place : o2 -&gt; p3
+	place : o1 -&gt; p2
+	trans : o1 -&gt; t1
+	trans : i2 -&gt; t2
+	place : i2 -&gt; p2
+	place : i1 -&gt; p1
+	trans : i1 -&gt; t1
+*/	
+schema intN = pivot N 
+
+mapping proj = pivot N // intN -&gt; Net
+
+constraints injectivity = literal : Net {
+	forall x y : Input
+	where x.place = y.place -&gt; where x = y
+
+	forall x y : Output
+	where x.trans = y.trans -&gt; where x = y
+}
+
+///////////////////////////////////////////////////////////////
+//example: 
+
+//this is an instance on intN and passes the injectivity check
+instance I = literal : intN {
+	generators
+		token1time1 : p1
+		token1time2 : p2
+		token1time3 : p3
+		fire12 : t1
+		fire23 : t2	
+
+	equations
+
+	options
+		interpret_as_algebra = true	
+}
+
+instance J = sigma proj I // have J = N
+
+command validate1 = check injectivity J
+</pre> Keywords:<br/></br>			<a href="constraintsconstraints_literal.html" >constraints_literal</a><br />
+			<a href="instancesigma.html" >sigma</a><br />
+			<a href="mappingpivot.html" >pivot</a><br />
+			<a href="commandcheck.html" >check</a><br />
+			<a href="schemapivot.html" >pivot</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="schemaschema_literal.html" >schema_literal</a><br />
+<br/>Options:<br/></br><a href="interpret_as_algebra.html" >interpret_as_algebra</a><br/>
+
+<br/></br>
+<hr/><h3>instance N</h3><div><table id="table413" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Input</b></caption><tr><th onclick="sortTable('table413', 0)">ID</th><th onclick="sortTable('table413', 1)">place</th><th onclick="sortTable('table413', 2)">trans</th></tr><tr><td>0</td><td>4</td><td>7</td></tr><tr><td>1</td><td>5</td><td>8</td></tr></table><table id="table414" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Output</b></caption><tr><th onclick="sortTable('table414', 0)">ID</th><th onclick="sortTable('table414', 1)">place</th><th onclick="sortTable('table414', 2)">trans</th></tr><tr><td>2</td><td>5</td><td>7</td></tr><tr><td>3</td><td>6</td><td>8</td></tr></table><table id="table415" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Place</b></caption><tr><th onclick="sortTable('table415', 0)">ID</th></tr><tr><td>4</td></tr><tr><td>5</td></tr><tr><td>6</td></tr></table><table id="table416" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Trans</b></caption><tr><th onclick="sortTable('table416', 0)">ID</th></tr><tr><td>7</td></tr><tr><td>8</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance J</h3><div><table id="table417" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Input</b></caption><tr><th onclick="sortTable('table417', 0)">ID</th><th onclick="sortTable('table417', 1)">place</th><th onclick="sortTable('table417', 2)">trans</th></tr></table><table id="table418" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Output</b></caption><tr><th onclick="sortTable('table418', 0)">ID</th><th onclick="sortTable('table418', 1)">place</th><th onclick="sortTable('table418', 2)">trans</th></tr></table><table id="table419" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Place</b></caption><tr><th onclick="sortTable('table419', 0)">ID</th></tr><tr><td>0</td></tr><tr><td>1</td></tr><tr><td>2</td></tr></table><table id="table420" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Trans</b></caption><tr><th onclick="sortTable('table420', 0)">ID</th></tr><tr><td>3</td></tr><tr><td>4</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance I</h3><div><table id="table421" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>i1</b></caption><tr><th onclick="sortTable('table421', 0)">ID</th><th onclick="sortTable('table421', 1)">place</th><th onclick="sortTable('table421', 2)">trans</th></tr></table><table id="table422" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>i2</b></caption><tr><th onclick="sortTable('table422', 0)">ID</th><th onclick="sortTable('table422', 1)">place</th><th onclick="sortTable('table422', 2)">trans</th></tr></table><table id="table423" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>o1</b></caption><tr><th onclick="sortTable('table423', 0)">ID</th><th onclick="sortTable('table423', 1)">place</th><th onclick="sortTable('table423', 2)">trans</th></tr></table><table id="table424" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>o2</b></caption><tr><th onclick="sortTable('table424', 0)">ID</th><th onclick="sortTable('table424', 1)">place</th><th onclick="sortTable('table424', 2)">trans</th></tr></table><table id="table425" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>p1</b></caption><tr><th onclick="sortTable('table425', 0)">ID</th></tr><tr><td>0</td></tr></table><table id="table426" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>p2</b></caption><tr><th onclick="sortTable('table426', 0)">ID</th></tr><tr><td>1</td></tr></table><table id="table427" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>p3</b></caption><tr><th onclick="sortTable('table427', 0)">ID</th></tr><tr><td>2</td></tr></table><table id="table428" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>t1</b></caption><tr><th onclick="sortTable('table428', 0)">ID</th></tr><tr><td>3</td></tr></table><table id="table429" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>t2</b></caption><tr><th onclick="sortTable('table429', 0)">ID</th></tr><tr><td>4</td></tr></table></div><br style="clear:both;"/><hr/><h3>command validate1</h3><pre>Satisfies</pre></body></html>

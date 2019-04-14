@@ -1,0 +1,122 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example Dopfib</h1><pre>
+schema C = literal : sql {
+ entities 
+	a1 a2 a3 b1 b2 c1 c2 c3 c4
+
+ foreign_keys
+	g1 : a1 -&gt; b1 
+	g2 : a2 -&gt; b2 
+	g3 : a3 -&gt; b2
+	h1 : a1 -&gt; c1 
+	h2 : a2 -&gt; c2 
+	h3 : a3 -&gt; c4
+	
+ attributes
+	a1_str : a1 -&gt; Varchar
+ 	a2_str : a2 -&gt; Varchar
+ 	a3_str : a3 -&gt; Varchar
+	
+	b1_str : b1 -&gt; Varchar
+ 	b2_str : b2 -&gt; Varchar
+
+ 	c1_str : c1 -&gt; Varchar
+ 	c2_str : c2 -&gt; Varchar
+ 	c3_str : c3 -&gt; Varchar
+ 	c4_str : c4 -&gt; Varchar
+}
+
+schema D = literal : sql {
+ entities 
+ 	A B C
+ foreign_keys
+ 	G : A -&gt; B 
+ 	H : A -&gt; C
+  attributes
+	A_str : A -&gt; Varchar
+ 	B_str : B -&gt; Varchar
+ 	C_str : C -&gt; Varchar	
+}
+
+mapping F = literal : C -&gt; D {
+  entity
+  	a1 -&gt; A 
+  foreign_keys
+  	h1 -&gt; H 
+  	g1 -&gt; G 
+  attributes
+  	a1_str -&gt; A_str 
+  	
+ entity
+	a2 -&gt; A 
+ foreign_keys
+	h2 -&gt; H 
+	g2 -&gt; G 
+ attributes
+	a2_str -&gt; A_str 
+
+  entity
+  	a3 -&gt; A
+  foreign_keys
+	g3 -&gt; G
+  	h3 -&gt; H
+  attributes
+  	a3_str -&gt; A_str
+
+  entity
+  	b1 -&gt; B
+  attributes
+  	b1_str -&gt; B_str 
+
+  entity
+  	b2 -&gt; B
+  attributes
+  	b2_str -&gt; B_str
+
+  entity
+  	c1 -&gt; C 
+  attributes
+  	c1_str -&gt; C_str 
+
+  entity
+  	c2 -&gt; C 
+  attributes
+  	c2_str -&gt; C_str
+
+  entity
+  	c3 -&gt; C 
+  attributes
+  	c3_str -&gt; C_str 
+
+  entity
+  	c4 -&gt; C
+  attributes
+  	c4_str -&gt; C_str
+} 
+
+instance I = random : C {
+	generators
+		a1 -&gt; 10
+		a2 -&gt; 10
+		a3 -&gt; 10
+		b1 -&gt; 10
+		b2 -&gt; 10
+		c1 -&gt; 10
+		c2 -&gt; 10
+		c3 -&gt; 10
+		c4 -&gt; 10
+	//options
+	//	random_seed = 2
+}
+
+instance J = sigma_chase F I
+
+instance J2 = sigma F I
+</pre> Keywords:<br/></br>			<a href="schemaschema_var.html" >schema_var</a><br />
+			<a href="instancesigma.html" >sigma</a><br />
+			<a href="instancesigma_chase.html" >sigma_chase</a><br />
+			<a href="instancerandom.html" >random</a><br />
+			<a href="mappingmapping_literal.html" >mapping_literal</a><br />
+<br/>Options:<br/></br>
+<br/></br>
+<hr/><h3>instance J2</h3><div><table id="table115" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>A</b></caption><tr><th onclick="sortTable('table115', 0)">ID</th><th onclick="sortTable('table115', 1)">A_str</th><th onclick="sortTable('table115', 2)">G</th><th onclick="sortTable('table115', 3)">H</th></tr><tr><td>0</td><td>?0</td><td>38</td><td>50</td></tr><tr><td>1</td><td>?0</td><td>39</td><td>51</td></tr><tr><td>2</td><td>?0</td><td>38</td><td>51</td></tr><tr><td>3</td><td>?0</td><td>33</td><td>52</td></tr><tr><td>4</td><td>?0</td><td>32</td><td>52</td></tr><tr><td>5</td><td>?0</td><td>32</td><td>53</td></tr><tr><td>6</td><td>?0</td><td>38</td><td>54</td></tr><tr><td>7</td><td>?0</td><td>31</td><td>50</td></tr><tr><td>8</td><td>?0</td><td>34</td><td>52</td></tr><tr><td>9</td><td>?0</td><td>39</td><td>55</td></tr><tr><td>10</td><td>?0</td><td>40</td><td>56</td></tr><tr><td>11</td><td>?0</td><td>41</td><td>56</td></tr><tr><td>12</td><td>?0</td><td>42</td><td>57</td></tr><tr><td>13</td><td>?0</td><td>43</td><td>58</td></tr><tr><td>14</td><td>?0</td><td>44</td><td>59</td></tr><tr><td>15</td><td>?0</td><td>45</td><td>60</td></tr><tr><td>16</td><td>?0</td><td>46</td><td>58</td></tr><tr><td>17</td><td>?0</td><td>47</td><td>61</td></tr><tr><td>18</td><td>?0</td><td>48</td><td>57</td></tr><tr><td>19</td><td>?0</td><td>44</td><td>61</td></tr><tr><td>20</td><td>?0</td><td>44</td><td>75</td></tr><tr><td>21</td><td>?0</td><td>42</td><td>74</td></tr><tr><td>22</td><td>?0</td><td>42</td><td>70</td></tr><tr><td>23</td><td>?0</td><td>44</td><td>71</td></tr><tr><td>24</td><td>?0</td><td>48</td><td>71</td></tr><tr><td>25</td><td>?0</td><td>42</td><td>70</td></tr><tr><td>26</td><td>?0</td><td>43</td><td>73</td></tr><tr><td>27</td><td>?0</td><td>46</td><td>72</td></tr><tr><td>28</td><td>?0</td><td>47</td><td>68</td></tr><tr><td>29</td><td>?0</td><td>44</td><td>68</td></tr></table><table id="table116" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>B</b></caption><tr><th onclick="sortTable('table116', 0)">ID</th><th onclick="sortTable('table116', 1)">B_str</th></tr><tr><td>30</td><td>?0</td></tr><tr><td>31</td><td>?0</td></tr><tr><td>32</td><td>?0</td></tr><tr><td>33</td><td>?0</td></tr><tr><td>34</td><td>?0</td></tr><tr><td>35</td><td>?0</td></tr><tr><td>36</td><td>?0</td></tr><tr><td>37</td><td>?0</td></tr><tr><td>38</td><td>?0</td></tr><tr><td>39</td><td>?0</td></tr><tr><td>40</td><td>?0</td></tr><tr><td>41</td><td>?0</td></tr><tr><td>42</td><td>?0</td></tr><tr><td>43</td><td>?0</td></tr><tr><td>44</td><td>?0</td></tr><tr><td>45</td><td>?0</td></tr><tr><td>46</td><td>?0</td></tr><tr><td>47</td><td>?0</td></tr><tr><td>48</td><td>?0</td></tr><tr><td>49</td><td>?0</td></tr></table><table id="table117" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>C</b></caption><tr><th onclick="sortTable('table117', 0)">ID</th><th onclick="sortTable('table117', 1)">C_str</th></tr><tr><td>50</td><td>?0</td></tr><tr><td>51</td><td>?0</td></tr><tr><td>52</td><td>?0</td></tr><tr><td>53</td><td>?0</td></tr><tr><td>54</td><td>?0</td></tr><tr><td>55</td><td>?0</td></tr><tr><td>56</td><td>?0</td></tr><tr><td>57</td><td>?0</td></tr><tr><td>58</td><td>?0</td></tr><tr><td>59</td><td>?0</td></tr><tr><td>60</td><td>?0</td></tr><tr><td>61</td><td>?0</td></tr><tr><td>62</td><td>?0</td></tr><tr><td>63</td><td>?0</td></tr><tr><td>64</td><td>?0</td></tr><tr><td>65</td><td>?0</td></tr><tr><td>66</td><td>?0</td></tr><tr><td>67</td><td>?0</td></tr><tr><td>68</td><td>?0</td></tr><tr><td>69</td><td>?0</td></tr><tr><td>70</td><td>?0</td></tr><tr><td>71</td><td>?0</td></tr><tr><td>72</td><td>?0</td></tr><tr><td>73</td><td>?0</td></tr><tr><td>74</td><td>?0</td></tr><tr><td>75</td><td>?0</td></tr><tr><td>76</td><td>?0</td></tr><tr><td>77</td><td>?0</td></tr><tr><td>78</td><td>?0</td></tr><tr><td>79</td><td>?0</td></tr><tr><td>80</td><td>?0</td></tr><tr><td>81</td><td>?0</td></tr><tr><td>82</td><td>?0</td></tr><tr><td>83</td><td>?0</td></tr><tr><td>84</td><td>?0</td></tr><tr><td>85</td><td>?0</td></tr><tr><td>86</td><td>?0</td></tr><tr><td>87</td><td>?0</td></tr><tr><td>88</td><td>?0</td></tr><tr><td>89</td><td>?0</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance J</h3><div><table id="table118" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>A</b></caption><tr><th onclick="sortTable('table118', 0)">ID</th><th onclick="sortTable('table118', 1)">A_str</th><th onclick="sortTable('table118', 2)">G</th><th onclick="sortTable('table118', 3)">H</th></tr><tr><td>0</td><td>?0</td><td>33</td><td>77</td></tr><tr><td>1</td><td>?0</td><td>38</td><td>77</td></tr><tr><td>2</td><td>?0</td><td>34</td><td>73</td></tr><tr><td>3</td><td>?0</td><td>37</td><td>72</td></tr><tr><td>4</td><td>?0</td><td>32</td><td>75</td></tr><tr><td>5</td><td>?0</td><td>30</td><td>74</td></tr><tr><td>6</td><td>?0</td><td>33</td><td>74</td></tr><tr><td>7</td><td>?0</td><td>32</td><td>75</td></tr><tr><td>8</td><td>?0</td><td>32</td><td>71</td></tr><tr><td>9</td><td>?0</td><td>33</td><td>70</td></tr><tr><td>10</td><td>?0</td><td>33</td><td>87</td></tr><tr><td>11</td><td>?0</td><td>30</td><td>83</td></tr><tr><td>12</td><td>?0</td><td>38</td><td>87</td></tr><tr><td>13</td><td>?0</td><td>34</td><td>89</td></tr><tr><td>14</td><td>?0</td><td>36</td><td>85</td></tr><tr><td>15</td><td>?0</td><td>33</td><td>82</td></tr><tr><td>16</td><td>?0</td><td>37</td><td>89</td></tr><tr><td>17</td><td>?0</td><td>32</td><td>83</td></tr><tr><td>18</td><td>?0</td><td>35</td><td>81</td></tr><tr><td>19</td><td>?0</td><td>31</td><td>81</td></tr><tr><td>20</td><td>?0</td><td>40</td><td>61</td></tr><tr><td>21</td><td>?0</td><td>45</td><td>64</td></tr><tr><td>22</td><td>?0</td><td>48</td><td>60</td></tr><tr><td>23</td><td>?0</td><td>41</td><td>65</td></tr><tr><td>24</td><td>?0</td><td>47</td><td>66</td></tr><tr><td>25</td><td>?0</td><td>47</td><td>64</td></tr><tr><td>26</td><td>?0</td><td>46</td><td>64</td></tr><tr><td>27</td><td>?0</td><td>41</td><td>62</td></tr><tr><td>28</td><td>?0</td><td>40</td><td>62</td></tr><tr><td>29</td><td>?0</td><td>41</td><td>60</td></tr></table><table id="table119" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>B</b></caption><tr><th onclick="sortTable('table119', 0)">ID</th><th onclick="sortTable('table119', 1)">B_str</th></tr><tr><td>30</td><td>?0</td></tr><tr><td>31</td><td>?0</td></tr><tr><td>32</td><td>?0</td></tr><tr><td>33</td><td>?0</td></tr><tr><td>34</td><td>?0</td></tr><tr><td>35</td><td>?0</td></tr><tr><td>36</td><td>?0</td></tr><tr><td>37</td><td>?0</td></tr><tr><td>38</td><td>?0</td></tr><tr><td>39</td><td>?0</td></tr><tr><td>40</td><td>?0</td></tr><tr><td>41</td><td>?0</td></tr><tr><td>42</td><td>?0</td></tr><tr><td>43</td><td>?0</td></tr><tr><td>44</td><td>?0</td></tr><tr><td>45</td><td>?0</td></tr><tr><td>46</td><td>?0</td></tr><tr><td>47</td><td>?0</td></tr><tr><td>48</td><td>?0</td></tr><tr><td>49</td><td>?0</td></tr></table><table id="table120" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>C</b></caption><tr><th onclick="sortTable('table120', 0)">ID</th><th onclick="sortTable('table120', 1)">C_str</th></tr><tr><td>50</td><td>?0</td></tr><tr><td>51</td><td>?0</td></tr><tr><td>52</td><td>?0</td></tr><tr><td>53</td><td>?0</td></tr><tr><td>54</td><td>?0</td></tr><tr><td>55</td><td>?0</td></tr><tr><td>56</td><td>?0</td></tr><tr><td>57</td><td>?0</td></tr><tr><td>58</td><td>?0</td></tr><tr><td>59</td><td>?0</td></tr><tr><td>60</td><td>?0</td></tr><tr><td>61</td><td>?0</td></tr><tr><td>62</td><td>?0</td></tr><tr><td>63</td><td>?0</td></tr><tr><td>64</td><td>?0</td></tr><tr><td>65</td><td>?0</td></tr><tr><td>66</td><td>?0</td></tr><tr><td>67</td><td>?0</td></tr><tr><td>68</td><td>?0</td></tr><tr><td>69</td><td>?0</td></tr><tr><td>70</td><td>?0</td></tr><tr><td>71</td><td>?0</td></tr><tr><td>72</td><td>?0</td></tr><tr><td>73</td><td>?0</td></tr><tr><td>74</td><td>?0</td></tr><tr><td>75</td><td>?0</td></tr><tr><td>76</td><td>?0</td></tr><tr><td>77</td><td>?0</td></tr><tr><td>78</td><td>?0</td></tr><tr><td>79</td><td>?0</td></tr><tr><td>80</td><td>?0</td></tr><tr><td>81</td><td>?0</td></tr><tr><td>82</td><td>?0</td></tr><tr><td>83</td><td>?0</td></tr><tr><td>84</td><td>?0</td></tr><tr><td>85</td><td>?0</td></tr><tr><td>86</td><td>?0</td></tr><tr><td>87</td><td>?0</td></tr><tr><td>88</td><td>?0</td></tr><tr><td>89</td><td>?0</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance I</h3><div><table id="table121" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>a1</b></caption><tr><th onclick="sortTable('table121', 0)">ID</th><th onclick="sortTable('table121', 1)">a1_str</th><th onclick="sortTable('table121', 2)">g1</th><th onclick="sortTable('table121', 3)">h1</th></tr><tr><td>0</td><td>?0</td><td>30</td><td>51</td></tr><tr><td>1</td><td>?0</td><td>35</td><td>54</td></tr><tr><td>2</td><td>?0</td><td>38</td><td>50</td></tr><tr><td>3</td><td>?0</td><td>31</td><td>55</td></tr><tr><td>4</td><td>?0</td><td>37</td><td>56</td></tr><tr><td>5</td><td>?0</td><td>37</td><td>54</td></tr><tr><td>6</td><td>?0</td><td>36</td><td>54</td></tr><tr><td>7</td><td>?0</td><td>31</td><td>52</td></tr><tr><td>8</td><td>?0</td><td>30</td><td>52</td></tr><tr><td>9</td><td>?0</td><td>31</td><td>50</td></tr></table><table id="table122" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>a2</b></caption><tr><th onclick="sortTable('table122', 0)">ID</th><th onclick="sortTable('table122', 1)">a2_str</th><th onclick="sortTable('table122', 2)">g2</th><th onclick="sortTable('table122', 3)">h2</th></tr><tr><td>10</td><td>?0</td><td>43</td><td>67</td></tr><tr><td>11</td><td>?0</td><td>48</td><td>67</td></tr><tr><td>12</td><td>?0</td><td>44</td><td>63</td></tr><tr><td>13</td><td>?0</td><td>47</td><td>62</td></tr><tr><td>14</td><td>?0</td><td>42</td><td>65</td></tr><tr><td>15</td><td>?0</td><td>40</td><td>64</td></tr><tr><td>16</td><td>?0</td><td>43</td><td>64</td></tr><tr><td>17</td><td>?0</td><td>42</td><td>65</td></tr><tr><td>18</td><td>?0</td><td>42</td><td>61</td></tr><tr><td>19</td><td>?0</td><td>43</td><td>60</td></tr></table><table id="table123" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>a3</b></caption><tr><th onclick="sortTable('table123', 0)">ID</th><th onclick="sortTable('table123', 1)">a3_str</th><th onclick="sortTable('table123', 2)">g3</th><th onclick="sortTable('table123', 3)">h3</th></tr><tr><td>20</td><td>?0</td><td>43</td><td>87</td></tr><tr><td>21</td><td>?0</td><td>40</td><td>83</td></tr><tr><td>22</td><td>?0</td><td>48</td><td>87</td></tr><tr><td>23</td><td>?0</td><td>44</td><td>89</td></tr><tr><td>24</td><td>?0</td><td>46</td><td>85</td></tr><tr><td>25</td><td>?0</td><td>43</td><td>82</td></tr><tr><td>26</td><td>?0</td><td>47</td><td>89</td></tr><tr><td>27</td><td>?0</td><td>42</td><td>83</td></tr><tr><td>28</td><td>?0</td><td>45</td><td>81</td></tr><tr><td>29</td><td>?0</td><td>41</td><td>81</td></tr></table><table id="table124" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>b1</b></caption><tr><th onclick="sortTable('table124', 0)">ID</th><th onclick="sortTable('table124', 1)">b1_str</th></tr><tr><td>30</td><td>?0</td></tr><tr><td>31</td><td>?0</td></tr><tr><td>32</td><td>?0</td></tr><tr><td>33</td><td>?0</td></tr><tr><td>34</td><td>?0</td></tr><tr><td>35</td><td>?0</td></tr><tr><td>36</td><td>?0</td></tr><tr><td>37</td><td>?0</td></tr><tr><td>38</td><td>?0</td></tr><tr><td>39</td><td>?0</td></tr></table><table id="table125" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>b2</b></caption><tr><th onclick="sortTable('table125', 0)">ID</th><th onclick="sortTable('table125', 1)">b2_str</th></tr><tr><td>40</td><td>?0</td></tr><tr><td>41</td><td>?0</td></tr><tr><td>42</td><td>?0</td></tr><tr><td>43</td><td>?0</td></tr><tr><td>44</td><td>?0</td></tr><tr><td>45</td><td>?0</td></tr><tr><td>46</td><td>?0</td></tr><tr><td>47</td><td>?0</td></tr><tr><td>48</td><td>?0</td></tr><tr><td>49</td><td>?0</td></tr></table><table id="table126" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>c1</b></caption><tr><th onclick="sortTable('table126', 0)">ID</th><th onclick="sortTable('table126', 1)">c1_str</th></tr><tr><td>50</td><td>?0</td></tr><tr><td>51</td><td>?0</td></tr><tr><td>52</td><td>?0</td></tr><tr><td>53</td><td>?0</td></tr><tr><td>54</td><td>?0</td></tr><tr><td>55</td><td>?0</td></tr><tr><td>56</td><td>?0</td></tr><tr><td>57</td><td>?0</td></tr><tr><td>58</td><td>?0</td></tr><tr><td>59</td><td>?0</td></tr></table><table id="table127" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>c2</b></caption><tr><th onclick="sortTable('table127', 0)">ID</th><th onclick="sortTable('table127', 1)">c2_str</th></tr><tr><td>60</td><td>?0</td></tr><tr><td>61</td><td>?0</td></tr><tr><td>62</td><td>?0</td></tr><tr><td>63</td><td>?0</td></tr><tr><td>64</td><td>?0</td></tr><tr><td>65</td><td>?0</td></tr><tr><td>66</td><td>?0</td></tr><tr><td>67</td><td>?0</td></tr><tr><td>68</td><td>?0</td></tr><tr><td>69</td><td>?0</td></tr></table><table id="table128" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>c3</b></caption><tr><th onclick="sortTable('table128', 0)">ID</th><th onclick="sortTable('table128', 1)">c3_str</th></tr><tr><td>70</td><td>?0</td></tr><tr><td>71</td><td>?0</td></tr><tr><td>72</td><td>?0</td></tr><tr><td>73</td><td>?0</td></tr><tr><td>74</td><td>?0</td></tr><tr><td>75</td><td>?0</td></tr><tr><td>76</td><td>?0</td></tr><tr><td>77</td><td>?0</td></tr><tr><td>78</td><td>?0</td></tr><tr><td>79</td><td>?0</td></tr></table><table id="table129" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>c4</b></caption><tr><th onclick="sortTable('table129', 0)">ID</th><th onclick="sortTable('table129', 1)">c4_str</th></tr><tr><td>80</td><td>?0</td></tr><tr><td>81</td><td>?0</td></tr><tr><td>82</td><td>?0</td></tr><tr><td>83</td><td>?0</td></tr><tr><td>84</td><td>?0</td></tr><tr><td>85</td><td>?0</td></tr><tr><td>86</td><td>?0</td></tr><tr><td>87</td><td>?0</td></tr><tr><td>88</td><td>?0</td></tr><tr><td>89</td><td>?0</td></tr></table></div><br style="clear:both;"/></body></html>

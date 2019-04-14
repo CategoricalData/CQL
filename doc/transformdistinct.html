@@ -1,0 +1,21 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>transform distinct</h1>
+<pre>
+typeside t
+schema s2 : t
+schema s1 : t
+instance j : s1
+instance i : s1
+transform h : i -> j
+----------------------------------
+transform (distinct h) : distinct i -> distinct j
+	</pre>
+Computes the transform distinct i1 to distinct i2 from a transform from i1 to i2.<br/><br/>Appears in:<br/><br/>
+<a href="All_Syntax.html" target="primary">All_Syntax</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

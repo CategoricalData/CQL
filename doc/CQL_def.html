@@ -1,0 +1,132 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example CQL_def</h1><pre>
+typeside cql_sorts = literal {
+	types
+		G T S I M Q H C P U O
+		//graph, typeside, schema, instance, mapping, query, transform, constraints, pragma, schema-colimit, object
+}
+
+
+
+typeside cql_literals = literal {
+	imports 
+		cql_sorts
+
+	functions	
+		G_lit : O -&gt; G
+		T_lit : O -&gt; T
+		S_lit : O , T -&gt; S
+		I_lit : O , S -&gt; I
+		H_lit : O , I , I -&gt; T
+		M_lit : O , S , S -&gt; M
+		Q_lit : O , S , S -&gt; Q
+		C_lit : O , S -&gt; C 
+}
+
+typeside cql_cat = literal {
+	imports 
+		cql_sorts
+
+	functions
+		empty_T :   -&gt; T
+		empty_S : T -&gt; S
+		empty_I : S -&gt; I
+		empty_C : S -&gt; C
+
+		id_M : S -&gt; M
+		id_Q : S -&gt; Q
+		id_H : I -&gt; H
+		
+		schemaOf_I   : I -&gt; S
+		typesideOf_S : S -&gt; T
+
+		comp_M : M , M -&gt; M
+		comp_T : T , T -&gt; T
+		comp_Q : Q , Q -&gt; Q
+
+		dom_M cod_M : M -&gt; S
+		dom_Q cod_Q : Q -&gt; S
+		dom_T cod_T : I -&gt; H
+
+}
+
+constraints cql_cat_constraints = literal : empty : cql_cat {
+	
+	forall s:S f:M where dom_M(f) = s -&gt; where comp_M(id_M(s), f) = f //etc
+
+}
+
+typeside cql_io = literal {
+	imports
+		cql_sorts
+
+	functions
+		sql_T : -&gt; T
+		jdbc_I csv_I : O , S -&gt; I
+		jdbc_all_I : O -&gt; I
+		jdbc_all_S : O -&gt; S
+		jdbc_T csv_T : O , S -&gt; T
+
+		toJdbc_I toCsv_I : O , I -&gt; P
+		toJdbc_T toCsv_T : O , T -&gt; P
+		toJdbc_Q 
+		
+		execcmd execjs execsql : O -&gt; P
+}
+
+typeside cql_fdm = literal {
+	imports 
+		cql_sorts
+
+	functions
+		from_Mapping : M , M -&gt; Q
+		toMapping1 toMapping2 : Q -&gt; M
+
+		delta_I sigma_I pi_I : M , I -&gt; I
+		eval_I  coeval_I     : Q , I -&gt; I
+	
+		delta_T sigma_T pi_T  : M , T -&gt; T
+		eval_T  coeval_T      : Q , T -&gt; T
+
+		sd_unit sd_counit dp_unit dp_counit : M -&gt; T
+		ec_unit ec_counit : Q -&gt; T
+		
+		anononymize_I cascade_delete_I distinct_I  : I -&gt; I
+		frozen_I : O , Q -&gt; I
+		coequalize_I : T , T -&gt; I
+		coproduct_I except_I : I , I -&gt; I
+		chase_I : I , C -&gt; I
+		quotient_I : I , C -&gt; I
+		
+		random_I : O , S -&gt; I
+		
+		except_T  : I , T -&gt; T
+		except_return_T  distinct_return_T : I -&gt; T
+		distinct_T : T -&gt; T
+		frozen_T : O , Q -&gt; T
+		coproduct_T : I , T -&gt; T
+
+		fromColim_S : U -&gt; S
+		fromColim_M : U , S -&gt; M
+		wrap_U : U , M , M -&gt; U
+		modify_U quo_U : O , U -&gt; U
+
+		satisfies_I consistent_I : O , I -&gt; P
+}
+
+
+typeside cql_pivot = literal {
+	imports 
+		cql_sorts
+
+	functions
+		pivot_I : I -&gt; I
+		pivot_S : I -&gt; S
+		pivot_M : I -&gt; M
+
+}
+</pre> Keywords:<br/></br>			<a href="constraintsconstraints_literal.html" >constraints_literal</a><br />
+			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+<br/>Options:<br/></br>
+<br/></br>
+</body></html>

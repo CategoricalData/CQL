@@ -1,0 +1,261 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example Demo</h1><pre>
+// Universal Warehousing Demo
+
+// user defined functions, in Java
+typeside Type = literal { 
+	java_types
+		String = "java.lang.String"
+	java_constants
+		String = "return input[0]"
+	java_functions
+		toUpper : String -&gt; String  = "return input[0].toUpperCase()"
+}
+
+///////////////////////////////////////////////////////////////////////////
+// input schemas
+
+schema AmphibianSchema = literal : Type {
+	entities 
+		Amphibian Animal
+	foreign_keys 
+		toAnimal : Amphibian -&gt; Animal    
+	attributes	
+	     species : Animal -&gt; String
+}
+
+schema LandSchema = literal : Type {
+	imports
+		AmphibianSchema
+	entities
+		LandAnimal	
+	foreign_keys 
+		isA : Amphibian  -&gt; LandAnimal
+		isA : LandAnimal -&gt; Animal
+	path_equations 
+		Amphibian.isA.isA = Amphibian.toAnimal     
+} 
+
+schema WaterSchema = literal : Type {
+	imports
+		AmphibianSchema 
+	entities
+		WaterAnimal	
+	foreign_keys 
+		isA : Amphibian  -&gt; WaterAnimal
+		isA : WaterAnimal -&gt; Animal
+	path_equations 
+		Amphibian.isA.isA = Amphibian.toAnimal     
+} 
+
+///////////////////////////////////////////////////////////////////////////
+//input instances
+
+instance LandInstance = import_csv "http://catinf.com/demo/LandDB/" : LandSchema 
+
+instance WaterInstance = import_csv "http://catinf.com/demo/WaterDB/" : WaterSchema 
+
+///////////////////////////////////////////////////////////////////////////.....
+//compute the canonical schema colimit, then enhances its semantics
+
+schema_colimit UniversalWarehouseSchema = quotient LandSchema + WaterSchema : Type {
+	entity_equations
+		LandSchema.Animal = WaterSchema.Animal
+		LandSchema.Amphibian = WaterSchema.Amphibian
+	path_equations
+		Amphibian.LandSchema_Amphibian_toAnimal = Amphibian.WaterSchema_Amphibian_toAnimal			
+}
+
+schema_colimit ModifiedWarehouseSchema = modify UniversalWarehouseSchema {
+	rename entities
+		LandAnimal -&gt; Land
+		WaterAnimal -&gt; Water
+	rename foreign_keys
+		Amphibian.LandSchema_Amphibian_isA -&gt; land_is
+		Amphibian.WaterSchema_Amphibian_isA -&gt; water_is
+		Amphibian.WaterSchema_Amphibian_toAnimal -&gt; redundantW
+		Amphibian.LandSchema_Amphibian_toAnimal -&gt; redundantL
+		//Water.WaterAnimal_isA -&gt; isA
+		//Land.LandAnimal_isA -&gt; isA
+	rename attributes
+		Animal.LandSchema_Animal_species  -&gt; land_species
+		Animal.WaterSchema_Animal_species -&gt; water_species	
+	remove foreign_keys
+		Amphibian.redundantL -&gt; land_is	. isA
+		Amphibian.redundantW -&gt; water_is. isA
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// migrate the data onto the warehouse schema
+
+schema  WarehouseSchema  = getSchema  ModifiedWarehouseSchema
+mapping LandToWarehouse  = getMapping ModifiedWarehouseSchema LandSchema
+mapping WaterToWarehouse = getMapping ModifiedWarehouseSchema WaterSchema
+
+instance LandInstanceForward  = sigma LandToWarehouse LandInstance
+instance WaterInstanceForward = sigma WaterToWarehouse WaterInstance
+
+instance UnmergedWarehouse = coproduct LandInstanceForward + WaterInstanceForward : WarehouseSchema
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// merge duplicates
+
+instance Warehouse = quotient_query UnmergedWarehouse {
+	entity Amphibian -&gt; {from a:Amphibian b:Amphibian where toUpper(a.land_is.isA.land_species) = toUpper(b.water_is.isA.water_species)}
+
+options
+	quotient_use_chase = false
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// export the warehouse to SQL
+command storeWH = export_jdbc_instance Warehouse "" ""
+
+//view exported SQL instance
+command view1 = exec_jdbc ""  { 
+	"SELECT * FROM \"Animal\""
+	"SELECT * FROM \"Amphibian\""
+	"SELECT * FROM \"Land\""
+	"SELECT * FROM \"Water\""
+
+	"DROP TABLE \"Animal\"" //drop tables in case we want to run the demo again
+	"DROP TABLE \"Amphibian\""
+	"DROP TABLE \"Land\""
+	"DROP TABLE \"Water\""
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Application 0 : View warehouse as graph
+
+schema WarehouseAsGraph = pivot Warehouse
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Application 1 : Project (round-trip) the warehouse back onto the land schema
+
+instance RoundTripLand = delta LandToWarehouse Warehouse
+
+transform RoundTripLandFn = unit LandToWarehouse LandInstance
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Application 2 : Project further onto the Amphibians schema with a query
+
+query LandToAmphibians = literal : LandSchema -&gt; AmphibianSchema {
+	entity Amphibian -&gt; {from amp:Amphibian
+	                     //where amp.toAnimal.species = "frog"
+						 foreign_keys toAnimal -&gt; {anim -&gt; amp.toAnimal}}  
+						 
+	entity Animal -&gt; {from anim:Animal
+	                  //where anim.species = "frog"
+				      attributes species -&gt; anim.species} 				      
+}
+
+instance RoundTripAmphibians = eval LandToAmphibians RoundTripLand
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Application 3 : Check and/or repair additional rules
+
+constraints AllFksInjective = literal : WarehouseSchema {
+	forall a1 a2 : Amphibian where a1.land_is  = a2.land_is  -&gt; where a1 = a2 
+	forall a1 a2 : Amphibian where a1.water_is = a2.water_is -&gt; where a1 = a2 
+	forall l1 l2 : Land      where l1.isA      = l2.isA      -&gt; where l1 = l2
+	forall w1 w2 : Water     where w1.isA      = w2.isA      -&gt; where w1 = w2
+}
+
+command cmd = check AllFksInjective Warehouse 
+
+instance ANonInjectiveWarehouse = literal : WarehouseSchema {
+	generators
+		frog1 frog2 : Amphibian
+		frog : Land
+	equations
+		frog1.land_is = frog
+		frog2.land_is = frog
+}
+
+instance RepairedInjectiveWarehouse = chase AllFksInjective ANonInjectiveWarehouse
+</pre> Keywords:<br/></br>			<a href="instancecoproduct.html" >coproduct</a><br />
+			<a href="schemaschema_literal.html" >schema_literal</a><br />
+			<a href="instancechase.html" >chase</a><br />
+			<a href="mappinggetMapping.html" >getMapping</a><br />
+			<a href="schemapivot.html" >pivot</a><br />
+			<a href="commandexec_jdbc.html" >exec_jdbc</a><br />
+			<a href="commandcheck.html" >check</a><br />
+			<a href="constraintsconstraints_literal.html" >constraints_literal</a><br />
+			<a href="schema_colimitquotient.html" >quotient</a><br />
+			<a href="schemagetSchema.html" >getSchema</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="instancedelta.html" >delta</a><br />
+			<a href="schema_colimitmodify.html" >modify</a><br />
+			<a href="instancesigma.html" >sigma</a><br />
+			<a href="queryquery_literal.html" >query_literal</a><br />
+			<a href="instanceeval.html" >eval</a><br />
+			<a href="instanceimport_csv.html" >import_csv</a><br />
+			<a href="instancequotient_query.html" >quotient_query</a><br />
+			<a href="commandexport_jdbc_instance.html" >export_jdbc_instance</a><br />
+			<a href="transformunit.html" >unit</a><br />
+			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+<br/>Options:<br/></br><a href="quotient_use_chase.html" >quotient_use_chase</a><br/>
+
+<br/></br>
+<hr/><h3>instance UnmergedWarehouse</h3><div><table id="table76" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table76', 0)">ID</th><th onclick="sortTable('table76', 1)">land_is</th><th onclick="sortTable('table76', 2)">water_is</th></tr><tr><td>0</td><td>9</td><td>13</td></tr><tr><td>1</td><td>11</td><td>14</td></tr><tr><td>2</td><td>12</td><td>15</td></tr></table><table id="table77" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table77', 0)">ID</th><th onclick="sortTable('table77', 1)">land_species</th><th onclick="sortTable('table77', 2)">water_species</th></tr><tr><td>3</td><td>FROG</td><td>?0</td></tr><tr><td>4</td><td>Gecko</td><td>?1</td></tr><tr><td>5</td><td>equine</td><td>?2</td></tr><tr><td>6</td><td>?3</td><td>?4</td></tr><tr><td>7</td><td>?5</td><td>FISH</td></tr><tr><td>8</td><td>?6</td><td>frog</td></tr></table><table id="table78" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Land</b></caption><tr><th onclick="sortTable('table78', 0)">ID</th><th onclick="sortTable('table78', 1)">isA</th></tr><tr><td>9</td><td>3</td></tr><tr><td>10</td><td>5</td></tr><tr><td>11</td><td>4</td></tr><tr><td>12</td><td>8</td></tr></table><table id="table79" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Water</b></caption><tr><th onclick="sortTable('table79', 0)">ID</th><th onclick="sortTable('table79', 1)">isA</th></tr><tr><td>13</td><td>3</td></tr><tr><td>14</td><td>4</td></tr><tr><td>15</td><td>8</td></tr><tr><td>16</td><td>7</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance WaterInstanceForward</h3><div><table id="table80" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table80', 0)">ID</th><th onclick="sortTable('table80', 1)">land_is</th><th onclick="sortTable('table80', 2)">water_is</th></tr><tr><td>0</td><td>3</td><td>4</td></tr></table><table id="table81" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table81', 0)">ID</th><th onclick="sortTable('table81', 1)">land_species</th><th onclick="sortTable('table81', 2)">water_species</th></tr><tr><td>1</td><td>?0</td><td>FISH</td></tr><tr><td>2</td><td>?1</td><td>frog</td></tr></table><table id="table82" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Land</b></caption><tr><th onclick="sortTable('table82', 0)">ID</th><th onclick="sortTable('table82', 1)">isA</th></tr><tr><td>3</td><td>2</td></tr></table><table id="table83" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Water</b></caption><tr><th onclick="sortTable('table83', 0)">ID</th><th onclick="sortTable('table83', 1)">isA</th></tr><tr><td>4</td><td>2</td></tr><tr><td>5</td><td>1</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance WaterInstance</h3><div><table id="table84" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table84', 0)">ID</th><th onclick="sortTable('table84', 1)">isA</th><th onclick="sortTable('table84', 2)">toAnimal</th></tr><tr><td>0</td><td>4</td><td>2</td></tr></table><table id="table85" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table85', 0)">ID</th><th onclick="sortTable('table85', 1)">species</th></tr><tr><td>1</td><td>FISH</td></tr><tr><td>2</td><td>frog</td></tr></table><table id="table86" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>WaterAnimal</b></caption><tr><th onclick="sortTable('table86', 0)">ID</th><th onclick="sortTable('table86', 1)">isA</th></tr><tr><td>3</td><td>1</td></tr><tr><td>4</td><td>2</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance RoundTripLand</h3><div><table id="table87" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table87', 0)">ID</th><th onclick="sortTable('table87', 1)">isA</th><th onclick="sortTable('table87', 2)">toAnimal</th></tr><tr><td>0</td><td>10</td><td>6</td></tr><tr><td>1</td><td>12</td><td>3</td></tr><tr><td>2</td><td>11</td><td>8</td></tr></table><table id="table88" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table88', 0)">ID</th><th onclick="sortTable('table88', 1)">species</th></tr><tr><td>3</td><td>?0</td></tr><tr><td>4</td><td>?1</td></tr><tr><td>5</td><td>equine</td></tr><tr><td>6</td><td>Gecko</td></tr><tr><td>7</td><td>?2</td></tr><tr><td>8</td><td>FROG</td></tr></table><table id="table89" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>LandAnimal</b></caption><tr><th onclick="sortTable('table89', 0)">ID</th><th onclick="sortTable('table89', 1)">isA</th></tr><tr><td>9</td><td>5</td></tr><tr><td>10</td><td>6</td></tr><tr><td>11</td><td>8</td></tr><tr><td>12</td><td>3</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance RepairedInjectiveWarehouse</h3><div><table id="table90" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table90', 0)">ID</th><th onclick="sortTable('table90', 1)">land_is</th><th onclick="sortTable('table90', 2)">water_is</th></tr><tr><td>0</td><td>3</td><td>4</td></tr><tr><td>1</td><td>3</td><td>5</td></tr></table><table id="table91" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table91', 0)">ID</th><th onclick="sortTable('table91', 1)">land_species</th><th onclick="sortTable('table91', 2)">water_species</th></tr><tr><td>2</td><td>?0</td><td>?1</td></tr></table><table id="table92" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Land</b></caption><tr><th onclick="sortTable('table92', 0)">ID</th><th onclick="sortTable('table92', 1)">isA</th></tr><tr><td>3</td><td>2</td></tr></table><table id="table93" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Water</b></caption><tr><th onclick="sortTable('table93', 0)">ID</th><th onclick="sortTable('table93', 1)">isA</th></tr><tr><td>4</td><td>2</td></tr><tr><td>5</td><td>2</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance ANonInjectiveWarehouse</h3><div><table id="table94" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table94', 0)">ID</th><th onclick="sortTable('table94', 1)">land_is</th><th onclick="sortTable('table94', 2)">water_is</th></tr><tr><td>0</td><td>3</td><td>4</td></tr><tr><td>1</td><td>3</td><td>5</td></tr></table><table id="table95" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table95', 0)">ID</th><th onclick="sortTable('table95', 1)">land_species</th><th onclick="sortTable('table95', 2)">water_species</th></tr><tr><td>2</td><td>?0</td><td>?1</td></tr></table><table id="table96" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Land</b></caption><tr><th onclick="sortTable('table96', 0)">ID</th><th onclick="sortTable('table96', 1)">isA</th></tr><tr><td>3</td><td>2</td></tr></table><table id="table97" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Water</b></caption><tr><th onclick="sortTable('table97', 0)">ID</th><th onclick="sortTable('table97', 1)">isA</th></tr><tr><td>4</td><td>2</td></tr><tr><td>5</td><td>2</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance LandInstanceForward</h3><div><table id="table98" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table98', 0)">ID</th><th onclick="sortTable('table98', 1)">land_is</th><th onclick="sortTable('table98', 2)">water_is</th></tr><tr><td>0</td><td>6</td><td>9</td></tr><tr><td>1</td><td>8</td><td>10</td></tr></table><table id="table99" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table99', 0)">ID</th><th onclick="sortTable('table99', 1)">land_species</th><th onclick="sortTable('table99', 2)">water_species</th></tr><tr><td>2</td><td>FROG</td><td>?0</td></tr><tr><td>3</td><td>Gecko</td><td>?1</td></tr><tr><td>4</td><td>equine</td><td>?2</td></tr><tr><td>5</td><td>?3</td><td>?4</td></tr></table><table id="table100" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Land</b></caption><tr><th onclick="sortTable('table100', 0)">ID</th><th onclick="sortTable('table100', 1)">isA</th></tr><tr><td>6</td><td>2</td></tr><tr><td>7</td><td>4</td></tr><tr><td>8</td><td>3</td></tr></table><table id="table101" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Water</b></caption><tr><th onclick="sortTable('table101', 0)">ID</th><th onclick="sortTable('table101', 1)">isA</th></tr><tr><td>9</td><td>2</td></tr><tr><td>10</td><td>3</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance RoundTripAmphibians</h3><div><table id="table102" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table102', 0)">ID</th><th onclick="sortTable('table102', 1)">toAnimal</th></tr><tr><td>0</td><td>6</td></tr><tr><td>1</td><td>3</td></tr><tr><td>2</td><td>8</td></tr></table><table id="table103" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table103', 0)">ID</th><th onclick="sortTable('table103', 1)">species</th></tr><tr><td>3</td><td>?0</td></tr><tr><td>4</td><td>?1</td></tr><tr><td>5</td><td>equine</td></tr><tr><td>6</td><td>Gecko</td></tr><tr><td>7</td><td>?2</td></tr><tr><td>8</td><td>FROG</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance LandInstance</h3><div><table id="table104" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table104', 0)">ID</th><th onclick="sortTable('table104', 1)">isA</th><th onclick="sortTable('table104', 2)">toAnimal</th></tr><tr><td>0</td><td>6</td><td>3</td></tr><tr><td>1</td><td>8</td><td>5</td></tr></table><table id="table105" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table105', 0)">ID</th><th onclick="sortTable('table105', 1)">species</th></tr><tr><td>2</td><td>?0</td></tr><tr><td>3</td><td>Gecko</td></tr><tr><td>4</td><td>equine</td></tr><tr><td>5</td><td>FROG</td></tr></table><table id="table106" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>LandAnimal</b></caption><tr><th onclick="sortTable('table106', 0)">ID</th><th onclick="sortTable('table106', 1)">isA</th></tr><tr><td>6</td><td>3</td></tr><tr><td>7</td><td>4</td></tr><tr><td>8</td><td>5</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance Warehouse</h3><div><table id="table107" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table107', 0)">ID</th><th onclick="sortTable('table107', 1)">land_is</th><th onclick="sortTable('table107', 2)">water_is</th></tr><tr><td>0</td><td>10</td><td>15</td></tr><tr><td>1</td><td>12</td><td>13</td></tr><tr><td>2</td><td>11</td><td>16</td></tr></table><table id="table108" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Animal</b></caption><tr><th onclick="sortTable('table108', 0)">ID</th><th onclick="sortTable('table108', 1)">land_species</th><th onclick="sortTable('table108', 2)">water_species</th></tr><tr><td>3</td><td>?0</td><td>frog</td></tr><tr><td>4</td><td>?1</td><td>FISH</td></tr><tr><td>5</td><td>equine</td><td>?2</td></tr><tr><td>6</td><td>Gecko</td><td>?3</td></tr><tr><td>7</td><td>?4</td><td>?5</td></tr><tr><td>8</td><td>FROG</td><td>?6</td></tr></table><table id="table109" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Land</b></caption><tr><th onclick="sortTable('table109', 0)">ID</th><th onclick="sortTable('table109', 1)">isA</th></tr><tr><td>9</td><td>5</td></tr><tr><td>10</td><td>6</td></tr><tr><td>11</td><td>8</td></tr><tr><td>12</td><td>3</td></tr></table><table id="table110" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Water</b></caption><tr><th onclick="sortTable('table110', 0)">ID</th><th onclick="sortTable('table110', 1)">isA</th></tr><tr><td>13</td><td>3</td></tr><tr><td>14</td><td>4</td></tr><tr><td>15</td><td>6</td></tr><tr><td>16</td><td>8</td></tr></table></div><br style="clear:both;"/><hr/><h3>command storeWH</h3><pre>Exported 17 rows.</pre><hr/><h3>command cmd</h3><pre>Satisfies</pre><hr/><h3>command view1</h3><pre>START
+SELECT * FROM "Animal"
+
+id 0,  land_species FROG,  water_species null
+id 1,  land_species null,  water_species null
+id 2,  land_species Gecko,  water_species null
+id 3,  land_species equine,  water_species null
+id 4,  land_species null,  water_species FISH
+id 5,  land_species null,  water_species frog
+END
+
+START
+SELECT * FROM "Amphibian"
+
+id 14,  water_is 6,  land_is 11
+id 15,  water_is 9,  land_is 10
+id 16,  water_is 7,  land_is 12
+END
+
+START
+SELECT * FROM "Land"
+
+id 10,  isA 5
+id 11,  isA 0
+id 12,  isA 2
+id 13,  isA 3
+END
+
+START
+SELECT * FROM "Water"
+
+id 6,  isA 0
+id 7,  isA 2
+id 8,  isA 4
+id 9,  isA 5
+END
+
+START
+DROP TABLE "Animal"
+
+Updated 0 rows.
+END
+
+START
+DROP TABLE "Amphibian"
+
+Updated 0 rows.
+END
+
+START
+DROP TABLE "Land"
+
+Updated 0 rows.
+END
+
+START
+DROP TABLE "Water"
+
+Updated 0 rows.
+END
+</pre></body></html>

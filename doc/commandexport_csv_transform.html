@@ -1,0 +1,36 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>command export_csv_transform</h1>
+<pre>
+typeside t
+schema s : t
+instance i2 : s
+instance i1 : s
+transform h : i1 -> i2
+----------------------------------
+command (export_csv_transform h "directory") : Optional.empty
+	</pre>
+Emit a transform to a set of CSV files, one two-column table per entity with one column per foreign key and attribute.  There will be no headers, column 1 is the source.<br/><br/>Appears in:<br/><br/>
+<a href="CSV.html" target="primary">CSV</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="csv_emit_ids.html" target="primary">csv_emit_ids</a>
+<br/>
+<a href="csv_escape_char.html" target="primary">csv_escape_char</a>
+<br/>
+<a href="csv_field_delim_char.html" target="primary">csv_field_delim_char</a>
+<br/>
+<a href="csv_file_extension.html" target="primary">csv_file_extension</a>
+<br/>
+<a href="csv_generate_ids.html" target="primary">csv_generate_ids</a>
+<br/>
+<a href="csv_prepend_entity.html" target="primary">csv_prepend_entity</a>
+<br/>
+<a href="csv_quote_char.html" target="primary">csv_quote_char</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="prepend_entity_on_ids.html" target="primary">prepend_entity_on_ids</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

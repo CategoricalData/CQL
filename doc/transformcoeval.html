@@ -1,0 +1,28 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>transform coeval</h1>
+<pre>
+typeside t
+schema s2 : t
+schema s1 : t
+query q : s2 -> s1
+instance j : s1
+instance i : s1
+transform h : i -> j
+----------------------------------
+transform (coeval q h) : coeval q i -> coeval q j
+	</pre>
+Computes the transform from co-eval(Q,I) to co-eval(Q,J), given a transform from I to J.<br/><br/>Appears in:<br/><br/>
+<a href="All_Syntax.html" target="primary">All_Syntax</a><br />
+<a href="Compose.html" target="primary">Compose</a><br />
+<a href="Query.html" target="primary">Query</a><br /><br/>Options:<br/><br/><a href="allow_java_eqs_unsafe.html" target="primary">allow_java_eqs_unsafe</a>
+<br/>
+<a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="require_consistency.html" target="primary">require_consistency</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

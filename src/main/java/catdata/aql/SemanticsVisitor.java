@@ -1,9 +1,9 @@
 package catdata.aql;
 
-import catdata.aql.fdm.ColimitSchema;
-
 public interface SemanticsVisitor<R, G, E extends Throwable> {
 
+	public <T, C, T0, C0> R visit(String k, G arg, Mor<T,C,T0,C0> M) throws E;
+	
 	public <T, C> R visit(String k, G arg, TypeSide<T, C> T) throws E;
 
 	public <N> R visit(String k, G arg, ColimitSchema<N> S) throws E;
@@ -54,8 +54,8 @@ public interface SemanticsVisitor<R, G, E extends Throwable> {
 			return visit(k, arg, o.asSchemaColimit());
 		case CONSTRAINTS:
 			return visit(k, arg, o.asConstraints());
-		default:
-			break;
+		case THEORY_MORPHISM:	
+			return visit(k, arg, o.asTheoryMorphism());
 		}
 		throw new RuntimeException("Anomaly: please report");
 	}

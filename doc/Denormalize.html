@@ -1,0 +1,57 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example Denormalize</h1><pre>
+typeside Ty = literal { 
+	java_types
+		String = "java.lang.String"
+	java_constants
+		String = "return input[0]"
+}
+
+schema NormalizedSchema = literal : Ty {
+	entities
+		Male 
+		Female
+	foreign_keys
+		mother : Male -&gt; Female
+  	attributes
+  		female_name : Female -&gt; String
+  		male_name : Male -&gt; String 
+}
+
+instance NormalizedData = literal : NormalizedSchema {
+	generators
+		Al Bob Charlie : Male
+		Ellie Fran : Female
+	equations
+		Al.male_name = Albert 
+		Al.mother = Ellie
+		
+		Bob.male_name = George
+		Bob.mother = Ellie
+		
+		Charlie.male_name = Charles	
+		Charlie.mother = Fran
+
+		Ellie.female_name = Elaine
+		Fran.female_name = Francine
+}
+
+schema DeNormalizedSchema = literal : Ty {
+	imports
+		NormalizedSchema
+	attributes
+		mother_name : Male -&gt; String
+  	observation_equations
+  		forall m:Male. mother_name(m) = female_name(mother(m))
+}
+
+instance DeNormalizedData = literal : DeNormalizedSchema {
+	imports
+		NormalizedData
+}
+</pre> Keywords:<br/></br>			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="schemaschema_literal.html" >schema_literal</a><br />
+<br/>Options:<br/></br>
+<br/></br>
+<hr/><h3>instance DeNormalizedData</h3><div><table id="table111" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Female</b></caption><tr><th onclick="sortTable('table111', 0)">ID</th><th onclick="sortTable('table111', 1)">female_name</th></tr><tr><td>0</td><td>Elaine</td></tr><tr><td>1</td><td>Francine</td></tr></table><table id="table112" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Male</b></caption><tr><th onclick="sortTable('table112', 0)">ID</th><th onclick="sortTable('table112', 1)">male_name</th><th onclick="sortTable('table112', 2)">mother_name</th><th onclick="sortTable('table112', 3)">mother</th></tr><tr><td>2</td><td>Albert</td><td>Elaine</td><td>0</td></tr><tr><td>3</td><td>Charles</td><td>Francine</td><td>1</td></tr><tr><td>4</td><td>George</td><td>Elaine</td><td>0</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance NormalizedData</h3><div><table id="table113" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Female</b></caption><tr><th onclick="sortTable('table113', 0)">ID</th><th onclick="sortTable('table113', 1)">female_name</th></tr><tr><td>0</td><td>Elaine</td></tr><tr><td>1</td><td>Francine</td></tr></table><table id="table114" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Male</b></caption><tr><th onclick="sortTable('table114', 0)">ID</th><th onclick="sortTable('table114', 1)">male_name</th><th onclick="sortTable('table114', 2)">mother</th></tr><tr><td>2</td><td>Albert</td><td>0</td></tr><tr><td>3</td><td>Charles</td><td>1</td></tr><tr><td>4</td><td>George</td><td>0</td></tr></table></div><br style="clear:both;"/></body></html>

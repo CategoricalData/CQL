@@ -94,6 +94,9 @@ public final class AqlDisplay implements Disp {
 			return s;
 		}
 		switch (k) {
+		case THEORY_MORPHISM:
+			Pair p = (Pair) typing.defs.tms.get(c);
+			return s + " : " + p.first + " -> " + p.second;			
 		case INSTANCE:
 			return s + " : " + typing.defs.insts.get(c);
 		case MAPPING:
@@ -133,6 +136,7 @@ public final class AqlDisplay implements Disp {
 			return (Integer) exp.getOrDefault(env, AqlOption.gui_max_string_size);
 
 		case MAPPING:
+		case THEORY_MORPHISM:
 		case QUERY:
 		case SCHEMA:
 		case SCHEMA_COLIMIT:
@@ -320,6 +324,8 @@ public final class AqlDisplay implements Disp {
 			return Color.PINK;
 		case SCHEMA_COLIMIT:
 			return Color.ORANGE;
+		case THEORY_MORPHISM:
+			return Color.gray;
 		}
 		return Util.anomaly();
 	}

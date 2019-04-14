@@ -19,12 +19,12 @@ import catdata.Raw;
 import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.ColimitSchema;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
 import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.exp.SchExp.SchExpVar;
-import catdata.aql.fdm.ColimitSchema;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 

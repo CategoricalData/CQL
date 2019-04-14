@@ -43,12 +43,14 @@ import catdata.Unit;
 import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlJs;
+import catdata.aql.ColimitSchema;
 import catdata.aql.Collage;
 import catdata.aql.Comment;
 import catdata.aql.Constraints;
 import catdata.aql.DP;
 import catdata.aql.Instance;
 import catdata.aql.Mapping;
+import catdata.aql.Mor;
 import catdata.aql.Pragma;
 import catdata.aql.Query;
 import catdata.aql.RawTerm;
@@ -69,7 +71,6 @@ import catdata.aql.exp.Gen;
 import catdata.aql.exp.Sk;
 import catdata.aql.exp.Sym;
 import catdata.aql.exp.Ty;
-import catdata.aql.fdm.ColimitSchema;
 import catdata.graph.DMG;
 import catdata.ide.CodeTextPanel;
 import catdata.ide.GuiUtil;
@@ -1122,6 +1123,11 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 	@Override
 	public Unit visit(String k, JTabbedPane ret, Comment P) {
+		return Unit.unit;
+	}
+	
+	@Override
+	public Unit visit(String k, JTabbedPane ret, Mor P) {
 		return Unit.unit;
 	}
 

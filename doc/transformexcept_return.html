@@ -1,0 +1,19 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>transform except_return</h1>
+<pre>
+typeside t
+schema s : t
+instance i2 : s
+instance i1 : s
+----------------------------------
+transform (except_return i1 i2) : except i1 i2 -> i1
+	</pre>
+Computes the transform (except i1 i2) -> i1.<br/><br/>Appears in:<br/><br/>
+<a href="All_Syntax.html" target="primary">All_Syntax</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

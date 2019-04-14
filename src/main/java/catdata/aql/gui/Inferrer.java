@@ -44,6 +44,7 @@ class Inferrer {
 			case TYPESIDE:
 			case COMMENT:
 			case SCHEMA_COLIMIT:
+			case THEORY_MORPHISM:
 			case CONSTRAINTS:
 			default:
 				break;

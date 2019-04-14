@@ -1,0 +1,68 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>instance sigma</h1>
+<pre>
+typeside t
+schema s2 : t
+schema s1 : t
+mapping m : s1 -> s2
+instance i : s1
+----------------------------------
+instance (sigma m i) : s2
+	</pre>
+Performs a left kan extension.  Operationally, each generator g of entity e becomes translated to the target schema as a generator of entity f(e), where f is the mapping.  Hence sigma can be thought of as substitution along a theory morphism.<br/><br/>Appears in:<br/><br/>
+<a href="All_Syntax.html" target="primary">All_Syntax</a><br />
+<a href="Delta.html" target="primary">Delta</a><br />
+<a href="Demo.html" target="primary">Demo</a><br />
+<a href="Dopfib.html" target="primary">Dopfib</a><br />
+<a href="FinanceColim1.html" target="primary">FinanceColim1</a><br />
+<a href="FinanceColim2.html" target="primary">FinanceColim2</a><br />
+<a href="Inverse.html" target="primary">Inverse</a><br />
+<a href="LambdaConf.html" target="primary">LambdaConf</a><br />
+<a href="OuterJoin.html" target="primary">OuterJoin</a><br />
+<a href="Petri.html" target="primary">Petri</a><br />
+<a href="PharmaColim2.html" target="primary">PharmaColim2</a><br />
+<a href="Quotient.html" target="primary">Quotient</a><br />
+<a href="Sigma.html" target="primary">Sigma</a><br />
+<a href="Tutorial.html" target="primary">Tutorial</a><br />
+<a href="TutorialTSP.html" target="primary">TutorialTSP</a><br /><br/>Options:<br/><br/><a href="allow_empty_sorts_unsafe.html" target="primary">allow_empty_sorts_unsafe</a>
+<br/>
+<a href="allow_java_eqs_unsafe.html" target="primary">allow_java_eqs_unsafe</a>
+<br/>
+<a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="completion_compose.html" target="primary">completion_compose</a>
+<br/>
+<a href="completion_filter_subsumed.html" target="primary">completion_filter_subsumed</a>
+<br/>
+<a href="completion_precedence.html" target="primary">completion_precedence</a>
+<br/>
+<a href="completion_sort.html" target="primary">completion_sort</a>
+<br/>
+<a href="completion_syntactic_ac.html" target="primary">completion_syntactic_ac</a>
+<br/>
+<a href="completion_unfailing.html" target="primary">completion_unfailing</a>
+<br/>
+<a href="dont_verify_is_appropriate_for_prover_unsafe.html" target="primary">dont_verify_is_appropriate_for_prover_unsafe</a>
+<br/>
+<a href="e_path.html" target="primary">e_path</a>
+<br/>
+<a href="maedmax_path.html" target="primary">maedmax_path</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="program_allow_nonconfluence_unsafe.html" target="primary">program_allow_nonconfluence_unsafe</a>
+<br/>
+<a href="program_allow_nontermination_unsafe.html" target="primary">program_allow_nontermination_unsafe</a>
+<br/>
+<a href="prover.html" target="primary">prover</a>
+<br/>
+<a href="prover_simplify_max.html" target="primary">prover_simplify_max</a>
+<br/>
+<a href="require_consistency.html" target="primary">require_consistency</a>
+<br/>
+<a href="second_prover.html" target="primary">second_prover</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

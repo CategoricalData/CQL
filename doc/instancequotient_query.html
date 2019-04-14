@@ -1,0 +1,33 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>instance quotient_query</h1>
+<pre>
+typeside t
+schema s : t
+instance i : s
+----------------------------------
+instance (quotient_query i {}) : s
+	</pre>
+Expects a list of queries, on per entity, e.g.,
+<pre>
+entity E -> from x:E y:E where x.a = y.b
+entity F -> from x:F y:F
+</pre>
+each query should have no attributes and no foreign keys.  The resulting matched pairs  (x,y)  are treated
+as equations for performing the quotient.  
+By default uses a chase-based algorithm; to disable, set quotient_use_chase = false<br/><br/>Appears in:<br/><br/>
+<a href="Demo.html" target="primary">Demo</a><br />
+<a href="Linkage.html" target="primary">Linkage</a><br />
+<a href="TutorialTSP.html" target="primary">TutorialTSP</a><br /><br/>Options:<br/><br/><a href="allow_java_eqs_unsafe.html" target="primary">allow_java_eqs_unsafe</a>
+<br/>
+<a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="quotient_use_chase.html" target="primary">quotient_use_chase</a>
+<br/>
+<a href="require_consistency.html" target="primary">require_consistency</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

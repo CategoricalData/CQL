@@ -49,6 +49,9 @@ public class AqlTyping {
 		if (!defs.ps.isEmpty()) {
 			sb.append("command " + Util.sep(defs.ps.keySet(), "\ncommand ") + "\n");
 		}
+		if (!defs.tms.isEmpty()) {
+			sb.append("theory_morphism " + Util.sep(defs.tms.keySet(), "\ntheory_morphism ") + "\n");
+		}
 
 		return sb.toString();
 	}
@@ -89,6 +92,10 @@ public class AqlTyping {
 				case MAPPING:
 					Pair<? extends SchExp, ? extends SchExp> p = ((MapExp) e).type(this);
 					defs.maps.put(s, new Pair<>(p.first, p.second));
+					continue;
+				case THEORY_MORPHISM:
+					Pair<? extends TyExp, ? extends TyExp> tp = ((MorExp) e).type(this);
+					defs.tms.put(s, new Pair<>(tp.first, tp.second));
 					continue;
 				case PRAGMA:
 					continue;

@@ -1,0 +1,19 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>command check_query</h1>
+<pre>
+schema s2 : t
+schema s1 : t
+constraints c2 : s2
+constraints c1 : s1
+query q : s1 -> s2
+----------------------------------
+command (check_query q c1 c2) : Optional.empty
+	</pre>
+Checks if a query from s1 to s2 with constraints c1 on s1 to c2 on s2 is valid.<br/><br/>Appears in:<br/><br/><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

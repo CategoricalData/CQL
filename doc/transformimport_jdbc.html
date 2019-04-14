@@ -1,0 +1,31 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><h1>transform import_jdbc</h1>
+<pre>
+schema s : t
+instance i2 : s
+instance i1 : s
+transform h : i1 -> i2
+----------------------------------
+transform (import_jdbc  "jdbc_string" : i1 -> i2 {}) : i1 -> i2
+	</pre>
+Imports a transform from a JDBC database, one two-column SQL query per entity. The first column is interpreted as the source and the second column as the target.When the [class] and [jdbc string] are the empty string, their values will be determined by the  jdbc_default_class and  jdbc_default_string options.  The  map_nulls_arbitrarily_unsafe option can be used to automatically map labelled nulls during import.<br/><br/>Appears in:<br/><br/>
+<a href="JDBCSQL.html" target="primary">JDBCSQL</a><br /><br/>Options:<br/><br/><a href="always_reload.html" target="primary">always_reload</a>
+<br/>
+<a href="id_column_name.html" target="primary">id_column_name</a>
+<br/>
+<a href="jdbc_default_class.html" target="primary">jdbc_default_class</a>
+<br/>
+<a href="jdbc_default_string.html" target="primary">jdbc_default_string</a>
+<br/>
+<a href="jdbc_query_export_convert_type.html" target="primary">jdbc_query_export_convert_type</a>
+<br/>
+<a href="jdbc_quote_char.html" target="primary">jdbc_quote_char</a>
+<br/>
+<a href="num_threads.html" target="primary">num_threads</a>
+<br/>
+<a href="prepend_entity_on_ids.html" target="primary">prepend_entity_on_ids</a>
+<br/>
+<a href="talg_reduction.html" target="primary">talg_reduction</a>
+<br/>
+<a href="timeout.html" target="primary">timeout</a>
+</html>

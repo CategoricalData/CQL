@@ -1,4 +1,4 @@
-package catdata.aql.fdm;
+package catdata.aql;
 
 import java.util.ArrayList;
 import java.util.Collection;

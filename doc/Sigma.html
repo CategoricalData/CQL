@@ -1,0 +1,184 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example Sigma</h1><pre>
+typeside Type = literal {
+	types 
+		String
+	constants
+		gecko frog human cow horse dolphin fish : String
+}
+
+schema C = literal : Type {
+	entities 
+		Amphibian
+		LandAnimal
+		WaterAnimal
+	foreign_keys
+		IsAL: Amphibian -&gt; LandAnimal
+		IsAW: Amphibian -&gt; WaterAnimal
+	attributes
+		attA: Amphibian -&gt; String 
+		attL: LandAnimal -&gt; String 
+		attW: WaterAnimal -&gt; String
+}
+
+instance I = literal : C {
+	generators 
+		a1 a2 : Amphibian
+		l1 l2 l3 l4 l5 : LandAnimal
+		w1 w2 w3 w4 : WaterAnimal
+	equations
+		 attA(a1) = gecko attA(a2) = frog
+		 attL(l1) = gecko attL(l2) = frog 
+		 attL(l3) = human attL(l4) = cow 
+		 attL(l5) = horse attW(w1) = fish 
+		 attW(w2) = gecko attW(w3) = frog 
+		 attW(w4) = dolphin IsAL(a1) = l1 
+		 IsAL(a2) = l2 IsAW(a1) = w2 IsAW(a2) = w3
+} 
+
+schema D = literal : Type {
+	entities 
+		yAmphibian
+		yLandAnimal
+		yWaterAnimal
+		yAnimal
+	foreign_keys
+		yIsAL:yAmphibian-&gt;yLandAnimal
+		yIsAW:yAmphibian-&gt;yWaterAnimal
+		yIsALL:yLandAnimal-&gt;yAnimal
+		yIsAWW:yWaterAnimal-&gt;yAnimal
+	path_equations
+		yAmphibian.yIsAL.yIsALL = yAmphibian.yIsAW.yIsAWW
+	attributes
+		yattA:yAmphibian-&gt;String 
+		yattL:yLandAnimal-&gt;String 
+		yattW:yWaterAnimal-&gt;String
+} 
+
+mapping F = literal : C -&gt; D {
+	entity
+		Amphibian-&gt;yAmphibian
+	foreign_keys
+		IsAL -&gt; yIsAL
+		IsAW -&gt; yIsAW
+	attributes
+		attA -&gt; yattA
+
+	entity
+		LandAnimal-&gt;yLandAnimal
+	attributes
+		attL -&gt; yattL
+
+	entity
+		WaterAnimal-&gt;yWaterAnimal
+	attributes
+		attW -&gt; yattW
+} 
+
+instance J = sigma F I
+
+instance I1 = literal : C {
+	generators 
+		xa1 : Amphibian
+		xl1 xl2 xl3 xl4 : LandAnimal
+		xw1 xw2 xw3: WaterAnimal
+	equations
+		attL(xl1) = gecko attL(xl2) = frog
+		attL(xl3) = human attL(xl4) = cow
+		attW(xw1) = fish attW(xw2) = gecko
+		attW(xw3) = frog IsAL(xa1) = xl1
+		IsAW(xa1) = xw2 attA(xa1) = gecko
+} 
+
+transform t = literal : I1 -&gt; I {
+	generators 
+		xa1 -&gt; a1
+		xl1 -&gt; l1
+		xl2 -&gt; l2
+		xl3 -&gt; l3
+		xl4 -&gt; l4
+		xw1 -&gt; w1
+		xw2 -&gt; w2
+		xw3 -&gt; w3
+} 
+
+transform u = sigma F t
+
+instance K = delta F J
+
+transform v = unit F I
+
+//////////////////////////////////////////////////////////////
+//this particular migration can also be done as a colimit as follows.
+
+schema Animal = literal : Type {
+  entities
+    A
+  attributes
+    name : A -&gt; String
+}
+
+instance i_land = literal : Animal {
+  generators
+	la1 la2 la3 la4 la5 : A
+  multi_equations
+	name -&gt; {la1 gecko, la2 frog, la3 human, la4 cow, la5 horse}  
+}
+
+instance i_water = literal : Animal {
+  generators
+	wa1 wa2 wa3 wa4 : A
+  multi_equations
+	name -&gt; {wa1 fish, wa2 gecko, wa3 frog, wa4 dolphin} 
+}
+
+instance i_amphibian = literal : Animal {
+  generators
+	aa1 aa2 : A
+  multi_equations
+	name -&gt; {aa1 gecko, aa2 frog}  
+}
+
+transform t_amphland = literal : i_amphibian -&gt; i_land {
+  generators
+	aa1 -&gt; la1 // match amphibian gecko to land gecko
+	aa2 -&gt; la2 // match amphibian frog to land frog
+}
+
+transform t_amphwater = literal : i_amphibian -&gt; i_water {
+  generators
+	aa1 -&gt; wa2 // match amphibian gecko to water gecko
+	aa2 -&gt; wa3 // match amphibian frog to water frog
+}
+
+graph Span = literal {
+  nodes
+	Amp Lan Wat // Amphibian LandAnimal WaterAnimal
+  edges
+	AmpLan : Amp -&gt; Lan 
+	AmpWat : Amp -&gt; Wat 
+}
+
+instance i_animalmerge = colimit Span Animal {
+  nodes
+    Amp -&gt; i_amphibian
+    Lan -&gt; i_land
+    Wat -&gt; i_water
+  edges
+    AmpLan -&gt; t_amphland
+    AmpWat -&gt; t_amphwater
+}
+</pre> Keywords:<br/></br>			<a href="transformtransform_literal.html" >transform_literal</a><br />
+			<a href="instancesigma.html" >sigma</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="instancedelta.html" >delta</a><br />
+			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+			<a href="transformunit.html" >unit</a><br />
+			<a href="transformsigma.html" >sigma</a><br />
+			<a href="schemaschema_literal.html" >schema_literal</a><br />
+			<a href="mappingmapping_literal.html" >mapping_literal</a><br />
+			<a href="instancecolimit.html" >colimit</a><br />
+			<a href="graphgraph_literal.html" >graph_literal</a><br />
+<br/>Options:<br/></br>
+<br/></br>
+<hr/><h3>instance i_amphibian</h3><div><table id="table528" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>A</b></caption><tr><th onclick="sortTable('table528', 0)">ID</th><th onclick="sortTable('table528', 1)">name</th></tr><tr><td>0</td><td>gecko</td></tr><tr><td>1</td><td>frog</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance i_land</h3><div><table id="table529" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>A</b></caption><tr><th onclick="sortTable('table529', 0)">ID</th><th onclick="sortTable('table529', 1)">name</th></tr><tr><td>0</td><td>human</td></tr><tr><td>1</td><td>horse</td></tr><tr><td>2</td><td>gecko</td></tr><tr><td>3</td><td>cow</td></tr><tr><td>4</td><td>frog</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance I1</h3><div><table id="table530" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table530', 0)">ID</th><th onclick="sortTable('table530', 1)">attA</th><th onclick="sortTable('table530', 2)">IsAL</th><th onclick="sortTable('table530', 3)">IsAW</th></tr><tr><td>0</td><td>gecko</td><td>2</td><td>6</td></tr></table><table id="table531" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>LandAnimal</b></caption><tr><th onclick="sortTable('table531', 0)">ID</th><th onclick="sortTable('table531', 1)">attL</th></tr><tr><td>1</td><td>human</td></tr><tr><td>2</td><td>gecko</td></tr><tr><td>3</td><td>cow</td></tr><tr><td>4</td><td>frog</td></tr></table><table id="table532" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>WaterAnimal</b></caption><tr><th onclick="sortTable('table532', 0)">ID</th><th onclick="sortTable('table532', 1)">attW</th></tr><tr><td>5</td><td>fish</td></tr><tr><td>6</td><td>gecko</td></tr><tr><td>7</td><td>frog</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance i_water</h3><div><table id="table533" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>A</b></caption><tr><th onclick="sortTable('table533', 0)">ID</th><th onclick="sortTable('table533', 1)">name</th></tr><tr><td>0</td><td>dolphin</td></tr><tr><td>1</td><td>frog</td></tr><tr><td>2</td><td>fish</td></tr><tr><td>3</td><td>gecko</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance i_animalmerge</h3><div><table id="table534" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>A</b></caption><tr><th onclick="sortTable('table534', 0)">ID</th><th onclick="sortTable('table534', 1)">name</th></tr><tr><td>0</td><td>cow</td></tr><tr><td>1</td><td>fish</td></tr><tr><td>2</td><td>gecko</td></tr><tr><td>3</td><td>dolphin</td></tr><tr><td>4</td><td>human</td></tr><tr><td>5</td><td>horse</td></tr><tr><td>6</td><td>frog</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance K</h3><div><table id="table535" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table535', 0)">ID</th><th onclick="sortTable('table535', 1)">attA</th><th onclick="sortTable('table535', 2)">IsAL</th><th onclick="sortTable('table535', 3)">IsAW</th></tr><tr><td>0</td><td>frog</td><td>5</td><td>9</td></tr><tr><td>1</td><td>gecko</td><td>3</td><td>7</td></tr></table><table id="table536" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>LandAnimal</b></caption><tr><th onclick="sortTable('table536', 0)">ID</th><th onclick="sortTable('table536', 1)">attL</th></tr><tr><td>2</td><td>cow</td></tr><tr><td>3</td><td>gecko</td></tr><tr><td>4</td><td>horse</td></tr><tr><td>5</td><td>frog</td></tr><tr><td>6</td><td>human</td></tr></table><table id="table537" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>WaterAnimal</b></caption><tr><th onclick="sortTable('table537', 0)">ID</th><th onclick="sortTable('table537', 1)">attW</th></tr><tr><td>7</td><td>gecko</td></tr><tr><td>8</td><td>dolphin</td></tr><tr><td>9</td><td>frog</td></tr><tr><td>10</td><td>fish</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance J</h3><div><table id="table538" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>yAmphibian</b></caption><tr><th onclick="sortTable('table538', 0)">ID</th><th onclick="sortTable('table538', 1)">yattA</th><th onclick="sortTable('table538', 2)">yIsAL</th><th onclick="sortTable('table538', 3)">yIsAW</th></tr><tr><td>0</td><td>frog</td><td>12</td><td>16</td></tr><tr><td>1</td><td>gecko</td><td>10</td><td>14</td></tr></table><table id="table539" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>yAnimal</b></caption><tr><th onclick="sortTable('table539', 0)">ID</th></tr><tr><td>2</td></tr><tr><td>3</td></tr><tr><td>4</td></tr><tr><td>5</td></tr><tr><td>6</td></tr><tr><td>7</td></tr><tr><td>8</td></tr></table><table id="table540" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>yLandAnimal</b></caption><tr><th onclick="sortTable('table540', 0)">ID</th><th onclick="sortTable('table540', 1)">yattL</th><th onclick="sortTable('table540', 2)">yIsALL</th></tr><tr><td>9</td><td>cow</td><td>2</td></tr><tr><td>10</td><td>gecko</td><td>3</td></tr><tr><td>11</td><td>horse</td><td>5</td></tr><tr><td>12</td><td>frog</td><td>6</td></tr><tr><td>13</td><td>human</td><td>7</td></tr></table><table id="table541" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>yWaterAnimal</b></caption><tr><th onclick="sortTable('table541', 0)">ID</th><th onclick="sortTable('table541', 1)">yattW</th><th onclick="sortTable('table541', 2)">yIsAWW</th></tr><tr><td>14</td><td>gecko</td><td>3</td></tr><tr><td>15</td><td>dolphin</td><td>4</td></tr><tr><td>16</td><td>frog</td><td>6</td></tr><tr><td>17</td><td>fish</td><td>8</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance I</h3><div><table id="table542" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>Amphibian</b></caption><tr><th onclick="sortTable('table542', 0)">ID</th><th onclick="sortTable('table542', 1)">attA</th><th onclick="sortTable('table542', 2)">IsAL</th><th onclick="sortTable('table542', 3)">IsAW</th></tr><tr><td>0</td><td>frog</td><td>2</td><td>7</td></tr><tr><td>1</td><td>gecko</td><td>4</td><td>8</td></tr></table><table id="table543" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>LandAnimal</b></caption><tr><th onclick="sortTable('table543', 0)">ID</th><th onclick="sortTable('table543', 1)">attL</th></tr><tr><td>2</td><td>frog</td></tr><tr><td>3</td><td>cow</td></tr><tr><td>4</td><td>gecko</td></tr><tr><td>5</td><td>horse</td></tr><tr><td>6</td><td>human</td></tr></table><table id="table544" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>WaterAnimal</b></caption><tr><th onclick="sortTable('table544', 0)">ID</th><th onclick="sortTable('table544', 1)">attW</th></tr><tr><td>7</td><td>frog</td></tr><tr><td>8</td><td>gecko</td></tr><tr><td>9</td><td>dolphin</td></tr><tr><td>10</td><td>fish</td></tr></table></div><br style="clear:both;"/></body></html>

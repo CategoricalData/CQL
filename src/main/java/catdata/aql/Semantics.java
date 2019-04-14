@@ -1,7 +1,5 @@
 package catdata.aql;
 
-import catdata.aql.fdm.ColimitSchema;
-
 public interface Semantics {
 
 	public default String sample(@SuppressWarnings("unused") int size) {
@@ -58,6 +56,10 @@ public interface Semantics {
 
 	public default ColimitSchema<?> asSchemaColimit() {
 		return (ColimitSchema<?>) this;
+	}
+
+	public default Mor<?,?,?,?> asTheoryMorphism() {
+		return (Mor) this;
 	}
 
 }

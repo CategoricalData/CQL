@@ -1,0 +1,112 @@
+<html><head>
+<link rel="stylesheet" type="text/css" href="https://categoricaldata.net/css/simple.css" /></head><body><h1>example Constraints</h1><pre>
+//In a relational data exchange setting, there are no function symbols or equations.
+typeside Ty = literal {
+	java_types
+		dom = "java.lang.Object"
+	java_constants
+		dom = "return input[0]"
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+//Source relational schema. In a relational data exchange setting, source constraints are irrelevant
+//and schemas have no foreign keys.
+schema S = literal : Ty {
+	entities
+		SDeptEmp
+	attributes
+		SdeptId : SDeptEmp -&gt; dom
+		SmgrName : SDeptEmp -&gt; dom
+		SempId : SDeptEmp -&gt; dom
+} 
+
+//target relational schema.  
+schema T = literal : Ty {
+	entities
+		TDept TEmp
+	attributes
+		TempId : TEmp -&gt; dom
+		TwrksIn : TEmp -&gt; dom
+		TdeptId : TDept -&gt; dom
+		TmgrId : TDept -&gt; dom
+		TmgrName : TDept -&gt; dom
+} 
+
+//To encode a relational data exchange setting in CQL, we must disjoint union the 
+//source and target schemas together.
+schema ST = literal : Ty {
+	imports 
+		S T
+} 
+
+//all EDs are expressed on the combined schema ST.  
+constraints theEDs = literal : ST {
+	//managers work in the departments they manage (stronger than FK)
+	//Dept(d,m,n) -&gt; Emp(m,d)
+	forall d:TDept -&gt;
+ 	exists e:TEmp 
+ 	where d.TdeptId = e.TwrksIn  d.TmgrId = e.TempId
+ 
+	//every employee works in some department (FK)
+	//Emp(e,d) -&gt; exists M,N. Dept(d,M,N)
+ 	forall e:TEmp -&gt;
+	exists d:TDept
+ 	where d.TdeptId = e.TwrksIn	
+ 	
+	//every DeptEmp is a department and an employee
+	//DeptEmp(d,n,e) -&gt; exists M. Dept(d, M, n) , Emp(e, d)
+	forall de:SDeptEmp -&gt;
+	exists d:TDept e:TEmp
+ 	where de.SdeptId = d.TdeptId d.TdeptId = e.TwrksIn de.SdeptId = d.TdeptId de.SempId = e.TempId
+} 
+
+/////////////////////////////////////////////////////////////////////////
+
+//test instance (on ST) DeptEmp(cs, alice, 1)
+instance I = literal : ST {
+	generators
+		de:SDeptEmp
+	equations
+		de.SdeptId = cs de.SmgrName = alice de.SempId = "1"
+}
+
+//The three EDs are 'weakly acyclic'.  Thus we know any chase sequence will terminate in polynomial time.
+//J = Dept(cs, null1, null2), Emp(1, cs), Emp(null2, cs)
+//intuitively, null2 = alice's manager id, null3 = alice's manager's name 
+instance J = chase theEDs I 
+
+command JisOk1 = check theEDs J //verify the chased instance satisfies the EDs
+
+//command InotOk = check theEDs I //the input instance does not satisfy the EDs
+
+///////////////////////////////////////////////////////////////////////////
+//primary key constraints
+
+schema Sch = literal : Ty {
+	entities
+		E
+	attributes
+		att1 att2 att3 : E -&gt; dom
+} 
+
+//says (att1,att2) is a primary key 
+constraints PkForSch = literal : Sch {
+	forall x y : E
+	where x.att1 = y.att1  x.att2 = y.att3 
+	-&gt;
+	where x.att3 = y.att3
+}
+
+///////////////////////////////////////////////////////////////////////////
+//see the pushout and pullback examples for more constraints
+</pre> Keywords:<br/></br>			<a href="schemaschema_literal.html" >schema_literal</a><br />
+			<a href="constraintsconstraints_literal.html" >constraints_literal</a><br />
+			<a href="typesidetypeside_literal.html" >typeside_literal</a><br />
+			<a href="instancechase.html" >chase</a><br />
+			<a href="instanceinstance_literal.html" >instance_literal</a><br />
+			<a href="commandcheck.html" >check</a><br />
+<br/>Options:<br/></br>
+<br/></br>
+<hr/><h3>instance J</h3><div><table id="table60" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>SDeptEmp</b></caption><tr><th onclick="sortTable('table60', 0)">ID</th><th onclick="sortTable('table60', 1)">SdeptId</th><th onclick="sortTable('table60', 2)">SempId</th><th onclick="sortTable('table60', 3)">SmgrName</th></tr><tr><td>0</td><td>cs</td><td>1</td><td>alice</td></tr></table><table id="table61" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>TDept</b></caption><tr><th onclick="sortTable('table61', 0)">ID</th><th onclick="sortTable('table61', 1)">TdeptId</th><th onclick="sortTable('table61', 2)">TmgrId</th><th onclick="sortTable('table61', 3)">TmgrName</th></tr><tr><td>1</td><td>cs</td><td>?0</td><td>?1</td></tr></table><table id="table62" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>TEmp</b></caption><tr><th onclick="sortTable('table62', 0)">ID</th><th onclick="sortTable('table62', 1)">TempId</th><th onclick="sortTable('table62', 2)">TwrksIn</th></tr><tr><td>2</td><td>1</td><td>cs</td></tr><tr><td>3</td><td>?0</td><td>cs</td></tr></table></div><br style="clear:both;"/><hr/><h3>instance I</h3><div><table id="table63" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>SDeptEmp</b></caption><tr><th onclick="sortTable('table63', 0)">ID</th><th onclick="sortTable('table63', 1)">SdeptId</th><th onclick="sortTable('table63', 2)">SempId</th><th onclick="sortTable('table63', 3)">SmgrName</th></tr><tr><td>0</td><td>cs</td><td>1</td><td>alice</td></tr></table><table id="table64" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>TDept</b></caption><tr><th onclick="sortTable('table64', 0)">ID</th><th onclick="sortTable('table64', 1)">TdeptId</th><th onclick="sortTable('table64', 2)">TmgrId</th><th onclick="sortTable('table64', 3)">TmgrName</th></tr></table><table id="table65" style="float: left; border: 1px solid black; padding: 5px; border-collapse: collapse; margin-right:10px" border="1"  cellpadding="3"><caption><b>TEmp</b></caption><tr><th onclick="sortTable('table65', 0)">ID</th><th onclick="sortTable('table65', 1)">TempId</th><th onclick="sortTable('table65', 2)">TwrksIn</th></tr></table></div><br style="clear:both;"/><hr/><h3>command JisOk1</h3><pre>Satisfies</pre></body></html>
