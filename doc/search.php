@@ -27,7 +27,7 @@ foreach ($dir as $file) {
     if ($file == 'search.php') {
         continue;   
     }
-    if ($file == 'logo.html') {
+    if ($file == 'help.html') {
         continue;   
     }
     if ($file == 'options.html') {

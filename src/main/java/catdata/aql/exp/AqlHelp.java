@@ -860,7 +860,7 @@ public class AqlHelp implements
 					+ "        echo \"<a href=\\\"../help.html\\\">CQL Manual</a><br/>\";\n" + "}\n" + "    \n"
 					+ "$dir = new DirectoryIterator('.');\n" + "foreach ($dir as $file) {\n"
 					+ "    if ($file == 'search.php') {\n" + "        continue;   \n" + "    }\n"
-					+ "    if ($file == 'logo.html') {\n" + "        continue;   \n" + "    }\n"
+					+ "    if ($file == 'help.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'options.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'examples.html') {\n" + "        continue;   \n" + "    }\n"
 					+ "    if ($file == 'syntax.html') {\n" + "        continue;   \n" + "    }\n"
@@ -965,7 +965,7 @@ public class AqlHelp implements
 			main.append("\n</HEAD>");
 			main.append("\n<FRAMESET cols=\"20%, 80%\">");
 			main.append("\n  <FRAMESET rows=\"100, 200\">");
-			main.append("\n      <FRAME src=\"logo.html\" name=\"logo\">");
+			main.append("\n      <FRAME src=\"help.html\" name=\"logo\">");
 			main.append("\n      <FRAME src=\"syntax.html\" name=\"tree\">");
 			main.append("\n  </FRAMESET>");
 			main.append("\n  <FRAME src=\"https://categoricaldata.net/help.html\" name=\"primary\">");
@@ -1064,7 +1064,7 @@ public class AqlHelp implements
 			Util.writeFile(examples.toString(), new File(dir, "examples.html").getAbsolutePath());
 			Util.writeFile(main.toString(), new File(dir, "index.html").getAbsolutePath());
 			Util.writeFile(syntax.toString(), new File(dir, "syntax.html").getAbsolutePath());
-			Util.writeFile(logo.toString(), new File(dir, "logo.html").getAbsolutePath());
+			Util.writeFile(logo.toString(), new File(dir, "help.html").getAbsolutePath());
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
