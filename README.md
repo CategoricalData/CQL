@@ -1,14 +1,10 @@
-Categorical Query Language IDE
+Categorical Query Language 
 ====
-
-About
------
-
-An IDE for the categorical query and data migration/integration language, CQL.  Also, we maintain EASIK here.
 
 For more information, please see:
 - [Academic CQL page](categoricaldata.net/cql.html)
 - [Commercial CQL page](http://categorical.info/)
+- [CQL Wiki](https://github.com/CategoricalData/CQL/wiki)
 
 Build and installation
 ----------------------
@@ -31,9 +27,7 @@ Related projects:
 --------------
 
 - Archived FQL code: https://github.com/CategoricalData/FQL
-
 - CQL mode for Emacs: https://github.com/epost/aql-mode
-
 - Statebox CQL Haskell implementation (coming soon)
 
 License
