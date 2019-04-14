@@ -8,9 +8,9 @@ For more information, please see:
 Build and installation
 ----------------------
 
-### [Binary]
+### Pre-built Binary
 
-[Java 11 Jar file (14mb)](http://categoricaldata.net/cql.jar)
+[Java 11 Jar File (14MB)](http://categoricaldata.net/cql.jar)
 
 ### Eclipse
 	
