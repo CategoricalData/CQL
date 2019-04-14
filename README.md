@@ -4,14 +4,13 @@ Categorical Query Language
 For more information, please see:
 - [Academic CQL page](http://categoricaldata.net/cql.html)
 - [Commercial CQL page](http://categorical.info/)
-- [CQL Wiki](https://github.com/CategoricalData/CQL/wiki)
 
 Build and installation
 ----------------------
 
-### Pre-compiled binary jar file:
+### Pre-built Binary
 
-http://categoricaldata.net/cql.jar
+[Java 11 Jar File (14MB)](http://categoricaldata.net/cql.jar)
 
 ### Eclipse
 	
