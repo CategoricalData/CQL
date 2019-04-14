@@ -85,8 +85,8 @@ public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, 
 				if (!ok) {
 					String xxx = ""; // ", (and further, " + dst().collage().simplify().second.apply(lhs) + " = " +
 										// dst().collage().simplify().second.apply(rhs) + ")";
-					throw new RuntimeException("Equation " + eq.first + " = " + eq.second + " translates to " + lhs
-							+ " = " + rhs + xxx + ", which is not provable in \n\n" + dst());
+					throw new RuntimeException("Source instance equation " + eq.first + " = " + eq.second + " translates to " + lhs
+							+ " = " + rhs + xxx + ", which is not provable in the target instance, displayed below.  To proceed, consider removing it or adding more equations to the target instance.\n\n" + dst());
 				}
 			}
 		}

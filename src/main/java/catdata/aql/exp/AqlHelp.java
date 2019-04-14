@@ -949,12 +949,12 @@ public class AqlHelp implements
 		
 			logo.append("\n<br />");
 			logo.append("\n<a href=\"http://categorical.info\" target=\"_blank\">CI Website</a><br />");
-			logo.append("\n<a href=\"https://github.com/CategoricalData/CQL/wiki\" target=\"_blank\">Wiki</a><br />");
+			logo.append("\n<a href=\"http://github.com/CategoricalData/CQL/wiki\" target=\"_blank\">Wiki</a><br />");
 			logo.append("\n</body></html>");
 
 			StringBuffer main = new StringBuffer();
 			main.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\"");
-			main.append("\n   \"https://www.w3.org/TR/html4/frameset.dtd\">");
+			main.append("\n   \"http://www.w3.org/TR/html4/frameset.dtd\">");
 			main.append("\n<HTML>");
 			main.append("\n<HEAD>");
 			main.append("\n<TITLE>CQL</TITLE>");
@@ -965,7 +965,7 @@ public class AqlHelp implements
 			main.append("\n      <FRAME src=\"logo.html\" name=\"logo\">");
 			main.append("\n      <FRAME src=\"syntax.html\" name=\"tree\">");
 			main.append("\n  </FRAMESET>");
-			main.append("\n  <FRAME src=\"https://categoricaldata.github.io/CQL\" name=\"primary\">");
+			main.append("\n  <FRAME src=\"http://categoricaldata.github.io/CQL\" name=\"primary\">");
 			main.append("\n</FRAMESET>");
 			main.append("\n</HTML>");
 

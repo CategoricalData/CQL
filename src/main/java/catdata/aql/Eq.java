@@ -71,7 +71,10 @@ public class Eq<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
 	@Override
 	public String toString() {
-		return Util.sep(ctx, ":", ", ");
+		if (ctx == null || ctx.isEmpty()) {
+			return lhs + " = " + rhs;
+		}
+		return Util.sep(ctx, ":", ", ") + ". " + lhs + " = " + rhs;
 	}
 
 	public final Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> toTriple() {

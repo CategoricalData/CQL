@@ -115,15 +115,6 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		JMenuItem im = new JMenuItem("Infer Map/Query/Trans/Inst");
 		im.addActionListener(x -> infer());
 		topArea.getPopupMenu().add(im, 0);
-//		JMenuItem iq = new JMenuItem("Infer Query");
-////		iq.addActionListener(x -> infer(Kind.QUERY));
-	//	topArea.getPopupMenu().add(iq, 0);
-	//	JMenuItem it = new JMenuItem("Infer Transform");
-//		it.addActionListener(x -> infer(Kind.TRANSFORM));
-//		topArea.getPopupMenu().add(it, 0);
-//		JMenuItem ii = new JMenuItem("Infer Instance");
-	//	ii.addActionListener(x -> infer(Kind.INSTANCE));
-	//	topArea.getPopupMenu().add(ii, 0);
 
 		DocumentListener listener = new DocumentListener() {
 			@Override
@@ -142,25 +133,15 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		};
 		topArea.getDocument().addDocumentListener(listener);
 
-//		getOutline();
-
 		JMenuItem html = new JMenuItem("Emit HTML");
 		html.addActionListener(x -> emitDoc());
 		topArea.getPopupMenu().add(html, 0);
-
-//		topArea.addParser(aqlStatic);
-//		getOutline().validateBox.addActionListener(x -> {
-//			getOutline().oLabel.setText("");
-//			((AqlCodeEditor) getOutline().codeEditor).topArea.forceReparsing(aqlStatic);
-//		});
 
 		q.add(Unit.unit);
 
 	}
 
 	AqlStatic aqlStatic;
-
-	// DefaultParseResult result;
 
 	public void emitDoc() {
 		try {
@@ -363,6 +344,16 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		// qt = System.currentTimeMillis();
 	}
 
+	public void clearSpellCheck() {
+		SwingUtilities.invokeLater(() -> {
+			try {
+				topArea.forceReparsing(aqlStatic);
+				topArea.revalidate();
+			} catch (Throwable t) {
+			}
+		});
+	}
+
 	@Override
 	protected void threadBody() {
 		while (!isClosed) {
@@ -370,7 +361,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			try {
 				q.takeFirst();
 				s = topArea.getText();
-				//todo: shortcut on ""?
+				// todo: shortcut on ""?
 			} catch (InterruptedException e) {
 				return; /// ?
 			}
@@ -391,7 +382,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 				aqlStatic = new AqlStatic(parsed_prog);
 				topArea.clearParsers();
 				topArea.addParser(aqlStatic);
-				SwingUtilities.invokeLater(() -> topArea.forceReparsing(aqlStatic));
+				clearSpellCheck();
 				aqlStatic.typeCheck(topArea);
 				if (q.peek() != null) {
 					continue;
@@ -401,7 +392,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					continue;
 				}
 				aqlStatic.validate(topArea);
-				SwingUtilities.invokeLater(() -> topArea.forceReparsing(aqlStatic));
+				clearSpellCheck();
 //				topArea.revalidate();
 				// System.out.println(aqlStatic.exns);
 				if (aqlStatic.result.getNotices().isEmpty()) {
@@ -414,7 +405,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					DefaultParserNotice notice = new StaticParserNotice((Parser) aqlStatic, exn.getMessage(), exn.line,
 							Color.red);
 					aqlStatic.result.addNotice(notice);
-					topArea.forceReparsing(aqlStatic);
+					clearSpellCheck();
 					oLabel.setText("err");
 				} catch (Throwable thr) {
 					thr.printStackTrace();
@@ -426,7 +417,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					// exn.printStackTrace();
 					// DefaultParserNotice notice = new StaticParserNotice((Parser)aqlStatic,
 					// exn.getMessage(), exn.line, Color.red);
-					topArea.forceReparsing(aqlStatic);
+					clearSpellCheck();
 					oLabel.setText("err");
 				} catch (Throwable thr) {
 					thr.printStackTrace();

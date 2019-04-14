@@ -410,8 +410,8 @@ public final class Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements S
 				boolean ok = dst.dp.eq(Collections.singletonMap(eq.first.first, Chc.inRight(ens.get(eq.first.second))),
 						lhs, rhs);
 				if (!ok) {
-					throw new RuntimeException("Equation " + eq.second + " = " + eq.third + " translates to " + lhs
-							+ " = " + rhs + ", which is not provable");
+					throw new RuntimeException("Source schema equation " + eq.second + " = " + eq.third + " translates to " + lhs
+							+ " = " + rhs + ", which is not provable in the target schema.  To proceed, consider removing it from the source or adding more equations to the target.");
 				}
 			}
 		}

@@ -977,11 +977,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		// clearSpellCheck();
 	}
 
-	/*
-	 * public void clearSpellCheck() { SwingUtilities.invokeLater(() -> { try {
-	 * topArea.forceReparsing(spc); } catch (Throwable t) { // t.printStackTrace();
-	 * } }); }
-	 */
+	
+		 
 	@SuppressWarnings("static-method")
 	protected Collection<String> reservedWords() {
 		return Collections.emptySet();

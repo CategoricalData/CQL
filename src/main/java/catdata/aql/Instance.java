@@ -295,12 +295,6 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		return Chc.rightIterator(getModel().get(enOrTy.r).iterator());
 	}
 
-	/*
-	 * private volatile long time = -1000;
-	 * 
-	 * @Override public synchronized long time() { return time; }
-	 * 
-	 * @Override public synchronized void time(long time) { this.time = time; }
-	 */
+	
 
 }

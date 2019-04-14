@@ -286,7 +286,6 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 			if (!eq.lhs.hasTypeType(eq.ctx) || !eq.ctx.isEmpty()) {
 				continue; // entity
 			}
-
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> l = transX(eq.lhs);
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> r = transX(eq.rhs);
 
@@ -294,7 +293,6 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 				in.eqs.add(new Eq<>(null, l, r));
 			}
 		}
-
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : alg
 				.schema().eqs) {
 			if (!sch.type(eq.first, eq.second).left) {
