@@ -847,7 +847,7 @@ public class AqlHelp implements
 				dir.mkdir();
 			}
 
-			String css = "\n<link rel=\"stylesheet\" href=\"http://categoricaldata.github.io/CQL/assets/css/style.css?v=9a8c768291dd8352661db3113e4cce2e313a0e0b\"><script src=\"http://categoricaldata.github.io/CQL/js/js.js\"></script>";
+			String css = "\n<link rel=\"stylesheet\" href=\"http://categoricaldata.net/nstyle.css\"><script src=\"http://categoricaldata.github.io/CQL/js/js.js\"></script>";
 
 			String search = "<html><head>\n" + "\n"
 					+ css 
@@ -949,7 +949,8 @@ public class AqlHelp implements
 		
 			logo.append("\n<br />");
 			logo.append("\n<a href=\"http://categorical.info\" target=\"_blank\">CI Website</a><br />");
-			logo.append("\n<a href=\"http://github.com/CategoricalData/CQL/wiki\" target=\"_blank\">Wiki</a><br />");
+			logo.append("\n<a href=\"http://categoricaldata.net\" target=\"_blank\">CQL Website</a><br />");
+			logo.append("\n<a href=\"http://github.com/CategoricalData/CQL/wiki\" target=\"_blank\">CQL Wiki</a><br />");
 			logo.append("\n</body></html>");
 
 			StringBuffer main = new StringBuffer();
