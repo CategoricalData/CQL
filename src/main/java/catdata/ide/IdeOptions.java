@@ -436,7 +436,7 @@ public class IdeOptions {
 		case OUTLINE_ELONGATED:
 		case FILE_PATH:
 		case BOOKMARK_COLOR:
-		case OUTLINE_DELAY:
+		//case OUTLINE_DELAY:
 		case HTML_COLOR:
 		case LINE_NUMBERS:
 		case OUTLINE_FONT:
@@ -659,9 +659,9 @@ public class IdeOptions {
 		case OUTLINE_ELONGATED:
 			a.outline_elongated(getBool(o));
 			return;
-		case OUTLINE_DELAY:
-			a.set_delay(getNat(o));
-			return;
+		//case OUTLINE_DELAY:
+		//	a.set_delay(getNat(o));
+		//	return;
 		case OUTLINE_FONT:
 			a.setOutlineFont(getFont(o));
 			return;
@@ -672,7 +672,7 @@ public class IdeOptions {
 
 	public static enum IdeOption {
 
-		OUTLINE_DELAY(IdeOptionType.NAT, 2),
+		//OUTLINE_DELAY(IdeOptionType.NAT, 2),
 
 		ENABLE_OUTLINE(IdeOptionType.BOOL, true), OUTLINE_ON_LEFT(IdeOptionType.BOOL, false),
 		OUTLINE_PREFIX_KIND(IdeOptionType.BOOL, true), OUTLINE_ELONGATED(IdeOptionType.BOOL, false),
@@ -813,8 +813,8 @@ public class IdeOptions {
 				return "Show kinds";
 			case OUTLINE_ELONGATED:
 				return "Elongate the outline";
-			case OUTLINE_DELAY:
-				return "Parsing polling delay (s)";
+			//case OUTLINE_DELAY:
+			//	return "Parsing polling delay (s)";
 			case OUTLINE_FONT:
 				return "Outline font";
 			case OUTLINE_TYPES:

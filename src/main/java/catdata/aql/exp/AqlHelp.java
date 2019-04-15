@@ -847,7 +847,7 @@ public class AqlHelp implements
 				dir.mkdir();
 			}
 
-			String css = "\n<link rel=\"stylesheet\" href=\"http://categoricaldata.github.io/CQL/assets/css/style.css?v=9a8c768291dd8352661db3113e4cce2e313a0e0b\">";
+			String css = "\n<link rel=\"stylesheet\" href=\"http://categoricaldata.github.io/CQL/assets/css/style.css?v=9a8c768291dd8352661db3113e4cce2e313a0e0b\"><script src=\"categoricaldata.github.io/CQL/js/js.js\">";
 
 			String search = "<html><head>\n" + "\n"
 					+ css 

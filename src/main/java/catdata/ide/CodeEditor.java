@@ -354,7 +354,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		p = new JPanel(new BorderLayout());
 		Util.assertNotNull(id);
 		history.add(0);
-		last_keystroke = System.currentTimeMillis();
+		//last_keystroke = System.currentTimeMillis();
 		// respArea.setWordWrap(true);
 		AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
 
@@ -377,12 +377,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		});
 
-		topArea.addKeyListener(new KeyAdapter() {
+		/*topArea.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				last_keystroke = System.currentTimeMillis();
 			}
-		});
+		});*/
 
 		if (getATMFrhs() != null) {
 			topArea.setSyntaxEditingStyle(getATMFlhs());
@@ -392,7 +392,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		topArea.setAutoscrolls(true);
 
 		InputMap inputMap = topArea.getInputMap();
-
+/*
 		topArea.addKeyListener(new KeyListener() {
 
 			@Override
@@ -420,8 +420,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 				return topArea.getCaretLineNumber() == Integer.max(0, topArea.getLineCount() - 1);
 			}
 
-		});
-
+		}); */
+		
 		KeyStroke key2;
 		key2 = System.getProperty("os.name").contains("Windows")
 				? KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.META_MASK)
@@ -558,7 +558,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		initSearchDialogs();
 
-		last_keystroke = System.currentTimeMillis();
+		//last_keystroke = System.currentTimeMillis();
 
 		jsp = new JScrollPane(getComp());
 		jsp.setBorder(BorderFactory.createEmptyBorder());
@@ -1062,16 +1062,16 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	private volatile Boolean outline_on_left = true;
 	public volatile Boolean outline_prefix_kind = true;
 	private volatile Boolean outline_elongated = true;
-	public volatile long sleepDelay = 2;
+	//public volatile long sleepDelay = 2;
 	public volatile Boolean outline_types = true;
-	public volatile Long last_keystroke = null;
+//	public volatile Long last_keystroke = null;
 
-	public void set_delay(int i) {
+	/* public void set_delay(int i) {
 		if (i < 1) {
 			i = 1;
 		}
 		sleepDelay = (long) i * 1000;
-	}
+	} */
 
 	public void outline_types(Boolean bool) {
 		outline_types = bool;
