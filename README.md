@@ -4,6 +4,7 @@ Categorical Query Language
 For more information, please see:
 - [Academic CQL page](http://categoricaldata.net/cql.html)
 - [Commercial CQL page](http://categorical.info/)
+- [Wiki/Docs/Help](http://github.com/CategoricalData/CQL/wiki)
 
 Build and installation
 ----------------------
