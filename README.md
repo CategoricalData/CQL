@@ -2,9 +2,9 @@ Categorical Query Language
 ====
 
 For more information, please see:
-- [Academic CQL page](http://categoricaldata.net/cql.html)
-- [Commercial CQL page](http://categorical.info/)
-- [Wiki/Docs/Help](http://github.com/CategoricalData/CQL/wiki)
+- <a href="http://categoricaldata.net/cql.html" target="_blank">Academic CQL page</a>
+- <a href="http://categorical.info/" target="_blank">Commercial CQL page</a>
+- <a href="https://github.com/CategoricalData/CQL/wiki" target="_blank">Wiki/Docs/Help</a>
 
 Build and installation
 ----------------------
@@ -15,7 +15,7 @@ Build and installation
 
 ### Eclipse
 	
-For best results, compile using the [Eclipse IDE](https://eclipse.org/jdt/).
+For best results, compile using the [Eclipse IDE](http://eclipse.org/jdt/).
 
 ### Gradle
 
