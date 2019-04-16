@@ -2,8 +2,10 @@ Categorical Query Language
 ====
 
 For more information, please see:
-- <a href="http://categoricaldata.net/cql.html" target="_blank">Academic CQL page</a>
-- <a href="http://categorical.info/" target="_blank">Commercial CQL page</a>
+- <a href="http://categoricaldata.net" target="_blank">Academic page</a>
+- <a href="http://categorical.info/" target="_blank">Commercial page</a>
+- <a href="http://github.com/CategoricalData/CQL/wiki" target="_blank">Wiki</a>
+- <a href="http://categoricaldata.net/help/index.html" target="_blank">Manual</a>
 
 Build and installation
 ----------------------
