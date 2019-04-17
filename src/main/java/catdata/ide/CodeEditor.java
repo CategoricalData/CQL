@@ -616,7 +616,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		JSplitPane xx1 = new Split(.8, JSplitPane.VERTICAL_SPLIT);
 		xx1.setDividerSize(6);
-		// xx1.setResizeWeight(.8);
+		xx1.setResizeWeight(.8);
 		JPanel cp = new JPanel(new BorderLayout());
 		cp.add(sp);
 		cp.add(errorStrip, BorderLayout.LINE_END);
@@ -627,15 +627,17 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		JComponent newtop = xx1;
 
 		if (enable_outline) {
-			JSplitPane xx2 = new Split(.8, JSplitPane.HORIZONTAL_SPLIT);
+			JSplitPane xx2 = new Split(.33, JSplitPane.HORIZONTAL_SPLIT);
 			xx2.setDividerSize(6);
 			// xx1.setForeground(xx2.getForeground());
 			if (outline_on_left) {
-				// xx2.setResizeWeight(.2);
+				xx2.setResizeWeight(.33);
 				xx2.add(p);
 				xx2.add(xx1);
 			} else {
-				// xx2.setResizeWeight(.8);
+				xx2 = new Split(.6, JSplitPane.HORIZONTAL_SPLIT);
+				xx2.setDividerSize(6);
+				xx2.setResizeWeight(.66);
 				xx2.add(xx1);
 				xx2.add(p);
 			}
@@ -645,7 +647,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		this.removeAll();
 		add(newtop);
-		// revalidate();
+		revalidate();
 	}
 
 	// public final JComponent outline;

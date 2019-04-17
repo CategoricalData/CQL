@@ -595,7 +595,7 @@ public class GUI extends JPanel {
 
 		}
 
-		newAction(e.toString(), e.getText(), e.lang());
+		newAction(e.toString().trim(), e.getText(), e.lang());
 	}
 
 	private static void abortAction() {

@@ -57,7 +57,9 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		for (En en : I.schema().ens) {
 			for (String x : m.get(en).second) {
 				// TODO aql drop foreign keys here first
+				//System.out.println(x);
 				stmt.execute(x); 
+				
 			}
 		}
 		stmt.close();

@@ -1,11 +1,12 @@
 /**
  * This CQL tutorial is a literate CQL file: by running it and then selecting 'emit HTML' 
- * from the CQL menu, the HTML CQL tutorial posted on categoricaldata.net is obtained.
+ * from the CQL menu, the HTML CQL tutorial posted on categorical.info/tutorial.html is obtained.
  */
 
-//HTML output is indicated by html { (* " <html code> " *) }.  The imported javascript file
-//renders the graphs (if any).  Markdown (a less verbose way to write HTML) is indicated by
+//HTML output is indicated by html { (* " <html code> " *) }.  
+//Markdown (a less verbose way to write HTML) is indicated by
 //md { (* " markdown code " *) }.  
+//The javascript import provides sorting capability for HTML tables.
 
 html { (* "
 <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"> 
@@ -14,7 +15,7 @@ html { (* "
 	<head>
 		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
 		<title>CQL Tutorial</title>
-		<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/simple.css\" />
+		<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/nstyle.css\" />
 		<script src=\"https://categoricaldata.net/js/simple.js\"></script>
 	</head>
 	<body>
@@ -289,12 +290,10 @@ html { (* " <hr/> <div id=\"conclusion\">
 
 	<p> This tutorial has barely scratched the surface of CQL's capabilities.  These capabilities
 		are described in the other examples built-in to the CQL tool, as well as in the examples
-		section of <a href=\"http://catinf.com\">catinf.com</a>.  In addition, CQL comes with a 
-		comprehensive manual specifying all available operations: see 
-		<a href=\"http://categoricaldata.net/fql.html\">categoricaldata.net</a>.  Finally, user
-		contributions of CQL code are available in the contrib folder of the CQL github repo
-		(available at the previous link).
-
+		section of <a href=\"http://categorical.info\">CI's website</a>.  
+		In addition, CQL comes with a 
+		<a href=\"http://categoricaldata.net/help/index.html\">comprehensive manual</a>
+		specifying all available operations.  
 	</p>
 	<br />
 </div></body></html>" *) }	

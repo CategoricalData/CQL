@@ -348,7 +348,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 			sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
 		}
 
-		return "literal {\n" + sb.toString().trim() + "}";
+		return "literal {\n" + sb.toString() + "}";
 	}
 
 	@Override

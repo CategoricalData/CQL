@@ -135,7 +135,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 				temp.add(Util.sep(Util.alphabetical(n.get(x)), " ") + " : " + x);
 			}
 
-			sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
+			sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") );
 		}
 
 		if (!eqs.isEmpty()) {
@@ -145,7 +145,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 				temp.add(sym.first + " = " + sym.second);
 			}
 			if (eqs.size() < 9) {
-				sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
+				sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") );
 			} else {
 				int step = 3;
 				int longest = 32;
@@ -179,7 +179,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 				temp.add(sym.getKey() + " = " + Util.maybeQuote(sym.getValue()));
 			}
 
-			sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
+			sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") );
 		}
 
 		return sb.toString().trim() + "}";

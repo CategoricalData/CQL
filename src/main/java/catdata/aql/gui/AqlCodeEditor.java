@@ -371,7 +371,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			parsed_prog_string = s;
 			// aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
 			// topArea.forceReparsing(aqlStatic);
-			oLabel.setText("?");
+			oLabel.setText(" ? ");
 
 			try {
 				parsed_prog = parse(s);
@@ -396,7 +396,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 //				topArea.revalidate();
 				// System.out.println(aqlStatic.exns);
 				if (aqlStatic.result.getNotices().isEmpty()) {
-					oLabel.setText("");
+					oLabel.setText("  ");
 				} else {
 					oLabel.setText("err");
 				}
@@ -409,7 +409,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					oLabel.setText("err");
 				} catch (Throwable thr) {
 					thr.printStackTrace();
-					oLabel.setText("anomaly");
+					oLabel.setText("anomaly please report");
 				}
 				// continue;
 			} catch (Throwable exn) {
@@ -421,7 +421,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					oLabel.setText("err");
 				} catch (Throwable thr) {
 					thr.printStackTrace();
-					oLabel.setText("anomaly");
+					oLabel.setText("anomaly please report");
 				}
 			}
 			// oLabel.setText(text);

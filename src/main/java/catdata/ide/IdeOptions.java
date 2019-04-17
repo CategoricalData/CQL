@@ -675,7 +675,7 @@ public class IdeOptions {
 		//OUTLINE_DELAY(IdeOptionType.NAT, 2),
 
 		ENABLE_OUTLINE(IdeOptionType.BOOL, true), OUTLINE_ON_LEFT(IdeOptionType.BOOL, false),
-		OUTLINE_PREFIX_KIND(IdeOptionType.BOOL, true), OUTLINE_ELONGATED(IdeOptionType.BOOL, false),
+		OUTLINE_PREFIX_KIND(IdeOptionType.BOOL, true), OUTLINE_ELONGATED(IdeOptionType.BOOL, true),
 		OUTLINE_TYPES(IdeOptionType.BOOL, true),
 
 		LOOK_AND_FEEL(IdeOptionType.LF, defaultLF()), FILE_PATH(IdeOptionType.FILE, new File("")),

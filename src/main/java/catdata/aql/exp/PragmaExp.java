@@ -1064,6 +1064,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			set.add(AqlOption.id_column_name);
 			set.add(AqlOption.varchar_length);
 			set.add(AqlOption.jdbc_export_truncate_after);
+			set.add(AqlOption.jdbc_quote_char);
 		}
 
 		@Override
@@ -1191,6 +1192,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			set.add(AqlOption.start_ids_at);
 			set.add(AqlOption.id_column_name);
 			set.add(AqlOption.varchar_length);
+			set.add(AqlOption.jdbc_quote_char);
 		}
 
 		public final Map<String, String> options1, options2;
@@ -1325,6 +1327,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			set.add(AqlOption.jdbc_query_export_convert_type);
 			set.add(AqlOption.id_column_name);
 			set.add(AqlOption.varchar_length);
+			set.add(AqlOption.jdbc_quote_char);
 		}
 
 		public final Map<String, String> options;
