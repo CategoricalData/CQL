@@ -383,6 +383,7 @@ public final class Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements S
 			Term<Ty, En2, Sym, Fk2, Att2, ?, ?> fk2 = Term.Fks(p.second, Term.Var(v));
 			Chc<Ty, En2> en2_t_actual = dst.type(new Pair<>(v, en2_s), fk2);
 			if (!en2_t_actual.equals(Chc.inRight(en2_t))) {
+				//System.out.println(this);
 				throw new RuntimeException("source foreign key " + fk1 + " maps to target path "
 						+ Util.sep(p.second, ".") + ", which has target entity " + en2_t_actual.toStringMash()
 						+ ", not " + en2_t + " as expected");

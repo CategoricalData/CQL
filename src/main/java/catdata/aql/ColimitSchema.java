@@ -488,10 +488,11 @@ public class ColimitSchema<N> implements Semantics {
 			colX.eqs.addAll(col.eqs.stream().map(t -> new Eq<>(Util.map(t.ctx, (k, v) -> new Pair<>(k, conv4(v))),
 					conv3(col, t.lhs), conv3(col, t.rhs))).collect(Collectors.toSet()));
 
+			//System.out.println(colX);
 			schemaStr0 = new Schema<>(ty, colX, options);
 
 			for (N n : order) {
-				mappingsStr0.put(n, conv5(col, schemaStr0, mappings.get(n)));
+				mappingsStr0.put(n, conv5(n, col, schemaStr0, mappings.get(n)));
 			}
 			return;
 		}
@@ -565,7 +566,7 @@ public class ColimitSchema<N> implements Semantics {
 			return Chc.inRight(conv1(v.r));
 		}
 
-		private Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> conv5(
+		private Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> conv5(N n,
 				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
 				Schema<Ty, En, Sym, Fk, Att> s,
 				Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>> m) {
@@ -574,7 +575,7 @@ public class ColimitSchema<N> implements Semantics {
 					(k, v) -> new Pair<>(k, new Triple<>(v.first, conv1(v.second), conv3(col, v.third))));
 			Map<Fk, Pair<En, List<Fk>>> fks = Util.map(m.fks, (k, v) -> new Pair<>(k, new Pair<>(conv1(v.first),
 					v.second.stream().map(x -> Fk.Fk(conv1(v.first), conv2Fk(x))).collect(Collectors.toList()))));
-
+			//System.out.println(fks);
 			return new Mapping<>(ens, atts, fks, m.src, s, false);
 		}
 	}
@@ -667,7 +668,7 @@ public class ColimitSchema<N> implements Semantics {
 			schemaStr0 = new Schema<>(ty, colX, options);
 
 			for (N n : mappings.keySet()) {
-				mappingsStr0.put(n, conv5(col, schemaStr0, mappings.get(n)));
+				mappingsStr0.put(n, conv5(col, schemaStr0, n, mappings.get(n)));
 			}
 		}
 
@@ -722,13 +723,14 @@ public class ColimitSchema<N> implements Semantics {
 		private Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> conv5(
 				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
 				Schema<Ty, En, Sym, Fk, Att> s,
+				N n,
 				Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>> m) {
 			Map<En, En> ens = Util.map(m.ens, (k, v) -> new Pair<>(k, conv1(v)));
 			Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts = Util.map(m.atts,
 					(k, v) -> new Pair<>(k, new Triple<>(v.first, conv1(v.second), conv3(col, v.third))));
 			Map<Fk, Pair<En, List<Fk>>> fks = Util.map(m.fks, (k, v) -> new Pair<>(k, new Pair<>(conv1(v.first),
 					v.second.stream().map(x -> Fk.Fk(conv1(v.first), conv2Fk(x))).collect(Collectors.toList()))));
-
+			
 			return new Mapping<>(ens, atts, fks, m.src, s, false);
 		}
 	}

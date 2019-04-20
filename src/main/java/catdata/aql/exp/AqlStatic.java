@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.swing.JCheckBox;
 import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
@@ -23,6 +22,7 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
 import catdata.aql.Pragma;
 import catdata.aql.gui.AqlCodeEditor.StaticParserNotice;
+import gnu.trove.set.hash.THashSet;
 
 public class AqlStatic extends AbstractParser {
 
@@ -31,6 +31,8 @@ public class AqlStatic extends AbstractParser {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void validate(RSyntaxTextArea area) {
 		Set<String> done = new TreeSet<>(exns.keySet());
+		Set<String> added = new THashSet<>(exns.size());
+
 		for (String n : env.prog.order) {
 			if (exns.containsKey(n)) {
 				continue;
@@ -88,7 +90,12 @@ public class AqlStatic extends AbstractParser {
 				try {
 					int z = area.getLineOfOffset(env.prog.lines.get(k));
 					z = Integer.min(z, area.getLineCount());
-					result.addNotice(new StaticParserNotice(this, text.get(), z, Color.magenta));
+					String w = text.get();
+					StaticParserNotice p = new StaticParserNotice(this, w, z, Color.magenta);
+					if (!added.contains(p.getMessage())) {
+						result.addNotice(p);
+						added.add(p.getMessage());	
+					}
 				} catch (BadLocationException ex) {
 					ex.printStackTrace();
 				}
@@ -127,7 +134,7 @@ public class AqlStatic extends AbstractParser {
 		}
 	}
 
-	public final DefaultParseResult result = new DefaultParseResult(this);
+	public final DefaultParseResult result;
 	
 	@Override
 	public synchronized DefaultParseResult parse(RSyntaxDocument doc1, String style) {
@@ -139,7 +146,7 @@ public class AqlStatic extends AbstractParser {
 	public final Map<String, Optional<String>> exns = Util.mk();
 
 	public AqlStatic(Program<Exp<?>> p) {
-		//this.result = new DefaultParseResult(this);
+		this.result = new DefaultParseResult(this);
 		this.env = new AqlEnv(p);
 	}
 

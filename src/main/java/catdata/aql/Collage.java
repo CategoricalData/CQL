@@ -459,7 +459,7 @@ public class Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	}
 
 	public Collection<String> allSymbolsAsStrings() {
-		Collection<String> ret = new LinkedList<>();
+		Collection<String> ret = new THashSet<>(syms.size()+atts.size()+fks.size()+gens.size()+sks.size());
 		for (Sym k : syms.keySet()) {
 			ret.add(k.toString());
 		}

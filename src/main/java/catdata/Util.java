@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.iterators.IteratorIterable;
 import org.apache.commons.collections4.list.TreeList;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Iterators;
 
@@ -830,6 +831,13 @@ public class Util {
 	public static <Ty> List<Ty> alphabetical(Collection<Ty> tys) {
 		List<Ty> ret = new ArrayList<>(tys);
 		ret.sort(AlphabeticalComparator);
+		return ret;
+	}
+	
+	public static List<String> closest(String z, Collection<String> tys) {
+		List<String> ret = new ArrayList<>(tys);
+
+		ret.sort((x,y)->StringUtils.getLevenshteinDistance(z, x) - StringUtils.getLevenshteinDistance(z, y));
 		return ret;
 	}
 

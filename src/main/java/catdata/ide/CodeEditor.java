@@ -52,6 +52,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -65,6 +66,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.commons.collections4.list.TreeList;
+import org.apache.commons.lang3.text.WordUtils;
 import org.fife.rsta.ui.GoToDialog;
 import org.fife.rsta.ui.search.FindDialog;
 import org.fife.rsta.ui.search.ReplaceDialog;
@@ -74,9 +76,11 @@ import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.ErrorStrip;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
+import org.fife.ui.rsyntaxtextarea.ErrorStrip.ErrorStripMarkerToolTipProvider;
 import org.fife.ui.rsyntaxtextarea.folding.CurlyFoldParser;
 import org.fife.ui.rsyntaxtextarea.folding.Fold;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
+import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
@@ -345,7 +349,51 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		hist();
 	}
 
-	ErrorStrip errorStrip;
+	protected static String truncate(String w) {
+		boolean truncated = false;
+		if (w.length() > 2048) {
+			w = w.substring(0, 2048);
+			truncated = true;
+		}
+		String lines[] = w.split("\\r?\\n");
+		StringBuffer sb = new StringBuffer();
+		int i = 0;
+		for (String line : lines) {
+			if (i++ == 40) {
+				truncated = true;
+				break;
+			}
+			sb.append(WordUtils.wrap(line, 40));			
+		}
+		if (truncated) {
+			sb.append("\n\nThis error message was truncated.");
+		}
+		return sb.toString();
+//		
+//		List<String> s = w.lines().map(x -> x.substring(0, Integer.min(80, x.length()))).collect(Collectors.toList());
+//		return Util.sep(s.subList(0, Integer.min(s.size(), 80)), "\n");
+	}
+	
+	protected ErrorStrip errorStrip;
+	
+	private static class CqlErrorStripMarkerToolTipProvider
+	implements ErrorStripMarkerToolTipProvider {
+
+	@Override
+	public String getToolTipText(List<ParserNotice> notices) {
+		StringBuilder sb = new StringBuilder("<html>");
+		if  (notices.size() > 1) {
+			sb.append("Error 1 of ");
+			sb.append(Integer.toString(notices.size()));
+			sb.append(". ");
+		}
+		sb.append(notices.get(0).getMessage().replace("\n", "<br>"));
+		sb.append("</html>");
+		return sb.toString();
+	
+	}
+
+}
 
 	protected CodeEditor(String title, Integer id, String content, LayoutManager l) {
 		super(l);
@@ -365,8 +413,13 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		topArea = new RSyntaxTextArea();
 		errorStrip = new ErrorStrip(topArea);
+		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
+		//ToolTipManager.sharedInstance().setInitialDelay(0);
+		//ToolTipManager.sharedInstance().setReshowDelay(0);
+		errorStrip.setMarkerToolTipProvider(new CqlErrorStripMarkerToolTipProvider());
 		errorStrip.setShowMarkedOccurrences(false);
 		errorStrip.setShowMarkAll(true);
+		//errorStrip.setSh
 
 		topArea.addMouseListener(new MouseAdapter() {
 			@Override

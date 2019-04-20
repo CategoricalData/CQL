@@ -681,6 +681,7 @@ public class GUI extends JPanel {
 		s = s.replace("\r", "");
 		try (FileWriter fw = new FileWriter(f)) {
 			fw.write(s);
+			fw.flush();
 			setDirty(id, false);
 		} catch (Exception e) {
 			e.printStackTrace();

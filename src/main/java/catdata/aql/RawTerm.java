@@ -321,6 +321,13 @@ public final class RawTerm {
 				|| col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
 				|| col.gens.containsKey(Gen.Gen(s)) || col.sks.containsKey(Sk.Sk(s));
 	}
+	
+	private static String truncateHard(String s) {
+		if (s.length() > 128) {
+			return s.substring(0, 128) + " ... ";
+		}
+		return s;
+	}
 
 	public synchronized static Quad<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>> infer1x(
 			Map<String, Chc<Ty, En>> Map0, RawTerm e0, RawTerm f, Chc<Ty, En> expected,
@@ -346,10 +353,10 @@ public final class RawTerm {
 		if (lhs.isEmpty()) {
 			String msg = "Cannot infer a well-sorted term for " + e0 + ".\n";
 			if (!vars.contains(Var.Var(e0.head)) && !isSymbolAll(col, e0.head) && e0.annotation == null) {
-				msg += "Undefined (or not java-parseable) symbol: " + e0.head + "\n";
-				msg += "\nAvailable symbols:\n\t" + Util.sep(Util.alphabetical(col.allSymbolsAsStrings()), "\n\t");
+				msg += "Undefined (or not java-parseable) symbol: " + e0.head + ".\n";
+				msg += "\nAvailable symbols:\n\t" + truncateHard(Util.sep(Util.closest(e0.head, col.allSymbolsAsStrings()), "\n\t"));
 
-			}
+			} 
 			if (expected != null) {
 				String msg2 = expected.left ? "type" : "entity";
 				msg += "Expected " + msg2 + ": " + expected.toStringMash();
@@ -370,7 +377,7 @@ public final class RawTerm {
 																				// fired
 			if (!vars.contains(Var.Var(f.head)) && !isSymbolAll(col, f.head) && f.annotation == null) {
 				msg += "Undefined (or not java-parseable) symbol: " + f.head + "\n";
-				msg += "\nAvailable symbols:\n\t" + Util.sep(Util.alphabetical(col.allSymbolsAsStrings()), "\n\t");
+				msg += "\nAvailable symbols:\n\t" + truncateHard(Util.sep(Util.closest(f.head, col.allSymbolsAsStrings()), "\n\t"));
 				// TODO aql merge this error message with the one above it
 			}
 			if (expected != null) {

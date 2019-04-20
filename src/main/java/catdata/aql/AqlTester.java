@@ -28,6 +28,9 @@ public class AqlTester {
 		}
 		Map<String, String> exs = new THashMap<>();
 		for (Example e : Examples.getExamples(Language.CQL)) {
+			if (e.getName().equals("TutorialTSP") || e.getName().equals("QuickSQL")) {
+				continue;
+			}
 			exs.put(e.getName(), e.getText());
 		}
 		Map<String, Throwable> result = runMany(exs);

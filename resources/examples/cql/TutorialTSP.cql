@@ -1,8 +1,9 @@
 options
 	prepend_entity_on_ids = false
-	jdbc_quote_char = "`"
+	jdbc_default_string = "jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1"
 	talg_reduction=1 
 	simplify_names=false
+	jdbc_quote_char = ""
 
 html { (* "
 <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"> 
@@ -26,7 +27,7 @@ md { (* "
 md { (* "
 ## PREFACE - CQL and SQL
 
-This CQL file interacts with a MySQL database running on <a href=\"http://catinf.com\">catinf.com</a>.  To run the tutorial, it
+This CQL file interacts with a MySQL database running on <a href=\"http://conexus.ai\">conexus.ai</a>.  To run the tutorial, it
 is necessary to <a href=\"https://dev.mysql.com/downloads/connector/j/5.1.html\">download the
 MySQL JDBC driver</a> and place it on the java classpath as described in the CQL manual. 
 	" *) }
@@ -1042,30 +1043,26 @@ structure already exists and if so drop those tables. This task is performed usi
 `pCleanUp`. In order to display the results of these commands the set of tables in the target schema
 are listed using the `pShwTbls` pragma.
 
-First clean out the target tables if present from a previous run.
 " *) }
-command pCleanUp = exec_jdbc 
-"jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
-"DROP TABLE IF EXISTS sts_SkillNdFrTask"
-"DROP TABLE IF EXISTS sts_Skill"
-"DROP TABLE IF EXISTS sts_SkillClass"
-"DROP TABLE IF EXISTS sts_Task"}
+
 
 md { (* "
 Export the results of the above construction of the span and its representative instance. The
 `export_jdbc_instance` defaults strings varchar(64). In this case we illustrate how that default 
 can be overridden using the varchar_length option.
 " *) }
-command eSTS = export_jdbc_instance iSTSpn 
-"jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" "sts_"
+command pCleanUp2 = exec_jdbc "" {
+"DROP TABLE IF EXISTS sts_SkillNdFrTask"
+"DROP TABLE IF EXISTS sts_Skill"
+"DROP TABLE IF EXISTS sts_SkillClass"
+"DROP TABLE IF EXISTS sts_Task"}
+command eSTS = export_jdbc_instance iSTSpn "" "sts_"
   { options varchar_length = 256 }
 
 md { (* "
-Display the contents of the `ci_test` schema in MySQL.
+Display the contents of the `ci_test` schema.
 " *) }
-command pShwTbls = exec_jdbc 
-"jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
-"SHOW  TABLES"}
+command pShwTbls = exec_jdbc "" {"SHOW  TABLES"}
  
 md { (* "
 The default CQL import process from a relational database submits an SQL query through the JDBC
@@ -1075,14 +1072,11 @@ of different options that can be used to provide flexibility. We make use of the
 for this import but will return to import options in a later example. The import defaults require
 a complete specification of all foreign key and attribute columns.
 " *) }
-instance iSTSpnImp = import_jdbc 
-"jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" : sSTSpn {
+instance iSTSpnImp = import_jdbc "" : sSTSpn {
    Skill -> "select id, fk_HasClass, SName, SCNameOnSkl from sts_Skill"
    SkillClass -> "select id, SCName from sts_SkillClass"
    Task -> "select id, TName from sts_Task"
    SkillNdFrTask -> "select id, fk_SkillNeeded, fk_ForTask, skill, task, skillclass from sts_SkillNdFrTask"
-//options
-  // always_reload = true -- why?
 }
 
 md { (* "
@@ -1123,17 +1117,18 @@ md { (* "
 We have already set up a set of tables and associated instance in our source RDBMS so we import
 that instance using a command analogous to the `iSTSpnImp` imported instance.
 " *) }
-instance iSPSpnImp = import_jdbc
-    "jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" : sSPSpn {
+instance iSPSpnImp = empty : sSPSpn
+/*
+import_jdbc "jdbc:mysql://mysql.conexus.ai:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" : sSPSpn {
    SpecificSkill -> "select id, fk_IsType, SSName, SSGSName, SSSCName from sps_SpecificSkill"
    GeneralSkill -> "select id, fk_HasClass, GSName, GSSCName from sps_GeneralSkill"
    SkillClass -> "select id, SCName from sps_SkillClass"
    Person -> "select id, PName from sps_Person"
    SkillPrvdByPerson -> "select id, fk_SpP_S, fk_SpP_P, skill, person from sps_SkillPrvdByPerson"
-//options
-  // always_reload = true - why?
+   options
+   	jdbc_quote_char = "`"
 }
-
+*/
 md { (* "
 In this example we begin to see for the first time a more representative example of the full 
 capability of the `schema_colimit` construction. In this more interesting colimit we are gluing 
@@ -1264,8 +1259,7 @@ instance iSTSpn_SPSpn_Merge2 = quotient_query iST_SP_Sum {
 }
 /*
 // Set up the SkillMatch and SkillClassMatch tables based on the exports.
-command pSetUpSkillMatch = exec_jdbc "com.mysql.cj.jdbc.Driver"
-"jdbc:mysql://mysql.catinf.com:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
+command pSetUpSkillMatch = exec_jdbc "" {
 "DROP TABLE IF EXISTS SkillMatch"
 "DROP TABLE IF EXISTS SkillClassMatch"
 

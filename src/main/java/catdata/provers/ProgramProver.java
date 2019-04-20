@@ -151,7 +151,7 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 			if (s == null) {
 				continue;
 			}
-			System.out.println("s " + s + " applies " + applies(r0.first, s, g) + " g " + g);
+			//System.out.println("s " + s + " applies " + applies(r0.first, s, g) + " g " + g);
 			if (!applies(r0.first, s, g)) {
 				continue;
 			}

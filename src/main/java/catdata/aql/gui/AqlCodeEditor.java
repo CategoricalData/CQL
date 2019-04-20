@@ -12,8 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Function;
 
 import javax.swing.DefaultListModel;
@@ -35,8 +33,10 @@ import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
+import org.fife.ui.rsyntaxtextarea.ErrorStrip.ErrorStripMarkerToolTipProvider;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
 import org.fife.ui.rsyntaxtextarea.parser.Parser;
+import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 
 import catdata.InteriorLabel;
 import catdata.ParseException;
@@ -343,12 +343,19 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		}
 		// qt = System.currentTimeMillis();
 	}
+	
+	
 
 	public void clearSpellCheck() {
 		SwingUtilities.invokeLater(() -> {
 			try {
+				topArea.clearParsers();
+				topArea.addParser(aqlStatic);
 				topArea.forceReparsing(aqlStatic);
 				topArea.revalidate();
+	
+			//	errorStrip.setMarkerToolTipProvider(provider);
+			//	topArea.setmark
 			} catch (Throwable t) {
 			}
 		});
@@ -356,6 +363,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 	@Override
 	protected void threadBody() {
+		aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
 		while (!isClosed) {
 			String s;
 			try {
@@ -379,7 +387,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					continue;
 				}
 				// parsed_prog = z;
-				aqlStatic = new AqlStatic(parsed_prog);
+				aqlStatic = new AqlStatic(parsed_prog);				
 				topArea.clearParsers();
 				topArea.addParser(aqlStatic);
 				clearSpellCheck();
@@ -404,6 +412,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 				try {
 					DefaultParserNotice notice = new StaticParserNotice((Parser) aqlStatic, exn.getMessage(), exn.line,
 							Color.red);
+					
 					aqlStatic.result.addNotice(notice);
 					clearSpellCheck();
 					oLabel.setText("err");
@@ -442,14 +451,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		}
 	}
 
-	private static String truncate(String w) {
-		w = w.substring(0, Integer.min(80 * 80, w.length()));
-		w = WordUtils.wrap(w, 80);
-		return w;
-//		
-//		List<String> s = w.lines().map(x -> x.substring(0, Integer.min(80, x.length()))).collect(Collectors.toList());
-//		return Util.sep(s.subList(0, Integer.min(s.size(), 80)), "\n");
-	}
+	
 
 	@Override
 	protected DefaultMutableTreeNode makeTree(List<String> set) {
