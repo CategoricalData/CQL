@@ -738,7 +738,11 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		@Override
 		public TyExp type(AqlTyping G) {
-			return G.defs.schs.get(var);
+			TyExp e = G.defs.schs.get(var);
+			if (e == null) {
+				throw new RuntimeException("Not a schema: " + var);
+			}
+			return e;
 		}
 	}
 

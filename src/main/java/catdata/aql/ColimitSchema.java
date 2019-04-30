@@ -3,8 +3,10 @@ package catdata.aql;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -423,135 +425,108 @@ public class ColimitSchema<N> implements Semantics {
 
 	public class Renamer2 {
 
-		public final Map<Set<Pair<N, En>>, String> m1 = new THashMap<>();
-		public final Map<String, Set<Pair<N, En>>> m2 = new THashMap<>();
+		public final Map<Set<Pair<N, En>>, String> m1 = Util.mk();
+		public final Map<String, Set<Pair<N, En>>> m2 = Util.mk();
 
 		public final Collage<Ty, En, Sym, Fk, Att, Void, Void> colX;
 		public final Map<N, Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att>> mappingsStr0 = new THashMap<>();
 
 		public final Schema<Ty, En, Sym, Fk, Att> schemaStr0;
 
-		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mEn = new THashMap<>();
-		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mFk = new THashMap<>();
-		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mAtt = new THashMap<>();
+		Map<Set<Pair<N, En>>, Map<Pair<N, Fk> , String>> mFk  = new THashMap<>();
+		Map<Set<Pair<N, En>>, Map<Pair<N, Att>, String>> mAtt = new THashMap<>();
+
 		final Map<Pair<N, En>, Set<Pair<N, En>>> eqcs;
 		boolean left = false;
+		private Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col;
 
+		/**
+		 * Relies on one schema being "first" (s1 + s2): - for any two entities, if they
+		 * are equated, then the resulting object's name is taken from the first schema.
+		 * - if e1 from s1 shares a name with e2 from s2 yet they are *not* equated,
+		 * then we disambiguate the latter with a prefix (doesn't matter what, perhaps
+		 * "<s2 name>_<e2 name>")
+		 * 
+		 * - for any two attributes that are equated, the resulting attribute's name is
+		 * taken from the first schema - if attr1 from e1 from s1 is not equated with
+		 * attr2 from e2 from s2, yet they share the same name and e1 was equated with
+		 * e2, then we disambiguate attr2 with a prefix (doesn't matter, perhaps
+		 * "<e2_name>_<attr2_name>"
+		 */
 		public Renamer2(Collection<N> order, Map<Pair<N, En>, Set<Pair<N, En>>> eqcs,
 				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
 				Map<N, Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>>> mappings,
 				AqlOptions options) {
 			this.eqcs = eqcs;
-			for (N n : order) {
-				for (En en : nodes.get(n).ens) {
-					Set<Pair<N, En>> pp = eqcs.get(new Pair<>(n, en));
-					Pair<Set<Pair<N, En>>, String> p = new Pair<>(pp, en.str);
-					if (!mEn.containsKey(p)) {
-						mEn.put(p, new THashSet<>());
-					}
-					mEn.get(p).add(n);
+			if (order.size() != 2) {
+				throw new RuntimeException("left_bias requires exactly two schemas as input.");
+			}
+			Iterator<N> i = order.iterator();
+			i.hasNext();
+			N s1 = i.next();
+			i.hasNext();
+			N s2 = i.next();
 
-					for (Fk fk : nodes.get(n).fksFrom(en)) {
-						Pair<Set<Pair<N, En>>, String> f = new Pair<>(pp, fk.str);
-						if (!mFk.containsKey(f)) {
-							mFk.put(f, new THashSet<>());
-						}
-						mFk.get(f).add(n);
-					}
-					for (Att att : nodes.get(n).attsFrom(en)) {
-						Pair<Set<Pair<N, En>>, String> a = new Pair<>(pp, att.str);
-						if (!mAtt.containsKey(a)) {
-							mAtt.put(a, new THashSet<>());
-						}
-						mAtt.get(a).add(n);
-					}
-				}
-			}
+			doEns(s1, s2);
+			this.col = col;
+			doFksAndAtts(s1, s2);
+
+			//System.out.println("f1 " + m1);
+		//	Util.anomaly();
 			colX = new Collage<>(ty.collage());
-			List<N> ww = new ArrayList<>(order);
-			for (Set<Pair<N, En>> eqc : new THashSet<>(eqcs.values())) {
-				Pair<N, En> p = smallest(eqc, ww);
-				String s = p.second.str;
-				if (m2.containsKey(s)) {
-					s = conv2En(p);
-				}
-				m1.put(eqc, s);
-				m2.put(s, eqc);
-			}
 
 			colX.ens.addAll(col.ens.stream().map(this::conv1).collect(Collectors.toSet()));
+			
 			colX.atts.putAll(Util.map(col.atts, (k, v) -> new Pair<>(Att.Att(conv1(col.atts.get(k).first), conv2Att(k)),
 					new Pair<>(conv1(v.first), v.second))));
+		
 			colX.fks.putAll(Util.map(col.fks, (k, v) -> new Pair<>(Fk.Fk(conv1(col.fks.get(k).first), conv2Fk(k)),
 					new Pair<>(conv1(v.first), conv1(v.second)))));
 
 			colX.eqs.addAll(col.eqs.stream().map(t -> new Eq<>(Util.map(t.ctx, (k, v) -> new Pair<>(k, conv4(v))),
 					conv3(col, t.lhs), conv3(col, t.rhs))).collect(Collectors.toSet()));
 
-			//System.out.println(colX);
+		//	System.out.println("colX " + colX);
 			schemaStr0 = new Schema<>(ty, colX, options);
 
+		
 			for (N n : order) {
+				//System.out.println(n + " " + mappings.get(n));
 				mappingsStr0.put(n, conv5(n, col, schemaStr0, mappings.get(n)));
 			}
-			return;
-		}
 
-		private Pair<N, En> smallest(Set<Pair<N, En>> x, List<N> l) {
-			List<Pair<N, En>> r = new ArrayList<>(x);
-			r.sort((a, b) -> Integer.compare(l.indexOf(a.first), l.indexOf(b.first)));
-			for (Pair<N, En> y : r) {
-				return y;
-			}
-			return Util.anomaly();
 		}
-
+		
+		private Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> conv5(N n,
+				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
+				Schema<Ty, En, Sym, Fk, Att> s,
+				Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>> m) {
+			Map<En, En> ens = Util.map(m.ens, (k, v) -> new Pair<>(k, conv1(v)));
+			Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts = Util.map(m.atts,
+					(k, v) -> new Pair<>(k, new Triple<>(v.first, conv1(v.second), conv3(col, v.third))));
+			Map<Fk, Pair<En, List<Fk>>> fks = Util.map(m.fks, (k, v) -> new Pair<>(k, new Pair<>(conv1(v.first),
+					v.second.stream().map(x -> Fk.Fk(conv1(v.first), conv2Fk(x))).collect(Collectors.toList()))));
+			//System.out.println(fks);
+			return new Mapping<>(ens, atts, fks, m.src, s, false);
+		}
+		
 		private En conv1(Set<Pair<N, En>> eqc) {
 			return En.En(m1.get(eqc));
 
 		}
 
-		private String conv2En(Pair<N, En> p) {
-			Set<Pair<N, En>> x = eqcs.get(p);
-			Pair<Set<Pair<N, En>>, String> pp = new Pair<>(x, p.second.str);
-
-			if (mEn.get(pp).size() > 1) {
-				return p.first + "_" + p.second.str;
-			}
-			return p.second.str;
+		private String conv2En(Set<Pair<N, En>> eqc) {
+			return conv1(eqc).str;
 		}
 
 		private String conv2Fk(Pair<N, Fk> p) {
-			Pair<N, En> en = new Pair<>(p.first, p.second.en);
-			String s = conv2En(en);
-
-			Pair<Set<Pair<N, En>>, String> f = new Pair<>(eqcs.get(en), p.second.str);
-
-			if (mFk.get(f).size() > 1) {
-				if (p.first.equals(Util.get0X(nodes.keySet()))) {
-					return p.second.str;
-				}
-				return s + "_" + p.second.str;
-			}
-			return p.second.str;
+			return mFk.get(col.fks.get(p).first).get(p);	
 		}
 
 		private String conv2Att(Pair<N, Att> p) {
-			Pair<N, En> en = new Pair<>(p.first, p.second.en);
-			String s = conv2En(en);
-
-			Pair<Set<Pair<N, En>>, String> f = new Pair<>(eqcs.get(en), p.second.str);
-
-			if (mAtt.get(f).size() > 1) {
-				if (p.first.equals(Util.get0X(nodes.keySet()))) {
-					return p.second.str;
-				}
-
-				return s + "_" + p.second.str;
-			}
-			return p.second.str;
+			return mAtt.get(col.atts.get(p).first).get(p);	
 		}
-
+		
 		private Term<Ty, En, Sym, Fk, Att, Void, Void> conv3(
 				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
 				Term<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> t) {
@@ -565,19 +540,151 @@ public class ColimitSchema<N> implements Semantics {
 			}
 			return Chc.inRight(conv1(v.r));
 		}
-
-		private Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> conv5(N n,
-				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
-				Schema<Ty, En, Sym, Fk, Att> s,
-				Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>> m) {
-			Map<En, En> ens = Util.map(m.ens, (k, v) -> new Pair<>(k, conv1(v)));
-			Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts = Util.map(m.atts,
-					(k, v) -> new Pair<>(k, new Triple<>(v.first, conv1(v.second), conv3(col, v.third))));
-			Map<Fk, Pair<En, List<Fk>>> fks = Util.map(m.fks, (k, v) -> new Pair<>(k, new Pair<>(conv1(v.first),
-					v.second.stream().map(x -> Fk.Fk(conv1(v.first), conv2Fk(x))).collect(Collectors.toList()))));
-			//System.out.println(fks);
-			return new Mapping<>(ens, atts, fks, m.src, s, false);
+		
+		private void doFksAndAtts(N s1, N s2) {	
+			//System.out.println(s1 + " and " + s2);
+			List<Pair<N, Fk>> x = new ArrayList<>(col.fks.keySet());
+			Collections.sort(x, (l,r) -> {
+				if (l.first.equals(s1) && l.first.equals(s1)) {
+					return Util.ToStringComparator.compare(l, r);
+				}
+				if (l.first.equals(s2) && l.first.equals(s2)) {
+					return Util.ToStringComparator.compare(l, r);
+				}
+				if (l.first.equals(s1) && l.first.equals(s2)) {
+					return 1;
+				}
+				if (l.first.equals(s1) && l.first.equals(s2)) {
+					return -1;
+				}
+				return Util.anomaly();
+			});
+			
+			for (Pair<N, Fk> fk : x) {
+				Pair<Set<Pair<N, En>>, Set<Pair<N, En>>> st = col.fks.get(fk); 
+				Set<Pair<N, En>> s = st.first;
+				
+				if (!mFk.get(s).containsValue(fk.second.str)) {
+					mFk.get(s).put(fk, fk.second.str);
+				} else {
+					mFk.get(s).put(fk, s2 + "_" + fk.second.str);
+				}
+			}
+			
+			List<Pair<N, Att>> y = new ArrayList<>(col.atts.keySet());
+			Collections.sort(x, (l,r) -> {
+				if (l.first.equals(s1) && l.first.equals(s1)) {
+					return Util.ToStringComparator.compare(l, r);
+				}
+				if (l.first.equals(s2) && l.first.equals(s2)) {
+					return Util.ToStringComparator.compare(l, r);
+				}
+				if (l.first.equals(s1) && l.first.equals(s2)) {
+					return 1;
+				}
+				if (l.first.equals(s1) && l.first.equals(s2)) {
+					return -1;
+				}
+				return Util.anomaly();
+			});
+			for (Pair<N, Att> att : y) {
+				Pair<Set<Pair<N, En>>, Ty> st = col.atts.get(att); 
+				Set<Pair<N, En>> s = st.first;
+				if (!mAtt.get(s).containsValue(att.second.str)) {
+					mAtt.get(s).put(att, att.second.str);
+				} else {
+					mAtt.get(s).put(att, s2 + "_" + att.second.str);
+				}
+			}
+		
+			
+			
 		}
+
+		private void doEns(N s1, N s2) {
+			for (En e1 : nodes.get(s1).ens) {
+				Pair<N, En> len = new Pair<>(s1, e1);
+				Set<Pair<N, En>> leqc = eqcs.get(len);
+				for (En e2 : nodes.get(s2).ens) {
+					Pair<N, En> ren = new Pair<>(s2, e2);
+					Set<Pair<N, En>> reqc = eqcs.get(ren);
+
+					if (leqc.equals(reqc)) {
+						String other = m1.get(leqc);
+						if (other != null && !other.equals(e1.str)) {
+							throw new RuntimeException("Conflict-A on e1 = " + e1 + " and e2 = " + e2
+									+ "; previous was " + other + " and current is " + e1.str);
+						}
+						m1.put(leqc, e1.str);
+						mFk.put(leqc, new THashMap<>());
+						mAtt.put(leqc, new THashMap<>());
+					}
+				}
+			}
+			for (En e1 : nodes.get(s1).ens) {
+				Pair<N, En> len = new Pair<>(s1, e1);
+				Set<Pair<N, En>> leqc = eqcs.get(len);
+				for (En e2 : nodes.get(s2).ens) {
+					Pair<N, En> ren = new Pair<>(s2, e2);
+					Set<Pair<N, En>> reqc = eqcs.get(ren);
+
+					if (leqc.equals(reqc)) {
+						continue;
+					}
+					if (e1.str.equals(e2.str)) {
+						String other = m1.get(leqc);
+						if (other != null && !other.equals(e1.str)) {
+							throw new RuntimeException("Conflict-B on e1 = " + e1 + " and e2 = " + e2
+									+ "; previous was " + other + " and current is " + e1.str);
+						}
+						m1.put(leqc, e1.str);
+						mFk.put(leqc, new THashMap<>());
+						mAtt.put(leqc, new THashMap<>());
+
+
+						other = m1.get(reqc);
+						if (other != null && !other.equals(s2 + "_" + e2.str)) {
+							throw new RuntimeException("Conflict-C on e1 = " + e1 + " and e2 = " + e2
+									+ "; previous was " + other + " and current is " + s2 + "_" + e2.str);
+						}
+						m1.put(reqc, s2 + "_" + e2.str);
+						mFk.put(reqc, new THashMap<>());
+						mAtt.put(reqc, new THashMap<>());
+
+					}
+				}
+
+			}
+			for (En e1 : nodes.get(s1).ens) {
+				Pair<N, En> len = new Pair<>(s1, e1);
+				Set<Pair<N, En>> leqc = eqcs.get(len);
+				String other = m1.get(leqc);
+				if (other != null) {
+					continue;
+				}
+
+				m1.put(leqc, e1.str);
+				mFk.put(leqc, new THashMap<>());
+				mAtt.put(leqc, new THashMap<>());
+			}
+			for (En e2 : nodes.get(s2).ens) {
+				Pair<N, En> ren = new Pair<>(s2, e2);
+				Set<Pair<N, En>> reqc = eqcs.get(ren);
+				String other = m1.get(reqc);
+				if (other != null) {
+					continue;
+				}
+
+				m1.put(reqc, e2.str);
+				mFk.put(reqc, new THashMap<>());
+				mAtt.put(reqc, new THashMap<>());
+
+			}
+			if (m1.size() != new THashSet<>(m1.values()).size()) {
+				throw new RuntimeException("Ambiguous renaming: " + Util.sep(m1, "\n", ","));
+			}
+		}
+
 	}
 
 	public class Renamer {
@@ -722,15 +829,14 @@ public class ColimitSchema<N> implements Semantics {
 
 		private Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> conv5(
 				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
-				Schema<Ty, En, Sym, Fk, Att> s,
-				N n,
+				Schema<Ty, En, Sym, Fk, Att> s, N n,
 				Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>> m) {
 			Map<En, En> ens = Util.map(m.ens, (k, v) -> new Pair<>(k, conv1(v)));
 			Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts = Util.map(m.atts,
 					(k, v) -> new Pair<>(k, new Triple<>(v.first, conv1(v.second), conv3(col, v.third))));
 			Map<Fk, Pair<En, List<Fk>>> fks = Util.map(m.fks, (k, v) -> new Pair<>(k, new Pair<>(conv1(v.first),
 					v.second.stream().map(x -> Fk.Fk(conv1(v.first), conv2Fk(x))).collect(Collectors.toList()))));
-			
+
 			return new Mapping<>(ens, atts, fks, m.src, s, false);
 		}
 	}

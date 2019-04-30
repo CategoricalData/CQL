@@ -28,15 +28,12 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
-import org.fife.ui.rsyntaxtextarea.ErrorStrip.ErrorStripMarkerToolTipProvider;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
 import org.fife.ui.rsyntaxtextarea.parser.Parser;
-import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 
 import catdata.InteriorLabel;
 import catdata.ParseException;
@@ -363,7 +360,9 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 	@Override
 	protected void threadBody() {
-		aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
+		Program<Exp<?>> p = new Program<>(Collections.emptyList(), "");
+		aqlStatic = new AqlStatic(p);
+		aqlStatic.env.typing = new AqlTyping();
 		while (!isClosed) {
 			String s;
 			try {

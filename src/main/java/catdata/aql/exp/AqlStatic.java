@@ -116,6 +116,7 @@ public class AqlStatic extends AbstractParser {
 				}
 				env.typing.defs.put(n, exp.kind(), o.r);
 			} catch (Throwable ex) {
+				//ex.printStackTrace();
 				if (ex.getMessage() == null) {
 					ex.printStackTrace();
 				}

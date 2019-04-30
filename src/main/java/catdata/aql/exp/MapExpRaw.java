@@ -318,11 +318,15 @@ public final class MapExpRaw extends MapExp implements Raw {
 				List<Fk> r = new ArrayList<>(p.second.size());
 				for (String o : p.second) {
 					r.add(Fk.Fk(start_en, o));
+					Fk z = Fk.Fk(start_en, o);
+					if (!dst0.fks.containsKey(z)) {
+						throw new RuntimeException("No target foreign key " + o + " starting at " + start_en);
+					}
 					start_en = dst0.fks.get(Fk.Fk(start_en, o)).second;
 				}
 				fksX.put(Fk.Fk(x, p.first.second), new Pair<>(start_en_fixed, r));
 			} catch (RuntimeException ex) {
-				ex.printStackTrace();
+				//ex.printStackTrace();
 				throw new LocException(fkPos.get(Fk.Fk(x, p.first.second)), "In foreign key mapping " + p.first + " -> "
 						+ Util.sep(p.second, ".") + ", " + ex.getMessage());
 			}

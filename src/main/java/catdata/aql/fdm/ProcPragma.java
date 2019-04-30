@@ -21,7 +21,7 @@ public class ProcPragma extends Pragma {
 
 	private final List<String> cmds;
 
-	private final List<String> responses = (new LinkedList<>());
+	private final List<String> responses = Collections.synchronizedList(new LinkedList<>());
 
 	@SuppressWarnings("unused")
 	private final Map<String, String> options;

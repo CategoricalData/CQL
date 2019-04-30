@@ -190,7 +190,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 			Handle h = start(sch);
 
 			if (!isJoined) {
-				throw new RuntimeException("Unjoined form no longer supported.  To request, contact us.");
+				throw new RuntimeException("Unjoined form no longer supported.");
 			}
 			for (En en : sch.ens) {
 				last = en;

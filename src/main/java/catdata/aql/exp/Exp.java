@@ -104,9 +104,10 @@ public abstract class Exp<X> {
 			Object t = type(G);
 			return Chc.inRightNC(t);
 		} catch (Throwable thr) {
+			//thr.printStackTrace();
 			if (thr.getMessage() == null) {
 				thr.printStackTrace();
-				return Util.anomaly();
+				return Chc.inLeftNC("Anomaly Please Report");
 			}
 			return Chc.inLeftNC(thr.getMessage());
 		}
