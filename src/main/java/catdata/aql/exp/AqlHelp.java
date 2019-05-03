@@ -284,6 +284,8 @@ public class AqlHelp implements
 			return "The number of foreign keys in a schema above which not to perform the instance literal divergence warning check.";
 		case diverge_warn:
 			return "Stops CQL on instance literals below the divergence limit, that have cyclic schemas without equations and an instance with generators but no equations.";
+		case csv_entity_name:
+			return "The entity name to use for imported CSV files with inferred schemas.";
 		default:
 			break;
 

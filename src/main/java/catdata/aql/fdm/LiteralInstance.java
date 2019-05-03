@@ -42,6 +42,7 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		if (size() < 16 * 1024) {
 			validate();
 		}
+		
 	}
 
 	@Override

@@ -166,7 +166,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 	public abstract Chc<Sk, Pair<X, Att>> reprT_prot(Y y);
 
-	public final Term<Ty, En, Sym, Fk, Att, Gen, Sk> reprT(Term<Ty, Void, Sym, Void, Void, Void, Y> y) {
+	public synchronized final Term<Ty, En, Sym, Fk, Att, Gen, Sk> reprT(Term<Ty, Void, Sym, Void, Void, Void, Y> y) {
 		if (y.sk() != null) {
 			Chc<Sk, Pair<X, Att>> x = reprT_prot(y.sk());
 			if (x.left) {

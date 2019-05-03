@@ -96,6 +96,9 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 
 		this.dp_ty = AqlProver.createInstance(new AqlOptions(ops, AqlOption.prover, p), talg(),
 				Schema.terminal(schema.typeSide));
+		
+		
+		
 	}
 
 	private void checkTermination(Schema<Ty, En, Sym, Fk, Att> c, int genSize, int eqSize, boolean check, int limit) {

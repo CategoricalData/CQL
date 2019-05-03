@@ -1276,7 +1276,10 @@ public class Util {
 
 		@Override
 		public boolean equals(Object obj) {
-			return m.equals(obj);
+			//Collections.
+			//if (o)
+			Map<X, Y> o = (Map<X, Y>) obj;
+			return m.equals(o);
 		}
 
 		public NiceMap(Map<X, Y> m) {
@@ -1356,7 +1359,7 @@ public class Util {
 
 	public static <X, Y> Map<X, Y> mk() {
 		Map<X, Y> m = (new THashMap<>());
-		return new NiceMap<>(m);
+		return ( new NiceMap<>(m) );
 	}
 
 }

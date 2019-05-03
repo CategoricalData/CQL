@@ -50,7 +50,7 @@ public final class InstExpDistinct<Gen, Sk, X, Y> extends InstExp<Gen, Sk, X, Y>
 		if (isC) {
 			throw new IgnoreException();
 		}
-		return new DistinctInstance<>(ii);
+		return DistinctInstance.make(ii);
 	}
 
 	@Override

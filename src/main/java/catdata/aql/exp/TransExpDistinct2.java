@@ -70,7 +70,7 @@ public final class TransExpDistinct2<Gen, Sk, X, Y> extends TransExp<Gen, Sk, Ge
 		if (isC) {
 			throw new IgnoreException();
 		}
-		return new IdentityTransform<>(x, Optional.of(new DistinctInstance<>(x)));
+		return new IdentityTransform<>(x, Optional.of(DistinctInstance.make(x)));
 	}
 
 	@Override

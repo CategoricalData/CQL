@@ -150,7 +150,7 @@ public class Row<En2, X> {
 		if (tail == null) {
 			return e.tail == null;
 		} else if (v.equals(e.v)) {
-			return f.test(x, e.x);
+			return f.test(x, e.x) && tail.rowEquals(f, e.tail);
 		}
 		return Util.anomaly();
 	}

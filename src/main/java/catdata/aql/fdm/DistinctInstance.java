@@ -29,8 +29,23 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	private final LinkedList<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = new LinkedList<>();
 
 	private final UnionFind<X> uf;
+	
+	public static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> make(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
+		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> j = new DistinctInstance<>(i);
+		if (i.size() == j.size()) {
+			return j;
+		}
+		for (;;) {
+			i = new DistinctInstance(j);
+			if (i.size() == j.size()) {
+				return j;
+			}
+			j = i;
+		}
+			
+	}
 
-	public DistinctInstance(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
+	private DistinctInstance(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
 		I = i;
 		// eqs.addAll();
 		uf = new UnionFind<>(I.size(), I.algebra().allXs());
@@ -44,20 +59,25 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				}
 			}
 		}
+		
 		// validate();
 	}
 
 	private boolean obsEq(En en, X x, X y) {
+		//System.out.println("At " + en + ": " + x + " = " + y);
 		for (Fk fk : schema().fksFrom(en)) {
 			if (!I.algebra().fk(fk, x).equals(I.algebra().fk(fk, y))) {
+			//	System.out.println("false on " + fk);
 				return false;
 			}
 		}
 		for (Att att : schema().attsFrom(en)) {
 			if (!I.dp().eq(null, I.reprT(I.algebra().att(att, x)), I.reprT(I.algebra().att(att, y)))) {
+			//	System.out.println("false on " + att);
 				return false;
 			}
 		}
+		//System.out.println("true ");
 		return true;
 	}
 
@@ -138,8 +158,8 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		}
 
 		@Override
-		public Term<Void, En, Void, Fk, Void, Gen, Void> repr(En en, X x) {
-			return I.algebra().repr(en, conv(x));
+		public synchronized Term<Void, En, Void, Fk, Void, Gen, Void> repr(En en, X x) {
+			return I.algebra().repr(en, x);
 		}
 
 		@Override

@@ -139,10 +139,11 @@ public class Constraints implements Semantics {
 				}
 			}
 		}
+	//	System.out.println("----");
 		Instance<Ty, En, Sym, Fk, Att, ?, ?, X, ?> ret = I;
 		for (;;) {
-			Instance<Ty, En, Sym, Fk, Att, ?, ?, X, ?> ret2 = (Instance<Ty, En, Sym, Fk, Att, ?, ?, X, ?>) step(ret,
-					options);
+			Instance<Ty, En, Sym, Fk, Att, ?, ?, X, ?> ret2 
+			= (Instance<Ty, En, Sym, Fk, Att, ?, ?, X, ?>) step(ret, options);
 
 			if (ret2 == null) {
 				return ret;
@@ -151,9 +152,9 @@ public class Constraints implements Semantics {
 		}
 	}
 
-	public synchronized <Gen, Sk, X, Y> Collection<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> triggers(
+	public synchronized <Gen, Sk, X, Y> Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> triggers(
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, AqlOptions options) {
-		Collection<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> T = new LinkedList<>();
+		Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> T = new LinkedList<>();
 
 		BiPredicate<Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> fn = (a,
 				e) -> {
@@ -165,21 +166,27 @@ public class Constraints implements Semantics {
 			}
 			return I.dp().eq(null, a.r, e.r);
 		};
+		int i = 0;
 		for (ED ed : eds) {
+			i++;
 			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> Q = ed.getQ(schema);
 			EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Fk, Att, X, Y> QI = new EvalInstance<>(Q, I, options);
 			outer: for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> e : QI.algebra().en(ED.FRONT)) {
+				//System.out.println("Consider " + e);
 				for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> a : QI.algebra().en(ED.BACK)) {
 
 					Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> aa = QI.algebra().fk(ED.UNIT, a);
+				//	System.out.println("try " + a );
 					if (aa.rowEquals(fn, e)) {
+					//	System.out.println("hit");
 						continue outer;
 					}
-
+					//System.out.println("Consider " + aa + " and " + e + ": miss");
 				}
 				// System.out.println(ed.hashCode() + " and " + e + " " +
 				// Thread.currentThread());
-				T.add(new Pair<>(ed, e));
+			//	System.out.println("miss");
+				T.add(new Pair<>(i-1, e));
 			}
 		}
 		return T;
@@ -228,28 +235,31 @@ public class Constraints implements Semantics {
 
 	public synchronized <Gen, Sk, X, Y> Instance<Ty, En, Sym, Fk, Att, ?, ?, ?, ?> step(
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, AqlOptions options) {
-		Collection<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> T = triggers(I, options);
+		Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> T = triggers(I, options);
+	
+		//System.out.println("------" + T.size() + "  ");
 		if (T.isEmpty()) {
 			return null;
 		}
 
-		DMG<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Void> shape = new DMG<>(T,
+		DMG<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Void> shape = new DMG<>(T,
 				new THashMap<>());
-		Map<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Instance<Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>>> nodesA = Util
+		Map<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Instance<Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>>> nodesA = Util
 				.mk(), nodesE = Util.mk();
 
-		Map<Pair<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Term<Void, En, Void, Fk, Void, Gen, Void>> aaa = Util
+		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Term<Void, En, Void, Fk, Void, Gen, Void>> aaa = Util
 				.mk();
-		Map<Pair<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Term<Void, En, Void, Fk, Void, Pair<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Void>> xxx = Util
-				.mk();
-
-		Map<Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>> bbb = Util
-				.mk();
-		Map<Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>>> yyy = Util
+		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Void>> xxx = Util
 				.mk();
 
-		for (Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> t : T) {
-			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> Q = t.first.getQ(schema);
+		Map<Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>> bbb = Util
+				.mk();
+		Map<Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>>> yyy = Util
+				.mk();
+
+		for (Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> t : T) {
+			ED tfirst = eds.get(t.first);
+			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> Q = tfirst.getQ(schema);
 			Instance<Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>> A = Q.ens.get(ED.FRONT);
 			Instance<Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>> E = Q.ens.get(ED.BACK);
 			Transform<Ty, En, Sym, Fk, Att, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att>>, ID, Chc<Var, Pair<ID, Att>>> AE = Q.fks
@@ -259,34 +269,43 @@ public class Constraints implements Semantics {
 			nodesE.put(t, E);
 			for (Entry<Var, Term<Void, En, Void, Fk, Void, Var, Void>> vv : AE.gens().entrySet()) {
 				Var v = vv.getKey();
-				En en = t.first.As.get(v).r;
+				En en = tfirst.As.get(v).r;
 				Term<Void, En, Void, Fk, Void, Var, Void> xx = vv.getValue();
-				Pair<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var> p = new Pair<>(t, v);
-				Term<Void, En, Void, Fk, Void, Pair<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Void> ww = xx
+				Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var> p = new Pair<>(t, v);
+				Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Void> ww = xx
 						.mapGen(v0 -> new Pair<>(t, v0));
 				xxx.put(p, ww);
-				aaa.put(p, I.algebra().repr(en, t.second.get(v).l));
+			//	try {
+				//	System.out.println(v);
+				//	System.out.println(t.second);
+					aaa.put(p, I.algebra().repr(en, t.second.get(v).l));
+				//} catch (RuntimeException ex) {
+				//	System.out.println(v);
+				//	System.out.println(t.second);
+				//	ex.printStackTrace();
+				//	throw ex;
+				//}
 			}
 			for (Entry<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> vv : AE.sks().entrySet()) {
 				Var v = vv.getKey();
 				// Ty en = t.first.As.get(v).l;
 				Term<Ty, En, Sym, Fk, Att, Var, Var> xx = vv.getValue();
-				Pair<Pair<ED, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var> p = new Pair<>(t, v);
+				Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var> p = new Pair<>(t, v);
 				yyy.put(p, xx.mapGenSk(v0 -> new Pair<>(t, v0), v0 -> new Pair<>(t, v0)));
 				bbb.put(p, t.second.get(v).r);
 			}
 		}
 
-		ColimitInstance<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Void, catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var, ID, Chc<Var, Pair<ID, catdata.aql.exp.Att>>> A0 = new ColimitInstance<>(
+		ColimitInstance<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Void, catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var, ID, Chc<Var, Pair<ID, catdata.aql.exp.Att>>> A0 = new ColimitInstance<>(
 				schema, shape, nodesA, Collections.emptyMap(), options);
 
-		ColimitInstance<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Void, catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var, ID, Chc<Var, Pair<ID, catdata.aql.exp.Att>>> E0 = new ColimitInstance<>(
+		ColimitInstance<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Void, catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var, ID, Chc<Var, Pair<ID, catdata.aql.exp.Att>>> E0 = new ColimitInstance<>(
 				schema, shape, nodesE, Collections.emptyMap(), options);
 
-		LiteralTransform<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Gen, Sk, Integer, Chc<Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Integer, catdata.aql.exp.Att>>, X, Y> A0I = new LiteralTransform<>(
+		LiteralTransform<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Gen, Sk, Integer, Chc<Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Integer, catdata.aql.exp.Att>>, X, Y> A0I = new LiteralTransform<>(
 				aaa, bbb, A0, I, false);
 
-		LiteralTransform<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Integer, Chc<Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Integer, catdata.aql.exp.Att>>, Integer, Chc<Pair<Pair<ED, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Integer, catdata.aql.exp.Att>>> A0E0 = new LiteralTransform<>(
+		LiteralTransform<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Integer, Chc<Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Integer, catdata.aql.exp.Att>>, Integer, Chc<Pair<Pair<Integer, Row<catdata.aql.exp.En, Chc<X, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>>>>, Var>, Pair<Integer, catdata.aql.exp.Att>>> A0E0 = new LiteralTransform<>(
 				xxx, yyy, A0, E0, false);
 
 		return pushout(A0E0, A0I, options);

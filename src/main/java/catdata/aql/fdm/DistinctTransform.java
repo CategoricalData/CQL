@@ -27,12 +27,12 @@ public class DistinctTransform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y
 
 	@Override
 	public Instance<Ty, En, Sym, Fk, Att, Gen1, Sk1, X1, Y1> src() {
-		return new DistinctInstance<>(t.src());
+		return DistinctInstance.make(t.src());
 	}
 
 	@Override
 	public Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst() { // TODO aql recomputes
-		return new DistinctInstance<>(t.dst());
+		return DistinctInstance.make(t.dst());
 	}
 
 }

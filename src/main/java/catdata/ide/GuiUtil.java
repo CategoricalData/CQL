@@ -237,13 +237,13 @@ public class GuiUtil {
 
 		JPanel tt = new JPanel(new GridLayout(1, 1));
 		tt.add(new PDControlScrollPane(t));
-		// TableRowSorter<?> sorter = new MyTableRowSorter(t.getModel());
-		// if (colNames.length > 0) {
-		// sorter.toggleSortOrder(0);
-		// }
-		// t.setRowSorter(sorter);
+		 TableRowSorter<?> sorter = new MyTableRowSorter(t.getModel());
+		 if (colNames.length > 0) {
+		 sorter.toggleSortOrder(0);
+		 }
+		 t.setRowSorter(sorter);
 
-		// sorter.allRowsChanged();
+		 sorter.allRowsChanged();
 
 		for (int row = 0; row < t.getRowCount(); row++) {
 			int rowHeight = t.getRowHeight();

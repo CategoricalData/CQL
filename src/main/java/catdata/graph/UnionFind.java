@@ -49,6 +49,7 @@ public class UnionFind<X> {
 	}
 
 	public int find(int p) {
+		
 		int root = p;
 		while (root != parent[root]) {
 			root = parent[root];
@@ -63,7 +64,12 @@ public class UnionFind<X> {
 	}
 
 	public X find(X p) {
-		return iso1[find(iso2.get(p))];
+		int x = iso2.get(p);
+		if (x == -1) {
+			System.out.println(p);
+			System.out.println(iso2);
+		}
+		return iso1[find(x)];
 	}
 
 	public boolean connected(X p, X q) {

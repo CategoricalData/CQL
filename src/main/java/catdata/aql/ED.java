@@ -210,7 +210,7 @@ public class ED {
 	public String toString() {
 
 		String toString = "";
-
+	
 		if (!As.isEmpty()) {
 			toString += "\tforall";
 			List<String> temp = new LinkedList<>();
@@ -252,6 +252,7 @@ public class ED {
 			toString += "\n\t\t" + Util.sep(temp, "\n\t\t") + "\n";
 		}
 		return toString;
+		
 	}
 
 //	public final Schema<Ty, En, Sym, Fk, Att> schema;

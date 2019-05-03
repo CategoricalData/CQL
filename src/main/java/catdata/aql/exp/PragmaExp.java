@@ -15,6 +15,7 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.Constraints;
 import catdata.aql.ED;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -282,18 +283,19 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				@Override
 				public synchronized void execute() {
 					Instance J = I.eval(env, isC);
-					Collection t = C.eval(env, isC).triggers(J, env.defaults);
+					Constraints q = C.eval(env, isC);
+					Collection t = q.triggers(J, env.defaults);
 					if (!t.isEmpty()) {
-						throw new RuntimeException("Not satisfied.\n\n" + printTriggers(t, J));
+						throw new RuntimeException("Not satisfied.\n\n" + printTriggers(q, t, J));
 					}
 				}
 
-				private String printTriggers(
-						Collection<Pair<ED, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> t,
+				private String printTriggers(Constraints q,
+						Collection<Pair<Integer, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> t,
 						@SuppressWarnings("unused") Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J) {
-					Map<ED, List<Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> m = new THashMap<>(
+					Map<Integer, List<Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> m = new THashMap<>(
 							t.size());
-					for (Pair<ED, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> p : t) {
+					for (Pair<Integer, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> p : t) {
 						if (!m.containsKey(p.first)) {
 							m.put(p.first, new LinkedList<>());
 						}
@@ -302,9 +304,9 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 					}
 					String ret = "";
-					for (ED ed : m.keySet()) {
+					for (Integer ed : m.keySet()) {
 						ret += "======================\n";
-						ret += "On constraint\n\n" + ed.toString() + "\n\nthe failing triggers are:\n\n";
+						ret += "On constraint\n\n" + q.eds.get(ed).toString() + "\n\nthe failing triggers are:\n\n";
 						ret += Util.sep(m.get(ed).iterator(), "\n",
 								r -> Util.sep(r.map((z, e) -> z.toStringMash()).asMap(), "->", ", "));
 						ret += "\n";

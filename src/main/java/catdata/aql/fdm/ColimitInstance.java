@@ -115,7 +115,7 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 		}
 
 		// AqlOptions strat = new AqlOptions(options, col);
-		// col.validate();
+	//	 col.validate();
 //		BiFunction<En,Pair<N,Gen>,Object> printGen = (y,x) -> nodes.get(x.first).algebra().printX(y,nodes.get(x.first).algebra().nf(Term.Gen(x.second)));
 		Function<Pair<N, Gen>, Object> printGen = (x) -> nodes.get(x.first).algebra().nf(Term.Gen(x.second));
 
@@ -128,7 +128,9 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 		J = new LiteralInstance<>(schema(), col.gens, col.sks, eqs, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
-		// validate();
+		//J.validate();
+		
+		
 	}
 
 	@Override
