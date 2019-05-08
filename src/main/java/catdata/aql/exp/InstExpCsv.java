@@ -1,5 +1,6 @@
 package catdata.aql.exp;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -128,16 +129,22 @@ public class InstExpCsv
 			Reader r = map.get(k);
 
 			// File file = new File(map.get(k));
-			// Reader fileReader = new FileReader(file);
+			// BufferedReader fileReader = new BufferedReader(r);
+			 //String s;
+			 ///while ((s = fileReader.readLine()) != null) {
+			//	 System.out.println(s);
+			// }
+			
 
 			final CSVReader reader = new CSVReaderBuilder(r).withCSVParser(parser)
 					.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
 
 			List<String[]> rows = reader.readAll();
 
-			r.close();
-
+			
 			ret.put(En.En(k), rows);
+			reader.close();
+			r.close();
 		}
 
 		if (!omitCheck) {
@@ -163,7 +170,7 @@ public class InstExpCsv
 			InputStream is = makeURL(x);
 			try {
 				Reader r = new InputStreamReader(is);
-				m.put(en.convert(), r);
+				m.put(en.str, r);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				if (!(boolean) op.getOrDefault(AqlOption.import_missing_is_empty)) {
@@ -177,7 +184,7 @@ public class InstExpCsv
 	}
 
 	private synchronized InputStream makeURL(String x) throws Exception {
-		if (f.startsWith("file://") || f.startsWith("http://")) {
+		if (f.startsWith("file://") || f.startsWith("http://") || f.startsWith("https://")) {
 			return new URL(x).openStream();
 		}
 		return new FileInputStream(new File(x));
@@ -200,11 +207,11 @@ public class InstExpCsv
 			inner = Util.toMapSafely(s.second);
 		}
 		boolean autoGenIds = (Boolean) op.getOrDefault(inner, AqlOption.csv_generate_ids);
-		for (En en2 : rows.keySet()) {
-			if (rows.get(en2).size() == 0) {
-				throw new RuntimeException("No header in CSV file for " + en2);
+		//for (En en2 : rows.keySet()) {
+			if (rows.get(en0).size() == 0) {
+				throw new RuntimeException("No header in CSV file for " + en0);
 			}
-		}
+		//}
 
 		// index of each column name
 		Map<String, Integer> m = new THashMap<>();

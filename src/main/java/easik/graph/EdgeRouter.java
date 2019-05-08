@@ -13,12 +13,13 @@ import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.EdgeView;
 import org.jgraph.graph.GraphLayoutCache;
+import org.jgraph.util.ParallelEdgeRouter;
 
 /**
  * A routing algorithm that routes multiple edges in parallel, but separated. We
  * extend JGraph's ParallelEdgeRouter to also handle separating parallel loops.
  */
-public class EdgeRouter extends org.jgraph.util.ParallelEdgeRouter {
+public class EdgeRouter extends ParallelEdgeRouter {
 	/**
 	 *    
 	 */

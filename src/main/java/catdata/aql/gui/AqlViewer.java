@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -17,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -35,6 +37,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import com.google.common.base.Function;
+import com.mxgraph.layout.mxFastOrganicLayout;
+import com.mxgraph.layout.mxParallelEdgeLayout;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.view.mxGraph;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -83,6 +89,7 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -152,6 +159,36 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 		return ret;
 	}
+	/*
+	 * private <Ty, En, Sym, Fk, Att> JComponent viewSchemaAlt(Schema<Ty, En, Sym,
+	 * Fk, Att> schema) {
+	 * 
+	 * mxGraph graph = new mxGraph(); graph.setAllowLoops(true);
+	 * graph.setCellsBendable(true); graph.setCellsDisconnectable(false);
+	 * graph.setHtmlLabels(true); graph.setAutoSizeCells(true);
+	 * graph.setMultigraph(true); graph.setEdgeLabelsMovable(false);
+	 * graph.setAllowNegativeCoordinates(true); graph.setDisconnectOnMove(false);
+	 * graph.setPortsEnabled(true); graph.setCellsEditable(false); // graph.set
+	 * Object parent = graph.getDefaultParent();
+	 * 
+	 * graph.getModel().beginUpdate(); try { Map<En, Object> m = new THashMap<>();
+	 * int j = 0; for (En en : schema.ens) { StringBuffer sb = new StringBuffer();
+	 * sb.append("<center>"); sb.append(en.toString()); sb.append("</center><hr/>");
+	 * int i = 0; int l = 0; for (Att att : Util.alphabetical(schema.attsFrom(en)))
+	 * { if (i != 0) { sb.append("<br/>"); } sb.append(att.toString()); i++; l =
+	 * Math.max(l, att.toString().length()); } //sb.append("</html>"); Object v1 =
+	 * graph.insertVertex(parent, null, sb.toString(), 20 + j, 20 + j, 6*l, 8+18*i,
+	 * "ROUNDED;align=left;strokeColor=white;fillColor=white"); m.put(en, v1); j +=
+	 * 20; } for (Entry<Fk, Pair<En, En>> fk : schema.fks.entrySet()) {
+	 * graph.insertEdge(parent, null, fk.getKey().toString(),
+	 * m.get(fk.getValue().first), m.get(fk.getValue().second)); } } finally {
+	 * graph.getModel().endUpdate(); } var layout = new mxFastOrganicLayout(graph);
+	 * layout.execute(graph.getDefaultParent()); var layout2 = new
+	 * mxParallelEdgeLayout(graph); layout2.execute(graph.getDefaultParent());
+	 * 
+	 * mxGraphComponent graphComponent = new mxGraphComponent(graph); return
+	 * graphComponent; }
+	 */
 
 	private <Ty, En, Sym, Fk, Att> JComponent viewSchema(Schema<Ty, En, Sym, Fk, Att> schema) {
 		Graph<Chc<Ty, En>, Chc<Fk, Att>> sgv = new DirectedSparseMultigraph<>();
@@ -212,9 +249,42 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 
 		Function<Chc<Fk, Att>, String> et = Chc::toStringMash;
-		Function<Chc<Ty, En>, String> vt = Chc::toStringMash;
+		Function<Chc<Ty, En>, String> vt = x -> {
+			if (x.left) {
+				return x.l.toString();
+			}
+			En en = x.r;
+			//if (!showAtts) {
+			//	return en.toString();
+			//}
+			StringBuffer sb = new StringBuffer();
+			sb.append("<html><center>");
+			sb.append(en.toString());
+			sb.append("</center><hr/>");
+			// int i = 0;
+			int l = 0;
+			for (Att att : Util.alphabetical(schema.attsFrom(en))) {
+				if (l != 0) {
+					sb.append("<br/>");
+				}
+				sb.append(att.toString());
+				l++;
+				// l = Math.max(l, att.toString().length());
+			}
+			sb.append("</html>");
+			return sb.toString();
+
+		};
 		vv.getRenderContext().setEdgeLabelTransformer(et);
 		vv.getRenderContext().setVertexLabelTransformer(vt);
+
+		vv.getRenderContext().setVertexLabelRenderer(new VertexLabelRenderer() {
+			@Override
+			public <V> Component getVertexLabelRendererComponent(JComponent arg0, Object arg1, Font arg2, boolean arg3,
+					V arg4) {
+				return new JLabel(arg1.toString());
+			}
+		});
 
 		GraphZoomScrollPane zzz = new GraphZoomScrollPane(vv);
 		JPanel ret = new JPanel(new GridLayout(1, 1));
@@ -1067,7 +1137,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	@Override
 	public <Ty, En, Sym, Fk, Att> Unit visit(String k, JTabbedPane ret, Schema<Ty, En, Sym, Fk, Att> S) {
 		ret.addTab("Graph", viewSchema(S));
-//		ret.add(viewSchema2(schema), "Graph2");
+		// ret.add("Graph2", viewSchemaAlt(S));
 		ret.addTab("DP", viewDP(S.dp(), S.collage(), S.typeSide.js));
 		// ret.add(new CodeTextPanel("", schema.collage().toString()), "Temp");
 		ret.add("Acyclic?", acyclicPanel(S));
@@ -1125,7 +1195,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	public Unit visit(String k, JTabbedPane ret, Comment P) {
 		return Unit.unit;
 	}
-	
+
 	@Override
 	public Unit visit(String k, JTabbedPane ret, Mor P) {
 		return Unit.unit;

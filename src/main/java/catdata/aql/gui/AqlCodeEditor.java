@@ -130,9 +130,9 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		};
 		topArea.getDocument().addDocumentListener(listener);
 
-		JMenuItem html = new JMenuItem("Emit HTML");
-		html.addActionListener(x -> emitDoc());
-		topArea.getPopupMenu().add(html, 0);
+		//JMenuItem html = new JMenuItem("Emit HTML");
+		//html.addActionListener(x -> emitDoc());
+		//topArea.getPopupMenu().add(html, 0);
 
 		q.add(Unit.unit);
 

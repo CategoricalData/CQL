@@ -950,7 +950,7 @@ public class AqlHelp implements
 			logo.append("\n<a href=\"search.php\" target=\"primary\">Search</a><br />");
 		
 			logo.append("\n<br />");
-			logo.append("\n<a href=\"http://categorical.info\" target=\"_blank\">CI Website</a><br />");
+		//	logo.append("\n<a href=\"http://categorical.info\" target=\"_blank\">CI Website</a><br />");
 			logo.append("\n<a href=\"http://categoricaldata.net\" target=\"_blank\">CQL Website</a><br />");
 			logo.append("\n<a href=\"http://github.com/CategoricalData/CQL/wiki\" target=\"_blank\">CQL Wiki</a><br />");
 			logo.append("\n</body></html>");

@@ -16,7 +16,7 @@ java -cp "cql.jar:mysql-connector-java-5.1.47.jar" catdata.ide.IDE
 		
 //We start by viewing a public MySQL database
 
-command ViewSrc = exec_jdbc "jdbc:mysql://mysql.conexus.ai:3306/aql_tutorial?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
+command ViewSrc = exec_jdbc "jdbc:mysql://mysql.categoricaldata.net:3306/aql_tutorial?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
 	"SELECT * FROM Employee"
 	"SELECT * FROM Department"	
 }
@@ -25,7 +25,7 @@ command ViewSrc = exec_jdbc "jdbc:mysql://mysql.conexus.ai:3306/aql_tutorial?use
 //The only difference between the SQL and CQL tables is that in CQL we can see 
 //globally unique row numbers and references."
 //In this case, we are using a public MySQL DB that uses back-ticks for quotes. 
-instance EmpDept = import_jdbc_all "jdbc:mysql://mysql.conexus.ai:3306/aql_tutorial?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
+instance EmpDept = import_jdbc_all "jdbc:mysql://mysql.categoricaldata.net:3306/aql_tutorial?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
 	options jdbc_quote_char = "`"
 }
 
