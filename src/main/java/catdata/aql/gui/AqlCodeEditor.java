@@ -50,6 +50,7 @@ import catdata.aql.exp.AqlStatic;
 import catdata.aql.exp.AqlTyping;
 import catdata.aql.exp.Exp;
 import catdata.aql.exp.IAqlParser;
+import catdata.aql.extension.Extensions;
 import catdata.ide.CodeEditor;
 import catdata.ide.CodeTextPanel;
 import catdata.ide.GUI;
@@ -130,12 +131,20 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		};
 		topArea.getDocument().addDocumentListener(listener);
 
-		//JMenuItem html = new JMenuItem("Emit HTML");
-		//html.addActionListener(x -> emitDoc());
-		//topArea.getPopupMenu().add(html, 0);
+		JMenuItem html = new JMenuItem("Visual Edit");
+		html.addActionListener(x -> visualEdit());
+		topArea.getPopupMenu().add(html, 0);
 
 		q.add(Unit.unit);
+		
+	}
 
+	private void visualEdit() {
+		Extensions.getExtensions().visualEdit(this);
+	}
+	
+	public void deployAction() {
+		Extensions.getExtensions().deploy(this);
 	}
 
 	AqlStatic aqlStatic;
@@ -531,6 +540,17 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		}
 		// }
 		return model;
+	}
+	
+	private int shouldFold = 0;
+	@Override
+	public void setVisible(boolean b) {
+		super.setVisible(b);
+		
+		if (shouldFold++ < 2) {
+			foldAll(true); 
+		}
+		
 	}
 
 }

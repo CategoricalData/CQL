@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -37,10 +36,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import com.google.common.base.Function;
-import com.mxgraph.layout.mxFastOrganicLayout;
-import com.mxgraph.layout.mxParallelEdgeLayout;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.view.mxGraph;
 
 import catdata.Chc;
 import catdata.Pair;

@@ -647,7 +647,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		// build();
 
 		p.setMinimumSize(new Dimension(0, 0));
-
+		//topArea.fold
+		
 	}
 
 	public synchronized void addToHistory(int i) {
@@ -748,6 +749,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	// private final SpellChecker spc;
 
 	public void foldAll(boolean b) {
+		SwingUtilities.invokeLater(() -> {
 		int i = topArea.getFoldManager().getFoldCount();
 		for (int j = 0; j < i; j++) {
 			Fold fold = topArea.getFoldManager().getFold(j);
@@ -759,6 +761,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		sp.repaint();
 		setCaretPos(topArea.getCaretPosition());
 		topArea.getFoldManager().reparse();
+		topArea.revalidate();
+		});
 	}
 
 	public void setFontSize(int size) {
@@ -1427,6 +1431,10 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	protected DefaultListModel<String> foo() {
 		return new DefaultListModel<>();
+	}
+
+	public void deployAction() {
+		
 	}
 
 }

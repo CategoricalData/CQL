@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
@@ -43,14 +45,10 @@ import catdata.Pair;
 import catdata.Unit;
 import catdata.Util;
 import catdata.aql.AqlTester;
-import catdata.aql.Kind;
 import catdata.aql.exp.AqlEnv;
 import catdata.aql.gui.AqlCodeEditor;
 import catdata.ide.IdeOptions.IdeOption;
 import catdata.nested.NraViewer;
-import catdata.sql.SqlChecker;
-import catdata.sql.SqlLoader;
-import catdata.sql.SqlMapper;
 import easik.Easik;
 import easik.ui.menu.popup.ImportSketchAction;
 import gnu.trove.map.hash.THashMap;
@@ -222,6 +220,10 @@ public class GUI extends JPanel {
 		MenuItem abortItem = new MenuItem("Stop");
 		toolsMenu.add(abortItem);
 		abortItem.addActionListener(e -> abortAction());
+		
+		MenuItem deployItem = new MenuItem("Deploy");
+		toolsMenu.add(deployItem);
+		deployItem.addActionListener(e -> deployAction());
 
 		MenuItem optionsItem = new MenuItem("Options");
 		toolsMenu.add(optionsItem);
@@ -436,14 +438,14 @@ public class GUI extends JPanel {
         public Dimension getPreferredSize(){ 
             Dimension dim = super.getPreferredSize(); 
           //  if ( !layingOut ) {
-                dim.width = 20 + dim.width;
+                dim.width = 40 + dim.width;
            // }
             return dim; 
         }
     }
 	
 	private static JPanel makeToolBar() {
-		JPanel toolBar = new JPanel(new GridLayout(1, 11));
+		JPanel toolBar = new JPanel(new GridLayout(1, 12));
 
 		//JButton helpb = new JButton("Help");
 		//helpb.addActionListener(e -> IdeOptions.showAbout());
@@ -461,6 +463,14 @@ public class GUI extends JPanel {
 			CodeEditor<?, ?, ?> ed = (CodeEditor<?, ?, ?>) editors.getComponentAt(editors.getSelectedIndex());
 			if (ed != null) {
 				ed.abortAction();
+			}
+		});
+		
+		JButton deployB = new JButton("Deploy");
+		deployB.addActionListener(e -> {
+			CodeEditor ed = (CodeEditor) editors.getComponentAt(editors.getSelectedIndex());
+			if (ed != null) {
+				ed.deployAction();
 			}
 		});
 
@@ -502,7 +512,8 @@ public class GUI extends JPanel {
 	//	modeBox.setSelectedItem(Language.getDefault().toString());
 	//	modeBox.addActionListener(x -> cl.show(boxPanel, (String) modeBox.getSelectedItem()));
 
-		JButton back = new JButton("< Back");
+		JPanel p = new JPanel(new GridLayout(1,2));
+		JButton back = new JButton("<");
 		back.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
 			if (ed != null) {
@@ -510,7 +521,7 @@ public class GUI extends JPanel {
 			}
 		});
 
-		JButton fwd = new JButton("Fwd >");
+		JButton fwd = new JButton(">");
 		fwd.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
 			if (ed != null) {
@@ -520,12 +531,15 @@ public class GUI extends JPanel {
 
 		toolBar.add(compileB);
 		toolBar.add(abortB);
+		toolBar.add(deployB);
 		toolBar.add(new_button);
 		toolBar.add(open_button);
 		toolBar.add(save_button);
-		toolBar.add(back);
-		toolBar.add(fwd);
+		p.add(back);
+		p.add(fwd);
 		toolBar.add(optionsb);
+		toolBar.add(p);
+		
 		//toolBar.add(helpb);
 		//JPanel p = new JPanel(new BorderLayout());
 		toolBar.add(new JLabel("Example:", SwingConstants.RIGHT));
@@ -598,6 +612,13 @@ public class GUI extends JPanel {
 		newAction(e.toString().trim(), e.getText(), e.lang());
 	}
 
+	private static void deployAction() {
+		CodeEditor<?, ?, ?> c = getSelectedEditor();
+		if (c != null) {
+			c.deployAction();
+		}
+	}
+	
 	private static void abortAction() {
 		CodeEditor<?, ?, ?> c = getSelectedEditor();
 		if (c != null) {
@@ -886,7 +907,7 @@ public class GUI extends JPanel {
 	private static final Map<Integer, File> files = new THashMap<>();
 	private static final Map<Integer, String> titles = new THashMap<>();
 	private static int untitled_count = 0;
-
+	private static final ExecutorService thr = Executors.newSingleThreadScheduledExecutor();
 	public static Integer newAction(String title, String content, Language lang) {
 		untitled_count++;
 		if (title == null) {
@@ -907,9 +928,21 @@ public class GUI extends JPanel {
 		editors.setTabComponentAt(i, new ButtonTabComponent(editors, x -> GUI.deInc(x)));
 		editors.setSelectedIndex(i);
 
+			
 		c.topArea.setCaretPosition(0);
 		c.topArea.requestFocusInWindow();
-
+		
+	
+		
+		//thr.execute(() -> { try {
+		//		Thread.sleep(4000);
+		//		SwingUtilities.invokeLater(() -> 
+		//		c.foldAll(true));
+		//	} catch (InterruptedException e) {
+		//	}
+			
+	//});
+		
 		return c.id;
 	}
 
