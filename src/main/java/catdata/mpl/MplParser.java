@@ -18,6 +18,7 @@ import org.jparsec.functors.Tuple5;
 import catdata.Pair;
 import catdata.Program;
 import catdata.Triple;
+import catdata.Util;
 import catdata.mpl.Mpl.MplExp;
 import catdata.mpl.Mpl.MplExp.MplEval;
 import catdata.mpl.Mpl.MplExp.MplSch;
@@ -153,7 +154,7 @@ class MplParser {
 			toProgHelper(pr.a.toString(), s, ret, decl);
 		}
 
-		return new Program<>(ret, null);
+		return Util.anomaly(); //new Program<>(ret, null);
 	}
 
 	private static MplExp<String, String> toExp(Object o) {

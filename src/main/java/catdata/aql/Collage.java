@@ -142,6 +142,78 @@ public class Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	}
 
 	public synchronized void validate() {
+		
+		for (Sym sym : syms.keySet()) {
+			Pair<List<Ty>, Ty> ty = syms.get(sym);
+			if (!tys.contains(ty.second)) {
+				throw new RuntimeException(
+						"On typeside symbol " + sym + ", the return type " + ty.second + " is not declared.");
+			}
+			for (Ty t : ty.first) {
+				if (!tys.contains(t)) {
+					throw new RuntimeException(
+							"On typeside symbol " + sym + ", the argument type " + t + " is not declared.");
+				}
+			}
+			// System.out.println(sym);
+		}
+		
+		for (Ty k : java_parsers.keySet()) {
+			if (!java_tys.containsKey(k)) {
+				throw new RuntimeException(
+						"There is a java parser for " + k + " but it is not declared as a java type");
+			}
+		}
+		for (Sym sym : java_fns.keySet()) {
+			if (!syms.containsKey(sym)) {
+				throw new RuntimeException("The java function " + sym + " is not a declared function");
+			}
+		}
+		for (Ty ty : java_tys.keySet()) {
+			String parser = java_parsers.get(ty);
+			if (parser == null) {
+				throw new RuntimeException("No constant parser for " + ty);
+			}
+			String clazz = java_tys.get(ty);
+			Util.load(clazz);
+		}
+		
+		
+		for (Att att : atts.keySet()) {
+			Pair<En, Ty> ty = atts.get(att);
+			if (!tys.contains(ty.second)) {
+				throw new RuntimeException(
+						"On attribute " + att + ", the target type " + ty.second + " is not declared.");
+			} else if (!ens.contains(ty.first)) {
+				throw new RuntimeException(
+						"On attribute " + att + ", the source entity " + ty.first + " is not declared.");
+			}
+		}
+		for (Fk fk : fks.keySet()) {
+			Pair<En, En> ty = fks.get(fk);
+			if (!ens.contains(ty.second)) {
+				throw new RuntimeException(
+						"On foreign key " + fk + ", the target entity " + ty.second + " is not declared.");
+			} else if (!ens.contains(ty.first)) {
+				throw new RuntimeException(
+						"On foreign key " + fk + ", the source entity " + ty.first + " is not declared.");
+			}
+		}
+		
+		for (Gen gen : gens.keySet()) {
+			En en = gens.get(gen);
+			if (!ens.contains(en)) {
+				throw new RuntimeException("On generator " + gen + ", the entity " + en + " is not declared.");
+			}
+		}
+		for (Sk sk : sks.keySet()) {
+			Ty ty = sks.get(sk);
+			if (!tys.contains(ty)) {
+				throw new RuntimeException(
+						"On labelled null " + sk + ", the type " + ty + " is not declared." + "\n\n" + this);
+			}
+		}
+		
 		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : eqs) {
 			Chc<Ty, En> x = type(eq.ctx, eq.lhs);
 			Chc<Ty, En> y = type(eq.ctx, eq.rhs);

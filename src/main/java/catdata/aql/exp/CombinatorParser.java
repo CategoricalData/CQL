@@ -1161,8 +1161,8 @@ public class CombinatorParser implements IAqlParser {
 		return ret;
 	}
 
-	private static <Y> Parser<Triple<String, Integer, Y>> decl(String s, Parser<Y> p) {
-		return Parsers.tuple(token(s), Parsers.INDEX, ident, token("="), p).map(x -> new Triple<>(x.c, x.b, x.e));
+	private static <Y> Parser<Quad<String, Integer, Y, Integer>> decl(String s, Parser<Y> p) {
+		return Parsers.tuple(Parsers.tuple(token(s), Parsers.INDEX, ident, token("="), p), Parsers.INDEX).map(x -> new Quad<>(x.a.c, x.a.b, x.a.e, x.b));
 	}
 
 	private static final Reference<GraphExp> graph_ref = Parser.newReference();
@@ -1189,7 +1189,7 @@ public class CombinatorParser implements IAqlParser {
 		edsExp();
 
 		@SuppressWarnings("unchecked")
-		Parser<Triple<String, Integer, ? extends Exp<?>>> p = Parsers.or(comment(), decl("typeside", ty_ref.get()),
+		Parser<Quad<String, Integer, ? extends Exp<?>, Integer>> p = Parsers.or(comment(), decl("typeside", ty_ref.get()),
 				decl("schema", sch_ref.get()), decl("instance", inst_ref.get()), decl("mapping", map_ref.get()),
 				decl("transform", trans_ref.get()), decl("graph", graph_ref.get()), decl("query", query_ref.get()),
 				decl("command", pragma_ref.get()), decl("schema_colimit", colim_ref.get()),
@@ -1199,16 +1199,16 @@ public class CombinatorParser implements IAqlParser {
 				.map(x -> new Program((x.b), s, x.a, q -> ((Exp) q).kind().toString()));
 	}
 
-	private static Parser<Triple<String, Integer, ? extends Exp<?>>> comment() {
-		Parser<Triple<String, Integer, ? extends Exp<?>>> p1 = Parsers
-				.tuple(token("html"), token("{").followedBy(token("(*")), StringLiteral.PARSER, Parsers.INDEX,
-						token("*)").followedBy(token("}")))
-				.map(x -> new Triple<>("html" + x.d, x.d, new CommentExp(x.c, false)));
+	private static Parser<Quad<String, Integer, ? extends Exp<?>, Integer>> comment() {
+		Parser<Quad<String, Integer, ? extends Exp<?>, Integer>> p1 = Parsers
+				.tuple(token("html").followedBy(token("{").followedBy(token("(*"))), StringLiteral.PARSER, Parsers.INDEX,
+						token("*)").followedBy(token("}")), Parsers.INDEX)
+				.map(x -> new Quad<>("html" + x.c, x.c, new CommentExp(x.b, false), x.e));
 
-		Parser<Triple<String, Integer, ? extends Exp<?>>> p2 = Parsers
-				.tuple(token("md"), token("{").followedBy(token("(*")), StringLiteral.PARSER, Parsers.INDEX,
-						token("*)").followedBy(token("}")))
-				.map(x -> new Triple<>("md" + x.d, x.d, new CommentExp(x.c, true)));
+		Parser<Quad<String, Integer, ? extends Exp<?>, Integer>> p2 = Parsers
+				.tuple(token("md").followedBy(token("{").followedBy(token("(*"))), StringLiteral.PARSER, Parsers.INDEX,
+						token("*)").followedBy(token("}")), Parsers.INDEX)
+				.map(x -> new Quad<>("md" + x.c, x.c, new CommentExp(x.b, true), x.e));
 
 		return p1.or(p2);
 	}

@@ -88,7 +88,7 @@ public class AqlStatic extends AbstractParser {
 					continue;
 				}
 				try {
-					int z = area.getLineOfOffset(env.prog.lines.get(k));
+					int z = area.getLineOfOffset(env.prog.lines.get(k).first);
 					z = Integer.min(z, area.getLineCount());
 					String w = text.get();
 					StaticParserNotice p = new StaticParserNotice(this, w, z, Color.magenta);
@@ -125,7 +125,7 @@ public class AqlStatic extends AbstractParser {
 		}
 		for (String k : exns.keySet()) {
 			try {
-				int z = area.getLineOfOffset(env.prog.lines.get(k));
+				int z = area.getLineOfOffset(env.prog.lines.get(k).first);
 				z = Integer.min(z, area.getLineCount());
 
 				result.addNotice(new StaticParserNotice(this, exns.get(k).get(), z, Color.red));

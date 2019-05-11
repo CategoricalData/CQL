@@ -1,11 +1,24 @@
 package catdata.aql.exp;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.collections4.list.TreeList;
 
@@ -26,7 +39,8 @@ import gnu.trove.set.hash.THashSet;
 //TODO aql does assume unique names
 //TODO aql make sure transforms validate
 public final class AqlMultiDriver implements Callable<Unit> {
-
+	private JLabel mem = new JLabel("", JLabel.CENTER);
+	
 	public void abort() {
 		interruptAll();
 		exn.add(new RuntimeException(
@@ -61,6 +75,11 @@ public final class AqlMultiDriver implements Callable<Unit> {
 	// unchanged(d)
 	// this means that expressions such as 'load from disk' will need to be
 	// careful about equality
+	
+	public JPanel all = new JPanel(new GridLayout(1,1));
+	
+	
+	
 
 	@Override
 	public String toString() {
@@ -112,21 +131,62 @@ public final class AqlMultiDriver implements Callable<Unit> {
 	public final List<String> processing = Collections.synchronizedList(new TreeList<>());
 	public final List<String> completed = Collections.synchronizedList(new TreeList<>());
 
-	public final String[] toUpdate;
+	//public final String[] toUpdate;
 	public final AqlEnv last_env;
 
 	public final List<RuntimeException> exn = Collections.synchronizedList(new TreeList<>());
 
 
-	public AqlMultiDriver(Program<Exp<?>> prog, String[] toUpdate, AqlEnv last_env) {
+	public AqlMultiDriver(Program<Exp<?>> prog, AqlEnv last_env) {
 		this.env = new AqlEnv(prog);
-		this.toUpdate = toUpdate;
+		//this.toUpdate = toUpdate;
 		this.last_env = last_env;
-
 		this.numProcs = (int) this.env.defaults.getOrDefault(AqlOption.num_threads);
 		
 	}
 
+	DefaultListModel<String> ooo = new DefaultListModel<>();
+	DefaultListModel<String> ppp = new DefaultListModel<>();
+	DefaultListModel<String> ccc = new DefaultListModel<>();
+	
+	public void makeGui() {
+		JPanel out = new JPanel(new BorderLayout());
+		JPanel ret = new JPanel(new GridLayout(1,3));
+		out.add(ret, BorderLayout.CENTER);
+		JPanel bot = new JPanel(new BorderLayout(1,3));
+		JButton stop = new JButton("Stop");
+		stop.addActionListener((ActionEvent e) -> { abort(); });
+		JProgressBar spinner = new JProgressBar();
+		spinner.setIndeterminate(true);
+		//spinner.
+		bot.add(spinner, BorderLayout.EAST);
+		bot.add(mem, BorderLayout.CENTER);
+		bot.add(stop, BorderLayout.WEST);
+		
+		out.add(bot, BorderLayout.SOUTH);
+		
+		ooo.addAll(todo);
+		ppp.addAll(processing);
+		ccc.addAll(completed);
+		JList<String> o = new JList<>(ooo);
+		JList<String> p = new JList<>(ppp);
+		JList<String> c = new JList<>(ccc);
+		//JList<RuntimeException> x = new JList<>(new Vector<>(exn));
+		
+		JScrollPane oo = new JScrollPane(o);
+		JScrollPane pp = new JScrollPane(p);
+		JScrollPane cc = new JScrollPane(c);
+		oo.setBorder(BorderFactory.createTitledBorder("Todo"));
+		pp.setBorder(BorderFactory.createTitledBorder("Processing"));
+		cc.setBorder(BorderFactory.createTitledBorder("Complete"));
+
+		ret.add(oo);
+		ret.add(pp);
+		ret.add(cc);
+		
+		all.add(out);
+		//all.revalidate();
+	}
 	public void start() {
 		System.gc();
 		long f = Runtime.getRuntime().freeMemory();
@@ -136,6 +196,7 @@ public final class AqlMultiDriver implements Callable<Unit> {
 		// set the defaults here
 		env.typing = new AqlTyping(env.prog, false); 
 		init();
+		makeGui();
 		update();
 		process();
 		System.gc();
@@ -187,12 +248,34 @@ public final class AqlMultiDriver implements Callable<Unit> {
 		}
 	}
 
-	private void update() {
-		String s = toString();
-		//System.gc();
-		synchronized (toUpdate) {
-			toUpdate[0] = s;
+	private synchronized void update() {
+		long f = Runtime.getRuntime().freeMemory();
+		long t = Runtime.getRuntime().totalMemory();
+		long u = t - f;
+		if (env.fl > f) {
+			env.fl = f;
 		}
+		if (env.mh < t) {
+			env.mh = t;
+		}
+		if (env.uh < u) {
+			env.uh = u;
+		}
+		StringBuffer sb = new StringBuffer();
+		sb.append("JVM Memory: ");
+		sb.append(u / (1024*1024));
+		sb.append(" MB Used, ");
+		sb.append(f / (1024*1024));
+		sb.append(" MB Free, ");
+		sb.append(t / (1024*1024));
+		sb.append(" MB Total");
+		mem.setText(sb.toString());
+		//all.removeAll();
+	//	if (!exn.isEmpty()) {
+		//	all.add(new CodeTextPanel("", "Exceptions encountered, stopping."));
+	//	}
+	//	all.add(toComponent());
+	//	all.revalidate();
 	}
 
 	private final IntRef ended = new IntRef(0);
@@ -305,6 +388,13 @@ public final class AqlMultiDriver implements Callable<Unit> {
 					processing.add(n);
 					todo.remove(n);
 					update();
+
+					String nn = n;
+					SwingUtilities.invokeLater(() -> {
+						ppp.add(ppp.size(), nn);
+						ooo.removeElement(nn);
+					});
+
 				}
 				Exp<?> exp = env.prog.exps.get(n);
 				Kind k = exp.kind();
@@ -325,6 +415,12 @@ public final class AqlMultiDriver implements Callable<Unit> {
 					processing.remove(n);
 					completed.add(n);
 					update();
+					String nn = n;
+					SwingUtilities.invokeLater(() -> {
+						ppp.removeElement(nn);
+						ccc.add(ccc.size(), nn);
+					});
+
 					notifyAll();
 				}
 			}

@@ -47,7 +47,7 @@ public class Program<X> implements Prog {
 	 * of a misnomer as there is an entry for expression and the value is measured
 	 * in characters.
 	 */
-	public final Map<String, Integer> lines = Collections.synchronizedMap(new THashMap<>());
+	public final Map<String, Pair<Integer,Integer>> lines = Collections.synchronizedMap(new THashMap<>());
 	/*
 	 * 'expr' contains the expressions. There are many types of expressions, each
 	 * one has its own data structure. see catadata.aql.exp
@@ -79,7 +79,7 @@ public class Program<X> implements Prog {
 		return kindOf.apply(exps.get(s));
 	}
 
-	public Program(List<Triple<String, Integer, X>> decls, String text) {
+	public Program(List<Quad<String, Integer, X, Integer>> decls, String text) {
 		this(decls, text, Collections.emptyList(), x -> "");
 	}
 
@@ -91,21 +91,21 @@ public class Program<X> implements Prog {
 	 * @param options
 	 * @param k
 	 */
-	public Program(List<Triple<String, Integer, X>> decls, String text, List<Pair<String, String>> options,
+	public Program(List<Quad<String, Integer, X, Integer>> decls, String text, List<Pair<String, String>> options,
 			Function<X, String> k) {
 		this.text = text;
-		List<Triple<String, Integer, X>> seen = new LinkedList<>();
-		for (Triple<String, Integer, X> decl : decls) {
+		List<Quad<String, Integer, X, Integer>> seen = new LinkedList<>();
+		for (Quad<String, Integer, X, Integer> decl : decls) {
 			if (decl.second == null || decl.third == null) {
 				Util.anomaly();
 			}
 			checkDup(seen, decl);
 			X x = decl.third;
 			exps.put(decl.first, x);
-			lines.put(decl.first, decl.second);
+			lines.put(decl.first, new Pair<>(decl.second, decl.fourth));
 			order.add(decl.first);
 			if (!decl.third.equals(decl.third)) {
-				throw new RuntimeException("Please report: non-refexlive: " + decl.third.toString());
+				throw new RuntimeException("Please report: non-reflexive: " + decl.third.toString());
 			}
 			// log.info(decl.toString());
 		}
@@ -132,8 +132,8 @@ public class Program<X> implements Prog {
 	}
 
 	@SuppressWarnings("deprecation")
-	private void checkDup(List<Triple<String, Integer, X>> seen, Triple<String, Integer, X> toAdd) {
-		for (Triple<String, Integer, X> other : seen) {
+	private void checkDup(List<Quad<String, Integer, X, Integer>> seen, Quad<String, Integer, X, Integer> toAdd) {
+		for (Quad<String, Integer, X, Integer> other : seen) {
 			if (other.first.equals(toAdd.first)) {
 				if (text == null) {
 					throw new RuntimeException("Duplicate name: " + toAdd.first); // TODO CQL + " on line " +
@@ -176,7 +176,7 @@ public class Program<X> implements Prog {
 
 	@Override
 	public int getLine(String s) {
-		Integer i = lines.get(s);
+		Integer i = lines.get(s).first;
 		if (i == null) {
 			return -1;
 		}

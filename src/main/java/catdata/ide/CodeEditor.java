@@ -103,7 +103,7 @@ import catdata.Util;
  *         The FQL code editor
  */
 public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> extends JPanel
-		implements SearchListener, Runnable {
+		implements SearchListener {
 
 	public String getClickedWord() {
 		String content = topArea.getText();
@@ -274,7 +274,9 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	public final RSyntaxTextArea topArea;
 
-	protected final CodeTextPanel respArea = new CodeTextPanel("", "");
+	protected final JPanel respAreaX;
+	
+	protected final CodeTextPanel respArea2 = new CodeTextPanel("", "");
 
 	private FindDialog findDialog;
 	private ReplaceDialog replaceDialog;
@@ -430,13 +432,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		});
 
-		/*topArea.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				last_keystroke = System.currentTimeMillis();
-			}
-		});*/
-
+	
 		if (getATMFrhs() != null) {
 			topArea.setSyntaxEditingStyle(getATMFlhs());
 		}
@@ -445,35 +441,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		topArea.setAutoscrolls(true);
 
 		InputMap inputMap = topArea.getInputMap();
-/*
-		topArea.addKeyListener(new KeyListener() {
 
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if (KeyEvent.VK_DOWN == e.getKeyCode() && isCaretOnLastLine()) {
-					setCaretPos(Integer.max(0, topArea.getText().length()));
-				} else if (KeyEvent.VK_UP == e.getKeyCode() && isCaretOnFirstLine()) {
-					setCaretPos(0);
-				}
-			}
-
-			private boolean isCaretOnFirstLine() {
-				return topArea.getCaretLineNumber() == 0;
-			}
-
-			private boolean isCaretOnLastLine() {
-				return topArea.getCaretLineNumber() == Integer.max(0, topArea.getLineCount() - 1);
-			}
-
-		}); */
 		
 		KeyStroke key2;
 		key2 = System.getProperty("os.name").contains("Windows")
@@ -602,11 +570,12 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		gotox.addActionListener(x -> showGotoDialog2());
 		topArea.getPopupMenu().add(gotox, 0);
 
-		respArea.setMinimumSize(new Dimension(0, 0));
-		respArea.setPreferredSize(new Dimension(600, 200));
+		respArea2.setMinimumSize(new Dimension(0, 0));
+		respArea2.setPreferredSize(new Dimension(600, 200));
 		topArea.setOpaque(true);
-		respArea.setOpaque(true);
-
+		respArea2.setOpaque(true);
+		respAreaX = new JPanel(new GridLayout(1,1));
+		respAreaX.add(respArea2);
 		IdeOptions.theCurrentOptions.apply(this);
 
 		initSearchDialogs();
@@ -644,10 +613,9 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		p.add(jsp, BorderLayout.CENTER);
 		p.setBorder(BorderFactory.createEtchedBorder());
 
-		// build();
-
 		p.setMinimumSize(new Dimension(0, 0));
-		//topArea.fold
+		
+		
 		
 	}
 
@@ -667,7 +635,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	}
 
 	private void situateElongated() {
-
 		JSplitPane xx1 = new Split(.8, JSplitPane.VERTICAL_SPLIT);
 		xx1.setDividerSize(6);
 		xx1.setResizeWeight(.8);
@@ -676,14 +643,13 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		cp.add(errorStrip, BorderLayout.LINE_END);
 		cp.setBorder(BorderFactory.createEtchedBorder());
 		xx1.add(cp);
-		xx1.add(respArea);
+		xx1.add(respAreaX);
 		xx1.setBorder(BorderFactory.createEmptyBorder());
 		JComponent newtop = xx1;
 
 		if (enable_outline) {
 			JSplitPane xx2 = new Split(.33, JSplitPane.HORIZONTAL_SPLIT);
 			xx2.setDividerSize(6);
-			// xx1.setForeground(xx2.getForeground());
 			if (outline_on_left) {
 				xx2.setResizeWeight(.33);
 				xx2.add(p);
@@ -735,18 +701,15 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		xx1.setDividerSize(6);
 		xx1.setResizeWeight(.8);
 		xx1.add(newtop);
-		xx1.add(respArea);
+		xx1.add(respAreaX);
 		xx1.setBorder(BorderFactory.createEmptyBorder());
-		// newtop.setBackground(xx1.getBackground());
-
-		respArea.setMinimumSize(new Dimension(0, 0));
+	
+		respAreaX.setMinimumSize(new Dimension(0, 0));
 
 		this.removeAll();
 		add(xx1);
 		revalidate();
 	}
-
-	// private final SpellChecker spc;
 
 	public void foldAll(boolean b) {
 		SwingUtilities.invokeLater(() -> {
@@ -772,8 +735,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		Font font = new Font(topArea.getFont().getFontName(), topArea.getFont().getStyle(), size);
 		topArea.setFont(font);
 
-		Font font2 = new Font(respArea.area.getFont().getFontName(), respArea.area.getFont().getStyle(), size + 1);
-		respArea.area.setFont(font2);
+		Font font2 = new Font(respArea2.area.getFont().getFontName(), respArea2.area.getFont().getStyle(), size + 1);
+		respArea2.area.setFont(font2);
 	}
 
 	void gotoLine() {
@@ -814,7 +777,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		String program = e.getText();
 		topArea.setText(program);
 		setCaretPos(0);
-		respArea.setText("");
+		respArea2.setText("");
 		GUI.setDirty(id, false);
 		if (display != null) {
 			display.close();
@@ -823,136 +786,90 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		// topArea.for
 	}
 
-	public void abortAction() {
-		interruptAndNullify();
-		respArea.setText("Aborted");
-	}
+	
 
-	protected final String[] toUpdate = new String[] { null };
+	//protected final String[] toUpdate = new String[] { null };
 	protected volatile String toDisplay = null;
-	private Thread thread, temp;
+	//private Thread thread, temp;
 
-	public void runAction() {
+	public synchronized void runAction() {
 		if (started) {
 			return;
 		}
-//		started = true;
-		// toDisplay = null;
-		interruptAndNullify();
-		respArea.setText("Begin\n");
-		toDisplay = null;
-		thread = new Thread(this);
-		temp = new Thread(() -> {
-			try {
-				int count = 0;
-				while (!Thread.currentThread().isInterrupted()) {
-					if (toDisplay != null) {
-						respArea.setText(toDisplay);
-						return;
-					} else if (thread != null) {
-						synchronized (toUpdate) {
-							if (toUpdate[0] != null) {
-								if ((count % 8) == 0) {
-									respArea.setText(toUpdate[0] + "\n");
-								} else {
-									respArea.setText(respArea.getText() + ".");
-								}
-							} else {
-								if (respArea.getText().length() > 1024 * 16) {
-									respArea.setText("");
-								}
-								respArea.setText(respArea.getText() + ".");
-							}
-						}
-					}
-					count++;
-					Thread.sleep(250);
+		String program = topArea.getText();
 
+		Progg init = tryParse(program);
+		if (init == null) {
+			return;
+		}
+
+		started = true;
+		Thread thread = new Thread(() -> {
+			long start;
+			long middle;
+
+			try {
+				start = System.currentTimeMillis();
+				Env env = makeEnv(program, init);
+				middle = System.currentTimeMillis();
+
+				toDisplay = "Computation finished, creating viewer... (max " + init.timeout() + " seconds)";
+				DateFormat format = DateFormat.getTimeInstance();
+				String foo2 = title;
+				foo2 += " - " + format.format(new Date(start));
+				foo2 += " - " + format.format(new Date(start));
+				String foo = foo2;
+				long t = init.timeout() * 1000;
+				display = Util.timeout(() -> makeDisplay(foo, init, env, start, middle), t);
+
+				if (display.exn() == null) {
+					toDisplay = textFor(env); // "Done";
+					respArea2.setText(textFor(env)); // "Done");
+					respAreaX.removeAll();
+					respAreaX.add(respArea2);
+				} else {
+					started = false;
+					respAreaX.removeAll();
+					respAreaX.add(respArea2);
+					throw display.exn();
 				}
-			} catch (InterruptedException ie) {
-			} catch (Exception tt) {
-				tt.printStackTrace();
-				respArea.setText(tt.getMessage());
+			} catch (LineException e) {
+				toDisplay = "Error in " + e.kind + " " + e.decl + ": " + e.getLocalizedMessage();
+				respArea2.setText(toDisplay);
+				respAreaX.removeAll();
+				respAreaX.add(respArea2);
+				e.printStackTrace();
+				Integer theLine = init.getLine(e.decl);
+				setCaretPos(theLine);
+			} catch (LocException e) {
+				toDisplay = "Error: " + e.getLocalizedMessage();
+				respArea2.setText(toDisplay);
+				respAreaX.removeAll();
+				respAreaX.add(respArea2);
+				e.printStackTrace();
+				setCaretPos(e.loc);
+			} catch (Throwable re) {
+				toDisplay = "Error: " + re.getLocalizedMessage();
+				respArea2.setText(toDisplay);
+				respAreaX.removeAll();
+				respAreaX.add(respArea2);
+				re.printStackTrace();
+			} finally {
+				started = false;
 			}
+			
 		});
-		temp.setPriority(Thread.MIN_PRIORITY);
-		temp.start();
+		
 		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
+		
 	}
 
 	private volatile boolean started = false;
 
-	@Override
-	public void run() {
-		if (started) {
-			return;
-		}
-		started = true;
-		String program = topArea.getText();
+	
 
-		Progg init;
-		Env env;
-		init = tryParse(program);
-		if (init == null) {
-			started = false;
-			return;
-		}
-
-		long start;
-		long middle;
-
-		try {
-			start = System.currentTimeMillis();
-			env = makeEnv(program, init);
-			middle = System.currentTimeMillis();
-
-			toDisplay = "Computation finished, creating viewer... (max " + init.timeout() + " seconds)";
-			DateFormat format = DateFormat.getTimeInstance();
-			String foo2 = title;
-			foo2 += " - " + format.format(new Date(start));
-			foo2 += " - " + format.format(new Date(start));
-			String foo = foo2;
-			long t = init.timeout() * 1000;
-			display = Util.timeout(() -> makeDisplay(foo, init, env, start, middle), t);
-
-			if (display.exn() == null) {
-				toDisplay = textFor(env); // "Done";
-				respArea.setText(textFor(env)); // "Done");
-			} else {
-				started = false;
-				throw display.exn();
-			}
-		} catch (LineException e) {
-			toDisplay = "Error in " + e.kind + " " + e.decl + ": " + e.getLocalizedMessage();
-			respArea.setText(toDisplay);
-			e.printStackTrace();
-			Integer theLine = init.getLine(e.decl);
-			setCaretPos(theLine);
-		} catch (LocException e) {
-			toDisplay = "Error: " + e.getLocalizedMessage();
-			respArea.setText(toDisplay);
-			e.printStackTrace();
-			setCaretPos(e.loc);
-		} catch (Throwable re) {
-			toDisplay = "Error: " + re.getLocalizedMessage();
-			respArea.setText(toDisplay);
-			re.printStackTrace();
-		}
-		started = false;
-		interruptAndNullify();
-	}
-
-	private void interruptAndNullify() {
-		if (thread != null) {
-			thread.interrupt();
-		}
-		thread = null;
-		if (temp != null) {
-			temp.interrupt();
-		}
-		temp = null;
-	}
+	
 
 	protected abstract String textFor(Env env);
 
@@ -994,6 +911,8 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			moveTo(col, line);
 
 			toDisplay = "Syntax error: " + e.getLocalizedMessage();
+			respAreaX.removeAll();
+			respAreaX.add(respArea2);
 			e.printStackTrace();
 			return null;
 		} catch (ParserException e) { // legacy - for fql, etc
@@ -1003,15 +922,21 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			moveTo(col, line);
 
 			toDisplay = "Syntax error: " + e.getLocalizedMessage();
+			respAreaX.removeAll();
+			respAreaX.add(respArea2);
 			e.printStackTrace();
 			return null;
 		} catch (LocException e) {
 			setCaretPos(e.loc);
 			toDisplay = "Type error: " + e.getLocalizedMessage();
+			respAreaX.removeAll();
+			respAreaX.add(respArea2);
 			e.printStackTrace();
 			return null;
 		} catch (Throwable e) {
 			toDisplay = "Error: " + e.getLocalizedMessage();
+			respAreaX.removeAll();
+			respAreaX.add(respArea2);
 			e.printStackTrace();
 			return null;
 		}

@@ -34,6 +34,7 @@ import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
 import org.fife.ui.rsyntaxtextarea.parser.Parser;
+import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 
 import catdata.InteriorLabel;
 import catdata.ParseException;
@@ -98,14 +99,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		}
 	}
 
-	@Override
-	public void abortAction() {
-		super.abortAction();
-		if (driver != null) {
-			driver.abort();
-		}
-
-	}
+	
 
 	public AqlCodeEditor(String title, int id, String content) {
 		super(title, id, content, new BorderLayout());
@@ -152,7 +146,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 	public void emitDoc() {
 		try {
 			if (last_env == null || last_prog == null) {
-				respArea.setText("Must compile before emitting documentation.");
+				respArea2.setText("Must compile before emitting documentation.");
 			}
 			String html = AqlDoc.doc(last_env, last_prog);
 
@@ -299,15 +293,22 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 	@Override
 	protected AqlEnv makeEnv(String str, Program<Exp<?>> init) {
-		driver = new AqlMultiDriver(init, toUpdate, last_env);
+		driver = new AqlMultiDriver(init, last_env);
+		respAreaX.removeAll();
+		respAreaX.add(driver.all);
+		//respAreaX.revalidate();
 		driver.start();
 		last_env = driver.env; // constructor blocks
 		last_prog = init;
 		// topArea.forceReparsing(parser);
 		// clearSpellCheck();
+		respAreaX.removeAll();
+		respAreaX.add(respArea2);
 		if (last_env.exn != null && last_env.defs.keySet().isEmpty()) {
 			throw last_env.exn;
 		}
+
+		respAreaX.setToolTipText("Done.");
 		return last_env;
 	}
 
@@ -328,7 +329,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			if (thr.getMessage() != null) {
 				z = thr.getMessage();
 			}
-			respArea.setText(z);
+			respArea2.setText(z);
 		}
 	}
 
@@ -360,6 +361,21 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 				topArea.forceReparsing(aqlStatic);
 				topArea.revalidate();
 	
+				respAreaX.removeAll();
+				respAreaX.add(respArea2);
+				StringBuffer sb = new StringBuffer();
+				for (ParserNotice x : aqlStatic.result.getNotices()) {
+					String z = x.getMessage();
+					if (!z.startsWith("Depends") && !z.startsWith("Anomaly")) {
+						sb.append(x.getMessage());
+						sb.append("\n\n");
+					}
+					if (z.startsWith("Anomaly")) {
+						System.out.println(z);
+						new RuntimeException("Anomaly").printStackTrace();
+					}
+				}
+				respArea2.setText(sb.toString());
 			//	errorStrip.setMarkerToolTipProvider(provider);
 			//	topArea.setmark
 			} catch (Throwable t) {
@@ -390,6 +406,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			oLabel.setText(" ? ");
 
 			try {
+				aqlStatic.result.clearNotices();
 				parsed_prog = parse(s);
 				if (q.peek() != null) {
 					continue;

@@ -58,8 +58,7 @@ public class AqlCmdLine {
 		try (FileReader r = new FileReader(args[0])) {
 			Program<Exp<?>> prog = AqlParserFactory.getParser().parseProgram(r);
 
-			String t[] = new String[1];
-			AqlMultiDriver driver = new AqlMultiDriver(prog, t, null);
+			AqlMultiDriver driver = new AqlMultiDriver(prog, null);
 			driver.start();
 			AqlEnv last_env = driver.env;
 			if (last_env.exn != null) {

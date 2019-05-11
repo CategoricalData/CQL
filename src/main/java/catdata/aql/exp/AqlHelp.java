@@ -910,7 +910,7 @@ public class AqlHelp implements
 				if (run) {
 					insts.append("\n");
 					try {
-						AqlMultiDriver dr = new AqlMultiDriver(prog, new String[1], null);
+						AqlMultiDriver dr = new AqlMultiDriver(prog, null);
 						dr.start();
 						for (String k : dr.env.defs.insts.keySet()) {
 							Instance<?, ?, ?, ?, ?, ?, ?, ?, ?> i = dr.env.defs.insts.get(k);

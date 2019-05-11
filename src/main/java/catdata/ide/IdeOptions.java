@@ -418,12 +418,12 @@ public class IdeOptions {
 	public void apply(CodeEditor<?, ?, ?> a) {
 		for (IdeOption o : IdeOption.values()) {
 			apply(o, a);
-			apply(o, a.respArea.area);
+			apply(o, a.respArea2.area);
 		}
 		// a.clearSpellCheck();
 		a.topArea.repaint();
 		a.topArea.revalidate();
-		a.respArea.area.revalidate();
+		a.respArea2.area.revalidate();
 	}
 
 	public void apply(IdeOption o, JTextArea a) {

@@ -53,8 +53,7 @@ public class AqlTester {
 			try {
 				System.out.println(k);
 				Program<Exp<?>> prog = AqlParserFactory.getParser().parseProgram(progs.get(k));
-				String[] toUpdate = new String[] { "" };
-				AqlMultiDriver driver = new AqlMultiDriver(prog, toUpdate, null);
+				AqlMultiDriver driver = new AqlMultiDriver(prog, null);
 				driver.start(); // blocks
 				AqlEnv env = driver.env;
 				if (env.exn != null) {

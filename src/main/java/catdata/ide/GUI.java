@@ -217,9 +217,9 @@ public class GUI extends JPanel {
 		MenuShortcut q2 = new MenuShortcut(ctrlR.getKeyCode());
 		runItem.setShortcut(q2);
 
-		MenuItem abortItem = new MenuItem("Stop");
-		toolsMenu.add(abortItem);
-		abortItem.addActionListener(e -> abortAction());
+		//MenuItem abortItem = new MenuItem("Stop");
+		//toolsMenu.add(abortItem);
+		//abortItem.addActionListener(e -> abortAction());
 		
 		MenuItem deployItem = new MenuItem("Deploy");
 		toolsMenu.add(deployItem);
@@ -445,7 +445,7 @@ public class GUI extends JPanel {
     }
 	
 	private static JPanel makeToolBar() {
-		JPanel toolBar = new JPanel(new GridLayout(1, 12));
+		JPanel toolBar = new JPanel(new GridLayout(1, 9));
 
 		//JButton helpb = new JButton("Help");
 		//helpb.addActionListener(e -> IdeOptions.showAbout());
@@ -458,13 +458,13 @@ public class GUI extends JPanel {
 			}
 		});
 
-		JButton abortB = new JButton("Stop");
+		/*JButton abortB = new JButton("Stop");
 		abortB.addActionListener(e -> {
 			CodeEditor<?, ?, ?> ed = (CodeEditor<?, ?, ?>) editors.getComponentAt(editors.getSelectedIndex());
 			if (ed != null) {
 				ed.abortAction();
 			}
-		});
+		}); */
 		
 		JButton deployB = new JButton("Deploy");
 		deployB.addActionListener(e -> {
@@ -530,13 +530,15 @@ public class GUI extends JPanel {
 		});
 
 		toolBar.add(compileB);
-		toolBar.add(abortB);
-		toolBar.add(deployB);
+		//toolBar.add(abortB);
 		toolBar.add(new_button);
 		toolBar.add(open_button);
 		toolBar.add(save_button);
+
 		p.add(back);
 		p.add(fwd);
+		
+		toolBar.add(deployB);
 		toolBar.add(optionsb);
 		toolBar.add(p);
 		
@@ -618,13 +620,13 @@ public class GUI extends JPanel {
 			c.deployAction();
 		}
 	}
-	
+	/*
 	private static void abortAction() {
 		CodeEditor<?, ?, ?> c = getSelectedEditor();
 		if (c != null) {
 			c.abortAction();
 		}
-	}
+	}*/
 
 	private static Unit deInc(CodeEditor<?, ?, ?> c) {
 		c.close();

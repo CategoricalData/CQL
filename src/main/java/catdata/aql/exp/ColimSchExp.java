@@ -385,7 +385,13 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 
 		@Override
 		public TyExp typeOf(AqlTyping G) {
-			return ((ColimSchExp) G.prog.exps.get(var)).typeOf(G);
+			Exp<?> l = G.prog.exps.get(var);
+			
+			if (l == null) {
+				throw new RuntimeException("Not a colimit schema variable: " + var);
+			} 
+			return ((ColimSchExp) l).typeOf(G);
+
 		}
 
 		@Override
