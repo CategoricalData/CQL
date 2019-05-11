@@ -57,7 +57,6 @@ entity
 
 } 
 
- 
 instance UniversityOfX = literal : University {
 	generators
 		Gauss Church Euler : Professor

@@ -6,7 +6,6 @@ typeside Ty = literal {
 		dom = "return input[0]"
 }
 
-
 //////////////////////////////////////////////////////////////////////////
 
 //Source relational schema. In a relational data exchange setting, source constraints are irrelevant
@@ -99,4 +98,3 @@ constraints PkForSch = literal : Sch {
 
 ///////////////////////////////////////////////////////////////////////////
 //see the pushout and pullback examples for more constraints
-

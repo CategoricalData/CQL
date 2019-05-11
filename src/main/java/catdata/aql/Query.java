@@ -518,7 +518,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 								this.ens.get(dst.fks.get(fk2).first),
 								(boolean) b.getOrDefault(AqlOption.dont_validate_unsafe)));
 			} catch (Throwable thr) {
-				thr.printStackTrace();
+				//thr.printStackTrace();
 				throw new RuntimeException("In transform for foreign key " + fk2 + ", " + thr.getMessage() + "\n\n");
 			}
 		}

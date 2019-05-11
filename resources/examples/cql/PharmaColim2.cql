@@ -24,7 +24,6 @@ schema S2 = literal : sql {
 	     att: Type -> String
 }
 
-
 ///////////////////////////////////////////////////////////////////////////
 //compute the canonical schema colimit
 
@@ -39,7 +38,6 @@ schema_colimit ColimAuto = quotient S1 + S2 : sql {
 	options
 		simplify_names = true	
 }
-
 
 //just for fun
 schema_colimit Coproduct = coproduct S1 + S2 : sql 
@@ -68,7 +66,6 @@ schema_colimit Colim = modify ColimAuto {
 	/* e.g. remove attributes
 		B_att -> lambda x. x.T_att1 */
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 

@@ -101,5 +101,3 @@ constraints pullbackED = literal : Square {
 
 instance L = chase pullbackED K 
 
-
-

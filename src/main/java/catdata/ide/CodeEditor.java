@@ -817,14 +817,14 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 				DateFormat format = DateFormat.getTimeInstance();
 				String foo2 = title;
 				foo2 += " - " + format.format(new Date(start));
-				foo2 += " - " + format.format(new Date(start));
+				//foo2 += " - " + format.format(new Date(start));
 				String foo = foo2;
 				long t = init.timeout() * 1000;
 				display = Util.timeout(() -> makeDisplay(foo, init, env, start, middle), t);
 
 				if (display.exn() == null) {
-					toDisplay = textFor(env); // "Done";
-					respArea2.setText(textFor(env)); // "Done");
+					toDisplay = textFor(display,env); // "Done";
+					respArea2.setText(textFor(display,env)); // "Done");
 					respAreaX.removeAll();
 					respAreaX.add(respArea2);
 				} else {
@@ -871,7 +871,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	
 
-	protected abstract String textFor(Env env);
+	protected abstract String textFor(DDisp display,Env env);
 
 	protected abstract DDisp makeDisplay(String foo, Progg init, Env env, long start, long middle);
 

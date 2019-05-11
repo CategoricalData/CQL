@@ -32,6 +32,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -102,18 +103,18 @@ public class GUI extends JPanel {
 
 		menuBar.add(aqlMenu);
 
-		Menu legacyMenu = new Menu("Legacy");
-		Menu fqlMenu = new Menu("FQL");
-		Menu fqlppMenu = new Menu("FQL++");
+		//Menu legacyMenu = new Menu("Legacy");
+		//Menu fqlMenu = new Menu("FQL");
+		//Menu fqlppMenu = new Menu("FQL++");
 //		Menu oplMenu = new Menu("OPL");
 //		Menu fpqlMenu = new Menu("FPQL");
-		legacyMenu.add(fqlMenu);
-		legacyMenu.add(fqlppMenu);
+		//legacyMenu.add(fqlMenu);
+		//legacyMenu.add(fqlppMenu);
 //		legacyMenu.add(oplMenu);
 //		legacyMenu.add(fpqlMenu);
-		MenuItem optionsItem2 = new MenuItem("Legacy options");
-		legacyMenu.add(optionsItem2);
-		optionsItem2.addActionListener(e -> DefunctGlobalOptions.showOptions());
+		//MenuItem optionsItem2 = new MenuItem("Legacy options");
+		//legacyMenu.add(optionsItem2);
+		//optionsItem2.addActionListener(e -> DefunctGlobalOptions.showOptions());
 
 		// menuBar.add(legacyMenu);
 
@@ -145,6 +146,9 @@ public class GUI extends JPanel {
 		Map<Language, MenuItem> newItems = new THashMap<>();
 		for (Language l : Language.values0()) {
 			if (l.toString().contains(" ")) {
+				continue;
+			}
+			if (l.toString().contains("EASIK")) {
 				continue;
 			}
 			MenuItem newItem = new MenuItem("New " + l);
@@ -203,28 +207,7 @@ public class GUI extends JPanel {
 
 		Menu toolsMenu = new Menu("Tools");
 
-		MenuItem runItem = new MenuItem("Run");
-		toolsMenu.add(runItem);
-		runItem.addActionListener(e -> {
-			CodeEditor<?, ?, ?> ed = getSelectedEditor();
-			if (ed != null) {
-				ed.runAction();
-			}
-		});
-
-		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
-
-		MenuShortcut q2 = new MenuShortcut(ctrlR.getKeyCode());
-		runItem.setShortcut(q2);
-
-		//MenuItem abortItem = new MenuItem("Stop");
-		//toolsMenu.add(abortItem);
-		//abortItem.addActionListener(e -> abortAction());
 		
-		MenuItem deployItem = new MenuItem("Deploy");
-		toolsMenu.add(deployItem);
-		deployItem.addActionListener(e -> deployAction());
-
 		MenuItem optionsItem = new MenuItem("Options");
 		toolsMenu.add(optionsItem);
 		optionsItem.addActionListener(e -> IdeOptions.showOptions());
@@ -245,9 +228,9 @@ public class GUI extends JPanel {
 		toolsMenu.add(sqlCheckItem);
 		sqlCheckItem.addActionListener(x -> new SqlChecker()); */
 
-		MenuItem shredItem = new MenuItem("NR Shredder");
-		toolsMenu.add(shredItem);
-		shredItem.addActionListener(x -> new NraViewer());
+	//	MenuItem shredItem = new MenuItem("NR Shredder");
+	//	toolsMenu.add(shredItem);
+	//	shredItem.addActionListener(x -> new NraViewer());
 
 		MenuItem easikItem = new MenuItem("EASIK");
 		toolsMenu.add(easikItem);
@@ -403,14 +386,14 @@ public class GUI extends JPanel {
 			}
 		});
 
-		MenuItem clear = new MenuItem("Refresh Outline");
+	/*	MenuItem clear = new MenuItem("Refresh Outline");
 		editMenu.add(clear);
 		clear.addActionListener(x -> {
 			CodeEditor<?, ?, ?> ed = getSelectedEditor();
 			if (ed != null) {
 				ed.doUpdate();
 			}
-		});
+		}); */
 
 		return editMenu;
 	}
@@ -587,6 +570,42 @@ public class GUI extends JPanel {
 		MenuItem formatItem = new MenuItem("Code Format");
 		menu.add(formatItem);
 		formatItem.addActionListener(x -> formatActionAql());
+		
+		MenuItem html = new MenuItem("Visual Edit");
+		html.addActionListener(x -> {
+			CodeEditor<?, ?, ?> c = getSelectedEditor();
+			if (c == null) { 
+				return;
+			}
+			if (c instanceof AqlCodeEditor) {
+				AqlCodeEditor a = (AqlCodeEditor) c;
+				a.visualEdit();
+			}
+		});
+		menu.add(html);
+
+		MenuItem runItem = new MenuItem("Run");
+		menu.add(runItem);
+		runItem.addActionListener(e -> {
+			CodeEditor<?, ?, ?> ed = getSelectedEditor();
+			if (ed != null) {
+				ed.runAction();
+			}
+		});
+
+		KeyStroke ctrlR = KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+
+		MenuShortcut q2 = new MenuShortcut(ctrlR.getKeyCode());
+		runItem.setShortcut(q2);
+
+		//MenuItem abortItem = new MenuItem("Stop");
+		//toolsMenu.add(abortItem);
+		//abortItem.addActionListener(e -> abortAction());
+		
+		MenuItem deployItem = new MenuItem("Deploy");
+		menu.add(deployItem);
+		deployItem.addActionListener(e -> deployAction());
+
 
 		return menu;
 

@@ -22,7 +22,6 @@ constraints D0 = literal : T { }
 
 //command check_id = check_query (identity T) D0 D
 
-
 ///////////////////////////////////////////////////////////////////////////
 
 schema S1 = literal : sql {
@@ -173,5 +172,4 @@ query Q5 = literal : T -> T {
 instance J5 = eval Q5 I4
 
 command check5_redundant = check D J5
-
 

@@ -85,7 +85,6 @@ query qUT = literal : U -> T {
 	
 }
 
-
 query qTS = literal : T -> S {
 	entity
 		s -> {from t1:t1 t2:t2
@@ -98,7 +97,6 @@ query qTS = literal : T -> S {
 		ss -> {t1 -> x.h t2 -> x }	}
 }
 query qUS = [qUT ; qTS]
-
 
 /////////////////
 
@@ -129,7 +127,6 @@ instance K = eval qUS I
 transform fr = frozen qTS lambda x:s0. x.ss.att : Integer
 
 /////////////////////////////////////////////////
-
 
 typeside Ty = literal {
 	types
@@ -187,7 +184,3 @@ instance A = eval QQQQ II
 instance B = eval QQ eval QQ II
 instance A2 = coeval QQQQ II
 instance B2 = coeval QQ coeval QQ II
-
-
-
-

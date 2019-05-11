@@ -111,4 +111,3 @@ instance I = random : C {
 instance J = sigma_chase F I
 
 instance J2 = sigma F I
-

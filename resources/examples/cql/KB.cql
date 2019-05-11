@@ -29,7 +29,6 @@ typeside Group = literal {
 //		completion_precedence = "e o I"
 }
 
-
 typeside LR = literal {
 	types 
 		S

@@ -122,7 +122,6 @@ command view1 = exec_jdbc ""  {
 	"DROP TABLE \"Water\""
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Application 0 : View warehouse as graph
 
@@ -172,7 +171,3 @@ instance ANonInjectiveWarehouse = literal : WarehouseSchema {
 }
 
 instance RepairedInjectiveWarehouse = chase AllFksInjective ANonInjectiveWarehouse 
-
-
-
-

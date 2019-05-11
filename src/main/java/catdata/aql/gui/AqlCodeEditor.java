@@ -133,7 +133,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		
 	}
 
-	private void visualEdit() {
+	public void visualEdit() {
 		Extensions.getExtensions().visualEdit(this);
 	}
 	
@@ -308,13 +308,13 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			throw last_env.exn;
 		}
 
-		respAreaX.setToolTipText("Done.");
+		//respAreaX.setToolTipText("Done.");
 		return last_env;
 	}
 
 	@Override
-	protected String textFor(AqlEnv env) {
-		return "Done.";
+	protected String textFor(AqlDisplay disp, AqlEnv env) {
+		return disp.text == null ? "Done." : disp.text;
 	}
 
 	public void infer() {
@@ -367,7 +367,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 				for (ParserNotice x : aqlStatic.result.getNotices()) {
 					String z = x.getMessage();
 					if (!z.startsWith("Depends") && !z.startsWith("Anomaly")) {
-						sb.append(x.getMessage());
+						sb.append(((StaticParserNotice)x).msg);
 						sb.append("\n\n");
 					}
 					if (z.startsWith("Anomaly")) {
@@ -464,9 +464,11 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 	public static class StaticParserNotice extends DefaultParserNotice {
 		Color c;
+		public final String msg;
 
 		public StaticParserNotice(Parser parser, String msg, int line, Color c) {
 			super(parser, truncate(msg), line);
+			this.msg = msg;
 			this.c = c;
 		}
 

@@ -1,5 +1,4 @@
 
-
 schema cat = literal : empty {
 	entities
 		Ob Mor Pair
@@ -18,7 +17,6 @@ schema cat = literal : empty {
 		Pair.snd.cod = Pair.comp.cod
 	options
 } 
-
 
 constraints theEDs = literal : cat {
 //every composable pair gives a Pair
@@ -58,7 +56,6 @@ schema CQLschema = literal : empty {
 		on: StringAtt -> Ob
 		on: IntAtt -> Ob
 }
-
 
 instance mysch = literal : CQLschema  {
 	generators

@@ -231,8 +231,8 @@ public class IdeOptions {
 	}
 
 	private JComponent onlyColors() {
-		JPanel p1 = new JPanel(new GridLayout(size() - 13, 1));
-		JPanel p2 = new JPanel(new GridLayout(size() - 13, 1));
+		JPanel p1 = new JPanel(new GridLayout(size() - 12, 1));
+		JPanel p2 = new JPanel(new GridLayout(size() - 12 , 1));
 
 		JSplitPane p = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -251,8 +251,8 @@ public class IdeOptions {
 	}
 
 	private JComponent general() {
-		JPanel p1 = new JPanel(new GridLayout(size() - 7, 1));
-		JPanel p2 = new JPanel(new GridLayout(size() - 7, 1));
+		JPanel p1 = new JPanel(new GridLayout(size() - 5, 1));
+		JPanel p2 = new JPanel(new GridLayout(size() - 5, 1));
 
 		JSplitPane p = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -931,10 +931,10 @@ public class IdeOptions {
 
 	public static void showAbout() {
 		try {
-			Desktop.getDesktop().browse(new URI("http://categoricaldata.net/help/index.html"));
+			Desktop.getDesktop().browse(new URI("http://categoricaldata.net"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			JOptionPane.showMessageDialog(null, ex.getMessage());
+			//JOptionPane.showMessageDialog(null, ex.getMessage());
 		}
 	}
 

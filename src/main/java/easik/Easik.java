@@ -15,7 +15,7 @@ import easik.ui.ApplicationFrame;
  */
 public class Easik {
 	/** The current version of EASIK. */
-	public static final String VERSION = "3.0 -> FQL";
+	public static final String VERSION = "3.0 -> CQL";
 
 	/**
 	 * The current svn revision of Easik.java. This is mainly for internal use,

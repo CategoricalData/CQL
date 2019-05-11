@@ -4,8 +4,6 @@ typeside cql_sorts = literal {
 		//graph, typeside, schema, instance, mapping, query, transform, constraints, pragma, schema-colimit, object
 }
 
-
-
 typeside cql_literals = literal {
 	imports 
 		cql_sorts
@@ -111,7 +109,6 @@ typeside cql_fdm = literal {
 
 		satisfies_I consistent_I : O , I -> P
 }
-
 
 typeside cql_pivot = literal {
 	imports 

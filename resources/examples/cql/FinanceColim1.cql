@@ -26,7 +26,6 @@ typeside Ty = literal {
 		keygen : Integer,Integer,Integer -> Integer = "return (2^input[0] * 3^input[1] * 5^input[2])"
 }
 
-		
 ////////////////////////////////////////////////////////////////////////
 // Input schemas and instances separately
 ////////////////////////////////////////////////////////////////////////
@@ -276,7 +275,6 @@ instance HoldPosInstance = literal : HoldPos {
 		hpp2.position_id = "2" hpp2.position_client_client_no = "2" hpp2.position_client = hpc2 hpp2.position_asset_asset_id = "5" hpp2.position_quantity = "100" hpp2.position_current_value = "170" hpp2.position_current_value_currency_currency_code = "JPY" hpp2.position_cost_basis = "160" hpp2.position_cost_basis_currency_currency_code = "JPY"
 } 
 
-
 ////////////////////////////////////////////////////////////////////////
 // Compute the canonical colimit schema using the quotient method
 ////////////////////////////////////////////////////////////////////////
@@ -306,7 +304,6 @@ schema_colimit Colimit = quotient Client + Ref + Trans + Portfolio + HoldPos : T
 		simplify_names=false	 
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 // The instance coproduct
 ////////////////////////////////////////////////////////////////////////
@@ -332,7 +329,6 @@ instance E = literal : getSchema Colimit {
 		ecur1 ecur2 ecur3 :  Ref_currency__Trans_currency
 		es1 es2 es3 : Portfolio_strategy__Ref_strategy
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 // The transforms
@@ -371,12 +367,10 @@ transform a2 = literal : E -> CoProd {
 		es3 -> ps3
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 // The final step
 ////////////////////////////////////////////////////////////////////////
 instance ColimitInstance = coequalize a1 a2
-
 
 ////////////////////////////////////////////////////////////////////////
 //Desired Target Schema translated from asset-mgmt-er.pdf
@@ -506,7 +500,6 @@ schema Target = literal : Ty {
 		forall p. p.position_current_value_currency.currency_id = p.position_current_value_currency_currency_id
 		forall p. p.position_cost_basis_currency.currency_id = p.position_cost_basis_currency_currency_id	
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 //An uber-flower to migrate from Colim to Target
@@ -655,7 +648,6 @@ foreign_keys
 
 instance Output = eval ETL ColimitInstance
 
-
 ////////////////////////////////////////////////////////////////////////
 // Target schema A - cyclic FK version (on the Portfolio entity)
 ////////////////////////////////////////////////////////////////////////
@@ -781,7 +773,6 @@ schema CycTarget = literal : Ty {
 
 } 
 
-
 query ETL_Cyc = literal : Target -> CycTarget {
  entity
  	
@@ -896,4 +887,3 @@ entity	clientportfolioholding -> {from ph:portfolioholding
 instance OutputCyc = eval ETL_Cyc Output 
  
 instance OutputCycDistinct = distinct OutputCyc
-

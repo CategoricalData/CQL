@@ -52,7 +52,6 @@ instance J = literal : D {
 		XF667.salary0 = 250 XF891.salary0 = 300 XF221.salary0 = 100
 }  
 
-
 instance J2 = random : D {
 	generators
 		T -> 10
@@ -60,11 +59,9 @@ instance J2 = random : D {
 	//	random_seed = 2
 }
 
-
 instance deltaFJ = delta F J
 instance deltaFJ_alt1 = eval (toQuery F) J
 instance deltaFJ_alt2 = coeval (toCoQuery F) J
-
 
 instance J0 = literal : D {
  generators 

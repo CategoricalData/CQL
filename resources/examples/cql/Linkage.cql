@@ -27,7 +27,6 @@ instance J = quotient_query I {
 	quotient_use_chase = false
 }
 
-
 instance J2 = quotient_query I {
 	entity Element -> {from a:Element b:Element where a.num1 = b.num2}
 	options

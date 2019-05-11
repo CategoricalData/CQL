@@ -7,7 +7,6 @@ typeside Ty = literal {
 		Bool = "return java.lang.Boolean.parseBoolean(input[0])"
 }
 
-
 schema Source = literal : Ty {
 	entities
 		Man Woman
@@ -69,6 +68,7 @@ instance I = literal : Source {
 } 
 
 instance J = eval Q I
+
 instance I0 = literal : Source {
 	generators
 		a0 d0 e0 : Woman

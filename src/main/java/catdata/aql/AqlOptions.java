@@ -587,7 +587,7 @@ public final class AqlOptions {
 	static String msg0 = "completion_precedence = \"a b c\" means a < b < c";
 	static String msg1 = msg0 + "\n\nAvailable provers: " + Arrays.toString(ProverName.values());
 	static String msg = msg1
-			+ "\n\nOption descriptions are available in the CQL manual, see categoricaldata.net/cql.html";
+			+ "\n\nOption descriptions are available in the CQL manual, see http://categoricaldata.net";
 
 	public static String getMsg() {
 		return "Options are specified in each CQL expression.\nHere are the available options and their defaults:\n\n\t"

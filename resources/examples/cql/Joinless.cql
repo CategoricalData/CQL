@@ -34,7 +34,6 @@ instance BostonSchools = literal : Schools {
 		biggestDept -> {harvard math, mit cs}
 }
 
-
 schema Person = literal : Ty {
 	entities 
 		Person
@@ -61,8 +60,4 @@ query BiggestDeptIsMathQuery_simple = simple : Schools  {
 } 
 
 instance BiggestDeptIsMathInBoston = eval BiggestDeptIsMathQuery BostonSchools
-
-
-
-
 

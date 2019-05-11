@@ -33,7 +33,6 @@ schema Square = literal : Type {
 		D_attC : D -> dom	
 } 
 
-
 instance J = literal : Span {
 	generators
 		a : A
@@ -66,7 +65,6 @@ entity	A -> {from a:A
 			g -> {c -> a.g}} 
 
 }
-
 
 instance I = coeval pushout J
 

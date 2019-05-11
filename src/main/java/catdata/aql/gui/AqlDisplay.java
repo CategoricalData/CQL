@@ -219,7 +219,7 @@ public final class AqlDisplay implements Disp {
 
 		display(pre + title, p.order, report);
 	}
-
+public String text;
 	private JComponent report(Program<Exp<?>> prog, AqlEnv env, List<String> order, float c1, float c2, String pre) {
 		DecimalFormat df = new DecimalFormat("#.#");
 		df.setRoundingMode(RoundingMode.CEILING);
@@ -246,7 +246,7 @@ public final class AqlDisplay implements Disp {
 		pan.add(new JScrollPane(t));
 		String tsv = "instance\trows\tseconds\n" + Util.sep(l, "\n");
 		JTabbedPane jtb = new JTabbedPane();
-		String text = pre;
+	 text = pre;
 		if (!missing.isEmpty()) {
 			text += "\n\nInstances not computed: " + Util.sep(Util.alphabetical(missing), ", ");
 		}

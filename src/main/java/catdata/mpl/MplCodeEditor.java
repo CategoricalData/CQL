@@ -1,10 +1,8 @@
 package catdata.mpl;
 
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.List;
 
 import javax.swing.KeyStroke;
 
@@ -82,7 +80,7 @@ public class MplCodeEditor extends CodeEditor<Program<MplExp<String, String>>, E
 	}
 
 	@Override
-	protected String textFor(Environment<MplObject> env) {
+	protected String textFor(MplDisplay disp, Environment<MplObject> env) {
 		return "Done.";
 	}
 
