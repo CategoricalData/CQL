@@ -2,10 +2,7 @@ Categorical Query Language
 ====
 
 For more information, please see:
-- <a href="http://categoricaldata.net" target="_blank">Academic page</a>
-- <a href="http://categorical.info/" target="_blank">Commercial page</a>
-- <a href="http://github.com/CategoricalData/CQL/wiki" target="_blank">Wiki</a>
-- <a href="http://categoricaldata.net/help/index.html" target="_blank">Manual</a>
+- <a href="http://categoricaldata.net" target="_blank">Community page</a>
 
 Build and installation
 ----------------------
@@ -20,8 +17,8 @@ For best results, compile using the [Eclipse IDE](http://eclipse.org/jdt/).
 
 ### Gradle
 
-    git clone https://github.com/CategoricalData/fql.git
-    cd fql
+    git clone https://github.com/CategoricalData/cql.git
+    cd cql
     gradle run --args="-p combinator"
 
 Related projects:
