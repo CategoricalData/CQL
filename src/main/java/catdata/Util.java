@@ -699,6 +699,23 @@ public class Util {
 
 		return ret;
 	}
+	
+	public static <X, Y> Map<X, Y> toMapSafelyNoDups(Collection<Pair<X, Y>> t) {
+		Map<X, Y> ret = new THashMap<>(t.size());
+
+		for (Pair<X, Y> p : t) {
+			putSafelyNoDups(ret, p.first, p.second);
+		}
+
+		return ret;
+	}
+	
+	public static <X, Y> void putSafelyNoDups(Map<X, Y> ret, X k, Y v) {
+		if (ret.containsKey(k)) {
+			throw new RuntimeException("Two distinct bindings for " + k + ": " + v + " and " + ret.get(k));
+		}
+		ret.put(k, v);
+	}
 
 	public static <X, Y> Set<Pair<X, Y>> convert(Map<X, Y> t) {
 		Set<Pair<X, Y>> ret = new THashSet<>(t.size());

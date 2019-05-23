@@ -337,6 +337,14 @@ public final class SchExpRaw extends SchExp implements Raw {
 		this.atts = LocStr.set2(atts);
 		this.t_eqs = LocStr.proj2(list2);
 		this.options = Util.toMapSafely(options);
+		
+		if (this.fks.size() != fks.size()) {
+			throw new RuntimeException("Error: schema literal contains duplicate foreign keys.");
+		}
+		if (this.atts.size() != atts.size()) {
+			throw new RuntimeException("Error: schema literal contains duplicate attributes.");
+		}
+	
 //		Util.toMapSafely(fks); // check no dups here rather than wait until eval
 //		Util.toMapSafely(atts);
 
@@ -386,12 +394,20 @@ public final class SchExpRaw extends SchExp implements Raw {
 			List<Pair<String, Pair<String, Ty>>> atts, List<Quad<String, String, RawTerm, RawTerm>> list2,
 			List<Pair<String, String>> options, @SuppressWarnings("unused") Object o) {
 		this.typeSide = typeSide;
+		
 		this.imports = new THashSet<>(imports);
 		this.ens = (new THashSet<>(ens));
 		this.fks = (new THashSet<>(fks));
-		this.p_eqs = (new THashSet<>(list));
+		if (this.fks.size() != fks.size()) {
+			throw new RuntimeException("Error: schema literal contains duplicate foreign keys.");
+		}
 		this.atts = (atts.stream().map(x -> new Pair<>(x.first, new Pair<>(x.second.first, x.second.second.str)))
 				.collect(Collectors.toSet()));
+		if (this.atts.size() != atts.size()) {
+			throw new RuntimeException("Error: schema literal contains duplicate attributes.");
+		}
+		this.p_eqs = (new THashSet<>(list));
+		
 		this.t_eqs = (new THashSet<>(list2));
 		this.options = Util.toMapSafely(options);
 		// Util.toMapSafely(fks); // check no dups here rather than wait until eval
@@ -406,7 +422,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 	@Override
 	public TyExp type(AqlTyping G) {
 		typeSide.type(G);
-		return typeSide;
+		return typeSide;	
 	}
 
 	@Override

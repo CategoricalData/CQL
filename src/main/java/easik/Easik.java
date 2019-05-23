@@ -23,7 +23,7 @@ public class Easik {
 	 */
 	public static final int REVISION = 0;
 
-	/** The instance of this sketch */
+ 	/** The instance of this sketch */
 	private static Easik _instance;
 
 	/**
