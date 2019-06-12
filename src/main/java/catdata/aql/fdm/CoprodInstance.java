@@ -119,9 +119,14 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 					return Util.anomaly();
 				}
 				if (lhs.hasTypeType()) {
-					return algebra().intoY(rhs).equals(algebra().intoY(lhs));
+					if (schema().typeSide.js.java_tys.isEmpty()) {
+						return algebra().intoY(rhs).equals(algebra().intoY(lhs));
+					}
+					return schema().typeSide.js.reduce(algebra().intoY(rhs)).equals(schema().typeSide.js.reduce(algebra().intoY(lhs)));
+					
 				}
-				return algebra().intoX(rhs).equals(algebra().intoX(lhs));
+				return algebra().intoX(rhs).equals(algebra().intoX(lhs));	
+					
 			}
 		};
 
@@ -130,7 +135,8 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	@Override
 	public Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Pair<String, Y>> algebra() {
 		return new Algebra<>() {
-
+			
+		
 			@Override
 			public Schema<Ty, En, Sym, Fk, Att> schema() {
 				return sch;
@@ -170,9 +176,6 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			@Override
 			public Term<Ty, Void, Sym, Void, Void, Void, Pair<String, Y>> sk(Pair<String, Sk> sk) {
 				return insts.get(sk.first).algebra().sk(sk.second).mapGenSk(x0 -> x0, (x0 -> new Pair<>(sk.first, x0))); // .ma
-																															// Term.Sk(new
-																															// Pair<>(sk.first,
-																															// );
 			}
 
 			@Override

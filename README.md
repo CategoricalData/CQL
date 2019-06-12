@@ -15,11 +15,13 @@ Build and installation
 	
 For best results, compile using the [Eclipse IDE](http://eclipse.org/jdt/).
 
-### Gradle
+- create a new java project
+- add the src/main folder as a source folder
+- add resources as a source folder 
+- add lib/* as external jar files
+- run catdata.ide.IDE as the main class
 
-    git clone https://github.com/CategoricalData/cql.git
-    cd cql
-    gradle run --args="-p combinator"
+A gradle file is provided, but is not maintained.
 
 Related projects:
 --------------
