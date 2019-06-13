@@ -184,12 +184,24 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 					surjX.put(Term.Sk(p), Term.Sk(vv));
 					// surjective on attributes
 				} else {
-					surjX.put(Term.Sk(p), u);
+					Var vv = Var.Var("sk" + skidx);
+					fr.put(vv, Chc.inRight(J.algebra().talg().sks.get(p)));
+					iso2.first.put(p, skidx);
+					iso2.second.put(skidx, p);
+					skidx++;
+					//surjX.put(Term.Sk(p), Term.Sk(vv));
+					//wh.
+					
+					wh.add(new Eq<>(Collections.emptyMap(), Term.Sk(vv), u));
+					surjX.put(Term.Sk(p), u);	
+					
 				}
 
 			}
 			isos2.put(en2, iso2);
 			surj.put(en2, surjX);
+			//System.out.println(surj);
+			//System.out.println("**");
 
 			for (Pair<Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>>, Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>>> eq : J
 					.eqs()) {
@@ -209,8 +221,10 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 				}
 			}
 			ens.put(en2, new Triple<>(fr, wh, ops));
-
 		}
+		
+		
+		
 		for (Fk fk2 : F0.dst.fks.keySet()) {
 			Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> gens = new THashMap<>();
 			gens.put(v, Term.Fk(fk2, Term.Gen(v)));
@@ -252,6 +266,10 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 
 					Function<Chc<Void, Pair<Integer, Att>>, Var> skf = p -> {
 						Integer y1 = iso1x.first.get(p);
+						if (y1 == null) {
+							//return surj.get(p.r.second.en).get(Term.Sk(p));
+							throw new RuntimeException("No attribute mapping for " + p.r + "; available:\n\n" + iso1x.first + "\n\n" + isos2);
+						}
 						return Var.Var("sk" + y1);
 					};
 
@@ -262,6 +280,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 			sks.put(fk2, hh);
 			fks.put(fk2, new Pair<>(g, ops));
 		}
+		
 		for (Att att2 : F0.dst.atts.keySet()) {
 //			Term<Ty, En, Sym, Fk, Att, Var, Void> g = null;
 
