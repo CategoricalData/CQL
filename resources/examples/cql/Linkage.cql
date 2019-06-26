@@ -30,5 +30,5 @@ instance J = quotient_query I {
 instance J2 = quotient_query I {
 	entity Element -> {from a:Element b:Element where a.num1 = b.num2}
 	options
-	quotient_use_chase = false
+	quotient_use_chase = true
 }

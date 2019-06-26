@@ -40,7 +40,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 			} else if (c.equals(Void.class)) {
 				return Collections.emptySet();
 			}
-			throw new RuntimeException("Cannot enumerate: " + clazz);
+			throw new RuntimeException("Cannot enumerate: " + clazz + ".\n\nLikely cause: evaluation of var:type binding in a query, or pi with a mapping that is not surjective on attributes.  This often indicates a modeling error.  To proceed, use a finite, non-java typeside.");
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}

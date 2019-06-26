@@ -30,8 +30,26 @@
   <keywords2>
 <keyword>anonymize</keyword>
 <keyword>frozen</keyword>
+<keyword>include</keyword>
 <keyword>toQuery</keyword>
 <keyword>toCoQuery</keyword>
+<keyword>fromCoSpan </keyword>
+<keyword>dom_q</keyword>
+<keyword>cod_q</keyword>
+<keyword>dom_m</keyword>
+<keyword>cod_m</keyword>
+<keyword>except</keyword>
+<keyword>dom_t</keyword>
+<keyword>cod_t</keyword>
+<keyword>anonymize</keyword>
+<keyword>frozen</keyword>
+<keyword>pi</keyword>
+<keyword>cascade_delete</keyword>
+<keyword>except_return</keyword>
+<keyword>distinct_return</keyword>
+<keyword>fromConstraints</keyword>
+<keyword>fromSchema</keyword>
+<keyword>quotient_query</keyword>
   	<keyword>chase</keyword>
   	<keyword>check</keyword>
   	<keyword>assert_consistent</keyword>
