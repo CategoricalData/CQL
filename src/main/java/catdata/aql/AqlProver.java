@@ -64,8 +64,10 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 		if (name.equals(ProverName.auto)) {
 			name = auto(ops, col_simpl);
 			if (name == null) {
-				throw new RuntimeException(
-						"Cannot automatically chose prover: theory is not free, ground, monoidal, or program.  Possible solutions include: \n\n0) Upgrade to Conexus CQL \n\n1) use the completion prover, possibly with an explicit precedence (see KB example) \n\n2) Reorient equations from left to right to obtain a size-reducing orthogonal rewrite system \n\n3) Remove all equations involving function symbols of arity > 1 \n\n4) Remove all type side and schema equations \n\n5) disable checking of equations in queries using dont_validate_unsafe=true as an option \n\n6) adding options program_allow_nontermination_unsafe=true \n\n7) Switching to the e prover, as described in the CQL manual \n\n8) emailing support, info@catinf.com ");
+				RuntimeException ex =  new RuntimeException(
+						"Cannot automatically chose prover: theory is not free, ground, monoidal, or program.  Possible solutions include: \n\n0) Upgrade to Conexus CQL \n\n1) use the completion prover, possibly with an explicit precedence (see KB example) \n\n2) Reorient equations from left to right to obtain a size-reducing orthogonal rewrite system \n\n3) Remove all equations involving function symbols of arity > 1 \n\n4) Remove all type side and schema equations \n\n5) disable checking of equations in queries using dont_validate_unsafe=true as an option \n\n6) adding options program_allow_nontermination_unsafe=true \n\n7) Switching to the e prover, as described in the CQL manual \n\n8) emailing support, info@conexus.ai\n\n\n" + col_simpl);
+				ex.printStackTrace();
+				throw ex;
 			}
 		}
 

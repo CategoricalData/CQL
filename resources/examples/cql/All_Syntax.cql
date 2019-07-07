@@ -156,15 +156,15 @@ instance i2 = distinct i1
 instance i3 = dom_t (identity i1)
 instance i4 = cod_t (identity i1)
 instance i5 = eval (identity s3) i1
-instance i6 = coeval (identity s3) i1 { options prover = completion }
-instance i7 = sigma (identity s3) i1 { options prover = completion }
+instance i6 = coeval (identity s3) i1 { options prover = completion  second_prover = completion}
+instance i7 = sigma (identity s3) i1 { options prover = completion second_prover = completion}
 instance i8 = delta (identity s3) i1
 instance i20 = coproduct i1 + i2 : s3 { options prover = completion }
-instance i11 = coequalize (identity i1) (identity i1) { options prover = completion }
+instance i11 = coequalize (identity i1) (identity i1) { options prover = completion  second_prover = completion}
 instance i12 = chase literal : s3 { } i3 
 instance i15 = anonymize i12
 instance i16 = frozen q3 Q
-instance i17 = pi (identity s2) (empty : s2) { options prover = completion }
+instance i17 = pi (identity s2) (empty : s2) { options prover = completion second_prover = completion}
 instance i18 = cascade_delete i1 : s3
 //random -- see delta example
 //import_jdbc -- see JDBC example
@@ -184,6 +184,7 @@ instance i13 = literal : s3 {
 		ename -> {e Al, e.manager Al}		
 	options
 		prover = completion
+		second_prover = completion
 } 
 
 
@@ -199,13 +200,13 @@ transform t3 = distinct t1
 transform t3x= distinct_return i1
 transform t4 = eval (identity s3) t1
 //the { options } blocks are optional
-transform t5 = coeval (identity s3) t1 { options prover = completion } { options prover = completion } 
-transform t6 = sigma (identity s3) t1 { options prover = completion } { options prover = completion } 
-transform t6x= pi (identity s1) (identity (empty : s1)) { options prover = completion } { options prover = completion } 
+transform t5 = coeval (identity s3) t1 { options prover = completion second_prover = completion} { options prover = completion second_prover = completion} 
+transform t6 = sigma (identity s3) t1 { options prover = completion second_prover = completion} { options prover = completion second_prover = completion} 
+transform t6x= pi (identity s1) (identity (empty : s1)) { options prover = completion second_prover = completion} { options prover = completion second_prover = completion } 
 transform t7 = delta (identity s3) t1
-transform t8 = unit (identity s3) i1 { options prover = completion } 
-transform t9 = counit (identity s3) i1 { options prover = completion } 
-transform t10= counit_query (identity s3) i1 { options prover = completion }
+transform t8 = unit (identity s3) i1 { options prover = completion second_prover = completion} 
+transform t9 = counit (identity s3) i1 { options prover = completion second_prover = completion} 
+transform t10= counit_query (identity s3) i1 { options prover = completion second_prover = completion}
 //import_jdbc - see JDBC example
 //import_csv - see Finance Colim example
 transform t11= literal : i13 -> i13 {

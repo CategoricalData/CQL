@@ -156,6 +156,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			return talg0;
 		}
 		talg0 = talg0();
+		//talg0.addAll(schema().typeSide.collage()); //j
 		talg0.validate();
 		return talg0;
 	}

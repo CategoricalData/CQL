@@ -27,6 +27,8 @@ public abstract class TyExp extends Exp<TypeSide<Ty, Sym>> {
 		public abstract TyExpRaw visitTyExpRaw(P params, R r) throws E;
 
 		public abstract TyExpSql visitTyExpSql(P params, R r) throws E;
+
+		public abstract TyExp visitTyExpAdt(P params, R r) throws E;
 	}
 
 	public abstract <R, P, E extends Exception> TyExp coaccept(P params, TyExpCoVisitor<R, P, E> v, R r) throws E;
@@ -43,6 +45,8 @@ public abstract class TyExp extends Exp<TypeSide<Ty, Sym>> {
 		public abstract R visit(P params, TyExpRaw exp) throws E;
 
 		public abstract R visit(P params, TyExpSql exp) throws E;
+
+		public abstract R visit(P params, TyExpAdt exp) throws E;
 	}
 
 	public abstract <R, P, E extends Exception> R accept(P params, TyExpVisitor<R, P, E> v) throws E;

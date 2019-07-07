@@ -1533,4 +1533,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		return new EdsExpSch(s);
 	}
 
+	@Override
+	public TyExp visitTyExpAdt(Unit params, AqlTyping r) throws RuntimeException {
+		return new TyExpAdt(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+	}
+
 }

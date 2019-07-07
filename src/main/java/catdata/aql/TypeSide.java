@@ -429,7 +429,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 
 		List<String> eqs1 = new LinkedList<>();
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> x : eqs) {
-			eqs1.add(Util.sep(x.first, ":", ",") + ". " + x.second + " = " + x.third);
+			eqs1.add("forall " + Util.sep(x.first, ":", ",") + ". " + x.second + " = " + x.third);
 		}
 		eqs1 = Util.alphabetical(eqs1);
 		List<String> eqs0 = Util.alphabetical(eqs1);

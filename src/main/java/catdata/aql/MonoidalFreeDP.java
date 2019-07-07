@@ -35,15 +35,16 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 				it.remove();
 			}
 		}
+		//System.out.println(local);
 		dpkb = new MonoidalProver<>(local);
 	}
 
-	// no equations involving symbols with arity > 2
+	// no equations involving symbols with arity > 1
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(
 			KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> th) {
 		for (Triple<Map<Var, Chc<Ty, En>>, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>> eq : th.eqs) {
-			if (!ok(eq.second) || !ok(eq.third)) {
+			if (!ok(eq.second) || !ok(eq.third) || eq.first.size() > 1) {
 				return false;
 			}
 		}
@@ -52,7 +53,7 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs) {
-			if (!ok(eq.lhs) || !ok(eq.rhs)) {
+			if (!ok(eq.lhs) || !ok(eq.rhs) || eq.ctx.size() > 1) {
 				return false;
 			}
 		}

@@ -1,5 +1,6 @@
 package catdata.aql.fdm;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -139,9 +140,11 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 				+ "]";
 
 //		col.validate();
-
+		Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>> z = col.eqsAsPairs();
+		z.removeAll(J.schema().typeSide.collage().eqsAsPairs());
+		
 		init = new InitialAlgebra<>(options, schema(), col, printGen, printSk);
-		I = new LiteralInstance<>(schema(), col.gens, col.sks, col.eqsAsPairs(), init.dp(), init,
+		I = new LiteralInstance<>(schema(), col.gens, col.sks, z, init.dp(), init,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		if (size() < 16 * 1024) {

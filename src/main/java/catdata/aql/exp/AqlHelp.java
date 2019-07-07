@@ -121,6 +121,8 @@ public class AqlHelp implements
 			return "Use the left-biased schema colimit renaming algorithm.";
 //		case lax_literals:
 		// return "Allows literals to depend on non-literals.";
+		case fast_consistency_check:
+			return "Use a faster but less accurate conservativity/consistency check.";
 		case static_timeout:
 			return "Timeout to use for spellchecker.";
 		case simplify_names:
@@ -1150,6 +1152,11 @@ public class AqlHelp implements
 	@Override
 	public String visit(Unit params, MorExpVar exp) throws RuntimeException {
 		return "A theory morphism variable.";
+	}
+
+	@Override
+	public String visit(Unit params, TyExpAdt exp) throws RuntimeException {
+		return "A symbolic typeside with given products and co-products.";
 	}
 
 }

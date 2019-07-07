@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
@@ -18,6 +19,8 @@ import catdata.aql.Head;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
+import catdata.provers.KBExp;
+import catdata.provers.KBUnifier;
 import gnu.trove.map.hash.THashMap;
 
 public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
@@ -231,7 +234,9 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 	}
 
 	Step talg;
-
+	
+	
+	
 	public final Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> subst = new THashMap<>();
 
 	private final Schema<Ty, En, Sym, Fk, Att> sch;
@@ -249,12 +254,17 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
 		talg = new Step(in);
 		subst.putAll(talg.subst);
-
+		
 		for (int i = 0; i < reduce; i++) {
 			talg = new Step(talg);
 			if (!talg.changed) {
+				talg.out.eqs.removeAll(alg.schema().typeSide.collage().eqs);
+				//for (Sym x : alg.schema().typeSide.collage().syms.keySet()) {
+					//talg.out.syms.remove(x);
+				//}
 				return;
 			}
+			
 			subst.replaceAll((h, t) -> t.replaceHead(talg.subst, null));
 			for (Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> x : talg.subst.keySet()) {
 				if (!subst.containsKey(x)) {
@@ -263,6 +273,9 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 			}
 		}
 	}
+
+	
+	
 
 	private synchronized void talg_h0() {
 		in.syms.putAll(col.syms);

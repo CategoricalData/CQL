@@ -62,7 +62,7 @@ public final class AqlOptions {
 
 	public static final AqlOptions initialOptions = new AqlOptions();
 
-	public enum AqlOption { diverge_warn, diverge_limit, csv_entity_name,
+	public enum AqlOption { fast_consistency_check, diverge_warn, diverge_limit, csv_entity_name,
 		interpet_as_frozen, static_timeout, prover_simplify_max, talg_reduction, prover_allow_fresh_constants,
 		second_prover, simple_query_entity, quotient_use_chase, chase_style, allow_empty_sorts_unsafe, maedmax_path,
 		program_allow_nonconfluence_unsafe, gui_sample, gui_sample_size, import_dont_check_closure_unsafe, js_env_name,
@@ -185,6 +185,8 @@ public final class AqlOptions {
 			return false;
 		case static_timeout:
 			return 5L;
+		case fast_consistency_check:
+			return true;
 		// case lax_literals:
 		// return false;
 		case interpet_as_frozen:
@@ -378,6 +380,8 @@ public final class AqlOptions {
 	private static Object getFromMap(Map<String, String> map, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
 			AqlOption op) {
 		switch (op) {
+		case fast_consistency_check:
+			return op.getBoolean(map);
 		case csv_entity_name:
 			return op.getString(map);
 		case left_bias:

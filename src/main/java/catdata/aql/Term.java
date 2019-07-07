@@ -1044,8 +1044,14 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 	public int hashCode2() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((arg == null) ? 0 : arg.hashCode());
-		result = prime * result + ((args == null) ? 0 : args.hashCode());
+		result = prime * result + ((arg == null) ? 0 : arg.hashCode2());
+		if (args != null) {
+			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : args) {
+				result = prime * result + (x.hashCode2());	
+			}
+		} //else {
+		//	result = prime * result; // + ((args == null) ? 0 : args.hashCode());
+		//}
 		result = prime * result + ((var == null) ? 0 : var.hashCode());
 		result = prime * result + ((_head == null) ? 0 : _head.hashCode());
 		return result;

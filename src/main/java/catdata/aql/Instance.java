@@ -126,6 +126,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		}
 
 		for (;;) {
+			//System.out.println(model);
 			boolean changed = false;
 			for (Sym f : schema().typeSide.syms.keySet()) {
 				List<Ty> s = schema().typeSide.syms.get(f).first;

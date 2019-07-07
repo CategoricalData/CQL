@@ -157,6 +157,7 @@ instance I = literal : S {
 		age(manager(a)) = zero.succ
 	options
 		prover = completion
+		second_prover = completion
 		completion_precedence = "cummulative_age zero a b c m s Al Akin Bob Bo Carl Cork Dan Dunn Math CS first last name age manager worksIn secretary succ plus"
 } 
 

@@ -35,6 +35,8 @@ public class MonoidalProver<T, C, V> extends DPKB<T, C, V> {
 		Map<Chc<Chc<Unit, T>, C>, Pair<Chc<Unit, T>, Chc<Unit, T>>> typing = new THashMap<>();
 		Collection<Chc<Unit, T>> types = (new ArrayList<>(th.tys.size() + 1));
 		types.add(Chc.inLeft(Unit.unit));
+		
+		
 		// (e : t -> t').!_t' = !_t
 		for (C c : th.syms.keySet()) {
 			if (th.syms.get(c).first.size() > 1) {
@@ -54,10 +56,13 @@ public class MonoidalProver<T, C, V> extends DPKB<T, C, V> {
 			typing.put(Chc.inLeft(Chc.inRight(t)), new Pair<>(Chc.inRight(t), Chc.inLeft(Unit.unit)));
 
 		}
+	//	System.out.println(rules);
 		for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : th.eqs) {
 			rules.add(new Pair<>(trans(eq.first, eq.second), trans(eq.first, eq.third)));
 		}
-		thue = new Thue<>(rules, typing.keySet());
+		//System.out.println(rules);
+	thue = new Thue<>(rules, typing.keySet());
+		//thue = new ThueSlow<>(rules);
 		//
 		// kb.complete();
 	}
@@ -94,6 +99,8 @@ public class MonoidalProver<T, C, V> extends DPKB<T, C, V> {
 		if (!rhs.isVar() && rhs.getArgs().size() > 1) {
 			throw new RuntimeException("On eq, not monoidal: " + rhs + ", please report.");
 		}
+		//System.out.println(lhs + " =? " + rhs);
+		//System.out.println(trans(ctx, lhs) + " =? " + trans(ctx, rhs));
 		return thue.equiv(trans(ctx, lhs), trans(ctx, rhs));
 	}
 
