@@ -483,8 +483,8 @@ public final class Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements S
 
 			List<String> fks0 = new LinkedList<>();
 			for (Fk1 fk : src.fksFrom(en)) {
-				fks0.add(fk + " -> " + fks.get(fk).first
-						+ (fks.get(fk).second.isEmpty() ? "" : "." + Util.sep(fks.get(fk).second, ".")));
+				fks0.add(fk + " -> " 
+						+ (fks.get(fk).second.isEmpty() ?  "identity " + fks.get(fk).first :  Util.sep(fks.get(fk).second, ".")));
 			}
 			List<String> atts0 = new LinkedList<>();
 			for (Att1 att : src.attsFrom(en)) {

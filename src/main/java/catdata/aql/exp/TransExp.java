@@ -13,6 +13,7 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
 import catdata.aql.Transform;
 import catdata.aql.exp.InstExp.InstExpLit;
+import catdata.aql.exp.InstExp.InstExpVar;
 import catdata.aql.fdm.IdentityTransform;
 
 public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
@@ -97,7 +98,7 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 		}
 
 		@Override
-		public Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y> eval0(AqlEnv env, boolean isC) {
+		public synchronized Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y> eval0(AqlEnv env, boolean isC) {
 			if (inst2.isEmpty()) {
 				return new IdentityTransform<>(inst.eval(env, isC), Optional.empty());
 			}
@@ -114,7 +115,17 @@ public abstract class TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 			if (!sch.equals(sch2)) {
 				throw new RuntimeException("Schema mismatch: " + sch + " and " + sch2);
 			}
-			return new Pair<>(inst, inst2.get());
+			if (inst instanceof InstExpVar && inst2.get() instanceof InstExpVar) {
+				if (!((G.prog.exps.get(((InstExpVar)inst).var) instanceof InstExpSigma) || (G.prog.exps.get(((InstExpVar)inst).var) instanceof InstExpRaw))) {
+					throw new RuntimeException(inst + " not bound to a literal or sigma instance, as required for inclusion.");
+				}
+				if (!((G.prog.exps.get(((InstExpVar)inst2.get()).var) instanceof InstExpSigma) || (G.prog.exps.get(((InstExpVar)inst2.get()).var) instanceof InstExpRaw))) {
+					throw new RuntimeException(inst2.get() + " not bound to a literal instance, as required for inclusion.");
+				}
+				return new Pair<>(inst, inst2.get());
+			}
+			throw new RuntimeException("Inclusion not of form include var var, as required.");
+			
 		}
 
 		public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {

@@ -109,11 +109,11 @@ public final class InstExpChase<Gen, Sk, X, Y> extends InstExp<Object, Object, O
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized Instance<Ty, En, Sym, Fk, Att, Object, Object, Object, Object> eval0(AqlEnv env, boolean isC) {
-		if (isC) {
+		/*if (isC) {
 			eds.eval(env, true);
 			I.eval(env, true);
 			throw new IgnoreException();
-		}
+		}*/
 		AqlOptions ops = new AqlOptions(options, null, env.defaults);
 		ops = new AqlOptions(ops, AqlOption.fast_consistency_check, true);
 		Instance<Ty, En, Sym, Fk, Att, ?, ?, ?, ?> ret = eds.eval(env, false).chase(

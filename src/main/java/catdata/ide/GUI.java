@@ -830,6 +830,7 @@ public class GUI extends JPanel {
 		}
 		saveDialog = new FileDialog((Dialog) null, "Save", FileDialog.SAVE);
 		saveDialog.setFile("*." + lang.fileExtension());
+		
 		// openDialog.setFilenameFilter(new AllNameFilter());
 		// if (!GlobalOptions.debug.general.file_path.isEmpty()) {
 		saveDialog.setDirectory(IdeOptions.theCurrentOptions.getFile(IdeOption.FILE_PATH).getAbsolutePath());
@@ -865,7 +866,6 @@ public class GUI extends JPanel {
 		}
 
 		FileDialog jfc = getSaveDialog(e.lang());
-
 		jfc.setVisible(true);
 
 		String f = jfc.getFile();

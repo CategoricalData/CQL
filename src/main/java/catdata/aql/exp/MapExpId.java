@@ -98,9 +98,11 @@ public final class MapExpId extends MapExp {
 
 	@Override
 	public Pair<SchExp, SchExp> type(AqlTyping G) {
+		sch.type(G);
 		if (sch2.isEmpty()) {
 			return new Pair<>(sch, sch);
 		}
+		sch2.get().type(G);
 		return new Pair<>(sch, sch2.get());
 	}
 

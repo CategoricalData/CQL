@@ -143,8 +143,11 @@ public final class RawTerm {
 			l.add(new LinkedList<>());
 			for (int i = 0; i < e.args.size(); i++) {
 				RawTerm arg = e.args.get(i);
-				if (col.syms.get(ss).first.size() > e.args.size()) {
-					throw new RuntimeException("Arity mismatch on " + e);
+				//if (col.syms.get(ss).first.size() > e.args.size()) {
+				//	throw new RuntimeException("Arity mismatch on " + e + " and " + ss);
+				//}
+				if (i >= col.syms.get(ss).first.size()) {
+					throw new RuntimeException("Wrong number of arguments to top-level application in " + e);
 				}
 				Ty ty = col.syms.get(ss).first.get(i);
 				Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> z = infer_good(arg,
@@ -467,6 +470,9 @@ public final class RawTerm {
 	}
 
 	public static void assertUnambig(String head, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
+		if (col == null) {
+			throw new RuntimeException("No collage within which to interpret a precedence.");
+		}
 		int n = boolToInt(col.syms.containsKey(Sym.Sym(head)))
 				+ boolToInt(col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
 				+ boolToInt(col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
