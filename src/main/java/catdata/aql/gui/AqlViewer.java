@@ -575,11 +575,11 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		CodeTextPanel output = new CodeTextPanel("Output", "");
 
 		JButton eq = new JButton("Decide Equation-in-ctx");
-		JButton nf = new JButton("Normalize Term-in-ctx");
+		//JButton nf = new JButton("Normalize Term-in-ctx");
 		JButton print = new JButton("Show Info");
-		JPanel buttonPanel = new JPanel(new GridLayout(1, 3));
+		JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
 		buttonPanel.add(eq);
-		buttonPanel.add(nf);
+		//buttonPanel.add(nf);
 		buttonPanel.add(print);
 
 		Split split = new Split(.5, JSplitPane.VERTICAL_SPLIT); // TODO: aql does not position correctly
@@ -593,6 +593,9 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		print.addActionListener(x -> output.setText(dp.toStringProver()));
 		eq.addActionListener(x -> {
 			try {
+				if (!input.getText().contains("=")) {
+					return;
+				}
 				final Triple<List<Pair<String, String>>, RawTerm, RawTerm> y = AqlParserFactory.getParser()
 						.parseEq(input.getText());
 
@@ -607,23 +610,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				output.setText(ex.getMessage());
 			}
 		});
-		nf.addActionListener(x -> {
-			try {
-				final Pair<List<Pair<String, String>>, RawTerm> y = AqlParserFactory.getParser()
-						.parseTermInCtx(input.getText());
-
-				@SuppressWarnings("unchecked")
-				final Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> z = RawTerm
-						.infer2(y.first, y.second, y.second, col, js);
-
-				final Term<Ty, En, Sym, Fk, Att, Gen, Sk> w = dp.nf(z.first, z.second);
-
-				output.setText(w.toString());
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				output.setText(ex.getMessage());
-			}
-		});
+		
 
 		return main;
 	}
