@@ -1,11 +1,17 @@
 package catdata.ide;
 
+import java.awt.Desktop;
 import java.awt.HeadlessException;
 import java.awt.MenuBar;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -25,6 +31,7 @@ import org.apache.commons.cli.ParseException;
 
 import catdata.DeadLockDetector;
 import catdata.Pair;
+import catdata.Util;
 import catdata.aql.exp.AqlParserFactory;
 import catdata.ide.IdeOptions.IdeOption;
 
@@ -107,6 +114,9 @@ public class IDE {
 						GUI.exitAction();
 					}
 				});
+				
+						
+				//Runtime.getRuntime().
 
 				String[] inputFilePath = cmdLine.getOptionValues("input");
 				if (inputFilePath == null) {
@@ -127,12 +137,42 @@ public class IDE {
 				// Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
 				DeadLockDetector.makeDeadLockDetector();
+		
+			
+	
+				
 			} catch (HeadlessException | ClassNotFoundException | IllegalAccessException | InstantiationException
 					| UnsupportedLookAndFeelException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Unrecoverable error, restart IDE: " + e.getMessage());
 			}
 		});
+		
+		new Thread(() -> {
+			File jf = new File("cql.jar");
+			if (jf.exists()) {
+				long current = jf.lastModified();
+				//System.out.println("cql.jar file modification date: " + new Date(current).toLocaleString());
+				try {
+					URL u = new URL("https://www.categoricaldata.net/version.php");
+					URLConnection c = u.openConnection();
+					c.connect();
+					String l = Util.readFile(new InputStreamReader(c.getInputStream()));
+					long newest = Long.parseLong(l.toString().trim() + "000");
+					//System.out.println("Newest cql.jar version: " + new Date(newest).toLocaleString());
+					if (newest > current) {
+						int x = JOptionPane.showConfirmDialog(null, "New Version Available - Download and Exit?", "Update?", JOptionPane.YES_NO_OPTION);
+						if (JOptionPane.YES_OPTION == x) {
+							Desktop.getDesktop().browse(new URI("http://categoricaldata.net/download"));
+							System.exit(0);
+						}
+					}
+				} catch (Exception ex) { 
+					ex.printStackTrace();
+				}
+			} 
+			
+			}).start();
 	}
 
 	/*
