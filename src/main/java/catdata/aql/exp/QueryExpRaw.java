@@ -722,6 +722,9 @@ public class QueryExpRaw extends QueryExp implements Raw {
 						Collage<Ty, En, Sym, Fk, Att, Var, Var> col = cols.get(dst0.fks.get(pp.first).first);
 						Chc<catdata.aql.exp.En, catdata.aql.exp.Ty> required = ens0
 								.get(dst0.fks.get(pp.first).second).first.get(v.first);
+						if (required == null) {
+							throw new RuntimeException("Not an entity or type: " + v.first);
+						}
 						Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk> term = RawTerm
 								.infer1x(Map1, v.second, null, required.reverse(), col.convert(),
 										"in foreign key " + pp.first.str + ", ", src0.typeSide.js).second;

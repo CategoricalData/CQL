@@ -990,13 +990,17 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		JPanel p3 = new JPanel();
 
 		JTextField dst = new JTextField(32);
-		p2.add(new JLabel("type"));
+		p2.add(new JLabel("Enter a type: "));
 		p2.add(dst);
 
 		CodeTextPanel bot = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Result", "");
 
 		JButton go = new JButton("Saturate");
 		go.addActionListener(x -> {
+			String l = dst.getText().trim();
+			if (l.isEmpty()) {
+				return;
+			}
 			Ty r0 = Ty.Ty(dst.getText().trim());
 			Ty r = r0;
 			Runnable runnable = () -> {
@@ -1052,17 +1056,21 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 		JTextField src = new JTextField(32);
 		JTextField dst = new JTextField(32);
-		p1.add(new JLabel("source (sep by ,):"));
+		p1.add(new JLabel("Source Types (sep by ,):"));
 		p1.add(src);
-		p2.add(new JLabel("target:"));
+		p2.add(new JLabel("Target Type:"));
 		p2.add(dst);
 
 		CodeTextPanel bot = new CodeTextPanel(BorderFactory.createEtchedBorder(), "Result", "");
 
 		JButton go = new JButton("Compute hom set");
 		go.addActionListener(x -> {
+			String b = dst.getText().trim();
+			if (b.isEmpty()) {
+				return;
+			}
 			String[] l = src.getText().split(",");
-			Ty r = Ty.Ty(dst.getText().trim());
+			Ty r = Ty.Ty(b);
 			List<Ty> l0 = new LinkedList<>();
 			for (String j : l) {
 				String j2 = j.trim();
@@ -1153,7 +1161,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		} else {
 			ret.addTab("TyAlg", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
 		}
-		ret.addTab("Sat", makeHomSet((Instance<catdata.aql.exp.Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>) I));
+		ret.addTab("Hom-sets", makeHomSet((Instance<catdata.aql.exp.Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>) I));
 		ret.addTab("DP", viewDP(I.dp(), I.collage(), I.schema().typeSide.js));
 		// ret.addTab("TPTP", new CodeTextPanel("", I.tptp()));
 
