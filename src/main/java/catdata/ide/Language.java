@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import catdata.Util;
 import catdata.aql.gui.AqlCodeEditor;
+import catdata.mpl.MplCodeEditor;
 
 public enum Language {
 
@@ -13,7 +13,7 @@ public enum Language {
 
 //	FPQL,
 //	OPL,
-//	MPL,
+	MPL,
 	CQL;//, CQL_ALT;
 
 	public static Language getDefault() {
@@ -31,7 +31,7 @@ public enum Language {
 	@Override
 	public String toString() {
 		switch (this) {
-		// case MPL: return "MPL";
+		 case MPL: return "MPL";
 		case CQL:
 			return "CQL";
 		//case CQL_ALT:
@@ -48,7 +48,7 @@ public enum Language {
 
 	public String prefix() {
 		switch (this) {
-		// case MPL: return "M";
+		 case MPL: return "M";
 		case CQL:
 			return " ";
 		//case CQL_ALT:
@@ -73,6 +73,8 @@ public enum Language {
 			return "easik";
 		case SKETCH:
 			return "sketch";
+		case MPL:
+			return "mpl";
 		default:
 			throw new RuntimeException("Anomaly - please report");
 		}
@@ -89,6 +91,8 @@ public enum Language {
 			return "easik";
 		case SKETCH:
 			return "sketch";
+		case MPL:
+			return "mpl";
 		default:
 			throw new RuntimeException("Anomaly - please report");
 		}
@@ -100,6 +104,8 @@ public enum Language {
 		switch (this) {
 		case CQL:
 			return new AqlCodeEditor(title, id, content);
+		case MPL:
+			return new MplCodeEditor(title, id, content);
 		//case CQL_ALT:
 		//	return new AqlCodeEditor(title, id, content);
 		case EASIK:
@@ -114,6 +120,8 @@ public enum Language {
 		switch (this) {
 		case CQL:
 			return Examples.getExamples(Language.CQL);
+		case MPL:
+			return Examples.getExamples(Language.MPL);
 		//case CQL_ALT:
 			//return Examples.getExamples(Language.CQL_ALT);
 		case EASIK:

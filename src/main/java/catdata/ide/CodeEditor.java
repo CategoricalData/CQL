@@ -1269,7 +1269,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	}
 
 	protected void threadBody() {
-		while (!isClosed) {
+		while (!isClosed && topArea != null) {
 			try {
 				String s = topArea.getText();
 				if (!s.equals(parsed_prog_string)) {

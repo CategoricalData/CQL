@@ -1,6 +1,12 @@
 package catdata.mpl;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.jparsec.Parser;
 import org.jparsec.Parser.Reference;
@@ -17,8 +23,8 @@ import org.jparsec.functors.Tuple5;
 
 import catdata.Pair;
 import catdata.Program;
+import catdata.Quad;
 import catdata.Triple;
-import catdata.Util;
 import catdata.mpl.Mpl.MplExp;
 import catdata.mpl.Mpl.MplExp.MplEval;
 import catdata.mpl.Mpl.MplExp.MplSch;
@@ -144,7 +150,7 @@ class MplParser {
 	}
 
 	public static Program<MplExp<String, String>> program(String s) {
-		List<Triple<String, Integer, MplExp<String, String>>> ret = new LinkedList<>();
+		List<Quad<String, Integer, MplExp<String, String>, Integer>> ret = new LinkedList<>();
 		List decls = (List) program.parse(s);
 
 		for (Object d : decls) {
@@ -154,7 +160,7 @@ class MplParser {
 			toProgHelper(pr.a.toString(), s, ret, decl);
 		}
 
-		return Util.anomaly(); //new Program<>(ret, null);
+		return new Program<>(ret, null);
 	}
 
 	private static MplExp<String, String> toExp(Object o) {
@@ -173,12 +179,10 @@ class MplParser {
 			MplEval<String, String> ret = new MplEval<>((String) p.a, toTerm(p.b));
 			return ret;
 		}
-		throw new RuntimeException();
-		// }
-		// return toTheory(o);
+		return toTheory(o);
 	}
 
-	private static void toProgHelper(String txt, String s, List<Triple<String, Integer, MplExp<String, String>>> ret,
+	private static void toProgHelper(String txt, String s, List<Quad<String, Integer, MplExp<String, String>, Integer>> ret,
 			Tuple3 decl) {
 		int idx = s.indexOf(txt);
 		if (idx < 0) {
@@ -186,7 +190,7 @@ class MplParser {
 		}
 
 		String name = decl.a.toString();
-		ret.add(new Triple<>(name, idx, toExp(decl.c)));
+		ret.add(new Quad<>(name, idx, toExp(decl.c), idx));
 	}
 
 	private static MplTerm<String, String> toTerm(Object o) {

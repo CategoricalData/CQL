@@ -28,17 +28,17 @@ public class MplCodeEditor extends CodeEditor<Program<MplExp<String, String>>, E
 
 	@Override
 	public Language lang() {
-		return null; // Language.MPL;
+		return Language.MPL;
 	}
 
 	@Override
 	protected String getATMFlhs() {
-		return null; // "text/" + Language.MPL.name();
+		return  "text/" + Language.MPL.name();
 	}
 
 	@Override
 	protected String getATMFrhs() {
-		return null; // "catdata.mpl.MplTokenMaker";
+		return null; //""; //"catdata.mpl.MplTokenMaker";
 	}
 	
 	 protected void doUpdate() {}
