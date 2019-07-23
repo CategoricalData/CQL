@@ -33,7 +33,7 @@ License
 
 ### Categorical Data IDE (AGPL 3 license)
 
-Copyright (c) 2015+ Categorical Informatics.  All rights reserved.
+Copyright (c) 2015+ Conexus AI, Inc.  All rights reserved.
 
 https://www.gnu.org/licenses/agpl-3.0.en.html
 
