@@ -115,9 +115,9 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 				talg.sks.put(y, ty.getKey());
 			}
 		}
-		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> x : schema.typeSide.eqs) {
-			talg.eqs.add(new Eq<>(Util.inLeft(x.first), x.second.convert(), x.third.convert()));
-		}
+		//for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> x : schema.typeSide.eqs) {
+		//	talg.eqs.add(new Eq<>(Util.inLeft(x.first), x.second.convert(), x.third.convert()));
+		//}
 		talg.eqs.addAll(eqs0);
 	}
 

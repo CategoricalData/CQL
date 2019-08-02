@@ -301,7 +301,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 						}
 						List<Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> l = m.get(p.first);
 						l.add(p.second);
-
 					}
 					String ret = "";
 					for (Integer ed : m.keySet()) {

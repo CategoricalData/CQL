@@ -748,22 +748,28 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 					int j = 1;
 
 					for (Att att0 : atts0) {
-						Term<Ty, Void, Sym, Void, Void, Void, Y> t = alg.att(att0, x);
-						for (Y y : t.sks()) {
-							// X z = alg.gen(g);
-							if (!referredTo2.containsKey(y)) {
-								referredTo2.put(y, fresh++);
+						try {
+							Term<Ty, Void, Sym, Void, Void, Void, Y> t = alg.att(att0, x);
+							for (Y y : t.sks()) {
+								// X z = alg.gen(g);
+								if (!referredTo2.containsKey(y)) {
+									referredTo2.put(y, fresh++);
+								}
+								Set<Pair<Integer, Integer>> v = nulls.get(en);
+								if (v == null) {
+									v = new THashSet<>();
+									nulls.put(en, v);
+								}
+								// System.out.println("add " + i + " , " + j + " bc " + y);
+								v.add(new Pair<>(i, j));
+								// set.add(z);
 							}
-							Set<Pair<Integer, Integer>> v = nulls.get(en);
-							if (v == null) {
-								v = new THashSet<>();
-								nulls.put(en, v);
-							}
-							// System.out.println("add " + i + " , " + j + " bc " + y);
-							v.add(new Pair<>(i, j));
-							// set.add(z);
+							row.add(t);
+						} catch (Exception ex) {
+							ex.printStackTrace();
+							row.add(Term.Var(Var.Var("ERR")));
 						}
-						row.add(t);
+						
 						j++;
 					}
 					for (Fk fk0 : fks0) {

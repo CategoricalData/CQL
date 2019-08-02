@@ -95,9 +95,11 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 	public final void validate() {
 		validateNoTalg();
 		if (requireConsistency() && !algebra().hasFreeTypeAlgebra()) {
-			throw new RuntimeException(
+			RuntimeException ex = new RuntimeException(
 					"Not necessarily consistent.  This isn't necessarily an error, but is unusual.  Set require_consistency=false to proceed.  Type algebra is\n\n"
 							+ algebra().talg());
+			ex.printStackTrace();
+			throw ex;
 		}
 		if (!allowUnsafeJava() && !algebra().hasFreeTypeAlgebraOnJava()) {
 			throw new RuntimeException(
@@ -192,6 +194,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		}
 
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : eqs()) {
+			//System.out.println(eq);
 			// check lhs and rhs types match in all eqs
 			Chc<Ty, En> lhs = type(eq.first);
 			Chc<Ty, En> rhs = type(eq.second);
