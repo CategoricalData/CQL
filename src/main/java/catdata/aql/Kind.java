@@ -10,8 +10,10 @@ public enum Kind {
 	QUERY, // (Query.class, QueryExp.class),
 	PRAGMA, // (Pragma.class, PragmaExp.class),
 	GRAPH, // (DMG.class, GraphExp.class),
-	COMMENT, SCHEMA_COLIMIT, THEORY_MORPHISM;
-	//APG_typeside, APG_schema, APG_instance; // (Comment.class, CommentExp.class);
+	COMMENT, SCHEMA_COLIMIT, THEORY_MORPHISM,
+	APG_typeside, APG_instance, APG_morphism; 
+	
+	// (Comment.class, CommentExp.class);
 
 	@Override
 	public String toString() {
@@ -40,29 +42,16 @@ public enum Kind {
 			return "constraints";
 		case THEORY_MORPHISM:
 			return "theory_morphism";
-		/* case APG_instance:
+		case APG_instance:
 			return "apg_instance";
-		case APG_schema:
-			return "apg_schema";
+		case APG_morphism:
+			return "apg_morphism";
 		case APG_typeside:
-			return "apg_typeside"; */
+			return "apg_typeside"; 
 		default:
 			throw new RuntimeException();
 		}
 
 	}
-	/*
-	 * private final Class<?> literal; private final Class<?> exp;
-	 * 
-	 * Kind(Class<?> literal, Class<?> exp) { this.literal = literal; this.exp =
-	 * exp; }
-	 * 
-	 * public void checkExp(String k, Object o) { if (!exp.isInstance(o)) { throw
-	 * new RuntimeException(k + " is not a " + this + " expression , is a " +
-	 * o.getClass()); } }
-	 * 
-	 * public <X> void checkLiteral(X k, Object o) { if (!literal.isInstance(o)) {
-	 * throw new RuntimeException(k + " is not a " + this + " literal, is a " +
-	 * o.getClass()); } }
-	 */
+
 }

@@ -201,7 +201,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : term.args) {
 				l.add(intoY(x));
 			}
-			return Term.Sym(term.sym(), l);
+			return Term.Sym(term.sym(), l); //could js reduce here
 		} else if (term.sk() != null) {
 			return sk(term.sk());
 		} else if (term.att() != null) {

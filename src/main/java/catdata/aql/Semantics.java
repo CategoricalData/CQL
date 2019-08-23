@@ -14,7 +14,7 @@ public interface Semantics {
 
 //	public void time(long time);
 
-	public default TypeSide<?, ?> asTypeSide() {
+	/* public default TypeSide<?, ?> asTypeSide() {
 		return (TypeSide<?, ?>) this;
 	}
 
@@ -60,6 +60,6 @@ public interface Semantics {
 
 	public default Mor<?,?,?,?> asTheoryMorphism() {
 		return (Mor) this;
-	}
+	} */
 
 }

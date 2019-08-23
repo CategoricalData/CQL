@@ -1,237 +1,151 @@
-//Algebraic property graphs, joint with Josh at Uber
-options 
-	prover = completion
-	second_prover = completion
-	require_consistency=false
 
-typeside B = literal {
-	types
-		T 
-		V 
-	constants
-		String Double : T
-		hello world "3.14" "2.78" : V 
-	functions
-		tau : V -> T
-	equations
-		hello .tau = String
-		world .tau = String
-		"3.14".tau = Double
-		"2.78".tau = Double		
+apg_typeside Ty = literal {
+	types 
+		Str -> "java.lang.String"  "return input[0]"
+		Nat -> "java.lang.Integer" "return java.lang.Integer.parseInt(input[0])"
 }
 
-typeside A_B = literal {
+apg_instance Vertex = literal : Ty {
+	labels
+		User -> ()
+		Trip -> ()
+	elements
+		u1 : User -> ()
+		t1 : Trip -> ()
+}
+
+apg_instance Edge = literal : Ty {
 	imports
-		B
-	constants
-		0 1   : T
-		"()"  : V
-	functions	
-		"*" "+" : T,T -> T
-		","     : V,V -> V
-		inl inr : V,T -> V
-	equations
-		tau("()") = 1
-		forall v u. tau((v "," u)) = (tau(v) "*" tau(u))
-		forall v t. tau(inl (v,t)) = (tau(v) "+"     t )	
-		forall v t. tau(inr (v,t)) = (t      "+" tau(v))		
+		Vertex
+	labels
+		driver -> (Trip:label Trip * User:label User)
+		rider  -> (Trip:label Trip * User:label User)
+	elements
+		u2 : User   -> ()
+		d1 : driver -> (Trip:t1 , User:u1)
+		r1 : rider  -> (Trip:t1 , User:u2)
 }
 
-schema preAPG = literal : A_B {
-	entities
-		E L	
-	foreign_keys
-		"lambda"        : E -> L
-	attributes	
-		"sigma" kappa   : L -> T
-		phi     kappa   : E -> V	
+apg_instance Property = literal : Ty {
+	labels
+		User -> ()
+		name -> (User:label User * name:base Str)
+	elements
+		u1 : User -> ()
+		n1 : name -> (User:u1, name:"Arthur Dent")
+		n2 : name -> (User:u1, name:"Arthur P. Dent")
 }
 
-constraints APG = literal : preAPG {
-	forall e:E  -> where e.kappa.tau = e."lambda".kappa	
-	forall e:E  -> where e.phi.tau   = e."lambda"."sigma"
-	forall e1 e2:E where e1.kappa = e2.kappa -> where e1 = e2
-	forall l1 l2:L where l1.kappa = l2.kappa -> where l1 = l2
+apg_instance Alias = literal : Ty {
+	labels
+		Lat  -> base Nat
+		Long -> base Nat
+	elements
+		d1 : Lat  -> 4
+		d2 : Long -> 5
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-//Example 1 - Vertex
-
-instance G1 = literal : preAPG {
-	generators
-		Person Project : L
-		v1 v2 : E
-	equations
-		Person ."sigma" = 1	
-		Project."sigma" = 1
-		v1."lambda" = Person
-		v2."lambda" = Project
-		v1.phi = "()"
-		v2.phi = "()"
-		v1.kappa.tau = Person.kappa
-		v2.kappa.tau = Project.kappa
+apg_instance HyperElements = literal : Ty {
+	labels
+		User -> ()
+		Trip -> (user1:label User * user2:label User * event1:<place:label PlaceEvent + null:()> * event2:<place:label PlaceEvent + null:()>) 
+		PlaceEvent -> (place:label Place * event:label UnixTimeSeconds) 
+		Place -> ()
+		UnixTimeSeconds -> base Nat
+	elements
+		u1 : User -> ()
+		u2 : User -> ()
+		u3 : User -> ()
+		t1 : Trip -> (user1:u1 , user2:u2 , event1:<place:e1>, event2: <place:e2>)
+		t2 : Trip -> (user1:u1 , user2:u3 , event1:<place:e3>, event2: <null :()>)
+		e1 : PlaceEvent -> (place:p1 , event:s1)
+		e2 : PlaceEvent -> (place:p2 , event:s2)
+		e3 : PlaceEvent -> (place:p2 , event:s3)
+		e4 : PlaceEvent -> (place:p3 , event:s4)
+		p1 : Place -> ()
+		p2 : Place -> ()
+		p3 : Place -> ()
+		s1 : UnixTimeSeconds -> 1 
+		s2 : UnixTimeSeconds -> 1
+		s3 : UnixTimeSeconds -> 4
+		s4 : UnixTimeSeconds -> 3
 }
-command check1 = check APG G1
 
-//schema   G1_S = pivot G1
-//mapping  G1_M = pivot G1
-//instance G1_I = pivot G1
+//////////////////
 
-/////////////////////////////////////////////////////////////////////////////////////
 
-//Example 2 - Edge
-
-instance G2 = literal : preAPG {
-	generators
-		Person Project created knows : L
-		v1 v2 v3 e1 e2 : E
-	equations
-		Person ."sigma" = 1	
-		Project."sigma" = 1
-		knows."sigma"   = "*"(Person.kappa, Project.kappa)
-		created."sigma" = "*"(Person.kappa, Person .kappa)
-		
-		v1."lambda" = Person
-		v2."lambda" = Person
-		v3."lambda" = Project
-		e1."lambda" = knows
-		e2."lambda" = created
-		
-		v1.phi = "()"
-		v2.phi = "()"
-		v3.phi = "()"
-		e1.phi = (v1.kappa "," v3.kappa)
-		e2.phi = (v1.kappa "," v2.kappa)
-
-		v1.kappa.tau = Person.kappa
-		v2.kappa.tau = Person.kappa
-		v3.kappa.tau = Project.kappa
-		e1.kappa.tau = knows.kappa
-		e2.kappa.tau = created.kappa
+apg_instance G = literal : Ty {
+	labels
+		L3 -> base Str
+		L4 -> label L4
+		L5 -> (name: base Str * age: base Nat)
+		L6 -> <name: base Str + age: base Nat>
+    elements
+         e4 : L4 -> e4
+         e3 : L3 -> "hello world"
+         e5 : L5 -> (name:"bill", age: "35")
+         e6 : L6 -> <age: "30">
 }
-command check2 = check APG G2
 
-schema   G2_S = pivot G2
-mapping  G2_M = pivot G2
-instance G2_I = pivot G2
-
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-//Example 3 - Vertex Property
-
-instance G3 = literal : preAPG {
-	generators
-		Person name : L
-		e p1 p2 : E
-	equations
-		Person."sigma" = 1	
-		name  ."sigma" = (Person.kappa "*" String)
-		
-		p1."lambda" = name
-		p2."lambda" = name
-		e ."lambda" = Person
-		
-		e .phi = "()"
-		p1.phi = (e.kappa "," hello)
-		p2.phi = (e.kappa "," world)
-
-		e .kappa.tau = Person.kappa
-		p1.kappa.tau = name.kappa
-		p2.kappa.tau = name.kappa
+apg_morphism h = literal : G -> G {
+	labels
+		L3->L3 L4->L4 L5->L5 L6->L6
+	elements	
+		e4->e4 e3->e3 e5->e5 e6->e6
 }
-command check3 = check APG G3
-//schema   G3_S = pivot G3
-//mapping  G3_M = pivot G3
-//instance G3_I = pivot G3
+
+apg_instance i1 = empty Ty
+apg_instance i2 = unit Ty
+apg_instance i3 = <G + G>
+apg_instance i4 = (G * G)
+apg_instance i5 = equalize (identity G) (identity G)
+
+apg_morphism t1 = empty G
+apg_morphism t2 = unit G
+apg_morphism t3 = fst G G
+apg_morphism t4 = snd G G
+apg_morphism t5 = inl G G
+apg_morphism t6 = inr G G
+apg_morphism t7 = (t3,t4) 
+apg_morphism t8 = <t5|t6> 
+apg_morphism t9 = identity G
+apg_morphism t0 = [ t9 ; t9 ]
+apg_morphism ta = equalize t9 t9
+apg_morphism tb = equalize_u t9 t9 t9
 
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-//Example 4 - Edge Property
-
-instance G4 = literal : preAPG {
-	generators
-		Person knows weight : L
-		v1 v2 e p : E
-		
-	equations
-		Person."sigma" = 1	
-		knows ."sigma" = (Person.kappa "*" Person.kappa)
-		weight."sigma" = (knows.kappa "*" Double)
-		
-		v1."lambda" = Person
-		v2."lambda" = Person
-		e ."lambda" = knows
-		p ."lambda" = weight
-		
-		v1.phi = "()"
-		v2.phi = "()"
-		e .phi = (v1.kappa "," v2.kappa)
-		p .phi = (e .kappa "," "3.14"  )
-
-		v1.kappa.tau = Person.kappa
-		v2.kappa.tau = Person.kappa
-		e .kappa.tau = knows.kappa
-		p .kappa.tau = weight.kappa
+apg_instance G0 = literal : Ty {
+	labels
+		L -> base Str
 }
-command check4 = check APG G4
-
-//schema   G4_S = pivot G4
-//mapping  G4_M = pivot G4
-//instance G4_I = pivot G4
-/////////////////////////////////////////////////////////////////////////////////////
-
-//Example 5 - Type Aliases
-
-instance G5 = literal : preAPG {
-	generators
-		Degrees : L
-		10 20 30 : E
-		
-	equations
-		Degrees."sigma" = Double	
-		
-		10."lambda" = Degrees
-		20."lambda" = Degrees
-		30."lambda" = Degrees
-		
-		10.phi = "3.14"
-		20.phi = "2.78"
-		30.phi = "2.78"		
-
-		10.kappa.tau = Degrees.kappa
-		20.kappa.tau = Degrees.kappa
-		30.kappa.tau = Degrees.kappa
+apg_instance H0 = literal : Ty {
+	labels
+		L -> base Nat
 }
-command check5 = check APG G5
-//schema   G5_S = pivot G5
-//mapping  G5_M = pivot G5
-//instance G5_I = pivot G5
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-//Example 6 - Complex Objects
-
-instance G6 = literal : preAPG {
-	generators
-		X : L
-		Z : E
-	equations
-		X. "sigma" = "*"(X.kappa, X.kappa)	
-		Z."lambda" = X
-		Z.phi = ","(Z.kappa, Z.kappa)	
-		Z.kappa.tau = X.kappa	
-		//Z.phi = "pair1"(Z.idOfE)				
+apg_morphism m0 = literal : G0 -> H0 {
+	labels
+		L -> L
 }
-command check6 = check APG G6
-
-//schema   G6_S = pivot G6
-//mapping  G6_M = pivot G6
-//instance G6_I = pivot G6
 
 
+apg_instance G2 = literal : Ty {
+	labels
+		L -> (a: base Str * b: base Nat)
+	elements
+		e:L -> (a:hi, b:0)	
+}
+apg_instance H2 = literal : Ty {
+	labels
+		L -> (b: base Str * a: base Nat)
+	elements
+		e:L -> (b:hi, a:0)		
+}
+apg_morphism m2 = literal : G2 -> H2 {
+	labels
+		L -> L
+	elements
+		e -> e
 
-
+			
+}
 

@@ -4,6 +4,9 @@ import java.util.Map;
 
 import catdata.Program;
 import catdata.Util;
+import catdata.apg.ApgInstance;
+import catdata.apg.ApgTransform;
+import catdata.apg.ApgTypeside;
 import catdata.aql.AqlOptions;
 import catdata.aql.ColimitSchema;
 import catdata.aql.Comment;
@@ -23,12 +26,6 @@ public final class AqlEnv {
 	
 	
 
-	@Override
-	public String toString() {
-		return "AqlEnv [prog=" + prog + ", defs=" + defs + ", exn=" + exn + ", typing=" + typing + ", defaults="
-				+ defaults + ", performance=" + performance + ", cache=" + cache + ", fd=" + fd + ", md=" + md + ", ud="
-				+ ud + ", fl=" + fl + ", mh=" + mh + ", uh=" + uh + "]";
-	}
 
 	public AqlEnv(Program<Exp<?>> prog) {
 		Util.assertNotNull(prog);
@@ -39,7 +36,7 @@ public final class AqlEnv {
 	public final Program<Exp<?>> prog;
 
 	@SuppressWarnings("rawtypes")
-	public final KindCtx<String, DMG, TypeSide, Schema, Instance, Transform, Mapping, Query, Pragma, Comment, ColimitSchema, Constraints> defs = new KindCtx<>();
+	public final KindCtx<String, DMG, TypeSide, Schema, Instance, Transform, Mapping, Query, Pragma, Comment, ColimitSchema, Constraints, ApgTypeside, ApgInstance, ApgTransform> defs = new KindCtx<>();
 
 	public RuntimeException exn = null;
 

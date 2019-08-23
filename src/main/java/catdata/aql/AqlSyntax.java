@@ -22,6 +22,6 @@ public enum AqlSyntax {
 	TransExpCoEvalEvalCoUnit, TransExpCoEvalEvalUnit, TransExpDelta, TransExpDistinct, TransExpEval, TransExpId,
 	TransExpSigma, TransExpSigmaDeltaCounit, TransExpSigmaDeltaUnit, TransExpVar, TransExpCompose, TransExpCsv,
 	TransExpDistinct2, TransExpJdbc, TransExpPi, TransExpRaw, TransExpFrozen, TyExpEmpty, TyExpSch, TyExpVar, TyExpRaw,
-	TyExpSql;
+	TyExpSql  ,  ApgTyExpVar, ApgInstExpVar, ApgTransExpVar ,  ApgTyExpRaw, ApgInstExpRaw, ApgTransExpRaw ,   ;
 
 }

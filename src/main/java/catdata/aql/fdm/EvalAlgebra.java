@@ -106,7 +106,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
 		Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> l = trans1x(x, Q.atts.get(att), I,
 				Q.ens.get(Q.dst.atts.get(att).first));
-		return I.algebra().intoY(l);
+		return I.schema().typeSide.js.reduce(I.algebra().intoY(l));
 	}
 
 	@Override

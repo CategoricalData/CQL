@@ -7,6 +7,18 @@ import java.util.List;
 import catdata.LocStr;
 import catdata.Pair;
 import catdata.Unit;
+import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
+import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
+import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
+import catdata.apg.exp.ApgInstExp.ApgInstExpRaw;
+import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
+import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
+import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
+import catdata.apg.exp.ApgTransExp;
+import catdata.apg.exp.ApgTransExp.ApgTransExpRaw;
+import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
+import catdata.apg.exp.ApgTyExp.ApgTyExpRaw;
+import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
 import catdata.aql.RawTerm;
 import catdata.aql.exp.ColimSchExp.ColimSchExpQuotient;
 import catdata.aql.exp.ColimSchExp.ColimSchExpRaw;
@@ -1536,6 +1548,144 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	@Override
 	public TyExp visitTyExpAdt(Unit params, AqlTyping r) throws RuntimeException {
 		return new TyExpAdt(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public ApgTyExpVar visitApgTyExpVar(Unit params, AqlTyping r) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTyExpRaw visitApgTyExpRaw(Unit params, AqlTyping r) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgInstExpInitial visitApgInstExpInitial(Unit params, AqlTyping r) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgInstExpTerminal visitApgInstExpTerminal(Unit params, AqlTyping r) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgInstExpTimes visitApgInstExpTimes(Unit params, AqlTyping r) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgInstExpPlus visitApgInstExpPlus(Unit params, AqlTyping r) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgInstExpVar visitApgInstExpVar(Unit param, AqlTyping exp) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgInstExpRaw visitApgInstExpRaw(Unit param, AqlTyping exp) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExpRaw visitApgTransExpRaw(Unit params, AqlTyping exp) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExpVar visitApgTransExpVar(Unit params, AqlTyping exp) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpCase(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpInitial(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpFst(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpTerminal(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpSnd(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpPair(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpInl(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpInr(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpId(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpCompose(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgInstExpEqualize visitApgInstExpEqualize(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpEqualize(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpEqualizeU(Unit params, AqlTyping r) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

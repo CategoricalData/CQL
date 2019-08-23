@@ -1,6 +1,16 @@
 package catdata.aql;
 
+import catdata.apg.ApgInstance;
+import catdata.apg.ApgTransform;
+import catdata.apg.ApgTypeside;
+
 public interface SemanticsVisitor<R, G, E extends Throwable> {
+	
+	public R visit(String k, G arg, ApgTypeside t) throws E;
+
+	public <L,e> R visit(String k, G arg, ApgInstance<L,e> t) throws E;
+
+	public <l1,e1,l2,e2> R visit(String k, G arg, ApgTransform<l1,e1,l2,e2> t) throws E;
 
 	public <T, C, T0, C0> R visit(String k, G arg, Mor<T,C,T0,C0> M) throws E;
 	
@@ -33,29 +43,37 @@ public interface SemanticsVisitor<R, G, E extends Throwable> {
 	public default R visit(String k, G arg, Semantics o) throws E {
 		switch (o.kind()) {
 		case COMMENT:
-			return visit(k, arg, o.asComment());
+			return visit(k, arg, (Comment) o);
 		case GRAPH:
-			return visit(k, arg, o.asGraph());
+			return visit(k, arg, (Graph<?,?>) o);
 		case INSTANCE:
-			return visit(k, arg, o.asInstance());
+			return visit(k, arg, (Instance<?,?,?,?,?,?,?,?,?>) o);
 		case MAPPING:
-			return visit(k, arg, o.asMapping());
+			return visit(k, arg, (Mapping<?,?,?,?,?,?,?,?>) o);
 		case PRAGMA:
-			return visit(k, arg, o.asPragma());
+			return visit(k, arg, (Pragma) o);
 		case QUERY:
-			return visit(k, arg, o.asQuery());
+			return visit(k, arg, (Query<?,?,?,?,?,?,?,?>) o);
 		case SCHEMA:
-			return visit(k, arg, o.asSchema());
+			return visit(k, arg, (Schema<?,?,?,?,?>) o);
 		case TRANSFORM:
-			return visit(k, arg, o.asTransform());
+			return visit(k, arg, (Transform<?,?,?,?,?,?,?,?,?,?,?,?,?>) o);
 		case TYPESIDE:
-			return visit(k, arg, o.asTypeSide());
+			return visit(k, arg, (TypeSide<?,?>) o);
 		case SCHEMA_COLIMIT:
-			return visit(k, arg, o.asSchemaColimit());
+			return visit(k, arg, (ColimitSchema<?>) o);
 		case CONSTRAINTS:
-			return visit(k, arg, o.asConstraints());
+			return visit(k, arg, (Constraints) o);
 		case THEORY_MORPHISM:	
-			return visit(k, arg, o.asTheoryMorphism());
+			return visit(k, arg, o);
+		case APG_instance:
+			return visit(k, arg, (ApgInstance<?,?>) o);
+		case APG_morphism:
+			return visit(k, arg, (ApgTransform<?,?,?,?>) o);
+		case APG_typeside:
+			return visit(k, arg, (ApgTypeside) o);
+		default:
+			break;
 		}
 		throw new RuntimeException("Anomaly: please report");
 	}

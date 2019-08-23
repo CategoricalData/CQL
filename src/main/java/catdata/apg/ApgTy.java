@@ -2,17 +2,18 @@ package catdata.apg;
 
 import java.util.Map;
 
+import catdata.Chc;
 import catdata.Util;
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
 
-public class ApgTy<F,L,B> {
+public class ApgTy<L> {
 
-	public final Map<F,ApgTy<F,L,B>> m;
+	public final Map<String,ApgTy<L>> m;
 	public final boolean all;
 
 	public final L l;
-	public final B b;
+	public final String b;
 	
 	@SuppressWarnings("rawtypes")
 	private static HashingStrategy<ApgTy> strategy = new HashingStrategy<>() {
@@ -33,23 +34,23 @@ public class ApgTy<F,L,B> {
 	public static Map<ApgTy, ApgTy> cache = new TCustomHashMap<>(strategy);
 
 	
-	public static synchronized <F,L,B> ApgTy<F,L,B> ApgTyL(L str) {
+	public static synchronized <L> ApgTy<L> ApgTyL(L str) {
 		return mkApgTy(str, null, false, null);
 	}
 	
-	public static synchronized <F,L,B> ApgTy<F,L,B> ApgTyB(B str) {
+	public static synchronized <L> ApgTy<L> ApgTyB(String str) {
 		return mkApgTy(null, str, false, null);
 	}
 	
-	public static synchronized <F,L,B> ApgTy<F,L,B> ApgTyP(boolean all, Map<F,ApgTy<F,L,B>> str) {
+	public static synchronized <L> ApgTy<L> ApgTyP(boolean all, Map<String,ApgTy<L>> str) {
 		return mkApgTy(null, null, all, str);
 	}
 
 	
-	private static synchronized <F,L,B> ApgTy<F,L,B> mkApgTy(L l, B b, boolean all, Map<F,ApgTy<F,L,B>> m) {
-		ApgTy<F,L,B> ret = new ApgTy<>(l, b, all, m);
+	private static synchronized <L> ApgTy<L> mkApgTy(L l, String b, boolean all, Map<String,ApgTy<L>> m) {
+		ApgTy<L> ret = new ApgTy<>(l, b, all, m);
 		
-		ApgTy<F,L,B> ret2 = cache.get(ret);
+		ApgTy<L> ret2 = cache.get(ret);
 		if (ret2 != null) {
 			return ret2;
 		}
@@ -57,7 +58,7 @@ public class ApgTy<F,L,B> {
 		return ret;
 	}
 	
-	private ApgTy(L l, B b, boolean all, Map<F,ApgTy<F,L,B>> m) {
+	private ApgTy(L l, String b, boolean all, Map<String,ApgTy<L>> m) {
 		this.l = l;
 		this.b = b;
 		this.all = all;
@@ -123,8 +124,12 @@ public class ApgTy<F,L,B> {
 			return b.toString();
 		}
 		if (all) {
-			return "(" + Util.sep(m, ": ", ", ") + ")";
+			return "(" + Util.sep(m, ":", " * ") + ")";
 		}
-		return "<" + Util.sep(m, ": ", ", ") + ">";
+		return "<" + Util.sep(m, ":", " + ") + ">";
+	}
+
+	public <X> ApgTy<X> convert() {
+		return (ApgTy<X>) this;
 	}
 }

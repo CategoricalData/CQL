@@ -228,9 +228,9 @@ public class GUI extends JPanel {
 		toolsMenu.add(sqlCheckItem);
 		sqlCheckItem.addActionListener(x -> new SqlChecker()); */
 
-	//	MenuItem shredItem = new MenuItem("NR Shredder");
-	//	toolsMenu.add(shredItem);
-	//	shredItem.addActionListener(x -> new NraViewer());
+		MenuItem shredItem = new MenuItem("NR Shredder");
+		toolsMenu.add(shredItem);
+		shredItem.addActionListener(x -> new NraViewer());
 
 		MenuItem easikItem = new MenuItem("EASIK");
 		toolsMenu.add(easikItem);

@@ -13,6 +13,29 @@ import catdata.Pair;
 import catdata.Program;
 import catdata.Unit;
 import catdata.Util;
+import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
+import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
+import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
+import catdata.apg.exp.ApgInstExp.ApgInstExpRaw;
+import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
+import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
+import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCase;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCompose;
+import catdata.apg.exp.ApgTransExp.ApgTransExpEqualize;
+import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
+import catdata.apg.exp.ApgTransExp.ApgTransExpFst;
+import catdata.apg.exp.ApgTransExp.ApgTransExpId;
+import catdata.apg.exp.ApgTransExp.ApgTransExpInitial;
+import catdata.apg.exp.ApgTransExp.ApgTransExpInl;
+import catdata.apg.exp.ApgTransExp.ApgTransExpInr;
+import catdata.apg.exp.ApgTransExp.ApgTransExpPair;
+import catdata.apg.exp.ApgTransExp.ApgTransExpRaw;
+import catdata.apg.exp.ApgTransExp.ApgTransExpSnd;
+import catdata.apg.exp.ApgTransExp.ApgTransExpTerminal;
+import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
+import catdata.apg.exp.ApgTyExp.ApgTyExpRaw;
+import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.AqlProver.ProverName;
@@ -73,7 +96,7 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class AqlHelp implements
-		ExpVisitor<Unit, String, String, String, String, String, String, String, String, String, String, String, String, String, RuntimeException> {
+		ExpVisitor<Unit, String, String, String, String, String, String, String, String, String, String, String, String, String, RuntimeException, String,String,String> {
 
 	static String xxx = "Associated with each object is a size, according to its kind:"
 			+ "\nitem command, constraints: length of the text string" + "\n instance: rows in the algebra"
@@ -1157,6 +1180,121 @@ public class AqlHelp implements
 	@Override
 	public String visit(Unit params, TyExpAdt exp) throws RuntimeException {
 		return "A symbolic typeside with given products and co-products.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTyExpVar exp) throws RuntimeException {
+		return "An APG typeside variable.";
+	}
+
+	@Override
+	public String visit(Unit param, ApgInstExpVar exp) throws RuntimeException {
+		return "An APG instance variable.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpVar exp) throws RuntimeException {
+		return "An APG morphism variable.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTyExpRaw exp) throws RuntimeException {
+		return "An APG typeside literal, consisting of a set of types and a set of values and a typing function taking each value to a type.";
+	}
+
+	@Override
+	public String visit(Unit param, ApgInstExpRaw exp) throws RuntimeException {
+		return "An APG instance literal, consisting of a set of labels and a set of elements and a schema function taking each label to a type and a function taking each element to a label and to an APG term in such a way that the term has the type given by the schema.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpRaw exp) throws RuntimeException {
+		return "An APG morphism, consisting of a function taking labels to labels and a function taking elements to elements.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgInstExpInitial exp) throws RuntimeException {
+		return "Initial object in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgInstExpTerminal exp) throws RuntimeException {
+		return "Terminal object in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgInstExpTimes exp) throws RuntimeException {
+		return "Product object in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgInstExpPlus exp) throws RuntimeException {
+		return "Co-product object in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpTerminal exp) {
+		return "Terminal morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpInitial exp) {
+		return "Initial morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpFst exp) {
+		return "First projection morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpSnd exp) {
+		return "Second projection morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpPair exp) {
+		return "Pairing morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpInl exp) {
+		return "First injection morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpInr exp) {
+		return "Second injection morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpCase exp) {
+		return "Case analysis morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpId exp) {
+		return "Identity morphism in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpCompose exp) {
+		return "Composition of morphisms in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgInstExpEqualize apgInstExpEqualize) {
+		return "Equalizer object of two parallel morphisms in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpEqualize apgTransExpEqualize) {
+		return "Equalizer morphism of two parallel morphisms in the category of APGs";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpEqualizeU apgTransExpEqualizeU) {
+		return "Equalizer universal property mediating morphism of two parallel morphisms in the category of APGs";
 	}
 
 }

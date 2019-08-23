@@ -16,6 +16,12 @@ import catdata.Chc;
 import catdata.Pair;
 import catdata.Unit;
 import catdata.Util;
+import catdata.apg.exp.ApgInstExp;
+import catdata.apg.exp.ApgInstExp.ApgInstExpVisitor;
+import catdata.apg.exp.ApgTransExp;
+import catdata.apg.exp.ApgTransExp.ApgTransExpVisitor;
+import catdata.apg.exp.ApgTyExp;
+import catdata.apg.exp.ApgTyExp.ApgTyExpVisitor;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.AqlSyntax;
 import catdata.aql.Kind;
@@ -143,15 +149,15 @@ public abstract class Exp<X> {
 		}
 	}
 
-	public static interface ExpVisitor<P, X, Sch extends X, Mor extends X, Ty extends X, Inst extends X, M extends X, Q extends X, Trans extends X, Col extends X, Com extends X, Con extends X, Gr extends X, Prag extends X, E extends Exception>
+	public static interface ExpVisitor<P, X, Sch extends X, Mor extends X, Ty extends X, Inst extends X, M extends X, Q extends X, Trans extends X, Col extends X, Com extends X, Con extends X, Gr extends X, Prag extends X, E extends Exception, A1,A2,A3>
 			extends SchExpVisitor<Sch, P, E>, TyExpVisitor<Ty, P, E>, InstExpVisitor<Inst, P, E>,
 			MapExpVisitor<M, P, E>, QueryExpVisitor<Q, P, E>, TransExpVisitor<Trans, P, E>,
 			ColimSchExpVisitor<Col, P, E>, CommentExpVisitor<Com, P, E>, EdsExpVisitor<Con, P, E>,
-			GraphExpVisitor<Gr, P, E>, PragmaExpVisitor<Prag, P, E>, MorExpVisitor<Mor, P, E> {
+			GraphExpVisitor<Gr, P, E>, PragmaExpVisitor<Prag, P, E>, MorExpVisitor<Mor, P, E>, ApgTyExpVisitor<A1,P,E>, ApgInstExpVisitor<A2,P,E>, ApgTransExpVisitor<A3,P> {
 	}
 
-	public <P, Z, Sch extends Z, Ty extends Z, Inst extends Z, Mor extends Z, M extends Z, Q extends Z, Trans extends Z, Col extends Z, Com extends Z, Con extends Z, Gr extends Z, Prag extends Z, E extends Exception> Z accept0(
-			P params, ExpVisitor<P, Z, Sch, Mor, Ty, Inst, M, Q, Trans, Col, Com, Con, Gr, Prag, E> v) throws E {
+	public <P, Z, Sch extends Z, Ty extends Z, Inst extends Z, Mor extends Z, M extends Z, Q extends Z, Trans extends Z, Col extends Z, Com extends Z, Con extends Z, Gr extends Z, Prag extends Z, E extends Exception, A1 extends Z,A2 extends Z,A3 extends Z> Z accept0(
+			P params, ExpVisitor<P, Z, Sch, Mor, Ty, Inst, M, Q, Trans, Col, Com, Con, Gr, Prag, E, A1,A2,A3> v) throws E {
 		switch (kind()) {
 		case COMMENT:
 			return ((CommentExp) this).accept(params, v);
@@ -177,6 +183,12 @@ public abstract class Exp<X> {
 			return ((TransExp<?, ?, ?, ?, ?, ?, ?, ?>) this).accept(params, v);
 		case TYPESIDE:
 			return ((TyExp) this).accept(params, v);
+		case APG_typeside:
+			return ((ApgTyExp) this).accept(params, v);	
+		case APG_instance:
+			return ((ApgInstExp) this).accept(params, v);	
+		case APG_morphism:
+			return ((ApgTransExp) this).accept(params, v);	
 		default:
 			return Util.anomaly();
 

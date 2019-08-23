@@ -71,7 +71,6 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import gnu.trove.map.hash.THashMap;
 
-//TODO aql suppress instance equations - do not compute/display if not required - maybe make instance an interface
 public final class AqlDisplay implements Disp {
 
 	private final Throwable exn;
@@ -95,7 +94,7 @@ public final class AqlDisplay implements Disp {
 		}
 		switch (k) {
 		case THEORY_MORPHISM:
-			Pair p = (Pair) typing.defs.tms.get(c);
+			Pair<?, ?> p = (Pair<?, ?>) typing.defs.tms.get(c);
 			return s + " : " + p.first + " -> " + p.second;			
 		case INSTANCE:
 			return s + " : " + typing.defs.insts.get(c);
@@ -119,6 +118,12 @@ public final class AqlDisplay implements Disp {
 			return s;
 		case CONSTRAINTS:
 			return s + " : " + typing.defs.eds.get(c);
+		case APG_typeside:
+			return s;
+		case APG_instance:
+			return s + " : " + typing.defs.apgis.get(c);
+		case APG_morphism:
+			return s + " : " + typing.defs.apgms.get(c).first + " -> " + typing.defs.apgms.get(c).second;
 		default:
 			throw new RuntimeException("Anomaly: please report");
 		}
@@ -128,6 +133,9 @@ public final class AqlDisplay implements Disp {
 	private static int getMaxSize(Exp<?> exp, AqlEnv env) {
 		switch (exp.kind()) {
 		case INSTANCE:
+		case APG_instance:
+		case APG_morphism:
+		case APG_typeside:
 		case TRANSFORM:
 			return (Integer) exp.getOrDefault(env, AqlOption.gui_max_table_size);
 
@@ -140,12 +148,15 @@ public final class AqlDisplay implements Disp {
 		case QUERY:
 		case SCHEMA:
 		case SCHEMA_COLIMIT:
+			
 		case GRAPH:
 		case TYPESIDE:
 			return (Integer) exp.getOrDefault(env, AqlOption.gui_max_graph_size);
 
 		case COMMENT:
 			return 0;
+			
+		
 
 		default:
 			throw new RuntimeException("Anomaly: please report");
@@ -208,7 +219,7 @@ public final class AqlDisplay implements Disp {
 					ex.printStackTrace();
 					throw new LineException(ex.getMessage(), c, exp.kind().toString());
 				}
-			}
+			} 
 		}
 		long end = System.currentTimeMillis();
 		float c1 = ((middle - start) / (1000f));
@@ -326,6 +337,14 @@ public String text;
 			return Color.ORANGE;
 		case THEORY_MORPHISM:
 			return Color.gray;
+			
+		case APG_instance:
+			return Color.black;	
+		case APG_typeside:
+			return Color.WHITE;
+		case APG_morphism:
+			return Color.gray;
+			
 		}
 		return Util.anomaly();
 	}

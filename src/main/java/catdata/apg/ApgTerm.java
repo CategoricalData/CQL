@@ -3,82 +3,38 @@ package catdata.apg;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Var;
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
 
-public class ApgTerm<F,L,B,E,V> {
-	
-	public ApgTy<F,L,B> type(Map<Var, ApgTy<F,L,B>> ctx1, Map<E, L> ctx2, Map<V, B> ctx3) {
-		if (x != null) {
-			if (!ctx1.containsKey(x)) {
-				throw new RuntimeException("Variable " + x + " not found in " + ctx1.keySet());
-			}
-			return ctx1.get(x);
-		}
-		if (e != null) {
-			if (!ctx2.containsKey(e)) {
-				throw new RuntimeException("Element " + e + " not found in " + ctx2.keySet());
-			}
-			return ApgTy.ApgTyL(ctx2.get(e));
-		}
-		if (v != null) {
-			if (!ctx3.containsKey(v)) {
-				throw new RuntimeException("Constant " + v + " not found in " + ctx3.keySet());
-			}
-			return ApgTy.ApgTyB(ctx3.get(v));
-		}
-		if (m != null && vs == null) {
-			ApgTy.ApgTyP(true, Util.map(m, (k,v)->new Pair<>(k,v.type(ctx1, ctx2, ctx3))));
-		}
-		if (f != null && n == null) {
-			ApgTy<F, L, B> t = a.type(ctx1, ctx2, ctx3);
-			if (t.m == null) {
-				throw new RuntimeException("Not a product: " + t);
-			}
-			if (!t.m.containsKey(f)) {
-				throw new RuntimeException("Field " + f + " not found in " + t.m.keySet());
-			}
-			return t.m.get(f);
-		}
-		
-		
-		return Util.anomaly();
-	}
+public class ApgTerm<E> {
 	
 	
-
-	private final Var x;
-	private final E e;
-	private final V v;
+	public final E e;
+	public final Object v;
 	
-	private final Map<F,ApgTerm<F,L,B,E,V>> m;
+	public final Map<String,ApgTerm<E>> m;
 	
-	private final Map<F,Var> vs;
+	public final ApgTerm<E> a;
+	public final String f;
 	
-	private final ApgTerm<F,L,B,E,V> a;
-	private final F f;
-	private final Map<F,ApgTy<F,L,B>> n; 
-	
-	private ApgTerm(Var x, E e, V v, Map<F, ApgTerm<F, L, B, E, V>> m, F f, Map<F, Var> vs, Map<F, ApgTy<F, L, B>> n,
-			ApgTerm<F, L, B, E, V> a) {
-		this.x = x;
+	private ApgTerm(E e, Object v, Map<String, ApgTerm<E>> m, String f, 
+			ApgTerm<E> a) {
 		this.e = e;
 		this.v = v;
 		this.m = m;
 		this.f = f;
-		this.vs = vs;
-		this.n = n;
 		this.a = a;
 	}
 	
-	private static synchronized <F, L, B, E, V> ApgTerm<F, L, B, E, V> mkApgTerm(Var x, E e, V v, Map<F, ApgTerm<F, L, B, E, V>> m, F f, Map<F, Var> vs, Map<F, ApgTy<F, L, B>> n,
-			ApgTerm<F, L, B, E, V> a) {
-		ApgTerm<F, L, B, E, V> ret = new ApgTerm<>(x, e, v, m, f, vs, n, a);
+	private static synchronized <E> ApgTerm<E> mkApgTerm(E e, Object v, Map<String, ApgTerm<E>> m, String f, 
+			ApgTerm<E> a) {
+		ApgTerm<E> ret = new ApgTerm<>(e, v, m, f, a);
 		
-		ApgTerm<F, L, B, E, V> ret2 = cache.get(ret);
+		ApgTerm<E> ret2 = cache.get(ret);
 		if (ret2 != null) {
 			return ret2;
 		}
@@ -103,33 +59,20 @@ public class ApgTerm<F,L,B,E,V> {
 
 	private static Map<ApgTerm, ApgTerm> cache = new TCustomHashMap<>(strategy);
 
-	public static synchronized <F,L,B,E,V> ApgTerm<F,L,B,E,V> ApgTermX(Var str) {
-		return mkApgTerm(str, null, null, null, null, null, null, null);
+	public static synchronized <E> ApgTerm<E> ApgTermE(E str) {
+		return mkApgTerm(str, null, null, null, null);
 	}
 	
-	public static synchronized <F,L,B,E,V> ApgTerm<F,L,B,E,V> ApgTermE(E str) {
-		return mkApgTerm(null, str, null, null, null, null, null, null);
+	public static synchronized <E> ApgTerm<E> ApgTermV(Object str) {
+		return mkApgTerm(null, str, null, null, null);
 	}
 	
-	public static synchronized <F,L,B,E,V> ApgTerm<F,L,B,E,V> ApgTermV(V str) {
-		return mkApgTerm(null, null, str, null, null, null, null, null);
+	public static synchronized <E> ApgTerm<E> ApgTermTuple(Map<String,ApgTerm<E>> str) {
+		return mkApgTerm(null, null, str, null, null);
 	}
 	
-	public static synchronized <F,L,B,E,V> ApgTerm<F,L,B,E,V> ApgTermTuple(Map<F,ApgTerm<F,L,B,E,V>> str) {
-		return mkApgTerm(null, null, null, str, null, null, null, null);
-	}
-	
-	public static synchronized <F,L,B,E,V> ApgTerm<F,L,B,E,V> ApgTermProj(ApgTerm<F,L,B,E,V> str, F f) {
-		return mkApgTerm(null, null, null, null, f, null, null, str);
-	}
-	
-	public static synchronized <F,L,B,E,V> ApgTerm<F,L,B,E,V> ApgTermCase(Map<F,ApgTerm<F,L,B,E,V>> str, Map<F,Var> vs) {
-		return mkApgTerm(null, null, null, str, null, vs, null, null);
-	}
-	
-	public static synchronized <F,L,B,E,V> ApgTerm<F,L,B,E,V> ApgTermInj(ApgTerm<F,L,B,E,V> a,
-	F f, Map<F,ApgTy<F,L,B>> n) {
-		return mkApgTerm(null, null, null, null, f, null, n, a);
+	public static synchronized <E> ApgTerm<E> ApgTermInj(String f, ApgTerm<E> str) {
+		return mkApgTerm(null, null, null, f, str);
 	}
 	
 	@Override
@@ -148,16 +91,14 @@ public class ApgTerm<F,L,B,E,V> {
 		result = prime * result + ((a == null) ? 0 : a.hashCode2());
 		result = prime * result + ((e == null) ? 0 : e.hashCode());
 		result = prime * result + ((f == null) ? 0 : f.hashCode());
+
 		if (m != null) {
-			for (Entry<F, ApgTerm<F, L, B, E, V>> z : m.entrySet()) {
+			for (Entry<String, ApgTerm<E>> z : m.entrySet()) {
 				result = prime * result + (z.getValue().hashCode2());
 				result = prime * result + (z.getKey().hashCode());
 			}
 		}
-		result = prime * result + ((n == null) ? 0 : n.hashCode());
 		result = prime * result + ((v == null) ? 0 : v.hashCode());
-		result = prime * result + ((vs== null) ? 0 :vs.hashCode());
-		result = prime * result + ((x == null) ? 0 : x.hashCode());
 		return result;
 	}
 
@@ -168,13 +109,8 @@ public class ApgTerm<F,L,B,E,V> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ApgTerm<F,L,B,E,V> other = (ApgTerm<F,L,B,E,V>) obj;
+		ApgTerm<E> other = (ApgTerm<E>) obj;
 		
-		if (x == null) {
-			if (other.x != null)
-				return false;
-		} else if (!x.equals(other.x))
-			return false;
 		if (e == null) {
 			if (other.e != null)
 				return false;
@@ -190,16 +126,6 @@ public class ApgTerm<F,L,B,E,V> {
 				return false;
 		} else if (!v.equals(other.v))
 			return false;
-		if (vs == null) {
-			if (other.vs != null)
-				return false;
-		} else if (!vs.equals(other.vs))
-			return false;
-		if (n == null) {
-			if (other.n != null)
-				return false;
-		} else if (!n.equals(other.n))
-			return false;
 		if (a == null) {
 			if (other.a != null)
 				return false;
@@ -212,7 +138,7 @@ public class ApgTerm<F,L,B,E,V> {
 			if (!m.keySet().equals(other.m.keySet())) {
 				return false;
 			}
-			for (Entry<F, ApgTerm<F, L, B, E, V>> f : m.entrySet()) {
+			for (Entry<String, ApgTerm<E>> f : m.entrySet()) {
 				if (!other.m.get(f.getKey()).equals2(f.getValue())) {
 					return false;
 				}
@@ -223,21 +149,24 @@ public class ApgTerm<F,L,B,E,V> {
 
 	@Override
 	public String toString() {
-		if (x != null) {
-			return x.toString();
-		}
 		if (e != null) {
 			return e.toString();
 		}
 		if (v != null) {
 			return v.toString();
 		}
-		if (m != null && vs == null) {
-			return "(" + Util.sep(m, ": ", ", ") + ")";
+		if (m != null) {
+			return "(" + Util.sep(m, ":", ", ") + ")";
 		}
-		if (f != null && n == null) {
-			return a + "." + f;
+		if (f != null) {
+			return "<" + f + ":" + a + ">"; // + Util.sep(m, ": ", " ");
 		}
 		return Util.anomaly();
 	}
+
+	public <X> ApgTerm<X> convert() {
+		return (ApgTerm<X>) this;
+	}
+	
+	
 }

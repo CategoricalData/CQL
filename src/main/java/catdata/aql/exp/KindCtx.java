@@ -7,7 +7,7 @@ import catdata.Util;
 import catdata.aql.Kind;
 import gnu.trove.set.hash.THashSet;
 
-public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
+public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM> {
 
 	public final Map<V, G> gs = Util.mk();
 	public final Map<V, T> tys = Util.mk();
@@ -21,7 +21,11 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 	public final Map<V, SC> scs = Util.mk();
 	public final Map<V, ED> eds = Util.mk();
 	public final Map<V, Object> tms = Util.mk();
+	public final Map<V, AT> apgts = Util.mk();
+	public final Map<V, AI> apgis = Util.mk();
+	public final Map<V, AM> apgms = Util.mk();
 
+	
 	public Map<V, ?> get(Kind kind) {
 		switch (kind) {
 		case INSTANCE:
@@ -48,6 +52,12 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 			return eds;
 		case THEORY_MORPHISM:
 			return tms;
+		case APG_instance:
+			return apgis;
+		case APG_morphism:
+			return apgms;
+		case APG_typeside:
+			return apgts;
 		default:
 			throw new RuntimeException();
 		}
@@ -95,6 +105,16 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 			break;
 		case THEORY_MORPHISM:
 			tms.put(k, o);
+			break;
+		case APG_instance:
+			apgis.put(k, (AI) o);
+			break;
+		case APG_morphism:
+			apgms.put(k, (AM) o);
+			break;
+		case APG_typeside:
+			apgts.put(k, (AT) o);
+			break;
 		default:
 			throw new RuntimeException();
 		}
@@ -114,6 +134,9 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 		ret.addAll(cs.keySet());
 		ret.addAll(scs.keySet());
 		ret.addAll(eds.keySet());
+		ret.addAll(apgts.keySet());
+		ret.addAll(apgis.keySet());
+		ret.addAll(apgms.keySet());
 		return ret;
 	}
 
@@ -143,17 +166,19 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 			return tys.size();
 		case THEORY_MORPHISM:
 			return tms.size();
-
+		case APG_instance:
+			return apgis.size();
+		case APG_morphism:
+			return apgms.size();
+		case APG_typeside:
+			return apgts.size();
+		default:
+			break;
 		}
 		return Util.anomaly();
 	}
 
-	@Override
-	public String toString() {
-		return "KindCtx [gs=" + gs + ", tys=" + tys + ", schs=" + schs + ", insts=" + insts + ", trans=" + trans
-				+ ", maps=" + maps + ", qs=" + qs + ", ps=" + ps + ", cs=" + cs + ", scs=" + scs + ", eds=" + eds + "]";
-	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -169,6 +194,9 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 		result = prime * result + ((scs == null) ? 0 : scs.hashCode());
 		result = prime * result + ((trans == null) ? 0 : trans.hashCode());
 		result = prime * result + ((tys == null) ? 0 : tys.hashCode());
+		result = prime * result + ((apgms == null) ? 0 : apgms.hashCode());
+		result = prime * result + ((apgts == null) ? 0 : apgts.hashCode());
+		result = prime * result + ((apgis == null) ? 0 : apgis.hashCode());
 		return result;
 	}
 
@@ -235,6 +263,21 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED> {
 			if (other.tys != null)
 				return false;
 		} else if (!tys.equals(other.tys))
+			return false;
+		if (apgts == null) {
+			if (other.apgts != null)
+				return false;
+		} else if (!apgts.equals(other.apgts))
+			return false;
+		if (apgis == null) {
+			if (other.apgis != null)
+				return false;
+		} else if (!apgis.equals(other.apgis))
+			return false;
+		if (apgms == null) {
+			if (other.apgms != null)
+				return false;
+		} else if (!apgms.equals(other.apgms))
 			return false;
 		return true;
 	}

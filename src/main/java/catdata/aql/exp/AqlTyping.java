@@ -10,6 +10,9 @@ import catdata.Pair;
 import catdata.Program;
 import catdata.Unit;
 import catdata.Util;
+import catdata.apg.exp.ApgInstExp;
+import catdata.apg.exp.ApgTransExp;
+import catdata.apg.exp.ApgTyExp;
 import catdata.aql.AqlOptions.AqlOption;
 
 public class AqlTyping {
@@ -127,6 +130,15 @@ public class AqlTyping {
 				case CONSTRAINTS:
 					defs.eds.put(s, ((EdsExp) e).type(this));
 					continue;
+				case APG_instance:
+					defs.apgis.put(s, ((ApgInstExp) e).type(this));
+					continue;
+				case APG_morphism:
+					defs.apgms.put(s, ((ApgTransExp) e).type(this));
+					continue;
+				case APG_typeside:
+					defs.apgts.put(s, ((ApgTyExp) e).type(this));
+					continue;
 				default:
 					throw new RuntimeException("Anomaly: please report");
 				}
@@ -139,6 +151,6 @@ public class AqlTyping {
 		}
 	}
 
-	public final KindCtx<String, Unit, Unit, TyExp, SchExp, Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>>, Pair<SchExp, SchExp>, Pair<SchExp, SchExp>, Unit, Unit, Set<String>, SchExp> defs = new KindCtx<>();
+	public final KindCtx<String, Unit, Unit, TyExp, SchExp, Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>>, Pair<SchExp, SchExp>, Pair<SchExp, SchExp>, Unit, Unit, Set<String>, SchExp, Unit, ApgTyExp, Pair<ApgInstExp, ApgInstExp>> defs = new KindCtx<>();
 
 }

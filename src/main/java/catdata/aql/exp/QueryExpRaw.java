@@ -772,7 +772,16 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens0,
 			Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts0, Map<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols,
 			Pair<Att, RawTerm> p, Map<String, String> params, Set<Var> set) {
-		Map<String, Chc<En, Ty>> Map = unVar(ens0.get(dst0.atts.get(p.first).first).first);
+		Pair<En, Ty> z = dst0.atts.get(p.first);
+		if (z == null) {
+			throw new RuntimeException("Not a target attribute: " + p.first);
+		}
+		Triple<Map<catdata.aql.Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var>>, AqlOptions> www = ens0.get(z.first); {
+			if (www == null) {
+				throw new RuntimeException("Not an entity: " + dst0.atts.get(p.first));
+			}
+		}
+		Map<String, Chc<En, Ty>> Map = unVar(www.first);
 		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = cols.get(dst0.atts.get(p.first).first);
 		Chc<Ty, En> required = Chc.inLeft(dst0.atts.get(p.first).second);
 		for (String q : params.keySet()) {

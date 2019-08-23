@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import com.google.common.base.Function;
@@ -42,6 +44,11 @@ import catdata.Pair;
 import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
+import catdata.apg.ApgInstance;
+import catdata.apg.ApgTerm;
+import catdata.apg.ApgTransform;
+import catdata.apg.ApgTy;
+import catdata.apg.ApgTypeside;
 import catdata.aql.Algebra;
 import catdata.aql.AqlJs;
 import catdata.aql.ColimitSchema;
@@ -1258,6 +1265,317 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	@SuppressWarnings("hiding")
 	@Override
 	public Unit visit(String k, JTabbedPane arg, Constraints S) throws RuntimeException {
+		return Unit.unit;
+	}
+
+	@Override
+	public Unit visit(String k, JTabbedPane pane, ApgTypeside t) throws RuntimeException {
+	
+		Object[][] rowData = new Object[t.Bs.size()][3];
+		Object[] colNames = new Object[2];
+		colNames[0] = "Base Type";
+		colNames[1] = "Java Class";
+		int j = 0;
+		for (Entry<String, Pair<Class<?>, java.util.function.Function<String, Object>>> lt : t.Bs.entrySet()) {
+			rowData[j][0] = lt.getKey();
+			rowData[j][1] = lt.getValue().first.getName();
+		 	j++;
+		}
+		JPanel x = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), null, rowData, colNames);
+
+		JPanel c = new JPanel();
+		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
+
+		x.setAlignmentX(Component.LEFT_ALIGNMENT);
+		x.setMinimumSize(x.getPreferredSize());
+		c.add(x);
+		
+		JPanel p = new JPanel(new GridLayout(1, 1));
+		p.add(c);
+		JScrollPane jsp = new JScrollPane(p);
+
+		c.setBorder(BorderFactory.createEmptyBorder());
+		p.setBorder(BorderFactory.createEmptyBorder());
+		jsp.setBorder(BorderFactory.createEmptyBorder());
+		
+		pane.addTab("Table", p);
+		
+		return Unit.unit;
+	}
+
+	
+	@Override
+	public <L, e> Unit visit(String k, JTabbedPane pane, ApgInstance<L, e> G) throws RuntimeException {
+		apgInst0(pane, G);
+		apgInst1(pane, G);
+		
+		/*
+		Graph<Pair<String,Object>, Pair<String, Integer>> sgv = new DirectedSparseMultigraph<>();
+
+		
+		int i = 0;
+		for (En1 en1 : G.) {
+			sgv.addVertex(Node.En1(en1));
+			sgv.addEdge(Chc.inRight(i++), Node.En1(en1), Node.En2(M.ens.get(en1)));
+		}
+		for (En2 en2 : M.dst.ens) {
+			sgv.addVertex(Node.En2(en2));
+		}
+		// for (Ty ty : M.dst.typeSide.tys) {
+		// sgv.addVertex(Node.Ty(ty));
+		// }
+		for (Fk1 fk1 : M.src.fks.keySet()) {
+			Pair<En2, List<Fk2>> l = M.fks.get(fk1);
+			sgv.addEdge(Chc.inLeft(i++), Node.En1(M.src.fks.get(fk1).first), Node.Fk1(fk1));
+			sgv.addEdge(Chc.inLeft(i++), Node.Fk1(fk1), Node.En1(M.src.fks.get(fk1).second));
+
+			if (l.second.isEmpty()) {
+				sgv.addEdge(Chc.inRight(i++), Node.Fk1(fk1), Node.En2(l.first));
+			} else {
+				for (Fk2 fk2 : l.second) {
+					sgv.addEdge(Chc.inRight(i++), Node.Fk1(fk1), Node.Fk2(fk2));
+				}
+			}
+		}
+		if (showAtts) {
+			for (Att1 att1 : M.src.atts.keySet()) {
+				Triple<Var, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> l = M.atts.get(att1);
+				sgv.addEdge(Chc.inLeft(i++), Node.En1(M.src.atts.get(att1).first), Node.Att1(att1));
+				// sgv.addEdge(Chc.inLeft(i++), Node.Att1(att1),
+				// Node.Ty(M.src.atts.get(att1).second));
+
+				for (Att2 x : l.third.atts()) {
+					sgv.addEdge(Chc.inRight(i++), Node.Att1(att1), Node.Att2(x));
+				}
+				// for (Fk2 x : l.third.fks()) {
+				// sgv.addEdge(Chc.inRight(i++), Node.Att1(att1), Node.Fk2(x));
+				// }
+				/*
+				 * boolean b = false; for (Sym x : l.third.syms()) {
+				 * sgv.addEdge(Chc.inRight(i++), Node.Att1(att1),
+				 * Node.Ty(M.dst.typeSide.syms.get(x).second)); b = true; break; } if (!b) { for
+				 * (Pair<Object, Ty> x : l.third.objs()) { sgv.addEdge(Chc.inRight(i++),
+				 * Node.Att1(att1), Node.Ty(x.second)); b = true; break; } }
+				 */
+		/*
+			}
+		}
+		for (Fk2 fk2 : M.dst.fks.keySet()) {
+			sgv.addEdge(Chc.inLeft(i++), Node.En2(M.dst.fks.get(fk2).first), Node.Fk2(fk2));
+			sgv.addEdge(Chc.inLeft(i++), Node.Fk2(fk2), Node.En2(M.dst.fks.get(fk2).second));
+
+		}
+		if (showAtts) {
+			for (Att2 att2 : M.dst.atts.keySet()) {
+				sgv.addEdge(Chc.inLeft(i++), Node.En2(M.dst.atts.get(att2).first), Node.Att2(att2));
+				// sgv.addEdge(Chc.inLeft(i++), Node.Att2(att2),
+				// Node.Ty(M.dst.atts.get(att2).second));
+			}
+		}
+
+		if (sgv.getVertexCount() == 0) {
+			return new JPanel();
+		}
+		FRLayout<Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>, Chc<Integer, Integer>> layout = new FRLayout<>(sgv);
+
+		layout.setSize(new Dimension(600, 400));
+		VisualizationViewer<Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>, Chc<Integer, Integer>> vv = new VisualizationViewer<>(
+				layout);
+		Function<Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>, Paint> vertexPaint = x -> x.color();
+		DefaultModalGraphMouse<Chc<Ty, En>, Chc<Fk, Att>> gm = new DefaultModalGraphMouse<>();
+		gm.setMode(Mode.TRANSFORMING);
+		vv.setGraphMouse(gm);
+		gm.setMode(Mode.PICKING);
+		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
+
+		// vv.getRenderContext().setVert
+		vv.getRenderContext().setEdgeStrokeTransformer(x -> {
+			if (!x.left) {
+				Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 4 },
+						0);
+				return dashed;
+			}
+			return new BasicStroke();
+		});
+
+		Function<Chc<Integer, Integer>, String> et = x -> "";
+		Function<Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>, String> vt = x -> x.toString();
+		vv.getRenderContext().setEdgeLabelTransformer(et);
+		vv.getRenderContext().setVertexLabelTransformer(vt);
+
+		GraphZoomScrollPane zzz = new GraphZoomScrollPane(vv);
+		JPanel ret = new JPanel(new GridLayout(1, 1));
+		ret.add(zzz);
+		ret.setBorder(BorderFactory.createEtchedBorder());
+
+		vv.getRenderContext().setLabelOffset(16);
+		vv.setBackground(Color.white);
+
+		return ret; */
+		return Unit.unit; 
+	}
+	
+	private <e, L> void apgInst0(JTabbedPane pane, ApgInstance<L, e> G) {
+		List<JComponent> list = new LinkedList<>();
+
+		Object[][] rowData = new Object[G.Ls.size()][2];
+		Object[] colNames = new Object[2];
+		colNames[0] = "Label";
+		colNames[1] = "Type";
+		int j = 0;
+		for (Entry<L, ApgTy<L>> lt : G.Ls.entrySet()) {
+			rowData[j][0] = lt.getKey();
+			rowData[j][1] = lt.getValue();
+			j++;
+		}
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, colNames));
+
+		rowData = new Object[G.Es.size()][3];
+		colNames = new Object[3];
+		colNames[0] = "Element";
+		colNames[1] = "Label";
+		colNames[2] = "Value";
+		j = 0;
+		for (Entry<e, Pair<L, ApgTerm<e>>> lt : G.Es.entrySet()) {
+			rowData[j][0] = lt.getKey();
+			rowData[j][1] = lt.getValue().first;
+			rowData[j][2] = lt.getValue().second;
+			j++;
+		}
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Data", rowData, colNames));
+
+		JPanel c = new JPanel();
+		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
+
+		for (JComponent x : list) {
+			x.setAlignmentX(Component.LEFT_ALIGNMENT);
+			x.setMinimumSize(x.getPreferredSize());
+			c.add(x);
+		}
+
+		JPanel p = new JPanel(new GridLayout(1, 1));
+		p.add(c);
+		JScrollPane jsp = new JScrollPane(p);
+
+		c.setBorder(BorderFactory.createEmptyBorder());
+		p.setBorder(BorderFactory.createEmptyBorder());
+		jsp.setBorder(BorderFactory.createEmptyBorder());
+		pane.addTab("Tables", p);
+	}
+
+	private <e, L> void apgInst1(JTabbedPane pane, ApgInstance<L, e> G) {
+		List<JComponent> list = new LinkedList<>();
+
+		Map<L, Set<e>> map = Util.revS(Util.map(G.Es, (w,v)->new Pair<>(w,v.first)));
+		
+		for (Entry<L, ApgTy<L>> lt : G.Ls.entrySet()) {
+			ApgTy<L> t = lt.getValue();
+			L l = lt.getKey();
+			Object[][] rowData;
+			Object[] colNames;
+
+		    if (t.m != null && t.all) {
+				colNames = new Object[t.m.size() + 1];
+				colNames[0] = l;
+				int i = 1;
+				for (Entry<String, ApgTy<L>> x : t.m.entrySet()) {
+					colNames[i++] = x.getKey() + " : " + x.getValue();
+				}
+				Set<e> set = map.get(l);
+				rowData = new Object[set.size()][i];
+				int j = 0;
+				for (e elem : set) {
+					ApgTerm<e> w = G.Es.get(elem).second;
+					rowData[j][0] = elem;
+					int u = 1;
+					for (String f : t.m.keySet()) {
+						rowData[j][u++] = w.m.get(f);						
+					}
+					j++;
+				}
+			} else {
+				colNames = new Object[2];
+				colNames[0] = l;
+				colNames[1] = t.toString();
+				Set<e> set = map.get(l);
+				rowData = new Object[set.size()][2];
+				int j = 0;
+				for (e elem : set) {
+					ApgTerm<e> w = G.Es.get(elem).second;
+					rowData[j][0] = elem;
+					rowData[j][1] = w;
+					j++;
+				}
+			}
+			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), null, rowData, colNames));
+
+		}
+		
+		JPanel c = new JPanel();
+		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
+
+		for (JComponent x : list) {
+			x.setAlignmentX(Component.LEFT_ALIGNMENT);
+			x.setMinimumSize(x.getPreferredSize());
+			c.add(x);
+		}
+
+		JPanel p = new JPanel(new GridLayout(1, 1));
+		p.add(c);
+		JScrollPane jsp = new JScrollPane(p);
+
+		c.setBorder(BorderFactory.createEmptyBorder());
+		p.setBorder(BorderFactory.createEmptyBorder());
+		jsp.setBorder(BorderFactory.createEmptyBorder());
+		pane.addTab("Labels", p);
+	}
+
+	@Override
+	public <l1, e1, l2, e2> Unit visit(String k, JTabbedPane pane, ApgTransform<l1, e1, l2, e2> t)
+			throws RuntimeException {
+		List<JComponent> list = new LinkedList<>();
+
+		Object[][] rowData = new Object[t.lMap.size()][2];
+		Object[] colNames = new Object[2];
+		colNames[0] = "Input Label";
+		colNames[1] = "Output Label";
+		int j = 0;
+		for (Entry<l1, l2> lt : t.lMap.entrySet()) {
+			rowData[j][0] = lt.getKey();
+			rowData[j][1] = lt.getValue();
+			j++;
+		}
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, colNames));
+
+		rowData = new Object[t.eMap.size()][2];
+		colNames = new Object[2];
+		colNames[0] = "Input Element";
+		colNames[1] = "Output Element";
+		j = 0;
+		for (Entry<e1, e2> lt : t.eMap.entrySet()) {
+			rowData[j][0] = lt.getKey();
+			rowData[j][1] = lt.getValue();
+			j++;
+		}
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Data", rowData, colNames));
+
+		JPanel c = new JPanel();
+		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
+
+		for (JComponent x : list) {
+			x.setAlignmentX(Component.LEFT_ALIGNMENT);
+			x.setMinimumSize(x.getPreferredSize());
+			c.add(x);
+		}
+
+		JPanel p = new JPanel(new GridLayout(1, 1));
+		p.add(c);
+		JScrollPane jsp = new JScrollPane(p);
+
+		c.setBorder(BorderFactory.createEmptyBorder());
+		p.setBorder(BorderFactory.createEmptyBorder());
+		jsp.setBorder(BorderFactory.createEmptyBorder());
+		pane.addTab("Labels", p);
 		return Unit.unit;
 	}
 

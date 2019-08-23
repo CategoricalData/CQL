@@ -422,6 +422,15 @@ public final class SchExpRaw extends SchExp implements Raw {
 	@Override
 	public TyExp type(AqlTyping G) {
 		typeSide.type(G);
+		for (Exp<?> z : imports()) {
+			if (z.kind() != Kind.SCHEMA) {
+				throw new RuntimeException("Import of wrong kind: " + z);
+			}
+			TyExp u = ((SchExp)z).type(G);
+			if (!typeSide.equals(u)) {
+				throw new RuntimeException("Import schema typeside mismatch on " + z + ", is " + u + " and not " + typeSide + " as expected.");
+			}
+		}
 		return typeSide;	
 	}
 

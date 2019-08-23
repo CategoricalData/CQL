@@ -700,6 +700,10 @@ public class Util {
 		return ret;
 	}
 	
+	public static <X, Y> Map<X, Y> toMapSafelyNoDupsList(List<Pair<X, Y>> t) {
+		return toMapSafelyNoDups(t);
+	}
+	
 	public static <X, Y> Map<X, Y> toMapSafelyNoDups(Collection<Pair<X, Y>> t) {
 		Map<X, Y> ret = new THashMap<>(t.size());
 
