@@ -2,6 +2,7 @@ package catdata.apg.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,7 +47,9 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object,Object>> {
 	
 		public abstract ApgInstExpRaw visitApgInstExpRaw(P param, R exp) throws E;
 
-		public abstract ApgInstExpEqualize visitApgInstExpEqualize(P params, R r);
+		public abstract ApgInstExpEqualize visitApgInstExpEqualize(P params, R r) throws E;
+		
+		public abstract ApgInstExpCoEqualize visitApgInstExpCoEqualize(P params, R r) throws E;
 	}
 
 	public abstract <R, P, E extends Exception> ApgInstExp coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E;
@@ -64,7 +67,9 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object,Object>> {
 
 		public abstract R visit(P param, ApgInstExpRaw exp) throws E;
 
-		public abstract R visit(P params, ApgInstExpEqualize apgInstExpEqualize);
+		public abstract R visit(P params, ApgInstExpEqualize exp) throws E;
+		
+		public abstract R visit(P params, ApgInstExpCoEqualize exp) throws E;
 
 	}
 	
@@ -193,25 +198,32 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object,Object>> {
 			this.Es = Util.toMapSafely(LocStr.list2(Es0));
 			this.Ls = Util.toMapSafely(LocStr.list2(Ls0));
 			
-			//doGuiIndex(imports0, Es0, Ls0);
+			doGuiIndex(imports0, Es0, Ls0);
 		}
 		
-		/*public void doGuiIndex(List<ApgInstExp> imports0, List<Pair<LocStr, Pair<String, ApgTerm<String, String, String, String, String>>>> es0,
-				List<Pair<LocStr, ApgTy<String, String, String>>> ls0) {
+		public void doGuiIndex(List<ApgInstExp> imports0, List<Pair<LocStr, Pair<String, ApgPreTerm>>> es0,
+				List<Pair<LocStr, ApgTy<String>>> ls0) {
 			
-			//	List<InteriorLabel<Object>> t = InteriorLabel.imports("imports", imports0);
+			
+			List<InteriorLabel<Object>> t = new LinkedList<>();
+			for (Pair<LocStr, ApgTy<String>> p : ls0) {
+				t.add(new InteriorLabel<>("labels", new Pair<>(p.first.str, p.second),
+						p.first.loc,
+						x -> x.toString())
+								.conv());
+			}
 			raw.put("labels", t);
 
 			List<InteriorLabel<Object>> f = new LinkedList<>();
-			for (Pair<LocStr, String> p : es0) {
-				f.add(new InteriorLabel<>("values", new Pair<>(p.first.str, p.second),
+			for (Pair<LocStr, Pair<String, ApgPreTerm>> p : es0) {
+				f.add(new InteriorLabel<>("elements", new Pair<>(p.first.str, p.second),
 						p.first.loc,
-						x -> x.first + " : " + x.second)
+						x ->   x.first + " : "  + x.second)
 								.conv());
 			}
 			
 			raw.put("elements", f);			
-		}*/
+		}
 		
 		
 		private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
@@ -803,4 +815,89 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object,Object>> {
 		
 	}
 	
+public static final class ApgInstExpCoEqualize extends ApgInstExp {
+		
+		public final ApgTransExp l, r;
+
+		
+		@Override
+		public String toString() {
+			return "coequalize " + l + " " + r;
+		}
+		
+		public ApgInstExpCoEqualize(ApgTransExp l, ApgTransExp r) {
+			this.l = l;
+			this.r = r;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((l == null) ? 0 : l.hashCode());
+			result = prime * result + ((r == null) ? 0 : r.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ApgInstExpCoEqualize other = (ApgInstExpCoEqualize) obj;
+			if (l == null) {
+				if (other.l != null)
+					return false;
+			} else if (!l.equals(other.l))
+				return false;
+			if (r == null) {
+				if (other.r != null)
+					return false;
+			} else if (!r.equals(other.r))
+				return false;
+			return true;
+		}
+
+		@Override
+		public <R, P, E extends Exception> R accept(P params, ApgInstExpVisitor<R, P, E> v) throws E {
+			return v.visit(params, this);
+		}
+
+		@Override
+		public <R, P, E extends Exception> ApgInstExpCoEqualize coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
+			return v.visitApgInstExpCoEqualize(params, r);
+		}
+
+		@Override
+		public ApgTyExp type(AqlTyping G) {
+			Pair<ApgInstExp, ApgInstExp> a = l.type(G);
+			Pair<ApgInstExp, ApgInstExp> b = r.type(G);
+			if (!a.first.equals(b.first)) {
+				throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
+			} else if (!a.second.equals(b.second)) {
+				throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
+			}
+			return a.first.type(G);
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			l.mapSubExps(f);
+			r.mapSubExps(f);
+		}
+
+		@Override
+		protected ApgInstance eval0(AqlEnv env, boolean isCompileTime) {
+			return ApgOps.coequalize(l.eval(env, isCompileTime), r.eval(env, isCompileTime));
+		}
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return Util.union(l.deps(), r.deps());
+		}
+		
+	}
 }

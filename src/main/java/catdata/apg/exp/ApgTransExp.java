@@ -15,11 +15,15 @@ import catdata.Util;
 import catdata.apg.ApgInstance;
 import catdata.apg.ApgOps;
 import catdata.apg.ApgTransform;
+import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCoVisitor;
+import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
+import catdata.apg.exp.ApgTransExp.ApgTransExpVisitor;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
 import catdata.aql.exp.AqlEnv;
@@ -60,9 +64,13 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		public R visit(P params, ApgTransExpCompose exp);
 
-		public R visit(P params, ApgTransExpEqualize apgTransExpEqualize);
+		public R visit(P params, ApgTransExpEqualize exp);
 
-		public R visit(P params, ApgTransExpEqualizeU apgTransExpEqualizeU);
+		public R visit(P params, ApgTransExpEqualizeU exp);
+		
+		public R visit(P params, ApgTransExpCoEqualize exp);
+
+		public R visit(P params, ApgTransExpCoEqualizeU exp);
 
 	}
 
@@ -97,6 +105,10 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public ApgTransExp visitApgTransExpEqualize(P params, R r);
 
 		public ApgTransExp visitApgTransExpEqualizeU(P params, R r);
+
+		public ApgTransExp visitApgTransExpCoEqualize(P params, R r);
+
+		public ApgTransExp visitApgTransExpCoEqualizeU(P params, R r);
 
 	}
 
@@ -968,7 +980,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			if (!a.second.equals(b.second)) {
 				throw new RuntimeException("Co-domains do not match: " + a.second + " and " + b.second);
 			}
-			return new Pair<>(new ApgInstExpTimes(a.first, b.first), b.second);
+			return new Pair<>(new ApgInstExpPlus(a.first, b.first), b.second);
 		}
 
 		@Override
@@ -1233,7 +1245,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 	public static final class ApgTransExpEqualizeU extends ApgTransExp {
 		public final ApgTransExp h, h1, h2;
 
-		public ApgTransExpEqualizeU(ApgTransExp h, ApgTransExp h1, ApgTransExp h2) {
+		public ApgTransExpEqualizeU(ApgTransExp h1, ApgTransExp h2, ApgTransExp h) {
 			this.h = h;
 			this.h1 = h1;
 			this.h2 = h2;
@@ -1322,6 +1334,187 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			}
 			
 			return new Pair<>(c.first, new ApgInstExpEqualize(h1,h2));
+		}
+		
+	}
+	
+	public static final class ApgTransExpCoEqualize extends ApgTransExp {
+		public final ApgTransExp h1, h2;
+
+		public ApgTransExpCoEqualize(ApgTransExp h1, ApgTransExp h2) {
+			this.h1 = h1;
+			this.h2 = h2;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((h1 == null) ? 0 : h1.hashCode());
+			result = prime * result + ((h2 == null) ? 0 : h2.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ApgTransExpCoEqualize other = (ApgTransExpCoEqualize) obj;
+			if (h1 == null) {
+				if (other.h1 != null)
+					return false;
+			} else if (!h1.equals(other.h1))
+				return false;
+			if (h2 == null) {
+				if (other.h2 != null)
+					return false;
+			} else if (!h2.equals(other.h2))
+				return false;
+			return true;
+		}
+		
+		@Override
+		public String toString() {
+			return "coequalize " + h1 + " " + h2;
+		}
+		@Override
+		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
+			Pair<ApgInstExp, ApgInstExp> a = h1.type(G);
+			Pair<ApgInstExp, ApgInstExp> b = h2.type(G);
+			if (!a.first.equals(b.first)) {
+				throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
+			} else if (!a.second.equals(b.second)) {
+				throw new RuntimeException("Codomain mismatch: " + a.second + " is not equal to " + b.second);
+			}
+			return new Pair<>(a.second,new ApgInstExpCoEqualize(h1,h2));
+		}
+		
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			h1.mapSubExps(f);
+			h2.mapSubExps(f);
+		}
+
+		@SuppressWarnings("rawtypes")
+		@Override
+		protected ApgTransform eval0(AqlEnv env, boolean isCompileTime) {
+			return ApgOps.coequalizeT(h1.eval(env, isCompileTime), h2.eval(env, isCompileTime));
+		}
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return Util.union(h1.deps(), h2.deps());
+		}
+
+		@Override
+		public <R, P> R accept(P params, ApgTransExpVisitor<R, P> v) {
+			return v.visit(params, this);
+		}
+
+		@Override
+		public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
+			return v.visitApgTransExpCoEqualize(params, r);
+		}
+		
+	}
+	
+	public static final class ApgTransExpCoEqualizeU extends ApgTransExp {
+		public final ApgTransExp h, h1, h2;
+
+		public ApgTransExpCoEqualizeU(ApgTransExp h1, ApgTransExp h2, ApgTransExp h) {
+			this.h = h;
+			this.h1 = h1;
+			this.h2 = h2;
+		}
+
+		@Override
+		public <R, P> R accept(P params, ApgTransExpVisitor<R, P> v) {
+			return v.visit(params, this);
+		}
+
+		@Override
+		public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
+			return v.visitApgTransExpCoEqualizeU(params, r);
+		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((h == null) ? 0 : h.hashCode());
+			result = prime * result + ((h1 == null) ? 0 : h1.hashCode());
+			result = prime * result + ((h2 == null) ? 0 : h2.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ApgTransExpCoEqualizeU other = (ApgTransExpCoEqualizeU) obj;
+			if (h == null) {
+				if (other.h != null)
+					return false;
+			} else if (!h.equals(other.h))
+				return false;
+			if (h1 == null) {
+				if (other.h1 != null)
+					return false;
+			} else if (!h1.equals(other.h1))
+				return false;
+			if (h2 == null) {
+				if (other.h2 != null)
+					return false;
+			} else if (!h2.equals(other.h2))
+				return false;
+			return true;
+		}
+
+		
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			h1.mapSubExps(f);
+			h2.mapSubExps(f);
+			h.mapSubExps(f);
+		}
+
+		@SuppressWarnings("rawtypes")
+		@Override
+		protected ApgTransform eval0(AqlEnv env, boolean isCompileTime) {
+			return ApgOps.coequalizeU(h.eval(env, isCompileTime), h1.eval(env, isCompileTime), h2.eval(env, isCompileTime));
+		}
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return Util.union(h.deps(), Util.union(h1.deps(), h2.deps()));
+		}
+		
+		@Override
+		public String toString() {
+			return "coequalize_u " + h1 + " " + h2 + " " + h;
+		}
+		@Override
+		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
+			Pair<ApgInstExp, ApgInstExp> a = h1.type(G);
+			Pair<ApgInstExp, ApgInstExp> b = h2.type(G);
+			Pair<ApgInstExp, ApgInstExp> c = h.type(G);
+			if (!a.first.equals(b.first)) {
+				throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
+			} else if (!a.second.equals(b.second)) {
+				throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
+			} else if (!c.first.equals(a.second)) {
+				throw new RuntimeException("Domain and CoDomain mismatch: " + a.second + " is not equal to " + c.first);				
+			}
+			
+			return new Pair<>(new ApgInstExpCoEqualize(h1,h2), c.second);
 		}
 		
 	}

@@ -6,15 +6,15 @@ schema cat = literal : empty {
 		id: Ob -> Mor
 		dom: Mor -> Ob
 		cod: Mor -> Ob
-		fst: Pair -> Mor
-		snd: Pair -> Mor
+		Fst: Pair -> Mor
+		Snd: Pair -> Mor
 		comp: Pair -> Mor
 	path_equations
 		Ob.id.dom = Ob
 		Ob.id.cod = Ob
-		Pair.fst.dom = Pair.comp.dom
-		Pair.fst.cod = Pair.snd.dom
-		Pair.snd.cod = Pair.comp.cod
+		Pair.Fst.dom = Pair.comp.dom
+		Pair.Fst.cod = Pair.Snd.dom
+		Pair.Snd.cod = Pair.comp.cod
 	options
 } 
 
@@ -23,25 +23,25 @@ constraints theEDs = literal : cat {
 	forall f g:Mor
 	where f.cod=g.dom ->
  	exists unique fg:Pair
- 	where fg.fst=f fg.snd=g
+ 	where fg.Fst=f fg.Snd=g
 //left unitality
 	forall fid:Pair
-	where fid.fst.cod.id = fid.snd
+	where fid.Fst.cod.id = fid.Snd
 	->
-	where fid.comp = fid.fst
+	where fid.comp = fid.Fst
 //right unitality
 	forall idf:Pair
-	where idf.snd.dom.id = idf.fst
+	where idf.Snd.dom.id = idf.Fst
 	->
-	where idf.comp = idf.snd
+	where idf.comp = idf.Snd
 //associativity
  	forall fg gh fgThenh fThengh: Pair 
  	where 
- 		fg.snd = gh.fst 
- 		fgThenh.fst = fg.comp
- 		fgThenh.snd = gh.snd
- 		fThengh.fst = fg.fst
- 		fThengh.snd = gh.comp
+ 		fg.Snd = gh.Fst 
+ 		fgThenh.Fst = fg.comp
+ 		fgThenh.Snd = gh.Snd
+ 		fThengh.Fst = fg.Fst
+ 		fThengh.Snd = gh.comp
  	->
  	where fgThenh.comp = fThengh.comp
 }

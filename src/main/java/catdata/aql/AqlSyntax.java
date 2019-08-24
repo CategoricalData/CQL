@@ -2,6 +2,28 @@ package catdata.aql;
 
 public enum AqlSyntax {
 
+	ApgInstExpInitial,
+	ApgInstExpTerminal,
+	ApgInstExpPlus,
+	ApgInstExpTimes,
+	ApgInstExpEqualize,
+	ApgInstExpCoEqualize,
+	
+	ApgTransExpId,
+	ApgTransExpCompose,
+	ApgTransExpTerminal,
+	ApgTransExpInitial,
+	ApgTransExpFst,
+	ApgTransExpSnd,
+	ApgTransExpInl,
+	ApgTransExpInr,
+	ApgTransExpPair,
+	ApgTransExpCase,
+	ApgTransExpEqualize,
+	ApgTransExpEqualizeU,
+	ApgTransExpCoEqualize,
+	ApgTransExpCoEqualizeU,
+	
 	CommentExp, ColimSchExpQuotient, ColimSchExpRaw, ColimSchExpVar, ColimSchExpWrap, ColimSchExpModify, EdsExpVar,
 	EdsExpRaw, EdsExpSch, GraphExpRaw, GraphExpVar, InstExpAnonymize, InstExpCascadeDelete, InstExpChase, InstExpFrozen,
 	InstExpCoEq, InstExpCoEval, InstExpCoProdFull

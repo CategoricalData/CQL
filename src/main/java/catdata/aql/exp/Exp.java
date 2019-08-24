@@ -79,6 +79,10 @@ public abstract class Exp<X> {
 			return kind() + "_literal";
 		} else if (t.contains("identity")) {
 			return kind() + "_identity";
+		} else if (t.startsWith("(")) {
+			return kind() + "_product";
+		} else if (t.startsWith("<")) {
+			return kind() + "_coproduct";
 		} else if (t.contains(" ")) {
 			return t.toString().substring(0, t.indexOf(" "));
 		}

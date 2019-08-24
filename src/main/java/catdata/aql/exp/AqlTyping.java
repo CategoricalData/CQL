@@ -55,6 +55,16 @@ public class AqlTyping {
 		if (!defs.tms.isEmpty()) {
 			sb.append("theory_morphism " + Util.sep(defs.tms.keySet(), "\ntheory_morphism ") + "\n");
 		}
+		if (!defs.apgts.isEmpty()) {
+			sb.append("apg_typeside " + Util.sep(defs.apgts.keySet(), "\napg_typeside ") + "\n");
+		}
+		if (!defs.apgis.isEmpty()) {
+			sb.append("apg_instance " + Util.sep(defs.apgis, " : ", "\napg_instance ") + "\n");
+		}
+		if (!defs.apgms.isEmpty()) {
+			sb.append("apg_morphism " + Util.sep(defs.apgms, " : ", "\napg_morphism ", x -> x.first + " -> " + x.second) + "\n");
+		}
+		
 
 		return sb.toString();
 	}

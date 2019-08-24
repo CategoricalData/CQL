@@ -3,11 +3,13 @@ package catdata.apg;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Unit;
 import catdata.Util;
+import catdata.graph.UnionFind;
 import gnu.trove.map.hash.THashMap;
 
 public class ApgOps {
@@ -328,36 +330,113 @@ public class ApgOps {
 		}
 		ApgInstance<L1,E1> X = equalize(h,k);
 		
-		Map<L1, L1> lMap = new THashMap<>();
-		Map<E1, E1> eMap = new THashMap<>();
+		return new ApgTransform<>(X, h.src, Util.id(X.Ls.keySet()), Util.id(X.Es.keySet()));
 		
-		for (Entry<L1, ApgTy<L1>> l1 : X.Ls.entrySet()) {
-			lMap.put(l1.getKey(), l1.getKey());
-		}
-		for (Entry<E1, Pair<L1, ApgTerm<E1>>> e1 : X.Es.entrySet()) {
-			eMap.put(e1.getKey(), e1.getKey());
-		}
-		
-		return new ApgTransform<>(X, h.src, lMap, eMap);
 	}
 	
-	public static <E1,E2,L1,L2> ApgTransform<L1,E1,L1,E1> equalizeU(ApgTransform<L1,E1,L1,E1> w, ApgTransform<L1,E1,L2,E2> h, ApgTransform<L1,E1,L2,E2> k) {
-		if (!h.src.equals(k.src) || !h.dst.equals(k.dst) || !compose(w,h).equals(compose(w,k))) {
+	public static <E,L,E1,E2,L1,L2> ApgTransform<L,E,L1,E1> equalizeU(ApgTransform<L,E,L1,E1> w, ApgTransform<L1,E1,L2,E2> h, ApgTransform<L1,E1,L2,E2> k) {
+		if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
+			Util.anomaly();
+		} else if (!compose(w,h).equals(compose(w,k))) {
+			throw new RuntimeException("Not equal: " + compose(w,h) + " and " + compose(w,k));
+		}
+		return new ApgTransform<>(w.src, equalize(h,k), w.lMap, w.eMap);
+	}
+	
+	//////////////////////////////////////////////////////////
+	
+	public static <E1,E2,L> ApgInstance<L,Set<E2>> coequalize(ApgTransform<L,E1,L,E2> h, ApgTransform<L,E1,L,E2> k) {
+		if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
 			Util.anomaly();
 		}
-		ApgInstance<L1,E1> X = equalize(h,k);
-		
-		/* Map<L1, L1> lMap = new THashMap<>();
-		Map<E1, E1> eMap = new THashMap<>();
-		
-		for (Entry<L1, L1> l1 : w.lMap.entrySet()) {
-			lMap.put(l1.getKey(), l1.getValue());
+		for (Entry<L, L> l : h.lMap.entrySet()) {
+			if (!l.getKey().equals(l.getValue())) {
+				Util.anomaly();
+			}
 		}
-		for (Entry<E1, E1> e1 : w.eMap.entrySet()) {
-			eMap.put(e1.getKey(), e1.getValue());
-		} */
+		for (Entry<L, L> l : k.lMap.entrySet()) {
+			if (!l.getKey().equals(l.getValue())) {
+				Util.anomaly();
+			}
+		}
 		
-		return new ApgTransform<>(w.src, X, w.lMap, w.eMap);
+		UnionFind<E2> uf = new UnionFind<>(h.dst.Es.size(), h.dst.Es.keySet());
+		for (E1 e1 : h.src.Es.keySet()) {
+			E2 e2h = h.eMap.get(e1);
+			E2 e2k = k.eMap.get(e1);
+			L lh = h.dst.Es.get(e2h).first;
+			L lk = k.dst.Es.get(e2k).first;
+			if (!lh.equals(lk)) {
+				throw new RuntimeException("Cannot co-equalize: " + e1 + " sent to " + e2h + " and " + e2k + " of non-equal labels " + lh + " and " + lk);
+			}
+			uf.union(e2h, e2k);
+		}
+		Map<E2, Set<E2>> m = uf.toMap();
+		
+		Map<Set<E2>, Pair<L, ApgTerm<Set<E2>>>> Es = new THashMap<>();
+		for (E2 e2 : h.dst.Es.keySet()) {
+			if (!uf.find(e2).equals(e2)) {
+				continue;
+			}
+			Pair<L, ApgTerm<E2>> lh = h.dst.Es.get(e2);
+			Pair<L, ApgTerm<E2>> lk = k.dst.Es.get(e2);
+			if (!lh.first.equals(lk.first)) {
+				Util.anomaly();
+			}
+			ApgTerm<Set<E2>> p = eqc(m, lh.second);
+			ApgTerm<Set<E2>> q = eqc(m, lh.second);
+			if (!p.equals(q)) {
+				Util.anomaly();
+			}
+			Es.put(m.get(e2), new Pair<>(lh.first, p));
+		}
+		
+		return new ApgInstance<>(h.src.typeside, k.dst.Ls, Es);
+	}
+	
+	private static <E2> ApgTerm<Set<E2>> eqc(Map<E2, Set<E2>> w, ApgTerm<E2> t1) {
+		if (t1.v != null) {
+			return t1.convert();
+		} else if (t1.e != null) {
+			return ApgTerm.ApgTermE(w.get(t1.e));
+		} else if (t1.m != null) {
+			Map<String, ApgTerm<Set<E2>>> m = Util.map(t1.m,(k,v)->new Pair<>(k,eqc(w, v)));
+			return ApgTerm.ApgTermTuple(m);
+		} else if (t1.f != null) {
+			return ApgTerm.ApgTermInj(t1.f,eqc(w,t1.a));
+		}
+		return Util.anomaly();
+	}
+
+	public static <E1,E2,L> ApgTransform<L,E2,L,Set<E2>> coequalizeT(ApgTransform<L,E1,L,E2> h, ApgTransform<L,E1,L,E2> k) {
+		if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
+			Util.anomaly();
+		}
+		ApgInstance<L, Set<E2>> X = coequalize(h,k);
+		Map<E2, Set<E2>> eMap = new THashMap<>();
+		for (E2 e1 : h.dst.Es.keySet()) {
+			for (Set<E2> eqc : X.Es.keySet()) {
+				if (eqc.contains(e1)) {
+					eMap.put(e1, eqc);
+					break;
+				}
+			}
+		}
+		return new ApgTransform<>(h.dst, X, Util.id(X.Ls.keySet()), eMap);
+	}
+	
+	public static <E,E1,E2,L> ApgTransform<L,Set<E2>,L,E> coequalizeU(ApgTransform<L,E2,L,E> w, ApgTransform<L,E1,L,E2> h, ApgTransform<L,E1,L,E2> k) {
+		if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
+			Util.anomaly();
+		} else if (!compose(h,w).equals(compose(k,w))) {
+			throw new RuntimeException("Not equal: " + compose(h,w) + " and " + compose(k,w));
+		}
+		ApgInstance<L, Set<E2>> X = coequalize(h,k);
+		Map<Set<E2>,E> eMap = new THashMap<>();
+		for (Set<E2> eqc : X.Es.keySet()) {
+			eMap.put(eqc, w.eMap.get(Util.get0X(eqc)));
+		}
+		return new ApgTransform<>(X, w.dst, Util.id(X.Ls.keySet()), eMap);
 	}
 }
 

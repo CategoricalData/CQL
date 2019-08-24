@@ -383,10 +383,10 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			if (z.kind() != Kind.INSTANCE) {
 				throw new RuntimeException("Import of wrong kind: " + z);
 			}
-			SchExp u = ((InstExp)z).type(G);
-			if (!schema.equals(u)) {
-				throw new RuntimeException("Import instance schema mismatch on " + z + ", is " + u + " and not " + schema + " as expected.");
-			}
+			//SchExp u = ((InstExp)z).type(G);
+			//if (!schema.equals(u)) {
+			//	throw new RuntimeException("Import instance schema mismatch on " + z + ", is " + u + " and not " + schema + " as expected.");
+			//}
 		}
 		return schema;
 	}

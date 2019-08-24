@@ -2,11 +2,13 @@ package catdata.apg;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Kind;
 import catdata.aql.Semantics;
+import gnu.trove.map.hash.THashMap;
 
 public class ApgInstance<L,E> implements Semantics {
 	
@@ -32,11 +34,6 @@ public class ApgInstance<L,E> implements Semantics {
 	}
 	
 	public void validate() {
-		/* for (L l : Ls.keySet()) {
-			if (typeside.Bs.contains(l)) { //warning benign
-				throw new RuntimeException("Label is also a type: " + l);
-			}
-		} */
 		for (Entry<E, Pair<L, ApgTerm<E>>> e : Es.entrySet()) {
 			if (!Ls.containsKey(e.getValue().first)) {
 				throw new RuntimeException("Label not in instance: " + e.getValue().first);
@@ -70,38 +67,58 @@ public class ApgInstance<L,E> implements Semantics {
 			}
 			return;
 		}
-		//TODO
-		/*
-		if (term.v != null) {
-			if (!typeside.Vs.containsKey(term.v)) {
-				throw new RuntimeException("Constant " + term.v + " not in " + typeside.Bs);
+		if (ty.b != null) {
+			if (term.v == null) {
+				throw new RuntimeException("Expecting data at type " + ty.b + ", but received " + term);
 			}
-			ApgTy<L> xxx = ApgTy.ApgTyB(typeside.Vs.get(term.v));
-			if (!ty.equals(xxx)) {
-				throw new RuntimeException("Type error: On " + term + ", expected " + ty + " but actual is " + xxx);
+			Pair<Class<?>, Function<String, Object>> x = typeside.Bs.get(ty.b);
+			if (x == null || !x.first.isInstance(term.v)) {
+				Util.anomaly(); //should already be checked
 			}
-			return;
+			
+		} else if (ty.l != null) {
+			if (term.e == null) {
+				throw new RuntimeException("Expecting element at label " + ty.l + ", but received " + term);
+			}
+			if (!(Es.containsKey(term.e) || Es.containsKey(term.e))) {
+				throw new RuntimeException("Not an element: " + term.e);
+			}
+			L l2 = Es.get(term.e).first;
+			if (!ty.l.equals(l2)) {
+				throw new RuntimeException("Expecting element at label " + ty.l + ", but received element " + term + " at label " + l2);
+			}
+			
+		} else if (ty.m != null && ty.all) {
+			if (term.m == null) {
+				throw new RuntimeException("Expecting tuple at type " + ty + ", but received " + term);
+			}
+			
+			for (Entry<String, ApgTerm<E>> x : term.m.entrySet()) {
+				ApgTy<L> w = ty.m.get(x.getKey());
+				if (w == null) {
+					throw new RuntimeException("In " + term + ", " + x.getKey() + ", is not a field in " + x.getValue());
+				}
+				type(x.getValue(), w);
+			}
+			for (String w : ty.m.keySet()) {
+				if (!term.m.containsKey(w)) {
+					throw new RuntimeException("In " + term + ", no field for " + w);
+				}
+			}				
+			
+		} else if (ty.m != null && !ty.all) {
+			if (term.f == null) {
+				throw new RuntimeException("Expecting injection at type " + ty + ", but received " + term);
+			}
+		
+			ApgTy<L> w = ty.m.get(term.f);
+			if (w == null) {
+				throw new RuntimeException("In " + term + ", " + term.f + ", is not a field in " + ty);
+			}
+			type(term.a, w);
 		}
-		if (term.m != null) {
-			ApgTy<L> xxx = ApgTy.ApgTyP(true, Util.map(term.m, (k,v)->new Pair<>(k,type(v))));
-			if (!ty.equals(xxx)) {
-				throw new RuntimeException("Type error: On " + term + ", expected " + ty + " but actual is " + xxx);
-			}
-			return;
-		}
-		if (term.f != null) {
-			ApgTy<L> t = type(term.a);
-			if (t.m == null) {
-				throw new RuntimeException("Not a product: " + t);
-			}
-			if (!t.m.containsKey(term.f)) {
-				throw new RuntimeException("Field " + term.f + " not in " + t.m.keySet());
-			}
-			return t.m.get(term.f);
-		}
-		*/
-		 //Util.anomaly();
 	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -119,7 +136,7 @@ public class ApgInstance<L,E> implements Semantics {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ApgInstance other = (ApgInstance) obj;
+		ApgInstance<?, ?> other = (ApgInstance<?, ?>) obj;
 		if (Es == null) {
 			if (other.Es != null)
 				return false;

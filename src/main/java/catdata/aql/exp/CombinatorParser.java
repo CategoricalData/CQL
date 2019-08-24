@@ -35,6 +35,7 @@ import catdata.Util;
 import catdata.apg.ApgPreTerm;
 import catdata.apg.ApgTy;
 import catdata.apg.exp.ApgInstExp;
+import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
@@ -44,6 +45,8 @@ import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
 import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
 import catdata.apg.exp.ApgTransExp;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCase;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualize;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCompose;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
@@ -183,6 +186,8 @@ public class CombinatorParser implements IAqlParser {
 	private static void apgInstExp() {
 		Parser<ApgInstExp> var = ident.map(ApgInstExpVar::new), 
 				
+				coeq =  Parsers.tuple(token("coequalize"),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgInstExpCoEqualize(x.b,x.c)),
+				
 				eq =  Parsers.tuple(token("equalize"),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgInstExpEqualize(x.b,x.c)),
 				//sql = token("sql").map(x -> new TyExpSql()),
 				empty = Parsers.tuple(token("empty"),apg_ty_ref.lazy()).map(x -> new ApgInstExpInitial(x.b)),
@@ -191,7 +196,7 @@ public class CombinatorParser implements IAqlParser {
 				plus = Parsers.tuple(apg_inst_ref.lazy(),token("+"),apg_inst_ref.lazy()).between(token("<"), token(">")).map(x -> new ApgInstExpPlus(x.a,x.c)),
 
 				//sch = Parsers.tuple(token("typesideOf"), sch_ref.lazy()).map(x -> new TyExpSch(x.b)),
-				ret = Parsers.or(eq, empty, sing, times, plus, apgInstExpRaw(), var, parens(apg_inst_ref));
+				ret = Parsers.or(eq, coeq, empty, sing, times, plus, apgInstExpRaw(), var, parens(apg_inst_ref));
 
 		apg_inst_ref.set(ret);
 	}
@@ -200,7 +205,9 @@ public class CombinatorParser implements IAqlParser {
 
 				eq =  Parsers.tuple(token("equalize"),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgTransExpEqualize(x.b,x.c)),
 				eq2=  Parsers.tuple(token("equalize_u"),apg_trans_ref.lazy(),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgTransExpEqualizeU(x.b,x.c,x.d)),
-				
+						coeq =  Parsers.tuple(token("coequalize"),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgTransExpCoEqualize(x.b,x.c)),
+						coeq2=  Parsers.tuple(token("coequalize_u"),apg_trans_ref.lazy(),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgTransExpCoEqualizeU(x.b,x.c,x.d)),
+						
 				id = Parsers.tuple(token("identity"),apg_inst_ref.lazy()).map(x -> new ApgTransExpId(x.b)),
 				empty = Parsers.tuple(token("empty"),apg_inst_ref.lazy()).map(x -> new ApgTransExpInitial(x.b)),
 				sing = Parsers.tuple(token("unit"),apg_inst_ref.lazy()).map(x -> new ApgTransExpTerminal(x.b)),
@@ -213,7 +220,7 @@ public class CombinatorParser implements IAqlParser {
 				inr = Parsers.tuple(token("inr"),apg_inst_ref.lazy(),apg_inst_ref.lazy()).map(x -> new ApgTransExpInr(x.b,x.c)),
 						
 				
-				ret = Parsers.or(eq,eq2,id,empty,sing,times,plus,comp,fst,snd,inl,inr, apgTransExpRaw(), var, parens(apg_trans_ref));
+				ret = Parsers.or(eq,eq2,coeq,coeq2,id,empty,sing,times,plus,comp,fst,snd,inl,inr, apgTransExpRaw(), var, parens(apg_trans_ref));
 
 		apg_trans_ref.set(ret);
 	}

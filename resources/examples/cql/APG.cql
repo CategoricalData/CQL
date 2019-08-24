@@ -71,8 +71,44 @@ apg_instance HyperElements = literal : Ty {
 		s4 : UnixTimeSeconds -> 3
 }
 
-//////////////////
+///////////////////////////////////////////////////////////////////
 
+apg_instance M = literal : Ty {
+	labels
+		PlateNumber -> (id: base Str * region_id: base Str * region_lp: base Str) 
+	elements
+		p1 : PlateNumber -> (id: US, region_id: CA, region_lp: "6trj244")
+		p2 : PlateNumber -> (id: MX, region_id: BC, region_lp: "ahd4102")
+		q1 : PlateNumber -> (id: US, region_id: CA, region_lp: "6trj244")
+		q2 : PlateNumber -> (id: MX, region_id: SN, region_lp: "vuk1775")
+}
+
+apg_instance N = literal : Ty {
+	labels
+		PlateNumber -> (id: base Str * region_id: base Str * region_lp: base Str) 
+	elements
+		p1q1 : PlateNumber -> (id: US, region_id: CA, region_lp: "6trj244")
+}
+
+apg_morphism j = literal : N -> M {
+	labels
+		PlateNumber -> PlateNumber
+	elements
+		p1q1 -> p1
+}
+
+apg_morphism k = literal : N -> M {
+	labels
+		PlateNumber -> PlateNumber
+	elements
+		p1q1 -> p2
+}
+
+apg_instance CoEqjk = coequalize j k 
+apg_morphism CoEqjkt = coequalize j k 
+apg_morphism CoEqjkt_u = coequalize_u j k CoEqjkt //id
+
+///////////////////////////////////////////////////////////////////
 
 apg_instance G = literal : Ty {
 	labels
@@ -113,6 +149,7 @@ apg_morphism t0 = [ t9 ; t9 ]
 apg_morphism ta = equalize t9 t9
 apg_morphism tb = equalize_u t9 t9 t9
 
+/////////////////////////////////////////////////////////////////
 
 apg_instance G0 = literal : Ty {
 	labels
@@ -126,8 +163,6 @@ apg_morphism m0 = literal : G0 -> H0 {
 	labels
 		L -> L
 }
-
-
 apg_instance G2 = literal : Ty {
 	labels
 		L -> (a: base Str * b: base Nat)
@@ -144,8 +179,6 @@ apg_morphism m2 = literal : G2 -> H2 {
 	labels
 		L -> L
 	elements
-		e -> e
-
-			
+		e -> e	
 }
 

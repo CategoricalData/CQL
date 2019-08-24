@@ -13,6 +13,7 @@ import catdata.Pair;
 import catdata.Program;
 import catdata.Unit;
 import catdata.Util;
+import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
@@ -21,6 +22,8 @@ import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
 import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCase;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualize;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCompose;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
@@ -901,7 +904,7 @@ public class AqlHelp implements
 			StringBuffer examples = new StringBuffer("<html><head>" + css + "</head><body>");
 			for (Example ex : Util.alphabetical(
 			
-					Examples.getExamples(Language.CQL))) {
+				Examples.getExamples(Language.CQL))) {
 				examples.append(
 						"\n<a href=\"" + ex.getName().trim() + ".html\" target=\"primary\">" + ex.getName().trim() + "</a><br />");
 
@@ -1026,7 +1029,7 @@ public class AqlHelp implements
 					Exp<?> e = pair.second;
 					String desc = e.accept0(Unit.unit, new AqlHelp());
 					
-					String str = e.printNicely(g);
+					String str = e.printNicely(g).replace("<", "&lt;").replace(">", "&gt;");
 					String str2 = "<br/>Appears in:<br/><br/>";
 					
 					Set<AqlOption> xx = e.allowedOptions();
@@ -1214,7 +1217,7 @@ public class AqlHelp implements
 
 	@Override
 	public String visit(Unit params, ApgInstExpInitial exp) throws RuntimeException {
-		return "Initial object in the category of APGs";
+		return "Initial object in the category of APGs.";
 	}
 
 	@Override
@@ -1224,77 +1227,92 @@ public class AqlHelp implements
 
 	@Override
 	public String visit(Unit params, ApgInstExpTimes exp) throws RuntimeException {
-		return "Product object in the category of APGs";
+		return "Product object in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgInstExpPlus exp) throws RuntimeException {
-		return "Co-product object in the category of APGs";
+		return "Co-product object in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpTerminal exp) {
-		return "Terminal morphism in the category of APGs";
+		return "Terminal morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpInitial exp) {
-		return "Initial morphism in the category of APGs";
+		return "Initial morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpFst exp) {
-		return "First projection morphism in the category of APGs";
+		return "First projection morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpSnd exp) {
-		return "Second projection morphism in the category of APGs";
+		return "Second projection morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpPair exp) {
-		return "Pairing morphism in the category of APGs";
+		return "Pairing morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpInl exp) {
-		return "First injection morphism in the category of APGs";
+		return "First injection morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpInr exp) {
-		return "Second injection morphism in the category of APGs";
+		return "Second injection morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpCase exp) {
-		return "Case analysis morphism in the category of APGs";
+		return "Case analysis morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpId exp) {
-		return "Identity morphism in the category of APGs";
+		return "Identity morphism in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpCompose exp) {
-		return "Composition of morphisms in the category of APGs";
+		return "Composition of morphisms in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgInstExpEqualize apgInstExpEqualize) {
-		return "Equalizer object of two parallel morphisms in the category of APGs";
+		return "Equalizer object of two parallel morphisms in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpEqualize apgTransExpEqualize) {
-		return "Equalizer morphism of two parallel morphisms in the category of APGs";
+		return "Equalizer morphism of two parallel morphisms in the category of APGs.";
 	}
 
 	@Override
 	public String visit(Unit params, ApgTransExpEqualizeU apgTransExpEqualizeU) {
-		return "Equalizer universal property mediating morphism of two parallel morphisms in the category of APGs";
+		return "Equalizer universal property mediating morphism of two parallel morphisms in the category of APGs.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgInstExpCoEqualize exp) throws RuntimeException {
+		return "CoEqualizer object of two parallel morphisms in the category of APGs.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpCoEqualize exp) {
+		return "CoEqualizer morphism of two parallel morphisms in the category of APGs.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpCoEqualizeU exp) {
+		return "CoEqualizer universal property mediating morphism of two parallel morphisms in the category of APGs.";
 	}
 
 }

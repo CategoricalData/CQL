@@ -7,6 +7,8 @@ import java.util.List;
 import catdata.LocStr;
 import catdata.Pair;
 import catdata.Unit;
+import catdata.apg.exp.ApgInstExp;
+import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
@@ -15,8 +17,21 @@ import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
 import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
 import catdata.apg.exp.ApgTransExp;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCase;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualize;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualizeU;
+import catdata.apg.exp.ApgTransExp.ApgTransExpCompose;
+import catdata.apg.exp.ApgTransExp.ApgTransExpEqualize;
+import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
+import catdata.apg.exp.ApgTransExp.ApgTransExpFst;
+import catdata.apg.exp.ApgTransExp.ApgTransExpId;
+import catdata.apg.exp.ApgTransExp.ApgTransExpInl;
+import catdata.apg.exp.ApgTransExp.ApgTransExpInr;
+import catdata.apg.exp.ApgTransExp.ApgTransExpPair;
 import catdata.apg.exp.ApgTransExp.ApgTransExpRaw;
+import catdata.apg.exp.ApgTransExp.ApgTransExpSnd;
 import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
+import catdata.apg.exp.ApgTyExp;
 import catdata.apg.exp.ApgTyExp.ApgTyExpRaw;
 import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
 import catdata.aql.RawTerm;
@@ -1552,140 +1567,370 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 	@Override
 	public ApgTyExpVar visitApgTyExpVar(Unit params, AqlTyping r) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+		r.defs.apgts.put("t", Unit.unit);
+		ApgTyExpVar e = new ApgTyExpVar("t");
+		return e;
 	}
 
 	@Override
 	public ApgTyExpRaw visitApgTyExpRaw(Unit params, AqlTyping r) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+		return new ApgTyExpRaw(Collections.emptyList(), Collections.emptyList());
 	}
 
 	@Override
 	public ApgInstExpInitial visitApgInstExpInitial(Unit params, AqlTyping r) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		return new ApgInstExpInitial(t);
 	}
 
 	@Override
 	public ApgInstExpTerminal visitApgInstExpTerminal(Unit params, AqlTyping r) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		return new ApgInstExpTerminal(t);
 	}
 
 	@Override
 	public ApgInstExpTimes visitApgInstExpTimes(Unit params, AqlTyping r) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		ApgInstExpVar a = new ApgInstExpVar("G1");
+		ApgInstExpVar b = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G1",t);
+		r.defs.apgis.put("G2",t);
+		return new ApgInstExpTimes(a, b);
 	}
 
 	@Override
 	public ApgInstExpPlus visitApgInstExpPlus(Unit params, AqlTyping r) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		ApgInstExpVar a = new ApgInstExpVar("G1");
+		ApgInstExpVar b = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G1",t);
+		r.defs.apgis.put("G2",t);
+		return new ApgInstExpPlus(a, b);
 	}
 
 	@Override
-	public ApgInstExpVar visitApgInstExpVar(Unit param, AqlTyping exp) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+	public ApgInstExpVar visitApgInstExpVar(Unit param, AqlTyping r) throws RuntimeException {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		ApgInstExpVar a = new ApgInstExpVar("G");
+		r.defs.apgis.put("G",t);
+		return a;
 	}
 
 	@Override
-	public ApgInstExpRaw visitApgInstExpRaw(Unit param, AqlTyping exp) throws RuntimeException {
-		// TODO Auto-generated method stub
-		return null;
+	public ApgInstExpRaw visitApgInstExpRaw(Unit param, AqlTyping r) throws RuntimeException {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		ApgInstExpRaw a = new ApgInstExpRaw(t, Collections.emptyList(),Collections.emptyList(),Collections.emptyList());
+		r.defs.apgis.put("G",t);
+		return a;
 	}
 
 	@Override
-	public ApgTransExpRaw visitApgTransExpRaw(Unit params, AqlTyping exp) {
-		// TODO Auto-generated method stub
-		return null;
+	public ApgTransExpRaw visitApgTransExpRaw(Unit params, AqlTyping r) {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);	
+		
+		return new ApgTransExpRaw(G1,G2,Collections.emptyList(),Collections.emptyList(),Collections.emptyList());
 	}
 
 	@Override
-	public ApgTransExpVar visitApgTransExpVar(Unit params, AqlTyping exp) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ApgTransExp visitApgTransExpCase(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+	public ApgTransExpVar visitApgTransExpVar(Unit params, AqlTyping r) {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G2", t);
+		
+		r.defs.apgms.put("h",new Pair<>(G1,G2));
+		return new ApgTransExpVar("h");
 	}
 
 	@Override
 	public ApgTransExp visitApgTransExpInitial(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		r.defs.apgms.put("h",new Pair<>(new ApgInstExpInitial(t),G));
+		return new ApgTransExpVar("h");
+	}
+	
+	@Override
+	public ApgTransExp visitApgTransExpTerminal(Unit params, AqlTyping r) {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		r.defs.apgms.put("h",new Pair<>(G,new ApgInstExpTerminal(t)));
+		return new ApgTransExpVar("h");
 	}
 
 	@Override
 	public ApgTransExp visitApgTransExpFst(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		return new ApgTransExpFst(G1,G2);
 	}
-
-	@Override
-	public ApgTransExp visitApgTransExpTerminal(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public ApgTransExp visitApgTransExpSnd(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		return new ApgTransExpSnd(G1,G2);
 	}
+	
 
-	@Override
-	public ApgTransExp visitApgTransExpPair(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
+	
 	@Override
 	public ApgTransExp visitApgTransExpInl(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		return new ApgTransExpInl(G1,G2);
 	}
 
 	@Override
 	public ApgTransExp visitApgTransExpInr(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		return new ApgTransExpInr(G1,G2);
 	}
 
 	@Override
 	public ApgTransExp visitApgTransExpId(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		return new ApgTransExpId(G1);
+	}
+	
+	@Override
+	public ApgTransExp visitApgTransExpCase(Unit params, AqlTyping r) {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		ApgInstExp G = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G));
+		r.defs.apgms.put("h'",new Pair<>(G2,G));
+		
+		return new ApgTransExpCase(h1,h2);
+	}
+	
+	@Override
+	public ApgTransExp visitApgTransExpPair(Unit params, AqlTyping r) {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		ApgInstExp G = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G,G1));
+		r.defs.apgms.put("h'",new Pair<>(G,G2));
+		
+		return new ApgTransExpPair(h1,h2);
 	}
 
 	@Override
 	public ApgTransExp visitApgTransExpCompose(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		ApgInstExp G3 = new ApgInstExpVar("G3");
+		r.defs.apgis.put("G3", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G2));
+		r.defs.apgms.put("h'",new Pair<>(G2,G3));
+		
+		return new ApgTransExpCompose(h1,h2);
 	}
 
 	@Override
 	public ApgInstExpEqualize visitApgInstExpEqualize(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G2));
+		r.defs.apgms.put("h'",new Pair<>(G1,G2));
+		
+		return new ApgInstExpEqualize(h1,h2);
 	}
 
 	@Override
 	public ApgTransExp visitApgTransExpEqualize(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G2));
+		r.defs.apgms.put("h'",new Pair<>(G1,G2));
+		
+		return new ApgTransExpEqualize(h1,h2);
 	}
 
 	@Override
 	public ApgTransExp visitApgTransExpEqualizeU(Unit params, AqlTyping r) {
-		// TODO Auto-generated method stub
-		return null;
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		ApgInstExp G = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		ApgTransExpVar k = new ApgTransExpVar("k");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G2));
+		r.defs.apgms.put("h'",new Pair<>(G1,G2));
+		r.defs.apgms.put("k" ,new Pair<>(G, G1));
+		
+		return new ApgTransExpEqualizeU(h1,h2,k);
+	}
+
+	@Override
+	public ApgInstExpCoEqualize visitApgInstExpCoEqualize(Unit params, AqlTyping r) throws RuntimeException {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G2));
+		r.defs.apgms.put("h'",new Pair<>(G1,G2));
+		
+		return new ApgInstExpCoEqualize(h1,h2);
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpCoEqualize(Unit params, AqlTyping r) {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G2));
+		r.defs.apgms.put("h'",new Pair<>(G1,G2));
+		
+		return new ApgTransExpCoEqualize(h1,h2);
+	}
+
+	@Override
+	public ApgTransExp visitApgTransExpCoEqualizeU(Unit params, AqlTyping r) {
+		ApgTyExp t = new ApgTyExpVar("t");
+		r.defs.apgts.put("t", Unit.unit);
+		
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		ApgInstExp G = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		ApgTransExpVar h1 = new ApgTransExpVar("h" );
+		ApgTransExpVar h2 = new ApgTransExpVar("h'");
+		ApgTransExpVar k = new ApgTransExpVar("k");
+		
+		r.defs.apgms.put("h" ,new Pair<>(G1,G2));
+		r.defs.apgms.put("h'",new Pair<>(G1,G2));
+		r.defs.apgms.put("k" ,new Pair<>(G2,G ));
+		
+		return new ApgTransExpCoEqualizeU(h1,h2,k);
 	}
 
 }

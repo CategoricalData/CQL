@@ -1,12 +1,12 @@
 //one = two should not be provable 
 typeside EmptySortsCheck = literal { 
 	types
- 		void 
+ 		Void 
  		nat
 	constants
  		one two : nat
  	equations  
-	 	 forall x:void. one = two 
+	 	 forall x:Void. one = two 
 	options
 		prover = completion
 //		completion_precedence = "one two"
