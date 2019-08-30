@@ -27,7 +27,7 @@ schema Square = literal : Type {
 		f2: B -> D
 		g2: C -> D
 	path_equations
-		D.f.f2=D.g.g2
+		A.f.f2=A.g.g2
 	attributes
 		D_attB : D -> dom
 		D_attC : D -> dom	

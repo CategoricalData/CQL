@@ -2,6 +2,7 @@ package catdata.aql.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -118,34 +119,14 @@ public final class SchExpRaw extends SchExp implements Raw {
 		String vv = "v";
 		Var var = Var.Var(vv);
 		for (Pair<List<String>, List<String>> eq : p_eqs) {
-			try {
-
-				Map<String, Chc<Ty, En>> ctx = Collections.singletonMap(vv, null);
-
-				RawTerm lhs = RawTerm.fold(col.ens, eq.first, vv);
-				RawTerm rhs = RawTerm.fold(col.ens, eq.second, vv);
-
-				Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq0 = RawTerm
-						.infer1x(ctx, lhs, rhs, null, col.convert(), "", ts.js).first3();
-
-				Chc<Ty, En> v = eq0.first.get(var);
-				if (v.left) {
-					throw new RuntimeException(
-							"the equation's source " + eq.first + " is type " + v.l + " which is not an entity");
-				}
-				En t = v.r;
-
-				if (eq0.first.size() != 1) {
-					throw new RuntimeException("java constants cannot be used ");
-				}
-
-				eqs0.add(new Triple<>(new Pair<>(var, t), eq0.second.convert(), eq0.third.convert()));
-			} catch (RuntimeException ex) {
-				ex.printStackTrace();
-				throw new LocException(find("path equations", eq), "In equation " + Util.sep(eq.first, ".") + " = "
-						+ Util.sep(eq.second, ".") + ", " + ex.getMessage());
+			List<String> a = eq.first;
+			List<String> b = eq.second;
+			if (!a.get(0).equals(b.get(0))) {
+				throw new RuntimeException("Source entities do not match: " + a.get(0) + " and " + b.get(0));
 			}
+			eqs0.add(new Triple<>(new Pair<>(var, En.En(a.get(0))), toFk(a, col, var).convert(), toFk(b, col, var).convert()));
 		}
+		
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : eqs0) {
 			col.eqs.add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)), eq.second,
 					eq.third));
@@ -157,6 +138,25 @@ public final class SchExpRaw extends SchExp implements Raw {
 		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, col, env.defaults));
 		return ret;
 
+	}
+
+	private Term<Void, En, Void, Fk, Void, Void, Void> toFk(List<String> a, Collage<Ty, En, Sym, Fk, Att, Void, Void> col, Var var) {
+		Iterator<String> it = a.iterator();
+		String x = it.next();
+		Term<Void, En, Void, Fk, Void, Void, Void> ret = Term.Var(var);
+		En en = En.En(x);
+		while (it.hasNext()) {
+			if (!col.ens.contains(en)) {
+				throw new RuntimeException("Not an entity: " + en + ".  Paths in path equations must start with entities.");
+			}
+			Fk fk = Fk.Fk(en, it.next());
+			if (!col.fks.containsKey(fk)) {
+				throw new RuntimeException("Not a foreign key with source " + en + ": " + fk + ".");				
+			}
+			ret = Term.Fk(fk, ret);
+			en = col.fks.get(fk).second;
+		}
+		return ret;
 	}
 
 	@Override
