@@ -1,8 +1,9 @@
 package catdata.apg;
 
 import java.util.Map;
+import java.util.function.Function;
 
-import catdata.Chc;
+import catdata.Pair;
 import catdata.Util;
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
@@ -14,6 +15,15 @@ public class ApgTy<L> {
 
 	public final L l;
 	public final String b;
+	
+	public <X> ApgTy<X> map(Function<L,ApgTy<X>> f) {
+		if (l != null) {
+			return f.apply(l);
+		} else if (b != null) {
+			return convert();
+		} 
+		return ApgTyP(all, Util.map(m, (k,v)->new Pair<>(k, v.map(f))));
+	}
 	
 	@SuppressWarnings("rawtypes")
 	private static HashingStrategy<ApgTy> strategy = new HashingStrategy<>() {

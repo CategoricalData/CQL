@@ -36,6 +36,7 @@ import catdata.apg.ApgPreTerm;
 import catdata.apg.ApgTy;
 import catdata.apg.exp.ApgInstExp;
 import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
+import catdata.apg.exp.ApgInstExp.ApgInstExpDelta;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
@@ -43,11 +44,22 @@ import catdata.apg.exp.ApgInstExp.ApgInstExpRaw;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
 import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
+import catdata.apg.exp.ApgMapExp;
+import catdata.apg.exp.ApgMapExp.ApgMapExpRaw;
+import catdata.apg.exp.ApgMapExp.ApgMapExpVar;
+import catdata.apg.exp.ApgSchExp;
+import catdata.apg.exp.ApgSchExp.ApgSchExpInitial;
+import catdata.apg.exp.ApgSchExp.ApgSchExpPlus;
+import catdata.apg.exp.ApgSchExp.ApgSchExpRaw;
+import catdata.apg.exp.ApgSchExp.ApgSchExpTerminal;
+import catdata.apg.exp.ApgSchExp.ApgSchExpTimes;
+import catdata.apg.exp.ApgSchExp.ApgSchExpVar;
 import catdata.apg.exp.ApgTransExp;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCase;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCompose;
+import catdata.apg.exp.ApgTransExp.ApgTransExpDelta;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpFst;
@@ -188,17 +200,41 @@ public class CombinatorParser implements IAqlParser {
 				
 				coeq =  Parsers.tuple(token("coequalize"),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgInstExpCoEqualize(x.b,x.c)),
 				
+				delta =  Parsers.tuple(token("delta"),apg_map_ref.lazy(), apg_inst_ref.lazy()).map(x -> new ApgInstExpDelta(x.b,x.c)),
+						
 				eq =  Parsers.tuple(token("equalize"),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgInstExpEqualize(x.b,x.c)),
 				//sql = token("sql").map(x -> new TyExpSql()),
-				empty = Parsers.tuple(token("empty"),apg_ty_ref.lazy()).map(x -> new ApgInstExpInitial(x.b)),
+				empty = Parsers.tuple(token("empty"),apg_sch_ref.lazy()).map(x -> new ApgInstExpInitial(x.b)),
 				sing = Parsers.tuple(token("unit"),apg_ty_ref.lazy()).map(x -> new ApgInstExpTerminal(x.b)),
 				times = Parsers.tuple(apg_inst_ref.lazy(),token("*"),apg_inst_ref.lazy()).between(token("("), token(")")).map(x -> new ApgInstExpTimes(x.a,x.c)),
 				plus = Parsers.tuple(apg_inst_ref.lazy(),token("+"),apg_inst_ref.lazy()).between(token("<"), token(">")).map(x -> new ApgInstExpPlus(x.a,x.c)),
 
 				//sch = Parsers.tuple(token("typesideOf"), sch_ref.lazy()).map(x -> new TyExpSch(x.b)),
-				ret = Parsers.or(eq, coeq, empty, sing, times, plus, apgInstExpRaw(), var, parens(apg_inst_ref));
+				ret = Parsers.or(delta, eq, coeq, empty, sing, times, plus, apgInstExpRaw(), var, parens(apg_inst_ref));
 
 		apg_inst_ref.set(ret);
+	}
+	private static void apgMapExp() {
+		Parser<ApgMapExp> var = ident.map(ApgMapExpVar::new), 
+				//comp = Parsers.tuple(apg_map_ref.lazy(),token(";"),apg_map_ref.lazy()).between(token("["), token("]")).map(x -> new ApgMapExpCompose(x.a,x.c)),
+			
+				ret = Parsers.or(/*comp,*/ var, apgMapExpRaw(), parens(apg_map_ref));
+
+		apg_map_ref.set(ret);
+	}
+	
+	private static void apgSchExp() {
+		Parser<ApgSchExp> var = ident.map(ApgSchExpVar::new), 
+				
+				empty = Parsers.tuple(token("empty"),apg_ty_ref.lazy()).map(x -> new ApgSchExpInitial(x.b)),
+				sing = Parsers.tuple(token("unit"),apg_ty_ref.lazy()).map(x -> new ApgSchExpTerminal(x.b)),
+				times = Parsers.tuple(apg_sch_ref.lazy(),token("*"),apg_sch_ref.lazy()).between(token("("), token(")")).map(x -> new ApgSchExpTimes(x.a,x.c)),
+				plus = Parsers.tuple(apg_sch_ref.lazy(),token("+"),apg_sch_ref.lazy()).between(token("<"), token(">")).map(x -> new ApgSchExpPlus(x.a,x.c)),
+
+				//sch = Parsers.tuple(token("typesideOf"), sch_ref.lazy()).map(x -> new TyExpSch(x.b)),
+				ret = Parsers.or(empty, sing, times, plus, apgSchExpRaw(), var, parens(apg_sch_ref));
+
+		apg_sch_ref.set(ret);
 	}
 	private static void apgTransExp() {
 		Parser<ApgTransExp> var = ident.map(ApgTransExpVar::new), 
@@ -207,7 +243,8 @@ public class CombinatorParser implements IAqlParser {
 				eq2=  Parsers.tuple(token("equalize_u"),apg_trans_ref.lazy(),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgTransExpEqualizeU(x.b,x.c,x.d)),
 						coeq =  Parsers.tuple(token("coequalize"),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgTransExpCoEqualize(x.b,x.c)),
 						coeq2=  Parsers.tuple(token("coequalize_u"),apg_trans_ref.lazy(),apg_trans_ref.lazy(),apg_trans_ref.lazy()).map(x -> new ApgTransExpCoEqualizeU(x.b,x.c,x.d)),
-						
+					
+				delta = Parsers.tuple(token("delta"), apg_map_ref.lazy(), apg_trans_ref.lazy()).map(x->new ApgTransExpDelta(x.b,x.c)),		
 				id = Parsers.tuple(token("identity"),apg_inst_ref.lazy()).map(x -> new ApgTransExpId(x.b)),
 				empty = Parsers.tuple(token("empty"),apg_inst_ref.lazy()).map(x -> new ApgTransExpInitial(x.b)),
 				sing = Parsers.tuple(token("unit"),apg_inst_ref.lazy()).map(x -> new ApgTransExpTerminal(x.b)),
@@ -220,7 +257,7 @@ public class CombinatorParser implements IAqlParser {
 				inr = Parsers.tuple(token("inr"),apg_inst_ref.lazy(),apg_inst_ref.lazy()).map(x -> new ApgTransExpInr(x.b,x.c)),
 						
 				
-				ret = Parsers.or(eq,eq2,coeq,coeq2,id,empty,sing,times,plus,comp,fst,snd,inl,inr, apgTransExpRaw(), var, parens(apg_trans_ref));
+				ret = Parsers.or(delta,eq,eq2,coeq,coeq2,id,empty,sing,times,plus,comp,fst,snd,inl,inr, apgTransExpRaw(), var, parens(apg_trans_ref));
 
 		apg_trans_ref.set(ret);
 	}
@@ -529,6 +566,21 @@ public class CombinatorParser implements IAqlParser {
 			List<catdata.Pair<LocStr, X>> ret = new ArrayList<>(x.size());
 			for (Pair<List<LocStr>, Pair<Token, X>> y : x) {
 				for (LocStr z : y.a) {
+					ret.add(new catdata.Pair<>(z, y.b.b));
+				}
+			}
+			return ret;
+		});
+	}
+	
+	private static <X> Parser<List<catdata.Pair<String, X>>> env0(Parser<X> p, String t) {
+		return Parsers.tuple(ident.many1(), Parsers.tuple(token(t), p)).many().map(x -> {
+			if (x.isEmpty()) {
+				return Collections.emptyList();
+			}
+			List<catdata.Pair<String, X>> ret = new ArrayList<>(x.size());
+			for (Pair<List<String>, Pair<Token, X>> y : x) {
+				for (String z : y.a) {
 					ret.add(new catdata.Pair<>(z, y.b.b));
 				}
 			}
@@ -959,6 +1011,38 @@ public class CombinatorParser implements IAqlParser {
 		return ret;
 	}
 	
+	private static Parser<ApgPreTerm> apgTermOpen() {
+		Reference<ApgPreTerm> apg_term_ref = Parser.newReference();
+		
+		Parser<ApgPreTerm> prim = Parsers.tuple(ident, token("@"), ident).map(x -> ApgPreTerm.ApgPreTermBase(x.a, ApgTy.ApgTyB(x.c)));
+
+		Parser<ApgPreTerm> proj = Parsers.tuple(token("."), ident, apg_term_ref.lazy().between(token("("), token(")"))).map(x->ApgPreTerm.ApgPreTermProj(x.b, x.c));
+
+		Parser<ApgPreTerm> base = ident.map(x -> ApgPreTerm.ApgPreTermStr(x));
+		
+		Parser<ApgPreTerm> deref = Parsers.tuple(token("!"), ident, apg_term_ref.lazy().between(token("("), token(")"))).map(x->ApgPreTerm.ApgPreTermDeref(x.b, x.c));
+		
+		Parser<ApgPreTerm> e = Parsers.tuple(token("."), apg_term_ref.lazy()).map(x->x.b);
+		Parser<catdata.Pair<String,ApgPreTerm>> d = Parsers.tuple(token("lambda"), ident, e).map(x->new catdata.Pair<>(x.b,x.c));
+		Parser<Tuple5<Token, ApgPreTerm, Token, List<catdata.Pair<String, catdata.Pair<String, ApgPreTerm>>>, ApgTy>> c = Parsers.tuple(token("case"), apg_term_ref.lazy(), token("where"), env0(d, "->").followedBy(token(":")), apgTy());
+		
+		Parser cas = c.map(x->ApgPreTerm.ApgPreTermCase(x.b, x.d, x.e));
+		
+		Parser<catdata.Pair<String,ApgPreTerm>> p = 
+				Parsers.tuple(ident, token(":"), apg_term_ref.lazy()).map(x->new catdata.Pair<>(x.a, x.c));
+
+		Parser<ApgPreTerm> inj = Parsers.tuple(p.between(token("<"), token(">")), token(":"), apgTy()).map(x->ApgPreTerm.ApgPreTermInjAnnot(x.a.first, x.a.second, x.c));
+
+		Parser<ApgPreTerm> tup = p.sepBy(token(",")).between(token("("), token(")")).map(x->ApgPreTerm.ApgPreTermTuple(x));
+	
+		//need deref
+		Parser<ApgPreTerm> ret = Parsers.or(proj, deref, prim, base, tup, inj, cas);
+		
+		apg_term_ref.set(ret);
+		
+		return ret;
+	}
+	
 	private static Parser<ApgTransExpRaw> apgTransExpRaw() {	
 		 Parser<List<catdata.Pair<LocStr, String>>> labels = Parsers.tuple(token("labels"), env(ident, "->"))
 				.map(x -> x.b);
@@ -979,10 +1063,43 @@ public class CombinatorParser implements IAqlParser {
 		return ret; 
 	}
 	
-	private static Parser<ApgInstExpRaw> apgInstExpRaw() {		
+	private static Parser<ApgMapExpRaw> apgMapExpRaw() {	
+		Parser<Triple<String, ApgTy, ApgPreTerm>> p = Parsers.tuple(token("lambda"), ident.followedBy(token(":")), apgTy().followedBy(token(".")), apgTermOpen()).map(x->new Triple<>(x.b,x.c,x.d));
+		Parser<List<catdata.Pair<LocStr, Triple<String, ApgTy, ApgPreTerm>>>> labels = Parsers.tuple(token("labels"), env(p, "->"))
+				.map(x -> x.b);
 		
+
+		
+		Parser<Pair<List<ApgMapExp>, List<catdata.Pair<LocStr, Triple<String, ApgTy, ApgPreTerm>>>>> pa = Parsers
+				.tuple(imports(apg_map_ref.lazy()), labels.optional());
+
+		Parser<Pair<ApgSchExp,ApgSchExp>> ty = Parsers.tuple(token("literal").followedBy(token(":")), 
+				apg_sch_ref.lazy().followedBy(token("->")), apg_sch_ref.lazy().followedBy(token("{")) 
+				).map(x->new Pair<>(x.b,x.c));
+
+		Parser<ApgMapExpRaw> ret = Parsers.tuple(ty, pa, token("}")).map(x -> new ApgMapExpRaw(x.a.a, x.a.b, x.b.a, x.b.b));
+
+		return ret; 
+	}
+	
+	private static Parser<ApgSchExpRaw> apgSchExpRaw() {		
 		Parser<List<catdata.Pair<LocStr, ApgTy<String>>>> schema = Parsers.tuple(token("labels"), env(apgTy(), "->"))
 				.map(x -> x.b);
+		
+		Parser<Pair<List<ApgSchExp>, List<catdata.Pair<LocStr, ApgTy<String>>>>> pa = Parsers
+				.tuple(imports(apg_sch_ref.lazy()), schema.optional());
+
+		Parser<ApgTyExp> ty = Parsers.tuple(token("literal").followedBy(token(":")), 
+				apg_ty_ref.lazy(), 
+				token("{")).map(x->x.b);
+
+		Parser<ApgSchExpRaw> ret = Parsers.tuple(ty, pa, token("}")).map(x -> new ApgSchExpRaw(x.a, x.b.a, x.b.b==null?Collections.emptyList():x.b.b));
+
+		return ret; 
+	}
+	
+	private static Parser<ApgInstExpRaw> apgInstExpRaw() {		
+		
 		
 		Parser<catdata.Pair<LocStr, catdata.Pair<String, ApgPreTerm>>> xxx = Parsers.tuple(locstr, token(":"), ident, token("->"), apgTerm()).map(z -> new catdata.Pair<>(z.a,new catdata.Pair<>(z.c,z.e)));
 		
@@ -990,14 +1107,14 @@ public class CombinatorParser implements IAqlParser {
 				.map(x -> x.b);
 
 		
-		Parser<Tuple3<List<ApgInstExp>, List<catdata.Pair<LocStr, ApgTy<String>>>, List<catdata.Pair<LocStr, catdata.Pair<String, ApgPreTerm>>>>> pa = Parsers
-				.tuple(imports(apg_inst_ref.lazy()), schema.optional(), data.optional());
+		Parser<Pair<List<ApgInstExp>, List<catdata.Pair<LocStr, catdata.Pair<String, ApgPreTerm>>>>> pa = Parsers
+				.tuple(imports(apg_inst_ref.lazy()), data.optional());
 
-		Parser<ApgTyExp> ty = Parsers.tuple(token("literal").followedBy(token(":")), 
-				apg_ty_ref.lazy(), 
+		Parser<ApgSchExp> ty = Parsers.tuple(token("literal").followedBy(token(":")), 
+				apg_sch_ref.lazy(), 
 				token("{")).map(x->x.b);
 
-		Parser<ApgInstExpRaw> ret = Parsers.tuple(ty, pa, token("}")).map(x -> new ApgInstExpRaw(x.a, x.b.a, x.b.b==null?Collections.emptyList():x.b.b, x.b.c==null?Collections.emptyList():x.b.c));
+		Parser<ApgInstExpRaw> ret = Parsers.tuple(ty, pa, token("}")).map(x -> new ApgInstExpRaw(x.a, x.b.a, x.b.b==null?Collections.emptyList():x.b.b));
 
 		return ret; 
 		
@@ -1350,6 +1467,8 @@ public class CombinatorParser implements IAqlParser {
 		return Parsers.tuple(Parsers.tuple(token(s), Parsers.INDEX, ident, token("="), p), Parsers.INDEX).map(x -> new Quad<>(x.a.c, x.a.b, x.a.e, x.b));
 	}
 
+	private static final Reference<ApgSchExp> apg_sch_ref = Parser.newReference();
+	private static final Reference<ApgMapExp> apg_map_ref = Parser.newReference();
 	private static final Reference<ApgTyExp> apg_ty_ref = Parser.newReference();
 	private static final Reference<ApgInstExp> apg_inst_ref = Parser.newReference();
 	private static final Reference<ApgTransExp> apg_trans_ref = Parser.newReference();
@@ -1379,13 +1498,17 @@ public class CombinatorParser implements IAqlParser {
 		apgTyExp();
 		apgInstExp();
 		apgTransExp();
+		apgSchExp();
+		apgMapExp();
 
 		@SuppressWarnings("unchecked")
 		Parser<Quad<String, Integer, ? extends Exp<?>, Integer>> p = Parsers.or(comment(), decl("typeside", ty_ref.get()),
 				decl("schema", sch_ref.get()), decl("instance", inst_ref.get()), decl("mapping", map_ref.get()),
 				decl("transform", trans_ref.get()), decl("graph", graph_ref.get()), decl("query", query_ref.get()),
 				decl("command", pragma_ref.get()), decl("schema_colimit", colim_ref.get()),
-				decl("constraints", eds_ref.get()), decl("apg_typeside", apg_ty_ref.get()), decl("apg_instance", apg_inst_ref.get()), decl("apg_morphism", apg_trans_ref.get()));
+				decl("constraints", eds_ref.get()), decl("apg_typeside", apg_ty_ref.get()),
+				decl("apg_instance", apg_inst_ref.get()), decl("apg_morphism", apg_trans_ref.get()),
+				decl("apg_schema", apg_sch_ref.get()), decl("apg_mapping", apg_map_ref.get()));
 
 		return Parsers.tuple(options, p.many())
 				.map(x -> new Program((x.b), s, x.a, q -> ((Exp) q).kind().toString()));

@@ -11,6 +11,8 @@ import catdata.Program;
 import catdata.Unit;
 import catdata.Util;
 import catdata.apg.exp.ApgInstExp;
+import catdata.apg.exp.ApgMapExp;
+import catdata.apg.exp.ApgSchExp;
 import catdata.apg.exp.ApgTransExp;
 import catdata.apg.exp.ApgTyExp;
 import catdata.aql.AqlOptions.AqlOption;
@@ -63,6 +65,9 @@ public class AqlTyping {
 		}
 		if (!defs.apgms.isEmpty()) {
 			sb.append("apg_morphism " + Util.sep(defs.apgms, " : ", "\napg_morphism ", x -> x.first + " -> " + x.second) + "\n");
+		}
+		if (!defs.apgmappings.isEmpty()) {
+			sb.append("apg_mapping " + Util.sep(defs.apgmappings, " : ", "\napg_mapping ", x -> x.first + " -> " + x.second) + "\n");
 		}
 		
 
@@ -149,6 +154,12 @@ public class AqlTyping {
 				case APG_typeside:
 					defs.apgts.put(s, ((ApgTyExp) e).type(this));
 					continue;
+				case APG_schema:
+					defs.apgschemas.put(s, ((ApgSchExp) e).type(this));
+					continue;
+				case APG_mapping:
+					defs.apgmappings.put(s, ((ApgMapExp) e).type(this));
+					continue;	
 				default:
 					throw new RuntimeException("Anomaly: please report");
 				}
@@ -161,6 +172,6 @@ public class AqlTyping {
 		}
 	}
 
-	public final KindCtx<String, Unit, Unit, TyExp, SchExp, Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>>, Pair<SchExp, SchExp>, Pair<SchExp, SchExp>, Unit, Unit, Set<String>, SchExp, Unit, ApgTyExp, Pair<ApgInstExp, ApgInstExp>> defs = new KindCtx<>();
+	public final KindCtx<String, Unit, Unit, TyExp, SchExp, Pair<InstExp<?, ?, ?, ?>, InstExp<?, ?, ?, ?>>, Pair<SchExp, SchExp>, Pair<SchExp, SchExp>, Unit, Unit, Set<String>, SchExp, Unit, ApgSchExp, Pair<ApgInstExp, ApgInstExp>, ApgTyExp, Pair<ApgSchExp,ApgSchExp>> defs = new KindCtx<>();
 
 }

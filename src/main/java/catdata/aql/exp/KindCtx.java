@@ -7,7 +7,7 @@ import catdata.Util;
 import catdata.aql.Kind;
 import gnu.trove.set.hash.THashSet;
 
-public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM> {
+public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM, ASch, AMap> {
 
 	public final Map<V, G> gs = Util.mk();
 	public final Map<V, T> tys = Util.mk();
@@ -24,7 +24,8 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM> {
 	public final Map<V, AT> apgts = Util.mk();
 	public final Map<V, AI> apgis = Util.mk();
 	public final Map<V, AM> apgms = Util.mk();
-
+	public final Map<V, ASch> apgschemas = Util.mk();
+	public final Map<V, AMap> apgmappings = Util.mk();
 	
 	public Map<V, ?> get(Kind kind) {
 		switch (kind) {
@@ -58,6 +59,10 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM> {
 			return apgms;
 		case APG_typeside:
 			return apgts;
+		case APG_mapping:
+			return apgmappings;
+		case APG_schema:
+			return apgschemas;
 		default:
 			throw new RuntimeException();
 		}
@@ -115,6 +120,12 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM> {
 		case APG_typeside:
 			apgts.put(k, (AT) o);
 			break;
+		case APG_schema:
+			apgschemas.put(k, (ASch) o);
+			break;
+		case APG_mapping:
+			apgmappings.put(k, (AMap) o);
+			break;
 		default:
 			throw new RuntimeException();
 		}
@@ -137,6 +148,8 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM> {
 		ret.addAll(apgts.keySet());
 		ret.addAll(apgis.keySet());
 		ret.addAll(apgms.keySet());
+		ret.addAll(apgschemas.keySet());
+		ret.addAll(apgmappings.keySet());
 		return ret;
 	}
 
@@ -172,6 +185,10 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM> {
 			return apgms.size();
 		case APG_typeside:
 			return apgts.size();
+		case APG_schema:
+			return apgschemas.size();
+		case APG_mapping:
+			return apgmappings.size();
 		default:
 			break;
 		}

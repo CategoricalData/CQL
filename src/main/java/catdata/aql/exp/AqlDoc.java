@@ -5,6 +5,8 @@ import com.github.rjeschke.txtmark.Processor;
 import catdata.Program;
 import catdata.Unit;
 import catdata.apg.ApgInstance;
+import catdata.apg.ApgMapping;
+import catdata.apg.ApgSchema;
 import catdata.apg.ApgTransform;
 import catdata.apg.ApgTypeside;
 import catdata.aql.ColimitSchema;
@@ -159,6 +161,18 @@ public final class AqlDoc implements SemanticsVisitor<String, Unit, RuntimeExcep
 
 	@Override
 	public <l1, e1, l2, e2> String visit(String k, Unit arg, ApgTransform<l1, e1, l2, e2> t) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	@Override
+	public <L> String visit(String k, Unit arg, ApgSchema<L> t) throws RuntimeException {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	@Override
+	public <L1, L2> String visit(String k, Unit arg, ApgMapping<L1, L2> t) throws RuntimeException {
 		// TODO Auto-generated method stub
 		return "";
 	}

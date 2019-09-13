@@ -34,7 +34,7 @@ public class ApgTransform <L1,E1,L2,E2> implements Semantics {
 	}
 
 	public void validate() {
-		for (Entry<E1, Pair<L1, ApgTerm<E1>>> e1 : src.Es.entrySet()) {
+		for (Entry<E1, Pair<L1, ApgTerm<L1, E1>>> e1 : src.Es.entrySet()) {
 			L2 l2 = lMap.get(e1.getValue().first);
 			if (l2 == null) {
 				throw new RuntimeException("No mapping for label: " + e1.getValue().first);
@@ -46,15 +46,29 @@ public class ApgTransform <L1,E1,L2,E2> implements Semantics {
 			if (e2 == null) {
 				throw new RuntimeException("No mapping for element: " + e1.getKey());
 			}
-			Pair<L2, ApgTerm<E2>> w = dst.Es.get(e2);
+			Pair<L2, ApgTerm<L2, E2>> w = dst.Es.get(e2);
 			if (w == null) {
 				throw new RuntimeException("Not a target element: " + e2);
 			}
 			if (!l2.equals(w.first)) {
-				throw new RuntimeException("On source element " + e1 + ", label via label-morphism is " + l2 + " but label via element-morphism is " + w.first);
+				throw new RuntimeException("On source element " + e1 + ", label via label-component is " + l2 + " but label via element-morphism is " + w.first);
 			}
 		}
 	}
+	
+	public void assertNaturalData() {
+		for (Entry<E1, Pair<L1, ApgTerm<L1, E1>>> e1 : src.Es.entrySet()) {
+			ApgTerm<L2, E2> e2 = dst.Es.get(eMap.get(e1.getKey())).second;
+			
+			ApgTerm<L1, E2> w = e1.getValue().second.map(eMap::get);
+			
+			
+			if (!w.equals(e2)) {
+				throw new RuntimeException("On source element " + e1 + ", data via data-morphism is " + e2 + " but data via element-morphism is " + w);
+			}
+		}
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -73,7 +87,7 @@ public class ApgTransform <L1,E1,L2,E2> implements Semantics {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ApgTransform other = (ApgTransform) obj;
+		ApgTransform<?, ?, ?, ?> other = (ApgTransform<?, ?, ?, ?>) obj;
 		if (dst == null) {
 			if (other.dst != null)
 				return false;

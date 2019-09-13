@@ -15,10 +15,10 @@ import catdata.aql.RawTerm;
 public interface IAqlParser {
 
 	public static final String[] ops = new String[] { ",", ".", ";", ":", "{", "}", "(", ")", "=", "->", "@", "(*",
-			"*)", "+", "[", "]", "<-", "*" , "<", ">", "|"};
+			"*)", "+", "[", "]", "<-", "*" , "<", ">", "|", "!"};
 
-	public static final String[] res = new String[] { "base", "label", "fst", "snd", "inl", "inr", "equalize_u", "equalize", 
-			"data", "apg_typeside", "apg_instance", "apg_morphism", "elements", "labels", "void", "coequalize_u",
+	public static final String[] res = new String[] { "case", "from", "base", "label", "fst", "snd", "inl", "inr", "equalize_u", "equalize", 
+			"data", "apg_typeside", "apg_instance", "apg_schema", "apg_mapping", "apg_morphism", "elements", "labels", "void", "coequalize_u",
 			"cascade_delete", "fromCoSpan", "dom_q", "cod_q", "dom_t",
 			"cod_t", "except_return", "quotient_query", "pivot", "include", "except", "check_query", "distinct_return",
 			"sigma_chase", "entity", "md", "quotient_jdbc", "random", "sql", "chase", "check", "import_csv",

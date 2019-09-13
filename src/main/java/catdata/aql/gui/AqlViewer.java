@@ -45,6 +45,8 @@ import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
 import catdata.apg.ApgInstance;
+import catdata.apg.ApgMapping;
+import catdata.apg.ApgSchema;
 import catdata.apg.ApgTerm;
 import catdata.apg.ApgTransform;
 import catdata.apg.ApgTy;
@@ -1418,25 +1420,16 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	private <e, L> void apgInst0(JTabbedPane pane, ApgInstance<L, e> G) {
 		List<JComponent> list = new LinkedList<>();
 
-		Object[][] rowData = new Object[G.Ls.size()][2];
-		Object[] colNames = new Object[2];
-		colNames[0] = "Label";
-		colNames[1] = "Type";
-		int j = 0;
-		for (Entry<L, ApgTy<L>> lt : G.Ls.entrySet()) {
-			rowData[j][0] = lt.getKey();
-			rowData[j][1] = lt.getValue();
-			j++;
-		}
-		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, colNames));
-
+		Object[][] rowData;
+		Object[] colNames;
+	
 		rowData = new Object[G.Es.size()][3];
 		colNames = new Object[3];
 		colNames[0] = "Element";
 		colNames[1] = "Label";
 		colNames[2] = "Value";
-		j = 0;
-		for (Entry<e, Pair<L, ApgTerm<e>>> lt : G.Es.entrySet()) {
+		int j = 0;
+		for (Entry<e, Pair<L, ApgTerm<L, e>>> lt : G.Es.entrySet()) {
 			rowData[j][0] = lt.getKey();
 			rowData[j][1] = lt.getValue().first;
 			rowData[j][2] = lt.getValue().second;
@@ -1482,14 +1475,17 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 					colNames[i++] = x.getKey() + " : " + x.getValue();
 				}
 				Set<e> set = map.get(l);
+				if (set == null) {
+					throw new RuntimeException("Anomaly, please report: missing label: " + l + ", available: " + map.keySet());
+				}
 				rowData = new Object[set.size()][i];
 				int j = 0;
 				for (e elem : set) {
-					ApgTerm<e> w = G.Es.get(elem).second;
+					ApgTerm<L, e> w = G.Es.get(elem).second;
 					rowData[j][0] = elem;
 					int u = 1;
 					for (String f : t.m.keySet()) {
-						rowData[j][u++] = w.m.get(f);						
+						rowData[j][u++] = w.fields.get(f);						
 					}
 					j++;
 				}
@@ -1501,7 +1497,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				rowData = new Object[set.size()][2];
 				int j = 0;
 				for (e elem : set) {
-					ApgTerm<e> w = G.Es.get(elem).second;
+					ApgTerm<L, e> w = G.Es.get(elem).second;
 					rowData[j][0] = elem;
 					rowData[j][1] = w;
 					j++;
@@ -1576,6 +1572,54 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		p.setBorder(BorderFactory.createEmptyBorder());
 		jsp.setBorder(BorderFactory.createEmptyBorder());
 		pane.addTab("Labels", p);
+		return Unit.unit;
+	}
+
+	private <L> void apgSch0(JTabbedPane pane, ApgSchema<L> Ls) {
+		List<JComponent> list = new LinkedList<>();
+
+		Object[][] rowData = new Object[Ls.size()][2];
+		Object[] colNames = new Object[2];
+		colNames[0] = "Label";
+		colNames[1] = "Type";
+		int j = 0;
+		for (Entry<L, ApgTy<L>> lt : Ls.entrySet()) {
+			rowData[j][0] = lt.getKey();
+			rowData[j][1] = lt.getValue();
+			j++;
+		}
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, colNames));
+
+		JPanel c = new JPanel();
+		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
+
+		for (JComponent x : list) {
+			x.setAlignmentX(Component.LEFT_ALIGNMENT);
+			x.setMinimumSize(x.getPreferredSize());
+			c.add(x);
+		}
+
+		JPanel p = new JPanel(new GridLayout(1, 1));
+		p.add(c);
+		JScrollPane jsp = new JScrollPane(p);
+
+		c.setBorder(BorderFactory.createEmptyBorder());
+		p.setBorder(BorderFactory.createEmptyBorder());
+		jsp.setBorder(BorderFactory.createEmptyBorder());
+		pane.addTab("Tables", p);
+	}
+	
+	@Override
+	public <L> Unit visit(String k, JTabbedPane arg, ApgSchema<L> t) throws RuntimeException {
+		apgSch0(arg, t);
+		
+		return Unit.unit;
+	}
+
+	@Override
+	public <L1, L2> Unit visit(String k, JTabbedPane arg, ApgMapping<L1, L2> t) throws RuntimeException {
+		// TODO Auto-generated method stub
+		
 		return Unit.unit;
 	}
 

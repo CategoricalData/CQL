@@ -2,52 +2,68 @@ package catdata.apg;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
-import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
+import catdata.aql.Term;
 import catdata.aql.Var;
 import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.strategy.HashingStrategy;
 
-public class ApgTerm<E> {
-	
-	
+public class ApgTerm<L,E> {
+
 	public final E e;
-	public final Object v;
+	public final Object value;
+	public final String prim;
+
+	public final Map<String, ApgTerm<L,E>> fields;
+
+	public final ApgTerm<L,E> a;
+	public final String inj;
+
+	public final Var var;
+	public final String proj;
+	public final Map<String, Pair<Var, ApgTerm<L,E>>> cases;
 	
-	public final Map<String,ApgTerm<E>> m;
+	public final L deref;
 	
-	public final ApgTerm<E> a;
-	public final String f;
-	
-	private ApgTerm(E e, Object v, Map<String, ApgTerm<E>> m, String f, 
-			ApgTerm<E> a) {
+	public final ApgTy<L> cases_t;
+
+	private ApgTerm(E e, Object v, Map<String, ApgTerm<L,E>> m, String f, ApgTerm<L,E> a, Var var, String proj,
+			Map<String, Pair<Var, ApgTerm<L, E>>> c, L deref, String prim, ApgTy<L> cases_t) {
 		this.e = e;
-		this.v = v;
-		this.m = m;
-		this.f = f;
+		this.value = v;
+		this.fields = m;
+		this.inj = f;
 		this.a = a;
+		this.var = var;
+		this.proj = proj;
+		this.cases = c;
+		this.deref = deref;
+		this.prim = prim;
+		this.cases_t = cases_t;
 	}
-	
-	private static synchronized <E> ApgTerm<E> mkApgTerm(E e, Object v, Map<String, ApgTerm<E>> m, String f, 
-			ApgTerm<E> a) {
-		ApgTerm<E> ret = new ApgTerm<>(e, v, m, f, a);
-		
-		ApgTerm<E> ret2 = cache.get(ret);
+
+	private static synchronized <L,E> ApgTerm<L,E> mkApgTerm(E e, Object v, Map<String, ApgTerm<L,E>> m, String f,
+			ApgTerm<L,E> a, Var var, String proj, Map<String, Pair<Var, ApgTerm<L,E>>> c, L d, String prim, ApgTy<L> cases_t) {
+		ApgTerm<L,E> ret = new ApgTerm<>(e, v, m, f, a, var, proj, c, d, prim, cases_t);
+
+		ApgTerm<L,E> ret2 = cache.get(ret);
 		if (ret2 != null) {
 			return ret2;
 		}
 		cache.put(ret, ret);
 		return ret;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	private static HashingStrategy<ApgTerm> strategy = new HashingStrategy<>() {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public int computeHashCode(ApgTerm  t) {
+		public int computeHashCode(ApgTerm t) {
 			return t.hashCode2();
 		}
 
@@ -57,24 +73,41 @@ public class ApgTerm<E> {
 		}
 	};
 
+	@SuppressWarnings("rawtypes")
 	private static Map<ApgTerm, ApgTerm> cache = new TCustomHashMap<>(strategy);
 
-	public static synchronized <E> ApgTerm<E> ApgTermE(E str) {
-		return mkApgTerm(str, null, null, null, null);
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermE(E str) {
+		return mkApgTerm(str, null, null, null, null, null, null, null, null, null, null);
+	}
+
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermV(Object str, String p) {
+		return mkApgTerm(null, str, null, null, null, null, null, null, null, p, null);
+	}
+
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermTuple(Map<String, ApgTerm<L,E>> str) {
+		return mkApgTerm(null, null, str, null, null, null, null, null, null, null, null);
+	}
+
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermInj(String f, ApgTerm<L,E> str, ApgTy<L> cases_t) {
+		return mkApgTerm(null, null, null, f, str, null, null, null, null, null, cases_t);
 	}
 	
-	public static synchronized <E> ApgTerm<E> ApgTermV(Object str) {
-		return mkApgTerm(null, str, null, null, null);
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermProj(String f, ApgTerm<L,E> str) {
+		return mkApgTerm(null, null, null, null, str, null, f, null, null, null, null);
 	}
 	
-	public static synchronized <E> ApgTerm<E> ApgTermTuple(Map<String,ApgTerm<E>> str) {
-		return mkApgTerm(null, null, str, null, null);
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermVar(Var v) {
+		return mkApgTerm(null, null, null, null, null, v, null, null, null, null, null);
 	}
 	
-	public static synchronized <E> ApgTerm<E> ApgTermInj(String f, ApgTerm<E> str) {
-		return mkApgTerm(null, null, null, f, str);
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermCase(ApgTerm<L,E> arg, Map<String,Pair<Var, ApgTerm<L,E>>> str, ApgTy<L> cases_t) {
+		return mkApgTerm(null, null, null, null, arg, null, null, str, null, null, cases_t);
 	}
 	
+	public static synchronized <L,E> ApgTerm<L,E> ApgTermDeref(L f, ApgTerm<L,E> str) {
+		return mkApgTerm(null, null, null, null, str, null, null, null, f, null, null);
+	}
+
 	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
@@ -90,15 +123,25 @@ public class ApgTerm<E> {
 		int result = 1;
 		result = prime * result + ((a == null) ? 0 : a.hashCode2());
 		result = prime * result + ((e == null) ? 0 : e.hashCode());
-		result = prime * result + ((f == null) ? 0 : f.hashCode());
-
-		if (m != null) {
-			for (Entry<String, ApgTerm<E>> z : m.entrySet()) {
+		result = prime * result + ((inj == null) ? 0 : inj.hashCode());
+		result = prime * result + ((proj == null) ? 0 : proj.hashCode());
+		result = prime * result + ((var == null) ? 0 : var.hashCode());
+		result = prime * result + ((deref == null) ? 0 : deref.hashCode());
+		result = prime * result + ((prim == null) ? 0 : prim.hashCode());
+		if (fields != null) {
+			for (Entry<String, ApgTerm<L,E>> z : fields.entrySet()) {
 				result = prime * result + (z.getValue().hashCode2());
 				result = prime * result + (z.getKey().hashCode());
 			}
 		}
-		result = prime * result + ((v == null) ? 0 : v.hashCode());
+		if (cases != null) {
+			for (Entry<String, Pair<Var, ApgTerm<L, E>>> z : cases.entrySet()) {
+				result = prime * result + (z.getKey().hashCode());
+				result = prime * result + (z.getValue().second.hashCode2());
+				result = prime * result + (z.getValue().first.hashCode());
+			}
+		}
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -109,41 +152,78 @@ public class ApgTerm<E> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ApgTerm<E> other = (ApgTerm<E>) obj;
-		
+		@SuppressWarnings("unchecked")
+		ApgTerm<L,E> other = (ApgTerm<L,E>) obj;
 		if (e == null) {
 			if (other.e != null)
 				return false;
 		} else if (!e.equals(other.e))
 			return false;
-		if (f == null) {
-			if (other.f != null)
+		if (inj == null) {
+			if (other.inj != null)
 				return false;
-		} else if (!f.equals(other.f))
+		} else if (!inj.equals(other.inj))
 			return false;
-		if (v == null) {
-			if (other.v != null)
+		if (value == null) {
+			if (other.value != null)
 				return false;
-		} else if (!v.equals(other.v))
+		} else if (!value.equals(other.value))
+			return false;
+		if (var == null) {
+			if (other.var != null)
+				return false;
+		} else if (!var.equals(other.var))
+			return false;
+		if (prim == null) {
+			if (other.prim != null)
+				return false;
+		} else if (!prim.equals(other.prim))
+			return false;
+		if (proj == null) {
+			if (other.proj != null)
+				return false;
+		} else if (!proj.equals(other.proj))
 			return false;
 		if (a == null) {
 			if (other.a != null)
 				return false;
 		} else if (!a.equals2(other.a))
 			return false;
-		if (m == null) {
-			if (other.m != null)
+		if (deref == null) {
+			if (other.deref != null)
+				return false;
+		} else if (!deref.equals(other.deref))
+			return false;
+		if (fields == null) {
+			if (other.fields != null)
 				return false;
 		} else {
-			if (!m.keySet().equals(other.m.keySet())) {
+			if (!fields.keySet().equals(other.fields.keySet())) {
 				return false;
 			}
-			for (Entry<String, ApgTerm<E>> f : m.entrySet()) {
-				if (!other.m.get(f.getKey()).equals2(f.getValue())) {
+			for (Entry<String, ApgTerm<L,E>> f : fields.entrySet()) {
+				if (!other.fields.get(f.getKey()).equals2(f.getValue())) {
 					return false;
 				}
 			}
 		}
+		if (cases == null) {
+			if (other.cases != null)
+				return false;
+		} else {
+			if (!cases.keySet().equals(other.cases.keySet())) {
+				return false;
+			}
+			for (Entry<String, Pair<Var, ApgTerm<L, E>>> f : cases.entrySet()) {
+				if (!other.cases.get(f.getKey()).first.equals(f.getValue().first)) {
+					return false;
+				}
+				if (!other.cases.get(f.getKey()).second.equals2(f.getValue().second)) {
+					return false;
+				}
+			}
+		}
+
 		return true;
 	}
 
@@ -152,21 +232,172 @@ public class ApgTerm<E> {
 		if (e != null) {
 			return e.toString();
 		}
-		if (v != null) {
-			return v.toString();
+		if (value != null) {
+			return value.toString();
 		}
-		if (m != null) {
-			return "(" + Util.sep(m, ":", ", ") + ")";
+		if (fields != null) {
+			return "(" + Util.sep(fields, ":", ", ") + ")";
 		}
-		if (f != null) {
-			return "<" + f + ":" + a + ">"; // + Util.sep(m, ": ", " ");
+		if (inj != null) {
+			return "<" + inj + ":" + a + ">"; // + Util.sep(m, ": ", " ");
+		}
+		if (proj != null) {
+			return "." + proj + "(" + a + ")";
+		}
+		if (cases != null) {
+			return "case " + a + " where \n" + Util.sep(cases, " -> ", " \n ", x->"lambda " + x.first + ". " + x.second);
+		}
+		if (var != null) {
+			return var.toString();
+		}
+		if (deref != null) {
+			return "!" + deref + "(" + a + ")";
 		}
 		return Util.anomaly();
 	}
 
-	public <X> ApgTerm<X> convert() {
-		return (ApgTerm<X>) this;
+	@SuppressWarnings("unchecked")
+	public <I,X> ApgTerm<I,X> convert() {
+		return (ApgTerm<I,X>) this;
 	}
 	
+	public <X> ApgTerm<L,X> map(Function<E,X> f) {
+		if (e != null) {
+			return ApgTermE(f.apply(e));
+		}
+		if (value != null || var != null) {
+			return this.convert();
+		}
+		if (fields != null) {
+			return ApgTermTuple(Util.map(fields, (k,v) -> new Pair<>(k, v.map(f))));
+		}
+		if (inj != null) {
+			return ApgTermInj(inj, a.map(f), cases_t);
+		}
+		if (proj != null) {
+			return ApgTermProj(proj, a.map(f));
+		}
+		if (cases != null) {
+			return ApgTermCase(a.map(f), Util.map(cases, (k,v) -> new Pair<>(k, new Pair<>(v.first, v.second.map(f)))), cases_t);
+		}
+		if (deref != null) {
+			return ApgTermDeref(deref, a.map(f));
+		}
+		return Util.anomaly();
+	}
 	
+	public ApgTerm<L,E> subst(Var from, ApgTerm<L,E> to) {
+		if (e != null || value != null) {
+			return this.convert();
+		}
+		if (var != null) {
+			if (from.equals(var)) {
+				return to;
+			}
+			return this.convert();
+		}
+		if (fields != null) {
+			return ApgTermTuple(Util.map(fields, (k,v) -> new Pair<>(k, v.subst(from, to))));
+		}
+		if (inj != null) {
+			return ApgTermInj(inj, a.subst(from, to), cases_t); // + Util.sep(m, ": ", " ");
+		}
+		if (proj != null) {
+			return ApgTermProj(proj, a.subst(from, to));
+		}
+		if (cases != null) {
+			Map<String, Pair<Var, ApgTerm<L,E>>> match = new THashMap<>();
+			for (Entry<String, Pair<Var, ApgTerm<L, E>>> x : cases.entrySet()) {
+				String k = x.getKey();
+				Pair<Var, ApgTerm<L, E>> p = x.getValue();
+				
+				if (p.first.equals(from)) {
+					
+				} else {
+					if (p.second.isFree(from)) {
+						Var z = findNext(from);
+						p = new Pair<>(z, p.second.rename(from, z).subst(from, to));
+					} else {
+						p = new Pair<>(p.first, p.second.subst(from, to));
+					}
+				}
+				//Pair<Var, ApgTerm<L, E>> = new Pair<>()
+				
+				match.put(k, p);
+			}
+			
+			return ApgTermCase(a.subst(from, to), match, cases_t);
+		}
+		if (deref != null) {
+			return ApgTerm.ApgTermDeref(deref, a.subst(from, to));
+		}
+		return Util.anomaly();
+	}
+
+	private boolean isFree(Var v) {
+		if (e != null || value != null) {
+			return false;
+		}
+		if (inj != null || proj != null || deref != null) {
+			return a.isFree(v);
+		}
+		if (fields != null) {
+			for (Entry<String, ApgTerm<L, E>> x : fields.entrySet()) {
+				if (x.getValue().isFree(v)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		if (var != null) {
+			return var.equals(v);
+		}
+		if (cases != null) {
+			//a
+			for (Entry<String, Pair<Var, ApgTerm<L, E>>> x : cases.entrySet()) {
+				if (x.getValue().first.equals(v)) {
+					continue;
+				}
+				if (x.getValue().second.isFree(v)) {
+					return true;
+				}
+			}
+			return a.isFree(v);
+		}
+		return Util.anomaly();
+	}
+
+	private static int i=0;
+	private synchronized Var findNext(Var from) {
+		return Var.Var("_gensym_" + (i++));
+	}
+
+	public ApgTerm<L,E> rename(Var from, Var to) {
+		if (e != null || value != null) {
+			return this;
+		}
+		if (fields != null) {
+			return ApgTerm.ApgTermTuple(Util.map(fields, (k,v) -> new Pair<>(k, v.rename(from, to))));
+		}
+		if (inj != null) {
+			return ApgTerm.ApgTermInj(this.inj, a.rename(from, to), cases_t);
+		}
+		if (proj != null) {
+			return ApgTerm.ApgTermProj(this.proj, a.rename(from, to));
+		}
+		if (var != null) {
+			if (var.equals(from)) {
+				return ApgTerm.ApgTermVar(to);
+			}
+			return this;
+		}
+		if (cases != null) {
+			return ApgTerm.ApgTermCase(a.rename(from,to),Util.map(cases, (k,v) -> new Pair<>(k, new Pair<>(v.first.equals(from)?to:v.first, v.second.rename(from, to)))),cases_t);
+		}
+		if (deref != null) {
+			return ApgTerm.ApgTermDeref(deref, a.rename(from, to));
+		}
+		return Util.anomaly();
+	}
 }

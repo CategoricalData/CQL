@@ -14,6 +14,7 @@ import catdata.Program;
 import catdata.Unit;
 import catdata.Util;
 import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
+import catdata.apg.exp.ApgInstExp.ApgInstExpDelta;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
@@ -21,10 +22,20 @@ import catdata.apg.exp.ApgInstExp.ApgInstExpRaw;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
 import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
+import catdata.apg.exp.ApgMapExp.ApgMapExpCompose;
+import catdata.apg.exp.ApgMapExp.ApgMapExpRaw;
+import catdata.apg.exp.ApgMapExp.ApgMapExpVar;
+import catdata.apg.exp.ApgSchExp.ApgSchExpInitial;
+import catdata.apg.exp.ApgSchExp.ApgSchExpPlus;
+import catdata.apg.exp.ApgSchExp.ApgSchExpRaw;
+import catdata.apg.exp.ApgSchExp.ApgSchExpTerminal;
+import catdata.apg.exp.ApgSchExp.ApgSchExpTimes;
+import catdata.apg.exp.ApgSchExp.ApgSchExpVar;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCase;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCompose;
+import catdata.apg.exp.ApgTransExp.ApgTransExpDelta;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpFst;
@@ -99,7 +110,7 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class AqlHelp implements
-		ExpVisitor<Unit, String, String, String, String, String, String, String, String, String, String, String, String, String, RuntimeException, String,String,String> {
+		ExpVisitor<Unit, String, String, String, String, String, String, String, String, String, String, String, String, String, RuntimeException, String,String,String,String,String> {
 
 	static String xxx = "Associated with each object is a size, according to its kind:"
 			+ "\nitem command, constraints: length of the text string" + "\n instance: rows in the algebra"
@@ -1207,7 +1218,7 @@ public class AqlHelp implements
 
 	@Override
 	public String visit(Unit param, ApgInstExpRaw exp) throws RuntimeException {
-		return "An APG instance literal, consisting of a set of labels and a set of elements and a schema function taking each label to a type and a function taking each element to a label and to an APG term in such a way that the term has the type given by the schema.";
+		return "An APG instance literal on a schema, consisting of a set of elements and a function taking each element to a label and to an APG term in such a way that the term has the type given by the schema.";
 	}
 
 	@Override
@@ -1313,6 +1324,61 @@ public class AqlHelp implements
 	@Override
 	public String visit(Unit params, ApgTransExpCoEqualizeU exp) {
 		return "CoEqualizer universal property mediating morphism of two parallel morphisms in the category of APGs.";
+	}
+
+	@Override
+	public String visit(Unit param, ApgSchExpVar exp) {
+		return "An APG schema variable.";
+	}
+
+	@Override
+	public String visit(Unit param, ApgSchExpRaw exp) {
+		return "An APG schema literal, consisting of a set of labels and a function taking each label to a type.";
+	}
+
+	@Override
+	public String visit(Unit param, ApgMapExpVar exp) {
+		return "An APG schema mapping variable.";
+	}
+
+	@Override
+	public String visit(Unit param, ApgMapExpRaw exp) {
+		return "An APG mapping literal, consisting of an assignment of labels to types and labels to open terms.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgSchExpInitial exp) {
+		return "Initial object in the category of APG schemas";
+	}
+
+	@Override
+	public String visit(Unit params, ApgSchExpTerminal exp) {
+		return "Terminal object in the category of APG schemas";
+	}
+
+	@Override
+	public String visit(Unit params, ApgSchExpTimes exp) {
+		return "Product object in the category of APG schemas";
+	}
+
+	@Override
+	public String visit(Unit params, ApgSchExpPlus exp) {
+		return "Coproduct object in the category of APG schemas";
+	}
+
+	//@Override
+	//public String visit(Unit param, ApgMapExpCompose exp) {
+	//	return "Composition of APG schema mappings.";
+	//}
+
+	@Override
+	public String visit(Unit params, ApgInstExpDelta exp) throws RuntimeException {
+		return "Delta (model reduct) functor along a schema mapping, applied to an instance.";
+	}
+
+	@Override
+	public String visit(Unit params, ApgTransExpDelta exp) {
+		return "Delta (model reduct) functor along a schema mapping, applied to an APG morphism that is schema preserving and data natural.";
 	}
 
 }

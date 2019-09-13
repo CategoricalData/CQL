@@ -220,7 +220,6 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 		}
 
 		public Unit type(AqlTyping t) {
-			// TODO type impotys
 			if (!t.defs.apgts.containsKey(var)) {
 				throw new RuntimeException("Undefined APG typside variable: " + var);
 			}

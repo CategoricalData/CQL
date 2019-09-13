@@ -124,6 +124,10 @@ public final class AqlDisplay implements Disp {
 			return s + " : " + typing.defs.apgis.get(c);
 		case APG_morphism:
 			return s + " : " + typing.defs.apgms.get(c).first + " -> " + typing.defs.apgms.get(c).second;
+		case APG_mapping:
+			return s + " : " + typing.defs.apgmappings.get(c).first + " -> " + typing.defs.apgmappings.get(c).second;
+		case APG_schema:
+			return s + " : " + typing.defs.apgschemas.get(c);
 		default:
 			throw new RuntimeException("Anomaly: please report");
 		}
@@ -144,9 +148,11 @@ public final class AqlDisplay implements Disp {
 			return (Integer) exp.getOrDefault(env, AqlOption.gui_max_string_size);
 
 		case MAPPING:
+		case APG_mapping:
 		case THEORY_MORPHISM:
 		case QUERY:
 		case SCHEMA:
+		case APG_schema:
 		case SCHEMA_COLIMIT:
 			
 		case GRAPH:
@@ -344,6 +350,12 @@ public String text;
 			return Color.WHITE;
 		case APG_morphism:
 			return Color.gray;
+		case APG_mapping:
+			return Color.red;
+		case APG_schema:
+			return Color.pink;
+		default:
+			break;
 			
 		}
 		return Util.anomaly();

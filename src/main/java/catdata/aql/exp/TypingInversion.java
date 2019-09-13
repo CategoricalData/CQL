@@ -9,6 +9,7 @@ import catdata.Pair;
 import catdata.Unit;
 import catdata.apg.exp.ApgInstExp;
 import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
+import catdata.apg.exp.ApgInstExp.ApgInstExpDelta;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
@@ -16,11 +17,22 @@ import catdata.apg.exp.ApgInstExp.ApgInstExpRaw;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
 import catdata.apg.exp.ApgInstExp.ApgInstExpVar;
+import catdata.apg.exp.ApgMapExp;
+import catdata.apg.exp.ApgMapExp.ApgMapExpRaw;
+import catdata.apg.exp.ApgMapExp.ApgMapExpVar;
+import catdata.apg.exp.ApgSchExp;
+import catdata.apg.exp.ApgSchExp.ApgSchExpInitial;
+import catdata.apg.exp.ApgSchExp.ApgSchExpPlus;
+import catdata.apg.exp.ApgSchExp.ApgSchExpRaw;
+import catdata.apg.exp.ApgSchExp.ApgSchExpTerminal;
+import catdata.apg.exp.ApgSchExp.ApgSchExpTimes;
+import catdata.apg.exp.ApgSchExp.ApgSchExpVar;
 import catdata.apg.exp.ApgTransExp;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCase;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCoEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCompose;
+import catdata.apg.exp.ApgTransExp.ApgTransExpDelta;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualize;
 import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
 import catdata.apg.exp.ApgTransExp.ApgTransExpFst;
@@ -1581,7 +1593,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgInstExpInitial visitApgInstExpInitial(Unit params, AqlTyping r) throws RuntimeException {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
-		return new ApgInstExpInitial(t);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
+		return new ApgInstExpInitial(s);
 	}
 
 	@Override
@@ -1595,10 +1609,12 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgInstExpTimes visitApgInstExpTimes(Unit params, AqlTyping r) throws RuntimeException {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
 		ApgInstExpVar a = new ApgInstExpVar("G1");
 		ApgInstExpVar b = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G1",t);
-		r.defs.apgis.put("G2",t);
+		r.defs.apgis.put("G1",s);
+		r.defs.apgis.put("G2",s);
 		return new ApgInstExpTimes(a, b);
 	}
 
@@ -1606,10 +1622,12 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgInstExpPlus visitApgInstExpPlus(Unit params, AqlTyping r) throws RuntimeException {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
 		ApgInstExpVar a = new ApgInstExpVar("G1");
 		ApgInstExpVar b = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G1",t);
-		r.defs.apgis.put("G2",t);
+		r.defs.apgis.put("G1",s);
+		r.defs.apgis.put("G2",s);
 		return new ApgInstExpPlus(a, b);
 	}
 
@@ -1617,8 +1635,10 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgInstExpVar visitApgInstExpVar(Unit param, AqlTyping r) throws RuntimeException {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
 		ApgInstExpVar a = new ApgInstExpVar("G");
-		r.defs.apgis.put("G",t);
+		r.defs.apgis.put("G",s);
 		return a;
 	}
 
@@ -1626,8 +1646,10 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgInstExpRaw visitApgInstExpRaw(Unit param, AqlTyping r) throws RuntimeException {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
-		ApgInstExpRaw a = new ApgInstExpRaw(t, Collections.emptyList(),Collections.emptyList(),Collections.emptyList());
-		r.defs.apgis.put("G",t);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
+		ApgInstExpRaw a = new ApgInstExpRaw(s, Collections.emptyList(),Collections.emptyList());
+		r.defs.apgis.put("G",s);
 		return a;
 	}
 
@@ -1636,10 +1658,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+	
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);	
+		r.defs.apgis.put("G2", s2);	
 		
 		return new ApgTransExpRaw(G1,G2,Collections.emptyList(),Collections.emptyList(),Collections.emptyList());
 	}
@@ -1651,8 +1678,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		
 		ApgInstExp G1 = new ApgInstExpVar("G1");
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G1", t);
-		r.defs.apgis.put("G2", t);
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+	
+		r.defs.apgis.put("G1", s1);
+		r.defs.apgis.put("G2", s2);
 		
 		r.defs.apgms.put("h",new Pair<>(G1,G2));
 		return new ApgTransExpVar("h");
@@ -1662,11 +1694,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgTransExp visitApgTransExpInitial(Unit params, AqlTyping r) {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
 		
 		ApgInstExp G = new ApgInstExpVar("G");
-		r.defs.apgis.put("G", t);
+		r.defs.apgis.put("G", s);
 		
-		r.defs.apgms.put("h",new Pair<>(new ApgInstExpInitial(t),G));
+		r.defs.apgms.put("h",new Pair<>(new ApgInstExpInitial(s),G));
 		return new ApgTransExpVar("h");
 	}
 	
@@ -1674,9 +1708,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgTransExp visitApgTransExpTerminal(Unit params, AqlTyping r) {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
 		
 		ApgInstExp G = new ApgInstExpVar("G");
-		r.defs.apgis.put("G", t);
+		r.defs.apgis.put("G", s);
 		
 		r.defs.apgms.put("h",new Pair<>(G,new ApgInstExpTerminal(t)));
 		return new ApgTransExpVar("h");
@@ -1687,10 +1723,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+	
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		
 		return new ApgTransExpFst(G1,G2);
 	}
@@ -1700,10 +1741,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+	
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		
 		return new ApgTransExpSnd(G1,G2);
 	}
@@ -1716,10 +1762,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+	
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		
 		return new ApgTransExpInl(G1,G2);
 	}
@@ -1729,10 +1780,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+	
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		
 		return new ApgTransExpInr(G1,G2);
 	}
@@ -1741,9 +1797,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public ApgTransExp visitApgTransExpId(Unit params, AqlTyping r) {
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
 		
 		ApgInstExp G1 = new ApgInstExpVar("G");
-		r.defs.apgis.put("G", t);
+		r.defs.apgis.put("G", s);
 		
 		return new ApgTransExpId(G1);
 	}
@@ -1753,12 +1811,19 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+		ApgSchExp s3 = new ApgSchExpVar("s3");
+		r.defs.apgschemas.put("s3", t);
+	
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		ApgInstExp G = new ApgInstExpVar("G");
-		r.defs.apgis.put("G", t);
+		r.defs.apgis.put("G", s3);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1774,12 +1839,19 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
-		ApgInstExp G = new ApgInstExpVar("G");
-		r.defs.apgis.put("G", t);
+		r.defs.apgis.put("G2", s2);
+		ApgInstExp G = new ApgInstExpVar("G");	
+		r.defs.apgis.put("G", s);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1795,12 +1867,19 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s3 = new ApgSchExpVar("s3");
+		r.defs.apgschemas.put("s3", t);
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		ApgInstExp G3 = new ApgInstExpVar("G3");
-		r.defs.apgis.put("G3", t);
+		r.defs.apgis.put("G3", s3);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1816,10 +1895,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1835,10 +1919,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1854,12 +1943,20 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s1 = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s1", t);
+		ApgSchExp s2 = new ApgSchExpVar("s2");
+		r.defs.apgschemas.put("s2", t);
+		ApgSchExp s = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s", t);
+	
+
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s1);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s2);
 		ApgInstExp G = new ApgInstExpVar("G");
-		r.defs.apgis.put("G", t);
+		r.defs.apgis.put("G", s);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1877,10 +1974,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s = new ApgSchExpVar("s1");
+		r.defs.apgschemas.put("s", t);
+		
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1896,10 +1996,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
+
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1915,12 +2018,15 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		ApgTyExp t = new ApgTyExpVar("t");
 		r.defs.apgts.put("t", Unit.unit);
 		
+		ApgSchExp s = new ApgSchExpVar("s");
+		r.defs.apgschemas.put("s", t);
+
 		ApgInstExp G1 = new ApgInstExpVar("G1");
-		r.defs.apgis.put("G1", t);
+		r.defs.apgis.put("G1", s);
 		ApgInstExp G2 = new ApgInstExpVar("G2");
-		r.defs.apgis.put("G2", t);
+		r.defs.apgis.put("G2", s);
 		ApgInstExp G = new ApgInstExpVar("G");
-		r.defs.apgis.put("G", t);
+		r.defs.apgis.put("G", s);
 		
 		ApgTransExpVar h1 = new ApgTransExpVar("h" );
 		ApgTransExpVar h2 = new ApgTransExpVar("h'");
@@ -1931,6 +2037,138 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		r.defs.apgms.put("k" ,new Pair<>(G2,G ));
 		
 		return new ApgTransExpCoEqualizeU(h1,h2,k);
+	}
+
+	@Override
+	public ApgInstExpDelta visitApgInstExpDelta(Unit params, AqlTyping r) throws RuntimeException {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		ApgSchExp t = new ApgSchExpVar("T");
+		r.defs.apgschemas.put("T", ty);
+		ApgSchExp s = new ApgSchExpVar("S");
+		r.defs.apgschemas.put("S", ty);
+
+		ApgInstExp G = new ApgInstExpVar("G");
+		r.defs.apgis.put("G", t);
+		
+		ApgMapExp F = new ApgMapExpVar("F");
+		r.defs.apgmappings.put("F", new Pair<>(s,t));
+		
+		return new ApgInstExpDelta(F, G);
+	
+	}
+
+	@Override
+	public ApgTransExpDelta visitApgTransExpDelta(Unit params, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		ApgSchExp t = new ApgSchExpVar("T");
+		r.defs.apgschemas.put("T", ty);
+		ApgSchExp s = new ApgSchExpVar("S");
+		r.defs.apgschemas.put("S", ty);
+
+		ApgInstExp G1 = new ApgInstExpVar("G1");
+		r.defs.apgis.put("G1", t);
+		ApgInstExp G2 = new ApgInstExpVar("G2");
+		r.defs.apgis.put("G2", t);
+		
+		ApgMapExp F = new ApgMapExpVar("F");
+		r.defs.apgmappings.put("F", new Pair<>(s,t));
+		
+		ApgTransExp h = new ApgTransExpVar("h");
+		r.defs.apgms.put("h", new Pair<>(G1,G2));
+		
+		return new ApgTransExpDelta(F, h);
+	}
+
+	@Override
+	public ApgSchExpInitial visitApgSchExpInitial(Unit params, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		return new ApgSchExpInitial(ty);
+	}
+
+	@Override
+	public ApgSchExpTerminal visitApgSchExpTerminal(Unit params, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		return new ApgSchExpTerminal(ty);
+	}
+
+	@Override
+	public ApgSchExpTimes visitApgSchExpTimes(Unit params, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		ApgSchExp S = new ApgSchExpVar("S");
+		r.defs.apgschemas.put("S", ty);
+		ApgSchExp T = new ApgSchExpVar("T");
+		r.defs.apgschemas.put("T", ty);
+		
+		return new ApgSchExpTimes(S, T);
+	}
+
+	@Override
+	public ApgSchExpPlus visitApgSchExpPlus(Unit params, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		ApgSchExp S = new ApgSchExpVar("S");
+		r.defs.apgschemas.put("S", ty);
+		ApgSchExp T = new ApgSchExpVar("T");
+		r.defs.apgschemas.put("T", ty);
+		
+		return new ApgSchExpPlus(S, T);
+	}
+
+	@Override
+	public ApgSchExpVar visitApgSchExpVar(Unit param, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		ApgSchExpVar x = new ApgSchExpVar("v");
+		r.defs.apgschemas.put("v", ty);
+		return x;
+	}
+
+	@Override
+	public ApgSchExpRaw visitApgSchExpRaw(Unit param, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		return new ApgSchExpRaw(ty, Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public ApgMapExpVar visitApgMapExpVar(Unit param, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		ApgSchExp S = new ApgSchExpVar("S");
+		r.defs.apgschemas.put("S", ty);
+		ApgSchExp T = new ApgSchExpVar("T");
+		r.defs.apgschemas.put("T", ty);
+		
+		ApgMapExpVar x = new ApgMapExpVar("v");
+		r.defs.apgmappings.put("v", new Pair<>(S,T));
+		return x;
+	}
+
+	@Override
+	public ApgMapExpRaw visitApgMapExpRaw(Unit param, AqlTyping r) {
+		ApgTyExp ty = new ApgTyExpVar("ty");
+		r.defs.apgts.put("ty", Unit.unit);
+		
+		ApgSchExp S = new ApgSchExpVar("S");
+		r.defs.apgschemas.put("S", ty);
+		ApgSchExp T = new ApgSchExpVar("T");
+		r.defs.apgschemas.put("T", ty);
+		
+		return new ApgMapExpRaw(S, T, Collections.emptyList(), Collections.emptyList());
 	}
 
 }

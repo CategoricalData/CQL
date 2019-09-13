@@ -2,6 +2,7 @@ package catdata.apg.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,14 +17,12 @@ import catdata.apg.ApgInstance;
 import catdata.apg.ApgOps;
 import catdata.apg.ApgTransform;
 import catdata.apg.exp.ApgInstExp.ApgInstExpCoEqualize;
+import catdata.apg.exp.ApgInstExp.ApgInstExpDelta;
 import catdata.apg.exp.ApgInstExp.ApgInstExpEqualize;
 import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
-import catdata.apg.exp.ApgTransExp.ApgTransExpCoVisitor;
-import catdata.apg.exp.ApgTransExp.ApgTransExpEqualizeU;
-import catdata.apg.exp.ApgTransExp.ApgTransExpVisitor;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
 import catdata.aql.exp.AqlEnv;
@@ -67,16 +66,18 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public R visit(P params, ApgTransExpEqualize exp);
 
 		public R visit(P params, ApgTransExpEqualizeU exp);
-		
+
 		public R visit(P params, ApgTransExpCoEqualize exp);
 
 		public R visit(P params, ApgTransExpCoEqualizeU exp);
+
+		public R visit(P params, ApgTransExpDelta exp);
 
 	}
 
 	public interface ApgTransExpCoVisitor<R, P> {
 
-//	public <Gen, Sk, X, Y> TransExpId<Gen, Sk, X, Y> visitTransExpId(P params, R exp);
+		public ApgTransExpDelta visitApgTransExpDelta(P params, R exp);
 
 		public ApgTransExpRaw visitApgTransExpRaw(P params, R exp);
 
@@ -228,23 +229,20 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			this.Es = Util.toMapSafely(LocStr.list2(Es0));
 			this.Ls = Util.toMapSafely(LocStr.list2(Ls0));
 
-			// doGuiIndex(imports0, Es0, Ls0);
+			doGuiIndex(Es0, Ls0);
 		}
 
-		/*
-		 * public void doGuiIndex(List<ApgInstExp> imports0, List<Pair<LocStr,
-		 * Pair<String, ApgTerm<String, String, String, String, String>>>> es0,
-		 * List<Pair<LocStr, ApgTy<String, String, String>>> ls0) {
-		 * 
-		 * // List<InteriorLabel<Object>> t = InteriorLabel.imports("imports",
-		 * imports0); raw.put("labels", t);
-		 * 
-		 * List<InteriorLabel<Object>> f = new LinkedList<>(); for (Pair<LocStr, String>
-		 * p : es0) { f.add(new InteriorLabel<>("values", new Pair<>(p.first.str,
-		 * p.second), p.first.loc, x -> x.first + " : " + x.second) .conv()); }
-		 * 
-		 * raw.put("elements", f); }
-		 */
+		public void doGuiIndex(List<Pair<LocStr, String>> ls0,
+				List<Pair<LocStr, String>> es0) {
+
+			List<InteriorLabel<Object>> f = new LinkedList<>();
+			for (Pair<LocStr, String> p : es0) {
+				f.add(new InteriorLabel<>("values", new Pair<>(p.first.str, p.second), p.first.loc,
+						x -> x.first + " -> " + x.second).conv());
+			}
+
+			raw.put("elements", f);
+		}
 
 		private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
 
@@ -298,25 +296,14 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
-			ApgTyExp a = src.type(G);
-			ApgTyExp b = dst.type(G);
-			if (!a.equals(b)) {
-				throw new RuntimeException("Not the same typeside: " + a + " and " + b);
+			ApgSchExp a = src.type(G);
+			ApgSchExp b = dst.type(G);
+			ApgTyExp ao = a.type(G);
+			ApgTyExp bo = b.type(G);
+			if (!ao.equals(bo)) {
+				throw new RuntimeException("Not the same typeside: " + ao + " and " + bo);
 			}
-			for (Exp<?> z : imports()) {
-				if (z.kind() != Kind.APG_morphism) {
-					throw new RuntimeException("Import of wrong kind: " + z);
-				}
-				Pair<ApgInstExp, ApgInstExp> u = ((ApgTransExp) z).type(G);
-				if (!u.first.equals(src)) {
-					throw new RuntimeException("Import transform source instance mismatch on " + z + ", is " + u.first
-							+ " and not " + src + " as expected.");
-				}
-				if (!u.second.equals(dst)) {
-					throw new RuntimeException("Import transform target instance mismatch on " + z + ", is " + u.second
-							+ " and not " + dst + " as expected.");
-				}
-			}
+
 			return new Pair<>(src, dst);
 		}
 
@@ -426,7 +413,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
-			return new Pair<>(this.G, new ApgInstExpTerminal(this.G.type(G)));
+			ApgSchExp s = this.G.type(G);
+			return new Pair<>(this.G, new ApgInstExpTerminal(s.type(G)));
 		}
 
 		@SuppressWarnings("rawtypes")
@@ -439,7 +427,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public String toString() {
 			return "unit " + G;
 		}
-		
+
 	}
 
 	public static final class ApgTransExpInitial extends ApgTransExp {
@@ -506,7 +494,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public Collection<Pair<String, Kind>> deps() {
 			return G.deps();
 		}
-		
+
 		@Override
 		public String toString() {
 			return "empty " + G;
@@ -521,7 +509,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public String toString() {
 			return "fst " + G1 + " " + G2;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -570,8 +558,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
-			ApgTyExp a = G1.type(G);
-			ApgTyExp b = G2.type(G);
+			ApgTyExp a = G1.type(G).type(G);
+			ApgTyExp b = G2.type(G).type(G);
 			if (!a.equals(b)) {
 				throw new RuntimeException("Typesides " + a + " and " + b + " not equal.");
 			}
@@ -613,7 +601,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public String toString() {
 			return "snd " + G1 + " " + G2;
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -653,8 +641,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
-			ApgTyExp a = G1.type(G);
-			ApgTyExp b = G2.type(G);
+			ApgTyExp a = G1.type(G).type(G);
+			ApgTyExp b = G2.type(G).type(G);
 			if (!a.equals(b)) {
 				throw new RuntimeException("Typesides " + a + " and " + b + " not equal.");
 			}
@@ -754,6 +742,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public Collection<Pair<String, Kind>> deps() {
 			return Util.union(h1.deps(), h2.deps());
 		}
+
 		@Override
 		public String toString() {
 			return "( " + h1 + " , " + h2 + ")";
@@ -811,8 +800,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
-			ApgTyExp a = G1.type(G);
-			ApgTyExp b = G2.type(G);
+			ApgTyExp a = G1.type(G).type(G);
+			ApgTyExp b = G2.type(G).type(G);
 			if (!a.equals(b)) {
 				throw new RuntimeException("Typesides " + a + " and " + b + " not equal.");
 			}
@@ -835,7 +824,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public Collection<Pair<String, Kind>> deps() {
 			return Util.union(G1.deps(), G2.deps());
 		}
-		
+
 		@Override
 		public String toString() {
 			return "inl " + G1 + " " + G2;
@@ -893,8 +882,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
-			ApgTyExp a = G1.type(G);
-			ApgTyExp b = G2.type(G);
+			ApgTyExp a = G1.type(G).type(G);
+			ApgTyExp b = G2.type(G).type(G);
 			if (!a.equals(b)) {
 				throw new RuntimeException("Typesides " + a + " and " + b + " not equal.");
 			}
@@ -999,6 +988,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public Collection<Pair<String, Kind>> deps() {
 			return Util.union(h1.deps(), h2.deps());
 		}
+
 		@Override
 		public String toString() {
 			return "<" + h1 + " | " + h2 + ">";
@@ -1012,7 +1002,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public String toString() {
 			return "identity " + G;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -1083,7 +1073,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public String toString() {
 			return "[" + h1 + " ; " + h2 + "]";
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -1157,7 +1147,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		}
 
 	}
-	
+
 	public static final class ApgTransExpEqualize extends ApgTransExp {
 		public final ApgTransExp h1, h2;
 
@@ -1196,11 +1186,12 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString() {
 			return "equalize " + h1 + " " + h2;
 		}
+
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
 			Pair<ApgInstExp, ApgInstExp> a = h1.type(G);
@@ -1210,9 +1201,9 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			} else if (!a.second.equals(b.second)) {
 				throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
 			}
-			return new Pair<>(new ApgInstExpEqualize(h1,h2),a.first);
+			return new Pair<>(new ApgInstExpEqualize(h1, h2), a.first);
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			h1.mapSubExps(f);
@@ -1239,9 +1230,9 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
 			return v.visitApgTransExpEqualize(params, r);
 		}
-		
+
 	}
-	
+
 	public static final class ApgTransExpEqualizeU extends ApgTransExp {
 		public final ApgTransExp h, h1, h2;
 
@@ -1260,7 +1251,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
 			return v.visitApgTransExpEqualizeU(params, r);
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -1298,7 +1289,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			return true;
 		}
 
-		
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			h1.mapSubExps(f);
@@ -1308,18 +1298,20 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
 		@Override
 		protected ApgTransform<Object, Object, Object, Object> eval0(AqlEnv env, boolean isCompileTime) {
-			return ApgOps.equalizeU(h.eval(env, isCompileTime), h1.eval(env, isCompileTime), h2.eval(env, isCompileTime));
+			return ApgOps.equalizeU(h.eval(env, isCompileTime), h1.eval(env, isCompileTime),
+					h2.eval(env, isCompileTime));
 		}
 
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
 			return Util.union(h.deps(), Util.union(h1.deps(), h2.deps()));
 		}
-		
+
 		@Override
 		public String toString() {
 			return "equalize_u " + h1 + " " + h2 + " " + h;
 		}
+
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
 			Pair<ApgInstExp, ApgInstExp> a = h1.type(G);
@@ -1330,14 +1322,14 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			} else if (!a.second.equals(b.second)) {
 				throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
 			} else if (!c.second.equals(a.first)) {
-				throw new RuntimeException("Domain and CoDomain mismatch: " + a.first + " is not equal to " + c.second);				
+				throw new RuntimeException("Domain and CoDomain mismatch: " + a.first + " is not equal to " + c.second);
 			}
-			
-			return new Pair<>(c.first, new ApgInstExpEqualize(h1,h2));
+
+			return new Pair<>(c.first, new ApgInstExpEqualize(h1, h2));
 		}
-		
+
 	}
-	
+
 	public static final class ApgTransExpCoEqualize extends ApgTransExp {
 		public final ApgTransExp h1, h2;
 
@@ -1376,11 +1368,12 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 				return false;
 			return true;
 		}
-		
+
 		@Override
 		public String toString() {
 			return "coequalize " + h1 + " " + h2;
 		}
+
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
 			Pair<ApgInstExp, ApgInstExp> a = h1.type(G);
@@ -1390,9 +1383,9 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			} else if (!a.second.equals(b.second)) {
 				throw new RuntimeException("Codomain mismatch: " + a.second + " is not equal to " + b.second);
 			}
-			return new Pair<>(a.second,new ApgInstExpCoEqualize(h1,h2));
+			return new Pair<>(a.second, new ApgInstExpCoEqualize(h1, h2));
 		}
-		
+
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			h1.mapSubExps(f);
@@ -1419,9 +1412,9 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
 			return v.visitApgTransExpCoEqualize(params, r);
 		}
-		
+
 	}
-	
+
 	public static final class ApgTransExpCoEqualizeU extends ApgTransExp {
 		public final ApgTransExp h, h1, h2;
 
@@ -1440,7 +1433,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
 			return v.visitApgTransExpCoEqualizeU(params, r);
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -1478,7 +1471,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			return true;
 		}
 
-		
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
 			h1.mapSubExps(f);
@@ -1489,18 +1481,20 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 		@SuppressWarnings("rawtypes")
 		@Override
 		protected ApgTransform eval0(AqlEnv env, boolean isCompileTime) {
-			return ApgOps.coequalizeU(h.eval(env, isCompileTime), h1.eval(env, isCompileTime), h2.eval(env, isCompileTime));
+			return ApgOps.coequalizeU(h.eval(env, isCompileTime), h1.eval(env, isCompileTime),
+					h2.eval(env, isCompileTime));
 		}
 
 		@Override
 		public Collection<Pair<String, Kind>> deps() {
 			return Util.union(h.deps(), Util.union(h1.deps(), h2.deps()));
 		}
-		
+
 		@Override
 		public String toString() {
 			return "coequalize_u " + h1 + " " + h2 + " " + h;
 		}
+
 		@Override
 		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
 			Pair<ApgInstExp, ApgInstExp> a = h1.type(G);
@@ -1511,12 +1505,106 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 			} else if (!a.second.equals(b.second)) {
 				throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
 			} else if (!c.first.equals(a.second)) {
-				throw new RuntimeException("Domain and CoDomain mismatch: " + a.second + " is not equal to " + c.first);				
+				throw new RuntimeException("Domain and CoDomain mismatch: " + a.second + " is not equal to " + c.first);
 			}
-			
-			return new Pair<>(new ApgInstExpCoEqualize(h1,h2), c.second);
+
+			return new Pair<>(new ApgInstExpCoEqualize(h1, h2), c.second);
 		}
-		
+
+	}
+
+	public static class ApgTransExpDelta extends ApgTransExp {
+
+		public final ApgMapExp F;
+
+		public final ApgTransExp h;
+
+		public ApgTransExpDelta(ApgMapExp f, ApgTransExp j) {
+			F = f;
+			h = j;
+		}
+
+		@Override
+		public String toString() {
+			return "delta " + F + " " + h;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((F == null) ? 0 : F.hashCode());
+			result = prime * result + ((h == null) ? 0 : h.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ApgTransExpDelta other = (ApgTransExpDelta) obj;
+			if (F == null) {
+				if (other.F != null)
+					return false;
+			} else if (!F.equals(other.F))
+				return false;
+			if (h == null) {
+				if (other.h != null)
+					return false;
+			} else if (!h.equals(other.h))
+				return false;
+			return true;
+		}
+
+		@Override
+		public <R, P> R accept(P params, ApgTransExpVisitor<R, P> v) {
+			return v.visit(params, this);
+		}
+
+		@Override
+		public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
+			return v.visitApgTransExpDelta(params, r);
+		}
+
+		@Override
+		public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
+			Pair<ApgInstExp, ApgInstExp> a = h.type(G);
+			ApgSchExp z = a.first.type(G);
+
+			Pair<ApgSchExp, ApgSchExp> b = F.type(G);
+			ApgTyExp y = b.first.type(G);
+
+			if (!z.type(G).equals(y)) {
+				throw new RuntimeException("Typeside mismatch: " + z.type(G) + " and " + y);
+			}
+
+			if (!z.equals(b.second)) {
+				throw new RuntimeException("Target of mapping is " + b.second + " but transform is on " + z);
+			}
+
+			return new Pair<>(new ApgInstExpDelta(F, a.first), new ApgInstExpDelta(F, a.second));
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			F.mapSubExps(f);
+			h.mapSubExps(f);
+		}
+
+		@Override
+		protected ApgTransform eval0(AqlEnv env, boolean isCompileTime) {
+			return F.eval(env, isCompileTime).deltaT(h.eval(env, isCompileTime));
+		}
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return Util.union(F.deps(), h.deps());
+		}
+
 	}
 
 }

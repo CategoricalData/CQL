@@ -8,6 +8,8 @@ import java.util.function.Function;
 import catdata.Pair;
 import catdata.Unit;
 import catdata.apg.exp.ApgInstExp.ApgInstExpCoVisitor;
+import catdata.apg.exp.ApgMapExp.ApgMapExpCoVisitor;
+import catdata.apg.exp.ApgSchExp.ApgSchExpCoVisitor;
 import catdata.apg.exp.ApgTransExp.ApgTransExpCoVisitor;
 import catdata.apg.exp.ApgTyExp.ApgTyExpCoVisitor;
 import catdata.aql.AqlSyntax;
@@ -19,7 +21,7 @@ public interface ExpCoVisitor<R, P, E extends Exception>
 		extends TyExp.TyExpCoVisitor<R, P, E>, SchExp.SchExpCoVisitor<R, P, E>, MapExp.MapExpCoVisitor<R, P, E>,
 		EdsExp.EdsExpCoVisitor<R, P, E>, GraphExp.GraphExpCoVisitor<R, P, E>, PragmaExp.PragmaExpCoVisitor<R, P, E>,
 		ColimSchExp.ColimSchExpCoVisitor<R, P, E>, InstExp.InstExpCoVisitor<R, P, E>, TransExpCoVisitor<R, P, E>,
-		CommentExp.CommentExpCoVisitor<R, P, E>, QueryExpCoVisitor<R, P, E>, ApgTyExpCoVisitor<R,P,E>, ApgInstExpCoVisitor<R,P,E>, ApgTransExpCoVisitor<R,P> {
+		CommentExp.CommentExpCoVisitor<R, P, E>, QueryExpCoVisitor<R, P, E>, ApgTyExpCoVisitor<R,P,E>, ApgInstExpCoVisitor<R,P,E>, ApgSchExpCoVisitor<R,P>, ApgMapExpCoVisitor<R,P>, ApgTransExpCoVisitor<R,P> {
 
 	public default Map<Kind, Set<Pair<R, Exp<?>>>> covisit(P params, Function<Unit, R> exp) {
 		Map<Kind, Set<Pair<R, Exp<?>>>> ret = new THashMap<>();

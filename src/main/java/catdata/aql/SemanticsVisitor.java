@@ -1,10 +1,15 @@
 package catdata.aql;
 
 import catdata.apg.ApgInstance;
+import catdata.apg.ApgMapping;
+import catdata.apg.ApgSchema;
 import catdata.apg.ApgTransform;
 import catdata.apg.ApgTypeside;
 
 public interface SemanticsVisitor<R, G, E extends Throwable> {
+	
+	public <L> R visit(String k, G arg, ApgSchema<L> t) throws E;
+	public <L1,L2> R visit(String k, G arg, ApgMapping<L1,L2> t) throws E;
 	
 	public R visit(String k, G arg, ApgTypeside t) throws E;
 
@@ -72,6 +77,10 @@ public interface SemanticsVisitor<R, G, E extends Throwable> {
 			return visit(k, arg, (ApgTransform<?,?,?,?>) o);
 		case APG_typeside:
 			return visit(k, arg, (ApgTypeside) o);
+		case APG_mapping:
+			return visit(k, arg, (ApgMapping<?,?>) o);
+		case APG_schema:
+			return visit(k, arg, (ApgSchema<?>) o);
 		default:
 			break;
 		}

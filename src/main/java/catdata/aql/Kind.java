@@ -11,7 +11,7 @@ public enum Kind {
 	PRAGMA, // (Pragma.class, PragmaExp.class),
 	GRAPH, // (DMG.class, GraphExp.class),
 	COMMENT, SCHEMA_COLIMIT, THEORY_MORPHISM,
-	APG_typeside, APG_instance, APG_morphism; 
+	APG_typeside, APG_instance, APG_morphism, APG_mapping, APG_schema; 
 	
 	// (Comment.class, CommentExp.class);
 
@@ -48,6 +48,10 @@ public enum Kind {
 			return "apg_morphism";
 		case APG_typeside:
 			return "apg_typeside"; 
+		case APG_schema:
+			return "apg_schema";
+		case APG_mapping:
+			return "apg_mapping";
 		default:
 			throw new RuntimeException();
 		}

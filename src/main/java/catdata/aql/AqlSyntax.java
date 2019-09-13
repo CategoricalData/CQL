@@ -1,7 +1,20 @@
 package catdata.aql;
 
 public enum AqlSyntax {
+	
+	ApgSchExpInitial,
+	ApgSchExpTerminal,
+	ApgSchExpPlus,
+	ApgSchExpTimes,
+	ApgSchExpVar,
+	ApgSchExpRaw,
+	
+	//ApgMapExpId,
+	//ApgMapExpCompose,
+	ApgMapExpRaw,
+	ApgMapExpVar,
 
+	ApgInstExpDelta,
 	ApgInstExpInitial,
 	ApgInstExpTerminal,
 	ApgInstExpPlus,
@@ -10,6 +23,7 @@ public enum AqlSyntax {
 	ApgInstExpCoEqualize,
 	
 	ApgTransExpId,
+	ApgTransExpDelta,
 	ApgTransExpCompose,
 	ApgTransExpTerminal,
 	ApgTransExpInitial,
