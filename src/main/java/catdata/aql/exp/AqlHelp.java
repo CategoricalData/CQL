@@ -154,6 +154,8 @@ public class AqlHelp implements
 	static String getOptionText2(AqlOption op) {
 
 		switch (op) {
+		case allow_aggregation_unsafe:
+			return "Enables aggregation, which is not functorial.  Associativity, commutativity, and unitality of the given aggegrates are not checked for those properties by the prover, at least for the time being.";
 		case left_bias:
 			return "Use the left-biased schema colimit renaming algorithm.";
 //		case lax_literals:

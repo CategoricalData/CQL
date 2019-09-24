@@ -274,7 +274,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 				col.eqs.add(new Eq<>(null, eq0.second, eq0.third));
 
 			} catch (RuntimeException ex) {
-				// ex.printStackTrace();
+				ex.printStackTrace();
 				throw new LocException(find("equations", eq),
 						"In equation " + eq.first + " = " + eq.second + ", " + ex.getMessage());
 			}

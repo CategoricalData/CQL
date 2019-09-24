@@ -516,6 +516,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 
 	@Override
 	public String toString() {
+		//return toStringUnambig();
 		return toString(Object::toString, Object::toString);
 	}
 

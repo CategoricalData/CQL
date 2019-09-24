@@ -22,6 +22,7 @@ import catdata.aql.Frozen;
 import catdata.aql.It.ID;
 import catdata.aql.Kind;
 import catdata.aql.Query;
+import catdata.aql.Query.Agg;
 import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.Var;
@@ -122,7 +123,7 @@ public final class QueryExpCompose extends QueryExp {
 		}
 
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
-		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts = new THashMap<>();
+		Map<Att, Chc<Term<Ty, En, Sym, Fk, Att, Var, Var>,Agg<Ty, En, Sym, Fk, Att>>> atts = new THashMap<>();
 		Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
 		Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
 
@@ -255,11 +256,14 @@ public final class QueryExpCompose extends QueryExp {
 		}
 		Var yy = Var.Var("_y_");
 		for (Att Att : q2.dst.atts.keySet()) {
-			Term<Ty, En, Sym, Fk, Att, Var, Var> h = q2.atts.get(Att);
+			if (!q2.atts.get(Att).left) {
+				throw new RuntimeException("Cannot compose with aggregation");
+			}
+			Term<Ty, En, Sym, Fk, Att, Var, Var> h = q2.atts.get(Att).l;
 
 			Term<Ty, En, Sym, Fk, Att, Var, Var> xl = transT(q1, q2, isos, h, q2.dst.atts.get(Att).first, yy);
 
-			atts.put(Att, xl);
+			atts.put(Att, Chc.inLeft(xl));
 		}
 
 		if (!Util.agreeOnOverlap(q1.params, q2.params)) {
@@ -292,13 +296,16 @@ public final class QueryExpCompose extends QueryExp {
 			}
 			return Term.Sym(t.sym(), l);
 		} else if (t.att() != null) {
-			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> ret = q1.atts.get(t.att());
-			for (Var head : q1.atts.get(t.att()).gens()) {
+			if (!q1.atts.get(t.att()).left) {
+				throw new RuntimeException("Cannot compose with aggregation");
+			}
+			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> ret = q1.atts.get(t.att()).l;
+			for (Var head : q1.atts.get(t.att()).l.gens()) {
 				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(q1, q2, iso, head,
 						t.arg.asArgForAtt(), En);
 				ret = ret.replace(Term.Gen(head), u.convert());
 			}
-			for (Var head : q1.atts.get(t.att()).sks()) {
+			for (Var head : q1.atts.get(t.att()).l.sks()) {
 				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(q1, q2, iso, head,
 						t.arg.asArgForAtt(), En);
 				ret = ret.replace(Term.Sk(head), u.convert());

@@ -88,6 +88,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 	public abstract DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp();
 
 	public final Chc<Ty, En> type(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
+		Util.assertNotNull(term);
 		return term.type(Collections.emptyMap(), Collections.emptyMap(), schema().typeSide.tys, schema().typeSide.syms,
 				schema().typeSide.js.java_tys, schema().ens, schema().atts, schema().fks, gens(), sks());
 	}

@@ -11,7 +11,8 @@ typeside Ty = literal {
 	java_constants
 		Integer = "return java.lang.Integer.parseInt(input[0]);"
 		String = "return input[0]"
-		Double = "return java.lang.Double.parseDouble(input[0])"
+		//0.0 + needed for nashorhn
+		Double = "return 0.0 + java.lang.Double.parseDouble(input[0])"
 		Boolean = "return input[0]" 
 		Date = "return input[0]"
 	java_functions

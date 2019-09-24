@@ -30,6 +30,20 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 
 	public final AqlOptions options;
 	public final List<Var> order;
+	
+	public Frozen(Map<Var, En1> gens,  Map<Var, Ty> sks, List<Var> order,
+			Set<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqs, Schema<Ty, En1, Sym, Fk1, Att1> schema,
+			AqlOptions options) {
+		Util.assertNotNull(options);
+		this.order = order;
+		this.gens = gens;
+		this.sks = sks;
+		this.eqs = eqs;
+		this.schema = schema;
+		this.options = options;
+
+		validateNoTalg();
+	}
 
 	public Frozen(Map<Var, Ty> params, Map<Var, Chc<En1, Ty>> gens,
 			Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>> eqs, Schema<Ty, En1, Sym, Fk1, Att1> schema,

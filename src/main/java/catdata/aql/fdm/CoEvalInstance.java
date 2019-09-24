@@ -18,6 +18,7 @@ import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.It.ID;
 import catdata.aql.Query;
+import catdata.aql.Query.Agg;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Transform;
@@ -114,8 +115,11 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 				}
 				for (Att2 att : J.schema().attsFrom(t)) {
 
-					Term<Ty, En1, Sym, Fk1, Att1, Var, Var> att0 = Q.atts.get(att);
-					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = att0
+					Chc<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Agg<Ty, En1, Sym, Fk1, Att1>> att1 = Q.atts.get(att);
+					if (!att1.left) {
+						throw new RuntimeException("Cannot co-eval with aggregation");
+					}
+					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = att1.l
 							.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
 					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = J.algebra()
 							.att(att, j).map(Function.identity(), Function.identity(), Util.voidFn(), Util.voidFn(),

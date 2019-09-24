@@ -23,11 +23,13 @@ import catdata.aql.Collage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.Query;
+import catdata.aql.Query.Agg;
 import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
 import catdata.aql.exp.QueryExpRaw.Block;
+import catdata.aql.exp.QueryExpRaw.PreAgg;
 import catdata.aql.exp.QueryExpRaw.PreBlock;
 import catdata.aql.exp.SchExp.SchExpCod;
 import gnu.trove.map.hash.THashMap;
@@ -136,7 +138,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 		block.get().en = EEn;
 
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens0 = new THashMap<>();
-		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts0 = new THashMap<>();
+		Map<Att, Chc<Term<Ty, En, Sym, Fk, Att, Var, Var>,Agg<Ty, En, Sym, Fk, Att>>> atts0 = new THashMap<>();
 
 		Map<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols = new THashMap<>();
 
@@ -144,16 +146,21 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 
 		Collage<Ty, En, Sym, Fk, Att, Void, Void> colForDst = new Collage<>(src0.typeSide.collage());
 		colForDst.ens.add(EEn);
-		for (Pair<Att, RawTerm> p : block.get().atts) {
-			Map<String, Chc<Ty, En>> s = Util.inRight(QueryExpRaw.unVar(cols.get(EEn).gens));
-			Term<Ty, catdata.aql.exp.En, Sym, Fk, Att, Gen, Sk> term = RawTerm.infer1x(s, p.second, p.second, null,
-					srcCol.convert(), "", src0.typeSide.js).second;
-			Chc<Ty, En> ty = srcCol.type(Util.map(s, (k, v) -> new Pair<>(Var.Var(k), v)), term.convert());
-			if (!ty.left) {
-				throw new LocException(find("attributes", p),
-						"In return clause for " + p.first + ", the type is " + ty.r + ", which is an entity.");
+		for (Pair<Att, Chc<RawTerm, PreAgg>> p : block.get().atts) {
+			
+			if (p.second.left) {
+				Map<String, Chc<Ty, En>> s = Util.inRight(QueryExpRaw.unVar(cols.get(EEn).gens));
+				Term<Ty, catdata.aql.exp.En, Sym, Fk, Att, Gen, Sk> term = RawTerm.infer1x(s, p.second.l, p.second.l, null,
+						srcCol.convert(), "", src0.typeSide.js).second;
+				Chc<Ty, En> ty = srcCol.type(Util.map(s, (k, v) -> new Pair<>(Var.Var(k), v)), term.convert());
+				if (!ty.left) {
+					throw new LocException(find("attributes", p),
+							"In return clause for " + p.first + ", the type is " + ty.r + ", which is an entity.");
+				}
+				colForDst.atts.put(p.first, new Pair<>(EEn, ty.l));
+			} else {
+				Util.anomaly();
 			}
-			colForDst.atts.put(p.first, new Pair<>(EEn, ty.l));
 		}
 		if (block.get().star) {
 			for (Pair<Var, String> x : block.get().gens) {
@@ -161,7 +168,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 					for (Att att : src0.attsFrom(En.En(x.second))) {
 						Ty ty = src0.atts.get(att).second;
 						colForDst.atts.put(Att.Att(EEn, x.first + "_" + att), new Pair<>(EEn, ty));
-						atts0.put(Att.Att(EEn, x.first + "_" + att), Term.Att(att, Term.Gen(x.first)));
+						atts0.put(Att.Att(EEn, x.first + "_" + att), Chc.inLeft(Term.Att(att, Term.Gen(x.first))));
 					}
 				}
 			}
@@ -169,7 +176,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 
 		Schema<Ty, En, Sym, Fk, Att> dst0 = new Schema<>(src0.typeSide, colForDst, ops);
 
-		for (Pair<Att, RawTerm> p : block.get().atts) {
+		for (Pair<Att, Chc<RawTerm, PreAgg>> p : block.get().atts) {
 			Set<Var> set = new THashSet<>(block.get().gens.size());
 			for (Pair<catdata.aql.Var, String> z : block.get().gens) {
 				if (src0.typeSide.tys.contains(Ty.Ty(z.second))) {

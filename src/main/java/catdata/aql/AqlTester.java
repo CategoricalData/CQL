@@ -19,7 +19,7 @@ import gnu.trove.map.hash.THashMap;
 
 public class AqlTester {
 
-	static String message = "This self-test will run all the built-in CQL examples and check for exceptions.  This test cannot be aborted.  This window will disappear for a while. Continue?";
+	static String message = "This self-test will run all the built-in CQL examples and check for exceptions.  This test cannot be interupted.  This window will disappear for a while. Continue?";
 
 	public static void doSelfTests() {
 		int c = JOptionPane.showConfirmDialog(null, message, "Run Self-Test?", JOptionPane.YES_NO_OPTION);

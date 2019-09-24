@@ -18,6 +18,7 @@ import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
 import catdata.aql.Query;
+import catdata.aql.Query.Agg;
 import catdata.aql.Term;
 import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
@@ -115,7 +116,7 @@ public final class QueryExpDeltaEval extends QueryExp {
 		}
 
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
-		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts = new THashMap<>();
+		Map<Att, Chc<Term<Ty, En, Sym, Fk, Att, Var, Var>, Agg<Ty, En, Sym, Fk, Att>>> atts = new THashMap<>();
 		Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
 		Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
 
@@ -131,7 +132,7 @@ public final class QueryExpDeltaEval extends QueryExp {
 			Term<Ty, En, Sym, Fk, Att, Var, Var> h = F0.atts.get(att).third.mapGenSk(Util.voidFn(), Util.voidFn());
 			Term<Ty, En, Sym, Fk, Att, Var, Var> g = Term.Gen(v);
 			Term<Ty, En, Sym, Fk, Att, Var, Var> t = h.subst(Collections.singletonMap(F0.atts.get(att).first, g));
-			atts.put(att, t);
+			atts.put(att, Chc.inLeft(t));
 		}
 		for (Fk fk : F0.src.fks.keySet()) {
 			Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> g = new THashMap<>();

@@ -207,6 +207,9 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		} else if (term.att() != null) {
 			return att(term.att(), intoX(term.arg));
 		}
+		if (term.var != null) {
+			return term.convert(); //for aggregation only
+		}
 		throw new RuntimeException("Anomaly: please report: " + term);
 	}
 

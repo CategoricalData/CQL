@@ -108,9 +108,10 @@ public final class QueryExpFromCoSpan extends QueryExp {
 		return new QueryExpCompose(a, b, Util.toList(options)).eval(env, isC);
 	}
 
-	public Term<Ty, En, Sym, Fk, Att, Var, Var> transT(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> M1,
+	private Term<Ty, En, Sym, Fk, Att, Var, Var> transT(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> M1,
 			Map<En, Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>>> iso,
 			Term<Ty, En, Sym, Fk, Att, Var, Var> t, En en3, Var v) {
+		
 		if (t.obj() != null) {
 			return Term.Obj(t.obj(), t.ty());
 		} else if (t.sym() != null) {
@@ -120,13 +121,17 @@ public final class QueryExpFromCoSpan extends QueryExp {
 			}
 			return Term.Sym(t.sym(), l);
 		} else if (t.att() != null) {
+			if (! M1.atts.get(t.att()).left) {
+				Util.anomaly();
+			}
+			
 			En en2 = M1.dst.atts.get(t.att()).first;
-			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> ret = M1.atts.get(t.att());
-			for (Var head : M1.atts.get(t.att()).gens()) {
+			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> ret = M1.atts.get(t.att()).l;
+			for (Var head : M1.atts.get(t.att()).l.gens()) {
 				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3, en2);
 				ret = ret.replace(Term.Gen(head), u.convert());
 			}
-			for (Var head : M1.atts.get(t.att()).sks()) {
+			for (Var head : M1.atts.get(t.att()).l.sks()) {
 				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3, en2);
 				ret = ret.replace(Term.Sk(head), u.convert());
 			}

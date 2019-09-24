@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import catdata.Chc;
@@ -21,9 +22,11 @@ import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
 import catdata.aql.Frozen;
+import catdata.aql.Head;
 import catdata.aql.Instance;
 import catdata.aql.It.ID;
 import catdata.aql.Query;
+import catdata.aql.Query.Agg;
 import catdata.aql.Schema;
 import catdata.aql.SqlTypeSide;
 import catdata.aql.Term;
@@ -101,10 +104,18 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		return gen;
 	}
 
+	private final  
+	 Map<Att2, Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>,  Term<Ty,Void,Sym,Void,Void,Void,Y>>> aggs; 
+	
 	@Override
-	public Term<Ty, Void, Sym, Void, Void, Void, Y> att(Att2 att,
+	public synchronized Term<Ty, Void, Sym, Void, Void, Void, Y> att(Att2 att,
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
-		Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> l = trans1x(x, Q.atts.get(att), I,
+		Term<Ty, En1, Sym, Fk1, Att1, Var, Var> w;
+		
+		if (!Q.atts.get(att).left) {
+			return aggs.get(att).get(x);
+		} 
+		Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> l = trans1x(x, Q.atts.get(att).l, I,
 				Q.ens.get(Q.dst.atts.get(att).first));
 		return I.schema().typeSide.js.reduce(I.algebra().intoY(l));
 	}
@@ -174,7 +185,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		Connection conn = null;
 		boolean safe = (I.algebra().talg().sks.isEmpty() && I.algebra().talg().eqs.isEmpty()) || allowUnsafeSql();
 		boolean useSql = I.size() >= minSizeForSql() && safe && (SqlTypeSide.tys().containsAll(I.schema().typeSide.tys))
-				&& SqlTypeSide.syms().keySet().containsAll(I.schema().typeSide.syms.keySet());
+				&& SqlTypeSide.syms().keySet().containsAll(I.schema().typeSide.syms.keySet()) /*&& !q.hasAgg() should be fine */;
 		int vlen = (int) options.getOrDefault(AqlOption.varchar_length);
 		if (useSql) {
 			this.Q = q.unnest();
@@ -198,6 +209,70 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 					this.Q.ens.get(en2), conn, useSql);
 			ens.put(en2, x);
 		}
+		aggs = new THashMap<>();
+		for (Entry<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Agg<Ty, En1, Sym, Fk1, Att1>>> entry : Q.atts.entrySet()) {
+			if (entry.getValue().left) {
+				continue;
+			}
+			En2 en2 = Q.dst.atts.get(entry.getKey()).first;
+			Agg<Ty, En1, Sym, Fk1, Att1> agg = entry.getValue().r;
+			List<Var> plan = new LinkedList<>(agg.lgens.keySet());
+			boolean useIndices = false; 
+			
+			
+			Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Term<Ty, Void, Sym, Void, Void, Void, Y>> map = new THashMap<>();
+			
+			for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row : ens.get(en2).second) {
+				Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = new LinkedList<>();
+				Collection<Object> done = new THashSet<>(plan.size());
+				Frozen<Ty, En1, Sym, Fk1, Att1> ddd = agg.toFrozen(Q.params, Q.src, options, this.Q.ens.get(en2));
+				ret.add(row);
+				done.addAll(this.Q.ens.get(en2).gens.keySet());
+				for (Var v : plan) {
+					Chc<En1, Ty> x = Chc.inLeft(agg.lgens.get(v));
+					ret = EvalAlgebra.extend(ret, v, ddd, I, useIndices, x, done);
+					done.add(v);
+				}
+
+				//List<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> list = new LinkedList<>();
+				List<Term<Ty, Void, Sym, Void, Void, Void, Y>> list = new LinkedList<>();
+				Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> aaa = trans1x(null, agg.zero, I, Q.ens.get(Q.dst.atts.get(entry.getKey()).first));
+				Term<Ty, Void, Sym, Void, Void, Void, Y> result2t = I.algebra().intoY(aaa);
+				Term<Ty, Void, Sym, Void, Void, Void, Y> qq = I.schema().typeSide.js.reduce(result2t);
+				list.add(qq);
+				
+				for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x : ret) {
+					Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> aaaa = trans1x(x, agg.ret, I,Q.ens.get(Q.dst.atts.get(entry.getKey()).first));
+					Term<Ty, Void, Sym, Void, Void, Void, Y> result2 = I.algebra().intoY(aaaa);
+					Term<Ty, Void, Sym, Void, Void, Void, Y> a = I.schema().typeSide.js.reduce(result2);
+					list.add(a);
+				}
+				
+				list.sort((a,b)-> {
+					int aa = a.obj() != null ? 1 : 0;
+					int bb = b.obj() != null ? 1 : 0;
+					return Integer.compare(bb, aa);
+				});
+				
+				Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> opo = trans1x(null, agg.op, I, Q.ens.get(Q.dst.atts.get(entry.getKey()).first));
+				Term<Ty, Void, Sym, Void, Void, Void, Y> result2o = I.algebra().intoY(opo);
+				Term<Ty, Void, Sym, Void, Void, Void, Y> op = I.schema().typeSide.js.reduce(result2o);
+				
+				Iterator<Term<Ty, Void, Sym, Void, Void, Void, Y>> it = list.iterator();
+				Term<Ty, Void, Sym, Void, Void, Void, Y> result = it.next();
+		
+				while (it.hasNext()) {
+					Term<Ty, Void, Sym, Void, Void, Void, Y> o = it.next();
+					Map<Var, Term<Ty, Void, Sym, Void, Void, Void, Y>> subst = new THashMap<>(2);
+					subst.put(agg.ctx.first, result);
+					subst.put(agg.ctx.second, o);
+					result = I.schema().typeSide.js.reduce(op.subst(subst));	
+				}			
+				map.put(row, result);
+			}	
+			aggs.put(entry.getKey(), map); 
+		}
+		//System.out.println(aggs);
 		if (conn != null) {
 			if (!persistentIndices()) {
 				try {
@@ -228,7 +303,6 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 
 	private Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>>> eval(En2 en2,
 			Frozen<Ty, En1, Sym, Fk1, Att1> q, Connection conn, boolean useSql) {
-		Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = null;
 		// Integer k = maxTempSize();
 		if (useSql) {
 			for (Frozen<Ty, En1, Sym, Fk1, Att1> z : Q.ens.values()) {
@@ -240,7 +314,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 					I.algebra().intifyX((int) options.getOrDefault(AqlOption.start_ids_at)), conn);
 			return ret2;
 		}
-		ret = new LinkedList<>();
+		Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = new LinkedList<>();
 		List<Var> plan = q.order(options, I);
 		boolean useIndices = useIndices() && q.gens.size() > 1 && I.algebra().hasFreeTypeAlgebra();
 		ret.add(new Row<>(en2));
@@ -349,11 +423,23 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	
 	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> trans1x(
 			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple,
-			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2,
+			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, 
+			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2,
 			Frozen<Ty, En1, Sym, Fk1, Att1> Q) {
+		if (first.var != null) {
+			return first.convert();
+		}
 		if (first.gen() != null) {
 			En1 en1 = Q.gens.get(first.gen());
-			return i2.algebra().repr(en1, tuple.get(first.gen()).l).convert();
+		//	System.out.println(tuple);
+		//	System.out.println(first);
+			Util.assertNotNull(tuple, first);
+
+			X t = tuple.get(first.gen()).l;
+		//	if (t == null) {
+		//		System.out.println(tuple);
+		//	}
+			return i2.algebra().repr(en1, t).convert();
 		} else if (first.sk() != null) {
 			Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> z = tuple.get(first.sk());
 			if (!z.left) {
@@ -476,18 +562,21 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 						enOrTy);
 				for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : q
 						.eqs()) {
-					
+					//System.out.println("eq " + eq);
 					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = EvalAlgebra.trans1(row, eq.first, I, q,
 							done);
 					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = EvalAlgebra.trans1(row, eq.second, I, q, done);
-					
+					//System.out.println("lhs rhs " + lhs + " = " + rhs);
 					if (!lhs.isPresent() || !rhs.isPresent()) {
 						ret.add(row);
+					//	System.out.println("a");
 						continue outer;
 					}
 					if (!I.dp().eq(null, lhs.get(), rhs.get())) {
+					//	System.out.println("b ");
 						continue outer;
 					}
+					//System.out.println("c ");
 				}
 				ret.add(row);
 			}

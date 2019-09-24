@@ -21,6 +21,7 @@ import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
 import catdata.aql.Query;
+import catdata.aql.Query.Agg;
 import catdata.aql.Term;
 import catdata.aql.Var;
 import catdata.aql.fdm.DeltaInstance;
@@ -112,7 +113,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 		AqlOptions ops = new AqlOptions(options, null, env.defaults);
 
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
-		Map<Att, Term<Ty, En, Sym, Fk, Att, Var, Var>> atts = new THashMap<>();
+		Map<Att, Chc<Term<Ty, En, Sym, Fk, Att, Var, Var>,Agg<Ty, En, Sym, Fk, Att>>> atts = new THashMap<>();
 		Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
 		Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
 
@@ -304,7 +305,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 				tt0 = tt0.replace(surj.get(F0.dst.atts.get(att2).first));
 			}
 
-			atts.put(att2, tt0);
+			atts.put(att2, Chc.inLeft(tt0));
 		}
 
 		return Query.makeQuery(ens, atts, fks, sks, F0.src, F0.dst,

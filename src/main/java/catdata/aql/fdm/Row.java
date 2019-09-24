@@ -56,6 +56,9 @@ public class Row<En2, X> {
 		if (v.equals(vv)) {
 			return x;
 		}
+		if (tail == null) {
+			Util.anomaly();
+		}
 		return tail.get(vv);
 	}
 
