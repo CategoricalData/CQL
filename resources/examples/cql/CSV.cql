@@ -33,7 +33,7 @@ command createCsvData = exec_js {
 	"Java.type(\"catdata.Util\").writeFile(\"eId,is\\n10,0\\n11,1\\n12,2\", \"Employee.csv\")"
 }
 
-instance I0 = import_csv "" : S0 {
+instance I0 = import_csv "." : S0 {
 	Employee -> {Employee -> eId   eAsP -> is    eSsn -> is}
 	//eId -> eId can be ommitted
 	
@@ -88,7 +88,7 @@ command createCsvData2 = exec_js {
 	"Java.type(\"catdata.Util\").writeFile(\"ssn,nameOf,Likes\\n0,a,a\\n1,b,\\\"a,b,d\\\"\\n2,c,\\\"\\\"\\n\", \"Person.csv\")"
 }
 
-instance I = import_csv "" : S {
+instance I = import_csv "." : S {
 	Person -> {
 		Person -> ssn
 		name -> nameOf

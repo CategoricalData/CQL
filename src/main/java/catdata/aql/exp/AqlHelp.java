@@ -1383,4 +1383,9 @@ public class AqlHelp implements
 		return "Delta (model reduct) functor along a schema mapping, applied to an APG morphism that is schema preserving and data natural.";
 	}
 
+	@Override
+	public String visit(Unit param, SchExpCsv schExpCsv) {
+		return "Computes the schema associated with a directory of CSV files";
+	}
+
 }

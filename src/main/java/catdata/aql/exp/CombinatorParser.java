@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jparsec.Parser;
@@ -280,12 +278,15 @@ public class CombinatorParser implements IAqlParser {
 				dom = Parsers.tuple(token("dom_q"), query_ref.lazy()).map(x -> new SchExpDom(x.b)),
 				cod2 = Parsers.tuple(token("cod_m"), map_ref.lazy()).map(x -> new SchExpDst(x.b)),
 				dom2 = Parsers.tuple(token("dom_m"), map_ref.lazy()).map(x -> new SchExpSrc(x.b)),
+				
+				csv = Parsers.tuple(token("import_csv"), ident, options.between(token("{"), token("}")).optional()).map(x-> new SchExpCsv(x.b, x.c == null ? Collections.emptyList() : x.c)),
+				
 				all = Parsers
 						.tuple(token("import_jdbc_all"), ident,
 								options.between(token("{"), token("}")).optional())
 						.map(x -> new SchExpJdbcAll(x.b, Util.newIfNull(x.c))),
 
-				ret = Parsers.or(inst, empty, schExpRaw(), var, all, colim, parens(sch_ref), pivot, cod, dom, cod2,
+				ret = Parsers.or(inst, csv, empty, schExpRaw(), var, all, colim, parens(sch_ref), pivot, cod, dom, cod2,
 						dom2);
 
 		sch_ref.set(ret);

@@ -1,6 +1,5 @@
 package catdata.aql.exp;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -130,17 +129,15 @@ public class InstExpCsv
 
 			// File file = new File(map.get(k));
 			// BufferedReader fileReader = new BufferedReader(r);
-			 //String s;
-			 ///while ((s = fileReader.readLine()) != null) {
-			//	 System.out.println(s);
+			// String s;
+			/// while ((s = fileReader.readLine()) != null) {
+			// System.out.println(s);
 			// }
-			
 
 			final CSVReader reader = new CSVReaderBuilder(r).withCSVParser(parser)
 					.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
 
 			List<String[]> rows = reader.readAll();
-
 			
 			ret.put(En.En(k), rows);
 			reader.close();
@@ -164,8 +161,9 @@ public class InstExpCsv
 	@Override
 	protected Map<En, List<String[]>> start(Schema<Ty, En, Sym, Fk, Att> sch) throws Exception {
 		Map<String, Reader> m = new THashMap<>();
+		Boolean b = (Boolean) op.getOrDefault(AqlOption.csv_prepend_entity);
 		for (En en : sch.ens) {
-			String x = f + op.getOrDefault(AqlOption.csv_import_prefix) + en.toString() + "."
+			String x = f + op.getOrDefault(AqlOption.csv_import_prefix) + "/" + en.toString() + "."
 					+ op.getOrDefault(AqlOption.csv_file_extension);
 			InputStream is = makeURL(x);
 			try {
@@ -199,7 +197,7 @@ public class InstExpCsv
 	protected void joinedEn(Map<En, List<String[]>> rows, En en0,
 			Pair<List<Pair<String, String>>, List<Pair<String, String>>> s, Schema<Ty, En, Sym, Fk, Att> sch)
 			throws Exception {
-		String en = en0.convert();
+		String en = en0.convert().replaceAll("[\uFEFF-\uFFFF]", "").trim();
 		Map<String, String> inner;
 		if (s == null) {
 			inner = new THashMap<>();
@@ -207,16 +205,16 @@ public class InstExpCsv
 			inner = Util.toMapSafely(s.second);
 		}
 		boolean autoGenIds = (Boolean) op.getOrDefault(inner, AqlOption.csv_generate_ids);
-		//for (En en2 : rows.keySet()) {
-			if (rows.get(en0).size() == 0) {
-				throw new RuntimeException("No header in CSV file for " + en0);
-			}
-		//}
+		// for (En en2 : rows.keySet()) {
+		if (rows.get(en0).size() == 0) {
+			throw new RuntimeException("No header in CSV file for " + en0);
+		}
+		// }
 
 		// index of each column name
-		Map<String, Integer> m = new THashMap<>();
+		Map<String, Integer> m = new THashMap<>(rows.size());
 		for (int i = 0; i < rows.get(en0).get(0).length; i++) {
-			m.put(rows.get(en0).get(0)[i], i);
+			m.put(rows.get(en0).get(0)[i].replaceAll("[\uFEFF-\uFFFF]", "").trim(), i);
 		}
 		boolean prepend = (boolean) op.getOrDefault(inner, AqlOption.csv_prepend_entity);
 		String sep = (String) op.getOrDefault(inner, AqlOption.import_col_seperator);
@@ -229,22 +227,9 @@ public class InstExpCsv
 			map = new THashMap<>();
 		}
 
-		Function<String, String> mediate = x -> {
-			if (map.containsKey(x)) {
-				return map.get(x);
-			}
-			String z = x;
-			if (prepend) {
-				int i = x.indexOf(en + sep);
-				if (i != 0) {
-					return pre + z;
-				}
-				String temp = x.substring((en + sep).length());
-				return pre + temp;
-			}
-			return pre + z;
-		};
+//		Function<String, String> mediate = mediate(en, prepend, sep, pre, map);
 		int startId = 0;
+
 		for (String[] row : rows.get(en0).subList(1, rows.get(en0).size())) {
 			Gen l0;
 
@@ -266,7 +251,7 @@ public class InstExpCsv
 				if (!fks0.containsKey(l0)) {
 					fks0.put(l0, new THashMap<>());
 				}
-				String zz = row[m.get(mediate.apply(fk.convert()))];
+				String zz = row[m.get(mediate(en, prepend, sep, pre, map, fk.convert()))];
 				if (zz == null && !import_as_theory) {
 					throw new RuntimeException("FK has null value, " + fk + " on " + Arrays.toString(row));
 				} else if (zz != null) {
@@ -280,7 +265,7 @@ public class InstExpCsv
 				if (!atts0.containsKey(l0)) {
 					atts0.put(l0, new THashMap<>());
 				}
-				String zz = mediate.apply(att.convert());
+				String zz = mediate(en, prepend, sep, pre, map, att.convert());
 				if (!m.containsKey(zz)) {
 					throw new RuntimeException("No column " + att + " in file for " + en + " nor explicit mapping for "
 							+ att + " given. Tried " + zz + " and options are " + Util.alphabetical(m.keySet()));
@@ -296,6 +281,26 @@ public class InstExpCsv
 			}
 		}
 
+	}
+
+	private String mediate(String en, boolean prepend, String sep, String pre,
+			Map<String, String> map, String x) {
+			if (map.containsKey(x)) {
+				return map.get(x);
+			}
+			String z = x;
+			if (prepend) {
+				int i = x.indexOf(en + sep);
+				if (i != 0) {
+					map.put(x, pre + z);
+					return pre + z;
+				}
+				String temp = x.substring((en + sep).length());
+				map.put(x, pre + temp);
+				return pre + temp;
+			}
+			map.put(x, pre + z);
+			return pre + z;
 	}
 
 	// TODO aql shredded input format for CSV

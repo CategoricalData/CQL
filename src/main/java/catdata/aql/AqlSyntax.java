@@ -8,6 +8,7 @@ public enum AqlSyntax {
 	ApgSchExpTimes,
 	ApgSchExpVar,
 	ApgSchExpRaw,
+	ApgSchExpCsv,
 	
 	//ApgMapExpId,
 	//ApgMapExpCompose,

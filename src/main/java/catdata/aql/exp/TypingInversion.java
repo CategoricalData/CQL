@@ -46,6 +46,7 @@ import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
 import catdata.apg.exp.ApgTyExp;
 import catdata.apg.exp.ApgTyExp.ApgTyExpRaw;
 import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
+import catdata.aql.AqlOptions;
 import catdata.aql.RawTerm;
 import catdata.aql.exp.ColimSchExp.ColimSchExpQuotient;
 import catdata.aql.exp.ColimSchExp.ColimSchExpRaw;
@@ -2169,6 +2170,11 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		r.defs.apgschemas.put("T", ty);
 		
 		return new ApgMapExpRaw(S, T, Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public SchExpCsv visitSchExpCsv(Unit params, AqlTyping r) {
+		return new SchExpCsv("filename", Collections.emptyList());
 	}
 
 }

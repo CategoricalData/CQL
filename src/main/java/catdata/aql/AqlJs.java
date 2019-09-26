@@ -51,23 +51,33 @@ public class AqlJs<Ty, Sym> {
 			engine = null;
 			iso1 = null;
 			iso2 = null;
+			//cache = null;
 			return;
 		}
 		iso1 = new THashMap<>(java_parsers.size());
 		iso2 = new THashMap<>(java_parsers.size());
+	//	cache = new THashMap<>(java_parsers.size());
 		try {
 			engine = new ScriptEngineManager().getEngineByName("nashorn");
 			Compilable eng = (Compilable) engine;
 
 			int i = 0;
 			for (Ty k : java_parsers.keySet()) {
-				String ret = "function aqljsparser_" + i + "(input) { " + java_parsers.get(k) + " }\n\n";
-				iso1.put(k, "aqljsparser_" + i);
+				String m = java_parsers.get(k);
+				String w = "aqljsparser_" + i;
+			
+				if (m.equals("return input[0]")) {
+				//	cache.put(k, new THashMap<>());
+					iso1.put(k, "");
+				} else {
+					String ret = "function aqljsparser_" + i + "(input) { " + m + " }\n\n";
+				//	cache.put(k, new THashMap<>());
+					iso1.put(k, w);
+					CompiledScript x = eng.compile(ret);
+					x.eval();
+				}
+				
 				i++;
-
-				CompiledScript x = eng.compile(ret);
-				x.eval();
-
 				last = k;
 			}
 			i = 0;
@@ -101,14 +111,30 @@ public class AqlJs<Ty, Sym> {
 		}
 	}
 
+	//private Map<Ty, Map<String, Object>> cache = new THashMap<>();
 	public synchronized Object parse(Ty name, String o) {
 		String z = iso1.get(name);
 		if (z == null) {
 			throw new RuntimeException("In javascript execution of " + o + " no javascript definition for " + name);
 		}
+		//Map<String, Object> g = cache.get(name);
+		//Object h = g.get(o);
+		//if (h != null) {
+		//	return h;
+		//}
 		try {
-			Object ret = ((Invocable) engine).invokeFunction(z, Collections.singletonList(o));
-			check(name, ret);
+			Object ret;
+			if (z.equals("")) {
+				ret = o;
+				if (!java_tys.get(name).equals("java.lang.String")) {
+					check(name, ret);
+				} 
+			} else {
+				ret = ((Invocable) engine).invokeFunction(z, Collections.singletonList(o));
+				check(name, ret);
+			}
+			
+		//	g.put(o, ret);
 			return ret;
 		} catch (Throwable e) {
 			if (e.getMessage() != null && e.getMessage().contains("jdk.nashorn.internal.codegen.TypeMap")) {

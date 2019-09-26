@@ -45,6 +45,8 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		public abstract SchExpJdbcAll visitSchExpJdbcAll(P params, R r);
 
+		public abstract SchExpCsv visitSchExpCsv(P params, R r);
+
 	}
 
 	public abstract <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E;
@@ -73,6 +75,8 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 		public abstract R visit(P params, SchExpDst exp) throws E;
 
 		public abstract R visit(P param, SchExpJdbcAll schExpJdbcAll);
+
+		public abstract R visit(P param, SchExpCsv schExpCsv);
 
 	}
 

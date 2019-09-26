@@ -118,7 +118,12 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		JTabbedPane ret = new JTabbedPane();
 		new AqlViewer(maxrows, env, showAtts).visit(k, ret, s);
 		String l = "Compute time: " + env.performance.get(k) + " s.\n\nSize: " + s.size();
-		ret.addTab("Text", new CodeTextPanel("", s.toString()));
+		if (s.size() < 1024) {
+			ret.addTab("Text", new CodeTextPanel("", s.toString()));
+		} else {
+			ret.addTab("Text", new CodeTextPanel("", "Suppressed, size " + s.size() + "."));
+		}
+		
 		ret.addTab("Expression", new CodeTextPanel("", l + "\n\n" + exp.toString()));
 		// System.out.println(exp.getClass() + " " + env.performance.get(k));
 		return ret;
@@ -708,6 +713,9 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		Map<En, Pair<List<String>, Object[][]>> ret = new LinkedHashMap<>();
 
 		List<En> ens = Util.alphabetical(alg.schema().ens);
+		if (ens.size() > 32) {
+			ens = ens.subList(0, 31);
+		}
 
 		Map<X, Integer> referredTo = new THashMap<>();
 		Map<Y, Integer> referredTo2 = new THashMap<>();
@@ -746,7 +754,15 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			List<String> atts0x = atts0.stream().map(Object::toString).collect(Collectors.toList());
 			List<String> fks0x = fks0.stream().map(Object::toString).collect(Collectors.toList());
 			List<String> header = Util.<String>append(atts0x, fks0x);
-			header.add(0, "Row");
+			
+			//boolean aabr = true;
+			if (header.size() > 8) {
+				header = header.subList(0, 8); //easier on the eye
+				header.add(0, "Row (Cols Abbr)");
+			} else {
+				header.add(0, "Row");
+			}
+			
 			int n = Integer.min(limit, alg.size(en));
 			Object[][] data = new Object[n][];
 			if (n != 0) {
@@ -812,7 +828,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				.toString(z -> alg.printY(alg.talg().sks.get(z), z).toString(), Util.voidFn());
 
 		enTableSimpl(alg, ret, a, b, a);
-
+		
 		return ret;
 	}
 
@@ -981,6 +997,10 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				JPanel z = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), str, arr, header.toArray());
 				list.add(z);
 			}
+		}
+		
+		if (entables.size() != algebra.schema().ens.size()) {
+			list.add(new JLabel("Display suppressed; showing only some tables"));
 		}
 
 		return list;
@@ -1173,11 +1193,20 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 		if (I.algebra().talg().sks.size() < 1024) {
 			ret.addTab("TyAlg", new CodeTextPanel("", I.algebra().talgToString()));
+			ret.addTab("Hom-sets", makeHomSet((Instance<catdata.aql.exp.Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>) I));
+		
+			if (I.size() < 1024) {
+				ret.addTab("DP", viewDP(I.dp(), I.collage(), I.schema().typeSide.js));
+			} else {
+				ret.addTab("DP", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));		
+			}
+		
 		} else {
 			ret.addTab("TyAlg", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
+			ret.addTab("Hom-sets", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
+			ret.addTab("DP", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
+		
 		}
-		ret.addTab("Hom-sets", makeHomSet((Instance<catdata.aql.exp.Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>) I));
-		ret.addTab("DP", viewDP(I.dp(), I.collage(), I.schema().typeSide.js));
 		// ret.addTab("TPTP", new CodeTextPanel("", I.tptp()));
 
 		return Unit.unit;
@@ -1249,6 +1278,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> M) {
 		// ret.addTab("Translate", viewMorphism(M.semantics(), M.src.typeSide.js));
 		ret.addTab("Graph", viewMappingGraph(M));
+		
 		ret.addTab("Collage", new CodeTextPanel("", M.collage().toString()));
 		return Unit.unit;
 	}
