@@ -9,7 +9,7 @@ public class FreeProver<T, C, V> extends DPKB<T, C, V> {
 
 	public FreeProver(KBTheory<T, C, V> th) {
 		super(th);
-		if (!th.eqs.isEmpty()) {
+		if (th != null && !th.eqs.isEmpty()) {
 			throw new RuntimeException("not an empty theory, as required by free proving strategy");
 		}
 	}
@@ -26,7 +26,9 @@ public class FreeProver<T, C, V> extends DPKB<T, C, V> {
 
 	@Override
 	public synchronized void add(C c, T t) {
-		this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
+		if (this.kb != null) {
+			this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
+		}
 	}
 
 }

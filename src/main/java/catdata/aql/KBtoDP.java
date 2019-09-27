@@ -67,6 +67,9 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 
 	private void dealWithNew(Term<Ty, En, Sym, Fk, Att, Gen, Sk> t, boolean allowNew) {
 		if (allowNew) {
+			if (dpkb.kb == null) {
+				return;
+			}
 			for (Pair<Object, Ty> x : t.objs()) {
 				Head<Ty, En, Sym, Fk, Att, Gen, Sk> h = Head.mkHead(x.first, x.second);
 				if (!dpkb.kb.syms.containsKey(h)) {

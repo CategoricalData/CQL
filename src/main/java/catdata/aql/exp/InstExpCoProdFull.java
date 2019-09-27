@@ -181,7 +181,7 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y>
 
 		return new LiteralInstance<>(sch0, col.gens, col.sks, eqs0, initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size());
 	}
 
 	@Override

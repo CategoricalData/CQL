@@ -32,7 +32,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -50,6 +49,7 @@ import catdata.aql.exp.AqlEnv;
 import catdata.aql.gui.AqlCodeEditor;
 import catdata.ide.IdeOptions.IdeOption;
 import catdata.nested.NraViewer;
+import catdata.sql.SqlChecker;
 import easik.Easik;
 import easik.ui.menu.popup.ImportSketchAction;
 import gnu.trove.map.hash.THashMap;
@@ -223,10 +223,10 @@ public class GUI extends JPanel {
 		/* MenuItem sqlMapperItem = new MenuItem("SQL Mapper");
 		toolsMenu.add(sqlMapperItem);
 		sqlMapperItem.addActionListener(x -> SqlMapper.showGuesser());
-
+*/
 		MenuItem sqlCheckItem = new MenuItem("SQL Checker");
 		toolsMenu.add(sqlCheckItem);
-		sqlCheckItem.addActionListener(x -> new SqlChecker()); */
+		sqlCheckItem.addActionListener(x -> new SqlChecker()); 
 
 		MenuItem shredItem = new MenuItem("NR Shredder");
 		toolsMenu.add(shredItem);

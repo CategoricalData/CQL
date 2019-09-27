@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import catdata.Chc;
@@ -28,8 +29,7 @@ import gnu.trove.map.hash.THashMap;
 
 public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> {
 
-	private final Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs; // = new
-																											// HashSet<>();
+	private final LazySet<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs; 
 
 //	private final Map<X, En> gens;
 
@@ -52,6 +52,7 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 	public Algebra<Ty, En, Sym, Fk, Att, X, Y, X, Y> algebra() {
 		return inner_alg;
 	}
+	final int size2;
 
 	public SaturatedInstance(Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg, DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp,
 			boolean requireConsistency, boolean allowUnsafeJava, boolean labelledNulls,
@@ -65,7 +66,7 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 		for (En en : schema().ens) {
 			size += alg.size(en) * (schema().attsFrom(en).size() + schema().fksFrom(en).size());
 		}
-		// final int size2 = size;
+		size2 = size;
 
 		gens = (new THashMap<>(2 * alg.size()));
 		for (En en : alg.schema().ens) {
@@ -107,7 +108,7 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 			return set;
 		};
 
-		eqs = (new LazySet<>(fun, size));
+		eqs = new LazySet<>(fun, size);
 
 		if (labelledNulls) {
 			sks = Collections.emptyMap();
@@ -309,6 +310,11 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 	@Override
 	public boolean allowUnsafeJava() {
 		return allowUnsafeJava;
+	}
+
+	@Override
+	public int numEqs() {
+		return size2;
 	}
 
 }

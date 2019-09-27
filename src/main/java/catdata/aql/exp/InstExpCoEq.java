@@ -143,7 +143,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 
 		return new LiteralInstance<>(h1.src().schema(), col.gens, col.sks, col.eqsAsPairs(), initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), col.eqs.size());
 	}
 
 	@Override

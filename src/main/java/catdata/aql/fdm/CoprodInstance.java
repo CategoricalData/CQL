@@ -1,7 +1,10 @@
 package catdata.aql.fdm;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import catdata.Chc;
@@ -14,6 +17,13 @@ import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
+import catdata.aql.exp.Att;
+import catdata.aql.exp.En;
+import catdata.aql.exp.Fk;
+import catdata.aql.exp.Gen;
+import catdata.aql.exp.Sk;
+import catdata.aql.exp.Sym;
+import catdata.aql.exp.Ty;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -22,12 +32,12 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 	private final Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> insts;
 	private final Schema<Ty, En, Sym, Fk, Att> sch;
-	private final Set<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs = new THashSet<>();
+	private final LazySet<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs;
 	private final Map<Pair<String, Gen>, En> gens = new THashMap<>();
 	private final Map<Pair<String, Sk>, Ty> sks = new THashMap<>();
 	private Map<En, Collection<Pair<String, X>>> ens = new THashMap<>();
 	Collage<Ty, Void, Sym, Void, Void, Void, Pair<String, Y>> col;
-
+	final int eqsize2;
 	public CoprodInstance(Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> insts0,
 			Schema<Ty, En, Sym, Fk, Att> sch0, boolean uj, boolean rc) {
 		this.insts = insts0;
@@ -40,6 +50,24 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		col = new Collage<>(sch.typeSide.collage());
 		col.eqs.clear();
 
+		// set = new LazySet(fun, i.eqs)
+		int eqsize = 0;
+		for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts0.entrySet()) {
+			eqsize += x.getValue().numEqs();
+		}
+		eqsize2 = eqsize;
+		eqs = new LazySet<>(_x -> {
+			List<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> ret = new ArrayList<>(
+					eqsize2);
+			for (String x : insts0.keySet()) {
+				Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = insts0.get(x);
+				for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : i.eqs()) {
+					ret.add(new Pair<>(eq.first.mapGenSk(x0 -> new Pair<>(x, x0), x0 -> new Pair<>(x, x0)),
+							eq.second.mapGenSk(x0 -> new Pair<>(x, x0), x0 -> new Pair<>(x, x0))));
+				}
+			}
+			return ret;
+		}, eqsize);
 		for (String x : insts0.keySet()) {
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = insts0.get(x);
 			for (Gen s : i.gens().keySet()) {
@@ -47,10 +75,6 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 			for (Sk s : i.sks().keySet()) {
 				sks.put(new Pair<>(x, s), i.sks().get(s));
-			}
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : i.eqs()) {
-				eqs.add(new Pair<>(eq.first.mapGenSk(x0 -> new Pair<>(x, x0), x0 -> new Pair<>(x, x0)),
-						eq.second.mapGenSk(x0 -> new Pair<>(x, x0), x0 -> new Pair<>(x, x0))));
 			}
 			for (En en : sch0.ens) {
 				for (X y : i.algebra().en(en)) {
@@ -64,7 +88,8 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				Util.anomaly();
 			}
 		}
-		validate();
+
+//		validate();
 
 	}
 
@@ -98,7 +123,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	}
 
 	@Override
-	public Set<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs() {
+	public Collection<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs() {
 		return eqs;
 	}
 
@@ -122,11 +147,12 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 					if (schema().typeSide.js.java_tys.isEmpty()) {
 						return algebra().intoY(rhs).equals(algebra().intoY(lhs));
 					}
-					return schema().typeSide.js.reduce(algebra().intoY(rhs)).equals(schema().typeSide.js.reduce(algebra().intoY(lhs)));
-					
+					return schema().typeSide.js.reduce(algebra().intoY(rhs))
+							.equals(schema().typeSide.js.reduce(algebra().intoY(lhs)));
+
 				}
-				return algebra().intoX(rhs).equals(algebra().intoX(lhs));	
-					
+				return algebra().intoX(rhs).equals(algebra().intoX(lhs));
+
 			}
 		};
 
@@ -135,8 +161,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	@Override
 	public Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Pair<String, Y>> algebra() {
 		return new Algebra<>() {
-			
-		
+
 			@Override
 			public Schema<Ty, En, Sym, Fk, Att> schema() {
 				return sch;
@@ -218,6 +243,11 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 
 		};
+	}
+
+	@Override
+	public int numEqs() {
+		return eqsize2;
 	}
 
 }

@@ -126,6 +126,9 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 	@Override
 	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
 			boolean isC) {
+		if (isC) {
+			return null;
+		}
 		Mapping<catdata.aql.exp.Ty, En, catdata.aql.exp.Sym, Fk, Att, En, Fk, Att> f = F.eval(env, isC);
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = I.eval(env, isC);
 		if (isC) {
@@ -159,7 +162,7 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 
 			Instance zz = new LiteralInstance<>(alg.schema(), col.gens, col.sks, eqs, alg, alg,
 					(Boolean) op.getOrDefault(AqlOption.require_consistency),
-					(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+					(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs.size());
 			zz.validate();
 			return zz;
 		} else if (type.equals("parallel")) {

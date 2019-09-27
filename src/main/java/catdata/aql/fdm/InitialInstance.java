@@ -142,4 +142,9 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 		return false;
 	}
 
+	@Override
+	public int numEqs() {
+		return 0;
+	}
+
 }

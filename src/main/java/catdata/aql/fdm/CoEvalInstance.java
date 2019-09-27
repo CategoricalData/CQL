@@ -75,7 +75,6 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 					Term.upTalg(eq.rhs.mapGenSk(Util.voidFn(), Chc::inRight))));
 		}
 		// col.validate();
-
 		for (En2 t : J.schema().ens) {
 			// col.validate();
 			for (X j : J.algebra().en(t)) {
@@ -100,7 +99,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Gen(new Triple<>(v0, J.algebra().fk(fk, j), tt));
 						col.eqs.add(new Eq<>(null, lhs, rhs));
-
+				
 					}
 					// col.validate();
 
@@ -125,6 +124,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 							.att(att, j).map(Function.identity(), Function.identity(), Util.voidFn(), Util.voidFn(),
 									Util.voidFn(), Chc::inRight);
 					col.eqs.add(new Eq<>(null, lhs, rhs));
+					
 
 				}
 
@@ -150,7 +150,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 		init = new InitialAlgebra<>(options, schema(), col, printGen, printSk);
 		I = new LiteralInstance<>(schema(), col.gens, col.sks, z, init.dp(), init,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
-				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe),col.eqs.size());
 		if (size() < 16 * 1024) {
 			validate();
 		}
@@ -194,6 +194,11 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 	@Override
 	public boolean allowUnsafeJava() {
 		return I.allowUnsafeJava();
+	}
+
+	@Override
+	public int numEqs() {
+		return I.numEqs();
 	}
 
 }

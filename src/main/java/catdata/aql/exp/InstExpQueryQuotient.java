@@ -144,6 +144,9 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 		}
 
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0 = I.eval(env, isC);
+		if (queries.isEmpty()) {
+			return (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>) I0;
+		}
 
 		EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Void, Void, X, Y> J = new EvalInstance<>(q, I0, op);
 
@@ -207,7 +210,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 		LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> ret = new LiteralInstance<>(
 				I0.schema(), col.gens, col.sks, Util.iterConcat(I0.eqs(), eqs0), initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size()+I0.numEqs());
 
 		return ret;
 	}

@@ -146,6 +146,7 @@ public class ToCsvPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Pr
 				out.close();
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}

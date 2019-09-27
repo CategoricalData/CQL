@@ -135,7 +135,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 			LiteralInstance<Ty, En, Sym, Fk, Att, Var, Void, Integer, Chc<Void, Pair<Integer, Att>>> y = new LiteralInstance<>(
 					F0.dst, col.gens, col.sks, Collections.emptySet(), initial.dp(), initial,
 					(Boolean) ops.getOrDefault(AqlOption.require_consistency),
-					(Boolean) ops.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+					(Boolean) ops.getOrDefault(AqlOption.allow_java_eqs_unsafe), 0);
 			ys.put(en2, y);
 
 			DeltaInstance<Ty, En, Sym, Fk, Att, Var, Void, En, Fk, Att, Integer, Chc<Void, Pair<Integer, Att>>> J = new DeltaInstance<>(

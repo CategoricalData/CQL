@@ -230,4 +230,9 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		return I.allowUnsafeJava();
 	}
 
+	@Override
+	public int numEqs() {
+		return I.numEqs();
+	}
+
 }

@@ -127,7 +127,7 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 
 		J = new LiteralInstance<>(schema(), col.gens, col.sks, eqs, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
-				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe),eqs.size());
 		//J.validate();
 		
 		
@@ -171,6 +171,11 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 	@Override
 	public boolean allowUnsafeJava() {
 		return J.allowUnsafeJava();
+	}
+
+	@Override
+	public int numEqs() {
+		return J.numEqs();
 	}
 
 }

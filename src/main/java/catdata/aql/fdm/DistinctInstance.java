@@ -213,4 +213,9 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	public boolean allowUnsafeJava() {
 		return I.allowUnsafeJava();
 	}
+
+	@Override
+	public int numEqs() {
+		return eqs.size() + I.numEqs();
+	}
 }

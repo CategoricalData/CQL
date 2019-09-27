@@ -97,6 +97,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 
 	@Override
 	public SchExp type(AqlTyping G) {
+		schema.type(G);
 		return schema;
 	}
 
@@ -276,7 +277,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 		Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Integer, Chc<Null<?>, Pair<Integer, Att>>> I = new LiteralInstance<>(
 				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
 				(Boolean) op.getOrDefault(AqlOption.require_consistency),
-				(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+				(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size());
 
 		@SuppressWarnings("unchecked")
 		Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Gen, Null<?>> J = (Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Gen, Null<?>>) ((Object) I);

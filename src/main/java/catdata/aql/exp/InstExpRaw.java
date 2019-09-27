@@ -302,7 +302,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 
 		return new LiteralInstance<>(sch, col.gens, col.sks, eqs0, initial.dp(), initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size());
 	}
 
 	private Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0_algebra(

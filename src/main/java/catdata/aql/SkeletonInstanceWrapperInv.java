@@ -223,4 +223,9 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 
 	}
 
+	@Override
+	public int numEqs() {
+		return I.numEqs();
+	}
+
 }

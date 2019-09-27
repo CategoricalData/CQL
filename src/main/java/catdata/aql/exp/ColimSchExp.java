@@ -337,6 +337,9 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 
 		@Override
 		public SchExp getNode(String n, AqlTyping G) {
+			if (!G.prog.exps.containsKey(var)) {
+				throw new RuntimeException("Not a named top-level declaration: " + var);
+			}
 			return ((ColimSchExp) G.prog.exps.get(var)).getNode(n, G);
 		}
 

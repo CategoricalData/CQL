@@ -82,6 +82,11 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 			return SigmaChaseAlgebra.this;
 		}
 
+		@Override
+		public int numEqs() {
+			return X.numEqs();
+		}
+
 	}
 
 	private final Schema<Ty, En2, Sym, Fk2, Att2> B;
@@ -113,17 +118,18 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 			offset.put(en2, size);
 			size += chase.en(en2, size).size();
 		}
-		Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new Collage<>(F.dst.collage());
-		if (!X.schema().typeSide.tys.isEmpty()) {
-			col.sks.putAll(X.sks());
-			for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> eq : X.eqs()) {
-				if (eq.first.hasTypeType()) {
-					col.eqs.add(new Eq<>(null, F.trans(eq.first), F.trans(eq.second)));
+		//if (X.algebra().talg().eqs.size() >= 0) {
+			Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new Collage<>(F.dst.collage());
+			if (!X.schema().typeSide.tys.isEmpty()) {
+				col.sks.putAll(X.sks());
+				for (Eq<Ty, Void, Sym, Void, Void, Void, Y> eq : X.algebra().talg().eqs) {
+					col.eqs.add(new Eq<>(null, F.trans(X.reprT(eq.lhs)), F.trans(X.reprT(eq.rhs))));
 				}
 			}
-		}
-		talg = new TalgSimplifier<>(this, col, (int) ops.getOrDefault(AqlOption.talg_reduction));
+			talg = new TalgSimplifier<>(this, col, (int) ops.getOrDefault(AqlOption.talg_reduction));
+		//}
 		talg();
+		
 		this.dp_ty = AqlProver.createInstance(ops, talg.talg.out, Schema.terminal(B.typeSide));
 	}
 

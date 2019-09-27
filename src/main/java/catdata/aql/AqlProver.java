@@ -46,10 +46,18 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 		Integer shouldSimplifyMax = (Integer) ops.getOrDefault(AqlOption.prover_simplify_max);
 		boolean shouldSimplify = col.eqs.size() < shouldSimplifyMax;
 		boolean allowNew = (boolean) ops.getOrDefault(AqlOption.prover_allow_fresh_constants);
+		
+		
 
 		Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> fn;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_simpl;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_big;
+		
+		if (col.eqs.size() == 0 && name.equals(ProverName.auto)) {
+			shouldSimplify = false;
+			name = ProverName.free;
+		}
+			
 		if (shouldSimplify) {
 			CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> simp = new CollageSimplifier<>(col);
 			col_simpl = simp.simplified;
@@ -78,10 +86,10 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 		case auto:
 			throw new RuntimeException("Anomaly: please report");
 		case fail:
-			dpkb = new FailProver<>(col_simpl.toKB());
+			dpkb = new FailProver<>(null);
 			break;
 		case free:
-			dpkb = new FreeProver<>(col_simpl.toKB());
+			dpkb = new FreeProver<>(null);
 			break;
 		case congruence:
 			dpkb = new CongruenceProverUniform<>(col_simpl.toKB());

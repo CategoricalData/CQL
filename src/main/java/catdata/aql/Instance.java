@@ -14,6 +14,8 @@ import catdata.Util;
 import gnu.trove.set.hash.THashSet;
 
 public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements Semantics {
+	
+	public abstract int numEqs();
 
 	@Override
 	public String sample(int size) {
