@@ -117,6 +117,9 @@ public class SchExpCsv extends SchExp {
 				}				
 				
 				String en = xx.getName();
+				if (en.endsWith("." + ext)) {
+					en = en.substring(0, en.length() - (ext.length() + 1));
+				}
 				xx.list(new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
