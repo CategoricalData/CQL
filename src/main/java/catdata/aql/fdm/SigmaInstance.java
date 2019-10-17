@@ -58,7 +58,7 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 				printSk);
 		J = new LiteralInstance<>(schema(), col.gens, col.sks, eqs, initial.dp(), initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs.size());
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		validate();
 	}
 
@@ -102,9 +102,6 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 		return J.allowUnsafeJava();
 	}
 
-	@Override
-	public int numEqs() {
-		return I.numEqs();
-	}
+	
 
 }

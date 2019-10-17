@@ -32,7 +32,13 @@ import gnu.trove.set.hash.THashSet;
 
 public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 		Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Chc<Sk, Pair<X, Att>>> implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> { // is
-																														// DP
+					
+	@Override
+	public boolean hasNulls() {
+		return talg().sks.isEmpty();
+	}
+	
+	// DP
 	@Override
 	public Object printX(En en, X x) {
 		return repr(en, x).toString(Util.voidFn(), printGen);

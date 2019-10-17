@@ -450,7 +450,7 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		@Override
 		public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
-			AqlOptions strat = new AqlOptions(options, null, env.defaults);
+			AqlOptions strat = new AqlOptions(options, env.defaults);
 			Schema<Ty, En, Sym, Fk, Att> l = new AqlPivot<>(I.eval(env, isC), strat).intI;
 			return l;
 		}

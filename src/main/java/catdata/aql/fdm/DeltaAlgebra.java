@@ -20,17 +20,17 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 		extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
 
 	private final Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F;
-	private final Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> alg;
+	private final Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> J;
 
 	@Override
 	public String toStringProver() {
-		return alg.algebra().toStringProver();
+		return J.algebra().toStringProver();
 	}
 
 	public DeltaAlgebra(Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F,
 			Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> alg) {
 		this.F = F;
-		this.alg = alg;
+		this.J = alg;
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 		} else if (e.obj() != null) {
 			return e.convert();
 		} else if (e.gen() != null) {
-			return alg.algebra().repr(F.ens.get(e.gen().first), e.gen().second).convert();
+			return J.algebra().repr(F.ens.get(e.gen().first), e.gen().second).convert();
 		} else if (e.fk() != null) {
 			return Schema.fold(F.fks.get(e.fk()).second, translate(e.arg));
 		} else if (e.att() != null) {
@@ -58,7 +58,7 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 			}
 			return Term.Sym(e.sym(), l);
 		} else if (e.sk() != null) {
-			return alg.reprT(Term.Sk(e.sk()));
+			return J.reprT(Term.Sk(e.sk()));
 		}
 		throw new RuntimeException("Anomaly: please report: " + e);
 	}
@@ -75,8 +75,8 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 		if (en_cache.containsKey(en)) {
 			return en_cache.get(en);
 		}
-		Iterable<X> in = alg.algebra().en(F.ens.get(en));
-		Collection<Pair<En1, X>> ret = new ArrayList<>(alg.algebra().size(F.ens.get(en)));
+		Iterable<X> in = J.algebra().en(F.ens.get(en));
+		Collection<Pair<En1, X>> ret = new ArrayList<>(J.algebra().size(F.ens.get(en)));
 		for (X x : in) {
 			ret.add(new Pair<>(en, x));
 		}
@@ -88,7 +88,7 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 	public Pair<En1, X> fk(Fk1 fk1, Pair<En1, X> e) {
 		X x = e.second;
 		for (Fk2 fk2 : F.trans(Collections.singletonList(fk1))) {
-			x = alg.algebra().fk(fk2, x);
+			x = J.algebra().fk(fk2, x);
 		}
 		En1 en1 = F.src.fks.get(fk1).second;
 		return new Pair<>(en1, x);
@@ -96,7 +96,7 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 
 	@Override
 	public Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
-		return alg.algebra().talg();
+		return J.algebra().talg();
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 	@Override
 	public Term<Ty, Void, Sym, Void, Void, Void, Y> att(Att1 att, Pair<En1, X> e) {
 		Term<Ty, Void, Sym, Void, Void, Void, Y> ret = attY(F.atts.get(att).third, e);
-		return alg.algebra().intoY(alg.reprT(ret));
+		return J.algebra().intoY(J.reprT(ret));
 	}
 
 	private Term<Ty, Void, Sym, Void, Void, Void, Y> attY(Term<Ty, En2, Sym, Fk2, Att2, Void, Void> term,
@@ -115,7 +115,7 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 		if (term.obj() != null) {
 			return term.convert();
 		} else if (term.att() != null) {
-			return alg.algebra().att(term.att(), attX(term.arg.asArgForAtt().convert(), x.second));
+			return J.algebra().att(term.att(), attX(term.arg.asArgForAtt().convert(), x.second));
 		} else if (term.sym() != null) {
 			List<Term<Ty, Void, Sym, Void, Void, Void, Y>> l = new ArrayList<>(term.args.size());
 			for (Term<Ty, En2, Sym, Fk2, Att2, Void, Void> xx : term.args) {
@@ -130,9 +130,9 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 		if (term.var != null) {
 			return x;
 		} else if (term.gen() != null) {
-			return alg.algebra().nf(term);
+			return J.algebra().nf(term);
 		} else if (term.fk() != null) {
-			return alg.algebra().fk(term.fk(), attX(term.arg, x));
+			return J.algebra().fk(term.fk(), attX(term.arg, x));
 		}
 		throw new RuntimeException("Anomaly: please report");
 	}
@@ -144,36 +144,41 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 
 	@Override
 	public Object printY(Ty ty, Y y) {
-		return alg.algebra().printY(ty, y);
+		return J.algebra().printY(ty, y);
 	}
 
 	@Override
 	public Object printX(En1 en, Pair<En1, X> p) {
-		return p.first + ":" + alg.algebra().printX(F.ens.get(en), p.second);
+		return p.first + ":" + J.algebra().printX(F.ens.get(en), p.second);
 	}
 
 	@Override
 	public boolean hasFreeTypeAlgebra() {
-		return alg.algebra().hasFreeTypeAlgebra();
+		return J.algebra().hasFreeTypeAlgebra();
 	}
 
 	@Override
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return alg.algebra().hasFreeTypeAlgebraOnJava();
+		return J.algebra().hasFreeTypeAlgebraOnJava();
 	}
 
 	public String talgToString() {
-		return alg.algebra().talgToString();
+		return J.algebra().talgToString();
 	}
 
 	@Override
 	public int size(En1 en) {
-		return alg.algebra().size(F.ens.get(en));
+		return J.algebra().size(F.ens.get(en));
 	}
 
 	@Override
 	public Chc<Y, Pair<Pair<En1, X>, Att1>> reprT_prot(Y y) {
 		return Chc.inLeft(y);
+	}
+
+	@Override
+	public boolean hasNulls() {
+		return J.algebra().hasNulls();
 	}
 
 }

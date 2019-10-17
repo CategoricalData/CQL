@@ -135,7 +135,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 			QueryExpRaw.processBlock(b.options, env, sss, ens, cols, b, Collections.emptyMap());
 		}
 
-		AqlOptions op = new AqlOptions(options, null, env.defaults);
+		AqlOptions op = new AqlOptions(options, env.defaults);
 
 		Query<Ty, En, Sym, Fk, Att, En, Void, Void> q = Query.makeQuery(ens, Collections.emptyMap(),
 				Collections.emptyMap(), Collections.emptyMap(), sss, dst, op);
@@ -188,7 +188,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 		List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 = new ArrayList<>(
 				J.gens().size());
 
-		AqlOptions strat = new AqlOptions(options, col, env.defaults);
+		AqlOptions strat = new AqlOptions(options, env.defaults);
 
 		for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> p : J.gens().keySet()) {
 			Map<catdata.aql.Var, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> m = p.asMap();
@@ -210,7 +210,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 		LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> ret = new LiteralInstance<>(
 				I0.schema(), col.gens, col.sks, Util.iterConcat(I0.eqs(), eqs0), initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size()+I0.numEqs());
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
 		return ret;
 	}

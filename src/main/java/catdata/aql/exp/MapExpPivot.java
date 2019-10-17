@@ -53,7 +53,7 @@ public final class MapExpPivot<Gen, Sk, X, Y> extends MapExp {
 
 	@Override
 	public Mapping<Ty, En, Sym, Fk, catdata.aql.exp.Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
-		AqlOptions strat = new AqlOptions(ops, null, env.defaults);
+		AqlOptions strat = new AqlOptions(ops, env.defaults);
 		Mapping<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, En, Fk, Att> l = new AqlPivot<>(
 				I.eval(env, isC), strat).F;
 		return l;

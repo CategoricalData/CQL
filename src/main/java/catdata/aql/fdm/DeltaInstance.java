@@ -87,9 +87,6 @@ public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 		return I.allowUnsafeJava();
 	}
 
-	@Override
-	public int numEqs() {
-		return J.size();
-	}
+	
 
 }

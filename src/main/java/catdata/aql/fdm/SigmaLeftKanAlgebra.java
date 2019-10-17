@@ -32,6 +32,12 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	public boolean hasFreeTypeAlgebra() {
 		return talg().eqs.isEmpty();
 	}
+	
+	
+	@Override
+	public boolean hasNulls() {
+		return talg().sks.isEmpty();
+	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
 		return talg().eqs.stream().filter(x -> talg().java_tys.containsKey(talg().type(x.ctx, x.lhs).l))

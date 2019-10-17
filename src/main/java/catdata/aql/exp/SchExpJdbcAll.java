@@ -130,7 +130,7 @@ public class SchExpJdbcAll extends SchExp {
 
 	@Override
 	public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 
 		String toGet = jdbcString;
 		String tick = (String) ops.getOrDefault(AqlOption.jdbc_quote_char);
@@ -166,7 +166,7 @@ public class SchExpJdbcAll extends SchExp {
 				}
 			}
 
-			return new Schema<>(typeSide, col0, new AqlOptions(options, col0, env.defaults));
+			return new Schema<>(typeSide, col0, new AqlOptions(options, env.defaults));
 
 		} catch (SQLException exn) {
 			exn.printStackTrace();

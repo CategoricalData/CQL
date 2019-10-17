@@ -96,4 +96,8 @@ public abstract class SkeletonInstance<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public abstract int numEqs();
 
 	protected abstract int numEqsT();
+
+	public abstract boolean hasNulls();
+	
+	
 }

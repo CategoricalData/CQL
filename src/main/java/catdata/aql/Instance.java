@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -15,7 +17,7 @@ import gnu.trove.set.hash.THashSet;
 
 public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements Semantics {
 	
-	public abstract int numEqs();
+	//public abstract int numEqs();
 
 	@Override
 	public String sample(int size) {
@@ -170,6 +172,52 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 	}
 
 	public Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> model;
+	
+	public static interface IMap<X,Y> {
+		public default String sep(String x, String y) {
+			StringBuffer sb = new StringBuffer();
+			boolean[] first = new boolean[] {true};
+			if (size() > 8096) {
+				return "too big to show";
+			}
+			entrySet((k,v) -> { 
+				if (first[0]) {
+					first[0]=false;
+				} else {
+					sb.append(y);
+				} 
+				sb.append(k);
+				sb.append(x);
+				sb.append(v); 
+			});
+			return sb.toString();
+			
+		}
+		
+		public Y get(X x);
+		public boolean containsKey(X x);
+		public void entrySet(BiConsumer<? super X, ? super Y> f);
+		
+		public default void keySet(Consumer<X> f) {
+			entrySet((k,l)->f.accept(k));
+		}
+		public default void values(Consumer<Y> f) {
+			entrySet((k,l)->f.accept(l));
+		}
+		public default boolean isEmpty() {
+			return size() == 0;
+		}
+		public default void putAll(Map<X,Y> m) {
+			entrySet((k,v)->m.put(k, v));
+		}
+		public int size();
+
+		public Y remove(X x);
+
+		public void put(X x, Y y);
+
+		
+	}
 
 	public synchronized Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> getModel() {
 		if (model != null) {

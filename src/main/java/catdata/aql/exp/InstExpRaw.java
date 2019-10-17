@@ -280,7 +280,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			}
 		}
 
-		AqlOptions strat = new AqlOptions(options, col, env.defaults);
+		AqlOptions strat = new AqlOptions(options, env.defaults);
 
 		boolean interpret_as_algebra = (boolean) strat.getOrDefault(AqlOption.interpret_as_algebra);
 		boolean dont_check_closure = (boolean) strat.getOrDefault(AqlOption.import_dont_check_closure_unsafe);
@@ -302,7 +302,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 
 		return new LiteralInstance<>(sch, col.gens, col.sks, eqs0, initial.dp(), initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size());
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}
 
 	private Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0_algebra(

@@ -99,7 +99,7 @@ public final class TransExpSigmaDeltaUnit<Gen, Sk, X, Y> extends
 			throw new IgnoreException();
 		}
 		return new SigmaDeltaUnitTransform<>(F.eval(env, false), I.eval(env, false),
-				new AqlOptions(options, null, env.defaults));
+				new AqlOptions(options, env.defaults));
 	}
 
 	@Override

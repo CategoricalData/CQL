@@ -31,11 +31,18 @@ import gnu.trove.set.hash.THashSet;
 public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y>
 		extends Algebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>>
 		implements DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> {
+	
+	@Override
+	public boolean hasNulls() {
+		return talg().sks.isEmpty();
+	}
 
 	public final Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> theInst = new SigmaChaseInstance();
 
 	class SigmaChaseInstance extends Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> {
 
+		
+		
 		@Override
 		public Schema<Ty, En2, Sym, Fk2, Att2> schema() {
 			return F.dst;
@@ -82,10 +89,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 			return SigmaChaseAlgebra.this;
 		}
 
-		@Override
-		public int numEqs() {
-			return X.numEqs();
-		}
+		
 
 	}
 

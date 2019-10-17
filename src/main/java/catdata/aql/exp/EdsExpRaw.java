@@ -176,10 +176,10 @@ public class EdsExpRaw extends EdsExp implements Raw {
 			l.addAll(v.eds);
 		}
 		for (EdExpRaw e : eds) {
-			l.add(e.eval(sch, new AqlOptions(options, null, env.defaults)));
+			l.add(e.eval(sch, new AqlOptions(options, env.defaults)));
 		}
 
-		return new Constraints(sch, l, new AqlOptions(options, null, env.defaults));
+		return new Constraints(sch, l, new AqlOptions(options, env.defaults));
 
 	}
 

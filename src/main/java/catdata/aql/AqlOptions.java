@@ -130,13 +130,7 @@ public final class AqlOptions {
 			return ret;
 		}
 
-		public static List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> getPrec(String str,
-				Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
-			Util.assertNotNull(str);
-
-			return (Arrays.asList(str.split("\\s+")).stream().map(x -> RawTerm.toHeadNoPrim(x, col))
-					.collect(Collectors.toList()));
-		}
+		
 
 		public ProverName getDPName(Map<String, String> map) {
 			return ProverName.valueOf(getString(map));
@@ -149,11 +143,11 @@ public final class AqlOptions {
 	public final Map<AqlOption, Object> options;
 
 	private AqlOptions() {
-		options = (new THashMap<>());
+		options = new THashMap<>();
 	}
 
 	public AqlOptions(AqlOptions ops, AqlOption op, Object o) {
-		options = (new THashMap<>(ops.options));
+		options = new THashMap<>(ops.options);
 		options.put(op, o);
 	}
 
@@ -358,7 +352,7 @@ public final class AqlOptions {
 
 	public Object getOrDefault(Map<String, String> map, AqlOption op) {
 		if (map.containsKey(op.toString())) {
-			return getFromMap(map, null, op);
+			return getFromMap(map, op);
 		} else if (options.containsKey(op)) {
 			return options.get(op);
 		}
@@ -369,17 +363,17 @@ public final class AqlOptions {
 	 * @param map
 	 * @param col possibly null
 	 */
-	public AqlOptions(Map<String, String> map, @SuppressWarnings("rawtypes") Collage col, AqlOptions defaults) {
+	public AqlOptions(Map<String, String> map, AqlOptions defaults) {
 		options = new THashMap<>(defaults.options);
 		for (String key : map.keySet()) {
 			AqlOption op = AqlOption.valueOf(key);
 			@SuppressWarnings("unchecked")
-			Object ob = getFromMap(map, col, op);
+			Object ob = getFromMap(map, op);
 			options.put(op, ob);
 		}
 	}
 
-	private static Object getFromMap(Map<String, String> map, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
+	private static Object getFromMap(Map<String, String> map, /*Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,*/
 			AqlOption op) {
 		switch (op) {
 		case allow_aggregation_unsafe:
@@ -465,7 +459,7 @@ public final class AqlOptions {
 		case allow_java_eqs_unsafe:
 			return op.getBoolean(map);
 		case completion_precedence:
-			return AqlOption.getPrec(map.get(op.toString()), col);
+			return map.get(op.toString());
 		case prover:
 			return op.getDPName(map);
 		case require_consistency:

@@ -170,7 +170,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 			throw new IgnoreException();
 		}
 
-		op = new AqlOptions(options, null, env.defaults);
+		op = new AqlOptions(options, env.defaults);
 
 		import_as_theory = (boolean) op.getOrDefault(AqlOption.import_as_theory);
 		isJoined = true; // (boolean) op.getOrDefault(AqlOption.import_joined);
@@ -277,7 +277,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 		Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Integer, Chc<Null<?>, Pair<Integer, Att>>> I = new LiteralInstance<>(
 				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
 				(Boolean) op.getOrDefault(AqlOption.require_consistency),
-				(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size());
+				(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
 		@SuppressWarnings("unchecked")
 		Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Gen, Null<?>> J = (Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Gen, Null<?>>) ((Object) I);

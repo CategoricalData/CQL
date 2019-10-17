@@ -75,9 +75,6 @@ public class NoAlgInstance extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Void,
 		return (boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe);
 	}
 
-	@Override
-	public int numEqs() {
-		return col.eqs.size();
-	}
+	
 
 }

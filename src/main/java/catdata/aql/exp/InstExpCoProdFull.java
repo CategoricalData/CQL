@@ -132,7 +132,7 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y>
 		Schema<Ty, En, Sym, Fk, Att> sch0 = sch.eval(env, isC);
 
 		Collage<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> col = new Collage<>(sch0.collage());
-		AqlOptions strat = new AqlOptions(options, col, env.defaults);
+		AqlOptions strat = new AqlOptions(options, env.defaults);
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs0 = (new THashSet<>());
 
 		Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> m = (new THashMap<>());
@@ -181,7 +181,7 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y>
 
 		return new LiteralInstance<>(sch0, col.gens, col.sks, eqs0, initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size());
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}
 
 	@Override

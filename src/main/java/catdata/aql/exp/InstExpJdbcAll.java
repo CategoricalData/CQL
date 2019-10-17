@@ -86,7 +86,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 
 	private Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Gen, Null<?>> toInstance(AqlEnv env, SqlInstance inst,
 			SqlSchema info) {
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 		Schema<Ty, En, Sym, Fk, Att> sch = makeSchema(env, info, ops);
 
 		Map<En, Collection<Gen>> ens0 = Util.newSetsFor0(sch.ens);
@@ -203,7 +203,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 			}
 		}
 
-		Schema<Ty, En, Sym, Fk, Att> sch = new Schema<>(typeSide, col0, new AqlOptions(options, col0, env.defaults));
+		Schema<Ty, En, Sym, Fk, Att> sch = new Schema<>(typeSide, col0, new AqlOptions(options, env.defaults));
 		return sch;
 	}
 
@@ -213,7 +213,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 			throw new IgnoreException();
 		}
 		String toGet = jdbcString;
-		AqlOptions op = new AqlOptions(options, null, env.defaults);
+		AqlOptions op = new AqlOptions(options, env.defaults);
 		String tick = (String) op.getOrDefault(AqlOption.jdbc_quote_char);
 		if (jdbcString.trim().isEmpty()) {
 			toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);

@@ -221,11 +221,13 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 			return I.reprT_prot(y);
 		}
 
+		@Override
+		public boolean hasNulls() {
+			return I.hasNulls();
+		}
+
 	}
 
-	@Override
-	public int numEqs() {
-		return I.numEqs();
-	}
+	
 
 }

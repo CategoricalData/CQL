@@ -376,7 +376,7 @@ public final class MapExpRaw extends MapExp implements Raw {
 			}
 		}
 
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 
 		Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> ret = new Mapping<>(ens0, atts0, fksX, src0, dst0,
 				(Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));

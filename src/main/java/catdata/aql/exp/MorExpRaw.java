@@ -244,7 +244,7 @@ public class MorExpRaw extends MorExp implements Raw {
 			}
 
 		}
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 
 		Mor<Ty, Sym, Ty, Sym> ret = null; //new Mor<>(ens0, syms0, src0, dst0,
 			//	(Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));

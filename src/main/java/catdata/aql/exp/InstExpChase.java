@@ -114,7 +114,7 @@ public final class InstExpChase<Gen, Sk, X, Y> extends InstExp<Object, Object, O
 			I.eval(env, true);
 			throw new IgnoreException();
 		}*/
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 		ops = new AqlOptions(ops, AqlOption.fast_consistency_check, true);
 		Instance<Ty, En, Sym, Fk, Att, ?, ?, ?, ?> ret = eds.eval(env, false).chase(
 				(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Y>) I.eval(env, false),

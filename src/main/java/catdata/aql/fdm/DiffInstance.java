@@ -136,9 +136,6 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 		return K.algebra();
 	}
 
-	@Override
-	public int numEqs() {
-		return K.numEqs();
-	}
+	
 
 }

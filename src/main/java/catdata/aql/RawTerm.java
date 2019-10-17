@@ -478,9 +478,9 @@ public final class RawTerm {
 				+ boolToInt(col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
 				+ boolToInt(col.gens.containsKey(Gen.Gen(head))) + boolToInt(col.sks.containsKey(Sk.Sk(head)));
 		if (n == 0) {
-			throw new RuntimeException(head + " is not a symbol");
+			throw new RuntimeException(head + " is not a symbol (in the simplified theory) " + col);
 		} else if (n > 1) {
-			throw new RuntimeException(head + " is ambiguous");
+			throw new RuntimeException(head + " is ambiguous in " + col);
 		}
 
 	}

@@ -166,7 +166,7 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 			}
 
 			return new ColimitSchema<>(nodes.keySet(), ty.eval(env, isC), nodes0, eqEn, eqTerms, eqTerms2,
-					new AqlOptions(options, null, env.defaults));
+					new AqlOptions(options, env.defaults));
 		}
 
 		@Override
@@ -693,7 +693,7 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 				edges0.put(e, edges.get(e).eval(env, isC));
 			}
 			return new ColimitSchema<>(nodes.keySet(), shape.eval(env, isC).dmg, ty.eval(env, isC), nodes0, edges0,
-					new AqlOptions(options, null, env.defaults));
+					new AqlOptions(options, env.defaults));
 		}
 
 		@Override

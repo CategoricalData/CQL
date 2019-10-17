@@ -32,6 +32,8 @@ import gnu.trove.set.hash.THashSet;
 
 public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements DP<Ty,En,Sym,Fk,Att,Gen,Sk> */ {
 
+	public abstract boolean hasNulls();
+	
 	public abstract Schema<Ty, En, Sym, Fk, Att> schema();
 
 	// TODO aql cant validate algebras bc are not dps
@@ -452,6 +454,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		
 
 		ps.executeUpdate();
+		ps.close();
 	}
 
 	private Object fromTerm(Term<Ty, Void, Sym, Void, Void, Void, Y> term) {

@@ -87,7 +87,7 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 		gens = new THashMap<>();
 		sks = new THashMap<>();
 
-		op = new AqlOptions(options, null, env.defaults);
+		op = new AqlOptions(options, env.defaults);
 		dontValidateEqs = (Boolean) op.getOrDefault(AqlOption.dont_validate_unsafe);
 		boolean autoMapNulls = (Boolean) op.getOrDefault(AqlOption.map_nulls_arbitrarily_unsafe);
 

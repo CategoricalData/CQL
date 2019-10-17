@@ -262,6 +262,11 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 			return Chc.inLeft(y);
 		}
 
+		@Override
+		public boolean hasNulls() {
+			return alg.hasNulls();
+		}
+
 	}
 
 	private class InnerDP implements DP<Ty, En, Sym, Fk, Att, X, Y> {
@@ -312,9 +317,5 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 		return allowUnsafeJava;
 	}
 
-	@Override
-	public int numEqs() {
-		return size2;
-	}
-
+	
 }

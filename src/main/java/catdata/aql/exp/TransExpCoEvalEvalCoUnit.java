@@ -125,7 +125,7 @@ public class TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> extends
 			throw new IgnoreException();
 		}
 		return new CoEvalEvalCoUnitTransform<>(Q.eval(env, false), I.eval(env, false),
-				new AqlOptions(options, null, env.defaults));
+				new AqlOptions(options, env.defaults));
 	}
 
 	@Override

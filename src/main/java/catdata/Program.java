@@ -111,7 +111,7 @@ public class Program<X> implements Prog {
 		}
 		this.kindOf = k;
 		try {
-			this.options = new AqlOptions(Util.toMapSafely(options), null, AqlOptions.initialOptions);
+			this.options = new AqlOptions(Util.toMapSafely(options), AqlOptions.initialOptions);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new ParserException(ex, null, "Error parsing global options.\nPossible cause: completion precedence at global level.", new Location(1, 1));

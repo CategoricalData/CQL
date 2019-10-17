@@ -67,7 +67,7 @@ public final class InstExpPivot<Gen, Sk, X, Y> extends InstExp<X, Y, X, Y> {
 		if (isC) {
 			throw new IgnoreException();
 		}
-		AqlOptions strat = new AqlOptions(ops, null, env.defaults);
+		AqlOptions strat = new AqlOptions(ops, env.defaults);
 		Instance<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, X, Y, X, Y> l = new AqlPivot<>(
 				I.eval(env, false), strat).J;
 		return l;

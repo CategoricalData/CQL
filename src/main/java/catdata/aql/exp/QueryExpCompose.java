@@ -113,7 +113,7 @@ public final class QueryExpCompose extends QueryExp {
 	// private static int i = 0;
 
 	public synchronized Query<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 
 		Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1 = Q1.eval(env, isC);
 		Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q2 = Q2.eval(env, isC);

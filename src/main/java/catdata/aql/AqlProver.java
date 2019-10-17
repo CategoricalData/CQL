@@ -1,9 +1,14 @@
 package catdata.aql;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import catdata.Chc;
+import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.provers.CompletionProver;
 import catdata.provers.CongruenceProverUniform;
@@ -47,8 +52,6 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 		boolean shouldSimplify = col.eqs.size() < shouldSimplifyMax;
 		boolean allowNew = (boolean) ops.getOrDefault(AqlOption.prover_allow_fresh_constants);
 		
-		
-
 		Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> fn;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_simpl;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_big;
@@ -110,8 +113,23 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 			dpkb = new ProgramProver<>(check, VarIt.it(), col_simpl.toKB());
 			break;
 		case completion:
-			KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> kb = col_simpl.toKB();
-			dpkb = new CompletionProver<>(kb.syms.keySet(), ops, col_simpl.toKB());
+		//	KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> kb = col_simpl.toKB();
+			
+			String str = (String) ops.getOrDefault(AqlOption.completion_precedence);
+
+			List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec = null;
+			if (str != null) {
+				List<String> z = Arrays.asList(str.trim().split("\\s+"));
+				prec = new ArrayList<>(z.size());
+				Collage<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk>
+				col2 = (Collage<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk>) col;
+				for (String x : z) {
+					Head o = RawTerm.toHeadNoPrim(x, col2);
+					prec.add(o);
+				}				
+			} 
+			
+			dpkb = new CompletionProver<>(ops, col_simpl.toKB(), prec);
 			break;
 		case monoidal:
 			dpkb = new MonoidalFreeDP<>(col_simpl.toKB());
@@ -137,6 +155,8 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 		// }
 	}
 
+	
+	
 	private static <Sk, En, Fk, Ty, Att, Sym, Gen> ProverName auto(AqlOptions ops,
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 		if (col.eqs.isEmpty()) {

@@ -123,7 +123,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 			throw new IgnoreException();
 		}
 		Collage<Ty, En, Sym, Fk, Att, Gen2, Sk2> col = new Collage<>(h1.dst().collage());
-		AqlOptions strat = new AqlOptions(options, col, env.defaults);
+		AqlOptions strat = new AqlOptions(options, env.defaults);
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> x : h1.dst().eqs()) {
 			col.eqs.add(new Eq<>(null, x.first, x.second));
 		}
@@ -143,7 +143,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 
 		return new LiteralInstance<>(h1.src().schema(), col.gens, col.sks, col.eqsAsPairs(), initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), col.eqs.size());
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}
 
 	@Override

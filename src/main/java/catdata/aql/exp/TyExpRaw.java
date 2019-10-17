@@ -353,7 +353,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 
 	@Override
 	public synchronized TypeSide<Ty, Sym> eval0(AqlEnv env, boolean isC) {
-		AqlOptions ops = new AqlOptions(options, col, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 		AqlJs<Ty, Sym> js = new AqlJs<>(col.syms, col.java_tys, col.java_parsers, col.java_fns);
 
 		for (TyExp k : imports) {

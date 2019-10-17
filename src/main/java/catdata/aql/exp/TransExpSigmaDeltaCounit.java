@@ -95,7 +95,7 @@ public class TransExpSigmaDeltaCounit<Gen, Sk, X, Y>
 			throw new IgnoreException();
 		}
 		return new SigmaDeltaCounitTransform<>(F.eval(env, false), I.eval(env, false),
-				new AqlOptions(options, null, env.defaults));
+				new AqlOptions(options, env.defaults));
 	}
 
 	@Override

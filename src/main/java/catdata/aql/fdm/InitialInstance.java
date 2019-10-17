@@ -130,6 +130,11 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 			return Util.abort(y);
 		}
 
+		@Override
+		public boolean hasNulls() {
+			return false;
+		}
+
 	}
 
 	@Override
@@ -142,9 +147,6 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 		return false;
 	}
 
-	@Override
-	public int numEqs() {
-		return 0;
-	}
+	
 
 }

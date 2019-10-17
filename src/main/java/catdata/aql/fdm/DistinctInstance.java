@@ -202,6 +202,11 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			return I.algebra().reprT_prot(y);
 		}
 
+		@Override
+		public boolean hasNulls() {
+			return I.algebra().hasNulls();
+		}
+
 	}
 
 	@Override
@@ -214,8 +219,5 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		return I.allowUnsafeJava();
 	}
 
-	@Override
-	public int numEqs() {
-		return eqs.size() + I.numEqs();
-	}
+	
 }

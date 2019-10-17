@@ -837,7 +837,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 //					boolean doNotCheckEqs = (Boolean) 
 //							.getOrDefault(AqlOption.dont_validate_unsafe);
 //					System.out.println("++++++++" + doNotCheckEqs);
-					fks0.put(pp.first, new Pair<>(trans, new AqlOptions(pp.second.options, null, env.defaults)));
+					fks0.put(pp.first, new Pair<>(trans, new AqlOptions(pp.second.options, env.defaults)));
 					sks0.put(pp.first, sks);
 
 				} catch (RuntimeException ex) {
@@ -861,7 +861,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		// System.out.println("---------" + doNotCheckEqs);
 		return Query.makeQuery2(xxx, yyy, ens0, atts0, fks0, sks0, src0, dst0,
 
-				new AqlOptions(options, null, env.defaults));
+				new AqlOptions(options, env.defaults));
 	}
 
 	public static synchronized void processAtt(Schema<Ty, En, Sym, Fk, Att> src0, Schema<Ty, En, Sym, Fk, Att> dst0,
@@ -1009,7 +1009,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		}
 		Map<String, String> uu = new THashMap<>(options);
 		uu.putAll(p.options);
-		AqlOptions theops = new AqlOptions(uu, null, env.defaults);
+		AqlOptions theops = new AqlOptions(uu, env.defaults);
 		Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions> b = new Triple<>(Map,
 				eqs, theops);
 		ens.put(p.en, b);

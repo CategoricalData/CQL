@@ -132,16 +132,6 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
 		}
 	}
 
-	/*
-	 * @Override public Term<Ty, En, Sym, Fk, Att, Integer, Integer>
-	 * reprT_protected( Term<Ty, Void, Sym, Void, Void, Void, Integer> y) { if
-	 * (y.sk() != null) { return sks.apply(y.sk()); } List<Term<Ty, En, Sym, Fk,
-	 * Att, Integer, Integer>> l = new ArrayList<>(y.args.size()); for (Term<Ty,
-	 * Void, Sym, Void, Void, Void, Integer> z : y.args) {
-	 * l.add(reprT_protected(z)); } return
-	 * schema().typeSide.js.reduce(Term.Sym(y.sym(), l)); }
-	 */
-
 	@Override
 	public AqlOptions options() {
 		return ops;
@@ -160,13 +150,16 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
 	@Override
 	public Chc<Integer, Pair<Integer, Att>> reprT_prot(int y) {
 		return sks.apply(y);
-		/*
-		 * if (y.sk() != null) { return sks.apply(y.sk()); } List<Term<Ty, En, Sym, Fk,
-		 * Att, Integer, Integer>> l = new ArrayList<>(y.args.size()); for (Term<Ty,
-		 * Void, Sym, Void, Void, Void, Integer> z : y.args) {
-		 * l.add(reprT_protected(z)); } return
-		 * schema().typeSide.js.reduce(Term.Sym(y.sym(), l));
-		 */
+	}
+	
+	@Override
+	public boolean hasNulls() {
+		for (Integer x : ys.values()) {
+			if (x > 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

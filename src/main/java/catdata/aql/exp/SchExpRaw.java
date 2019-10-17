@@ -135,7 +135,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 		// forces type checking before prover construction
 		col.validate();
 		
-		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, col, env.defaults));
+		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, env.defaults));
 		return ret;
 
 	}

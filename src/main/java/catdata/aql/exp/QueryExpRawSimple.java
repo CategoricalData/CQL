@@ -130,7 +130,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 		if (block.isEmpty()) {
 			Util.anomaly();
 		}
-		AqlOptions ops = new AqlOptions(block.get().options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(block.get().options, env.defaults);
 
 		String q = (String) ops.getOrDefault(AqlOption.simple_query_entity);
 

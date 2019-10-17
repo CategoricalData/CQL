@@ -119,17 +119,17 @@ public final class InstExpSigma<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Integer,
 			throw new IgnoreException();
 		}
 
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(F.dst.collage());
+	//	Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(F.dst.collage());
 
-		col.sks.putAll(I.sks());
+		/*col.sks.putAll(I.sks());
 		for (Gen gen : I.gens().keySet()) {
 			col.gens.put(gen, F.ens.get(I.gens().get(gen)));
 		}
 
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : I.eqs()) {
 			col.eqs.add(new Eq<>(null, F.trans(eq.first), F.trans(eq.second)));
-		}
-		return new SigmaInstance<>(F, I, new AqlOptions(options, col, env.defaults));
+		}*/
+		return new SigmaInstance<>(F, I, new AqlOptions(options, env.defaults));
 	}
 
 	@Override

@@ -110,7 +110,7 @@ public final class InstExpEval<Gen, Sk, X, Y> extends
 			I.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new EvalInstance<>(Q.eval(env, false), I.eval(env, false), new AqlOptions(options, null, env.defaults));
+		return new EvalInstance<>(Q.eval(env, false), I.eval(env, false), new AqlOptions(options, env.defaults));
 	}
 
 	@Override

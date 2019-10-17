@@ -125,7 +125,7 @@ public class ED {
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
 				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
-				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe),eqs0.size());
+				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
 		x.validate();
 		return x;
@@ -170,7 +170,7 @@ public class ED {
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
 				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
-				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe),eqs0.size());
+				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
 		x.validate();
 		return x;

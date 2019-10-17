@@ -176,4 +176,9 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 		return I.algebra().reprT_prot(y);
 	}
 
+	@Override
+	public boolean hasNulls() {
+		return I.algebra().hasNulls();
+	}
+
 }

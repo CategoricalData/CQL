@@ -79,7 +79,7 @@ public class SchExpCsv extends SchExp {
 
 	@Override
 	protected Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isCompileTime) {
-		AqlOptions op = new AqlOptions(options, null, env.defaults);
+		AqlOptions op = new AqlOptions(options, env.defaults);
 		SqlTypeSide ts = SqlTypeSide.SqlTypeSide(op);
 		
 		Character sepChar = (Character) op.getOrDefault(AqlOption.csv_field_delim_char);
@@ -116,7 +116,7 @@ public class SchExpCsv extends SchExp {
 					throw new RuntimeException("No header in: " + xx.getPath());
 				}				
 				
-				String en = xx.getName();
+				String en = xx.getName().replaceAll("[\uFEFF-\uFFFF]", "").trim();
 				if (en.endsWith("." + ext)) {
 					en = en.substring(0, en.length() - (ext.length() + 1));
 				}
@@ -126,7 +126,7 @@ public class SchExpCsv extends SchExp {
 						return name.endsWith("." + ext);
 					}					
 				});
-				En e = En.En(en.substring(0, en.length()-(1+ext.length())).replaceAll("[\uFEFF-\uFFFF]", "").trim());
+				En e = En.En(en);
 				col.ens.add(e);
 				for (String c0 : rows) {
 					String c = c0.replace("\t"," ").replaceAll("[\uFEFF-\uFFFF]", "").trim();

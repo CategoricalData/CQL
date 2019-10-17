@@ -20,6 +20,11 @@ import gnu.trove.map.hash.THashMap;
 
 public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, Sym, Fk, Att, X, Y, X, Y>
 		implements DP<Ty, En, Sym, Fk, Att, X, Y> {
+	
+	@Override
+	public boolean hasNulls() {
+		return talg.sks.isEmpty();
+	}
 
 	private final Schema<Ty, En, Sym, Fk, Att> schema;
 	private final Map<En, Collection<X>> ens;

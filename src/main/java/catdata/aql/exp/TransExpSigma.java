@@ -107,7 +107,7 @@ public final class TransExpSigma<Gen1, Gen2, Sk1, Sk2, X1, Y1, X2, Y2> extends
 			throw new IgnoreException();
 		}
 		return new SigmaTransform<>(F.eval(env, false), t.eval(env, false),
-				new AqlOptions(options1, null, env.defaults), new AqlOptions(options2, null, env.defaults));
+				new AqlOptions(options1, env.defaults), new AqlOptions(options2, env.defaults));
 	}
 
 	@Override

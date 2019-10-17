@@ -150,7 +150,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 		init = new InitialAlgebra<>(options, schema(), col, printGen, printSk);
 		I = new LiteralInstance<>(schema(), col.gens, col.sks, z, init.dp(), init,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
-				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe),col.eqs.size());
+				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		if (size() < 16 * 1024) {
 			validate();
 		}
@@ -196,9 +196,6 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 		return I.allowUnsafeJava();
 	}
 
-	@Override
-	public int numEqs() {
-		return I.numEqs();
-	}
+	
 
 }

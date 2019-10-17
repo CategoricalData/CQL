@@ -74,7 +74,7 @@ public final class InstExpCoEval<Gen, Sk, X, Y> extends
 			throw new IgnoreException();
 		}
 		return new CoEvalInstance<>(Q.eval(env, false), J.eval(env, false),
-				new AqlOptions(options, null, env.defaults));
+				new AqlOptions(options, env.defaults));
 	}
 
 	@Override

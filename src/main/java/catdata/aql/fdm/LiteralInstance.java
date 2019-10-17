@@ -26,12 +26,12 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 	boolean requireConsistency, allowUnsafeJava;
 
-	private int neqs;
+	//private int neqs;
 
 	public LiteralInstance(Schema<Ty, En, Sym, Fk, Att> schema, Map<Gen, En> gens, Map<Sk, Ty> sks,
 			Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs,
 			DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg,
-			boolean requireConsistency, boolean allowUnsafeJava, int neqs) {
+			boolean requireConsistency, boolean allowUnsafeJava) {
 		Util.assertNotNull(schema, gens, sks, eqs, dp);
 		this.schema = schema;
 		this.gens = (gens);
@@ -39,7 +39,7 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		this.eqs = eqs;
 		this.dp = dp;
 		this.alg = alg;
-		this.neqs = neqs;
+	//	this.neqs = neqs;
 		this.requireConsistency = requireConsistency;
 		this.allowUnsafeJava = allowUnsafeJava;
 		if (size() < 16 * 1024) {
@@ -88,9 +88,6 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		return allowUnsafeJava;
 	}
 
-	@Override
-	public int numEqs() {
-		return neqs;
-	}
+	
 
 }

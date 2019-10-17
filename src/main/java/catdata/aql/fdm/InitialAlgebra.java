@@ -35,6 +35,11 @@ import gnu.trove.set.hash.TIntHashSet;
 public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>
 		implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
+	
+	@Override
+	public boolean hasNulls() {
+		return talg().sks.isEmpty();
+	}
 
 	public Object printX(En en, Integer x) {
 		return repr(en, x).toString(Util.voidFn(), z -> printGen.apply(z).toString());

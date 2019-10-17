@@ -173,7 +173,7 @@ public class InstExpColim<Gen, Sk, X, Y>
 		}
 
 		return new ColimitInstance<>(schema.eval(env, false), shape.eval(env, false).dmg, nodes0, edges0,
-				new AqlOptions(options, null, env.defaults));
+				new AqlOptions(options, env.defaults));
 	}
 
 	@Override
@@ -184,7 +184,7 @@ public class InstExpColim<Gen, Sk, X, Y>
 						+ schema + " as expected");
 			}
 		}
-		if (!(Boolean) new AqlOptions(options, null, G.prog.options).getOrDefault(AqlOption.static_typing)) {
+		if (!(Boolean) new AqlOptions(options, G.prog.options).getOrDefault(AqlOption.static_typing)) {
 			return schema;
 		}
 

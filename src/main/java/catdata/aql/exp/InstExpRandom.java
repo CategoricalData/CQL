@@ -139,7 +139,7 @@ public final class InstExpRandom extends InstExp<Integer, Integer, Integer, Inte
 		if (isC) {
 			throw new IgnoreException();
 		}
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 		int seed = (Integer) ops.getOrDefault(AqlOption.random_seed);
 		Random rand = new Random(seed);
 

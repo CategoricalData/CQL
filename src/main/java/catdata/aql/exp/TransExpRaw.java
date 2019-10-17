@@ -224,7 +224,7 @@ public final class TransExpRaw extends TransExp<Gen, Sk, Gen, Sk, String, String
 			}
 		}
 
-		AqlOptions ops = new AqlOptions(options, null, env.defaults);
+		AqlOptions ops = new AqlOptions(options, env.defaults);
 
 		LiteralTransform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> ret = new LiteralTransform<>(
 				gens0, sks0, src0, dst0, (Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));

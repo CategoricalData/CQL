@@ -170,7 +170,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 
 		J = new LiteralInstance<>(intI, col.gens, col.sks, eqs0, dp2, initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
-				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs0.size());
+				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
 		J.validate();
 	}

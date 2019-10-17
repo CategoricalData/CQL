@@ -220,9 +220,6 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		return lowest_plan;
 	}
 
-	@Override
-	public int numEqs() {
-		return eqs.size();
-	}
+	
 
 }

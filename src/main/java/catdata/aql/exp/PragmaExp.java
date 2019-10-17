@@ -544,7 +544,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				throw new IgnoreException();
 			}
 			String toGet = jdbcString;
-			AqlOptions op = new AqlOptions(options, null, env.defaults);
+			AqlOptions op = new AqlOptions(options, env.defaults);
 			if (jdbcString.trim().isEmpty()) {
 				toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 			}
@@ -627,7 +627,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			if (isC) {
 				throw new IgnoreException();
 			}
-			AqlOptions op = new AqlOptions(options, null, env.defaults);
+			AqlOptions op = new AqlOptions(options, env.defaults);
 			return new ToCsvPragmaInstance<>(inst.eval(env, false), file, op);
 		}
 
@@ -799,8 +799,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			if (isC) {
 				throw new IgnoreException();
 			}
-			AqlOptions op1 = new AqlOptions(options1, null, env.defaults);
-			AqlOptions op2 = new AqlOptions(options2, null, env.defaults);
+			AqlOptions op1 = new AqlOptions(options1, env.defaults);
+			AqlOptions op2 = new AqlOptions(options2, env.defaults);
 			return new ToCsvPragmaTransform<>(trans.eval(env, false), file, op1, op2);
 		}
 	}
@@ -1104,7 +1104,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public synchronized Pragma eval0(AqlEnv env, boolean isC) {
 			String toGet = jdbcString;
 			//String driver = clazz;
-			AqlOptions op = new AqlOptions(options, null, env.defaults);
+			AqlOptions op = new AqlOptions(options, env.defaults);
 			//if (clazz.trim().isEmpty()) {
 			//	driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
 			//}
@@ -1231,8 +1231,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			}
 			String toGet = jdbcString;
 		//	String driver = clazz;
-			AqlOptions op1 = new AqlOptions(options1, null, env.defaults);
-			AqlOptions op2 = new AqlOptions(options2, null, env.defaults);
+			AqlOptions op1 = new AqlOptions(options1, env.defaults);
+			AqlOptions op2 = new AqlOptions(options2, env.defaults);
 
 			//if (clazz.trim().isEmpty()) {
 			//	driver = (String) op1.getOrDefault(AqlOption.jdbc_default_class);
@@ -1371,7 +1371,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			}
 			String toGet = jdbcString;
 			//String driver = clazz;
-			AqlOptions op = new AqlOptions(options, null, env.defaults);
+			AqlOptions op = new AqlOptions(options, env.defaults);
 			////if (clazz.trim().isEmpty()) {
 			//	driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
 			//}

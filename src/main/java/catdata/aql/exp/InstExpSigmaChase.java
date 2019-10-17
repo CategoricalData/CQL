@@ -135,7 +135,7 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 			throw new IgnoreException();
 		}
 
-		AqlOptions op = new AqlOptions(options, null, env.defaults);
+		AqlOptions op = new AqlOptions(options, env.defaults);
 
 		String type = (String) op.getOrDefault(AqlOption.chase_style);
 		Integer reduce = (Integer) op.getOrDefault(AqlOption.talg_reduction);
@@ -162,7 +162,7 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 
 			Instance zz = new LiteralInstance<>(alg.schema(), col.gens, col.sks, eqs, alg, alg,
 					(Boolean) op.getOrDefault(AqlOption.require_consistency),
-					(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqs.size());
+					(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 			zz.validate();
 			return zz;
 		} else if (type.equals("parallel")) {

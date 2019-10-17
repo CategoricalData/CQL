@@ -25,7 +25,7 @@ public class JsPragma extends Pragma {
 	public JsPragma(List<String> jss, Map<String, String> o, AqlEnv env) {
 		this.jss = jss;
 		this.env = env;
-		this.options = new AqlOptions(o, null, env.defaults);
+		this.options = new AqlOptions(o, env.defaults);
 	}
 
 	@Override

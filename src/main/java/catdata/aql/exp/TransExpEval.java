@@ -63,7 +63,7 @@ public class TransExpEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
 			t.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new EvalTransform<>(Q.eval(env, false), t.eval(env, false), new AqlOptions(options, null, env.defaults));
+		return new EvalTransform<>(Q.eval(env, false), t.eval(env, false), new AqlOptions(options, env.defaults));
 	}
 
 	@Override
