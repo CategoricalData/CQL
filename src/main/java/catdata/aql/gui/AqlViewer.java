@@ -584,7 +584,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 	@SuppressWarnings("rawtypes")
 	private static <Ty, En, Sym, Fk, Att, Gen, Sk> JComponent viewDP(DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp,
-			Collage /* <Ty, En, Sym, Fk, Att, Gen, Sk> */ col, AqlJs /* <Ty, Sym> */ js) {
+			Function<Unit,Collage> col, AqlJs /* <Ty, Sym> */ js) {
 		CodeTextPanel input = new CodeTextPanel("Input (either equation-in-ctx or term-in-ctx)", "");
 		CodeTextPanel output = new CodeTextPanel("Output", "");
 
@@ -615,7 +615,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 				@SuppressWarnings("unchecked")
 				final Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> z = RawTerm
-						.infer2(y.first, y.second, y.third, col, js);
+						.infer2(y.first, y.second, y.third, col.apply(Unit.unit), js);
 
 				boolean isEq = dp.eq(z.first, z.second, z.third);
 				output.setText(Boolean.toString(isEq));
@@ -1012,7 +1012,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T, C> Unit visit(String k, JTabbedPane ret, TypeSide<T, C> T) {
-		ret.addTab("DP", viewDP(T.semantics(), T.collage(), T.js));
+		ret.addTab("DP", viewDP(T.semantics(), x->T.collage(), T.js));
 		ret.addTab("Model", makeHomSet((TypeSide<Ty, Sym>) T));
 		return Unit.unit;
 	}
@@ -1166,7 +1166,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	public <Ty, En, Sym, Fk, Att> Unit visit(String k, JTabbedPane ret, Schema<Ty, En, Sym, Fk, Att> S) {
 		ret.addTab("Graph", viewSchema(S));
 		// ret.add("Graph2", viewSchemaAlt(S));
-		ret.addTab("DP", viewDP(S.dp(), S.collage(), S.typeSide.js));
+		ret.addTab("DP", viewDP(S.dp(), x->S.collage(), S.typeSide.js));
 		// ret.add(new CodeTextPanel("", schema.collage().toString()), "Temp");
 		ret.add("Acyclic?", acyclicPanel(S));
 		return Unit.unit;
@@ -1199,7 +1199,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			ret.addTab("Hom-sets", makeHomSet((Instance<catdata.aql.exp.Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>) I));
 		
 			if (I.size() < 1024) {
-				ret.addTab("DP", viewDP(I.dp(), I.collage(), I.schema().typeSide.js));
+				ret.addTab("DP", viewDP(I.dp(), x->I.collage(), I.schema().typeSide.js));
 			} else {
 				ret.addTab("DP", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));		
 			}

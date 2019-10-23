@@ -45,7 +45,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 
 		@Override
 		public IMap<Gen, En2> gens() {
-			return Instance.transformValues(X.gens(), F.ens::get);
+			return Instance.transformValues(X.gens(), (k,v)->F.ens.get(v));
 		}
 
 		@Override

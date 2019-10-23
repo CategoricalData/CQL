@@ -87,16 +87,7 @@ public class ED {
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> I = front(sch),
 				J = back(sch);
 
-		Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> gens = new THashMap<>(I.gens().size());
-		Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> sks = new THashMap<>(I.sks().size());
-		I.gens().keySet((v) -> {
-			gens.put(v, Term.Gen(v));
-		});
-		I.sks().keySet((v) -> {
-			sks.put(v, Term.Sk(v));
-		});
-
-		return new LiteralTransform<>(gens, sks, I, J, true);
+		return new LiteralTransform<>((x,t)->Term.Gen(x), (x,t)->Term.Sk(x), front(sch), back(sch), true);
 	}
 
 	public LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> front(
@@ -331,28 +322,28 @@ public class ED {
 		Awh = new THashSet<>();
 		Ewh = new THashSet<>();
 
-		h.src().gens().keySet((gen1)-> {
+		h.src().gens().entrySet((gen1,t) -> { 
 			As.put(Var.Var("A" + gen1), Chc.inRight(h.src().gens().get(gen1)));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> l = unfreeze("A", Term.Gen(gen1));
-			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.gens().get(gen1).convert());
+			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.gens().apply(gen1,t).convert());
 			Ewh.add(new Pair<>(l, r));
 		});
-		h.src().sks().keySet((sk1) -> {
+		h.src().sks().entrySet((sk1,t) -> {
 			As.put(Var.Var("A" + sk1), Chc.inLeft(h.src().sks().get(sk1)));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> l = unfreeze("A", Term.Sk(sk1));
-			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.sks().get(sk1));
+			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.sks().apply(sk1,t));
 			Ewh.add(new Pair<>(l, r));
 		});
-		h.dst().gens().keySet((gen2) -> {
-			Es.put(Var.Var("E" + gen2), Chc.inRight(h.dst().gens().get(gen2)));
+		h.dst().gens().entrySet((gen2, x) -> {
+			Es.put(Var.Var("E" + gen2), Chc.inRight(x));
 		});
-		h.dst().sks().keySet((sk2) -> {
+		h.dst().sks().entrySet((sk2, x) -> {
 			Es.put(Var.Var("E" + sk2), Chc.inLeft(h.dst().sks().get(sk2)));
 		});
-		h.src().eqs((a,b) -> {
+		h.src().eqs((a,b)->{
 			Awh.add(new Pair<>(unfreeze("A", a), unfreeze("A", b)));
 		});
-		h.dst().eqs((a,b) -> {
+		h.dst().eqs((a,b)->{
 			Ewh.add(new Pair<>(unfreeze("E", a), unfreeze("E", b)));
 		});
 
@@ -381,8 +372,9 @@ public class ED {
 		sks.put(ED.UNIT, Map2);
 
 		this.options = options;
-		asTransform(h.src().schema()); // TODO aql testing
+		//asTransform(h.src().schema()); 
 	}
+
 
 	public ED(/* Schema<Ty, En, Sym, Fk, Att> schema, */ Map<Var, Chc<Ty, En>> as, Map<Var, Chc<Ty, En>> es,
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> awh,
@@ -404,7 +396,7 @@ public class ED {
 		AsEs.putAll(Es);
 		is.put(BACK, new Triple<>(AsEs, freeze(Util.union(Awh, Ewh)), options));
 
-		Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> Map1 = new THashMap<>();
+		Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> Map1 = new THashMap<>(As.size());
 		Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> Map2 = new THashMap<>();
 
 		for (Var v : As.keySet()) {

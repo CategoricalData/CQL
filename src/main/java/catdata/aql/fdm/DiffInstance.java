@@ -7,10 +7,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import catdata.Pair;
 import catdata.aql.Algebra;
 import catdata.aql.DP;
 import catdata.aql.Instance;
-import catdata.aql.Schema;
+import catdata.aql.Schema; 
 import catdata.aql.Term;
 import catdata.aql.Transform;
 import gnu.trove.map.hash.THashMap;
@@ -36,15 +37,14 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 		Map<En, Collection<X>> ens = new THashMap<>(J.schema().ens.size());
 		Map<Ty, Collection<Y>> tys = new THashMap<>(J.schema().typeSide.tys.size());
 
-		Map<X, Term<Void, En, Void, Fk, Void, Gen, Void>> m = new THashMap<>(J.size());
-		Map<Y, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> n = new THashMap<>(J.algebra().talg().sks.size());
+		BiFunction<X, En, Term<Void, En, Void, Fk, Void, Gen, Void>> m = (x,en) -> I.algebra().repr(en, x); 
+		BiFunction<Y, Ty, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> n = (k,t) -> I.reprT(Term.Sk(k));
 
 		for (Ty ty : I.schema().typeSide.tys) {
 			tys.put(ty, new LinkedList<>());
 		}
 		for (Y k : I.algebra().talg().sks.keySet()) {
 			tys.get(I.algebra().talg().sks.get(k)).add(k);
-			n.put(k, I.reprT(Term.Sk(k)));
 		}
 
 		THashMap<X, Map<Fk, X>> fks = new THashMap<>(J.size());
@@ -75,7 +75,7 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 				}
 				fks.put(x, Collections.emptyMap()); // no fks
 				atts.put(x, new THashMap<>());
-				m.put(x, I.algebra().repr(en, x));
+				
 				c.add(x);
 
 				for (Att att : I.schema().attsFrom(en)) {
@@ -129,7 +129,5 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 	public Algebra<Ty, En, Sym, Fk, Att, X, Y, X, Y> algebra() {
 		return K.algebra();
 	}
-
-	
 
 }

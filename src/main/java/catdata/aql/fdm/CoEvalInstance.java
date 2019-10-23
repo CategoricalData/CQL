@@ -1,7 +1,6 @@
 package catdata.aql.fdm;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -91,26 +90,24 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 							.get(fk);
 					En2 tt = J.schema().fks.get(fk).second;
 
-					fk0.src().gens().keySet((v0) -> {
-						// En1 ttt = fk0.src().gens().get(v0);
+					fk0.src().gens().entrySet((v0,k) ->  {
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.gens()
-								.get(v0).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
+								.apply(v0,k).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
 										x -> new Triple<>(x, j, t), Util::abort);
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Gen(new Triple<>(v0, J.algebra().fk(fk, j), tt));
 						col.eqs.add(new Eq<>(null, lhs, rhs));
-				
 					});
 					// col.validate();
 
-					fk0.src().sks().keySet((v0) -> {
+					fk0.src().sks().entrySet((v0,k) -> {
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.sks()
-								.get(v0).mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
+								.apply(v0,k).mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Sk(Chc.inLeft(new Triple<>(v0, J.algebra().fk(fk, j), tt)));
 						col.eqs.add(new Eq<>(null, lhs, rhs));
 					});
-					// col.validate();
+			
 				}
 				for (Att2 att : J.schema().attsFrom(t)) {
 

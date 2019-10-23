@@ -55,7 +55,7 @@ public class NoAlgInstance extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Void,
 	@Override
 	public synchronized DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
 		if (dp == null) {
-			dp = AqlProver.createInstance(options, collage(), schema);
+			dp = AqlProver.createInstance(options, col, schema);
 			return dp;
 		}
 		return dp;

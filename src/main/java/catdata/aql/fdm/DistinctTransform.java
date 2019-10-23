@@ -1,6 +1,6 @@
 package catdata.aql.fdm;
 
-import java.util.Map;
+import java.util.function.BiFunction;
 
 import catdata.aql.Instance;
 import catdata.aql.Term;
@@ -16,12 +16,12 @@ public class DistinctTransform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y
 	}
 
 	@Override
-	public Map<Gen1, Term<Void, En, Void, Fk, Void, Gen2, Void>> gens() {
+	public BiFunction<Gen1, En, Term<Void, En, Void, Fk, Void, Gen2, Void>> gens() {
 		return t.gens();
 	}
 
 	@Override
-	public Map<Sk1, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> sks() {
+	public BiFunction<Sk1, Ty, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> sks() {
 		return t.sks();
 	}
 

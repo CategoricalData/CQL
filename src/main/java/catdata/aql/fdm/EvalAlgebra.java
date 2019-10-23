@@ -57,10 +57,10 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 
 //		Map<Var, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> ret = new THashMap<>(l.size());
 		for (Var v : l) {
-			if (t.gens().containsKey(v)) {
-				r = new Row<>(r, v, trans2(row, t.gens().get(v).convert()), en2, t.src().gens().get(v));
+			if (t.src().gens().containsKey(v)) {
+				r = new Row<>(r, v, trans2(row, t.gens().apply(v,t.src().gens().get(v)).convert()), en2, t.src().gens().get(v));
 			} else {
-				r = new Row<>(r, v, trans2(row, t.sks().get(v).convert()), en2, t.src().sks().get(v));
+				r = new Row<>(r, v, trans2(row, t.sks().apply(v,t.src().sks().get(v)).convert()), en2, t.src().sks().get(v));
 			}
 
 		}

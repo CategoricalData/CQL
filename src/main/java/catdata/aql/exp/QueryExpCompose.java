@@ -186,7 +186,7 @@ public final class QueryExpCompose extends QueryExp {
 					.get(En).eqs) {
 				Chc<Ty, En> ty = q2.ens.get(En).type(eq.first);
 				if (!ty.left) {
-					q1.ens.get(ty.r).gens().keySet((v) -> {
+					q1.ens.get(ty.r).gens().keySet(v ->  {
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = trans(q1, q2, isos, v, eq.first.asArgForFk(), En);
 
@@ -195,18 +195,19 @@ public final class QueryExpCompose extends QueryExp {
 						ens.get(En).second.add(new Eq<>(null, xl.convert(), xr.convert()));
 					});
 
-					q1.ens.get(ty.r).sks().keySet((v) -> {
+					q1.ens.get(ty.r).sks().keySet(v -> {
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = trans(q1, q2, isos, v, eq.first.asArgForFk(), En);
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xr = trans(q1, q2, isos, v, eq.second.asArgForFk(), En);
 
 						ens.get(En).second.add(new Eq<>(null, xl.convert(), xr.convert()));
+
 					});
 
 					// todo: add eqs from sks?
 				} else {
 					// exactly one thing, _y_
-					q1.tys.get(ty.l).sks().keySet((v) -> {
+					q1.tys.get(ty.l).sks().keySet(v-> {
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = transT(q1, q2, isos, eq.first, En, v);
 
@@ -234,11 +235,11 @@ public final class QueryExpCompose extends QueryExp {
 				// System.out.println(p.first + " " + v.getValue());
 
 				Term<Ty, En, Sym, Fk, Att, Var, Var> xl;
-				if (h.gens().containsKey(p.first)) { // not value.left
-					Term<Void, En, Void, Fk, Void, Var, Void> t = h.gens().get(p.first);
+				if (h.src().gens().containsKey(p.first)) { // not value.left
+					Term<Void, En, Void, Fk, Void, Var, Void> t = h.gens().apply(p.first, h.src().gens().get(p.first));
 					xl = trans(q1, q2, isos, p.second, t, q2.dst.fks.get(Fk).first);
 				} else {
-					Term<Ty, En, Sym, Fk, Att, Var, Var> t = h.sks().get(p.first);
+					Term<Ty, En, Sym, Fk, Att, Var, Var> t = h.sks().apply(p.first, h.src().sks().get(p.first));
 					xl = transT(q1, q2, isos, t, q2.dst.fks.get(Fk).first, p.second);
 				}
 
@@ -331,20 +332,16 @@ public final class QueryExpCompose extends QueryExp {
 			Var lhsGen = Util.get0(t.gens());
 			return iso.get(En).second.get(new Pair<>(lhsGen, u));
 		};
-//		Function<Var, Var> skf = u -> {
-//			System.out.println(t + " and " + u);
-//			Var lhsGen = Util.get0(t.gens());
-//			return iso.get(En).second.get(new Pair<>(lhsGen, u));
-//		};
 
-		if (rhs.gens().containsKey(p)) {
 
-			Term<Void, En, Void, Fk, Void, Var, Void> z = rhs.gens().get(p);
+		if (rhs.src().gens().containsKey(p)) {
+
+			Term<Void, En, Void, Fk, Void, Var, Void> z = rhs.gens().apply(p, rhs.src().gens().get(p));
 			Term<Void, En, Void, Fk, Void, Var, Void> xl = z.mapGen(genf);
 			return xl.convert();
-		} else if (rhs.sks().containsKey(p)) {
+		} else if (rhs.src().sks().containsKey(p)) {
 
-			Term<Ty, En, Sym, Fk, Att, Var, Var> z = rhs.sks().get(p);
+			Term<Ty, En, Sym, Fk, Att, Var, Var> z = rhs.sks().apply(p, rhs.src().sks().get(p));
 			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> xl = z.mapGenSk(genf, genf);
 			return xl;
 		}

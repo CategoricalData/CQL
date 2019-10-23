@@ -9,6 +9,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.list.TreeList;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -18,6 +21,7 @@ import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
 import catdata.aql.Eq;
+import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
 import catdata.aql.Query;
@@ -103,7 +107,72 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 	public Pair<SchExp, SchExp> type(AqlTyping G) {
 		return new Pair<>(F.type(G).first, F.type(G).second);
 	}
+	
+	/**
+	 * only works on closed terms
+	 */
+	private static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> 
+	applyAllSymbolsNotSk(
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J,
+			Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> set) {
+		Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> ret = new THashSet<>();
 
+		J.gens().keySet((gen)->{
+			ret.add(Term.Gen(gen));
+		});
+		
+		for (Fk fk : J.schema().fks.keySet()) {
+			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : set) {
+				Chc<Ty, En> x = J.type(arg.convert());
+				if (x.equals(Chc.inRight(J.schema().fks.get(fk).first))) {
+					ret.add(Term.Fk(fk, arg));
+				}
+			}
+		}
+		for (Att att : J.schema().atts.keySet()) {
+			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> arg : set) {
+				Chc<Ty, En> x = J.type(arg.convert());
+				if (x.equals(Chc.inRight(J.schema().atts.get(att).first))) {
+					ret.add(Term.Att(att, arg));
+				}
+			}
+		}
+		for (Sym sym : J.schema().typeSide.syms.keySet()) {
+			for (List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args : helper(J, J.schema().typeSide.syms.get(sym), set)) {
+				ret.add(Term.Sym(sym, args));
+			}
+		}
+
+		return ret;
+	}
+
+	private static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> 
+	getForTy(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J, Chc<Ty, En> t,
+			Collection<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> set) {
+		return set.stream().filter(x ->  J.type(x.convert()).equals(t))
+				.collect(Collectors.toList());
+	}
+	
+	private static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> List<List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> helper(
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> j,
+			Pair<List<Ty>, Ty> pair,
+			Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> set) {
+		List<List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> ret = new TreeList<>();
+		ret.add(new TreeList<>());
+
+		for (Ty t : pair.first) {
+			List<List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> ret2 = new TreeList<>();
+			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> l : getForTy(j, Chc.inLeft(t), set)) {
+				for (List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x : ret) {
+					List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> z = new TreeList<>(x);
+					z.add(l);
+					ret2.add(z);
+				}
+			}
+			ret = ret2;
+		}
+		return ret;
+	}
 	@Override
 	public Query<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> F0 = F.eval(env, isC);
@@ -133,7 +202,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 			InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Void> initial = new InitialAlgebra<>(ops, F0.dst, col, (y) -> y,
 					(x, y) -> y);
 			LiteralInstance<Ty, En, Sym, Fk, Att, Var, Void, Integer, Chc<Void, Pair<Integer, Att>>> y = new LiteralInstance<>(
-					F0.dst, col.gens, col.sks, Collections.emptySet(), initial.dp(), initial,
+					F0.dst, col.gens, col.sks, col.eqsAsPairs(), initial.dp(), initial,
 					(Boolean) ops.getOrDefault(AqlOption.require_consistency),
 					(Boolean) ops.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 			ys.put(en2, y);
@@ -164,8 +233,8 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 				Term<Ty, En, Sym, Fk, Att, Var, Var> u = null;
 
 				outer: for (int i = 0; i < (int) ops.getOrDefault(AqlOption.toCoQuery_max_term_size); i++) {
-					Set<Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Void>> set2 = J.collage()
-							.applyAllSymbolsNotSk(set);
+					Set<Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Void>> set2 = 
+							applyAllSymbolsNotSk((Instance)J, set);
 					for (Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Void> s : set2) {
 						if (J.type(Term.Sk(p)).equals(J.type(s.convert()))) {
 							if (J.dp().eq(null, Term.Sk(p), s.convert())) {
@@ -204,7 +273,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 			//System.out.println(surj);
 			//System.out.println("**");
 
-			J.eqs((a,b) -> {
+			J.eqs((a,b)-> {
 				Function<Pair<En, Integer>, Var> genf = x -> Var.Var("gen" + iso.first.get(x));
 
 				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, Chc<Void, Pair<Integer, Att>>> tz = a.mapGen(genf);
@@ -220,16 +289,18 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 					wh.add(new Eq<>(null, tt, ttA));
 				}
 			});
+			
 			ens.put(en2, new Triple<>(fr, wh, ops));
 		}
 		
 		
 		
 		for (Fk fk2 : F0.dst.fks.keySet()) {
-			Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> gens = new THashMap<>();
-			gens.put(v, Term.Fk(fk2, Term.Gen(v)));
+			//Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> gens = new THashMap<>();
+			//gens.put(v, Term.Fk(fk2, Term.Gen(v)));
+			
 			LiteralTransform<Ty, En, Sym, Fk, Att, Var, Void, Var, Void, Integer, Chc<Void, Pair<Integer, Att>>, Integer, Chc<Void, Pair<Integer, Att>>> t = new LiteralTransform<>(
-					gens, new THashMap<>(), ys.get(F0.dst.fks.get(fk2).second), ys.get(F0.dst.fks.get(fk2).first),
+					(a,b)->Term.Fk(fk2, Term.Gen(v)), (a,b)->Util.abort(a), ys.get(F0.dst.fks.get(fk2).second), ys.get(F0.dst.fks.get(fk2).first),
 					(Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));
 
 			DeltaTransform<Ty, En, Sym, Fk, Att, Var, Void, En, Fk, Att, Var, Void, Integer, Chc<Void, Pair<Integer, Att>>, Integer, Chc<Void, Pair<Integer, Att>>> h = new DeltaTransform<>(

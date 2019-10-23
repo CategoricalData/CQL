@@ -34,40 +34,7 @@ public class Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) this;
 	}
 
-	/**
-	 * only works on closed terms
-	 */
-	public Set<Term<Ty, En, Sym, Fk, Att, Gen, Void>> applyAllSymbolsNotSk(
-			Set<Term<Ty, En, Sym, Fk, Att, Gen, Void>> set) {
-		Set<Term<Ty, En, Sym, Fk, Att, Gen, Void>> ret = (new THashSet<>());
-
-		for (Gen gen : gens.keySet()) {
-			ret.add(Term.Gen(gen));
-		}
-		for (Fk fk : fks.keySet()) {
-			for (Term<Ty, En, Sym, Fk, Att, Gen, Void> arg : set) {
-				Chc<Ty, En> x = type(Collections.emptyMap(), arg.convert());
-				if (x.equals(Chc.inRight(fks.get(fk).first))) {
-					ret.add(Term.Fk(fk, arg));
-				}
-			}
-		}
-		for (Att att : atts.keySet()) {
-			for (Term<Ty, En, Sym, Fk, Att, Gen, Void> arg : set) {
-				Chc<Ty, En> x = type(Collections.emptyMap(), arg.convert());
-				if (x.equals(Chc.inRight(atts.get(att).first))) {
-					ret.add(Term.Att(att, arg));
-				}
-			}
-		}
-		for (Sym sym : syms.keySet()) {
-			for (List<Term<Ty, En, Sym, Fk, Att, Gen, Void>> args : helper(syms.get(sym), set)) {
-				ret.add(Term.Sym(sym, args));
-			}
-		}
-
-		return ret;
-	}
+	
 
 	private List<Term<Ty, En, Sym, Fk, Att, Gen, Void>> getForTy(Chc<Ty, En> t,
 			Collection<Term<Ty, En, Sym, Fk, Att, Gen, Void>> set) {

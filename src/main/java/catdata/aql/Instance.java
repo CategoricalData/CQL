@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import catdata.Chc;
 import catdata.Util;
@@ -288,7 +288,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 	private Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage;
 
-	public final synchronized Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage() {
+	/*public final synchronized Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage() {
 		if (collage != null) {
 			return collage;
 		}
@@ -302,7 +302,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			collage.eqs.add(new Eq<>(null, a, b));
 		});
 		return collage;
-	}
+	}*/
 /*
 	@Override
 	public final int hashCode() {
@@ -347,10 +347,9 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 */
 	
 	
-	public static <X,Y,Z> IMap<X,Z> transformValues(IMap<X,Y> map, Function<Y,Z> g) {
+	public static <X,Y,Z> IMap<X,Z> transformValues(IMap<X,Y> map, BiFunction<X,Y,Z> g) {
 		return new IMap<>() {
 
-			
 			@Override
 			public int size() {
 				return map.size();
@@ -370,13 +369,12 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			@SuppressWarnings("unchecked")
 			@Override
 			public Z get(Object key) {
-				return g.apply(map.get((X)key));
+				return g.apply((X)key, map.get((X)key));
 			}
-
 	
 			@Override
 			public void entrySet(BiConsumer<? super X, ? super Z> f) {
-				map.entrySet((a,b)->f.accept(a, g.apply(b)));
+				map.entrySet((a,b)->f.accept(a, g.apply(a,b)));
 			}
 
 			@Override
@@ -388,7 +386,6 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			public Z remove(X x) {
 				return Util.anomaly();
 			}
-
 		
 		};
 	} 

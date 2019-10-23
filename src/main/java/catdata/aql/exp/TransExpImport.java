@@ -89,29 +89,10 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 
 		op = new AqlOptions(options, env.defaults);
 		dontValidateEqs = (Boolean) op.getOrDefault(AqlOption.dont_validate_unsafe);
-		boolean autoMapNulls = (Boolean) op.getOrDefault(AqlOption.map_nulls_arbitrarily_unsafe);
+		//boolean autoMapNulls = (Boolean) op.getOrDefault(AqlOption.map_nulls_arbitrarily_unsafe);
 
-		for (Sk1 sk : src0.sks().keySet()) {
-			Ty ty = src0.sks().get(sk);
-			Set<Sk2> xxx = Util.revS(dst0.sks()).get(ty);
-			if (xxx.isEmpty()) {
-				throw new RuntimeException("Cannot map null " + sk
-						+ " to target instance because target instance has no nulls at type " + ty);
-			}
-			if (xxx.size() > 1) {
-				if (autoMapNulls) {
-					Sk2 sk2 = Util.get0X(xxx);
-					sks.put(sk, Term.Sk(sk2));
-				} else {
-					throw new RuntimeException("Cannot automatically map null " + sk
-							+ " to target instance because target instance has " + xxx.size() + " nulls at type " + ty
-							+ ". Possible solution: add options map_nulls_arbitrarily_unsafe = true");
-				}
-			} else {
-				Sk2 sk2 = Util.get0(xxx);
-				sks.put(sk, Term.Sk(sk2));
-			}
-
+		if (src0.sks().size() > 0) {
+			throw new RuntimeException("Import of nulls not supported.");
 		}
 
 		try {
@@ -126,10 +107,10 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 			stop(h);
 		} catch (Exception exn) {
 			// exn.printStackTrace();
-			throw new RuntimeException(exn); // .getMessage() + "\n\n" + getHelpStr());
+			throw new RuntimeException(exn); 
 		}
 
-		return new LiteralTransform<>(gens, sks, src0, dst0, dontValidateEqs);
+		return new LiteralTransform<>((k,v)->gens.get(k), (k,v)->sks.get(k), src0, dst0, dontValidateEqs);
 	}
 
 	protected abstract String getHelpStr();

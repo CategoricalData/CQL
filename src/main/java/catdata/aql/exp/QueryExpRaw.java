@@ -765,7 +765,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 				atts0.put(Att, v.atts.get(Att));
 			}
 			for (Fk Fk : v.fks.keySet()) {
-				fks0.put(Fk, new Pair<>(v.fks.get(Fk).gens(), v.doNotValidate.get(Fk)));
+				fks0.put(Fk, new Pair<>(v.fks.get(Fk).gensAsMap(), v.doNotValidate.get(Fk)));
 			}
 
 		}

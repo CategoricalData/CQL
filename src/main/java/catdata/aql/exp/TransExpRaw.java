@@ -29,6 +29,7 @@ import gnu.trove.set.hash.THashSet;
 
 public final class TransExpRaw extends TransExp<Gen, Sk, Gen, Sk, String, String, String, String> implements Raw {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Exp<?>> imports() {
 		return (Collection<Exp<?>>) (Object) imports;
@@ -189,8 +190,9 @@ public final class TransExpRaw extends TransExp<Gen, Sk, Gen, Sk, String, String
 			@SuppressWarnings("unchecked")
 			Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> v = (Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String>) k
 					.eval(env, isC);
-			Util.putAllSafely(gens0, v.gens());
-			Util.putAllSafely(sks0, v.sks());
+			//Util.putAllSafely(gens0, v.gens());
+			//Util.putAllSafely(sks0, v.sks());
+			Util.anomaly();
 		}
 
 		for (Pair<String, RawTerm> gen : gens) {
@@ -227,7 +229,7 @@ public final class TransExpRaw extends TransExp<Gen, Sk, Gen, Sk, String, String
 		AqlOptions ops = new AqlOptions(options, env.defaults);
 
 		LiteralTransform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, String, String, String, String> ret = new LiteralTransform<>(
-				gens0, sks0, src0, dst0, (Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));
+				(k,t)->gens0.get(k), (k,t)->sks0.get(k), src0, dst0, (Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));
 		return ret;
 	}
 

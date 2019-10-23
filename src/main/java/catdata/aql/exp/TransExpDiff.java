@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import catdata.Pair;
@@ -15,7 +16,6 @@ import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.fdm.DiffInstance;
 import catdata.aql.fdm.LiteralTransform;
-import gnu.trove.map.hash.THashMap;
 
 public final class TransExpDiff<Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2>
 		extends TransExp<X1, Y, X2, Y, X1, Y, X2, Y> {
@@ -96,17 +96,11 @@ public final class TransExpDiff<Gen, Sk, X, Y, Gen1, Gen2, Sk1, Sk2, X1, X2>
 		DiffInstance<Ty, En, Sym, Fk, Att, Gen1, Sk1, X1, Y> a = new DiffInstance<>(H.src(), i, true, false);
 		DiffInstance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y> b = new DiffInstance<>(H.dst(), i, true, false);
 
-		Map<X1, Term<Void, En, Void, Fk, Void, X2, Void>> m = new THashMap<>();
-		Map<Y, Term<Ty, En, Sym, Fk, Att, X2, Y>> n = new THashMap<>();
+		BiFunction<X1, En, Term<Void, En, Void, Fk, Void, X2, Void>> m; 
+		BiFunction<Y, Ty, Term<Ty, En, Sym, Fk, Att, X2, Y>> n; 
 
-		for (En en : a.schema().ens) {
-			for (X1 x1 : a.algebra().en(en)) {
-				m.put(x1, Term.Gen(H.repr(en, x1)));
-			}
-		}
-		for (Y y : a.algebra().talg().sks.keySet()) {
-			n.put(y, Term.Sk(y));
-		}
+		m = (x1,t) -> Term.Gen(H.repr(t, x1));
+		n = (y,t) -> Term.Sk(y);
 
 		return new LiteralTransform<>(m, n, a, b, true);
 	}

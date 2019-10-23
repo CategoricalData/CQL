@@ -14,12 +14,22 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.It.ID;
+import catdata.aql.exp.Att;
+import catdata.aql.exp.En;
+import catdata.aql.exp.Fk;
+import catdata.aql.exp.Gen;
+import catdata.aql.exp.Sk;
+import catdata.aql.exp.Sym;
+import catdata.aql.exp.Ty;
 import catdata.aql.fdm.SlowInitialAlgebra;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		extends Instance<Ty, En1, Sym, Fk1, Att1, Var, Var, ID, Chc<Var, Pair<ID, Att1>>> {
+
+	
+	//private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>();
 
 	public final Map<Var, En1> gens;
 	public final Map<Var, Ty> sks;
@@ -63,7 +73,7 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 				this.sks.put(v, t.r);
 			}
 		}
-		this.eqs = (new THashSet<>());
+		this.eqs = new THashSet<>(eqs.size());
 		for (Eq<Ty, En1, Sym, Fk1, Att1, Var, Var> x : eqs) {
 			this.eqs.add(new Pair<>(x.lhs, x.rhs));
 		}

@@ -180,25 +180,25 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		return ret;
 	}
 
-	private Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> conv2() {
-		Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> ret = new THashMap<>();
-		for (Fk2 fk2 : fks.keySet()) {
-			ret.put(fk2, new Pair<>(fks.get(fk2).gens(), doNotValidate.get(fk2))); // TODO aql true is correct here?
+	private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> conv2(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
+		Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> ret = new THashMap<>(q.fks.size());
+		for (Fk2 fk2 : q.fks.keySet()) {
+			ret.put(fk2, new Pair<>(q.fks.get(fk2).gensAsMap(), q.doNotValidate.get(fk2))); // TODO aql true is correct here?
 		}
 		return ret;
 	}
 
-	private Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> conv3() {
-		Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> ret = new THashMap<>();
-		for (Fk2 fk2 : fks.keySet()) {
-			ret.put(fk2, fks.get(fk2).sks());
+	private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> conv3(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
+		Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> ret = new THashMap<>(q.fks.size());
+		for (Fk2 fk2 : q.fks.keySet()) {
+			ret.put(fk2, q.fks.get(fk2).sksAsMap());
 		}
 		return ret;
-	}
+	} 
 
 	public synchronized Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> unnest() {
 
-		Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b = new Blob<>(conv1(ens), atts, conv2(), conv3(), src, dst);
+		Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b = new Blob<>(conv1(ens), atts, conv2(this), conv3(this), src, dst);
 		b = unfoldNestedApplications(b);
 		// System.out.println(b);
 		Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> p = new Query<>(params, consts, b.ens, b.atts, b.fks, b.sks,
@@ -608,55 +608,55 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	AqlOptions doNotCheckPathEqs;
 
 	// doNotCheckPathEqs will stop construction of dps
-	private Query(Map<Var, Ty> params, Map<Var, Term<Ty, Void, Sym, Void, Void, Void, Void>> consts,
-			Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> ens,
-			Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Agg<Ty, En1, Sym, Fk1, Att1>>> atts,
-			Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> fks,
-			Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks, Schema<Ty, En1, Sym, Fk1, Att1> src,
-			Schema<Ty, En2, Sym, Fk2, Att2> dst, AqlOptions doNotCheckPathEqs) {
-		this.src = src;
-		this.dst = dst;
-		this.params = params;
-		this.consts = consts;
-		totalityCheck(ens, atts, fks);
-		this.doNotCheckPathEqs = doNotCheckPathEqs;
-		Map<Var, Ty> pp = (params);
-		for (En2 en2 : ens.keySet()) {
-			try {
-				this.ens.put(en2, new Frozen<>(pp, (ens.get(en2).first), ens.get(en2).second, src, ens.get(en2).third));
-			} catch (Throwable thr) {
-				thr.printStackTrace();
-				throw new RuntimeException("In block for entity " + en2 + ", " + thr.getMessage());
+		public Query(Map<Var, Ty> params, Map<Var, Term<Ty, Void, Sym, Void, Void, Void, Void>> consts,
+				Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> ens,
+				Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Agg<Ty, En1, Sym, Fk1, Att1>>> atts,
+				Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> fks,
+				Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> sks, Schema<Ty, En1, Sym, Fk1, Att1> src,
+				Schema<Ty, En2, Sym, Fk2, Att2> dst, AqlOptions doNotCheckPathEqs) {
+			this.src = src;
+			this.dst = dst;
+			this.params = params;
+			this.consts = consts;
+			totalityCheck(ens, atts, fks);
+			this.doNotCheckPathEqs = doNotCheckPathEqs;
+			Map<Var, Ty> pp = (params);
+			for (En2 en2 : ens.keySet()) {
+				try {
+					this.ens.put(en2, new Frozen<>(pp, (ens.get(en2).first), ens.get(en2).second, src, ens.get(en2).third));
+				} catch (Throwable thr) {
+					thr.printStackTrace();
+					throw new RuntimeException("In block for entity " + en2 + ", " + thr.getMessage());
+				}
 			}
-		}
 
-		for (Ty ty : src.typeSide.tys) {
-			this.tys.put(ty, new Frozen<>(pp, Collections.singletonMap(Var.Var("_y_"), Chc.inRight(ty)),
-					Collections.emptyList(), src, doNotCheckPathEqs));
-		}
-
-		for (Fk2 fk2 : fks.keySet()) {
-			Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> www = new THashMap<>(sks.get(fk2));
-			for (Var v : params.keySet()) {
-				www.put(v, Term.Sk(v));
+			for (Ty ty : src.typeSide.tys) {
+				this.tys.put(ty, new Frozen<>(pp, Collections.singletonMap(Var.Var("_y_"), Chc.inRight(ty)),
+						Collections.emptyList(), src, doNotCheckPathEqs));
 			}
-			try {
-				AqlOptions b = fks.get(fk2).second;
-				doNotValidate.put(fk2, b);
-				this.fks.put(fk2,
-						new LiteralTransform<>(fks.get(fk2).first, www, this.ens.get(dst.fks.get(fk2).second),
-								this.ens.get(dst.fks.get(fk2).first),
-								(boolean) b.getOrDefault(AqlOption.dont_validate_unsafe)));
-			} catch (Throwable thr) {
-				//thr.printStackTrace();
-				throw new RuntimeException("In transform for foreign key " + fk2 + ", " + thr.getMessage() + "\n\n");
+
+			for (Fk2 fk2 : fks.keySet()) {
+				Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> www = new THashMap<>(sks.get(fk2));
+				for (Var v : params.keySet()) {
+					www.put(v, Term.Sk(v));
+				}
+				try {
+					AqlOptions b = fks.get(fk2).second;
+					doNotValidate.put(fk2, b);
+					this.fks.put(fk2,
+							new LiteralTransform<>((x, t) -> fks.get(fk2).first.get(x), (x, t) -> www.get(x),
+									this.ens.get(dst.fks.get(fk2).second), this.ens.get(dst.fks.get(fk2).first),
+									(boolean) b.getOrDefault(AqlOption.dont_validate_unsafe)));
+				} catch (Throwable thr) {
+					// thr.printStackTrace();
+					throw new RuntimeException("In transform for foreign key " + fk2 + ", " + thr.getMessage() + "\n\n");
+				}
 			}
+			this.atts = atts;
+
+			validate((boolean) doNotCheckPathEqs.getOrDefault(AqlOption.dont_validate_unsafe));
+
 		}
-		this.atts = atts;
-
-		validate((boolean) doNotCheckPathEqs.getOrDefault(AqlOption.dont_validate_unsafe));
-
-	}
 
 	private void totalityCheck(Map<En2, ?> ens2, Map<Att2, ?> atts, Map<Fk2, ?> fks2) {
 		for (En2 en2 : dst.ens) {
@@ -822,43 +822,47 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		if (!b0.left) {
 			throw new RuntimeException("Cannot create transforms with aggregation.");
 		}
-		
+
 		Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = new LiteralTransform<>(
-				Collections.emptyMap(), Collections.singletonMap(Var.Var("_y_"), b0.l), tys.get(ty), ens.get(en2), true);
+				(x, t) -> Util.anomaly(), (x, t) -> b0.l, tys.get(ty), ens.get(en2), true);
 		return a;
 	}
 
+
 	public Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> composeT(
 			Term<Ty, En2, Sym, Fk2, Att2, Var, Var> l, En2 en2) {
+		
 		if (l.att() != null) {
-			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = compose(
-					transP(l.arg.asArgForAtt()), dst.atts.get(l.att()).first);
-			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> b = att(
-					l.att());
-			return new ComposeTransform<>(b, a);
-		} else if (l.obj() != null) {
-			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> b = Term.Obj(l.obj(), l.ty());
-			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = new LiteralTransform<>(
-					Collections.emptyMap(), Collections.singletonMap(Var.Var("_y_"), b), tys.get(l.ty()), ens.get(en2),
-					true);
-			return a;
-		} else if (l.sym() != null) {
-			Ty ty = dst.typeSide.syms.get(l.sym()).second;
-			List<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> z = (l.args.stream()
-					.map(x -> composeT(x, en2).sks().get(Var.Var("_y_"))).collect(Collectors.toList()));
-			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> b = Term.Sym(l.sym(), z);
-			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = new LiteralTransform<>(
-					Collections.emptyMap(), Collections.singletonMap(Var.Var("_y_"), b), tys.get(ty), ens.get(en2),
-					true);
-			return a;
-		} else if (l.var != null) {
-			return new IdentityTransform<>(tys.get(ens.get(en2).sks.get(l.var)), Optional.empty());
-		} else if (l.sk() != null) {
-			return new IdentityTransform<>(tys.get(ens.get(en2).sks.get(l.sk())), Optional.empty());
-		}
-		return Util.anomaly();
+				Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = compose(
+						transP(l.arg.asArgForAtt()), dst.atts.get(l.att()).first);
+				Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> b = att(
+						l.att());
+				return new ComposeTransform<>(b, a);
+			} else if (l.obj() != null) {
+				Term<Ty, En1, Sym, Fk1, Att1, Var, Var> b = Term.Obj(l.obj(), l.ty());
+				Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = new LiteralTransform<>(
+						(x, t) -> Util.anomaly(), (x, t) -> b, tys.get(l.ty()), ens.get(en2), true);
+				return a;
+			} else if (l.sym() != null) {
+				Ty ty = dst.typeSide.syms.get(l.sym()).second;
+				List<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> z = new ArrayList<>(l.args.size());
+				for (Term<Ty, En2, Sym, Fk2, Att2, Var, Var> x : l.args) {
+					z.add(composeT(x, en2).sks().apply(Var.Var("_y_"), ty));
+				}
+				Term<Ty, En1, Sym, Fk1, Att1, Var, Var> b = Term.Sym(l.sym(), z);
+				Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> a = new LiteralTransform<>(
+						(x, t) -> Util.anomaly(), (x, t) -> b, tys.get(ty), ens.get(en2), true);
+				return a;
+			} else if (l.var != null) {
+				return new IdentityTransform<>(tys.get(ens.get(en2).sks.get(l.var)), Optional.empty());
+			} else if (l.sk() != null) {
+				return new IdentityTransform<>(tys.get(ens.get(en2).sks.get(l.sk())), Optional.empty());
+			}
+			return Util.anomaly();
 
-	}
+		}
+
+	
 
 	private Term<Ty, En1, Sym, Fk1, Att1, Var, Var> transP(Term<Void, En2, Void, Fk2, Void, Var, Void> term,
 			Term<Void, En1, Void, Fk1, Void, Var, Void> u, En2 en2) {
@@ -1007,11 +1011,12 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	private String sk(
 			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> h,
 			String idCol, String ty, String tick) {
-		List<Pair<String, String>> l = new LinkedList<>();
-				
-		h.src().gens().keySet((v) -> {
-			l.add(new Pair<>(v.var, convert(qdirty(h.gens().get(v), idCol, tick), ty)));
-		});
+		
+		List<Pair<String, String>> l = new ArrayList<>(h.src().gens().size());
+				h.src().gens().entrySet((v,t) -> {
+				l.add(new Pair<>(v.var, convert(qdirty(h.gens().apply(v,t), idCol, tick), ty)));
+				});
+
 		return sk(l, ty);
 	}
 
@@ -1156,7 +1161,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			});
 			ens2.put(en2, new Triple<>(ctx, g.apply(ens.get(en2).eqs), ens.get(en2).options));
 		}
-		return makeQuery(ens2, atts2, conv2(), conv3(), src, dst, this.doNotCheckPathEqs);
+		return makeQuery(ens2, atts2, conv2(this), conv3(this), src, dst, this.doNotCheckPathEqs);
 	}
 
 	@SuppressWarnings("hiding")

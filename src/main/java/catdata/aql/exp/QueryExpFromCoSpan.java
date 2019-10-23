@@ -1,7 +1,6 @@
 package catdata.aql.exp;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,42 +107,6 @@ public final class QueryExpFromCoSpan extends QueryExp {
 		return new QueryExpCompose(a, b, Util.toList(options)).eval(env, isC);
 	}
 
-	private Term<Ty, En, Sym, Fk, Att, Var, Var> transT(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> M1,
-			Map<En, Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>>> iso,
-			Term<Ty, En, Sym, Fk, Att, Var, Var> t, En en3, Var v) {
-		
-		if (t.obj() != null) {
-			return Term.Obj(t.obj(), t.ty());
-		} else if (t.sym() != null) {
-			List<Term<Ty, En, Sym, Fk, Att, Var, Var>> l = new LinkedList<>();
-			for (Term<Ty, En, Sym, Fk, Att, Var, Var> arg : t.args) {
-				l.add(transT(M1, iso, arg, en3, v));
-			}
-			return Term.Sym(t.sym(), l);
-		} else if (t.att() != null) {
-			if (! M1.atts.get(t.att()).left) {
-				Util.anomaly();
-			}
-			
-			En en2 = M1.dst.atts.get(t.att()).first;
-			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> ret = M1.atts.get(t.att()).l;
-			for (Var head : M1.atts.get(t.att()).l.gens()) {
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3, en2);
-				ret = ret.replace(Term.Gen(head), u.convert());
-			}
-			for (Var head : M1.atts.get(t.att()).l.sks()) {
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> u = trans(M1, iso, head, t.arg, en3, en2);
-				ret = ret.replace(Term.Sk(head), u.convert());
-			}
-
-			return ret;
-		} else if (t.sk() != null) {
-			return Term.Sk(iso.get(en3).second.get(new Pair<>(t.sk(), v)));
-			// return Term.Sk(t.sk);
-		}
-		return Util.anomaly();
-	}
-
 	public Term<Ty, En, Sym, Fk, Att, Var, Var> trans(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> M1,
 			Map<En, Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>>> iso, Var p,
 			Term<Ty, En, Sym, Fk, Att, Var, Var> t, En en3, En en2) {
@@ -153,26 +116,25 @@ public final class QueryExpFromCoSpan extends QueryExp {
 			rhs = M1.compose(M1.transP(t.convert()), en2);
 		} else {
 			rhs = M1.composeT(t, en2);
-//			rhs = M1.composeT(t, en2)
 		}
 
-		if (rhs.gens().containsKey(p)) {
+		if (rhs.src().gens().containsKey(p)) {
 			Var lhsGen = Util.get0(t.gens());
 			Function<Var, Var> genf = u -> {
 				return iso.get(en3).second.get(new Pair<>(lhsGen, u));
 			};
 
-			Term<Void, En, Void, Fk, Void, Var, Void> z = rhs.gens().get(p);
+			Term<Void, En, Void, Fk, Void, Var, Void> z = rhs.gens().apply(p, rhs.src().gens().get(p));
 			Term<Void, En, Void, Fk, Void, Var, Void> xl = z.mapGen(genf);
 			return xl.convert();
-		} else if (rhs.sks().containsKey(p)) {
+		} else if (rhs.src().sks().containsKey(p)) {
 
 			Var lhsGen = Util.get0(t.gens());
 			Function<Var, Var> genf = u -> {
 				return iso.get(en3).second.get(new Pair<>(lhsGen, u));
 			};
 
-			Term<Ty, En, Sym, Fk, Att, Var, Var> z = rhs.sks().get(p);
+			Term<Ty, En, Sym, Fk, Att, Var, Var> z = rhs.sks().apply(p, rhs.src().sks().get(p));
 			Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, catdata.aql.Var> xl = z.mapGenSk(Function.identity(), genf);
 			return xl;
 		}
