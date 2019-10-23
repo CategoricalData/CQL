@@ -1,6 +1,7 @@
 package catdata.aql;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,9 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import catdata.Chc;
-import catdata.Pair;
 import catdata.Util;
 import gnu.trove.set.hash.THashSet;
 
@@ -79,9 +80,9 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 	public abstract Schema<Ty, En, Sym, Fk, Att> schema();
 
-	public abstract Map<Gen, En> gens();
+	public abstract IMap<Gen, En> gens();
 
-	public abstract Map<Sk, Ty> sks();
+	public abstract IMap<Sk, Ty> sks();
 
 	public abstract boolean requireConsistency();
 
@@ -110,7 +111,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 	public final Chc<Ty, En> type(Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
 		Util.assertNotNull(term);
 		return term.type(Collections.emptyMap(), Collections.emptyMap(), schema().typeSide.tys, schema().typeSide.syms,
-				schema().typeSide.js.java_tys, schema().ens, schema().atts, schema().fks, gens(), sks());
+				schema().typeSide.js.java_tys, schema().ens, schema().atts, schema().fks, imapToMapNoScan(gens()), imapToMapNoScan(sks()));
 	}
 
 	public final void validate() {
@@ -214,6 +215,10 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 		public boolean containsKey(X x);
 
+		public default void forEach(BiConsumer<? super X, ? super Y> f) {
+			entrySet(f);
+		}
+		
 		public void entrySet(BiConsumer<? super X, ? super Y> f);
 
 		public default void keySet(Consumer<X> f) {
@@ -288,8 +293,10 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			return collage;
 		}
 		collage = new Collage<>(schema().collage());
-		collage.gens.putAll(gens());
-		collage.sks.putAll(sks());
+		
+		
+		collage.gens.putAll(imapToMapNoScan(gens()));
+		collage.sks.putAll(imapToMapNoScan(sks()));
 		
 		eqs((a,b) -> {
 			collage.eqs.add(new Eq<>(null, a, b));
@@ -338,6 +345,163 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		return true;
 	}
 */
+	
+	
+	public static <X,Y,Z> IMap<X,Z> transformValues(IMap<X,Y> map, Function<Y,Z> g) {
+		return new IMap<>() {
+
+			
+			@Override
+			public int size() {
+				return map.size();
+			}
+
+			@Override
+			public boolean isEmpty() {
+				return map.isEmpty();
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean containsKey(Object key) {
+				return map.containsKey((X)key);
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Z get(Object key) {
+				return g.apply(map.get((X)key));
+			}
+
+	
+			@Override
+			public void entrySet(BiConsumer<? super X, ? super Z> f) {
+				map.entrySet((a,b)->f.accept(a, g.apply(b)));
+			}
+
+			@Override
+			public void put(X x, Z y) {
+				Util.anomaly();
+			}
+
+			@Override
+			public Z remove(X x) {
+				return Util.anomaly();
+			}
+
+		
+		};
+	} 
+	public static <X,Y> Map<X,Y> imapToMapNoScan(IMap<X,Y> map) {
+		return new Map<>() {
+
+			@Override 
+			public void forEach(BiConsumer<? super X, ? super Y> f) {
+				map.entrySet(f);
+			}
+			
+			@Override
+			public int size() {
+				return map.size();
+			}
+
+			@Override
+			public boolean isEmpty() {
+				return map.isEmpty();
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean containsKey(Object key) {
+				return map.containsKey((X)key);
+			}
+
+			@Override
+			public boolean containsValue(Object value) {
+				return Util.anomaly();
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Y get(Object key) {
+				return map.get((X)key);
+			}
+
+			@Override
+			public Y put(X key, Y value) {
+				return Util.anomaly();
+			}
+
+			@Override
+			public Y remove(Object key) {
+				return Util.anomaly();
+			}
+
+			@Override
+			public void putAll(Map<? extends X, ? extends Y> m) {
+				Util.anomaly();
+			}
+
+			@Override
+			public void clear() {
+				Util.anomaly();
+			}
+
+			@Override
+			public Set<X> keySet() {
+				return Util.anomaly();
+			}
+
+			@Override
+			public Collection<Y> values() {
+				return Util.anomaly();
+			}
+
+			@Override
+			public Set<Entry<X, Y>> entrySet() {
+				return Util.anomaly();
+			}
+
+		
+		};
+	} 
+
+	public static <X,Y> IMap<X,Y> mapToIMap(Map<X,Y> map) {
+		return new IMap<>() {
+
+			@Override
+			public Y get(X x) {
+				return map.get(x);
+			}
+
+			@Override
+			public boolean containsKey(X x) {
+				return map.containsKey(x);
+			}
+
+			@Override
+			public void entrySet(BiConsumer<? super X, ? super Y> f) {
+				map.forEach(f);
+			}
+
+			@Override
+			public int size() {
+				return map.size();
+			}
+
+			@Override
+			public Y remove(X x) {
+				return map.remove(x);
+			}
+
+		
+			@Override
+			public void put(X x, Y y) {
+				map.put(x, y);
+			}
+		};
+	}
+	
 	public final String toString(String g, String w) {
 		if (size() > 8096) {
 			return "too big to display";
@@ -349,10 +513,10 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		});
 		sb.append(g);
 		if (!gens().isEmpty()) {
-			sb.append("\n\t" + Util.sep(gens()," : ", "\n\t"));
+			sb.append("\n\t" + Util.sep(imapToMapNoScan(gens())," : ", "\n\t"));
 		}
 		if (!sks().isEmpty()) {
-			sb.append("\n\t" + Util.sep(sks()," : ", "\n\t"));
+			sb.append("\n\t" + Util.sep(imapToMapNoScan(sks())," : ", "\n\t"));
 		}
 		sb.append(w);
 		if (!eqs0.isEmpty()) {

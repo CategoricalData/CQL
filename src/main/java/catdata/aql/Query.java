@@ -162,8 +162,13 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> ret = new THashMap<>();
 		for (En2 en2 : ens.keySet()) {
 			Map<Var, Chc<En1, Ty>> ctx = new THashMap<>();
-			ctx.putAll(Util.inRight(ens.get(en2).sks()));
-			ctx.putAll(Util.inLeft(ens.get(en2).gens()));
+			ens.get(en2).sks().entrySet((z,t)->{
+				ctx.put(z,Chc.inRight(t));				
+			});
+			ens.get(en2).gens().entrySet((z,t)->{
+				ctx.put(z,Chc.inLeft(t));	
+			});
+			
 			Set<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> z = ens
 					.get(en2).eqs;
 			Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>> l = new ArrayList<>(z.size());
@@ -1002,9 +1007,11 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	private String sk(
 			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> h,
 			String idCol, String ty, String tick) {
-		List<Pair<String, String>> l = (h.src().gens().keySet().stream()
-				.map(v -> new Pair<>(v.var, convert(qdirty(h.gens().get(v), idCol, tick), ty)))
-				.collect(Collectors.toList()));
+		List<Pair<String, String>> l = new LinkedList<>();
+				
+		h.src().gens().keySet((v) -> {
+			l.add(new Pair<>(v.var, convert(qdirty(h.gens().get(v), idCol, tick), ty)));
+		});
 		return sk(l, ty);
 	}
 
@@ -1141,8 +1148,12 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		Map<En2, Triple<Map<Var, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, Var, Var>>, AqlOptions>> ens2 = new THashMap<>();
 		for (En2 en2 : ens.keySet()) {
 			Map<Var, Chc<En1, Ty>> ctx = new THashMap<>();
-			ctx.putAll(Util.inRight(ens.get(en2).sks()));
-			ctx.putAll(Util.inLeft(ens.get(en2).gens()));
+			ens.get(en2).sks().entrySet((k,v)->{
+				ctx.put(k,Chc.inRight(v));
+			});
+			ens.get(en2).gens().entrySet((k,v)->{
+				ctx.put(k,Chc.inLeft(v));
+			});
 			ens2.put(en2, new Triple<>(ctx, g.apply(ens.get(en2).eqs), ens.get(en2).options));
 		}
 		return makeQuery(ens2, atts2, conv2(), conv3(), src, dst, this.doNotCheckPathEqs);

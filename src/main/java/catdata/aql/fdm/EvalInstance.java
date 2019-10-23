@@ -46,12 +46,12 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 	}
 
 	@Override
-	public Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2> gens() {
+	public IMap<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2> gens() {
 		return J.gens();
 	}
 
 	@Override
-	public Map<Y, Ty> sks() {
+	public IMap<Y, Ty> sks() {
 		return J.sks();
 	}
 

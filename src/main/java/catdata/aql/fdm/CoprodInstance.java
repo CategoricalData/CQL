@@ -70,115 +70,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	}
 
 
-public static <X,Y> Map<X,Y> imapToMapNoScan(IMap<X,Y> map) {
-	return new Map<>() {
 
-		@Override 
-		public void forEach(BiConsumer<? super X, ? super Y> f) {
-			map.entrySet(f);
-		}
-		
-		@Override
-		public int size() {
-			return map.size();
-		}
-
-		@Override
-		public boolean isEmpty() {
-			return map.isEmpty();
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public boolean containsKey(Object key) {
-			return map.containsKey((X)key);
-		}
-
-		@Override
-		public boolean containsValue(Object value) {
-			return Util.anomaly();
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public Y get(Object key) {
-			return map.get((X)key);
-		}
-
-		@Override
-		public Y put(X key, Y value) {
-			return Util.anomaly();
-		}
-
-		@Override
-		public Y remove(Object key) {
-			return Util.anomaly();
-		}
-
-		@Override
-		public void putAll(Map<? extends X, ? extends Y> m) {
-			Util.anomaly();
-		}
-
-		@Override
-		public void clear() {
-			Util.anomaly();
-		}
-
-		@Override
-		public Set<X> keySet() {
-			return Util.anomaly();
-		}
-
-		@Override
-		public Collection<Y> values() {
-			return Util.anomaly();
-		}
-
-		@Override
-		public Set<Entry<X, Y>> entrySet() {
-			return Util.anomaly();
-		}
-
-	
-	};
-} 
-
-public static <X,Y> IMap<X,Y> mapToIMap(Map<X,Y> map) {
-	return new IMap<>() {
-
-		@Override
-		public Y get(X x) {
-			return map.get(x);
-		}
-
-		@Override
-		public boolean containsKey(X x) {
-			return map.containsKey(x);
-		}
-
-		@Override
-		public void entrySet(BiConsumer<? super X, ? super Y> f) {
-			map.forEach(f);
-		}
-
-		@Override
-		public int size() {
-			return map.size();
-		}
-
-		@Override
-		public Y remove(X x) {
-			return map.remove(x);
-		}
-
-	
-		@Override
-		public void put(X x, Y y) {
-			map.put(x, y);
-		}
-	};
-}
 	
 	//final int eqsize2;
 	
@@ -208,8 +100,8 @@ public static <X,Y> IMap<X,Y> mapToIMap(Map<X,Y> map) {
 	}
 
 	@Override
-	public Map<Pair<String, Gen>, En> gens() {
-		return imapToMapNoScan(new IMap<Pair<String, Gen>, En>() {
+	public IMap<Pair<String, Gen>, En> gens() {
+		return new IMap<>() {
 
 			@Override
 			public En get(Pair<String, Gen> x) {
@@ -247,12 +139,50 @@ public static <X,Y> IMap<X,Y> mapToIMap(Map<X,Y> map) {
 				Util.anomaly();
 			}
 			
-		});
+		};
 	}
 
 	@Override
-	public Map<Pair<String, Sk>, Ty> sks() {
-		return null; //sks;
+	public IMap<Pair<String, Sk>, Ty> sks() {
+		return new IMap<Pair<String, Sk>, Ty>() {
+
+			@Override
+			public Ty get(Pair<String, Sk> x) {
+				return insts.get(x.first).sks().get(x.second);
+			}
+
+			@Override
+			public boolean containsKey(Pair<String, Sk> x) {
+				return insts.get(x.first).sks().containsKey(x.second);
+			}
+
+			@Override
+			public void entrySet(BiConsumer<? super Pair<String, Sk>, ? super Ty> f) {
+				for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
+					x.getValue().sks().forEach((p,q)->f.accept(new Pair<>(x.getKey(),p), q));
+				}
+			}
+
+			@Override
+			public int size() {
+				int ret = 0;
+				for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
+					ret += x.getValue().sks().size();
+				}
+				return ret;				
+			}
+
+			@Override
+			public Ty remove(Pair<String, Sk> x) {
+				return Util.anomaly();
+			}
+
+			@Override
+			public void put(Pair<String, Sk> x, Ty y) {
+				Util.anomaly();
+			}
+			
+		};
 	}
 
 	private final boolean rc;

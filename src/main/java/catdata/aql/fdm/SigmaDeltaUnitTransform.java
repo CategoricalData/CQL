@@ -1,7 +1,6 @@
 package catdata.aql.fdm;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -32,17 +31,15 @@ public class SigmaDeltaUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2,
 		J = new SigmaInstance<>(F, I, options);
 		K = new DeltaInstance<>(F, J);
 
-		for (Entry<Gen, En1> gen : src().gens().entrySet()) {
-			Integer guid = J.algebra().intoX(F.trans(Term.Gen(gen.getKey())));
-			gens.put(gen.getKey(), Term.Gen(new Pair<>(gen.getValue(), guid)));
-		}
-		for (Entry<Sk, Ty> sk : src().sks().entrySet()) {
+		src().gens().entrySet((k,v) -> {
+			Integer guid = J.algebra().intoX(F.trans(Term.Gen(k)));
+			gens.put(k, Term.Gen(new Pair<>(v, guid)));
+		});
+		src().sks().entrySet((k,v) -> {
 			Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, Integer>, Chc<Sk, Pair<Integer, Att2>>> term = J.algebra()
-					.intoY(F.trans(Term.Sk(sk.getKey()))).convert(); // map(Function.identity(), Function.identity(),
-																		// Util.voidFn(), Util.voidFn(), Util.voidFn(),
-																		// Function.identity());
-			sks.put(sk.getKey(), term);
-		}
+					.intoY(F.trans(Term.Sk(k))).convert(); 
+			sks.put(k, term);
+		});
 		validate((Boolean) options.getOrDefault(AqlOption.dont_validate_unsafe));
 
 	}

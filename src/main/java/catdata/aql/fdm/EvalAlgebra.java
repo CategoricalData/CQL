@@ -342,7 +342,10 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			ret.add(new Row<>(en2));
 			return new Pair<>((Collections.emptyList()), ret);
 		}
-		List<Var> order = (new LinkedList<>(q.gens().keySet()));
+		List<Var> order = new LinkedList<>();
+		q.gens().keySet((x)->{
+			order.add(x);
+		});
 		try (Statement stmt = conn.createStatement()) {
 			ResultSet rs = stmt.executeQuery(Q.toSQL("").get(en2));
 			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = (new LinkedList<>());

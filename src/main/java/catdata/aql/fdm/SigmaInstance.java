@@ -41,10 +41,13 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 
 		Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new Collage<>(F.dst.collage());
 
-		col.sks.putAll(I.sks());
-		for (Gen gen : I.gens().keySet()) {
+		I.sks().entrySet((k,v)->{
+			col.sks.put(k,v);
+		});
+		
+		I.gens().keySet(gen -> {
 			col.gens.put(gen, F.ens.get(I.gens().get(gen)));
-		}
+		});
 
 		Set<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqs = new THashSet<>();
 		
@@ -75,12 +78,12 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 	}
 
 	@Override
-	public Map<Gen, En2> gens() {
+	public IMap<Gen, En2> gens() {
 		return J.gens();
 	}
 
 	@Override
-	public Map<Sk, Ty> sks() {
+	public IMap<Sk, Ty> sks() {
 		return J.sks();
 	}
 

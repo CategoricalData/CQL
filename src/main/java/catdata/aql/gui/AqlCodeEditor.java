@@ -104,9 +104,9 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 	public AqlCodeEditor(String title, int id, String content) {
 		super(title, id, content, new BorderLayout());
 		// aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
-		JMenuItem im = new JMenuItem("Infer Map/Query/Trans/Inst");
-		im.addActionListener(x -> infer());
-		topArea.getPopupMenu().add(im, 0);
+		//JMenuItem im = new JMenuItem("Infer Map/Query/Trans/Inst");
+		//im.addActionListener(x -> infer());
+	//	topArea.getPopupMenu().add(im, 0);
 
 		DocumentListener listener = new DocumentListener() {
 			@Override
@@ -317,7 +317,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		return disp.text == null ? "Done." : disp.text;
 	}
 
-	public void infer() {
+	/*public void infer() {
 		try {
 			String s = Inferrer.infer(topArea.getSelectedText(), aqlStatic.env);
 			if (s != null) {
@@ -331,7 +331,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			}
 			respArea2.setText(z);
 		}
-	}
+	}*/
 
 	@Override
 	protected boolean omit(String s, Program<Exp<?>> p) {

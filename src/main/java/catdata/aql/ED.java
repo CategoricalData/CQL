@@ -87,14 +87,14 @@ public class ED {
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> I = front(sch),
 				J = back(sch);
 
-		Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> gens = (new THashMap<>());
-		Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> sks = (new THashMap<>());
-		for (Var v : I.gens().keySet()) {
+		Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> gens = new THashMap<>(I.gens().size());
+		Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> sks = new THashMap<>(I.sks().size());
+		I.gens().keySet((v) -> {
 			gens.put(v, Term.Gen(v));
-		}
-		for (Var v : I.sks().keySet()) {
+		});
+		I.sks().keySet((v) -> {
 			sks.put(v, Term.Sk(v));
-		}
+		});
 
 		return new LiteralTransform<>(gens, sks, I, J, true);
 	}
@@ -331,24 +331,24 @@ public class ED {
 		Awh = new THashSet<>();
 		Ewh = new THashSet<>();
 
-		for (Gen1 gen1 : h.src().gens().keySet()) {
+		h.src().gens().keySet((gen1)-> {
 			As.put(Var.Var("A" + gen1), Chc.inRight(h.src().gens().get(gen1)));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> l = unfreeze("A", Term.Gen(gen1));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.gens().get(gen1).convert());
 			Ewh.add(new Pair<>(l, r));
-		}
-		for (Sk1 sk1 : h.src().sks().keySet()) {
+		});
+		h.src().sks().keySet((sk1) -> {
 			As.put(Var.Var("A" + sk1), Chc.inLeft(h.src().sks().get(sk1)));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> l = unfreeze("A", Term.Sk(sk1));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.sks().get(sk1));
 			Ewh.add(new Pair<>(l, r));
-		}
-		for (Gen2 gen2 : h.dst().gens().keySet()) {
+		});
+		h.dst().gens().keySet((gen2) -> {
 			Es.put(Var.Var("E" + gen2), Chc.inRight(h.dst().gens().get(gen2)));
-		}
-		for (Sk2 sk2 : h.dst().sks().keySet()) {
+		});
+		h.dst().sks().keySet((sk2) -> {
 			Es.put(Var.Var("E" + sk2), Chc.inLeft(h.dst().sks().get(sk2)));
-		}
+		});
 		h.src().eqs((a,b) -> {
 			Awh.add(new Pair<>(unfreeze("A", a), unfreeze("A", b)));
 		});

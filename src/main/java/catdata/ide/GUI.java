@@ -534,14 +534,14 @@ public class GUI extends JPanel {
 		return toolBar;
 	}
 
-	private static void infer() {
+	/*private static void infer() {
 		int i = editors.getSelectedIndex();
 		Object o = editors.getComponentAt(i);
 		if (o instanceof AqlCodeEditor) {
 			AqlCodeEditor a = (AqlCodeEditor) o;
 			a.infer();
 		}
-	}
+	}*/
 
 	private static Menu populateAql() {
 		Menu menu = new Menu("CQL");
@@ -549,9 +549,9 @@ public class GUI extends JPanel {
 		st.addActionListener(x -> AqlTester.doSelfTests());
 		menu.add(st);
 
-		MenuItem im = new MenuItem("Infer Map/Query/Trans/Inst");
-		im.addActionListener(x -> infer());
-		menu.add(im);
+		//MenuItem im = new MenuItem("Infer Map/Query/Trans/Inst");
+		//im.addActionListener(x -> infer());
+		//menu.add(im);
 		
 
 		MenuItem ih = new MenuItem("Emit HTML");

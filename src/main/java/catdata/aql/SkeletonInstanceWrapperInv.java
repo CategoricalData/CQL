@@ -103,13 +103,13 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 	}
 
 	@Override
-	public Map<Gen, En> gens() {
-		return gens;
+	public IMap<Gen, En> gens() {
+		return Instance.mapToIMap(gens);
 	}
 
 	@Override
-	public Map<Sk, Ty> sks() {
-		return sks;
+	public IMap<Sk, Ty> sks() {
+		return Instance.mapToIMap(sks);
 	}
 
 	@Override

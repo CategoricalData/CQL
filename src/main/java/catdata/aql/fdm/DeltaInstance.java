@@ -42,16 +42,14 @@ public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 	}
 
 	@Override
-	public Map<Pair<En1, X>, En1> gens() {
+	public IMap<Pair<En1, X>, En1> gens() {
 		return J.gens();
 	}
 
 	@Override
-	public Map<Y, Ty> sks() {
+	public IMap<Y, Ty> sks() {
 		return J.sks();
 	}
-
-	
 
 	@Override
 	public DP<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y> dp() {
@@ -83,7 +81,5 @@ public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 	public boolean allowUnsafeJava() {
 		return I.allowUnsafeJava();
 	}
-
-	
 
 }

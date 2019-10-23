@@ -79,13 +79,13 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 	}
 
 	@Override
-	public Map<Var, En1> gens() {
-		return gens;
+	public IMap<Var, En1> gens() {
+		return Instance.mapToIMap(gens);
 	}
 
 	@Override
-	public Map<Var, Ty> sks() {
-		return sks;
+	public IMap<Var, Ty> sks() {
+		return Instance.mapToIMap(sks);
 	}
 
 	@Override
@@ -164,11 +164,11 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 
 	private Map<Pair<Var, Var>, Float> estimateSelectivities() {
 		Map<Pair<Var, Var>, Float> ret = new THashMap<>();
-		for (Var v1 : gens().keySet()) {
-			for (Var v2 : gens().keySet()) {
+		gens().keySet((v1) -> {
+			gens().keySet((v2) -> {
 				ret.put(new Pair<>(v1, v2), 1f);
-			}
-		}
+			});
+		});
 		for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : eqs) {
 			Set<Var> l = new THashSet<>();
 			Set<Var> r = new THashSet<>();

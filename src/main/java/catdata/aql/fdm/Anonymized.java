@@ -200,12 +200,12 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 	}
 
 	@Override
-	public Map<Gen, En> gens() {
+	public IMap<Gen, En> gens() {
 		return I.gens();
 	}
 
 	@Override
-	public Map<Sk, Ty> sks() {
+	public IMap<Sk, Ty> sks() {
 		return I.sks();
 	}
 

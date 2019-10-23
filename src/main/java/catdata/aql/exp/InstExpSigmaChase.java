@@ -147,10 +147,13 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 		if (type.equals("sequential")) {
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(f.dst.collage());
 
-			col.sks.putAll(i.sks());
-			for (Entry<Gen, En> gen : i.gens().entrySet()) {
-				col.gens.put(gen.getKey(), f.ens.get(gen.getValue()));
-			}
+			i.sks().entrySet((a,b)->{
+				col.sks.put(a,b);
+			});
+			
+			i.gens().entrySet((a,b) -> {
+				col.gens.put(a, b);
+			});
 
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = new THashSet<>();
 			i.eqs((a,b) -> {

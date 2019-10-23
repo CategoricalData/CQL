@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.IntConsumer;
@@ -262,9 +261,9 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
 		for (En2 en2 : F.dst.ens) {
 			stuff.put(en2, new En2Stuff(2 * mm.get(en2), en2));
 		}
-		for (Entry<Gen, En1> x : I.gens().entrySet()) {
-			stuff.get(F.ens.get(x.getValue())).add(Term.Gen(x.getKey()));
-		}
+		I.gens().entrySet((a,b) -> {
+			stuff.get(F.ens.get(b)).add(Term.Gen(a));
+		});
 		while (step()) {
 			// System.out.println("** " + this);
 			System.gc();

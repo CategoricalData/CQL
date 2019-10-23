@@ -2,7 +2,6 @@ package catdata.aql.fdm;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import catdata.Chc;
@@ -37,9 +36,7 @@ public class CoEvalEvalUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2,
 		J = new CoEvalInstance<>(Q, I, options);
 		K = new EvalInstance<>(Q, J, options);
 
-		for (Entry<Gen, En2> genX : src().gens().entrySet()) {
-			Gen gen = genX.getKey();
-			En2 en2 = genX.getValue();
+		src().gens().entrySet((gen,en2) -> {
 			X x = I.algebra().gen(gen);
 			List<Var> l = Q.ens.get(en2).order;
 			Map<Var, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>> tuple = new THashMap<>(
@@ -60,14 +57,14 @@ public class CoEvalEvalUnitTransform<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2,
 			Term<Void, En2, Void, Fk2, Void, Row<En2, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>>, Void> term = Term
 					.Gen(row);
 			gens.put(gen, term);
-		}
-		for (Sk sk : src().sks().keySet()) {
+		});
+		src().sks().keySet((sk) -> {
 			Term<Ty, Void, Sym, Void, Void, Void, Y> y = I.algebra().sk(sk);
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Chc<Triple<Var, X, En2>, Y>, Pair<Integer, Att1>>> y2 = trans0(y);
 			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<Integer, Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>>>>, Chc<Chc<Triple<Var, X, En2>, Y>, Pair<Integer, Att1>>> w = y2
 					.convert();
 			sks.put(sk, w);
-		}
+		});
 		validate((Boolean) options.getOrDefault(AqlOption.dont_validate_unsafe));
 	}
 

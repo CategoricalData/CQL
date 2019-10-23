@@ -154,7 +154,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 
 		if (useChase) {
 			Map<En, Set<Pair<X, X>>> mm = new THashMap<>(ens.size());
-			for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> p : J.gens().keySet()) {
+			J.gens().keySet((p)->{
 				Map<catdata.aql.Var, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> m = p.asMap();
 
 				List<Var> vs = new TreeList<>(m.keySet());
@@ -167,7 +167,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 					mm.put(en, new THashSet<>());
 				}
 				mm.get(en).add(new Pair<>(x1.l, x2.l));
-			}
+			});
 
 			SigmaChaseAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg = new SigmaChaseAlgebra<>(
 					Mapping.id(I0.schema()), I0, mm, op);
@@ -190,7 +190,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 
 		AqlOptions strat = new AqlOptions(options, env.defaults);
 
-		for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> p : J.gens().keySet()) {
+		J.gens().keySet((p) -> {
 			Map<catdata.aql.Var, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> m = p.asMap();
 
 			List<Var> vs = new TreeList<>(m.keySet());
@@ -202,7 +202,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 			Term<Void, En, Void, Fk, Void, Gen, Void> t2 = I0.algebra().repr(p.en2(), x2.l);
 			eqs0.add(new Pair<>(t1.convert(), t2.convert()));
 			col.eqs.add(new Eq<>(null, t1.convert(), t2.convert()));
-		}
+		});
 
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial0 = new InitialAlgebra<>(strat, I0.schema(), col, (y) -> y,
 				(x, y) -> y);

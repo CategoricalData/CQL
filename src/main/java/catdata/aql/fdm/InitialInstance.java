@@ -2,8 +2,7 @@ package catdata.aql.fdm;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
@@ -29,13 +28,13 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 	}
 
 	@Override
-	public Map<Void, En> gens() {
-		return Collections.emptyMap();
+	public IMap<Void, En> gens() {
+		return Instance.mapToIMap(Collections.emptyMap());
 	}
 
 	@Override
-	public Map<Void, Ty> sks() {
-		return Collections.emptyMap();
+	public IMap<Void, Ty> sks() {
+		return Instance.mapToIMap(Collections.emptyMap());
 	}
 
 	

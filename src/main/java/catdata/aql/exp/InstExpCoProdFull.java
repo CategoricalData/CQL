@@ -163,12 +163,12 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y>
 
 		for (String x : Is) {
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I = m.get(x);
-			for (Gen g : I.gens().keySet()) {
+			I.gens().keySet((g) -> {
 				col.gens.put(new Pair<>(x, g), I.gens().get(g));
-			}
-			for (Sk g : I.sks().keySet()) {
+			});
+			I.sks().keySet((g) -> {
 				col.sks.put(new Pair<>(x, g), I.sks().get(g));
-			}
+			});
 			Function<Gen, Pair<String, Gen>> f1 = z -> new Pair<>(x, z);
 			Function<Sk, Pair<String, Sk>> f2 = z -> new Pair<>(x, z);
 			I.eqs((a,b)-> {

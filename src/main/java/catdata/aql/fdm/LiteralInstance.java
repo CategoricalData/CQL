@@ -17,8 +17,8 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 	private final Schema<Ty, En, Sym, Fk, Att> schema;
 
-	private final Map<Gen, En> gens;
-	private final Map<Sk, Ty> sks;
+	private final IMap<Gen, En> gens;
+	private final IMap<Sk, Ty> sks;
 
 	private final Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs;
 
@@ -36,8 +36,8 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			boolean requireConsistency, boolean allowUnsafeJava) {
 		Util.assertNotNull(schema, gens, sks, eqs, dp);
 		this.schema = schema;
-		this.gens = (gens);
-		this.sks = (sks);
+		this.gens = mapToIMap(gens);
+		this.sks = mapToIMap(sks);
 		this.eqs = eqs;
 		this.dp = dp;
 		this.alg = alg;
@@ -56,12 +56,12 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	}
 
 	@Override
-	public Map<Gen, En> gens() {
+	public IMap<Gen, En> gens() {
 		return gens;
 	}
 
 	@Override
-	public Map<Sk, Ty> sks() {
+	public IMap<Sk, Ty> sks() {
 		return sks;
 	}
 

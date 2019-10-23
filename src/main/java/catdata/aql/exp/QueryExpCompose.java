@@ -186,35 +186,34 @@ public final class QueryExpCompose extends QueryExp {
 					.get(En).eqs) {
 				Chc<Ty, En> ty = q2.ens.get(En).type(eq.first);
 				if (!ty.left) {
-					for (Var v : q1.ens.get(ty.r).gens().keySet()) {
+					q1.ens.get(ty.r).gens().keySet((v) -> {
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = trans(q1, q2, isos, v, eq.first.asArgForFk(), En);
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xr = trans(q1, q2, isos, v, eq.second.asArgForFk(), En);
 
 						ens.get(En).second.add(new Eq<>(null, xl.convert(), xr.convert()));
-					}
+					});
 
-					for (Var v : Util.alphabetical(q1.ens.get(ty.r).sks().keySet())) {
+					q1.ens.get(ty.r).sks().keySet((v) -> {
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = trans(q1, q2, isos, v, eq.first.asArgForFk(), En);
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xr = trans(q1, q2, isos, v, eq.second.asArgForFk(), En);
 
 						ens.get(En).second.add(new Eq<>(null, xl.convert(), xr.convert()));
-
-					}
+					});
 
 					// todo: add eqs from sks?
 				} else {
 					// exactly one thing, _y_
-					for (Var v : q1.tys.get(ty.l).sks().keySet()) {
+					q1.tys.get(ty.l).sks().keySet((v) -> {
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xl = transT(q1, q2, isos, eq.first, En, v);
 
 						Term<Ty, En, Sym, Fk, Att, Var, Var> xr = transT(q1, q2, isos, eq.second, En, v);
 
 						ens.get(En).second.add(new Eq<>(null, xl.convert(), xr.convert()));
-					}
+					});
 					if (!q1.tys.get(ty.l).gens().isEmpty()) {
 						Util.anomaly();
 					}

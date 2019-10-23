@@ -1,13 +1,9 @@
 package catdata.aql.fdm;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Maps;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -42,20 +38,18 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 
 	class SigmaChaseInstance extends Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> {
 
-		
-		
 		@Override
 		public Schema<Ty, En2, Sym, Fk2, Att2> schema() {
 			return F.dst;
 		}
 
 		@Override
-		public Map<Gen, En2> gens() {
-			return Maps.transformValues(X.gens(), F.ens::get);
+		public IMap<Gen, En2> gens() {
+			return Instance.transformValues(X.gens(), F.ens::get);
 		}
 
 		@Override
-		public Map<Sk, Ty> sks() {
+		public IMap<Sk, Ty> sks() {
 			return X.sks();
 		}
 
@@ -70,11 +64,9 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		}
 		
 		@Override
-		public synchronized void eqs(
-				BiConsumer<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> f) {
+		public synchronized void eqs(BiConsumer<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> f) {
 			X.eqs((x,y)->f.accept(F.trans(x), F.trans(y)));
 		}
-
 
 		@Override
 		public DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> dp() {
@@ -85,8 +77,6 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		public Algebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> algebra() {
 			return SigmaChaseAlgebra.this;
 		}
-
-		
 
 	}
 
@@ -122,7 +112,9 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		//if (X.algebra().talg().eqs.size() >= 0) {
 			Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new Collage<>(F.dst.collage());
 			if (!X.schema().typeSide.tys.isEmpty()) {
-				col.sks.putAll(X.sks());
+				X.sks().entrySet((k,v)->{
+					col.sks.put(k, v);
+				});
 				for (Eq<Ty, Void, Sym, Void, Void, Void, Y> eq : X.algebra().talg().eqs) {
 					col.eqs.add(new Eq<>(null, F.trans(X.reprT(eq.lhs)), F.trans(X.reprT(eq.rhs))));
 				}

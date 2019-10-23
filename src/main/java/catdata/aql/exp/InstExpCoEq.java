@@ -128,16 +128,16 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 			col.eqs.add(new Eq<>(null, a, b));
 		});
 
-		for (Entry<Gen1, En> g : h1.src().gens().entrySet()) {
-			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.gens().get(g.getKey()).convert();
-			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.gens().get(g.getKey()).convert();
+		h1.src().gens().keySet((k) -> {
+			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.gens().get(k).convert();
+			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.gens().get(k).convert();
 			col.eqs.add(new Eq<>(null, l, r));
-		}
-		for (Entry<Sk1, Ty> g : h1.src().sks().entrySet()) {
-			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.sks().get(g.getKey());
-			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.sks().get(g.getKey());
+		});
+		h1.src().sks().keySet((k) -> {
+			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.sks().get(k);
+			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.sks().get(k);
 			col.eqs.add(new Eq<>(null, l, r));
-		}
+		});
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen2, Sk2> initial0 = new InitialAlgebra<>(strat, h1.src().schema(), col,
 				(y) -> y, (x, y) -> y);
 

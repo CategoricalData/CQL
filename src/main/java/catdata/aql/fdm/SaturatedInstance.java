@@ -1,26 +1,19 @@
 package catdata.aql.fdm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 //import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 
 import catdata.Chc;
-import catdata.Null;
 import catdata.Pair;
 import catdata.Triple;
-import catdata.Unit;
 import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.Collage;
 import catdata.aql.DP;
-import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
@@ -133,13 +126,13 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 
 	private Map<X, En> gens;
 
-	public Map<X, En> gens() {
-		return gens;
+	public IMap<X, En> gens() {
+		return Instance.mapToIMap(gens);
 	}
 
 	@Override
-	public Map<Y, Ty> sks() {
-		return sks;
+	public IMap<Y, Ty> sks() {
+		return Instance.mapToIMap(sks);
 	}
 
 	

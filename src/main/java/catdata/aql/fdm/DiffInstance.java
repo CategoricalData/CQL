@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import catdata.Pair;
 import catdata.aql.Algebra;
 import catdata.aql.DP;
 import catdata.aql.Instance;
@@ -102,12 +101,12 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 	}
 
 	@Override
-	public Map<X, En> gens() {
+	public IMap<X, En> gens() {
 		return K.gens();
 	}
 
 	@Override
-	public Map<Y, Ty> sks() {
+	public IMap<Y, Ty> sks() {
 		return K.sks();
 	}
 

@@ -653,7 +653,10 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			}
 			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), en + " (" + n + ")", data, header.toArray()));
 		}
-		Map<Ty, Set<Sk1>> z = Util.revS(t.src().sks());
+		Map<Ty, List<Sk1>> z = Util.newListsFor(t.src().schema().typeSide.tys);
+		t.src().sks().entrySet((sk,ty)-> {
+			z.get(ty).add(sk);
+		});
 		for (Ty ty : tys) {
 			List<String> header = new LinkedList<>();
 			header.add("Input");

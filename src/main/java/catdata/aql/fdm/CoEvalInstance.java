@@ -91,7 +91,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 							.get(fk);
 					En2 tt = J.schema().fks.get(fk).second;
 
-					for (Var v0 : fk0.src().gens().keySet()) {
+					fk0.src().gens().keySet((v0) -> {
 						// En1 ttt = fk0.src().gens().get(v0);
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.gens()
 								.get(v0).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
@@ -100,16 +100,16 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 								.Gen(new Triple<>(v0, J.algebra().fk(fk, j), tt));
 						col.eqs.add(new Eq<>(null, lhs, rhs));
 				
-					}
+					});
 					// col.validate();
 
-					for (Var v0 : fk0.src().sks().keySet()) {
+					fk0.src().sks().keySet((v0) -> {
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> rhs = fk0.sks()
 								.get(v0).mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Sk(Chc.inLeft(new Triple<>(v0, J.algebra().fk(fk, j), tt)));
 						col.eqs.add(new Eq<>(null, lhs, rhs));
-					}
+					});
 					// col.validate();
 				}
 				for (Att2 att : J.schema().attsFrom(t)) {
@@ -162,12 +162,12 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 	}
 
 	@Override
-	public Map<Triple<Var, X, En2>, En1> gens() {
+	public IMap<Triple<Var, X, En2>, En1> gens() {
 		return I.gens();
 	}
 
 	@Override
-	public Map<Chc<Triple<Var, X, En2>, Y>, Ty> sks() {
+	public IMap<Chc<Triple<Var, X, En2>, Y>, Ty> sks() {
 		return I.sks();
 	}
 

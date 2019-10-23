@@ -1,9 +1,7 @@
 package catdata.aql;
 
-import java.util.Map;
 import java.util.function.BiConsumer;
 
-import catdata.Pair;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.exp.Att;
@@ -39,13 +37,13 @@ public class NoAlgInstance extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Void,
 	}
 
 	@Override
-	public Map<Gen, En> gens() {
-		return col.gens;
+	public IMap<Gen, En> gens() {
+		return Instance.mapToIMap(col.gens);
 	}
 
 	@Override
-	public Map<Sk, Ty> sks() {
-		return col.sks;
+	public IMap<Sk, Ty> sks() {
+		return Instance.mapToIMap(col.sks);
 	}
 
 	public synchronized void eqs(

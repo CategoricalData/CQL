@@ -42,11 +42,11 @@ public class CoEvalTransform<Ty, En1, Sym, Fk1, Att1, Gen1, Sk1, En2, Fk2, Att2,
 		src = new CoEvalInstance<>(Q, h.src(), options1);
 		dst = new CoEvalInstance<>(Q, h.dst(), options2);
 
-		for (Entry<Triple<Var, X1, En2>, En1> gen1 : src.gens().entrySet()) {
-			gens.put(gen1.getKey(), Term.Gen(new Triple<>(gen1.getKey().first,
-					h.repr(gen1.getKey().third, gen1.getKey().second), gen1.getKey().third)));
-		}
-		for (Chc<Triple<Var, X1, En2>, Y1> sk1 : src.sks().keySet()) {
+		src.gens().keySet((k) -> {
+			gens.put(k, Term.Gen(new Triple<>(k.first,
+					h.repr(k.third, k.second),k.third)));
+		});
+		src.sks().keySet((sk1) -> {
 			if (sk1.left) {
 				sks.put(sk1,
 						Term.Sk(Chc.inLeft(new Triple<>(sk1.l.first, h.repr(sk1.l.third, sk1.l.second), sk1.l.third))));
@@ -54,7 +54,7 @@ public class CoEvalTransform<Ty, En1, Sym, Fk1, Att1, Gen1, Sk1, En2, Fk2, Att2,
 				sks.put(sk1, h.dst().algebra().intoY(h.reprT(sk1.r)).map(Function.identity(), Function.identity(),
 						Util.voidFn(), Util.voidFn(), Util.voidFn(), Chc::inRight));
 			}
-		}
+		});
 
 		validate(false);
 	}
