@@ -2,6 +2,7 @@ package catdata.aql.fdm;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -46,10 +47,16 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 		}
 
 		Set<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqs = new THashSet<>();
-		for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> eq : I.eqs()) {
-			eqs.add(new Pair<>(F.trans(eq.first), F.trans(eq.second)));
-			col.eqs.add(new Eq<>(null, F.trans(eq.first), F.trans(eq.second)));
-		}
+		
+		I.eqs((a,b)->{
+			eqs.add(new Pair<>(F.trans(a), F.trans(b)));
+			col.eqs.add(new Eq<>(null, F.trans(a), F.trans(b)));
+		});
+		
+		I.eqs((a,b)->{
+			eqs.add(new Pair<>(F.trans(a), F.trans(b)));
+			col.eqs.add(new Eq<>(null, F.trans(a), F.trans(b)));
+		});
 
 		Function<Gen, Object> printGen = (x) -> I.algebra().printX(I.type(Term.Gen(x)).r, I.algebra().nf(Term.Gen(x)));
 		BiFunction<Ty, Sk, Object> printSk = (y, x) -> I.algebra().sk(x)
@@ -78,9 +85,11 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 	}
 
 	@Override
-	public Iterable<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqs() {
-		return J.eqs();
+	public synchronized void eqs(
+			BiConsumer<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> f) {
+		I.eqs((x,y)->f.accept(F.trans(x), F.trans(y)));
 	}
+
 
 	@Override
 	public DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> dp() {

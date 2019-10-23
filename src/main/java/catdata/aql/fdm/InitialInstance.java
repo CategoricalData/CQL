@@ -38,11 +38,7 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 		return Collections.emptyMap();
 	}
 
-	@Override
-	public Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs() {
-		return Collections.emptySet();
-	}
-
+	
 	@Override
 	public DP<Ty, En, Sym, Fk, Att, Void, Void> dp() {
 		return schema.dp;

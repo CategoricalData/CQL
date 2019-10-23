@@ -51,10 +51,7 @@ public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 		return J.sks();
 	}
 
-	@Override
-	public Iterable<Pair<Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y>, Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y>>> eqs() {
-		return J.eqs();
-	}
+	
 
 	@Override
 	public DP<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y> dp() {

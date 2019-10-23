@@ -2,23 +2,17 @@ package catdata.aql;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import org.apache.commons.collections4.iterators.IteratorIterable;
 
 import catdata.Chc;
 import catdata.Pair;
-import catdata.Unit;
 import catdata.Util;
 import catdata.Util.UpTo;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.fdm.LazySet;
 
 public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 		extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Integer> {
@@ -106,16 +100,6 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 	@Override
 	public boolean allowUnsafeJava() {
 		return (boolean) I.options().getOrDefault(AqlOption.allow_java_eqs_unsafe);
-	}
-
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs() {
-		Function<Unit, Collection<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> f = x -> {
-			List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> l = new LinkedList<>();
-			I.eqs((a, b) -> l.add(new Pair<>(a, b)));
-			return l;
-		};
-		return new LazySet<>(f, I.numEqs());
 	}
 
 	@Override

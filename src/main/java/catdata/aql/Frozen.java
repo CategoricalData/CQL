@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -88,8 +89,8 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 	}
 
 	@Override
-	public Set<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqs() {
-		return eqs;
+	public synchronized void eqs(BiConsumer<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> f) {
+		eqs.forEach(x->f.accept(x.first, x.second));
 	}
 
 	@Override
@@ -218,6 +219,11 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 			}
 		}
 		return lowest_plan;
+	}
+
+	public Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> 
+					 eqsAsIterable() {
+		return eqs;
 	}
 
 	

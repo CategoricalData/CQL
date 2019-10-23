@@ -124,9 +124,9 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 		}
 		Collage<Ty, En, Sym, Fk, Att, Gen2, Sk2> col = new Collage<>(h1.dst().collage());
 		AqlOptions strat = new AqlOptions(options, env.defaults);
-		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> x : h1.dst().eqs()) {
-			col.eqs.add(new Eq<>(null, x.first, x.second));
-		}
+		h1.dst().eqs((a,b) -> {
+			col.eqs.add(new Eq<>(null, a, b));
+		});
 
 		for (Entry<Gen1, En> g : h1.src().gens().entrySet()) {
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.gens().get(g.getKey()).convert();

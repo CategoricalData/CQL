@@ -29,7 +29,7 @@ import gnu.trove.map.hash.THashMap;
 
 public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> {
 
-	private final LazySet<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs; 
+	//private final LazySet<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs; 
 
 //	private final Map<X, En> gens;
 
@@ -75,40 +75,7 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 			}
 		}
 
-		Function<Unit, Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>>> fun = _x -> {
-			Collection<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> set = new LinkedList<>();
-			for (En en : schema().ens) {
-				for (X x : alg.en(en)) {
-					for (Att att : schema().attsFrom(en)) {
-						Term<Ty, En, Sym, Fk, Att, X, Y> lhs = Term.Att(att, Term.Gen(x));
-						if (labelledNulls) {
-							Term<Ty, En, Sym, Fk, Att, X, Y> rhs = lnConv(att, x);
-							if (rhs == null) {
-								continue;
-							}
-							set.add(new Pair<>(lhs, rhs));
-						} else {
-							Term<Ty, En, Sym, Fk, Att, X, Y> rhs = alg.att(att, x).convert();
-							set.add(new Pair<>(lhs, rhs));
-						}
-					}
-					for (Fk fk : schema().fksFrom(en)) {
-						Term<Ty, En, Sym, Fk, Att, X, Y> lhs = Term.Fk(fk, Term.Gen(x));
-						Term<Ty, En, Sym, Fk, Att, X, Y> rhs = Term.Gen(alg.fk(fk, x));
-						set.add(new Pair<>(lhs, rhs));
-					}
-				}
-			}
-			for (Eq<Ty, Void, Sym, Void, Void, Void, Y> eq : alg.talg().eqs) {
-				if (!eq.ctx.isEmpty()) {
-					continue;
-				}
-				set.add(new Pair<>(eq.lhs.convert(), eq.rhs.convert()));
-			}
-			return set;
-		};
-
-		eqs = new LazySet<>(fun, size);
+		
 
 		if (labelledNulls) {
 			sks = Collections.emptyMap();
@@ -139,13 +106,13 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 		}
 
 	}
-
+/*
 	private Term<Ty, En, Sym, Fk, Att, X, Y> lnConv(Att att, X x) {
 		if (alg.talg().sks.containsKey(new Null<>(Term.Att(att, Term.Gen(x))))) {
 			return null;
 		}
 		return alg.att(att, x).convert();
-	}
+	}*/
 
 	public void checkSatisfaction() {
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schema().eqs) {
@@ -175,10 +142,7 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 		return sks;
 	}
 
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs() {
-		return eqs;
-	}
+	
 
 	@Override
 	public Schema<Ty, En, Sym, Fk, Att> schema() {

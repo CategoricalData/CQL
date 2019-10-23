@@ -1,6 +1,8 @@
 package catdata.aql;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
+
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
@@ -46,11 +48,12 @@ public class NoAlgInstance extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Void,
 		return col.sks;
 	}
 
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs() {
-		return col.eqsAsPairs(); // eqs.stream().map(x -> new Pair<>(x.lhs, x.rhs)).collect(Collectors.toSet());
+	public synchronized void eqs(
+			BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
+		col.eqs.forEach(x->f.accept(x.lhs, x.rhs));
 	}
-
+	
+	
 	@Override
 	public synchronized DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
 		if (dp == null) {

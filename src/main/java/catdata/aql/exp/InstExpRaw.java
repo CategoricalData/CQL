@@ -247,9 +247,9 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>> v = (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>>) k
 					.eval(env, isC);
 			col.addAll(v.collage());
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x : v.eqs()) {
-				eqs0.add(x);
-			}
+			v.eqs((a,b)-> {
+				eqs0.add(new Pair<>(a,b));
+			});
 		}
 
 		for (Pair<String, String> p : gens) {
@@ -378,7 +378,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 
 	@Override
 	public SchExp type(AqlTyping G) {
-		TyExp w = schema.type(G);
+		schema.type(G);
 		for (Exp<?> z : imports()) {
 			if (z.kind() != Kind.INSTANCE) {
 				throw new RuntimeException("Import of wrong kind: " + z);

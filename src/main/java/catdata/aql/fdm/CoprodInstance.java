@@ -438,22 +438,6 @@ public static <X,Y> IMap<X,Y> mapToIMap(Map<X,Y> map) {
 	}
 
 
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-/*
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs() {
-		
-		Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>>
-		 it = Collections.emptyIterator();
-		
-		for (String x : insts.)
-		Iterators.concat(inputs)
-	}
-*/
+	
 
 }

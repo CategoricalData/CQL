@@ -1,6 +1,8 @@
 package catdata.aql.fdm;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
+
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
@@ -63,9 +65,10 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		return sks;
 	}
 
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs() {
-		return eqs;
+	public synchronized void eqs(BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
+		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x : eqs) {
+			f.accept(x.first, x.second);
+		}
 	}
 
 	@Override

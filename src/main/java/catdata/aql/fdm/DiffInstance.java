@@ -122,11 +122,6 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 	}
 
 	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs() {
-		return K.eqs();
-	}
-
-	@Override
 	public DP<Ty, En, Sym, Fk, Att, X, Y> dp() {
 		return K.dp();
 	}

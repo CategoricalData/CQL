@@ -87,13 +87,12 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 			for (Sk sk : nodes.get(n).sks().keySet()) {
 				col.sks.put(new Pair<>(n, sk), nodes.get(n).sks().get(sk));
 			}
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : nodes.get(n)
-					.eqs()) {
-				col.eqs.add(new Eq<>(null, eq.first.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
-						eq.second.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
-				eqs.add(new Pair<>(eq.first.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
-						eq.second.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
-			}
+			nodes.get(n).eqs((a,b)->{
+				col.eqs.add(new Eq<>(null, a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
+						b.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
+				eqs.add(new Pair<>(a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
+						b.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
+			});
 		}
 		for (E e : shape.edges.keySet()) {
 			Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y> h = edges.get(e);
@@ -148,10 +147,7 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 		return J.sks();
 	}
 
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>>> eqs() {
-		return J.eqs();
-	}
+	
 
 	@Override
 	public DP<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> dp() {

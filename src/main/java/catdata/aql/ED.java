@@ -349,12 +349,12 @@ public class ED {
 		for (Sk2 sk2 : h.dst().sks().keySet()) {
 			Es.put(Var.Var("E" + sk2), Chc.inLeft(h.dst().sks().get(sk2)));
 		}
-		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>> eq : h.src().eqs()) {
-			Awh.add(new Pair<>(unfreeze("A", eq.first), unfreeze("A", eq.second)));
-		}
-		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> eq : h.dst().eqs()) {
-			Ewh.add(new Pair<>(unfreeze("E", eq.first), unfreeze("E", eq.second)));
-		}
+		h.src().eqs((a,b) -> {
+			Awh.add(new Pair<>(unfreeze("A", a), unfreeze("A", b)));
+		});
+		h.dst().eqs((a,b) -> {
+			Ewh.add(new Pair<>(unfreeze("E", a), unfreeze("E", b)));
+		});
 
 		this.isUnique = false;
 		if (!Collections.disjoint(As.keySet(), Es.keySet())) {

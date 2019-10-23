@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import catdata.Chc;
-import catdata.Pair;
 import catdata.Util;
 
 public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> implements Semantics {
@@ -68,27 +67,26 @@ public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, 
 			}
 		}
 
-		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>> eq : src().eqs()) {
-			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> lhs = trans(eq.first), rhs = trans(eq.second);
+		src().eqs((p,q) -> {
+			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> lhs = trans(p), rhs = trans(q);
 			Chc<Ty, En> a = dst().type(lhs);
 			Chc<Ty, En> b = dst().type(rhs);
 			if (!a.equals(b)) {
-				throw new RuntimeException("Equation " + eq.first + " = " + eq.second + " has two different types, "
+				throw new RuntimeException("Equation " + p + " = " + q + " has two different types, "
 						+ a.toStringMash() + " and " + b.toStringMash());
 			}
-		}
+		});
 
 		if (!dontValidateEqs) {
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>> eq : src().eqs()) {
-				Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> lhs = trans(eq.first), rhs = trans(eq.second);
+			src().eqs((a,b)->{
+				Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> lhs = trans(a), rhs = trans(b);
 				boolean ok = dst().dp().eq(null, lhs, rhs);
 				if (!ok) {
-					String xxx = ""; // ", (and further, " + dst().collage().simplify().second.apply(lhs) + " = " +
-										// dst().collage().simplify().second.apply(rhs) + ")";
-					throw new RuntimeException("Source instance equation " + eq.first + " = " + eq.second + " translates to " + lhs
+					String xxx = ""; 
+					throw new RuntimeException("Source instance equation " + a + " = " + b + " translates to " + lhs
 							+ " = " + rhs + xxx + ", which is not provable in the target instance, displayed below.  To proceed, consider removing it or adding more equations to the target instance.\n\n" + dst());
 				}
-			}
+			});
 		}
 
 	}

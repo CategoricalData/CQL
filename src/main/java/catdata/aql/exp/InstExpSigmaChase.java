@@ -152,11 +152,11 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 				col.gens.put(gen.getKey(), f.ens.get(gen.getValue()));
 			}
 
-			Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = (new THashSet<>());
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : i.eqs()) {
-				eqs.add(new Pair<>(f.trans(eq.first), f.trans(eq.second)));
-				col.eqs.add(new Eq<>(null, f.trans(eq.first), f.trans(eq.second)));
-			}
+			Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = new THashSet<>();
+			i.eqs((a,b) -> {
+				eqs.add(new Pair<>(f.trans(a), f.trans(b)));
+				col.eqs.add(new Eq<>(null, f.trans(a), f.trans(b)));
+			});
 			SigmaLeftKanAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg = new SigmaLeftKanAlgebra<>(f, i,
 					col, reduce);
 

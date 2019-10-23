@@ -207,8 +207,11 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial0 = new InitialAlgebra<>(strat, I0.schema(), col, (y) -> y,
 				(x, y) -> y);
 
+		I0.eqs((a,b)->{
+			eqs0.add(new Pair<>(a, b));
+		});		
 		LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> ret = new LiteralInstance<>(
-				I0.schema(), col.gens, col.sks, Util.iterConcat(I0.eqs(), eqs0), initial0.dp(), initial0,
+				I0.schema(), col.gens, col.sks, eqs0, initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 

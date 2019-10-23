@@ -101,11 +101,6 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	}
 
 	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs() {
-		return new IteratorIterable<>(Iterators.concat(eqs.iterator(), I.eqs().iterator()), true);
-	}
-
-	@Override
 	public DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
 		return I.dp();
 	}

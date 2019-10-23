@@ -204,15 +204,14 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 			//System.out.println(surj);
 			//System.out.println("**");
 
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>>, Term<Ty, En, Sym, Fk, Att, Pair<En, Integer>, Chc<Void, Pair<Integer, Att>>>> eq : J
-					.eqs()) {
+			J.eqs((a,b) -> {
 				Function<Pair<En, Integer>, Var> genf = x -> Var.Var("gen" + iso.first.get(x));
 
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, Chc<Void, Pair<Integer, Att>>> tz = eq.first.mapGen(genf);
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, Chc<Void, Pair<Integer, Att>>> tz = a.mapGen(genf);
 				Term tt0 = tz;
 				Term tt = tt0.replace(surjX);
 
-				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, Chc<Void, Pair<Integer, Att>>> qw = eq.second.mapGen(genf);
+				Term<Ty, En, Sym, Fk, Att, catdata.aql.Var, Chc<Void, Pair<Integer, Att>>> qw = b.mapGen(genf);
 				Term qw1 = qw;
 
 				Term<Ty, En, Sym, Fk, Att, Var, Var> ttA = qw1.replace(surjX);
@@ -220,7 +219,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 				if (!tt.equals(ttA)) {
 					wh.add(new Eq<>(null, tt, ttA));
 				}
-			}
+			});
 			ens.put(en2, new Triple<>(fr, wh, ops));
 		}
 		

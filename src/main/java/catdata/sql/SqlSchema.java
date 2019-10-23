@@ -50,20 +50,11 @@ public class SqlSchema {
 			while (result0.next()) {
 				SqlTable table = new SqlTable();
 				String x = result0.getString(3);
-				// int i = x.indexOf(".");
-				//// if (i > -1) {
-				// table.name = x.substring(i+1, x.length());
-				// table.db = x.substring(0, i);
-				// } else {
 				table.name = x;
-//					table.db = 
-				// }
 
-				// System.out.println(x);
+
 				tables.add(table);
-				if (table.name.contains("sts_Skill")) {
-					Util.anomaly();
-				}
+				
 
 				try (ResultSet cols = meta.getColumns(null, table.db, table.name, null)) {
 					while (cols.next()) {

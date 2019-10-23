@@ -64,12 +64,15 @@ public class SqlInstance {
 		// this.conn = conn;
 		String d = useDistinct ? "DISTINCT" : "";
 		for (SqlTable table : schema.tables) {
-			try (Statement stmt = conn.createStatement()) {
+			try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY )) {
+				System.out.println("SELECT " + d + " * FROM " + tick + table.name + tick);
 				stmt.execute("SELECT " + d + " * FROM " + tick + table.name + tick);
 				try (ResultSet resultSet = stmt.getResultSet()) {
-					Set<Map<SqlColumn, Optional<Object>>> rows = new THashSet<>();
+					int rowCount = resultSet.last() ? resultSet.getRow() : 0; 
+					resultSet.first();
+					Set<Map<SqlColumn, Optional<Object>>> rows = new THashSet<>(rowCount);
 					while (resultSet.next()) {
-						Map<SqlColumn, Optional<Object>> row = new THashMap<>();
+						Map<SqlColumn, Optional<Object>> row = new THashMap<>(table.columns.size());
 						for (SqlColumn col : table.columns) {
 							try {
 								Object o = resultSet.getObject(col.name);

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
@@ -67,17 +68,13 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		public boolean allowUnsafeJava() {
 			return (boolean) ops.getOrDefault(AqlOption.allow_java_eqs_unsafe);
 		}
-
+		
 		@Override
-		public Iterable<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqs() {
-			return new Iterable<>() {
-				@Override
-				public Iterator<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> iterator() {
-					return Iterators.transform(X.eqs().iterator(),
-							eq -> new Pair<>(F.trans(eq.first), F.trans(eq.second)));
-				}
-			};
+		public synchronized void eqs(
+				BiConsumer<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> f) {
+			X.eqs((x,y)->f.accept(F.trans(x), F.trans(y)));
 		}
+
 
 		@Override
 		public DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> dp() {

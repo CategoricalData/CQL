@@ -171,10 +171,10 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y>
 			}
 			Function<Gen, Pair<String, Gen>> f1 = z -> new Pair<>(x, z);
 			Function<Sk, Pair<String, Sk>> f2 = z -> new Pair<>(x, z);
-			for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : I.eqs()) {
-				eqs0.add(new Pair<>(eq.first.mapGenSk(f1, f2), eq.second.mapGenSk(f1, f2)));
-				col.eqs.add(new Eq<>(null, eq.first.mapGenSk(f1, f2), eq.second.mapGenSk(f1, f2)));
-			}
+			I.eqs((a,b)-> {
+				eqs0.add(new Pair<>(a.mapGenSk(f1, f2), b.mapGenSk(f1, f2)));
+				col.eqs.add(new Eq<>(null, a.mapGenSk(f1, f2), b.mapGenSk(f1, f2)));
+			});
 		}
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> initial0 = new InitialAlgebra<>(strat,
 				sch0, col, (y) -> y, (x, y) -> y);

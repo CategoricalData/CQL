@@ -16,8 +16,8 @@ import catdata.Util;
 import gnu.trove.set.hash.THashSet;
 
 public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements Semantics {
-	
-	//public abstract int numEqs();
+
+	// public abstract int numEqs();
 
 	@Override
 	public String sample(int size) {
@@ -87,7 +87,23 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 	public abstract boolean allowUnsafeJava();
 
-	public abstract Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs();
+	public synchronized void eqs(
+			BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
+		for (En en : schema().ens) {
+			if (schema().fksFrom(en).size() + schema().attsFrom(en).size() == 0) {
+				continue;
+			}
+			for (X x : algebra().en(en)) {
+				Term<Ty, En, Sym, Fk, Att, Gen, Sk> q = algebra().repr(en, x).convert();
+				for (Fk fk : schema().fksFrom(en)) {
+					f.accept(Term.Fk(fk, q), algebra().repr(en, algebra().fk(fk, x)).convert());
+				}
+				for (Att att : schema().attsFrom(en)) {
+					f.accept(Term.Att(att, q), algebra().reprT(algebra().att(att, x)).convert());
+				}
+			}
+		}
+	}
 
 	public abstract DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp();
 
@@ -133,7 +149,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		}
 
 		for (;;) {
-			//System.out.println(model);
+			// System.out.println(model);
 			boolean changed = false;
 			for (Sym f : schema().typeSide.syms.keySet()) {
 				List<Ty> s = schema().typeSide.syms.get(f).first;
@@ -172,51 +188,56 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 	}
 
 	public Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> model;
-	
-	public static interface IMap<X,Y> {
+
+	public static interface IMap<X, Y> {
 		public default String sep(String x, String y) {
 			StringBuffer sb = new StringBuffer();
-			boolean[] first = new boolean[] {true};
+			boolean[] first = new boolean[] { true };
 			if (size() > 8096) {
 				return "too big to show";
 			}
-			entrySet((k,v) -> { 
+			entrySet((k, v) -> {
 				if (first[0]) {
-					first[0]=false;
+					first[0] = false;
 				} else {
 					sb.append(y);
-				} 
+				}
 				sb.append(k);
 				sb.append(x);
-				sb.append(v); 
+				sb.append(v);
 			});
 			return sb.toString();
-			
+
 		}
-		
+
 		public Y get(X x);
+
 		public boolean containsKey(X x);
+
 		public void entrySet(BiConsumer<? super X, ? super Y> f);
-		
+
 		public default void keySet(Consumer<X> f) {
-			entrySet((k,l)->f.accept(k));
+			entrySet((k, l) -> f.accept(k));
 		}
+
 		public default void values(Consumer<Y> f) {
-			entrySet((k,l)->f.accept(l));
+			entrySet((k, l) -> f.accept(l));
 		}
+
 		public default boolean isEmpty() {
 			return size() == 0;
 		}
-		public default void putAll(Map<X,Y> m) {
-			entrySet((k,v)->m.put(k, v));
+
+		public default void putAll(Map<X, Y> m) {
+			entrySet((k, v) -> m.put(k, v));
 		}
+
 		public int size();
 
 		public Y remove(X x);
 
 		public void put(X x, Y y);
 
-		
 	}
 
 	public synchronized Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> getModel() {
@@ -230,35 +251,33 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 	public final void validateNoTalg() {
 		// check that each gen/sk is in tys/ens
-		for (Gen gen : gens().keySet()) {
-			En en = gens().get(gen);
+		gens().forEach((gen, en) -> {
 			if (!schema().ens.contains(en)) {
 				throw new RuntimeException("On generator " + gen + ", the entity " + en + " is not declared.");
 			}
-		}
-		for (Sk sk : sks().keySet()) {
-			Ty ty = sks().get(sk);
+		});
+
+		sks().forEach((sk, ty) -> {
+//					Ty ty = sks().get(sk);
 			if (!schema().typeSide.tys.contains(ty)) {
 				throw new RuntimeException(
 						"On labelled null " + sk + ", the type " + ty + " is not declared." + "\n\n" + this);
 			}
-		}
+		});
 
-		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : eqs()) {
-			//System.out.println(eq);
-			// check lhs and rhs types match in all eqs
-			Chc<Ty, En> lhs = type(eq.first);
-			Chc<Ty, En> rhs = type(eq.second);
+		eqs((a, b) -> {
+			Chc<Ty, En> lhs = type(a);
+			Chc<Ty, En> rhs = type(b);
 			if (!lhs.equals(rhs)) {
-				throw new RuntimeException("In instance equation " + toString(eq) + ", lhs sort is "
+				throw new RuntimeException("In instance equation " + a + " = " + b + ", lhs sort is "
 						+ lhs.toStringMash() + " but rhs sort is " + rhs.toStringMash());
 			}
-		}
+		});
 	}
 
-	private String toString(Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq) {
-		return eq.first + " = " + eq.second;
-	}
+	//private String toString(Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq) {
+	//	return eq.first + " = " + eq.second;
+	//}
 
 	public abstract Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra();
 
@@ -271,12 +290,13 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		collage = new Collage<>(schema().collage());
 		collage.gens.putAll(gens());
 		collage.sks.putAll(sks());
-		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x : eqs()) {
-			collage.eqs.add(new Eq<>(null, x.first, x.second));
-		}
+		
+		eqs((a,b) -> {
+			collage.eqs.add(new Eq<>(null, a, b));
+		});
 		return collage;
 	}
-
+/*
 	@Override
 	public final int hashCode() {
 		int prime = 31;
@@ -317,19 +337,22 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			return false;
 		return true;
 	}
-
+*/
 	public final String toString(String g, String w) {
+		if (size() > 8096) {
+			return "too big to display";
+		}
 		final StringBuilder sb = new StringBuilder();
 		final List<String> eqs0 = new LinkedList<>();
-		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x : eqs()) {
-			eqs0.add(x.first + " = " + x.second);
-		}
+		eqs((a,b) -> {
+			eqs0.add(a + " = " + b);
+		});
 		sb.append(g);
 		if (!gens().isEmpty()) {
-			sb.append("\n\t" + Util.sep(gens(), " : ", "\n\t"));
+			sb.append("\n\t" + Util.sep(gens()," : ", "\n\t"));
 		}
 		if (!sks().isEmpty()) {
-			sb.append("\n\t" + Util.sep(sks(), " : ", "\n\t"));
+			sb.append("\n\t" + Util.sep(sks()," : ", "\n\t"));
 		}
 		sb.append(w);
 		if (!eqs0.isEmpty()) {
@@ -349,7 +372,5 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		}
 		return Chc.rightIterator(getModel().get(enOrTy.r).iterator());
 	}
-
-	
 
 }

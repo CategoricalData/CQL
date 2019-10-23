@@ -209,11 +209,7 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		return I.sks();
 	}
 
-	@Override
-	public Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs() {
-		return new IteratorIterable<>(
-				Iterators.transform(I.eqs().iterator(), x -> new Pair<>(iso1(x.first), iso1(x.second))), true);
-	}
+	
 
 	@Override
 	public DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {

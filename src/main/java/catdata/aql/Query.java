@@ -1143,7 +1143,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			Map<Var, Chc<En1, Ty>> ctx = new THashMap<>();
 			ctx.putAll(Util.inRight(ens.get(en2).sks()));
 			ctx.putAll(Util.inLeft(ens.get(en2).gens()));
-			ens2.put(en2, new Triple<>(ctx, g.apply(ens.get(en2).eqs()), ens.get(en2).options));
+			ens2.put(en2, new Triple<>(ctx, g.apply(ens.get(en2).eqs), ens.get(en2).options));
 		}
 		return makeQuery(ens2, atts2, conv2(), conv3(), src, dst, this.doNotCheckPathEqs);
 	}

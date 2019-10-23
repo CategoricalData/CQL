@@ -124,13 +124,17 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 				}
 			}
 			try {
+				if (rhs.getClass().equals(java.lang.Long.class) && Class.forName(sch.typeSide.js.java_tys.get(ty)).equals(java.lang.Integer.class)) {
+					rhs = ((Long)rhs).intValue();
+				}
+				
 				if (!Class.forName(sch.typeSide.js.java_tys.get(ty)).isInstance(rhs)) {
 					if (errMeansNull) {
 						return objectToSk(sch, null, x, att, sks, extraRepr, shouldJS, errMeansNull);
 					}
 					throw new RuntimeException("On " + x + "." + att + ", error while importing " + rhs + " of "
 							+ rhs.getClass() + " was expecting " + sch.typeSide.js.java_tys.get(ty)
-							+ ".\n\nConsider option " + AqlOption.import_null_on_err_unsafe);
+							+ " at type " + ty + ".\n\nConsider option " + AqlOption.import_null_on_err_unsafe);
 				}
 
 			} catch (ClassNotFoundException ex) {
