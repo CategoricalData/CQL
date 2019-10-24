@@ -151,7 +151,7 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 	}
 
 	@Override
-	protected Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
+	protected TAlg<Ty, Sym, Y> talg0() {
 		return I.algebra().talg();
 
 	}

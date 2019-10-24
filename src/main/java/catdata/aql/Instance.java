@@ -288,7 +288,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 	private Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage;
 
-	/*public final synchronized Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage() {
+	public final synchronized Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage() {
 		if (collage != null) {
 			return collage;
 		}
@@ -302,7 +302,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			collage.eqs.add(new Eq<>(null, a, b));
 		});
 		return collage;
-	}*/
+	}
 /*
 	@Override
 	public final int hashCode() {

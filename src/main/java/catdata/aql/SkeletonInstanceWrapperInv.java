@@ -3,6 +3,7 @@ package catdata.aql;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.Util.UpTo;
 import catdata.aql.AqlOptions.AqlOption;
+import gnu.trove.map.hash.THashMap;
 
 public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 		extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Integer> {
@@ -173,20 +175,20 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 			return I.printY(y).toString();
 		}
 
-		private Collage<Ty, Void, Sym, Void, Void, Void, Integer> talg;
+		private TAlg<Ty, Sym, Integer> talg;
 
 		@Override
-		protected synchronized Collage<Ty, Void, Sym, Void, Void, Void, Integer> talg0() {
+		protected synchronized TAlg<Ty, Sym, Integer> talg0() {
 			if (talg != null) {
 				return talg;
 			}
-			talg = new Collage<>(I.schema().typeSide.collage());
+			talg = new TAlg<>(new THashMap<>(), new LinkedList<>());
 			for (Ty ty : schema().typeSide.tys) {
 				for (int i = I.yo(ty); i < I.yo(ty) + I.ys(ty); i++) {
 					talg.sks.put(i, ty);
 				}
 			}
-			I.eqsT((lhs, rhs) -> talg.eqs.add(new Eq<>(null, lhs, rhs)));
+			I.eqsT((lhs, rhs) -> talg.eqs.add(new Pair<>(lhs, rhs)));
 			return talg;
 		}
 

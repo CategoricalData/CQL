@@ -185,7 +185,7 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 		}
 
 		@Override
-		public Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
+		public TAlg<Ty, Sym, Y> talg0() {
 			return alg.talg();
 		}
 

@@ -91,8 +91,8 @@ public class InitialInstance<Ty, En, Sym, Fk, Att> extends Instance<Ty, En, Sym,
 		}
 
 		@Override
-		public Collage<Ty, Void, Sym, Void, Void, Void, Void> talg0() {
-			return new Collage<>();
+		public TAlg<Ty, Sym, Void> talg0() {
+			return new TAlg<>(Collections.emptyMap(), Collections.emptyList());
 		}
 
 		@Override

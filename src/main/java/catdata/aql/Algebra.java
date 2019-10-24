@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,17 +31,49 @@ import gnu.trove.set.hash.THashSet;
 
 public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements DP<Ty,En,Sym,Fk,Att,Gen,Sk> */ {
 
-	public abstract boolean hasNulls();
+	
+	public static class TAlg<Ty,Sym,Y> {
+		
+		public TAlg(
+				Map<Y, Ty> sks,
+				Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs) {
+			this.sks = sks;
+			this.eqs = eqs;
+		}
+
+		/*public TAlg() {
+			this.sks = Util.anomaly();
+			this.eqs = Util.anomaly();
+		}*/
+
+		public final Map<Y, Ty> sks;
+		
+		public final Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>,
+		  Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs;
+
+		public Object type(Term<Ty, Void, Sym, Void, Void, Void, Y> first) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+	
+	/*@SuppressWarnings("unchecked")
+	public  <Ty, En, Sym, Fk, Att, Gen, Sk> Collage<Ty, En, Sym, Fk, Att, Gen, Sk> convert() {
+		return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) this;
+	}*/
 	
 	public abstract Schema<Ty, En, Sym, Fk, Att> schema();
 
 	// TODO aql cant validate algebras bc are not dps
 
+	public abstract boolean hasNulls();
+	
 	public abstract boolean hasFreeTypeAlgebra();
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		for (Eq<Ty, Void, Sym, Void, Void, Void, Y> eq : talg().eqs) {
-			if (schema().typeSide.js.java_tys.containsKey(talg().type(eq.ctx, eq.lhs).l)) {
+		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>,Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : talg().eqs) {
+			if (schema().typeSide.js.java_tys.containsKey(talg().type(eq.first))) {
 				return false;
 			}
 		}
@@ -153,19 +184,19 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	/**
 	 * @return only equations for instance part (no typeside, no schema)
 	 */
-	public synchronized final Collage<Ty, Void, Sym, Void, Void, Void, Y> talg() {
+	public synchronized final TAlg<Ty,Sym,Y> talg() {
 		if (talg0 != null) {
 			return talg0;
 		}
 		talg0 = talg0();
 		//talg0.addAll(schema().typeSide.collage()); //j
-		talg0.validate();
+		//talg0.validate();
 		return talg0;
 	}
 
-	protected abstract Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0();
+	protected abstract TAlg<Ty,Sym,Y> talg0();
 
-	private Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0;
+	private TAlg<Ty,Sym,Y> talg0;
 
 	public abstract Chc<Sk, Pair<X, Att>> reprT_prot(Y y);
 

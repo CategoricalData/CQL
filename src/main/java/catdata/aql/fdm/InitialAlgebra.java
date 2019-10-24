@@ -99,7 +99,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		}
 		while (saturate1());
 
-		talg = new TalgSimplifier<>(this, col, (Integer) ops.getOrDefault(AqlOption.talg_reduction));
+		talg = null ;//new TalgSimplifier<>(this, col, (Integer) ops.getOrDefault(AqlOption.talg_reduction));
 
 		ProverName p = (ProverName) ops.getOrDefault(AqlOption.second_prover);
 		AqlOptions lll = new AqlOptions(ops, AqlOption.prover, p);
@@ -108,13 +108,15 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		
 		//TODO AQL performance
 		if (!fast && !talg.talg.out.eqs.isEmpty() && !schema().typeSide.eqs.isEmpty()) {
-			Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> talg2 = new Collage<>(talg());
+		Util.anomaly();
+		/*	Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> talg2 = new Collage<>(talg());
 			talg2.eqs.clear();
 			talg2.addAll(schema().typeSide.collage());
 			//System.out.println(talg2);
 			DP<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> z = AqlProver.createInstance(lll, talg2,
 					Schema.terminal(schema.typeSide));
-			boolean b = false;
+			*/
+		boolean b = false; /*
 			Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>>> it = talg().eqs.iterator();
 			while (it.hasNext()) {
 				//System.out.print(".");
@@ -127,16 +129,17 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 				}
 				
 			}
-			//System.out.println(".");
-			talg_is_cons = !b;
+			//System.out.println("."); */
+			talg_is_cons = !b; 
 		} else { 
 			talg_is_cons = talg.talg.out.eqs.isEmpty();
 		}
 		Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk,Pair<Integer,Att>>> z = schema.typeSide.collage();
-		talg().eqs.addAll(z.eqs);
-		this.dp_ty = AqlProver.createInstance(lll, talg(),
-				Schema.terminal(schema.typeSide));
-		talg().eqs.removeAll(z.eqs);
+		Util.anomaly();
+/*		talg().eqs.addAll(z.eqs);
+ * */
+		this.dp_ty = null; //AqlProver.createInstance(lll, talg(),Schema.terminal(schema.typeSide));
+		//talg().eqs.removeAll(z.eqs); 
 		
 	}
 
@@ -279,7 +282,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 	}
 
 	@Override
-	public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> talg0() {
+	public synchronized TAlg<Ty, Sym, Chc<Sk, Pair<Integer, Att>>> talg0() {
 		return talg.talg.out;
 	}
 
@@ -299,7 +302,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> talg().java_tys.containsKey(talg().type(x.ctx, x.lhs).l))
+		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(x.first)))
 				.collect(Collectors.toList()).isEmpty();
 	}
 

@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Iterators;
+
 import catdata.BinRelSet;
 import catdata.Chc;
 import catdata.Pair;
@@ -40,7 +42,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> talg().java_tys.containsKey(talg().type(x.ctx, x.lhs).l))
+		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(x.first)))
 				.collect(Collectors.toList()).isEmpty();
 	}
 
@@ -483,10 +485,19 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 
 	TalgSimplifier<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> talg = null;
 
+	private Iterable<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqsIt() {
+		return new Iterable<>() {
+			@Override
+			public Iterator<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> iterator() {
+				return Iterators.transform(col.eqs.iterator(), x->new Pair<>(x.lhs,x.rhs));
+			}
+		};
+	}
+	
 	@Override
-	public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> talg0() {
+	public synchronized TAlg<Ty, Sym, Chc<Sk, Pair<Integer, Att2>>> talg0() {
 		if (talg == null) {
-			talg = new TalgSimplifier<>(this, col, reduce);
+			talg = new TalgSimplifier<>(this, eqsIt().iterator(), col.sks, reduce);
 		}
 		return talg.talg.out;
 	}

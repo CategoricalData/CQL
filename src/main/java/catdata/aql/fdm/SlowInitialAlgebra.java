@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Iterators;
+
 //import org.apache.commons.collections4.list.TreeList;
 
 import catdata.Chc;
@@ -204,14 +206,24 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 	}
 
 	@Override
-	public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> talg0() {
+	public synchronized TAlg<Ty, Sym, Chc<Sk, Pair<X, Att>>> talg0() {
 		if (talg != null) {
 			return talg.talg.out;
 		}
-		talg = new TalgSimplifier<>(this, col, (Integer) ops.getOrDefault(AqlOption.talg_reduction));
+		talg = new TalgSimplifier<>(this, eqsIt().iterator(), col.sks, (Integer) ops.getOrDefault(AqlOption.talg_reduction));
 		return talg.talg.out;
 	}
 
+	
+	private Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqsIt() {
+		return new Iterable<>() {
+			@Override
+			public Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> iterator() {
+				return Iterators.transform(col.eqs.iterator(), x->new Pair<>(x.lhs,x.rhs));
+			}
+		};
+	}
+	
 	@Override
 	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> att(Att att, X x) {
 		return reprT0(Chc.inRight(new Pair<>(x, att)));
@@ -242,7 +254,7 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> talg().java_tys.containsKey(talg().type(x.ctx, x.lhs).l))
+		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(x.first)))
 				.collect(Collectors.toList()).isEmpty();
 	}
 

@@ -1,5 +1,6 @@
 package catdata.aql.fdm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,10 +8,8 @@ import java.util.function.BiFunction;
 
 import catdata.Chc;
 import catdata.Pair;
-import catdata.Triple;
 import catdata.Util;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Schema;
@@ -35,7 +34,7 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 	private final BiFunction<En, X, Object> printX;
 	private final BiFunction<Ty, Y, Object> printY;
 
-	private final Collage<Ty, Void, Sym, Void, Void, Void, Y> talg = new Collage<>();
+	private final TAlg<Ty, Sym, Y> talg;
 
 	private Map<X, En> gens = new THashMap<>();
 
@@ -44,18 +43,33 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 			BiFunction<En, X, Object> printX, BiFunction<Ty, Y, Object> printY, boolean dontCheckClosure,
 			Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> eqs) {
 		this.schema = schema;
-		this.ens = (ens);
-		this.tys = (tys);
-		this.fks = (fks);
-		this.atts = (atts);
+		this.ens = ens;
+		this.tys = tys;
+		this.fks = fks;
+		this.atts = atts;
 		this.printX = printX;
 		this.printY = printY;
 
 		if (!dontCheckClosure) {
 			checkClosure();
 		}
+		
+		int ts = 0;
+		for (Collection<Y> x : tys.values()) {
+			ts += x.size();
+		}
 
-		initTalg(eqs);
+		talg = new TAlg<>(new THashMap<>(ts), new ArrayList<>(eqs.size()));
+		for (Entry<Ty, Collection<Y>> ty : tys.entrySet()) {
+			for (Y y : ty.getValue()) {
+				talg.sks.put(y, ty.getKey());
+			}
+		}
+		for (Eq<Ty, Void, Sym, Void, Void, Void, Y> x : eqs) {
+			talg.eqs.add(new Pair<>(x.lhs, x.rhs));
+		}
+		
+		
 
 		for (Entry<En, Collection<X>> en : ens.entrySet()) {
 			for (X x : en.getValue()) {
@@ -109,22 +123,7 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 
 	}
 
-	private void initTalg(Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> eqs0) {
-		talg.syms.putAll(schema.typeSide.syms);
-		talg.tys.addAll(schema.typeSide.tys);
-		talg.java_fns.putAll(schema.typeSide.js.java_fns);
-		talg.java_parsers.putAll(schema.typeSide.js.java_parsers);
-		talg.java_tys.putAll(schema.typeSide.js.java_tys);
-		for (Entry<Ty, Collection<Y>> ty : tys.entrySet()) {
-			for (Y y : ty.getValue()) {
-				talg.sks.put(y, ty.getKey());
-			}
-		}
-		//for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> x : schema.typeSide.eqs) {
-		//	talg.eqs.add(new Eq<>(Util.inLeft(x.first), x.second.convert(), x.third.convert()));
-		//}
-		talg.eqs.addAll(eqs0);
-	}
+	
 
 	@Override
 	public synchronized boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, X, Y> lhs,
@@ -188,7 +187,7 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 	}
 
 	@Override
-	public Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
+	public TAlg<Ty, Sym, Y> talg0() {
 		return talg;
 	}
 

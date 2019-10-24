@@ -1,17 +1,21 @@
 package catdata.aql.fdm;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import catdata.Pair;
+import com.google.common.collect.Iterators;
+
 import catdata.aql.Algebra;
 import catdata.aql.DP;
+import catdata.aql.Eq;
 import catdata.aql.Instance;
-import catdata.aql.Schema; 
+import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Transform;
 import gnu.trove.map.hash.THashMap;
@@ -86,8 +90,21 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 
 		boolean dontCheckClosure = false;
 
-		ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> alg = new ImportAlgebra<>(I.schema(), ens, tys, fks, atts,
-				I.algebra()::printX, I.algebra()::printY, dontCheckClosure, I.algebra().talg().eqs);
+		
+		ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> alg 
+		= new ImportAlgebra<>(I.schema(), ens, tys, fks, atts,
+				I.algebra()::printX, I.algebra()::printY, dontCheckClosure,
+				new AbstractCollection<>() {
+					@Override
+					public Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Y>> iterator() {
+						return Iterators.transform(I.algebra().talg().eqs.iterator(), x->new Eq<>(null,x.first,x.second));
+					}
+
+					@Override
+					public int size() {
+						return I.algebra().talg().eqs.size();
+					}
+		});
 
 		K = new SaturatedInstance<>(alg, alg, rc, uj, false, Collections.EMPTY_MAP);
 		validate();

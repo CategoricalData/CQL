@@ -3,6 +3,7 @@ package catdata.aql;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 //import java.util.HashSet;
 //import java.util.LinkedHashMap;
@@ -18,6 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.list.TreeList;
+
+import com.google.common.collect.Iterators;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -36,30 +39,9 @@ public class Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
 	
 
-	private List<Term<Ty, En, Sym, Fk, Att, Gen, Void>> getForTy(Chc<Ty, En> t,
-			Collection<Term<Ty, En, Sym, Fk, Att, Gen, Void>> set) {
-		return set.stream().filter(x -> type(Collections.emptyMap(), x.convert()).equals(t))
-				.collect(Collectors.toList());
-	}
+	
 
-	private List<List<Term<Ty, En, Sym, Fk, Att, Gen, Void>>> helper(Pair<List<Ty>, Ty> ty,
-			Collection<Term<Ty, En, Sym, Fk, Att, Gen, Void>> set) {
-		List<List<Term<Ty, En, Sym, Fk, Att, Gen, Void>>> ret = new TreeList<>();
-		ret.add(new TreeList<>());
-
-		for (Ty t : ty.first) {
-			List<List<Term<Ty, En, Sym, Fk, Att, Gen, Void>>> ret2 = new TreeList<>();
-			for (Term<Ty, En, Sym, Fk, Att, Gen, Void> l : getForTy(Chc.inLeft(t), set)) {
-				for (List<Term<Ty, En, Sym, Fk, Att, Gen, Void>> x : ret) {
-					List<Term<Ty, En, Sym, Fk, Att, Gen, Void>> z = new TreeList<>(x);
-					z.add(l);
-					ret2.add(z);
-				}
-			}
-			ret = ret2;
-		}
-		return ret;
-	}
+	
 
 	public final Set<Ty> tys = (new THashSet<>());
 	public final Map<Sym, Pair<List<Ty>, Ty>> syms = Util.mk();

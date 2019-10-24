@@ -4,9 +4,9 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
@@ -16,12 +16,13 @@ import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
+import catdata.aql.Algebra.TAlg;
 import catdata.aql.DP;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
+import gnu.trove.map.hash.THashMap;
 
 public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		extends Instance<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Pair<String, Y>> {
@@ -29,7 +30,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	private final Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> insts;
 	private final Schema<Ty, En, Sym, Fk, Att> sch;
 	
-	Collage<Ty, Void, Sym, Void, Void, Void, Pair<String, Y>> col;
+	TAlg<Ty, Sym, Pair<String, Y>> col;
 	
 	
 	public static <X,Y,Z> IMap<X,Z> mapValues(IMap<X,Y> map, BiFunction<X,Y,Z> f) {
@@ -144,7 +145,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 	@Override
 	public IMap<Pair<String, Sk>, Ty> sks() {
-		return new IMap<Pair<String, Sk>, Ty>() {
+		return new IMap<>() {
 
 			@Override
 			public Ty get(Pair<String, Sk> x) {
@@ -305,12 +306,11 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 
 			@Override
-			public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Pair<String, Y>> talg0() {
+			public synchronized TAlg<Ty, Sym, Pair<String, Y>> talg0() {
 				if (col != null) {
 					return col;
 				}
-				col = new Collage<>(sch.typeSide.collage());
-				col.eqs.clear();
+				col = new TAlg<>(new THashMap<>(), new LinkedList<>());
 
 				for (String x : insts.keySet()) {
 					Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = insts.get(x);

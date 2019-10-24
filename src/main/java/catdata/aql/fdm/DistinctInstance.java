@@ -158,7 +158,7 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		}
 
 		@Override
-		public Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
+		public TAlg<Ty, Sym, Y> talg0() {
 			return I.algebra().talg();
 		}
 

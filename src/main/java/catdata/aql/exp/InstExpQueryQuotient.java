@@ -204,8 +204,8 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 			col.eqs.add(new Eq<>(null, t1.convert(), t2.convert()));
 		});
 
-		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial0 = new InitialAlgebra<>(strat, I0.schema(), col, (y) -> y,
-				(x, y) -> y);
+		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial0 
+		= new InitialAlgebra<>(strat, I0.schema(), col, (y) -> y, (x, y) -> y);
 
 		I0.eqs((a,b)->{
 			eqs0.add(new Pair<>(a, b));

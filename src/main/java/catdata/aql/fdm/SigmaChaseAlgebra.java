@@ -1,9 +1,12 @@
 package catdata.aql.fdm;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
+import com.google.common.collect.Iterators;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -115,15 +118,18 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 				X.sks().entrySet((k,v)->{
 					col.sks.put(k, v);
 				});
-				for (Eq<Ty, Void, Sym, Void, Void, Void, Y> eq : X.algebra().talg().eqs) {
-					col.eqs.add(new Eq<>(null, F.trans(X.reprT(eq.lhs)), F.trans(X.reprT(eq.rhs))));
+				for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : X.algebra().talg().eqs) {
+					col.eqs.add(new Eq<>(null, F.trans(X.reprT(eq.first)), F.trans(X.reprT(eq.second))));
 				}
 			}
-			talg = new TalgSimplifier<>(this, col, (int) ops.getOrDefault(AqlOption.talg_reduction));
+			
+			Iterator<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>,Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>>
+			it = Iterators.transform(X.algebra().talg().eqs.iterator(), eq-> new Pair<>(F.trans(X.reprT(eq.first)), F.trans(X.reprT(eq.second))));
+			talg = new TalgSimplifier<>(this, it, null, (int) ops.getOrDefault(AqlOption.talg_reduction));
 		//}
 		talg();
 		
-		this.dp_ty = AqlProver.createInstance(ops, talg.talg.out, Schema.terminal(B.typeSide));
+		this.dp_ty = Util.anomaly(); // AqlProver.createInstance(ops, talg.talg.out, Schema.terminal(B.typeSide));
 	}
 
 	@Override
@@ -227,7 +233,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 	}
 
 	@Override
-	public synchronized Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> talg0() {
+	public synchronized TAlg<Ty, Sym, Chc<Sk, Pair<Integer, Att2>>> talg0() {
 		return talg.talg.out;
 	}
 

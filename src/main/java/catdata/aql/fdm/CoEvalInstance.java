@@ -66,12 +66,9 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 				}
 			}
 		}
-		for (Eq<Ty, Void, Sym, Void, Void, Void, Y> eq : J.algebra().talg().eqs) {
-			if (!eq.ctx.isEmpty()) {
-				throw new RuntimeException("Anomaly: please report " + eq);
-			}
-			col.eqs.add(new Eq<>(null, Term.upTalg(eq.lhs.mapGenSk(Util.voidFn(), Chc::inRight)),
-					Term.upTalg(eq.rhs.mapGenSk(Util.voidFn(), Chc::inRight))));
+		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : J.algebra().talg().eqs) {
+			col.eqs.add(new Eq<>(null, Term.upTalg(eq.first.mapGenSk(Util.voidFn(), Chc::inRight)),
+					Term.upTalg(eq.second.mapGenSk(Util.voidFn(), Chc::inRight))));
 		}
 		// col.validate();
 		for (En2 t : J.schema().ens) {

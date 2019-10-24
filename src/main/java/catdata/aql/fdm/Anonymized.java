@@ -1,17 +1,13 @@
 package catdata.aql.fdm;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.iterators.IteratorIterable;
-
-import com.google.common.collect.Iterators;
 
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
@@ -84,11 +80,11 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		}
 
 		@Override
-		public Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
-			Collage<Ty, Void, Sym, Void, Void, Void, Y> col = new Collage<>(I.algebra().talg());
+		public TAlg<Ty, Sym, Y> talg0() {
+			TAlg<Ty, Sym, Y> col = new TAlg<>(I.algebra().talg().sks, new ArrayList<>(I.algebra().talg().eqs.size()));
 			col.eqs.clear();
-			for (Eq<Ty, Void, Sym, Void, Void, Void, Y> eq : I.algebra().talg().eqs) {
-				col.eqs.add(new Eq<>(eq.ctx, iso1(eq.lhs), iso1(eq.rhs)));
+			for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : I.algebra().talg().eqs) {
+				col.eqs.add(new Pair<>(iso1(eq.first), iso1(eq.second)));
 			}
 			return col;
 		}
@@ -98,7 +94,7 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		}
 
 		public boolean hasFreeTypeAlgebraOnJava() {
-			return talg().eqs.stream().filter(x -> talg().java_tys.containsKey(talg().type(x.ctx, x.lhs).l))
+			return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(x.first)))
 					.collect(Collectors.toList()).isEmpty();
 		}
 

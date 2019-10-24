@@ -133,7 +133,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	@Override
-	public Collage<Ty, Void, Sym, Void, Void, Void, Y> talg0() {
+	public TAlg<Ty, Sym, Y> talg0() {
 		return I.algebra().talg();
 	}
 
