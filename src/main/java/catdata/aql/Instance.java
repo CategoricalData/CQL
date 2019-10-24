@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 
 import catdata.Chc;
 import catdata.Util;
+import catdata.aql.Collage.CCollage;
 import gnu.trove.set.hash.THashSet;
 
 public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements Semantics {
@@ -292,14 +293,14 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		if (collage != null) {
 			return collage;
 		}
-		collage = new Collage<>(schema().collage());
+		collage = new CCollage<>();
 		
 		
-		collage.gens.putAll(imapToMapNoScan(gens()));
-		collage.sks.putAll(imapToMapNoScan(sks()));
+		collage.gens().putAll(imapToMapNoScan(gens()));
+		collage.sks().putAll(imapToMapNoScan(sks()));
 		
 		eqs((a,b) -> {
-			collage.eqs.add(new Eq<>(null, a, b));
+			collage.eqs().add(new Eq<>(null, a, b));
 		});
 		return collage;
 	}

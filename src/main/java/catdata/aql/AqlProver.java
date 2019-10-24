@@ -2,21 +2,19 @@ package catdata.aql;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import catdata.Chc;
-import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.Collage.CCollage;
 import catdata.provers.CompletionProver;
 import catdata.provers.CongruenceProverUniform;
 import catdata.provers.DPKB;
 import catdata.provers.EProver;
 import catdata.provers.FailProver;
 import catdata.provers.FreeProver;
-import catdata.provers.KBTheory;
 import catdata.provers.MaedmaxProver;
 import catdata.provers.ProgramProver;
 
@@ -49,14 +47,14 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 		ProverName name = (ProverName) ops.getOrDefault(AqlOption.prover);
 		long timeout = (Long) ops.getOrDefault(AqlOption.timeout);
 		Integer shouldSimplifyMax = (Integer) ops.getOrDefault(AqlOption.prover_simplify_max);
-		boolean shouldSimplify = col.eqs.size() < shouldSimplifyMax;
+		boolean shouldSimplify = col.eqs().size() < shouldSimplifyMax;
 		boolean allowNew = (boolean) ops.getOrDefault(AqlOption.prover_allow_fresh_constants);
 		
 		Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> fn;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_simpl;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_big;
 		
-		if (col.eqs.size() == 0 && name.equals(ProverName.auto)) {
+		if (col.eqs().size() == 0 && name.equals(ProverName.auto)) {
 			shouldSimplify = false;
 			name = ProverName.free;
 		}
@@ -159,7 +157,7 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 	
 	private static <Sk, En, Fk, Ty, Att, Sym, Gen> ProverName auto(AqlOptions ops,
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
-		if (col.eqs.isEmpty()) {
+		if (col.eqs().isEmpty()) {
 			return ProverName.free;
 		} else if (col.isGround()) {
 			return ProverName.congruence;
@@ -185,13 +183,13 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 
 	private static <Ty, En, Sym, Fk, Att, Gen, Sk> Collage<Ty, En, Sym, Fk, Att, Gen, Sk> reorient(
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> ret = new Collage<>(col);
-		ret.eqs.clear();
-		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs) {
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> ret = new CCollage<>(col);
+		ret.eqs().clear();
+		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs()) {
 			if (size(eq.lhs) < size(eq.rhs)) {
-				ret.eqs.add(new Eq<>(eq.ctx, eq.rhs, eq.lhs));
+				ret.eqs().add(new Eq<>(eq.ctx, eq.rhs, eq.lhs));
 			} else if (size(eq.lhs) > size(eq.rhs) && numOccs(eq.lhs, eq.rhs)) {
-				ret.eqs.add(eq);
+				ret.eqs().add(eq);
 			} else {
 				throw new RuntimeException("Cannot orient " + eq + " in a size reducing manner.");
 			}

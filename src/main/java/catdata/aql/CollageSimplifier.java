@@ -10,6 +10,7 @@ import org.apache.commons.collections4.list.TreeList;
 
 import catdata.Chc;
 import catdata.Triple;
+import catdata.aql.Collage.CCollage;
 import gnu.trove.set.hash.THashSet;
 
 public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
@@ -30,14 +31,14 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	};
 
 	public CollageSimplifier(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> in) {
-		simplified = new Collage<>(in);
+		simplified = new CCollage<>(in);
 		this.in = in;
 
 		while (simplify1()) {
 
 		}
 
-		Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> it = simplified.eqs.iterator();
+		Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> it = simplified.eqs().iterator();
 		while (it.hasNext()) {
 			Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq = it.next();
 			if (eq.lhs.equals(eq.rhs)) {
@@ -48,7 +49,7 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	}
 
 	private boolean simplify1() {
-		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : simplified.eqs) {
+		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : simplified.eqs()) {
 			if (simplify2(eq.ctx, eq.lhs, eq.rhs) || simplify2(eq.ctx, eq.rhs, eq.lhs)) {
 				return true;
 			}
@@ -69,17 +70,17 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			return false; // forall x, y. f(y) = ... kind of thing
 		}
 
-		Set<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> neweqs = new THashSet<>(simplified.eqs.size());
+		Set<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> neweqs = new THashSet<>(simplified.eqs().size());
 		Head<Ty, En, Sym, Fk, Att, Gen, Sk> head = Head.mkHead(lhs);
 
 		if (!rhs.contains(head)) {
 			simplified.remove(head);
 			list.add(new Triple<>(head, vars, rhs));
-			for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : simplified.eqs) {
+			for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : simplified.eqs()) {
 				neweqs.add(new Eq<>(eq.ctx, eq.lhs.replaceHead(head, vars, rhs), eq.rhs.replaceHead(head, vars, rhs)));
 			}
-			simplified.eqs.clear();
-			simplified.eqs.addAll(neweqs);
+			simplified.eqs().clear();
+			simplified.eqs().addAll(neweqs);
 			return true;
 		}
 		return false;

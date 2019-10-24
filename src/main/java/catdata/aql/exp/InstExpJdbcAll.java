@@ -18,6 +18,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -173,25 +174,25 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 	public Schema<Ty, En, Sym, Fk, Att> makeSchema(AqlEnv env, SqlSchema info, AqlOptions ops) {
 		TypeSide<Ty, Sym> typeSide = SqlTypeSide.SqlTypeSide(ops);
 
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col0 = new Collage<>(typeSide.collage());
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col0 = new CCollage<>();
 
 		for (SqlTable table : info.tables) {
 			En x = En.En(table.name);
-			col0.ens.add(x);
+			col0.getEns().add(x);
 			for (SqlColumn c : table.columns) {
-				if (col0.atts.containsKey(Att.Att(x, c.name))) {
+				if (col0.atts().containsKey(Att.Att(x, c.name))) {
 					throw new RuntimeException("Name collision: table " + c.table.name + " col " + c.name
-							+ " against table " + col0.atts.get(Att.Att(En.En(table.name), c.name)).first
+							+ " against table " + col0.atts().get(Att.Att(En.En(table.name), c.name)).first
 							+ "\n\n.Possible solution: set option jdbc_import_col_seperator so as to avoid name collisions.");
 				}
-				col0.atts.put(Att.Att(x, c.name), new Pair<>(x, Ty.Ty(sqlTypeToAqlType(c.type.name))));
+				col0.atts().put(Att.Att(x, c.name), new Pair<>(x, Ty.Ty(sqlTypeToAqlType(c.type.name))));
 			}
 		}
 		Var v = Var.Var("x");
 
 		for (SqlForeignKey fk : info.fks) {
 			En x = En.En(fk.source.name);
-			col0.fks.put(Fk.Fk(x, fk.toString()), new Pair<>(x, En.En(fk.target.name)));
+			col0.fks().put(Fk.Fk(x, fk.toString()), new Pair<>(x, En.En(fk.target.name)));
 
 			for (SqlColumn tcol : fk.map.keySet()) {
 				SqlColumn scol = fk.map.get(tcol);
@@ -199,7 +200,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 				Att r = Att.Att(En.En(tcol.table.name), tcol.name);
 				Term<Ty, En, Sym, Fk, Att, Void, Void> lhs = Term.Att(l, Term.Var(v));
 				Term<Ty, En, Sym, Fk, Att, Void, Void> rhs = Term.Att(r, Term.Fk(Fk.Fk(x, fk.toString()), Term.Var(v)));
-				col0.eqs.add(new Eq<>(Collections.singletonMap(v, Chc.inRight(x)), lhs, rhs));
+				col0.eqs().add(new Eq<>(Collections.singletonMap(v, Chc.inRight(x)), lhs, rhs));
 			}
 		}
 

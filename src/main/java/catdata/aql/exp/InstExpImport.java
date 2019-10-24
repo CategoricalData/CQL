@@ -19,6 +19,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -251,27 +252,27 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 			AqlOptions op) {
 
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>, Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>>> eqs0 = new THashSet<>();
-		Collage<Ty, En, Sym, Fk, Att, Gen, Null<?>> col = new Collage<>(sch.collage());
+		Collage<Ty, En, Sym, Fk, Att, Gen, Null<?>> col = new CCollage<>();
 		for (Gen gen : fks0.keySet()) {
 			for (Fk fk : fks0.get(gen).keySet()) {
 				eqs0.add(new Pair<>(Term.Fk(fk, Term.Gen(gen)), Term.Gen(fks0.get(gen).get(fk))));
-				col.eqs.add(new Eq<>(null, Term.Fk(fk, Term.Gen(gen)), Term.Gen(fks0.get(gen).get(fk))));
+				col.eqs().add(new Eq<>(null, Term.Fk(fk, Term.Gen(gen)), Term.Gen(fks0.get(gen).get(fk))));
 			}
 		}
 		for (Gen gen : atts0.keySet()) {
 			for (Att att : atts0.get(gen).keySet()) {
 				eqs0.add(new Pair<>(Term.Att(att, Term.Gen(gen)), atts0.get(gen).get(att).convert()));
-				col.eqs.add(new Eq<>(null, Term.Att(att, Term.Gen(gen)), atts0.get(gen).get(att).convert()));
+				col.eqs().add(new Eq<>(null, Term.Att(att, Term.Gen(gen)), atts0.get(gen).get(att).convert()));
 			}
 		}
 		for (En en : ens0.keySet()) {
 			for (Gen gen : ens0.get(en)) {
-				col.gens.put(gen, en);
+				col.gens().put(gen, en);
 			}
 		}
 		for (Ty ty : tys0.keySet()) {
 			for (Null<?> sk : tys0.get(ty)) {
-				col.sks.put(sk, ty);
+				col.sks().put(sk, ty);
 			}
 		}
 
@@ -279,7 +280,7 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 				(x) -> x.toString(), (ty, x) -> x.toString());
 
 		Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Integer, Chc<Null<?>, Pair<Integer, Att>>> I = new LiteralInstance<>(
-				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
+				sch, col.gens(), col.sks(), eqs0, initial.dp(), initial,
 				(Boolean) op.getOrDefault(AqlOption.require_consistency),
 				(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 

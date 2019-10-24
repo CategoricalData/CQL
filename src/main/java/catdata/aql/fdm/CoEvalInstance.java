@@ -12,6 +12,7 @@ import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
@@ -49,25 +50,24 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 		this.Q = Q;
 		this.J = J;
 
-		Collage<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> col = new Collage<>(
-				Q.src.collage());
+		Collage<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> col = new CCollage<>();
 
-		col.sks.putAll(
+		col.sks().putAll(
 				Util.map(J.algebra().talg().sks, (k, v) -> new Pair<>(Chc.<Triple<Var, X, En2>, Y>inRight(k), v)));
 		for (En2 t : J.schema().ens) {
 			for (X j : J.algebra().en(t)) {
 				for (Var v : Q.ens.get(t).gens.keySet()) {
 					En1 s = Q.ens.get(t).gens.get(v);
-					col.gens.put(new Triple<>(v, j, t), s);
+					col.gens().put(new Triple<>(v, j, t), s);
 				}
 				for (Var v : Q.ens.get(t).sks.keySet()) {
 					Ty s = Q.ens.get(t).sks.get(v);
-					col.sks.put(Chc.inLeft(new Triple<>(v, j, t)), s);
+					col.sks().put(Chc.inLeft(new Triple<>(v, j, t)), s);
 				}
 			}
 		}
 		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : J.algebra().talg().eqs) {
-			col.eqs.add(new Eq<>(null, Term.upTalg(eq.first.mapGenSk(Util.voidFn(), Chc::inRight)),
+			col.eqs().add(new Eq<>(null, Term.upTalg(eq.first.mapGenSk(Util.voidFn(), Chc::inRight)),
 					Term.upTalg(eq.second.mapGenSk(Util.voidFn(), Chc::inRight))));
 		}
 		// col.validate();
@@ -76,7 +76,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 			for (X j : J.algebra().en(t)) {
 				for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : Q.ens
 						.get(t).eqs) {
-					col.eqs.add(new Eq<>(null,
+					col.eqs().add(new Eq<>(null,
 							eq.first.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t))),
 							eq.second.mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)))));
 				}
@@ -93,7 +93,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 										x -> new Triple<>(x, j, t), Util::abort);
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Gen(new Triple<>(v0, J.algebra().fk(fk, j), tt));
-						col.eqs.add(new Eq<>(null, lhs, rhs));
+						col.eqs().add(new Eq<>(null, lhs, rhs));
 					});
 					// col.validate();
 
@@ -102,7 +102,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 								.apply(v0,k).mapGenSk(x -> new Triple<>(x, j, t), x -> Chc.inLeft(new Triple<>(x, j, t)));
 						Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = Term
 								.Sk(Chc.inLeft(new Triple<>(v0, J.algebra().fk(fk, j), tt)));
-						col.eqs.add(new Eq<>(null, lhs, rhs));
+						col.eqs().add(new Eq<>(null, lhs, rhs));
 					});
 			
 				}
@@ -117,7 +117,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 					Term<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> lhs = J.algebra()
 							.att(att, j).map(Function.identity(), Function.identity(), Util.voidFn(), Util.voidFn(),
 									Util.voidFn(), Chc::inRight);
-					col.eqs.add(new Eq<>(null, lhs, rhs));
+					col.eqs().add(new Eq<>(null, lhs, rhs));
 					
 
 				}
@@ -142,7 +142,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 		z.removeAll(J.schema().typeSide.collage().eqsAsPairs());
 		
 		init = new InitialAlgebra<>(options, schema(), col, printGen, printSk);
-		I = new LiteralInstance<>(schema(), col.gens, col.sks, z, init.dp(), init,
+		I = new LiteralInstance<>(schema(), col.gens(), col.sks(), z, init.dp(), init,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		if (size() < 16 * 1024) {

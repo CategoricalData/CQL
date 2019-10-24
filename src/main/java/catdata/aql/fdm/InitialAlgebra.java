@@ -79,7 +79,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 	public InitialAlgebra(AqlOptions ops, Schema<Ty, En, Sym, Fk, Att> schema,
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, Function<Gen, Object> printGen,
 			BiFunction<Ty, Sk, Object> printSk) {
-		col.validate();
+		//col.validate();
 		this.schema = schema;
 		Util.assertNotNull(printGen, printSk);
 		this.printGen = printGen;
@@ -91,7 +91,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		boolean fast = (boolean) ops.getOrDefault(AqlOption.fast_consistency_check);
 
 		// System.out.println(col.eqs);
-		checkTermination(schema, zzz.gens.size(), col.eqs.size(), warn, limit);
+		checkTermination(schema, zzz.gens().size(), col.eqs().size(), warn, limit);
 		this.dp_en = (DP<Void, En, Void, Fk, Void, Gen, Void>) AqlProver.createInstance(ops, zzz, schema);
 		ens = new THashMap<>(16, .75f);
 		for (En en : schema.ens) {
@@ -189,12 +189,12 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 
 	private boolean saturate1() {
 		boolean changed = false;
-		for (Gen gen : col.gens.keySet()) {
-			En en = col.gens.get(gen);
+		for (Gen gen : col.gens().keySet()) {
+			En en = col.gens().get(gen);
 			Term<Void, En, Void, Fk, Void, Gen, Void> xx = Term.Gen(gen);
 			changed = changed | add(en, xx);
 		}
-		for (Fk fk : col.fks.keySet()) {
+		for (Fk fk : col.fks().keySet()) {
 			Pair<En, En> e = schema().fks.get(fk);
 			TIntIterator it = ens.get(e.first).iterator();
 			while (it.hasNext()) {
@@ -267,7 +267,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 
 	@Override
 	public Integer gen(Gen gen) {
-		Integer x = nf0(col.gens.get(gen), Term.Gen(gen));
+		Integer x = nf0(col.gens().get(gen), Term.Gen(gen));
 		return x;
 	}
 

@@ -13,6 +13,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -121,26 +122,26 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 		if (isC) {
 			throw new IgnoreException();
 		}
-		Collage<Ty, En, Sym, Fk, Att, Gen2, Sk2> col = new Collage<>(h1.dst().collage());
+		Collage<Ty, En, Sym, Fk, Att, Gen2, Sk2> col = new CCollage<>();
 		AqlOptions strat = new AqlOptions(options, env.defaults);
 		h1.dst().eqs((a,b) -> {
-			col.eqs.add(new Eq<>(null, a, b));
+			col.eqs().add(new Eq<>(null, a, b));
 		});
 
 		h1.src().gens().entrySet((k,t) -> {
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.gens().apply(k,t).convert();
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.gens().apply(k,t).convert();
-			col.eqs.add(new Eq<>(null, l, r));
+			col.eqs().add(new Eq<>(null, l, r));
 		});
 		h1.src().sks().entrySet((k,t) -> {
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> l = h1.sks().apply(k,t);
 			Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> r = h2.sks().apply(k,t);
-			col.eqs.add(new Eq<>(null, l, r));
+			col.eqs().add(new Eq<>(null, l, r));
 		});
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen2, Sk2> initial0 = new InitialAlgebra<>(strat, h1.src().schema(), col,
 				(y) -> y, (x, y) -> y);
 
-		return new LiteralInstance<>(h1.src().schema(), col.gens, col.sks, col.eqsAsPairs(), initial0.dp(), initial0,
+		return new LiteralInstance<>(h1.src().schema(), col.gens(), col.sks(), col.eqsAsPairs(), initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}

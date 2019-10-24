@@ -23,6 +23,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.It.ID;
@@ -239,7 +240,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
 			boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> sch = schema.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(sch.collage());
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>();
 
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 = (new THashSet<>());
 
@@ -255,10 +256,10 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 		for (Pair<String, String> p : gens) {
 			String gen = p.first;
 			String ty = p.second;
-			if (col.ens.contains(En.En(ty))) {
-				col.gens.put(Gen.Gen(gen), En.En(ty));
-			} else if (col.tys.contains(Ty.Ty(ty))) {
-				col.sks.put(Sk.Sk(gen), Ty.Ty(ty));
+			if (col.getEns().contains(En.En(ty))) {
+				col.gens().put(Gen.Gen(gen), En.En(ty));
+			} else if (col.tys().contains(Ty.Ty(ty))) {
+				col.sks().put(Sk.Sk(gen), Ty.Ty(ty));
 			} else {
 				throw new LocException(find("generators", p),
 						"The sort for " + gen + ", namely " + ty + ", is not declared as a type or entity");
@@ -271,7 +272,7 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 						.infer1x(Collections.emptyMap(), eq.first, eq.second, null, col, "", sch.typeSide.js).first3();
 
 				eqs0.add(new Pair<>(eq0.second, eq0.third));
-				col.eqs.add(new Eq<>(null, eq0.second, eq0.third));
+				col.eqs().add(new Eq<>(null, eq0.second, eq0.third));
 
 			} catch (RuntimeException ex) {
 				ex.printStackTrace();
@@ -295,12 +296,12 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 					col, sch, strat));
 		}
 
-		col.validate();
+		//col.validate();
 
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial = new InitialAlgebra<>(strat, sch, col, (y) -> y,
 				(x, y) -> y);
 
-		return new LiteralInstance<>(sch, col.gens, col.sks, eqs0, initial.dp(), initial,
+		return new LiteralInstance<>(sch, col.gens(), col.sks(), eqs0, initial.dp(), initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}
@@ -310,9 +311,9 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0, AqlOptions strat,
 			boolean dont_check_closure) {
 		@SuppressWarnings({ "unchecked" })
-		Map<En, Collection<Gen>> ens0 = (Map<En, Collection<Gen>>) (Object) Util.newSetsFor(col.ens);
+		Map<En, Collection<Gen>> ens0 = (Map<En, Collection<Gen>>) (Object) Util.newSetsFor(col.getEns());
 
-		if (!col.sks.isEmpty()) {
+		if (!col.sks().isEmpty()) {
 			throw new RuntimeException("Cannot have generating labelled nulls with import_as_theory");
 		}
 		Map<Ty, Collection<Null<?>>> tys0 = Util.mk();
@@ -321,10 +322,10 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 		}
 		Map<Gen, Map<Fk, Gen>> fks0 = new THashMap<>();
 		Map<Gen, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Null<?>>>> atts0 = new THashMap<>();
-		for (Gen gen : col.gens.keySet()) {
+		for (Gen gen : col.gens().keySet()) {
 			fks0.put(gen, new THashMap<>());
 			atts0.put(gen, new THashMap<>());
-			ens0.get(col.gens.get(gen)).add(gen);
+			ens0.get(col.gens().get(gen)).add(gen);
 		}
 
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> e : eqs0) {
@@ -350,8 +351,8 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 
 		// Map<Null<?>, Term<Ty, En, Sym, Fk, Att, Gen, Null<?>>> extraRepr = null;
 		// //Collections.synchronizedMap(new THashMap<>());
-		for (Gen gen : col.gens.keySet()) {
-			for (Att att : sch.attsFrom(col.gens.get(gen))) {
+		for (Gen gen : col.gens().keySet()) {
+			for (Att att : sch.attsFrom(col.gens().get(gen))) {
 				if (!atts0.get(gen).containsKey(att)) {
 					atts0.get(gen).put(att, InstExpImport.objectToSk(sch, null, gen, att, tys0, null, false, false));
 				}

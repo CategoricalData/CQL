@@ -23,6 +23,7 @@ import catdata.aql.AqlJs;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.RawTerm;
@@ -97,17 +98,17 @@ public final class TyExpRaw extends TyExp implements Raw {
 		this.java_fns = LocStr.functions2(java_fns_string);
 		this.options = Util.toMapSafely(options);
 
-		this.col = new Collage<>();
-		col.tys.addAll(this.types.stream().map(x -> Ty.Ty(x)).collect(Collectors.toList()));
-		col.syms.putAll(conv1(Util.toMapSafely(this.functions)));
-		col.java_tys.putAll(conv3(Util.toMapSafely(this.java_tys)));
-		col.tys.addAll(col.java_tys.keySet());
-		col.java_parsers.putAll(conv3(Util.toMapSafely(this.java_parser)));
+		this.col = new CCollage<>();
+		col.tys().addAll(this.types.stream().map(x -> Ty.Ty(x)).collect(Collectors.toList()));
+		col.syms().putAll(conv1(Util.toMapSafely(this.functions)));
+		col.java_tys().putAll(conv3(Util.toMapSafely(this.java_tys)));
+		col.tys().addAll(col.java_tys().keySet());
+		col.java_parsers().putAll(conv3(Util.toMapSafely(this.java_parser)));
 		for (Entry<String, Triple<List<String>, String, String>> kv : Util.toMapSafely(this.java_fns).entrySet()) {
 			List<Ty> l1 = kv.getValue().first.stream().map(x -> Ty.Ty(x)).collect(Collectors.toList());
 			Sym s = Sym.Sym(kv.getKey());
-			col.syms.put(s, new Pair<>(l1, Ty.Ty(kv.getValue().second)));
-			col.java_fns.put(s, kv.getValue().third);
+			col.syms().put(s, new Pair<>(l1, Ty.Ty(kv.getValue().second)));
+			col.java_fns().put(s, kv.getValue().third);
 		}
 
 		// do above because find() requires the index
@@ -354,7 +355,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 	@Override
 	public synchronized TypeSide<Ty, Sym> eval0(AqlEnv env, boolean isC) {
 		AqlOptions ops = new AqlOptions(options, env.defaults);
-		AqlJs<Ty, Sym> js = new AqlJs<>(col.syms, col.java_tys, col.java_parsers, col.java_fns);
+		AqlJs<Ty, Sym> js = new AqlJs<>(col.syms(), col.java_tys(), col.java_parsers(), col.java_fns());
 
 		for (TyExp k : imports) {
 			col.addAll(k.eval(env, isC).collage());
@@ -364,7 +365,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 			try {
 				Triple<Map<Var, Chc<Ty, Void>>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> tr = infer1x(
 						yyy(eq.first), eq.second, eq.third, null, col, "", js);
-				col.eqs.add(new Eq<>(tr.first, tr.second, tr.third));
+				col.eqs().add(new Eq<>(tr.first, tr.second, tr.third));
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				throw new LocException(find("equations", eq),
@@ -377,7 +378,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 				.eqsAsTriples().stream().map(x -> new Triple<>(xxx(x.first), x.second, x.third))
 				.collect(Collectors.toSet());
 
-		TypeSide<Ty, Sym> ret = new TypeSide<>(col.tys, col.syms, (eqs0), col.java_tys, col.java_parsers, col.java_fns,
+		TypeSide<Ty, Sym> ret = new TypeSide<>(col.tys(), col.syms(), (eqs0), col.java_tys(), col.java_parsers(), col.java_fns(),
 				ops);
 
 		return ret;

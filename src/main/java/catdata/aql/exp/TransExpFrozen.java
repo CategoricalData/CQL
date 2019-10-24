@@ -12,6 +12,7 @@ import catdata.Quad;
 import catdata.aql.AqlJs;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.It.ID;
 import catdata.aql.Kind;
 import catdata.aql.Query;
@@ -119,7 +120,7 @@ public class TransExpFrozen
 			expected = Chc.inLeft(Ty.Ty(dst));
 		}
 
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(q.dst.collage());
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>();
 		AqlJs<Ty, Sym> js = q.src.typeSide.js;
 
 		Quad<Map<catdata.aql.Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>> result = RawTerm

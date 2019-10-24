@@ -1,13 +1,18 @@
 package catdata.aql;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Iterators;
+
 import catdata.Chc;
 //import catdata.Ctx;
 import catdata.Pair;
@@ -49,7 +54,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 	public synchronized Map<Ty, Set<Term<Ty, Void, Sym, Void, Void, Void, Void>>> makeModel(
 			Map<Var, Chc<Ty, Void>> ctx) {
 		Map<Ty, Set<Term<Ty, Void, Sym, Void, Void, Void, Void>>> model = Util.mk();
-		for (Ty ty : collage().tys) {
+		for (Ty ty : collage().tys()) {
 			model.put(ty, (new THashSet<>()));
 			if (this.model != null) {
 				model.get(ty).addAll(this.model.get(ty));
@@ -132,23 +137,23 @@ public class TypeSide<Ty, Sym> implements Semantics {
 		}
 		return t.l;
 	}
-
+/*
 	private static <Ty, Sym> Collage<Ty, Void, Sym, Void, Void, Void, Void> col(Set<Ty> tys,
 			Map<Sym, Pair<List<Ty>, Ty>> syms,
 			Set<Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>>> eqs,
 			Map<Ty, String> java_tys, Map<Ty, String> java_parsers, Map<Sym, String> java_fns) {
 		Collage<Ty, Void, Sym, Void, Void, Void, Void> col = new Collage<>();
-		col.tys.addAll(tys);
-		col.syms.putAll(syms);
-		col.java_tys.putAll(java_tys);
-		col.java_parsers.putAll(java_parsers);
-		col.java_fns.putAll(java_fns);
+		col.tys().addAll(tys);
+		col.syms().putAll(syms);
+		col.java_tys().putAll(java_tys);
+		col.java_parsers().putAll(java_parsers);
+		col.java_fns().putAll(java_fns);
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : eqs) {
-			col.eqs.add(new Eq<>(Util.inLeft(eq.first), eq.second, eq.third));
+			col.eqs().add(new Eq<>(Util.inLeft(eq.first), eq.second, eq.third));
 		}
 		return col;
 	}
-
+*/
 	final AqlOptions strat;
 
 	public TypeSide(Set<Ty> tys, Map<Sym, Pair<List<Ty>, Ty>> syms,
@@ -346,25 +351,84 @@ public class TypeSide<Ty, Sym> implements Semantics {
 		if (semantics != null) {
 			return semantics;
 		}
-		semantics = AqlProver.createTypeSide(strat, collage(), js); // (tys, syms, eqs, java_tys_string,
-																	// java_parser_string, java_fns_string), js);
+		semantics = AqlProver.createTypeSide(strat, collage(), js); 
 
 		return semantics;
 	}
 
-	private Collage<Ty, Void, Sym, Void, Void, Void, Void> collage;
+	//private Collage<Ty, Void, Sym, Void, Void, Void, Void> collage;
 
-	@SuppressWarnings("unchecked")
 	public synchronized <En, Fk, Att, Gen, Sk> Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage() {
-		if (collage != null) {
-			if (!collage.atts.isEmpty() || !collage.fks.isEmpty() || !collage.gens.isEmpty()
-					|| !collage.sks.isEmpty()) {
-				throw new RuntimeException("Anomaly: please report");
+		return new Collage<>() {
+
+			@Override
+			public Set<Ty> tys() {
+				return tys;
 			}
-			return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) collage;
-		}
-		collage = col(tys, syms, eqs, js.java_tys, js.java_parsers, js.java_fns);
-		return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) collage;
+
+			@Override
+			public Map<Sym, Pair<List<Ty>, Ty>> syms() {
+				return syms;
+			}
+
+			@Override
+			public Map<Ty, String> java_tys() {
+				return js.java_tys;
+			}
+
+			@Override
+			public Map<Ty, String> java_parsers() {
+				return js.java_parsers;
+			}
+
+			@Override
+			public Map<Sym, String> java_fns() {
+				return js.java_fns;
+			}
+
+			@Override
+			public Set<En> getEns() {
+				return Collections.emptySet();
+			}
+
+			@Override
+			public Map<Att, Pair<En, Ty>> atts() {
+				return Collections.emptyMap();
+			}
+
+			@Override
+			public Map<Fk, Pair<En, En>> fks() {
+				return Collections.emptyMap();
+			}
+
+			@Override
+			public Map<Gen, En> gens() {
+				return Collections.emptyMap();
+			}
+
+			@Override
+			public Map<Sk, Ty> sks() {
+				return Collections.emptyMap();
+			}
+
+			@Override
+			public Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs() {
+				return new AbstractCollection<>() {
+
+					@Override
+					public Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> iterator() {
+						return Iterators.transform(eqs.iterator(), (t)->new Eq<>(Util.inLeft(t.first), t.second.convert(), t.third.convert()));
+					}
+
+					@Override
+					public int size() {
+						return eqs.size();
+					}
+					
+				};
+			}
+			
+		};
 	}
 
 	@Override

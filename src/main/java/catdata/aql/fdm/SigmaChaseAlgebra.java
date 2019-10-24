@@ -15,8 +15,8 @@ import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.AqlProver;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
@@ -113,13 +113,13 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 			size += chase.en(en2, size).size();
 		}
 		//if (X.algebra().talg().eqs.size() >= 0) {
-			Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new Collage<>(F.dst.collage());
+			Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new CCollage<>();
 			if (!X.schema().typeSide.tys.isEmpty()) {
 				X.sks().entrySet((k,v)->{
-					col.sks.put(k, v);
+					col.sks().put(k, v);
 				});
 				for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : X.algebra().talg().eqs) {
-					col.eqs.add(new Eq<>(null, F.trans(X.reprT(eq.first)), F.trans(X.reprT(eq.second))));
+					col.eqs().add(new Eq<>(null, F.trans(X.reprT(eq.first)), F.trans(X.reprT(eq.second))));
 				}
 			}
 			

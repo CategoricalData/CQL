@@ -1,7 +1,6 @@
 package catdata.aql.fdm;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -12,6 +11,7 @@ import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
@@ -19,7 +19,6 @@ import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.graph.DMG;
-import gnu.trove.set.hash.THashSet;
 
 //has to be gen rather than (N,gen) in order to use explicit prover
 public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
@@ -79,18 +78,17 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 		this.nodes = nodes;
 		this.edges = edges;
 
-		Collage<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> col = new Collage<>(schema.collage());
-	//	Set<Pair<Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>>> eqs = (new THashSet<>());
+		Collage<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> col = new CCollage<>();
 
 		for (N n : nodes.keySet()) {
 			nodes.get(n).gens().keySet(gen ->  {
-				col.gens.put(new Pair<>(n, gen), nodes.get(n).gens().get(gen));
+				col.gens().put(new Pair<>(n, gen), nodes.get(n).gens().get(gen));
 			});
 			nodes.get(n).sks().keySet(sk -> {
-				col.sks.put(new Pair<>(n, sk), nodes.get(n).sks().get(sk));
+				col.sks().put(new Pair<>(n, sk), nodes.get(n).sks().get(sk));
 			});
 			nodes.get(n).eqs((a,b)->{
-				col.eqs.add(new Eq<>(null, a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
+				col.eqs().add(new Eq<>(null, a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
 						b.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
 			});
 		}
@@ -99,12 +97,12 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 			
 			
 			h.src().gens().entrySet((gen,t) -> {
-				col.eqs.add(new Eq<>(null, Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
+				col.eqs().add(new Eq<>(null, Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
 						h.gens().apply(gen,t).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
 								x -> new Pair<>(shape.edges.get(e).second, x), Util.voidFn())));
 			});
 			h.src().sks().entrySet((sk,t) -> {
-				col.eqs.add(new Eq<>(null, Term.Sk(new Pair<>(shape.edges.get(e).first, sk)), h.sks().apply(sk,t).mapGenSk(
+				col.eqs().add(new Eq<>(null, Term.Sk(new Pair<>(shape.edges.get(e).first, sk)), h.sks().apply(sk,t).mapGenSk(
 						x -> new Pair<>(shape.edges.get(e).second, x), x -> new Pair<>(shape.edges.get(e).second, x))));
 			});
 		}
@@ -117,7 +115,7 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> initial = new InitialAlgebra<>(options,
 				schema(), col, printGen, printSk);
 
-		J = new LiteralInstance<>(schema(), col.gens, col.sks, col.eqsAsPairs(), initial.dp(), initial,
+		J = new LiteralInstance<>(schema(), col, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		

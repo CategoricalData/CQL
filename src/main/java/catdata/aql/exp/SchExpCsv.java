@@ -23,6 +23,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Kind;
 import catdata.aql.Schema;
 import catdata.aql.SqlTypeSide;
@@ -100,7 +101,7 @@ public class SchExpCsv extends SchExp {
 		} else if (!f.isDirectory()) {
 			throw new RuntimeException("Not a directory: " + str);
 		}
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new Collage<>(ts.collage());
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
 		File[] files = f.listFiles();
 		Ty vc = Ty.Ty("Varchar");
 		for (File xx : files) {
@@ -127,12 +128,12 @@ public class SchExpCsv extends SchExp {
 					}					
 				});
 				En e = En.En(en);
-				col.ens.add(e);
+				col.getEns().add(e);
 				for (String c0 : rows) {
 					String c = c0.replace("\t"," ").replaceAll("[\uFEFF-\uFFFF]", "").trim();
 					String d = (prepend ? en + colSep : "").trim() + c;
 					Att att = Att.Att(En.En(en), d.trim());
-					col.atts.put(att, new Pair<>(e, vc));
+					col.atts().put(att, new Pair<>(e, vc));
 				}
 				reader.close();
 				r.close();		

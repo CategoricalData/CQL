@@ -19,9 +19,8 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
-import catdata.aql.Eq;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Kind;
-import catdata.aql.Mapping;
 import catdata.aql.Mor;
 import catdata.aql.RawTerm;
 import catdata.aql.Term;
@@ -206,7 +205,7 @@ public class MorExpRaw extends MorExp implements Raw {
 	public Mor<Ty, Sym, Ty, Sym> eval0(AqlEnv env, boolean isC) {
 		TypeSide<Ty, Sym> src0 = src.eval(env, isC);
 		TypeSide<Ty, Sym> dst0 = dst.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> dcol = new Collage<>(dst0.collage());
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> dcol = new CCollage<>();
 
 		Map<Ty, Ty> ens0 = new THashMap<>(tys.size());
 		Map<Sym, Pair<List<Pair<Var, Ty>>, Term<Ty, Void, Sym, Void, Void, Void, Void>>> syms0 = new THashMap<>(

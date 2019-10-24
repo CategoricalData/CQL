@@ -15,6 +15,7 @@ import catdata.Pair;
 import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.exp.Att;
 import catdata.aql.exp.En;
 import catdata.aql.exp.Fk;
@@ -92,7 +93,7 @@ public class ED {
 
 	public LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> front(
 			Schema<Ty, En, Sym, Fk, Att> sch) {
-		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new Collage<>(sch.collage());
+		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new CCollage<>();
 
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, Var, Var>, Term<Ty, En, Sym, Fk, Att, Var, Var>>> eqs0 = (new THashSet<>());
 
@@ -100,21 +101,21 @@ public class ED {
 			Var gen = p.getKey();
 			Chc<Ty, En> ty = p.getValue();
 			if (ty.left) {
-				col.sks.put(gen, ty.l);
+				col.sks().put(gen, ty.l);
 			} else {
-				col.gens.put(gen, ty.r);
+				col.gens().put(gen, ty.r);
 			}
 		}
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq0 : Awh) {
 			eqs0.add(new Pair<>(freeze(eq0.first), freeze(eq0.second)));
-			col.eqs.add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
+			col.eqs().add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
 		}
 
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col, (y) -> y,
 				(x, y) -> y);
 
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
-				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
+				sch, col.gens(), col.sks(), eqs0, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
@@ -124,7 +125,7 @@ public class ED {
 
 	public LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> back(
 			Schema<Ty, En, Sym, Fk, Att> sch) {
-		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new Collage<>(sch.collage());
+		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new CCollage<>();
 
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, Var, Var>, Term<Ty, En, Sym, Fk, Att, Var, Var>>> eqs0 = (new THashSet<>());
 
@@ -132,34 +133,34 @@ public class ED {
 			Var gen = p.getKey();
 			Chc<Ty, En> ty = p.getValue();
 			if (ty.left) {
-				col.sks.put(gen, ty.l);
+				col.sks().put(gen, ty.l);
 			} else {
-				col.gens.put(gen, ty.r);
+				col.gens().put(gen, ty.r);
 			}
 		}
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq0 : Awh) {
 			eqs0.add(new Pair<>(freeze(eq0.first), freeze(eq0.second)));
-			col.eqs.add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
+			col.eqs().add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
 		}
 		for (Entry<Var, Chc<Ty, En>> p : Es.entrySet()) {
 			Var gen = p.getKey();
 			if (p.getValue().left) {
 				Ty ty = p.getValue().l;
-				col.sks.put(gen, ty);
+				col.sks().put(gen, ty);
 			} else {
 				En ty = p.getValue().r;
-				col.gens.put(gen, ty);
+				col.gens().put(gen, ty);
 			}
 		}
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq0 : Ewh) {
 			eqs0.add(new Pair<>(freeze(eq0.first), freeze(eq0.second)));
-			col.eqs.add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
+			col.eqs().add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
 		}
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col, (y) -> y,
 				(x, y) -> y);
 
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
-				sch, col.gens, col.sks, eqs0, initial.dp(), initial,
+				sch, col.gens(), col.sks(), eqs0, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
@@ -173,10 +174,10 @@ public class ED {
 	public final boolean isUnique;
 
 	public static <Ty, Sym> Schema<Ty, En, Sym, Fk, Att> getEDSchema(TypeSide<Ty, Sym> ty, AqlOptions ops) {
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new Collage<>(ty.collage());
-		col.ens.add(FRONT);
-		col.ens.add(BACK);
-		col.fks.put(UNIT, new Pair<>(BACK, FRONT));
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
+		col.getEns().add(FRONT);
+		col.getEns().add(BACK);
+		col.fks().put(UNIT, new Pair<>(BACK, FRONT));
 		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ty, col, ops);
 		return ret;
 	}

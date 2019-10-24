@@ -22,6 +22,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Constraints;
 import catdata.aql.ED;
 import catdata.aql.Kind;
@@ -376,16 +377,16 @@ public class EdsExpRaw extends EdsExp implements Raw {
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> Awh0 = new THashSet<>();
 			Map<String, Chc<Ty, En>> As1 = new THashMap<>();
 
-			Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new Collage<>(sch.collage());
+			Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
 
 			for (Pair<String, String> p : As) {
 				String gen = p.first;
 				String ty = p.second;
 				Ty tt = Ty.Ty(ty);
-				if (col.ens.contains(En.En(ty))) {
+				if (col.getEns().contains(En.En(ty))) {
 					As0.put(Var.Var(gen), Chc.inRight(En.En(ty)));
 					As1.put(gen, Chc.inRight(En.En(ty)));
-				} else if (col.tys.contains(tt)) {
+				} else if (col.tys().contains(tt)) {
 					As0.put(Var.Var(gen), Chc.inLeft(tt));
 					As1.put(gen, Chc.inLeft(tt));
 				} else {

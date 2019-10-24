@@ -22,6 +22,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
 import catdata.aql.RawTerm;
@@ -278,7 +279,7 @@ public final class MapExpRaw extends MapExp implements Raw {
 	public Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> src0 = src.eval(env, isC);
 		Schema<Ty, En, Sym, Fk, Att> dst0 = dst.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> dcol = new Collage<>(dst0.collage());
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> dcol = new CCollage<>();
 
 		Map<En, En> ens0 = new THashMap<>(ens.size());
 		// Map<String, Pair<String, List<String>>> fks0 = new HashMap<>();

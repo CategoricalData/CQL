@@ -23,6 +23,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.Query;
@@ -883,7 +884,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		for (String q : params.keySet()) {
 			Ty tt = Ty.Ty(params.get(q));
 			Map.put(q, Chc.inRight(tt));
-			col.sks.put(Var.Var(q), tt);
+			col.sks().put(Var.Var(q), tt);
 		}
 		Map<String, Chc<Ty, En>> ens1 = Util.map(Map, (y, x) -> new Pair<>(y, x.reverse()));
 		
@@ -967,7 +968,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			Map<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols, Block p, Map<String, String> params) {
 		Map<catdata.aql.Var, String> xx = Util.toMapSafely(p.gens);
 		Map<Var, Chc<En, Ty>> Map = new THashMap<>();
-		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new Collage<>(src0.collage());
+		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new CCollage<>();
 		Set<Var> set = new THashSet<>(p.gens.size());
 		for (Pair<catdata.aql.Var, String> z : p.gens) {
 			if (src0.typeSide.tys.contains(Ty.Ty(z.second))) {
@@ -979,10 +980,10 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			Ty tt = Ty.Ty(en.str);
 			if (src0.ens.contains(en)) {
 				Map.put(v, Chc.inLeft(en));
-				col.gens.put(v, en);
+				col.gens().put(v, en);
 			} else if (src0.typeSide.tys.contains(tt)) {
 				Map.put(v, Chc.inRight(tt));
-				col.sks.put(v, tt);
+				col.sks().put(v, tt);
 			} else {
 				throw new RuntimeException("From clause contains " + v + ":" + en + ", but " + en
 						+ " is not a source entity.  Available: " + Util.sep(src0.ens, ", ") + ". ");
@@ -993,7 +994,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			Var vv = Var.Var(q);
 			Ty tt = Ty.Ty(params.get(q));
 			Map.put(vv, Chc.inRight(tt));
-			col.sks.put(vv, tt);
+			col.sks().put(vv, tt);
 		}
 
 		cols.put(p.en, col);

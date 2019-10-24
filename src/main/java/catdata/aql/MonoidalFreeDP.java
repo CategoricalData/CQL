@@ -52,7 +52,7 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 	}
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
-		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs) {
+		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs()) {
 			if (!ok(eq.lhs) || !ok(eq.rhs) || eq.ctx.size() > 1) {
 				return false;
 			}

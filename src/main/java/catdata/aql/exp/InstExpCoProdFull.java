@@ -14,6 +14,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -131,7 +132,7 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y>
 			AqlEnv env, boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> sch0 = sch.eval(env, isC);
 
-		Collage<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> col = new Collage<>(sch0.collage());
+		Collage<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> col = new CCollage<>();
 		AqlOptions strat = new AqlOptions(options, env.defaults);
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> eqs0 = (new THashSet<>());
 
@@ -164,22 +165,22 @@ public final class InstExpCoProdFull<Gen, Sk, X, Y>
 		for (String x : Is) {
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I = m.get(x);
 			I.gens().keySet((g) -> {
-				col.gens.put(new Pair<>(x, g), I.gens().get(g));
+				col.gens().put(new Pair<>(x, g), I.gens().get(g));
 			});
 			I.sks().keySet((g) -> {
-				col.sks.put(new Pair<>(x, g), I.sks().get(g));
+				col.sks().put(new Pair<>(x, g), I.sks().get(g));
 			});
 			Function<Gen, Pair<String, Gen>> f1 = z -> new Pair<>(x, z);
 			Function<Sk, Pair<String, Sk>> f2 = z -> new Pair<>(x, z);
 			I.eqs((a,b)-> {
 				eqs0.add(new Pair<>(a.mapGenSk(f1, f2), b.mapGenSk(f1, f2)));
-				col.eqs.add(new Eq<>(null, a.mapGenSk(f1, f2), b.mapGenSk(f1, f2)));
+				col.eqs().add(new Eq<>(null, a.mapGenSk(f1, f2), b.mapGenSk(f1, f2)));
 			});
 		}
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>> initial0 = new InitialAlgebra<>(strat,
 				sch0, col, (y) -> y, (x, y) -> y);
 
-		return new LiteralInstance<>(sch0, col.gens, col.sks, eqs0, initial0.dp(), initial0,
+		return new LiteralInstance<>(sch0, col.gens(), col.sks(), eqs0, initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}

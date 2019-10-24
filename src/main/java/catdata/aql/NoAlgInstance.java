@@ -38,17 +38,17 @@ public class NoAlgInstance extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Void,
 
 	@Override
 	public IMap<Gen, En> gens() {
-		return Instance.mapToIMap(col.gens);
+		return Instance.mapToIMap(col.gens());
 	}
 
 	@Override
 	public IMap<Sk, Ty> sks() {
-		return Instance.mapToIMap(col.sks);
+		return Instance.mapToIMap(col.sks());
 	}
 
 	public synchronized void eqs(
 			BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
-		col.eqs.forEach(x->f.accept(x.lhs, x.rhs));
+		col.eqs().forEach(x->f.accept(x.lhs, x.rhs));
 	}
 	
 	

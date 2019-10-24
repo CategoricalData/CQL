@@ -18,6 +18,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.RawTerm;
@@ -182,7 +183,7 @@ public final class TransExpRaw extends TransExp<Gen, Sk, Gen, Sk, String, String
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, String, String> dst0 = dst.eval(env, isC);
 		// Collage<String, String, String, String, String, Void, Void> scol = new
 		// Collage<>(src0);
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> dcol = new Collage<>(dst0.collage());
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> dcol = new CCollage<>(); 
 
 		Map<Gen, Term<Void, En, Void, Fk, Void, Gen, Void>> gens0 = new THashMap<>();
 		Map<Sk, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> sks0 = new THashMap<>();

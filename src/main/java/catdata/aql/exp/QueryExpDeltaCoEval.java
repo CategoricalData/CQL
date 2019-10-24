@@ -20,6 +20,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -196,13 +197,13 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 		Map<En, Pair<Map<Chc<Void, Pair<Integer, Att>>, Integer>, Map<Integer, Chc<Void, Pair<Integer, Att>>>>> isos2 = new THashMap<>();
 		int skidx = 0;
 		for (En en2 : F0.dst.ens) {
-			Collage<Ty, En, Sym, Fk, Att, Var, Void> col = new Collage<>(F0.dst.collage());
-			col.gens.put(v, en2);
+			Collage<Ty, En, Sym, Fk, Att, Var, Void> col = new CCollage<>();
+			col.gens().put(v, en2);
 
 			InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Void> initial = new InitialAlgebra<>(ops, F0.dst, col, (y) -> y,
 					(x, y) -> y);
 			LiteralInstance<Ty, En, Sym, Fk, Att, Var, Void, Integer, Chc<Void, Pair<Integer, Att>>> y = new LiteralInstance<>(
-					F0.dst, col.gens, col.sks, col.eqsAsPairs(), initial.dp(), initial,
+					F0.dst, col.gens(), col.sks(), col.eqsAsPairs(), initial.dp(), initial,
 					(Boolean) ops.getOrDefault(AqlOption.require_consistency),
 					(Boolean) ops.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 			ys.put(en2, y);

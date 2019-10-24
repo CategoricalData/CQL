@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -16,20 +15,8 @@ import catdata.Pair;
 import catdata.Quad;
 import catdata.Triple;
 import catdata.Util;
-import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.Collage;
-import catdata.aql.DP;
-import catdata.aql.Eq;
-import catdata.aql.Head;
-import catdata.aql.Kind;
-import catdata.aql.Mapping;
-import catdata.aql.RawTerm;
-import catdata.aql.Schema;
-import catdata.aql.Semantics;
-import catdata.aql.Term;
-import catdata.aql.TypeSide;
-import catdata.aql.Var;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.exp.Att;
 import catdata.aql.exp.En;
 import catdata.aql.exp.Fk;
@@ -473,17 +460,17 @@ public class ColimitSchema<N> implements Semantics {
 
 			//System.out.println("f1 " + m1);
 		//	Util.anomaly();
-			colX = new Collage<>(ty.collage());
+			colX = new CCollage<>();
 
-			colX.ens.addAll(col.ens.stream().map(this::conv1).collect(Collectors.toSet()));
+			colX.getEns().addAll(col.getEns().stream().map(this::conv1).collect(Collectors.toSet()));
 			
-			colX.atts.putAll(Util.map(col.atts, (k, v) -> new Pair<>(Att.Att(conv1(col.atts.get(k).first), conv2Att(k)),
+			colX.atts().putAll(Util.map(col.atts(), (k, v) -> new Pair<>(Att.Att(conv1(col.atts().get(k).first), conv2Att(k)),
 					new Pair<>(conv1(v.first), v.second))));
 		
-			colX.fks.putAll(Util.map(col.fks, (k, v) -> new Pair<>(Fk.Fk(conv1(col.fks.get(k).first), conv2Fk(k)),
+			colX.fks().putAll(Util.map(col.fks(), (k, v) -> new Pair<>(Fk.Fk(conv1(col.fks().get(k).first), conv2Fk(k)),
 					new Pair<>(conv1(v.first), conv1(v.second)))));
 
-			colX.eqs.addAll(col.eqs.stream().map(t -> new Eq<>(Util.map(t.ctx, (k, v) -> new Pair<>(k, conv4(v))),
+			colX.eqs().addAll(col.eqs().stream().map(t -> new Eq<>(Util.map(t.ctx, (k, v) -> new Pair<>(k, conv4(v))),
 					conv3(col, t.lhs), conv3(col, t.rhs))).collect(Collectors.toSet()));
 
 		//	System.out.println("colX " + colX);
@@ -520,18 +507,18 @@ public class ColimitSchema<N> implements Semantics {
 		}
 
 		private String conv2Fk(Pair<N, Fk> p) {
-			return mFk.get(col.fks.get(p).first).get(p);	
+			return mFk.get(col.fks().get(p).first).get(p);	
 		}
 
 		private String conv2Att(Pair<N, Att> p) {
-			return mAtt.get(col.atts.get(p).first).get(p);	
+			return mAtt.get(col.atts().get(p).first).get(p);	
 		}
 		
 		private Term<Ty, En, Sym, Fk, Att, Void, Void> conv3(
 				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
 				Term<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> t) {
-			return t.map(Function.identity(), Function.identity(), x -> Fk.Fk(conv1(col.fks.get(x).first), conv2Fk(x)),
-					x -> Att.Att(conv1(col.atts.get(x).first), conv2Att(x)), Function.identity(), Function.identity());
+			return t.map(Function.identity(), Function.identity(), x -> Fk.Fk(conv1(col.fks().get(x).first), conv2Fk(x)),
+					x -> Att.Att(conv1(col.atts().get(x).first), conv2Att(x)), Function.identity(), Function.identity());
 		}
 
 		private Chc<Ty, En> conv4(Chc<Ty, Set<Pair<N, En>>> v) {
@@ -543,7 +530,7 @@ public class ColimitSchema<N> implements Semantics {
 		
 		private void doFksAndAtts(N s1, N s2) {	
 			//System.out.println(s1 + " and " + s2);
-			List<Pair<N, Fk>> x = new ArrayList<>(col.fks.keySet());
+			List<Pair<N, Fk>> x = new ArrayList<>(col.fks().keySet());
 			Collections.sort(x, (l,r) -> {
 				if (l.first.equals(s1) && l.first.equals(s1)) {
 					return Util.ToStringComparator.compare(l, r);
@@ -561,7 +548,7 @@ public class ColimitSchema<N> implements Semantics {
 			});
 			
 			for (Pair<N, Fk> fk : x) {
-				Pair<Set<Pair<N, En>>, Set<Pair<N, En>>> st = col.fks.get(fk); 
+				Pair<Set<Pair<N, En>>, Set<Pair<N, En>>> st = col.fks().get(fk); 
 				Set<Pair<N, En>> s = st.first;
 				
 				if (!mFk.get(s).containsValue(fk.second.str)) {
@@ -571,7 +558,7 @@ public class ColimitSchema<N> implements Semantics {
 				}
 			}
 			
-			List<Pair<N, Att>> y = new ArrayList<>(col.atts.keySet());
+			List<Pair<N, Att>> y = new ArrayList<>(col.atts().keySet());
 			Collections.sort(x, (l,r) -> {
 				if (l.first.equals(s1) && l.first.equals(s1)) {
 					return Util.ToStringComparator.compare(l, r);
@@ -588,7 +575,7 @@ public class ColimitSchema<N> implements Semantics {
 				return Util.anomaly();
 			});
 			for (Pair<N, Att> att : y) {
-				Pair<Set<Pair<N, En>>, Ty> st = col.atts.get(att); 
+				Pair<Set<Pair<N, En>>, Ty> st = col.atts().get(att); 
 				Set<Pair<N, En>> s = st.first;
 				if (!mAtt.get(s).containsValue(att.second.str)) {
 					mAtt.get(s).put(att, att.second.str);
@@ -761,15 +748,15 @@ public class ColimitSchema<N> implements Semantics {
 				m2.put(s, eqc);
 			}
 
-			colX = new Collage<>(ty.collage());
+			colX = new CCollage<>();
 
-			colX.ens.addAll(col.ens.stream().map(this::conv1).collect(Collectors.toSet()));
-			colX.atts.putAll(Util.map(col.atts, (k, v) -> new Pair<>(Att.Att(conv1(col.atts.get(k).first), conv2Att(k)),
+			colX.getEns().addAll(col.getEns().stream().map(this::conv1).collect(Collectors.toSet()));
+			colX.atts().putAll(Util.map(col.atts(), (k, v) -> new Pair<>(Att.Att(conv1(col.atts().get(k).first), conv2Att(k)),
 					new Pair<>(conv1(v.first), v.second))));
-			colX.fks.putAll(Util.map(col.fks, (k, v) -> new Pair<>(Fk.Fk(conv1(col.fks.get(k).first), conv2Fk(k)),
+			colX.fks().putAll(Util.map(col.fks(), (k, v) -> new Pair<>(Fk.Fk(conv1(col.fks().get(k).first), conv2Fk(k)),
 					new Pair<>(conv1(v.first), conv1(v.second)))));
 
-			colX.eqs.addAll(col.eqs.stream().map(t -> new Eq<>(Util.map(t.ctx, (k, v) -> new Pair<>(k, conv4(v))),
+			colX.eqs().addAll(col.eqs().stream().map(t -> new Eq<>(Util.map(t.ctx, (k, v) -> new Pair<>(k, conv4(v))),
 					conv3(col, t.lhs), conv3(col, t.rhs))).collect(Collectors.toSet()));
 
 			schemaStr0 = new Schema<>(ty, colX, options);
@@ -816,8 +803,8 @@ public class ColimitSchema<N> implements Semantics {
 		private Term<Ty, En, Sym, Fk, Att, Void, Void> conv3(
 				Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
 				Term<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> t) {
-			return t.map(Function.identity(), Function.identity(), x -> Fk.Fk(conv1(col.fks.get(x).first), conv2Fk(x)),
-					x -> Att.Att(conv1(col.atts.get(x).first), conv2Att(x)), Function.identity(), Function.identity());
+			return t.map(Function.identity(), Function.identity(), x -> Fk.Fk(conv1(col.fks().get(x).first), conv2Fk(x)),
+					x -> Att.Att(conv1(col.atts().get(x).first), conv2Att(x)), Function.identity(), Function.identity());
 		}
 
 		private Chc<Ty, En> conv4(Chc<Ty, Set<Pair<N, En>>> v) {
@@ -865,9 +852,9 @@ public class ColimitSchema<N> implements Semantics {
 			uf.union(new Pair<>(s.first, s.second), new Pair<>(s.third, s.fourth));
 		}
 
-		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new Collage<>(ty.collage());
+		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new CCollage<>();
 		Map<Pair<N, En>, Set<Pair<N, En>>> eqcs = uf.toMap();
-		col.ens.addAll(eqcs.values());
+		col.getEns().addAll(eqcs.values());
 
 		makeCoprodSchema(col, eqcs);
 
@@ -892,7 +879,7 @@ public class ColimitSchema<N> implements Semantics {
 	private static Schema<Ty, En, Sym, Fk, Att> quotient(Schema<Ty, En, Sym, Fk, Att> sch,
 			Set<Quad<String, String, RawTerm, RawTerm>> eqTerms, Set<Pair<List<String>, List<String>>> eqTerms2,
 			AqlOptions options) {
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new Collage<>(sch.collage());
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
 
 		for (Pair<List<String>, List<String>> t : eqTerms2) {
 			List<String> a = t.first;
@@ -928,7 +915,7 @@ public class ColimitSchema<N> implements Semantics {
 						+ " has type " + v.l + " which is not an entity");
 			}
 
-			col.eqs.add(new Eq<>(Collections.singletonMap(cc, v), eq0.second.convert(), eq0.third.convert()));
+			col.eqs().add(new Eq<>(Collections.singletonMap(cc, v), eq0.second.convert(), eq0.third.convert()));
 		}
 
 		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(sch.typeSide, col, options);
@@ -941,7 +928,7 @@ public class ColimitSchema<N> implements Semantics {
 		this.ty = ty;
 		this.nodes = nodes;
 
-		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new Collage<>(ty.collage());
+		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new CCollage<>();
 
 		Set<Pair<N, En>> ens = (new THashSet<>());
 		for (N n : shape.nodes) {
@@ -960,7 +947,7 @@ public class ColimitSchema<N> implements Semantics {
 		}
 
 		Map<Pair<N, En>, Set<Pair<N, En>>> eqcs = uf.toMap();
-		col.ens.addAll(eqcs.values());
+		col.getEns().addAll(eqcs.values());
 
 		makeCoprodSchema(col, eqcs);
 		Var v = Var.Var("v");
@@ -977,7 +964,7 @@ public class ColimitSchema<N> implements Semantics {
 						.Fk(new Pair<>(src, fk), Term.Var(v));
 				Term<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> rhs = Term.Fks(
 						fk2.second.stream().map(z -> new Pair<>(dst, z)).collect(Collectors.toList()), Term.Var(v));
-				col.eqs.add(new Eq<>(Util.inRight(Collections.singletonMap(v, eqcs.get(new Pair<>(dst, fk2.first)))),
+				col.eqs().add(new Eq<>(Util.inRight(Collections.singletonMap(v, eqcs.get(new Pair<>(dst, fk2.first)))),
 						lhs, rhs));
 			}
 			for (Att att : s.src.atts.keySet()) {
@@ -989,7 +976,7 @@ public class ColimitSchema<N> implements Semantics {
 				Term<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> rhs = fk2.third.map(
 						Function.identity(), Function.identity(), z -> new Pair<>(dst, z), z -> new Pair<>(dst, z),
 						Function.identity(), Function.identity());
-				col.eqs.add(new Eq<>(
+				col.eqs().add(new Eq<>(
 						Util.inRight(Collections.singletonMap(fk2.first, eqcs.get(new Pair<>(dst, fk2.second)))), lhs,
 						rhs));
 			}
@@ -1056,11 +1043,11 @@ public class ColimitSchema<N> implements Semantics {
 		for (N n : nodes.keySet()) {
 			Schema<Ty, En, Sym, Fk, Att> s = nodes.get(n);
 			for (Att att : s.atts.keySet()) {
-				col.atts.put(new Pair<>(n, att),
+				col.atts().put(new Pair<>(n, att),
 						new Pair<>(eqcs.get(new Pair<>(n, s.atts.get(att).first)), s.atts.get(att).second));
 			}
 			for (Fk fk : s.fks.keySet()) {
-				col.fks.put(new Pair<>(n, fk), new Pair<>(eqcs.get(new Pair<>(n, s.fks.get(fk).first)),
+				col.fks().put(new Pair<>(n, fk), new Pair<>(eqcs.get(new Pair<>(n, s.fks.get(fk).first)),
 						eqcs.get(new Pair<>(n, s.fks.get(fk).second))));
 			}
 			for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : s.eqs) {
@@ -1072,7 +1059,7 @@ public class ColimitSchema<N> implements Semantics {
 						Function.identity(), Function.identity());
 //				Pair<Var, Set<Pair<N, En>>> x = new Pair<>(eq.first.first, eqcs.get(new Pair<>(n, eq.first.second)));
 				// eqs.add(new Triple<>(x, lhs, rhs));
-				col.eqs.add(new Eq<>(
+				col.eqs().add(new Eq<>(
 						Util.inRight(
 								Collections.singletonMap(eq.first.first, eqcs.get(new Pair<>(n, eq.first.second)))),
 						lhs, rhs));

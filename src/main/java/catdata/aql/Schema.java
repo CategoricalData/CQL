@@ -1,8 +1,10 @@
 package catdata.aql;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Iterators;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -92,7 +96,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		if (typeSide.js.java_tys.isEmpty()) {
 			return;
 		}
-		for (Eq<Ty, En, Sym, Fk, Att, Object, Object> eq : collage().eqs) {
+		for (Eq<Ty, En, Sym, Fk, Att, Object, Object> eq : collage().eqs()) {
 			if (checkJava) {
 				Chc<Ty, En> lhs = collage().type(eq.ctx, eq.lhs);
 				if (Collage.defn(eq.ctx, eq.lhs, eq.rhs) || Collage.defn(eq.ctx, eq.rhs, eq.lhs)) {
@@ -140,7 +144,8 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	}
 
 	public Schema(TypeSide<Ty, Sym> typeSide, Collage<Ty, En, Sym, Fk, Att, Void, Void> col, AqlOptions options) {
-		this(typeSide, col.ens, col.atts, col.fks, conv(col.eqs), AqlProver.createSchema(options, col, typeSide),
+		this(typeSide, col.getEns(), col.atts(), col.fks(), conv(col.eqs()),
+				AqlProver.createSchema(options, col, typeSide),
 				!(boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}
 
@@ -187,30 +192,82 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return (DP<Ty, En, Sym, Fk, Att, Gen, Sk>) dp;
 	}
 
-	private Collage<Ty, En, Sym, Fk, Att, Void, Void> collage;
-
-	@SuppressWarnings("unchecked")
 	public final synchronized <Gen, Sk> Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage() {
-		if (collage != null) {
-			if (!collage.gens.isEmpty() || !collage.sks.isEmpty()) {
-				throw new RuntimeException("Anomaly: please report");
+		return new Collage<>() {
+
+			@Override
+			public Set<Ty> tys() {
+				return typeSide.tys;
 			}
-			return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) collage;
-		}
-		collage = new Collage<>(typeSide.collage());
-		collage.ens.addAll(ens);
-		collage.atts.putAll(atts);
-		collage.fks.putAll(fks);
-		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> x : eqs) {
-			collage.eqs.add(new Eq<>(Collections.singletonMap(x.first.first, Chc.inRight(x.first.second)),
-					upgrade(x.second), upgrade(x.third)));
-		}
-		return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) collage;
+
+			@Override
+			public Map<Sym, Pair<List<Ty>, Ty>> syms() {
+				return typeSide.syms;
+			}
+
+			@Override
+			public Map<Ty, String> java_tys() {
+				return typeSide.js.java_tys;
+			}
+
+			@Override
+			public Map<Ty, String> java_parsers() {
+				return typeSide.js.java_parsers;
+			}
+
+			@Override
+			public Map<Sym, String> java_fns() {
+				return typeSide.js.java_fns;
+			}
+
+			@Override
+			public Set<En> getEns() {
+				return ens;
+			}
+
+			@Override
+			public Map<Att, Pair<En, Ty>> atts() {
+				return atts;
+			}
+
+			@Override
+			public Map<Fk, Pair<En, En>> fks() {
+				return fks;
+			}
+
+			@Override
+			public Map<Gen, En> gens() {
+				return Collections.emptyMap();
+			}
+
+			@Override
+			public Map<Sk, Ty> sks() {
+				return Collections.emptyMap();
+			}
+
+			@Override
+			public Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs() {
+				return new AbstractCollection<>() {
+
+					@Override
+					public Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> iterator() {
+						return Iterators.transform(eqs.iterator(),
+								(t) -> new Eq<>(Collections.singletonMap(t.first.first, Chc.inRight(t.first.second)),
+										t.second.convert(), t.third.convert()));
+					}
+
+					@Override
+					public int size() {
+						return eqs.size();
+					}
+
+				};
+			}
+
+		};
 	}
 
-	private <Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> upgrade(Term<Ty, En, Sym, Fk, Att, Void, Void> term) {
-		return term.convert();
-	}
+	
 
 	@Override
 	public final int hashCode() {

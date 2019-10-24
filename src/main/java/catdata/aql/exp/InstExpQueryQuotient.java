@@ -23,6 +23,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -36,7 +37,6 @@ import catdata.aql.exp.QueryExpRaw.PreBlock;
 import catdata.aql.fdm.EvalInstance;
 import catdata.aql.fdm.InitialAlgebra;
 import catdata.aql.fdm.LiteralInstance;
-import catdata.aql.fdm.Row;
 import catdata.aql.fdm.SaturatedInstance;
 import catdata.aql.fdm.SigmaChaseAlgebra;
 import gnu.trove.map.hash.THashMap;
@@ -183,7 +183,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 	private Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> evalProver(AqlEnv env,
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0,
 			EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Void, Void, X, Y> J) {
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>(I0.collage());
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>(I0.collage());
 
 		List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 = new ArrayList<>(
 				J.gens().size());
@@ -201,7 +201,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 			Term<Void, En, Void, Fk, Void, Gen, Void> t1 = I0.algebra().repr(p.en2(), x1.l);
 			Term<Void, En, Void, Fk, Void, Gen, Void> t2 = I0.algebra().repr(p.en2(), x2.l);
 			eqs0.add(new Pair<>(t1.convert(), t2.convert()));
-			col.eqs.add(new Eq<>(null, t1.convert(), t2.convert()));
+			col.eqs().add(new Eq<>(null, t1.convert(), t2.convert()));
 		});
 
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk> initial0 
@@ -211,7 +211,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 			eqs0.add(new Pair<>(a, b));
 		});		
 		LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> ret = new LiteralInstance<>(
-				I0.schema(), col.gens, col.sks, eqs0, initial0.dp(), initial0,
+				I0.schema(), col.gens(), col.sks(), eqs0, initial0.dp(), initial0,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 

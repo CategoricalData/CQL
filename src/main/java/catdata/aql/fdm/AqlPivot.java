@@ -16,6 +16,7 @@ import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Instance;
@@ -51,12 +52,12 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 		Map<Fk, Pair<En0, List<Fk0>>> fks0 = new THashMap<>();
 
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs0 = new THashSet<>();
-		Collage<Ty, En, Sym, Fk, Att, X, Y> col = new Collage<>();
+		Collage<Ty, En, Sym, Fk, Att, X, Y> col = new CCollage<>();
 		
 		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> x : I.algebra().talg().eqs) {
-			col.eqs.add(new Eq<>(null, x.first.convert(), x.second.convert()));
+			col.eqs().add(new Eq<>(null, x.first.convert(), x.second.convert()));
 		}
-		col.sks.putAll(I.algebra().talg().sks);
+		col.sks().putAll(I.algebra().talg().sks);
 
 		Map<En, Collection<X>> ensX = new THashMap<>();
 		Map<Ty, Collection<Y>> tysX = new THashMap<>();
@@ -69,7 +70,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 				En x = En.En(x0.toString());
 				ens.add(x);
 				ens0.put(x, en);
-				col.gens.put(x0, x);
+				col.gens().put(x0, x);
 				ensX.put(x, Collections.singleton(x0));
 				for (Att0 att : I.schema().attsFrom(en)) {
 					Att xxx = Att.Att(x, att.toString());
@@ -77,7 +78,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 					atts0.put(xxx, new Triple<>(vx, en, Term.Att(att, Term.Var(vx))));
 					Term<Ty, En, Sym, Fk, Att, X, Y> l = Term.Att(xxx, Term.Gen(x0));
 					Term<Ty, En, Sym, Fk, Att, X, Y> r = I.algebra().att(att, x0).convert();
-					col.eqs.add(new Eq<>(null, l, r));
+					col.eqs().add(new Eq<>(null, l, r));
 					eqs0.add(new Pair<>(l, r));
 
 					Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Y>> ctx0 = attsX.get(x0);
@@ -93,7 +94,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 					fks0.put(xxx, new Pair<>(en, Collections.singletonList(fk)));
 					Term<Ty, En, Sym, Fk, Att, X, Y> l = Term.Fk(xxx, Term.Gen(x0));
 					Term<Ty, En, Sym, Fk, Att, X, Y> r = Term.Gen(I.algebra().fk(fk, x0));
-					col.eqs.add(new Eq<>(null, l, r));
+					col.eqs().add(new Eq<>(null, l, r));
 					eqs0.add(new Pair<>(l, r));
 
 					Map<Fk, X> ctx0 = fksX.get(x0);
@@ -113,7 +114,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 			Term<Ty, En, Sym, Fk, Att, X, Y> l = Term.Sk(y);
 			Term<Ty, En, Sym, Fk, Att, X, Y> r = foo(I.reprT(Term.Sk(y)));
 
-			col.eqs.add(new Eq<>(null, l, r));
+			col.eqs().add(new Eq<>(null, l, r));
 			eqs0.add(new Pair<>(l, r));
 			Ty ty = I.algebra().talg().sks.get(y);
 			Collection<Y> ctx0 = tysX.get(ty);
@@ -173,7 +174,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 
 		};
 
-		J = new LiteralInstance<>(intI, col.gens, col.sks, eqs0, dp2, initial,
+		J = new LiteralInstance<>(intI, col.gens(), col.sks(), eqs0, dp2, initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 

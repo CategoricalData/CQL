@@ -24,6 +24,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.RawTerm;
@@ -76,11 +77,10 @@ public final class SchExpRaw extends SchExp implements Raw {
 		return options;
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public synchronized Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		TypeSide<Ty, Sym> ts = typeSide.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new Collage<>(ts.collage());
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
 
 		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs0 = (new THashSet<>());
 
@@ -90,9 +90,9 @@ public final class SchExpRaw extends SchExp implements Raw {
 			eqs0.addAll(v.eqs);
 		}
 
-		col.ens.addAll(ens.stream().map(x -> En.En(x)).collect(Collectors.toList()));
-		col.fks.putAll(conv1(fks));
-		col.atts.putAll(conv2(atts));
+		col.getEns().addAll(ens.stream().map(x -> En.En(x)).collect(Collectors.toList()));
+		col.fks().putAll(conv1(fks));
+		col.atts().putAll(conv2(atts));
 
 		for (Quad<String, String, RawTerm, RawTerm> eq : t_eqs) {
 			try {
@@ -128,12 +128,12 @@ public final class SchExpRaw extends SchExp implements Raw {
 		}
 		
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : eqs0) {
-			col.eqs.add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)), eq.second,
+			col.eqs().add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)), eq.second,
 					eq.third));
 		}
 
 		// forces type checking before prover construction
-		col.validate();
+		//col.validate();
 		
 		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, env.defaults));
 		return ret;
@@ -146,15 +146,15 @@ public final class SchExpRaw extends SchExp implements Raw {
 		Term<Void, En, Void, Fk, Void, Void, Void> ret = Term.Var(var);
 		En en = En.En(x);
 		while (it.hasNext()) {
-			if (!col.ens.contains(en)) {
+			if (!col.getEns().contains(en)) {
 				throw new RuntimeException("Not an entity: " + en + ".  Paths in path equations must start with entities.");
 			}
 			Fk fk = Fk.Fk(en, it.next());
-			if (!col.fks.containsKey(fk)) {
+			if (!col.fks().containsKey(fk)) {
 				throw new RuntimeException("Not a foreign key with source " + en + ": " + fk + ".");				
 			}
 			ret = Term.Fk(fk, ret);
-			en = col.fks.get(fk).second;
+			en = col.fks().get(fk).second;
 		}
 		return ret;
 	}

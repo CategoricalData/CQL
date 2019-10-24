@@ -126,7 +126,7 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 	@SuppressWarnings("unchecked")
 	private synchronized boolean saturate1() throws InterruptedException {
 		boolean changed = false;
-		for (Gen gen : col.gens.keySet()) {
+		for (Gen gen : col.gens().keySet()) {
 			@SuppressWarnings("rawtypes")
 			Term xx = Term.Gen(gen);
 			if (col.type(Collections.emptyMap(), xx).left) {
@@ -134,8 +134,8 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 			}
 			changed = changed | add(xx);
 		}
-		for (Fk fk : col.fks.keySet()) {
-			En en = col.fks.get(fk).first;
+		for (Fk fk : col.fks().keySet()) {
+			En en = col.fks().get(fk).first;
 			List<X> set = (new ArrayList<>(ens.get(schema().fks.get(fk).first)));
 			for (X x : set) { // concurrent modification otherwise
 				changed = changed | add(Term.Fk(fk, repr(en, x)));
@@ -210,7 +210,7 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 		if (talg != null) {
 			return talg.talg.out;
 		}
-		talg = new TalgSimplifier<>(this, eqsIt().iterator(), col.sks, (Integer) ops.getOrDefault(AqlOption.talg_reduction));
+		talg = new TalgSimplifier<>(this, eqsIt().iterator(), col.sks(), (Integer) ops.getOrDefault(AqlOption.talg_reduction));
 		return talg.talg.out;
 	}
 
@@ -219,7 +219,7 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 		return new Iterable<>() {
 			@Override
 			public Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> iterator() {
-				return Iterators.transform(col.eqs.iterator(), x->new Pair<>(x.lhs,x.rhs));
+				return Iterators.transform(col.eqs().iterator(), x->new Pair<>(x.lhs,x.rhs));
 			}
 		};
 	}

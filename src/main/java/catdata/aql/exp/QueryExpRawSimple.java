@@ -20,6 +20,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.Query;
@@ -144,12 +145,12 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 
 		QueryExpRaw.processBlock(block.get().options, env, src0, ens0, cols, block.get(), Collections.emptyMap());
 
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> colForDst = new Collage<>(src0.typeSide.collage());
-		colForDst.ens.add(EEn);
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> colForDst = new CCollage<>();
+		colForDst.getEns().add(EEn);
 		for (Pair<Att, Chc<RawTerm, PreAgg>> p : block.get().atts) {
 			
 			if (p.second.left) {
-				Map<String, Chc<Ty, En>> s = Util.inRight(QueryExpRaw.unVar(cols.get(EEn).gens));
+				Map<String, Chc<Ty, En>> s = Util.inRight(QueryExpRaw.unVar(cols.get(EEn).gens()));
 				Term<Ty, catdata.aql.exp.En, Sym, Fk, Att, Gen, Sk> term = RawTerm.infer1x(s, p.second.l, p.second.l, null,
 						srcCol.convert(), "", src0.typeSide.js).second;
 				Chc<Ty, En> ty = srcCol.type(Util.map(s, (k, v) -> new Pair<>(Var.Var(k), v)), term.convert());
@@ -157,7 +158,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 					throw new LocException(find("attributes", p),
 							"In return clause for " + p.first + ", the type is " + ty.r + ", which is an entity.");
 				}
-				colForDst.atts.put(p.first, new Pair<>(EEn, ty.l));
+				colForDst.atts().put(p.first, new Pair<>(EEn, ty.l));
 			} else {
 				Util.anomaly();
 			}
@@ -167,7 +168,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 				if (src0.ens.contains(En.En(x.second))) {
 					for (Att att : src0.attsFrom(En.En(x.second))) {
 						Ty ty = src0.atts.get(att).second;
-						colForDst.atts.put(Att.Att(EEn, x.first + "_" + att), new Pair<>(EEn, ty));
+						colForDst.atts().put(Att.Att(EEn, x.first + "_" + att), new Pair<>(EEn, ty));
 						atts0.put(Att.Att(EEn, x.first + "_" + att), Chc.inLeft(Term.Att(att, Term.Gen(x.first))));
 					}
 				}

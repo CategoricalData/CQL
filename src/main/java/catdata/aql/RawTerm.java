@@ -105,8 +105,8 @@ public final class RawTerm {
 	private static Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> infer_good(
 			RawTerm e, Chc<Ty, En> expected, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String pre, AqlJs<Ty, Sym> js,
 			Map<Var, Chc<Ty, En>> vars) {
-		if (e.annotation != null && !col.tys.contains(Ty.Ty(e.annotation))) {
-			throw new RuntimeException(pre + "Annotation " + e.annotation + " is not a type (" + col.tys + ").");
+		if (e.annotation != null && !col.tys().contains(Ty.Ty(e.annotation))) {
+			throw new RuntimeException(pre + "Annotation " + e.annotation + " is not a type (" + col.tys() + ").");
 		}
 
 		Var vv = Var.Var(e.head);
@@ -120,14 +120,14 @@ public final class RawTerm {
 					ret.add(new Triple<>(ret1, ret2, expected));
 				}
 			} else {
-				for (En en : col.ens) {
+				for (En en : col.getEns()) {
 					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
 					ret2.put(vv, Chc.inRight(en));
 					if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 						ret.add(new Triple<>(ret1, ret2, Chc.inRight(en)));
 					}
 				}
-				for (Ty ty : col.tys) {
+				for (Ty ty : col.tys()) {
 					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
 					if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 						ret2.put(vv, Chc.inLeft(ty));
@@ -137,7 +137,7 @@ public final class RawTerm {
 			}
 		}
 		Sym ss = Sym.Sym(e.head);
-		if (col.syms.containsKey(ss) && e.annotation == null) {
+		if (col.syms().containsKey(ss) && e.annotation == null) {
 
 			List<List<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>>> l = new LinkedList<>();
 			l.add(new LinkedList<>());
@@ -146,10 +146,10 @@ public final class RawTerm {
 				//if (col.syms.get(ss).first.size() > e.args.size()) {
 				//	throw new RuntimeException("Arity mismatch on " + e + " and " + ss);
 				//}
-				if (i >= col.syms.get(ss).first.size()) {
+				if (i >= col.syms().get(ss).first.size()) {
 					throw new RuntimeException("Wrong number of arguments to top-level application in " + e);
 				}
-				Ty ty = col.syms.get(ss).first.get(i);
+				Ty ty = col.syms().get(ss).first.get(i);
 				Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> z = infer_good(arg,
 						Chc.inLeft(ty), col, pre, js, vars);
 
@@ -180,7 +180,7 @@ public final class RawTerm {
 				}
 				for (int i = 0; i < e.args.size(); i++) {
 					RawTerm arg = e.args.get(i);
-					Chc<Ty, En> ty = Chc.inLeft(col.syms.get(ss).first.get(i));
+					Chc<Ty, En> ty = Chc.inLeft(col.syms().get(ss).first.get(i));
 					Var v = Var.Var(arg.head);
 					if (vars.keySet().contains(v)) {
 						if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
@@ -191,7 +191,7 @@ public final class RawTerm {
 					}
 				}
 
-				Chc<Ty, En> ret3 = Chc.inLeft(col.syms.get(ss).second);
+				Chc<Ty, En> ret3 = Chc.inLeft(col.syms().get(ss).second);
 				if (expected != null && !expected.equals(ret3)) {
 
 				} else {
@@ -202,14 +202,14 @@ public final class RawTerm {
 			}
 		}
 
-		for (En en : col.ens) {
-			if (col.fks.containsKey(Fk.Fk(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
+		for (En en : col.getEns()) {
+			if (col.fks().containsKey(Fk.Fk(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
 				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : infer_good(
-						e.args.get(0), Chc.inRight(col.fks.get(Fk.Fk(en, e.head)).first), col, pre, js, vars)) {
+						e.args.get(0), Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first), col, pre, js, vars)) {
 					Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Fk(Fk.Fk(en, e.head), outcome.first);
 					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>(outcome.second);
 					Var v = Var.Var(e.args.get(0).head);
-					Chc<Ty, En> ty = Chc.inRight(col.fks.get(Fk.Fk(en, e.head)).first);
+					Chc<Ty, En> ty = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first);
 					if (vars.keySet().contains(v)) {
 						if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
 							continue;
@@ -217,8 +217,8 @@ public final class RawTerm {
 							ret2.put(v, ty);
 						}
 					}
-					Chc<Ty, En> ret3 = Chc.inRight(col.fks.get(Fk.Fk(en, e.head)).second);
-					Chc<Ty, En> argt = Chc.inRight(col.fks.get(Fk.Fk(en, e.head)).first);
+					Chc<Ty, En> ret3 = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).second);
+					Chc<Ty, En> argt = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first);
 
 					if (expected != null && !expected.equals(ret3)) {
 					} else {
@@ -235,14 +235,14 @@ public final class RawTerm {
 				}
 			}
 
-			if (col.atts.containsKey(Att.Att(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
+			if (col.atts().containsKey(Att.Att(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
 				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : infer_good(
-						e.args.get(0), Chc.inRight(col.atts.get(Att.Att(en, e.head)).first), col, pre, js, vars)) {
+						e.args.get(0), Chc.inRight(col.atts().get(Att.Att(en, e.head)).first), col, pre, js, vars)) {
 
 					Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Att(Att.Att(en, e.head), outcome.first);
 					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>(outcome.second);
 					Var v = Var.Var(e.args.get(0).head);
-					Chc<Ty, En> ty = Chc.inRight(col.atts.get(Att.Att(en, e.head)).first);
+					Chc<Ty, En> ty = Chc.inRight(col.atts().get(Att.Att(en, e.head)).first);
 					if (vars.keySet().contains(v)) {
 						if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
 							continue;
@@ -251,8 +251,8 @@ public final class RawTerm {
 						}
 					}
 
-					Chc<Ty, En> ret3 = Chc.inLeft(col.atts.get(Att.Att(en, e.head)).second);
-					Chc<Ty, En> argt = Chc.inRight(col.atts.get(Att.Att(en, e.head)).first);
+					Chc<Ty, En> ret3 = Chc.inLeft(col.atts().get(Att.Att(en, e.head)).second);
+					Chc<Ty, En> argt = Chc.inRight(col.atts().get(Att.Att(en, e.head)).first);
 
 					if (expected != null && !expected.equals(ret3)) {
 					} else {
@@ -266,17 +266,17 @@ public final class RawTerm {
 			}
 		}
 
-		if (col.gens.containsKey(Gen.Gen(e.head)) && e.args.isEmpty() && e.annotation == null) {
+		if (col.gens().containsKey(Gen.Gen(e.head)) && e.args.isEmpty() && e.annotation == null) {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Gen(Gen.Gen(e.head));
-			Chc<Ty, En> ret3 = Chc.inRight(col.gens.get(Gen.Gen(e.head)));
+			Chc<Ty, En> ret3 = Chc.inRight(col.gens().get(Gen.Gen(e.head)));
 			if (expected != null && !expected.equals(ret3)) {
 			} else {
 				ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
 			}
 		}
-		if (col.sks.containsKey(Sk.Sk(e.head)) && e.args.isEmpty() && e.annotation == null) {
+		if (col.sks().containsKey(Sk.Sk(e.head)) && e.args.isEmpty() && e.annotation == null) {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Sk(Sk.Sk(e.head));
-			Chc<Ty, En> ret3 = Chc.inLeft(col.sks.get(Sk.Sk(e.head)));
+			Chc<Ty, En> ret3 = Chc.inLeft(col.sks().get(Sk.Sk(e.head)));
 			if (expected != null && !expected.equals(ret3)) {
 			} else {
 				ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
@@ -294,7 +294,7 @@ public final class RawTerm {
 		// as primitive - only if not a variable/generator/etc in scope i.e. none above
 		// fired
 		if (e.args.isEmpty() && e.annotation == null && ret.isEmpty()) {
-			for (Ty ty : col.tys) {
+			for (Ty ty : col.tys()) {
 				if (expected != null && !expected.equals(Chc.inLeft(ty))) {
 					continue;
 				}
@@ -319,10 +319,10 @@ public final class RawTerm {
 	}
 
 	private static boolean isSymbolAll(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String s) {
-		return col.syms.containsKey(Sym.Sym(s))
-				|| col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
-				|| col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
-				|| col.gens.containsKey(Gen.Gen(s)) || col.sks.containsKey(Sk.Sk(s));
+		return col.syms().containsKey(Sym.Sym(s))
+				|| col.fks().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
+				|| col.atts().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
+				|| col.gens().containsKey(Gen.Gen(s)) || col.sks().containsKey(Sk.Sk(s));
 	}
 	
 	private static String truncateHard(String s) {
@@ -473,10 +473,10 @@ public final class RawTerm {
 		if (col == null) {
 			throw new RuntimeException("No collage within which to interpret a precedence.");
 		}
-		int n = boolToInt(col.syms.containsKey(Sym.Sym(head)))
-				+ boolToInt(col.atts.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
-				+ boolToInt(col.fks.keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
-				+ boolToInt(col.gens.containsKey(Gen.Gen(head))) + boolToInt(col.sks.containsKey(Sk.Sk(head)));
+		int n = boolToInt(col.syms().containsKey(Sym.Sym(head)))
+				+ boolToInt(col.atts().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
+				+ boolToInt(col.fks().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
+				+ boolToInt(col.gens().containsKey(Gen.Gen(head))) + boolToInt(col.sks().containsKey(Sk.Sk(head)));
 		if (n == 0) {
 			throw new RuntimeException(head + " is not a symbol (in the simplified theory) " + col);
 		} else if (n > 1) {
@@ -490,18 +490,18 @@ public final class RawTerm {
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 		assertUnambig(head, col);
 
-		if (col.syms.containsKey(Sym.Sym(head))) {
+		if (col.syms().containsKey(Sym.Sym(head))) {
 			return Head.SymHead(Sym.Sym(head));
-		} else if (col.gens.containsKey(Gen.Gen(head))) {
+		} else if (col.gens().containsKey(Gen.Gen(head))) {
 			return Head.GenHead(Gen.Gen(head));
-		} else if (col.sks.containsKey(Sk.Sk(head))) {
+		} else if (col.sks().containsKey(Sk.Sk(head))) {
 			return Head.SkHead(Sk.Sk(head));
 		}
-		for (En en : col.ens) { // TODO aql won't work with ambig
-			if (col.fks.containsKey(Fk.Fk(en, head))) {
+		for (En en : col.getEns()) { // TODO aql won't work with ambig
+			if (col.fks().containsKey(Fk.Fk(en, head))) {
 				return Head.FkHead(Fk.Fk(en, head));
 			}
-			if (col.atts.containsKey(Att.Att(en, head))) {
+			if (col.atts().containsKey(Att.Att(en, head))) {
 				return Head.AttHead(Att.Att(en, head));
 			}
 		}
@@ -633,12 +633,12 @@ public final class RawTerm {
 			}
 			if (p.second != null) {
 				Ty tt = Ty.Ty(p.second);
-				if (col.tys.contains(tt) && col.ens.contains(En.En(p.second))) {
+				if (col.tys().contains(tt) && col.getEns().contains(En.En(p.second))) {
 					throw new RuntimeException("Ambiguous: " + p.second + " is an entity and a type");
-				} else if (col.tys.contains(tt)) {
+				} else if (col.tys().contains(tt)) {
 					// Ty tt = new Ty(p.second);
 					Map.put(p.first, Chc.inLeft(tt));
-				} else if (col.ens.contains(En.En(p.second))) {
+				} else if (col.getEns().contains(En.En(p.second))) {
 					En tt0 = En.En(p.second);
 					Map.put(p.first, Chc.inRight(tt0));
 				} else {

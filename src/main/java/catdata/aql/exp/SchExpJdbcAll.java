@@ -17,6 +17,7 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.Schema;
@@ -109,12 +110,12 @@ public class SchExpJdbcAll extends SchExp {
 	}
 
 	@Override
-	public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
+	public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v)  {
 		return v.visit(param, this);
 	}
 
 	@Override
-	public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+	public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r)  {
 		return v.visitSchExpJdbcAll(params, r);
 	}
 
@@ -139,7 +140,7 @@ public class SchExpJdbcAll extends SchExp {
 		}
 		TypeSide<Ty, Sym> typeSide = SqlTypeSide.SqlTypeSide(ops);
 
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col0 = new Collage<>(typeSide.collage());
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col0 = new CCollage<>();
 		Var v = Var.Var("x");
 
 		try (Connection conn = DriverManager.getConnection(toGet)) {
@@ -147,14 +148,14 @@ public class SchExpJdbcAll extends SchExp {
 
 			for (SqlTable table : info.tables) {
 				En x = En.En(table.name);
-				col0.ens.add(x);
+				col0.getEns().add(x);
 				for (SqlColumn c : table.columns) {
-					col0.atts.put(Att.Att(x, c.name), new Pair<>(x, Ty.Ty(sqlTypeToAqlType(c.type.name))));
+					col0.atts().put(Att.Att(x, c.name), new Pair<>(x, Ty.Ty(sqlTypeToAqlType(c.type.name))));
 				}
 			}
 			for (SqlForeignKey fk : info.fks) {
 				En x = En.En(fk.source.name);
-				col0.fks.put(Fk.Fk(x, fk.toString()), new Pair<>(x, En.En(fk.target.name)));
+				col0.fks().put(Fk.Fk(x, fk.toString()), new Pair<>(x, En.En(fk.target.name)));
 				for (SqlColumn tcol : fk.map.keySet()) {
 					SqlColumn scol = fk.map.get(tcol);
 					Att l = Att.Att(En.En(scol.table.name), scol.name);
@@ -162,7 +163,7 @@ public class SchExpJdbcAll extends SchExp {
 					Term<Ty, En, Sym, Fk, Att, Void, Void> lhs = Term.Att(l, Term.Var(v));
 					Term<Ty, En, Sym, Fk, Att, Void, Void> rhs = Term.Att(r,
 							Term.Fk(Fk.Fk(x, fk.toString()), Term.Var(v)));
-					col0.eqs.add(new Eq<>(Collections.singletonMap(v, Chc.inRight(x)), lhs, rhs));
+					col0.eqs().add(new Eq<>(Collections.singletonMap(v, Chc.inRight(x)), lhs, rhs));
 				}
 			}
 

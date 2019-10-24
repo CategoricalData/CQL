@@ -489,7 +489,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		return new Iterable<>() {
 			@Override
 			public Iterator<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> iterator() {
-				return Iterators.transform(col.eqs.iterator(), x->new Pair<>(x.lhs,x.rhs));
+				return Iterators.transform(col.eqs().iterator(), x->new Pair<>(x.lhs,x.rhs));
 			}
 		};
 	}
@@ -497,7 +497,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	@Override
 	public synchronized TAlg<Ty, Sym, Chc<Sk, Pair<Integer, Att2>>> talg0() {
 		if (talg == null) {
-			talg = new TalgSimplifier<>(this, eqsIt().iterator(), col.sks, reduce);
+			talg = new TalgSimplifier<>(this, eqsIt().iterator(), col.sks(), reduce);
 		}
 		return talg.talg.out;
 	}

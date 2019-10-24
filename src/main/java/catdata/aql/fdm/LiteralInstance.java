@@ -3,9 +3,14 @@ package catdata.aql.fdm;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import org.apache.commons.collections4.iterators.IteratorIterable;
+
+import com.google.common.collect.Iterators;
+
 import catdata.Pair;
-import catdata.Util;
+import catdata.Unit;
 import catdata.aql.Algebra;
+import catdata.aql.Collage;
 import catdata.aql.DP;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
@@ -28,26 +33,40 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 	boolean requireConsistency, allowUnsafeJava;
 
-	//private int neqs;
-
 	public LiteralInstance(Schema<Ty, En, Sym, Fk, Att> schema, Map<Gen, En> gens, Map<Sk, Ty> sks,
 			Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs,
 			DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg,
 			boolean requireConsistency, boolean allowUnsafeJava) {
-		Util.assertNotNull(schema, gens, sks, eqs, dp);
 		this.schema = schema;
 		this.gens = mapToIMap(gens);
 		this.sks = mapToIMap(sks);
 		this.eqs = eqs;
 		this.dp = dp;
 		this.alg = alg;
-	//	this.neqs = neqs;
 		this.requireConsistency = requireConsistency;
 		this.allowUnsafeJava = allowUnsafeJava;
 		if (size() < 16 * 1024) {
 			validate();
 		}
-		
+
+	}
+
+	public LiteralInstance(Schema<Ty, En, Sym, Fk, Att> schema, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
+			DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg,
+			boolean requireConsistency, boolean allowUnsafeJava) {
+		this.schema = schema;
+		this.gens = mapToIMap(col.gens());
+		this.sks = mapToIMap(col.sks());
+		this.eqs = new IteratorIterable<>(Iterators.transform(col.eqs().iterator(), x -> new Pair<>(x.lhs, x.rhs)),
+				true);
+		this.dp = dp;
+		this.alg = alg;
+		this.requireConsistency = requireConsistency;
+		this.allowUnsafeJava = allowUnsafeJava;
+		if (size() < 16 * 1024) {
+			validate();
+		}
+
 	}
 
 	@Override
@@ -65,7 +84,8 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		return sks;
 	}
 
-	public synchronized void eqs(BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
+	public synchronized void eqs(
+			BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x : eqs) {
 			f.accept(x.first, x.second);
 		}
@@ -90,7 +110,5 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	public boolean allowUnsafeJava() {
 		return allowUnsafeJava;
 	}
-
-	
 
 }
