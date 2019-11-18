@@ -6,8 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.collections4.iterators.IteratorIterable;
 import org.apache.commons.collections4.list.TreeList;
+
+import com.google.common.collect.Iterators;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -31,49 +36,193 @@ import gnu.trove.set.hash.THashSet;
 
 public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements DP<Ty,En,Sym,Fk,Att,Gen,Sk> */ {
 
-	
-	public static class TAlg<Ty,Sym,Y> {
-		
-		public TAlg(
-				Map<Y, Ty> sks,
+	public static class TAlg<Ty, Sym, Y> {
+
+		private String toString;
+
+		@Override
+		public synchronized String toString() {
+			if (toString != null) {
+				return toString;
+			}
+			StringBuffer sb = new StringBuffer("Labelled nulls:\n");
+			sb.append(Util.sep(sks, " : ", "\n"));
+			sb.append("\nEquations\n");
+			sb.append(Util.sep(eqs, " = "));
+
+			toString = sb.toString();
+			return toString;
+		}
+
+		public TAlg(Map<Y, Ty> sks,
 				Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs) {
 			this.sks = sks;
 			this.eqs = eqs;
 		}
 
-		/*public TAlg() {
-			this.sks = Util.anomaly();
-			this.eqs = Util.anomaly();
-		}*/
-
 		public final Map<Y, Ty> sks;
-		
-		public final Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>,
-		  Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs;
 
-		public Object type(Term<Ty, Void, Sym, Void, Void, Void, Y> first) {
-			// TODO Auto-generated method stub
-			return null;
+		public final Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs;
+
+		public Ty type(TypeSide<Ty, Sym> ts, Term<Ty, Void, Sym, Void, Void, Void, Y> e) {
+			return toCollage(ts, false).type(Collections.emptyMap(), e).l;
 		}
-		
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((eqs == null) ? 0 : eqs.hashCode());
+			result = prime * result + ((sks == null) ? 0 : sks.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TAlg other = (TAlg) obj;
+			if (eqs == null) {
+				if (other.eqs != null)
+					return false;
+			} else if (!eqs.equals(other.eqs))
+				return false;
+			if (sks == null) {
+				if (other.sks != null)
+					return false;
+			} else if (!sks.equals(other.sks))
+				return false;
+			return true;
+		}
+
+		public Collage<Ty, Void, Sym, Void, Void, Void, Y> toCollage(TypeSide<Ty, Sym> ts, boolean addTsEqs) {
+			return new Collage<>() {
+
+				@Override
+				public Set<Ty> tys() {
+					return ts.tys;
+				}
+
+				@Override
+				public Map<Sym, Pair<List<Ty>, Ty>> syms() {
+					return ts.syms;
+				}
+
+				@Override
+				public Map<Ty, String> java_tys() {
+					return ts.js.java_tys;
+				}
+
+				@Override
+				public Map<Ty, String> java_parsers() {
+					return ts.js.java_parsers;
+				}
+
+				@Override
+				public Map<Sym, String> java_fns() {
+					return ts.js.java_fns;
+				}
+
+				@Override
+				public Set<Void> getEns() {
+					return Collections.emptySet();
+				}
+
+				@Override
+				public Map<Void, Pair<Void, Ty>> atts() {
+					return Collections.emptyMap();
+				}
+
+				@Override
+				public Map<Void, Pair<Void, Void>> fks() {
+					return Collections.emptyMap();
+				}
+
+				@Override
+				public Map<Void, Void> gens() {
+					return Collections.emptyMap();
+				}
+
+				@Override
+				public Map<Y, Ty> sks() {
+					return sks;
+				}
+
+				@Override
+				public synchronized Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> eqs() {
+					if (!addTsEqs) {
+						
+						Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> ret = new AbstractCollection<>() {
+
+							@Override
+							public synchronized Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Y>> iterator() {
+								return Iterators.transform(eqs.iterator(), x -> new Eq<>(null, x.first, x.second));
+							}
+
+							@Override
+							public int size() {
+								return eqs.size();
+							}
+						};
+
+						int j = 0;
+						for (Eq<Ty, Void, Sym, Void, Void, Void, Y> i : ret) {
+							j++;
+						}
+						if (j != ret.size()) {
+							Util.anomaly();
+						}
+						return ret;
+					}
+					Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> ret = new AbstractCollection<>() {
+
+						@Override
+						public synchronized Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Y>> iterator() {
+							Collage<Ty, Void, Sym, Void, Void, Void, Y> c 
+							 = ts.collage();
+							return Iterators.concat(c.eqs().iterator(),
+									Iterators.transform(eqs.iterator(), x -> new Eq<>(null, x.first, x.second)));
+						}
+
+						@Override
+						public int size() {
+							return eqs.size() + ts.eqs.size();
+						}
+					};
+					int j = 0;
+					for (Eq<Ty, Void, Sym, Void, Void, Void, Y> i : ret) {
+						j++;
+					}
+					if (j != ret.size()) {
+						Util.anomaly();
+					}
+					return ret;
+				}
+			};
+		}
 	}
-	
-	/*@SuppressWarnings("unchecked")
-	public  <Ty, En, Sym, Fk, Att, Gen, Sk> Collage<Ty, En, Sym, Fk, Att, Gen, Sk> convert() {
-		return (Collage<Ty, En, Sym, Fk, Att, Gen, Sk>) this;
-	}*/
-	
+
+	/*
+	 * @SuppressWarnings("unchecked") public <Ty, En, Sym, Fk, Att, Gen, Sk>
+	 * Collage<Ty, En, Sym, Fk, Att, Gen, Sk> convert() { return (Collage<Ty, En,
+	 * Sym, Fk, Att, Gen, Sk>) this; }
+	 */
+
 	public abstract Schema<Ty, En, Sym, Fk, Att> schema();
 
 	// TODO aql cant validate algebras bc are not dps
 
 	public abstract boolean hasNulls();
-	
+
 	public abstract boolean hasFreeTypeAlgebra();
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>,Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : talg().eqs) {
-			if (schema().typeSide.js.java_tys.containsKey(talg().type(eq.first))) {
+		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : talg().eqs) {
+			if (schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, eq.first))) {
 				return false;
 			}
 		}
@@ -124,12 +273,26 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		return ret;
 	}
 
+	private static <X> Collection<X> iterToCol(Iterable<X> it, int size) {
+		return new AbstractCollection<>() {
+			@Override
+			public Iterator<X> iterator() {
+				return it.iterator();
+			}
+
+			@Override
+			public int size() {
+				return size;
+			}
+		};
+	}
+	
 	public synchronized Collection<X> en_indexedAtt(En en, Att att, Object y) {
 		Triple<En, Att, Object> t = new Triple<>(en, att, y);
 		if (att_index.containsKey(t)) {
 			return att_index.get(t);
 		} else if (!hasFreeTypeAlgebra() || schema().typeSide.tys.size() != schema().typeSide.js.java_tys.size()) {
-			return Util.iterToCol(en(en), size(en));
+			return iterToCol(en(en), size(en));
 		}
 		List<X> ret = new LinkedList<>();
 		for (X x : en(en)) {
@@ -184,19 +347,19 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	/**
 	 * @return only equations for instance part (no typeside, no schema)
 	 */
-	public synchronized final TAlg<Ty,Sym,Y> talg() {
+	public synchronized final TAlg<Ty, Sym, Y> talg() {
 		if (talg0 != null) {
 			return talg0;
 		}
 		talg0 = talg0();
-		//talg0.addAll(schema().typeSide.collage()); //j
-		//talg0.validate();
+		// talg0.addAll(schema().typeSide.collage()); //j
+		// talg0.validate();
 		return talg0;
 	}
 
-	protected abstract TAlg<Ty,Sym,Y> talg0();
+	protected abstract TAlg<Ty, Sym, Y> talg0();
 
-	private TAlg<Ty,Sym,Y> talg0;
+	private TAlg<Ty, Sym, Y> talg0;
 
 	public abstract Chc<Sk, Pair<X, Att>> reprT_prot(Y y);
 
@@ -234,14 +397,14 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : term.args) {
 				l.add(intoY(x));
 			}
-			return Term.Sym(term.sym(), l); //could js reduce here
+			return Term.Sym(term.sym(), l); // could js reduce here
 		} else if (term.sk() != null) {
 			return sk(term.sk());
 		} else if (term.att() != null) {
 			return att(term.att(), intoX(term.arg));
 		}
 		if (term.var != null) {
-			return term.convert(); //for aggregation only
+			return term.convert(); // for aggregation only
 		}
 		throw new RuntimeException("Anomaly: please report: " + term);
 	}
@@ -263,6 +426,20 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	public abstract Object printX(En en, X x);
 
 	public abstract Object printY(Ty ty, Y y);
+	
+	private static <X> Collection<X> iterToColLazy(Iterable<X> it) {
+		return new AbstractCollection<>() {
+			@Override
+			public Iterator<X> iterator() {
+				return it.iterator();
+			}
+
+			@Override
+			public int size() {
+				return -1;
+			}
+		};
+	}
 
 	@Override
 	public String toString() {
@@ -270,9 +447,9 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 		ret = "carriers\n\t";
 		ret += Util.sep(
-				Util.iterToColLazy(schema().ens).stream()
+				iterToColLazy(schema().ens).stream()
 						.map(x -> x + " -> {"
-								+ Util.sep(Util.iterToColLazy(en(x)).stream().map(Object::toString)
+								+ Util.sep(iterToColLazy(en(x)).stream().map(Object::toString)
 										.collect(Collectors.toList()), ", ")
 								+ "}")
 						.collect(Collectors.toList()),
@@ -280,14 +457,14 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 		ret += "\n\nforeign keys";
 		for (Fk fk : schema().fks.keySet()) {
-			ret += "\n\t" + fk + " -> {" + Util.sep(Util.iterToColLazy(en(schema().fks.get(fk).first)).stream()
+			ret += "\n\t" + fk + " -> {" + Util.sep(iterToColLazy(en(schema().fks.get(fk).first)).stream()
 					.map(x -> "(" + x + ", " + fk(fk, x) + ")").collect(Collectors.toList()), ", ") + "}";
 		}
 
 		ret += "\n\nattributes";
 		for (Att att : schema().atts.keySet()) {
 			ret += "\n\t" + att + " -> {"
-					+ Util.sep(Util.iterToColLazy(en(schema().atts.get(att).first)).stream()
+					+ Util.sep(iterToColLazy(en(schema().atts.get(att).first)).stream()
 							.map(x -> "(" + x + ", " + att(att, x).toString() + ")").collect(Collectors.toList()), ", ")
 					+ "}";
 		}
@@ -374,7 +551,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 					List<Chc<Fk, Att>> header = qqq.first;
 					List<String> hdrQ = new ArrayList<>(header.size() + 1);
 					List<String> hdr = new ArrayList<>(header.size() + 1);
-					
+
 					hdr.add(tick + idcol + tick);
 					hdrQ.add("?");
 					for (Chc<Fk, Att> aHeader : header) {
@@ -435,14 +612,10 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		}
 	}
 
-	
-	public synchronized void storeMyRecord(
-			List<String> hdrQ,
-			List<String> hdr,
-			Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, Connection conn2, X x,
-			List<Chc<Fk, Att>> header, String table, String prefix, String tick)
-			throws Exception {
-		
+	public synchronized void storeMyRecord(List<String> hdrQ, List<String> hdr,
+			Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, Connection conn2, X x, List<Chc<Fk, Att>> header, String table,
+			String prefix, String tick) throws Exception {
+
 		StringBuffer sb = new StringBuffer("INSERT INTO ");
 		sb.append(tick);
 		sb.append(prefix);
@@ -482,7 +655,6 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			}
 			i++;
 		}
-		
 
 		ps.executeUpdate();
 		ps.close();

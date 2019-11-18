@@ -377,7 +377,7 @@ public class EdsExpRaw extends EdsExp implements Raw {
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> Awh0 = new THashSet<>();
 			Map<String, Chc<Ty, En>> As1 = new THashMap<>();
 
-			Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
+			Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>(sch.collage());
 
 			for (Pair<String, String> p : As) {
 				String gen = p.first;

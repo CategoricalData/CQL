@@ -145,7 +145,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 
 		QueryExpRaw.processBlock(block.get().options, env, src0, ens0, cols, block.get(), Collections.emptyMap());
 
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> colForDst = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> colForDst = new CCollage<>(src0.typeSide.collage());
 		colForDst.getEns().add(EEn);
 		for (Pair<Att, Chc<RawTerm, PreAgg>> p : block.get().atts) {
 			

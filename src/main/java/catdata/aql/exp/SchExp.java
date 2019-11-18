@@ -101,7 +101,7 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 	public static class SchExpDom extends SchExp {
 
-		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) {
 			return v.visit(param, this);
 		}
 
@@ -257,7 +257,7 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 	public static class SchExpSrc extends SchExp {
 
-		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
+		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) {
 			return v.visit(param, this);
 		}
 

@@ -20,13 +20,6 @@ public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, 
 	}
 
 	public abstract BiFunction<Gen1, En, Term<Void, En, Void, Fk, Void, Gen2, Void>> gens();
-
-	public Map<Gen1, Term<Void, En, Void, Fk, Void, Gen2, Void>> gensAsMap() {
-		return Instance.imapToMapNoScan(Instance.transformValues(src().gens(), (k,v)->gens().apply(k,v)));
-	}
-	public Map<Sk1, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> sksAsMap() {
-		return Instance.imapToMapNoScan(Instance.transformValues(src().sks(), (k,v)->sks().apply(k,v)));
-	}
 	
 	public abstract BiFunction<Sk1, Ty, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> sks();
 

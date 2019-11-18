@@ -341,7 +341,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 		} else if (att() != null) {
 			Pair<En, Ty> t = atts.get(att());
 			if (t == null) {
-				throw new RuntimeException("In " + this + ", " + att() + " is not an attribute");
+				throw new RuntimeException("In " + this + ", " + att() + " is not an attribute. Available: " + atts.keySet() );
 			}
 			Chc<Ty, En> u = arg.type(ctxt, ctxe, tys, syms, java_tys_string, ens, atts, fks, gens, sks);
 			if (!Chc.inRight(t.first).equals(u)) {
@@ -375,9 +375,10 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 		} else if (sk() != null) {
 			Ty tye = sks.get(sk());
 			if (tye == null) {
+				//System.out.println("** " + sks);
 				String xxx = sks.size() > 1024 ? " too big to print " : Util.sep(sks, ":", ", ");
-				throw new RuntimeException("In " + this + ", " + "the type for labelled null " + sk()
-						+ " is not defined.\n\nAvailable: " + xxx);
+				throw new RuntimeException("In " + this + ", " + "the labelled null " + sk()
+						+ " has no associated type.\n\nAvailable: " + xxx);
 			}
 			ret = Chc.inLeft(tye);
 		}
@@ -584,16 +585,18 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
+		//return hashCode2();
 	}
 
 	@Override
 	public boolean equals(Object x) {
-		// boolean b = (this == x);
-		// boolean c = (hashCode() == x.hashCode());
-		// if (b != c) {
-		// Util.anomaly();
-		// }
+		/* boolean b = (this == x);
+		 boolean c = (hashCode2() == ((Term)x).hashCode2());
+		 if (b != c) {
+		 Util.anomaly();
+		 }*/
 		return this == x;
+		//return this.equals2(x);
 	}
 
 	// returns null if no var

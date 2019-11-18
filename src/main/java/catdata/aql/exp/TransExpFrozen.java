@@ -90,7 +90,7 @@ public class TransExpFrozen
 	}
 
 	@Override
-	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) throws E {
+	public <R, P, E extends Exception> R accept(P params, TransExpVisitor<R, P, E> v) {
 		return v.visit(params, this);
 	}
 
@@ -120,7 +120,7 @@ public class TransExpFrozen
 			expected = Chc.inLeft(Ty.Ty(dst));
 		}
 
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>(q.dst.collage());
 		AqlJs<Ty, Sym> js = q.src.typeSide.js;
 
 		Quad<Map<catdata.aql.Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>> result = RawTerm

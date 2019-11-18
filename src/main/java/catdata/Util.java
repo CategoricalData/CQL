@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -280,7 +279,7 @@ public class Util {
 	}
 
 	public static <X> Map<X, X> id(Collection<X> X) {
-		Map<X, X> ret = new THashMap<>(X.size());
+		Map<X, X> ret = new LinkedHashMap<>(X.size());
 		for (X x : X) {
 			ret.put(x, x);
 		}
@@ -581,29 +580,41 @@ public class Util {
 	public static <X> String sep(Collection<?> order, Map<?, ?> m, String sep1, String sep2, boolean skip,
 			Function<X, String> fn) {
 		StringBuffer ret = new StringBuffer("");
-		boolean b = false;
-		for (Object o : order) {
-			Object z = m.get(o);
-			if (z == null && skip) {
-				continue;
+		Boolean[] b = new Boolean[] {false};
+		if (order == null) {
+			m.forEach((o,z)-> {
+				if (b[0]) {
+					ret.append(sep2);
+				}
+				b[0] = true;
+				ret.append(o);
+				ret.append(sep1);
+				ret.append(fn.apply((X) m.get(o)));
+			});			
+		} else {
+			for (Object o : order) {
+				Object z = m.get(o);
+				if (z == null && skip) {
+					continue;
+				}
+				if (b[0]) {
+					ret.append(sep2);
+				}
+				b[0] = true;
+				ret.append(o);
+				ret.append(sep1);
+				ret.append(fn.apply((X) m.get(o)));
 			}
-			if (b) {
-				ret.append(sep2);
-			}
-			b = true;
-			ret.append(o);
-			ret.append(sep1);
-			ret.append(fn.apply((X) m.get(o)));
 		}
 		return ret.toString();
 	}
 
 	public static String sep(Map<?, ?> m, String sep1, String sep2) {
-		return sep(m.keySet(), m, sep1, sep2, false, Object::toString);
+		return sep(null, m, sep1, sep2, false, Object::toString);
 	}
 
 	public static <X> String sep(Map<?, X> m, String sep1, String sep2, Function<X, String> fn) {
-		return sep(m.keySet(), m, sep1, sep2, false, fn);
+		return sep(null, m, sep1, sep2, false, fn);
 	}
 
 	public static String q(Object o) {
@@ -889,35 +900,11 @@ public class Util {
 		}
 		return ret;
 	}
-
-	public static <X> Collection<X> iterToColLazy(Iterable<X> it) {
-		return new AbstractCollection<>() {
-			@Override
-			public Iterator<X> iterator() {
-				return it.iterator();
-			}
-
-			@Override
-			public int size() {
-				return -1;
-			}
-		};
-	}
-
-	public static <X> Collection<X> iterToCol(Iterable<X> it, int size) {
-		return new AbstractCollection<>() {
-			@Override
-			public Iterator<X> iterator() {
-				return it.iterator();
-			}
-
-			@Override
-			public int size() {
-				return size;
-			}
-		};
-	}
-
+/*
+	*/
+/*
+	
+*/
 	public static <X, Y> Map<X, Collection<Y>> newSetsFor0(Collection<X> xs) {
 		Map<X, Collection<Y>> ret = (new THashMap<>(xs.size()));
 		for (X x : xs) {
@@ -1379,7 +1366,7 @@ public class Util {
 	};
 
 	public static <X, Y> Map<X, Y> mk() {
-		Map<X, Y> m = (new THashMap<>());
+		Map<X, Y> m = Collections.synchronizedMap(new LinkedHashMap<>());
 		return ( new NiceMap<>(m) );
 	}
 

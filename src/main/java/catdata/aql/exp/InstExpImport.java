@@ -222,7 +222,8 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 
 		ImportAlgebra<Ty, En, Sym, Fk, Att, Gen, Null<?>> alg = new ImportAlgebra<>(sch, ens0, tys0, fks0, atts0,
 				(x, y) -> y, (x, y) -> y, dont_check_closure, Collections.emptySet());
-
+		
+		
 		SaturatedInstance<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, Null<?>, catdata.aql.exp.Gen, Null<?>> x = new SaturatedInstance<>(
 				alg, alg, (Boolean) op.getOrDefault(AqlOption.require_consistency),
 				(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe), true, extraRepr);

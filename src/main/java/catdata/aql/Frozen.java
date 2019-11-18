@@ -14,13 +14,6 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.It.ID;
-import catdata.aql.exp.Att;
-import catdata.aql.exp.En;
-import catdata.aql.exp.Fk;
-import catdata.aql.exp.Gen;
-import catdata.aql.exp.Sk;
-import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
 import catdata.aql.fdm.SlowInitialAlgebra;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -119,7 +112,7 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		if (hidden != null) {
 			return hidden;
 		}
-		hidden = new SlowInitialAlgebra<>(dp(), schema, collage(), new It(), x -> x.toString(), x -> x.toString(),
+		hidden = new SlowInitialAlgebra<>(dp(), schema, gens, sks, eqs, new It(), x -> x.toString(), x -> x.toString(),
 				options);
 		return hidden;
 	}

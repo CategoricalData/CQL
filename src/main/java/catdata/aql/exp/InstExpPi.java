@@ -130,8 +130,10 @@ public final class InstExpPi<Gen, Sk, X, Y> extends
 			AqlEnv env, boolean isC) {
 		QueryExp q = new QueryExpDeltaCoEval(F, Util.toList(options));
 		InstExpEval<Gen, Sk, X, Y> r = new InstExpEval<>(q, I, Util.toList(options));
-		Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> w = r
-				.eval(env, isC);
+		
+		Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> 
+		w = r.eval(env, isC);
+		
 		return w;
 	}
 

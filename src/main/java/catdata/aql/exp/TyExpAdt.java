@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -15,7 +14,6 @@ import catdata.Raw;
 import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
-import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Kind;
 import catdata.aql.TypeSide;
@@ -171,7 +169,7 @@ public final class TyExpAdt extends TyExp implements Raw {
 	
 	@Override
 	public synchronized TypeSide<Ty, Sym> eval0(AqlEnv env, boolean isC) {
-		AqlOptions ops = new AqlOptions(options, env.defaults);
+		//AqlOptions ops = new AqlOptions(options, env.defaults);
 		
 		TypeSide<Ty, Sym> ret = null; 
 

@@ -362,7 +362,7 @@ public final class RawTerm {
 			} 
 			if (expected != null) {
 				String msg2 = expected.left ? "type" : "entity";
-				msg += "Expected " + msg2 + ": " + expected.toStringMash();
+				msg += "\nExpected " + msg2 + ": " + expected.toStringMash();
 			}
 
 			throw new RuntimeException(pre + msg);

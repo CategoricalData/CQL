@@ -18,6 +18,11 @@ import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.It.ID;
+import catdata.aql.exp.Att;
+import catdata.aql.exp.En;
+import catdata.aql.exp.Fk;
+import catdata.aql.exp.Sym;
+import catdata.aql.exp.Ty;
 import catdata.aql.fdm.ComposeTransform;
 import catdata.aql.fdm.IdentityTransform;
 import catdata.aql.fdm.LiteralTransform; //TODO aql why depend fdm
@@ -183,7 +188,13 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> conv2(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
 		Map<Fk2, Pair<Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>>, AqlOptions>> ret = new THashMap<>(q.fks.size());
 		for (Fk2 fk2 : q.fks.keySet()) {
-			ret.put(fk2, new Pair<>(q.fks.get(fk2).gensAsMap(), q.doNotValidate.get(fk2))); // TODO aql true is correct here?
+			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>>
+			w = q.fks.get(fk2);
+			Map<Var, Term<Void, En1, Void, Fk1, Void, Var, Void>> m = new THashMap<>();
+			w.src().gens().forEach((pp,qq)->{
+				m.put(pp, w.gens().apply(pp, qq));
+			});
+			ret.put(fk2, new Pair<>(m, q.doNotValidate.get(fk2))); // TODO aql true is correct here?
 		}
 		return ret;
 	}
@@ -191,7 +202,13 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> conv3(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
 		Map<Fk2, Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> ret = new THashMap<>(q.fks.size());
 		for (Fk2 fk2 : q.fks.keySet()) {
-			ret.put(fk2, q.fks.get(fk2).sksAsMap());
+			Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>>
+			w = q.fks.get(fk2);
+			Map<Var, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> m = new THashMap<>();
+			w.src().sks().forEach((pp,qq)->{
+				m.put(pp, w.sks().apply(pp, qq));
+			});
+			ret.put(fk2, m); // TODO aql true is correct here?
 		}
 		return ret;
 	} 

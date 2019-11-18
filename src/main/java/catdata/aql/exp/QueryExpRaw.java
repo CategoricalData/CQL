@@ -25,12 +25,14 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage;
 import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
+import catdata.aql.It.ID;
 import catdata.aql.Kind;
 import catdata.aql.Query;
 import catdata.aql.Query.Agg;
 import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
+import catdata.aql.Transform;
 import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -728,6 +730,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		return new Pair<>(src, dst);
 	}
 
+	
 	@Override
 	public synchronized Query<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> src0 = src.eval(env, isC);
@@ -766,7 +769,13 @@ public class QueryExpRaw extends QueryExp implements Raw {
 				atts0.put(Att, v.atts.get(Att));
 			}
 			for (Fk Fk : v.fks.keySet()) {
-				fks0.put(Fk, new Pair<>(v.fks.get(Fk).gensAsMap(), v.doNotValidate.get(Fk)));
+				Transform<Ty, En, Sym, catdata.aql.exp.Fk, Att, catdata.aql.Var, catdata.aql.Var, catdata.aql.Var, catdata.aql.Var, ID, Chc<catdata.aql.Var, Pair<ID, Att>>, ID, Chc<catdata.aql.Var, Pair<ID, Att>>> w = v.fks.get(Fk);
+				Map<Var,Term<Void, En, Void, Fk, Void, Var, Void>> m = new THashMap<>();
+				w.src().gens().forEach((pp,qq)->{
+					m.put(pp, w.gens().apply(pp, qq));
+				});
+				
+				fks0.put(Fk, new Pair<>(m, v.doNotValidate.get(Fk)));
 			}
 
 		}
@@ -968,7 +977,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			Map<En, Collage<Ty, En, Sym, Fk, Att, Var, Var>> cols, Block p, Map<String, String> params) {
 		Map<catdata.aql.Var, String> xx = Util.toMapSafely(p.gens);
 		Map<Var, Chc<En, Ty>> Map = new THashMap<>();
-		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Var, Var> col = new CCollage<>(src0.collage());
 		Set<Var> set = new THashSet<>(p.gens.size());
 		for (Pair<catdata.aql.Var, String> z : p.gens) {
 			if (src0.typeSide.tys.contains(Ty.Ty(z.second))) {

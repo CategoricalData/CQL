@@ -122,7 +122,7 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 		if (isC) {
 			throw new IgnoreException();
 		}
-		Collage<Ty, En, Sym, Fk, Att, Gen2, Sk2> col = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Gen2, Sk2> col = new CCollage<>(h1.dst().collage());
 		AqlOptions strat = new AqlOptions(options, env.defaults);
 		h1.dst().eqs((a,b) -> {
 			col.eqs().add(new Eq<>(null, a, b));

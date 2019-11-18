@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,7 @@ import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.graph.DAG;
-import gnu.trove.map.hash.THashMap;
+
 
 public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
@@ -50,7 +52,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
 	public final Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs;
 
-	private void validate(boolean checkJava) {
+	public void validate(boolean checkJava) {
 		// check that each att/fk is in tys/ens
 		for (Att att : atts.keySet()) {
 			Pair<En, Ty> ty = atts.get(att);
@@ -181,6 +183,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		this.ens = ens;
 		dp = semantics;
 		validate(checkJava);
+		//typeSide.tys.
 	}
 
 	public final DP<Ty, En, Sym, Fk, Att, Void, Void> dp;
@@ -247,7 +250,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
 			@Override
 			public Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs() {
-				return new AbstractCollection<>() {
+				Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> ret = new AbstractCollection<>() {
 
 					@Override
 					public Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> iterator() {
@@ -262,6 +265,15 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 					}
 
 				};
+				
+				int j = 0;
+				for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> i : ret) {
+					j++;
+				}
+				if (j != ret.size()) {
+					Util.anomaly();
+				}
+				return ret;
 			}
 
 		};
@@ -370,7 +382,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return toString;
 	}
 
-	private Map<En, List<Att>> attsFrom = new THashMap<>();
+	private Map<En, List<Att>> attsFrom = new LinkedHashMap<>();
 
 	public synchronized final Collection<Att> attsFrom(En en) {
 		if (attsFrom.containsKey(en)) {
@@ -386,7 +398,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return l;
 	}
 
-	private Map<En, List<Fk>> fksFrom = new THashMap<>();
+	private Map<En, List<Fk>> fksFrom = Util.mk();
 
 	public synchronized final Collection<Fk> fksFrom(En en) {
 		if (fksFrom.containsKey(en)) {
@@ -426,7 +438,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	// constraints and
 	public Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> toSQL(String prefix, String idTy,
 			String idCol, int truncate, Function<Fk, String> fun, int vlen, String tick) {
-		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> sqlSrcSchs = new THashMap<>();
+		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> sqlSrcSchs = new LinkedHashMap<>();
 
 		for (En en1 : ens) {
 			List<String> l = new LinkedList<>();
@@ -456,7 +468,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	}
 
 	public Map<En, List<String>> toSQL_srcIdxs(Pair<Collection<Fk>, Collection<Att>> indices) {
-		Map<En, List<String>> sqlSrcSchsIdxs = new THashMap<>();
+		Map<En, List<String>> sqlSrcSchsIdxs = new LinkedHashMap<>();
 		for (En en1 : ens) {
 			List<String> x = new LinkedList<>();
 			for (Fk fk1 : fksFrom(en1)) {

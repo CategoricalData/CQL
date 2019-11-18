@@ -1,7 +1,9 @@
 package catdata.aql.exp;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -127,13 +129,11 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
 			boolean isC) {
 		if (isC) {
-			return null;
+			throw new IgnoreException();
 		}
 		Mapping<catdata.aql.exp.Ty, En, catdata.aql.exp.Sym, Fk, Att, En, Fk, Att> f = F.eval(env, isC);
 		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = I.eval(env, isC);
-		if (isC) {
-			throw new IgnoreException();
-		}
+		
 
 		AqlOptions op = new AqlOptions(options, env.defaults);
 
@@ -145,26 +145,37 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 		}
 
 		if (type.equals("sequential")) {
-			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>();
+			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>(f.dst.collage());
 
 			i.sks().entrySet((a,b)->{
 				col.sks().put(a,b);
 			});
 			
 			i.gens().entrySet((a,b) -> {
-				col.gens().put(a, b);
+				col.gens().put(a, f.ens.get(b));
 			});
 
+			List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> 
+			l = Collections.synchronizedList(new ArrayList<>(col.eqs().size()));
+			
 			i.eqs((a,b) -> {
-				col.eqs().add(new Eq<>(null, f.trans(a), f.trans(b)));
+				Term<Ty,En,Sym,Fk,Att,Gen,Sk> aa = f.trans(a);
+				Term<Ty,En,Sym,Fk,Att,Gen,Sk> bb = f.trans(b);
+				Eq<Ty, En, Sym, Fk, Att, Gen, Sk> w = new Eq<>(null, aa, bb);
+				col.eqs().add(w);
+				l.add(new Pair<>(aa, bb));
 			});
 			SigmaLeftKanAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg = new SigmaLeftKanAlgebra<>(f, i,
 					col, reduce);
 
-			Instance zz = new LiteralInstance<>(alg.schema(), col, alg, alg,
+			Instance zz = new LiteralInstance<>(alg.schema(), col.gens(), col.sks(), l, alg, alg,
 					(Boolean) op.getOrDefault(AqlOption.require_consistency),
 					(Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
-			//zz.validate();
+
+			zz.validate();
+			zz.validateMore();
+			
+			System.out.println("valid " + zz);
 			return zz;
 		} else if (type.equals("parallel")) {
 
@@ -175,6 +186,8 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 		}
 		throw new RuntimeException("Chase style must be sequential or parallel.");
 	}
+	
+	
 
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {

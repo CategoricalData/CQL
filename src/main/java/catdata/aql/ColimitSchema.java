@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,16 +95,16 @@ public class ColimitSchema<N> implements Semantics {
 			return x;
 		};
 
-		Set<En> ens = (new THashSet<>(schemaStr.ens));
+		Set<En> ens = (new LinkedHashSet<>(schemaStr.ens));
 		ens.remove(src);
 		ens.add(dst);
-		Map<Att, Pair<En, Ty>> atts = (new THashMap<>());
+		Map<Att, Pair<En, Ty>> atts = (new LinkedHashMap<>());
 		for (Att k : schemaStr.atts.keySet()) {
 			Pair<En, Ty> v = schemaStr.atts.get(k);
 			En s = v.first.equals(src) ? dst : v.first;
 			atts.put(updateAtt.apply(k), new Pair<>(s, v.second));
 		}
-		Map<Fk, Pair<En, En>> fks = (new THashMap<>());
+		Map<Fk, Pair<En, En>> fks = (new LinkedHashMap<>());
 		for (Fk k : schemaStr.fks.keySet()) {
 			Pair<En, En> v = schemaStr.fks.get(k);
 			En s = v.first.equals(src) ? dst : v.first;
@@ -132,11 +134,11 @@ public class ColimitSchema<N> implements Semantics {
 			}
 		};
 		Schema<Ty, En, Sym, Fk, Att> schemaStr2 = new Schema<>(ty, ens, atts, fks, eqs, dp, checkJava); // TODO aql java
-		Map<En, En> ensM = (new THashMap<>(schemaStr.ens.size()));
+		Map<En, En> ensM = (new LinkedHashMap<>(schemaStr.ens.size()));
 		for (En k : schemaStr.ens) {
 			ensM.put(k, k.equals(src) ? dst : k);
 		}
-		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> attsM = (new THashMap<>(
+		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> attsM = (new LinkedHashMap<>(
 				schemaStr.atts.size()));
 		for (Att k : schemaStr.atts.keySet()) {
 			attsM.put(k,
@@ -144,17 +146,17 @@ public class ColimitSchema<N> implements Semantics {
 							isoToUser.atts.get(k).second.equals(src) ? dst : isoToUser.atts.get(k).second,
 							isoToUser.atts.get(k).third.mapAtt(updateAtt).mapFk(updateFk)));
 		}
-		Map<Fk, Pair<En, List<Fk>>> fksM = (new THashMap<>(schemaStr.fks.size()));
+		Map<Fk, Pair<En, List<Fk>>> fksM = (new LinkedHashMap<>(schemaStr.fks.size()));
 		for (Fk k : schemaStr.fks.keySet()) {
 			fksM.put(k, new Pair<>(isoToUser.fks.get(k).first.equals(src) ? dst : isoToUser.fks.get(k).first,
 					isoToUser.fks.get(k).second.stream().map(updateFk).collect(Collectors.toList())));
 		}
 		isoToUser = new Mapping<>(ensM, attsM, fksM, schemaStr, schemaStr2, checkJava);
-		Map<En, En> ensM2 = (new THashMap<>());
+		Map<En, En> ensM2 = (new LinkedHashMap<>());
 		for (En k : schemaStr2.ens) {
 			ensM2.put(k, k.equals(dst) ? src : k);
 		}
-		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> attsM2 = (new THashMap<>());
+		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> attsM2 = new LinkedHashMap<>();
 		for (Att k : schemaStr2.atts.keySet()) {
 			attsM2.put(updateAtt.apply(k),
 					new Triple<>(isoFromUser.atts.get(deUpdateAtt.apply(k)).first,
@@ -162,7 +164,7 @@ public class ColimitSchema<N> implements Semantics {
 									: isoFromUser.atts.get(deUpdateAtt.apply(k)).second,
 							isoFromUser.atts.get(deUpdateAtt.apply(k)).third));
 		}
-		Map<Fk, Pair<En, List<Fk>>> fksM2 = (new THashMap<>());
+		Map<Fk, Pair<En, List<Fk>>> fksM2 = new LinkedHashMap<>();
 		for (Fk k : schemaStr2.fks.keySet()) {
 			fksM2.put(updateFk.apply(k),
 					new Pair<>(
@@ -188,11 +190,11 @@ public class ColimitSchema<N> implements Semantics {
 		Function<Fk, Fk> fun = x -> x.equals(src) ? dst : x;
 		Function<Fk, Fk> fun2 = x -> x.equals(dst) ? src : x;
 
-		Map<Fk, Pair<En, En>> fks = (new THashMap<>(schemaStr.fks.keySet().size()));
+		Map<Fk, Pair<En, En>> fks = (new LinkedHashMap<>(schemaStr.fks.keySet().size()));
 		for (Fk k : schemaStr.fks.keySet()) {
 			fks.put(fun.apply(k), schemaStr.fks.get(k));
 		}
-		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs = (new THashSet<>(
+		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs = (new LinkedHashSet<>(
 				schemaStr.eqs.size()));
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schemaStr.eqs) {
 			eqs.add(new Triple<>(eq.first, eq.second.mapFk(fun), eq.third.mapFk(fun)));
@@ -211,13 +213,13 @@ public class ColimitSchema<N> implements Semantics {
 		};
 		Schema<Ty, En, Sym, Fk, Att> schemaStr2 = new Schema<>(ty, schemaStr.ens, schemaStr.atts, fks, eqs, dp,
 				checkJava); // TODO aql java
-		Map<Fk, Pair<En, List<Fk>>> fksM = new THashMap<>(schemaStr.fks.size());
+		Map<Fk, Pair<En, List<Fk>>> fksM = new LinkedHashMap<>(schemaStr.fks.size());
 		for (Fk k : schemaStr.fks.keySet()) {
 			fksM.put(k, new Pair<>(schemaStr.fks.get(k).first,
 					k.equals(src) ? Collections.singletonList(dst) : Collections.singletonList(k)));
 		}
 		isoToUser = new Mapping<>(isoToUser.ens, isoToUser.atts, fksM, schemaStr, schemaStr2, checkJava);
-		Map<Fk, Pair<En, List<Fk>>> fksM2 = new THashMap<>(schemaStr.fks.size());
+		Map<Fk, Pair<En, List<Fk>>> fksM2 = new LinkedHashMap<>(schemaStr.fks.size());
 		for (Fk k : schemaStr2.fks.keySet()) {
 			fksM2.put(k, new Pair<>(schemaStr2.fks.get(k).first,
 					k.equals(dst) ? Collections.singletonList(src) : Collections.singletonList(k)));
@@ -239,7 +241,7 @@ public class ColimitSchema<N> implements Semantics {
 		Function<Att, Att> fun = x -> x.equals(src) ? dst : x;
 		Function<Att, Att> fun2 = x -> x.equals(dst) ? src : x;
 
-		Map<Att, Pair<En, Ty>> atts = new THashMap<>(schemaStr.atts.size());
+		Map<Att, Pair<En, Ty>> atts = new LinkedHashMap<>(schemaStr.atts.size());
 		for (Att k : schemaStr.atts.keySet()) {
 			atts.put(fun.apply(k), schemaStr.atts.get(k));
 		}
@@ -300,9 +302,9 @@ public class ColimitSchema<N> implements Semantics {
 		Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> isoToUser = Mapping.id(schemaStr);
 		Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> isoFromUser = Mapping.id(schemaStr);
 
-		Map<Fk, Pair<En, En>> fks = new THashMap<>(schemaStr.fks);
+		Map<Fk, Pair<En, En>> fks = new LinkedHashMap<>(schemaStr.fks);
 		fks.remove(src);
-		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs = new THashSet<>(
+		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs = new LinkedHashSet<>(
 				schemaStr.eqs.size());
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schemaStr.eqs) {
 			Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> tr = new Triple<>(
@@ -326,10 +328,10 @@ public class ColimitSchema<N> implements Semantics {
 		};
 		Schema<Ty, En, Sym, Fk, Att> schemaStr2 = new Schema<>(ty, schemaStr.ens, schemaStr.atts, fks, eqs, dp,
 				checkJava);
-		Map<Fk, Pair<En, List<Fk>>> fksM = new THashMap<>(isoToUser.fks);
+		Map<Fk, Pair<En, List<Fk>>> fksM = new LinkedHashMap<>(isoToUser.fks);
 		fksM.put(src, new Pair<>(en1, l));
 		isoToUser = new Mapping<>(isoToUser.ens, isoToUser.atts, fksM, schemaStr, schemaStr2, checkJava);
-		Map<Fk, Pair<En, List<Fk>>> fksM2 = new THashMap<>(isoFromUser.fks);
+		Map<Fk, Pair<En, List<Fk>>> fksM2 = new LinkedHashMap<>(isoFromUser.fks);
 		fksM2.remove(src);
 		isoFromUser = new Mapping<>(isoFromUser.ens, isoFromUser.atts, fksM2, schemaStr2, schemaStr, checkJava);
 
@@ -355,7 +357,7 @@ public class ColimitSchema<N> implements Semantics {
 		Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> isoToUser = Mapping.id(schemaStr);
 		Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> isoFromUser = Mapping.id(schemaStr);
 
-		Map<Att, Pair<En, Ty>> atts = new THashMap<>(schemaStr.atts);
+		Map<Att, Pair<En, Ty>> atts = new LinkedHashMap<>(schemaStr.atts);
 		atts.remove(src);
 		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs = (new THashSet<>());
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schemaStr.eqs) {
@@ -383,7 +385,7 @@ public class ColimitSchema<N> implements Semantics {
 		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> attsM = new THashMap<>(isoToUser.atts);
 		attsM.put(src, new Triple<>(v, en1, t));
 		isoToUser = new Mapping<>(isoToUser.ens, attsM, isoToUser.fks, schemaStr, schemaStr2, checkJava);
-		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> attsM2 = new THashMap<>(isoFromUser.atts);
+		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> attsM2 = new LinkedHashMap<>(isoFromUser.atts);
 		attsM2.remove(src);
 		isoFromUser = new Mapping<>(isoFromUser.ens, attsM2, isoFromUser.fks, schemaStr2, schemaStr, checkJava);
 
@@ -416,12 +418,12 @@ public class ColimitSchema<N> implements Semantics {
 		public final Map<String, Set<Pair<N, En>>> m2 = Util.mk();
 
 		public final Collage<Ty, En, Sym, Fk, Att, Void, Void> colX;
-		public final Map<N, Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att>> mappingsStr0 = new THashMap<>();
+		public final Map<N, Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att>> mappingsStr0 = new LinkedHashMap<>();
 
 		public final Schema<Ty, En, Sym, Fk, Att> schemaStr0;
 
-		Map<Set<Pair<N, En>>, Map<Pair<N, Fk> , String>> mFk  = new THashMap<>();
-		Map<Set<Pair<N, En>>, Map<Pair<N, Att>, String>> mAtt = new THashMap<>();
+		Map<Set<Pair<N, En>>, Map<Pair<N, Fk> , String>> mFk  = new LinkedHashMap<>();
+		Map<Set<Pair<N, En>>, Map<Pair<N, Att>, String>> mAtt = new LinkedHashMap<>();
 
 		final Map<Pair<N, En>, Set<Pair<N, En>>> eqcs;
 		boolean left = false;
@@ -460,7 +462,7 @@ public class ColimitSchema<N> implements Semantics {
 
 			//System.out.println("f1 " + m1);
 		//	Util.anomaly();
-			colX = new CCollage<>();
+			colX = new CCollage<>(ty.collage());
 
 			colX.getEns().addAll(col.getEns().stream().map(this::conv1).collect(Collectors.toSet()));
 			
@@ -603,8 +605,8 @@ public class ColimitSchema<N> implements Semantics {
 									+ "; previous was " + other + " and current is " + e1.str);
 						}
 						m1.put(leqc, e1.str);
-						mFk.put(leqc, new THashMap<>());
-						mAtt.put(leqc, new THashMap<>());
+						mFk.put(leqc, new LinkedHashMap<>());
+						mAtt.put(leqc, new LinkedHashMap<>());
 					}
 				}
 			}
@@ -625,8 +627,8 @@ public class ColimitSchema<N> implements Semantics {
 									+ "; previous was " + other + " and current is " + e1.str);
 						}
 						m1.put(leqc, e1.str);
-						mFk.put(leqc, new THashMap<>());
-						mAtt.put(leqc, new THashMap<>());
+						mFk.put(leqc, new LinkedHashMap<>());
+						mAtt.put(leqc, new LinkedHashMap<>());
 
 
 						other = m1.get(reqc);
@@ -635,8 +637,8 @@ public class ColimitSchema<N> implements Semantics {
 									+ "; previous was " + other + " and current is " + s2 + "_" + e2.str);
 						}
 						m1.put(reqc, s2 + "_" + e2.str);
-						mFk.put(reqc, new THashMap<>());
-						mAtt.put(reqc, new THashMap<>());
+						mFk.put(reqc, new LinkedHashMap<>());
+						mAtt.put(reqc, new LinkedHashMap<>());
 
 					}
 				}
@@ -651,8 +653,8 @@ public class ColimitSchema<N> implements Semantics {
 				}
 
 				m1.put(leqc, e1.str);
-				mFk.put(leqc, new THashMap<>());
-				mAtt.put(leqc, new THashMap<>());
+				mFk.put(leqc, new LinkedHashMap<>());
+				mAtt.put(leqc, new LinkedHashMap<>());
 			}
 			for (En e2 : nodes.get(s2).ens) {
 				Pair<N, En> ren = new Pair<>(s2, e2);
@@ -663,8 +665,8 @@ public class ColimitSchema<N> implements Semantics {
 				}
 
 				m1.put(reqc, e2.str);
-				mFk.put(reqc, new THashMap<>());
-				mAtt.put(reqc, new THashMap<>());
+				mFk.put(reqc, new LinkedHashMap<>());
+				mAtt.put(reqc, new LinkedHashMap<>());
 
 			}
 			if (m1.size() != new THashSet<>(m1.values()).size()) {
@@ -676,8 +678,8 @@ public class ColimitSchema<N> implements Semantics {
 
 	public class Renamer {
 
-		public final Map<Set<Pair<N, En>>, String> m1 = new THashMap<>();
-		public final Map<String, Set<Pair<N, En>>> m2 = new THashMap<>();
+		public final Map<Set<Pair<N, En>>, String> m1 = new LinkedHashMap<>();
+		public final Map<String, Set<Pair<N, En>>> m2 = new LinkedHashMap<>();
 
 		public final Collage<Ty, En, Sym, Fk, Att, Void, Void> colX;
 		public final Map<N, Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att>> mappingsStr0 = new THashMap<>();
@@ -685,9 +687,9 @@ public class ColimitSchema<N> implements Semantics {
 		public final Schema<Ty, En, Sym, Fk, Att> schemaStr0;
 
 		// Map<Pair<N, En>, Set<Pair<N, En>>> eqcs;
-		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mEn = new THashMap<>();
-		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mFk = new THashMap<>();
-		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mAtt = new THashMap<>();
+		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mEn = new LinkedHashMap<>();
+		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mFk = new LinkedHashMap<>();
+		Map<Pair<Set<Pair<N, En>>, String>, Set<N>> mAtt = new LinkedHashMap<>();
 
 		final boolean shorten;
 		final Map<Pair<N, En>, Set<Pair<N, En>>> eqcs;
@@ -704,27 +706,27 @@ public class ColimitSchema<N> implements Semantics {
 					Pair<Set<Pair<N, En>>, String> p = new Pair<>(pp, en.str);
 
 					if (!mEn.containsKey(p)) {
-						mEn.put(p, new THashSet<>());
+						mEn.put(p, new LinkedHashSet<>());
 					}
 					mEn.get(p).add(n);
 					for (Fk fk : nodes.get(n).fksFrom(en)) {
 						Pair<Set<Pair<N, En>>, String> f = new Pair<>(pp, fk.str);
 						if (!mFk.containsKey(f)) {
-							mFk.put(f, new THashSet<>());
+							mFk.put(f, new LinkedHashSet<>());
 						}
 						mFk.get(f).add(n);
 					}
 					for (Att att : nodes.get(n).attsFrom(en)) {
 						Pair<Set<Pair<N, En>>, String> f = new Pair<>(pp, att.str);
 						if (!mAtt.containsKey(f)) {
-							mAtt.put(f, new THashSet<>());
+							mAtt.put(f, new LinkedHashSet<>());
 						}
 						mAtt.get(f).add(n);
 					}
 				}
 			}
 
-			for (Set<Pair<N, En>> eqc : Util.alphabetical(new THashSet<>(eqcs.values()))) {
+			for (Set<Pair<N, En>> eqc : Util.alphabetical(new LinkedHashSet<>(eqcs.values()))) {
 				if (eqc.size() == 1 && shorten) {
 					Pair<N, En> p = Util.get0(eqc);
 					String s = p.second.str;
@@ -748,7 +750,7 @@ public class ColimitSchema<N> implements Semantics {
 				m2.put(s, eqc);
 			}
 
-			colX = new CCollage<>();
+			colX = new CCollage<>(ty.collage());
 
 			colX.getEns().addAll(col.getEns().stream().map(this::conv1).collect(Collectors.toSet()));
 			colX.atts().putAll(Util.map(col.atts(), (k, v) -> new Pair<>(Att.Att(conv1(col.atts().get(k).first), conv2Att(k)),
@@ -834,7 +836,7 @@ public class ColimitSchema<N> implements Semantics {
 		this.ty = ty;
 		this.nodes = nodes;
 
-		Set<Pair<N, En>> ens = new THashSet<>(nodes.keySet().size());
+		Set<Pair<N, En>> ens = new LinkedHashSet<>(nodes.keySet().size());
 		for (N n : nodes.keySet()) {
 			Schema<Ty, En, Sym, Fk, Att> s = nodes.get(n);
 			for (En en : s.ens) {
@@ -852,7 +854,7 @@ public class ColimitSchema<N> implements Semantics {
 			uf.union(new Pair<>(s.first, s.second), new Pair<>(s.third, s.fourth));
 		}
 
-		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new CCollage<>();
+		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new CCollage<>(ty.collage());
 		Map<Pair<N, En>, Set<Pair<N, En>>> eqcs = uf.toMap();
 		col.getEns().addAll(eqcs.values());
 
@@ -868,7 +870,7 @@ public class ColimitSchema<N> implements Semantics {
 		Schema<Ty, En, Sym, Fk, Att> q = quotient(x.first, eqTerms, eqTerms2, options);
 
 		schemaStr = q;
-		mappingsStr = new THashMap<>();
+		mappingsStr = new LinkedHashMap<>();
 		for (N n : x.second.keySet()) {
 			Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> f = x.second.get(n);
 			Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> g = new Mapping<>(f.ens, f.atts, f.fks, f.src, q, b);
@@ -879,7 +881,7 @@ public class ColimitSchema<N> implements Semantics {
 	private static Schema<Ty, En, Sym, Fk, Att> quotient(Schema<Ty, En, Sym, Fk, Att> sch,
 			Set<Quad<String, String, RawTerm, RawTerm>> eqTerms, Set<Pair<List<String>, List<String>>> eqTerms2,
 			AqlOptions options) {
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>(sch.collage());
 
 		for (Pair<List<String>, List<String>> t : eqTerms2) {
 			List<String> a = t.first;
@@ -928,9 +930,9 @@ public class ColimitSchema<N> implements Semantics {
 		this.ty = ty;
 		this.nodes = nodes;
 
-		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new CCollage<>();
+		Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col = new CCollage<>(ty.collage());
 
-		Set<Pair<N, En>> ens = (new THashSet<>());
+		Set<Pair<N, En>> ens = (new LinkedHashSet<>());
 		for (N n : shape.nodes) {
 			Schema<Ty, En, Sym, Fk, Att> s = nodes.get(n);
 			for (En en : s.ens) {
@@ -996,7 +998,7 @@ public class ColimitSchema<N> implements Semantics {
 			Collage<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void> col,
 			Map<Pair<N, En>, Set<Pair<N, En>>> eqcs,
 			Schema<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>> schema) {
-		Map<N, Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>>> mappings = new THashMap<>();
+		Map<N, Mapping<Ty, En, Sym, Fk, Att, Set<Pair<N, En>>, Pair<N, Fk>, Pair<N, Att>>> mappings = new LinkedHashMap<>();
 		Var v = Var.Var("v");
 		for (N n : nodes.keySet()) {
 			Map<Att, Triple<Var, Set<Pair<N, En>>, Term<Ty, Set<Pair<N, En>>, Sym, Pair<N, Fk>, Pair<N, Att>, Void, Void>>> atts = Util

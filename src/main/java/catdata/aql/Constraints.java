@@ -166,24 +166,32 @@ public class Constraints implements Semantics {
 			return I.dp().eq(null, a.r, e.r);
 		};
 		int i = 0;
+		int j = 0;
 		for (ED ed : eds) {
 			i++;
 			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> Q = ed.getQ(schema);
 			EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Fk, Att, X, Y> QI = new EvalInstance<>(Q, I, options);
+			//System.out.println(I);
+			//if (j++ > 2) {
+				
+			//		Util.anomaly();
+				
+			//}
+			
 			outer: for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> e : QI.algebra().en(ED.FRONT)) {
-				// System.out.println("Consider " + e);
+				 //System.out.println("Consider " + e);
 				for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> a : QI.algebra().en(ED.BACK)) {
 
 					Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> aa = QI.algebra().fk(ED.UNIT, a);
 					// System.out.println("try " + a );
 					if (aa.rowEquals(fn, e)) {
-						// System.out.println("hit");
+					//	 System.out.println("hit");
 						continue outer;
 					}
 					// System.out.println("Consider " + aa + " and " + e + ": miss");
 				}
-				// System.out.println(ed.hashCode() + " and " + e + " " +
-				// Thread.currentThread());
+				 //System.out.println(ed.hashCode() + " and " + e + " " +
+				 //Thread.currentThread());
 				// System.out.println("miss");
 				T.add(new Pair<>(i - 1, e));
 			}

@@ -61,6 +61,7 @@ public class ToJdbcPragmaTransform<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
 			String str = "src" + idCol + " " + colTy + " PRIMARY KEY NOT NULL";
 			str += ", dst" + idCol + " " + colTy + " NOT NULL";
 			stmt.execute("CREATE TABLE " + prefix + enToString(en) + "(" + str + ")");
+			stmt.close();
 		}
 	}
 
@@ -80,6 +81,7 @@ public class ToJdbcPragmaTransform<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
 		ps.setObject(2, j.first.get(h.repr(en, x)), colTy0);
 
 		ps.executeUpdate();
+		ps.close();
 	}
 
 	@Override
@@ -96,6 +98,7 @@ public class ToJdbcPragmaTransform<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
 					storeMyRecord(I, J, conn, x, prefix + enToString(en), en);
 				}
 			}
+			conn.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

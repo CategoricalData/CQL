@@ -12,7 +12,6 @@ import catdata.Pair;
 import catdata.Triple;
 import catdata.Util;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
 import catdata.aql.DP;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
@@ -68,13 +67,15 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 			}
 		}
 
-		
-
-		if (labelledNulls) {
-			sks = Collections.emptyMap();
-		} else {
+		//if (labelledNulls) {
+		//	sks = Collections.emptyMap();
+		//	System.out.println("A");
+		//	Util.anomaly();
+	//	} else {
 			sks = alg.talg().sks;
-		}
+		//	System.out.println("B");
+
+	//	}
 
 		// this.reprT_extra = reprT_extra;
 		inner_dp = new InnerDP();
@@ -82,6 +83,7 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 
 		if (size < 1024 * 4) {
 			validate();
+			validateMore();
 			checkSatisfaction();
 		}
 	}
@@ -126,12 +128,12 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Inst
 
 	private Map<X, En> gens;
 
-	public IMap<X, En> gens() {
+	public synchronized IMap<X, En> gens() {
 		return Instance.mapToIMap(gens);
 	}
 
 	@Override
-	public IMap<Y, Ty> sks() {
+	public synchronized IMap<Y, Ty> sks() {
 		return Instance.mapToIMap(sks);
 	}
 

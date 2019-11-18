@@ -14,7 +14,6 @@ import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.Algebra.TAlg;
 import catdata.aql.Head;
-import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
@@ -39,6 +38,7 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 			this.in = s.out;
 	
 			out = new TAlg<>(new THashMap<>(), new THashSet<>());
+			out.sks.putAll(this.in.sks);
 
 			if (!talg_h1()) {
 				changed = false;
@@ -66,8 +66,8 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 		public synchronized void validate() {
 			for (Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> x : subst.keySet()) {
 				Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> y = subst.get(x);
-				out.type( y);
-				in.type( toTerm(x));
+				out.type(sch.typeSide, y);
+				in.type(sch.typeSide, toTerm(x));
 			}
 			/*for (Chc<Sk, Pair<X, Att>> x : in.sks.keySet()) {
 				if (out.sks.keySet().contains(x)) {
@@ -178,15 +178,29 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 	
 	
 	
-	public final Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> subst = new THashMap<>();
+	private final Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> subst;
 
 	private final Schema<Ty, En, Sym, Fk, Att> sch;
 	private final Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg;
+
+	
+	
+	
+/*
+	public TalgSimplifier(TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>.Step talg,
+			Map<Head<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>, Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> subst,
+			Schema<Ty, En, Sym, Fk, Att> sch, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg) {
+		this.talg = talg;
+		this.subst = subst;
+		this.sch = sch;
+		this.alg = alg;
+	}*/
 
 	public TalgSimplifier(Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg, 
 			Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>,Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> it, Map<Sk, Ty> colsks,
 			int reduce) {
 		this.alg = alg;
+		subst = new THashMap<>();
 		this.sch = alg.schema();
 
 		TAlg<Ty, Sym, Chc<Sk, Pair<X, Att>>> in = new TAlg<>(new THashMap<>(), new THashSet<>());
@@ -241,6 +255,9 @@ public class TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 //		in.validate();
 		while (it.hasNext()) {
 			Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq = it.next();
+			if (!eq.first.hasTypeType()) {
+				continue; // entity
+			}
 			
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> l = transX(eq.first);
 			Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> r = transX(eq.second);

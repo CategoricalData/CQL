@@ -3,13 +3,12 @@ package catdata.aql.fdm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Iterators;
 
 import catdata.BinRelSet;
 import catdata.Chc;
@@ -42,7 +41,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(x.first)))
+		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
 				.collect(Collectors.toList()).isEmpty();
 	}
 
@@ -363,13 +362,16 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		this.fresh = 0;
 		this.col = col;
 		this.reduce = reduce;
+		
+		eqsIt = new LinkedList<>();
+		i2.eqs((k,v)->eqsIt.add(new Pair<>(F.trans(k),F.trans(v))));
 
 		if (!X.algebra().hasFreeTypeAlgebra()) {
 			throw new RuntimeException("Chase cannot be used: type algebra is not free");
 		}
 
 		for (En2 n : B.ens) {
-			Pb.put(n, (new THashSet<>()));
+			Pb.put(n, new THashSet<>());
 			Sb.put(n, new BinRelSet<>());
 		}
 		for (Fk2 e : B.fks.keySet()) {
@@ -485,13 +487,10 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 
 	TalgSimplifier<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>> talg = null;
 
-	private Iterable<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqsIt() {
-		return new Iterable<>() {
-			@Override
-			public Iterator<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> iterator() {
-				return Iterators.transform(col.eqs().iterator(), x->new Pair<>(x.lhs,x.rhs));
-			}
-		};
+	private final List<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqsIt;
+
+	private List<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> eqsIt() {
+		return eqsIt;
 	}
 	
 	@Override

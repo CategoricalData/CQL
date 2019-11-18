@@ -1,10 +1,13 @@
 package catdata.aql.fdm;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
 import com.google.common.collect.Iterators;
 
@@ -15,6 +18,7 @@ import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.AqlProver;
 import catdata.aql.Collage;
 import catdata.aql.Collage.CCollage;
 import catdata.aql.DP;
@@ -25,13 +29,13 @@ import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
 import catdata.aql.fdm.Chase.BST;
-import gnu.trove.map.hash.THashMap;
+import catdata.aql.gui.AqlViewer;
 import gnu.trove.set.hash.THashSet;
 
 public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y>
 		extends Algebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att2>>>
 		implements DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> {
-	
+
 	@Override
 	public boolean hasNulls() {
 		return talg().sks.isEmpty();
@@ -47,12 +51,12 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		}
 
 		@Override
-		public IMap<Gen, En2> gens() {
-			return Instance.transformValues(X.gens(), (k,v)->F.ens.get(v));
+		public synchronized IMap<Gen, En2> gens() {
+			return Instance.transformValues(X.gens(), (k, v) -> F.ens.get(v));
 		}
 
 		@Override
-		public IMap<Sk, Ty> sks() {
+		public synchronized IMap<Sk, Ty> sks() {
 			return X.sks();
 		}
 
@@ -65,11 +69,12 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		public boolean allowUnsafeJava() {
 			return (boolean) ops.getOrDefault(AqlOption.allow_java_eqs_unsafe);
 		}
-		
-		@Override
-		public synchronized void eqs(BiConsumer<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> f) {
-			X.eqs((x,y)->f.accept(F.trans(x), F.trans(y)));
-		}
+
+		/*
+		 * @Override public synchronized void eqs(BiConsumer<Term<Ty, En2, Sym, Fk2,
+		 * Att2, Gen, Sk>, Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> f) {
+		 * X.eqs((x,y)->f.accept(F.trans(x), F.trans(y))); }
+		 */
 
 		@Override
 		public DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> dp() {
@@ -93,7 +98,7 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 	public Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col;
 	private DP<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> dp_ty;
 
-	private Map<En2, Integer> offset = new THashMap<>();
+	private Map<En2, Integer> offset = Collections.synchronizedMap(new LinkedHashMap<>());
 	private int size = 0;
 	private AqlOptions ops;
 
@@ -106,30 +111,56 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 		F = f2;
 		X = i2;
 		chase = new Chase<>(F, X, e);
+
+		//System.out.println("### " + chase.toStringShort());
+
 		this.ops = ops;
 
-		for (En2 en2 : F.dst.ens) {
-			offset.put(en2, size);
+		for (En2 en2 : chase.stuff.keySet()) {
+			offset.put(en2, size); ///////////////////
 			size += chase.en(en2, size).size();
 		}
-		//if (X.algebra().talg().eqs.size() >= 0) {
-			Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new CCollage<>();
-			if (!X.schema().typeSide.tys.isEmpty()) {
-				X.sks().entrySet((k,v)->{
-					col.sks().put(k, v);
-				});
-				for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : X.algebra().talg().eqs) {
-					col.eqs().add(new Eq<>(null, F.trans(X.reprT(eq.first)), F.trans(X.reprT(eq.second))));
+		//System.out.println("offsets " + offset);
+		//System.out.println("dst ens " + F.dst.ens);
+
+		Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new CCollage<>(F.dst.collage());
+		if (!X.schema().typeSide.tys.isEmpty()) {
+			X.sks().forEach((k, v) -> {
+				col.sks().put(k, v);
+			});
+			X.eqs((k, v) -> {
+				col.eqs().add(new Eq<>(null, F.trans(k), F.trans(v)));
+			});
+		}
+
+		talg = new TalgSimplifier<>(this, col.eqsAsPairs().iterator(), col.sks(),
+				(Integer) ops.getOrDefault(AqlOption.talg_reduction));
+		
+//		talg();
+
+		this.dp_ty = AqlProver.createInstance(ops, talg().toCollage(schema().typeSide, true),
+				Schema.terminal(schema().typeSide));
+		//System.out.println("tostr: " + talg  );
+		for (En2 en2 : theInst.schema().ens) {
+			for (int x : theInst.algebra().en(en2)) {
+				// System.out.println(en2 + " : " + x + " : " + theInst.algebra().printX(en2,
+				// x));
+				Term<Void, En2, Void, Fk2, Void, Gen, Void> w = theInst.algebra().repr(en2, x);
+
+				Chc<Ty, En2> en2x = theInst.type(w.convert());
+				if (!en2x.r.equals(en2)) {
+					// System.out.println("w " + w + " and " + en2x.r);
+					Util.anomaly();
 				}
 			}
-			
-			Iterator<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>,Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>>
-			it = Iterators.transform(X.algebra().talg().eqs.iterator(), eq-> new Pair<>(F.trans(X.reprT(eq.first)), F.trans(X.reprT(eq.second))));
-			talg = new TalgSimplifier<>(this, it, null, (int) ops.getOrDefault(AqlOption.talg_reduction));
-		//}
-		talg();
-		
-		this.dp_ty = Util.anomaly(); // AqlProver.createInstance(ops, talg.talg.out, Schema.terminal(B.typeSide));
+		}
+		// chase.
+		theInst.validate();
+		AqlViewer.makeEnTables(this, false, 99999, new LinkedHashMap<>());
+
+		AqlViewer.makeEnTables(this, true, 99999, new LinkedHashMap<>());
+
+//		this.dp_ty = AqlProver.createInstance(ops, talg.talg.out, Schema.terminal(B.typeSide));
 	}
 
 	@Override
@@ -215,17 +246,23 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 	}
 
 	@Override
-	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> sk(Sk sk) {
+	public synchronized Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att2>>> sk(Sk sk) {
 		return reprT0(Chc.inLeft(sk));
 	}
 
 	@Override
-	public Object printX(En2 en2, Integer x) {
-		return chase.stuff.get(en2).iso1[x - offset.get(en2)].toString();
+	public synchronized Object printX(En2 en2, Integer x) {
+		Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y>.En2Stuff u = chase.stuff.get(en2);
+		int v = x - offset.get(en2);
+		if (v < 0 || v >= u.iso1.length || u.iso1[v] == null) {
+			throw new RuntimeException("Can't get int " + x + " at entity " + en2 + " v is " + v + " and offset "
+					+ offset.get(en2) + " and top " + u.top + " ");
+		}
+		return u.iso1[v].toString();
 	}
 
 	@Override
-	public String printY(Ty ty, Chc<Sk, Pair<Integer, Att2>> y) {
+	public synchronized String printY(Ty ty, Chc<Sk, Pair<Integer, Att2>> y) {
 		if (y.left) {
 			return y.l.toString();
 		}
@@ -238,12 +275,12 @@ public class SigmaChaseAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk,
 	}
 
 	@Override
-	public int size(En2 en) {
+	public synchronized int size(En2 en) {
 		return chase.en(en, offset.get(en)).size();
 	}
 
 	@Override
-	public Chc<Sk, Pair<Integer, Att2>> reprT_prot(Chc<Sk, Pair<Integer, Att2>> y) {
+	public synchronized Chc<Sk, Pair<Integer, Att2>> reprT_prot(Chc<Sk, Pair<Integer, Att2>> y) {
 		return y;
 	}
 

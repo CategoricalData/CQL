@@ -20,7 +20,6 @@ import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.Collage;
 import catdata.aql.Frozen;
 import catdata.aql.Instance;
 import catdata.aql.It.ID;

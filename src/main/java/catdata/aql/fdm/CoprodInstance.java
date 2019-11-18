@@ -16,21 +16,26 @@ import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
+import catdata.aql.AqlProver;
+import catdata.aql.Collage;
 import catdata.aql.Algebra.TAlg;
+import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.DP;
+import catdata.aql.Head;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.TIntHashSet;
 
 public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
-		extends Instance<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Pair<String, Y>> {
+		extends Instance<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> {
 
 	private final Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> insts;
 	private final Schema<Ty, En, Sym, Fk, Att> sch;
 	
-	TAlg<Ty, Sym, Pair<String, Y>> col;
+	//TAlg<Ty, Sym, Pair<String, Y>> col;
 	
 	
 	public static <X,Y,Z> IMap<X,Z> mapValues(IMap<X,Y> map, BiFunction<X,Y,Z> f) {
@@ -91,6 +96,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		}
 
 //		Util.anomaly();
+		
 //		validate();
 
 	}
@@ -216,12 +222,18 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				if (ctx != null && !ctx.isEmpty()) {
 					return Util.anomaly();
 				}
+				//print
+				System.out.print("eq " + lhs + " = " + rhs);
 				if (lhs.hasTypeType()) {
 					if (schema().typeSide.js.java_tys.isEmpty()) {
-						return algebra().intoY(rhs).equals(algebra().intoY(lhs));
+						boolean b = algebra().intoY(rhs).equals(algebra().intoY(lhs));
+						System.out.println(" " + b);
+						return b;
 					}
-					return schema().typeSide.js.reduce(algebra().intoY(rhs))
+					boolean b = schema().typeSide.js.reduce(algebra().intoY(rhs))
 							.equals(schema().typeSide.js.reduce(algebra().intoY(lhs)));
+					System.out.println(" " + b);
+					return b;
 
 				}
 				return algebra().intoX(rhs).equals(algebra().intoX(lhs));
@@ -231,9 +243,16 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 	}
 
+	private Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> alg;
 	@Override
-	public Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Pair<String, Y>> algebra() {
-		return new Algebra<>() {
+	public synchronized Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> algebra() {
+		if (alg != null) {
+			return alg;
+		}
+		
+	
+		
+		alg = new Algebra<>() {
 
 			
 			@Override
@@ -253,10 +272,10 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 			@Override
 			public Collection<Pair<String, X>> en(En en) {
-				return new AbstractCollection<>() {
+				Collection<Pair<String, X>> ret = new AbstractCollection<>() {
 
 					@Override
-					public Iterator<Pair<String, X>> iterator() {
+					public synchronized Iterator<Pair<String, X>> iterator() {
 						Iterator<Pair<String, X>> ret = Collections.emptyIterator();
 						for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
 							ret = Iterators.concat(Iterators.transform(x.getValue().algebra().en(en).iterator(),i->new Pair<>(x.getKey(),i)), ret);
@@ -276,6 +295,14 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 					
 				};
 				
+				int j = 0;
+				for (Pair<String, X> i : ret) {
+					j++;
+				}
+				if (j != ret.size()) {
+					Util.anomaly();
+				}
+				return ret;
 //				return ens.get(en);
 			}
 
@@ -290,14 +317,22 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 
 			@Override
-			public Term<Ty, Void, Sym, Void, Void, Void, Pair<String, Y>> att(Att att, Pair<String, X> x) {
-				return insts.get(x.first).algebra().att(att, x.second).mapGenSk(x0 -> x0,
-						(x0 -> new Pair<>(x.first, x0)));
+			public Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> att(Att att, Pair<String, X> x) {
+				//return insts.get(x.first).algebra().att(att, x.second).mapGenSk(x0 -> x0,
+					//	(x0 -> new Pair<>(x.first, x0)));
+				return reprT0(Chc.inRight(new Pair<>(x, att)));
+			}
+
+			private Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> reprT0(Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> chc) {
+				talg();
+				return schema().typeSide.js.java_tys.isEmpty() ? talg.simpl(Term.Sk(chc))
+						: schema().typeSide.js.reduce(talg.simpl(Term.Sk(chc)));
 			}
 
 			@Override
-			public Term<Ty, Void, Sym, Void, Void, Void, Pair<String, Y>> sk(Pair<String, Sk> sk) {
-				return insts.get(sk.first).algebra().sk(sk.second).mapGenSk(x0 -> x0, (x0 -> new Pair<>(sk.first, x0))); // .ma
+			public Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> sk(Pair<String, Sk> sk) {
+				return reprT0(Chc.inLeft(sk));
+				//return insts.get(sk.first).algebra().sk(sk.second).mapGenSk(x0 -> x0, (x0 -> new Pair<>(sk.first, x0))); // .ma
 			}
 
 			@Override
@@ -305,20 +340,39 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				return insts.get(x.first).algebra().repr(en, x.second).mapGen(y -> new Pair<>(x.first, y));
 			}
 
+			 TalgSimplifier 	<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>>	
+			talg; //= new TalgSimplifier(This, null, null, 9999);
+
 			@Override
-			public synchronized TAlg<Ty, Sym, Pair<String, Y>> talg0() {
-				if (col != null) {
-					return col;
+			public synchronized TAlg<Ty, Sym, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> talg0() {
+				if (talg != null) {
+					return talg.talg.out;
 				}
-				col = new TAlg<>(new THashMap<>(), new LinkedList<>());
+				Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>>
+				This = this;
+				
+				Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> 
+				w = CoprodInstance.this.collage().eqsAsPairs().iterator();
+				
+				Map<Pair<String, Sk>, Ty> m = Instance.imapToMapNoScan(sks());
+				
+
+				talg = new TalgSimplifier<>(This, w, m, 9999);
+				return talg.talg.out;
+				
+				/*if (talg != null) {
+					return talg;
+				}
+				
+				talg = new TAlg<>(new THashMap<>(), new LinkedList<>());
 
 				for (String x : insts.keySet()) {
 					Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = insts.get(x);
 					for (Y y : i.algebra().talg().sks.keySet()) {
-						col.sks.put(new Pair<>(x, y), i.algebra().talg().sks.get(y));
+						talg.sks.put(new Pair<>(x, y), i.algebra().talg().sks.get(y));
 					}
 				}
-				return col;
+				return talg; */
 			}
 
 			@Override
@@ -332,8 +386,11 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 
 			@Override
-			public Object printY(Ty ty, Pair<String, Y> y) {
-				return insts.get(y.first).algebra().printY(ty, y.second);
+			public Object printY(Ty ty, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> y) {
+				//if (y.left) {
+				//	return insts.get(y.r.first).algebra().printY(ty, y.r.second);
+				//}
+				return "todo " + y; //
 			}
 
 			@Override
@@ -345,13 +402,10 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				return ret;
 			}
 
+		
 			@Override
-			public Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> reprT_prot(Pair<String, Y> y) {
-				Chc<Sk, Pair<X, Att>> x = insts.get(y.first).algebra().reprT_prot(y.second);
-				if (x.left) {
-					return Chc.inLeft(new Pair<>(y.first, x.l));
-				}
-				return Chc.inRight(new Pair<>(new Pair<>(y.first, x.r.first), x.r.second));
+			public Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> reprT_prot(Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> y) {
+				return y;
 			}
 
 			@Override
@@ -365,6 +419,8 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 
 		};
+		
+		return alg;
 	}
 
 

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
@@ -17,7 +18,6 @@ import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Instance;
 import catdata.aql.Pragma;
-import catdata.aql.Query;
 import catdata.aql.Schema;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;

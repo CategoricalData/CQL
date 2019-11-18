@@ -99,13 +99,14 @@ public class SqlChecker {
 
 			endMatches(eq.first, q1.third, q2.third, lhs.third, rhs.third);
 
-			Statement stmt = conn.createStatement();
-			stmt.execute(q1.first);
-			ResultSet q1r = stmt.getResultSet();
+			Statement stmt1 = conn.createStatement();
+			stmt1.execute(q1.first);
+			ResultSet q1r = stmt1.getResultSet();
+	
 
-			stmt = conn.createStatement();
-			stmt.execute(q2.first);
-			ResultSet q2r = stmt.getResultSet();
+			Statement stmt2 = conn.createStatement();
+			stmt2.execute(q2.first);
+			ResultSet q2r = stmt2.getResultSet();
 
 			Set<Map<String, String>> tuples1 = toTuples(q1r);
 			Set<Map<String, String>> tuples2 = toTuples(q2r);
@@ -131,6 +132,11 @@ public class SqlChecker {
 			ret.add(p, "Query");
 
 			frames.add(new Pair<>(eq.first, ret));
+			
+			q1r.close();
+			q2r.close();
+			stmt1.close();
+			stmt2.close();
 		}
 
 	}

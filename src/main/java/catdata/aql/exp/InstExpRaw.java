@@ -240,9 +240,9 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 	public synchronized Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
 			boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> sch = schema.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new CCollage<>(sch.collage());
 
-		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 = (new THashSet<>());
+		Set<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs0 = new THashSet<>();
 
 		for (InstExp<?, ?, ?, ?> k : imports) {
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>> v = (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ID, Chc<Sk, Pair<ID, Att>>>) k

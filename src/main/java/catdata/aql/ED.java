@@ -88,7 +88,7 @@ public class ED {
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> I = front(sch),
 				J = back(sch);
 
-		return new LiteralTransform<>((x,t)->Term.Gen(x), (x,t)->Term.Sk(x), front(sch), back(sch), true);
+		return new LiteralTransform<>((x,t)->Term.Gen(x), (x,t)->Term.Sk(x), I, J, true);
 	}
 
 	public LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> front(

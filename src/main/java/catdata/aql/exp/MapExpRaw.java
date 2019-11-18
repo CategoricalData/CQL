@@ -3,6 +3,7 @@ package catdata.aql.exp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -279,12 +280,12 @@ public final class MapExpRaw extends MapExp implements Raw {
 	public Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> src0 = src.eval(env, isC);
 		Schema<Ty, En, Sym, Fk, Att> dst0 = dst.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> dcol = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> dcol = new CCollage<>(dst0.collage());
 
-		Map<En, En> ens0 = new THashMap<>(ens.size());
+		Map<En, En> ens0 = new LinkedHashMap<>(ens.size());
 		// Map<String, Pair<String, List<String>>> fks0 = new HashMap<>();
-		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts0 = new THashMap<>(atts.size());
-		Map<Fk, Pair<En, List<Fk>>> fksX = new THashMap<>(fks.size());
+		Map<Att, Triple<Var, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts0 = new LinkedHashMap<>(atts.size());
+		Map<Fk, Pair<En, List<Fk>>> fksX = new LinkedHashMap<>(fks.size());
 
 		for (MapExp k : imports) {
 			Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> v = k.eval(env, isC); // env.defs.maps.get(k);

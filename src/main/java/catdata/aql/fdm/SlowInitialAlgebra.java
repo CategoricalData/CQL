@@ -22,8 +22,8 @@ import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.AqlProver;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Schema;
@@ -54,9 +54,9 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 	private final DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp; // may just be on entity side, if java
 
 	private final Map<En, Set<X>> ens;
-	private final Map<X, Map<Fk, X>> fks = (new THashMap<>());
-	private final Map<X, Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = (new THashMap<>());
-	private final Map<Term<Void, En, Void, Fk, Void, Gen, Void>, X> nfs = (new THashMap<>());
+	private final Map<X, Map<Fk, X>> fks = new THashMap<>();
+	private final Map<X, Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = new THashMap<>();
+	private final Map<Term<Void, En, Void, Fk, Void, Gen, Void>, X> nfs = new THashMap<>();
 
 	private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
 	private final Schema<Ty, En, Sym, Fk, Att> schema;
@@ -64,26 +64,36 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 
 	private final Function<Gen, String> printGen;
 	private final Function<Sk, String> printSk;
-
+	
 	private AqlOptions ops;
 
-	public SlowInitialAlgebra(AqlOptions ops, Schema<Ty, En, Sym, Fk, Att> schema,
-			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, Iterator<X> fresh, Function<Gen, String> printGen,
-			Function<Sk, String> printSk) {
-		this(AqlProver.createInstance(ops, col, schema), schema, col, fresh, printGen, printSk, ops);
-	}
 
+	private final Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqsIt;
+	
 	public SlowInitialAlgebra(DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Schema<Ty, En, Sym, Fk, Att> schema,
-			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, Iterator<X> fresh, Function<Gen, String> printGen,
+			Map<Gen, En> gens, Map<Sk, Ty> sks,
+			Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs,
+			Iterator<X> fresh, Function<Gen, String> printGen,
 			Function<Sk, String> printSk, AqlOptions ops) {
-		ens = (Util.newSetsFor(schema.ens));
-		this.col = col;
+		ens = Util.newSetsFor(schema.ens);
 		this.schema = schema;
 		this.fresh = fresh;
 		this.printGen = printGen;
 		this.printSk = printSk;
 		this.ops = ops;
-
+		this.col = new CCollage<>(schema.collage());
+		this.eqsIt = eqs;
+		gens.forEach((kk,vv)->{
+			this.col.gens().put(kk, vv);
+		});
+		sks.forEach((kk,vv)->{
+			this.col.sks().put(kk, vv);
+		});
+		eqs.forEach(p->{
+			this.col.eqs().add(new Eq<>(null,p.first,p.second));			
+		});
+		
+		
 		this.dp = dp;
 		try {
 			while (saturate1())
@@ -210,19 +220,19 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 		if (talg != null) {
 			return talg.talg.out;
 		}
-		talg = new TalgSimplifier<>(this, eqsIt().iterator(), col.sks(), (Integer) ops.getOrDefault(AqlOption.talg_reduction));
+		talg = new TalgSimplifier<>(this, eqsIt.iterator(), col.sks(), (Integer) ops.getOrDefault(AqlOption.talg_reduction));
 		return talg.talg.out;
 	}
 
 	
-	private Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqsIt() {
+	/*private Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqsIt() {
 		return new Iterable<>() {
 			@Override
 			public Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> iterator() {
 				return Iterators.transform(col.eqs().iterator(), x->new Pair<>(x.lhs,x.rhs));
 			}
 		};
-	}
+	}*/
 	
 	@Override
 	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> att(Att att, X x) {
@@ -254,7 +264,7 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(x.first)))
+		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema.typeSide, x.first)))
 				.collect(Collectors.toList()).isEmpty();
 	}
 

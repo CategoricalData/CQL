@@ -94,7 +94,7 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 		}
 
 		public boolean hasFreeTypeAlgebraOnJava() {
-			return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(x.first)))
+			return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
 					.collect(Collectors.toList()).isEmpty();
 		}
 

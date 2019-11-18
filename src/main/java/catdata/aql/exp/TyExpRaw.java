@@ -110,7 +110,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 			col.syms().put(s, new Pair<>(l1, Ty.Ty(kv.getValue().second)));
 			col.java_fns().put(s, kv.getValue().third);
 		}
-
+		
 		// do above because find() requires the index
 		doGuiIndex(types, functions, eqsX, java_tys_string, java_parser_string, java_fns_string);
 	}
@@ -135,17 +135,11 @@ public final class TyExpRaw extends TyExp implements Raw {
 		return Util.map(m, (k, v) -> new Pair<>(Sym.Sym(k), conv2(v.first, v.second)));
 	}
 
-	public void doGuiIndex(/* List<Pair<Integer, TyExp<?, ?>>> imports2, */List<LocStr> types,
+	public void doGuiIndex(List<LocStr> types,
 			List<Pair<LocStr, Pair<List<String>, String>>> functions,
 			List<Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>>> eqs,
 			List<Pair<LocStr, String>> java_tys_string, List<Pair<LocStr, String>> java_parser_string,
 			List<Pair<LocStr, Triple<List<String>, String, String>>> java_fns_string) {
-		// @SuppressWarnings("unused")
-		// List<InteriorLabel<Object>> i = imports2.stream()
-		// .map(z -> new InteriorLabel<Object>(z.toString(), z.second, z.first, x ->
-		// x.toString()))
-		// .collect(Collectors.toList());
-		// raw.put("imports", i);
 		List<InteriorLabel<Object>> t = InteriorLabel.imports("types", types);
 		raw.put("types", t);
 
@@ -355,11 +349,11 @@ public final class TyExpRaw extends TyExp implements Raw {
 	@Override
 	public synchronized TypeSide<Ty, Sym> eval0(AqlEnv env, boolean isC) {
 		AqlOptions ops = new AqlOptions(options, env.defaults);
-		AqlJs<Ty, Sym> js = new AqlJs<>(col.syms(), col.java_tys(), col.java_parsers(), col.java_fns());
 
 		for (TyExp k : imports) {
 			col.addAll(k.eval(env, isC).collage());
 		}
+		AqlJs<Ty, Sym> js = new AqlJs<>(col.syms(), col.java_tys(), col.java_parsers(), col.java_fns());
 
 		for (Triple<List<Pair<String, String>>, RawTerm, RawTerm> eq : eqs) {
 			try {
@@ -371,7 +365,6 @@ public final class TyExpRaw extends TyExp implements Raw {
 				throw new LocException(find("equations", eq),
 						"In equation " + eq.second + " = " + eq.third + ", " + ex.getMessage());
 			}
-
 		}
 
 		Set<Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>>> eqs0 = col

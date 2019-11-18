@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import catdata.Chc;
 import catdata.Pair;
+import catdata.Util;
 import catdata.provers.DPKB;
 
 public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
@@ -51,6 +52,7 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 		if (lhs.hasTypeType(ctx)) {
 			lhs2 = js.reduce(lhs2);
 			rhs2 = js.reduce(rhs2);
+			
 			dealWithNew(lhs2, allowNew);
 			dealWithNew(rhs2, allowNew);
 		}

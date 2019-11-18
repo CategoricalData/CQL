@@ -47,27 +47,12 @@ public class LiteralInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		this.allowUnsafeJava = allowUnsafeJava;
 		if (size() < 16 * 1024) {
 			validate();
+			validateMore();
 		}
 
 	}
 
-	public LiteralInstance(Schema<Ty, En, Sym, Fk, Att> schema, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
-			DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg,
-			boolean requireConsistency, boolean allowUnsafeJava) {
-		this.schema = schema;
-		this.gens = mapToIMap(col.gens());
-		this.sks = mapToIMap(col.sks());
-		this.eqs = new IteratorIterable<>(Iterators.transform(col.eqs().iterator(), x -> new Pair<>(x.lhs, x.rhs)),
-				true);
-		this.dp = dp;
-		this.alg = alg;
-		this.requireConsistency = requireConsistency;
-		this.allowUnsafeJava = allowUnsafeJava;
-		if (size() < 16 * 1024) {
-			validate();
-		}
-
-	}
+	
 
 	@Override
 	public Schema<Ty, En, Sym, Fk, Att> schema() {

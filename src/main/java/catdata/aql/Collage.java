@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 //import java.util.HashSet;
 //import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -97,13 +98,13 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			return eqs;
 		}
 		
-		private final Set<Ty> tys = new THashSet<>();
+		private final Set<Ty> tys = Collections.synchronizedSet(new LinkedHashSet<>());
 		private final Map<Sym, Pair<List<Ty>, Ty>> syms = Util.mk();
 		private final Map<Ty, String> java_tys = Util.mk();
 		private final Map<Ty, String> java_parsers = Util.mk();
 		private final Map<Sym, String> java_fns = Util.mk();
 
-		private final Set<En> ens = new THashSet<>();
+		private final Set<En> ens = Collections.synchronizedSet(new LinkedHashSet<>());
 		private final Map<Att, Pair<En, Ty>> atts = Util.mk();
 		private final Map<Fk, Pair<En, En>> fks = Util.mk();
 
@@ -113,9 +114,6 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		private final Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs = new LinkedList<>();
 		
 	}
-	
-
-	
 	
 	public Set<Ty> tys();
 
@@ -168,7 +166,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	}
 
 
-	/*public default synchronized void validate() {
+	public default void validate() {
 		
 		for (Sym sym : syms().keySet()) {
 			Pair<List<Ty>, Ty> ty = syms().get(sym);
@@ -241,7 +239,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			}
 		}
 		
-		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : eqs) {
+		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : eqs()) {
 			Chc<Ty, En> x = type(eq.ctx, eq.lhs);
 			Chc<Ty, En> y = type(eq.ctx, eq.rhs);
 			if (!x.equals(y)) {
@@ -250,7 +248,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		}
 	}
 
-	*/
+	
 	
 
 /*
@@ -541,7 +539,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		java_tys().putAll(v.java_tys());
 		java_fns().putAll(v.java_fns());
 		java_parsers().putAll(v.java_parsers());
-
+		
 	}
 
 	public default Collection<String> allSymbolsAsStrings() {
@@ -609,6 +607,10 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			ret.add(arg.var);
 		}
 		return ret;
+	}
+
+	public default void removeAll(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage) {
+		
 	}
 
 	

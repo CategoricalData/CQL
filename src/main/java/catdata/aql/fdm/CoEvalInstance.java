@@ -50,7 +50,7 @@ public class CoEvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X,
 		this.Q = Q;
 		this.J = J;
 
-		Collage<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> col = new CCollage<>();
+		Collage<Ty, En1, Sym, Fk1, Att1, Triple<Var, X, En2>, Chc<Triple<Var, X, En2>, Y>> col = new CCollage<>(Q.src.collage());
 
 		col.sks().putAll(
 				Util.map(J.algebra().talg().sks, (k, v) -> new Pair<>(Chc.<Triple<Var, X, En2>, Y>inRight(k), v)));

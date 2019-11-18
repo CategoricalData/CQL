@@ -80,7 +80,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 	@Override
 	public synchronized Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		TypeSide<Ty, Sym> ts = typeSide.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>(ts.collage());
 
 		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs0 = (new THashSet<>());
 
@@ -166,15 +166,21 @@ public final class SchExpRaw extends SchExp implements Raw {
 	}
 
 	private Map<Att, Pair<En, Ty>> conv2(Set<Pair<String, Pair<String, String>>> map) {
-		Set<Pair<Att, Pair<En, Ty>>> x = map.stream().map(p -> new Pair<>(Att.Att(En.En(p.second.first), p.first),
-				new Pair<>(En.En(p.second.first), Ty.Ty(p.second.second)))).collect(Collectors.toSet());
-		return Util.toMapSafely(x);
+		Map<Att, Pair<En, Ty>> ret = Util.mk();
+		for (Pair<String, Pair<String, String>> p : map) {
+			ret.put(Att.Att(En.En(p.second.first), p.first),
+					new Pair<>(En.En(p.second.first), Ty.Ty(p.second.second)));
+		}
+		return ret;
 	}
 
 	private Map<Fk, Pair<En, En>> conv1(Set<Pair<String, Pair<String, String>>> map) {
-		Set<Pair<Fk, Pair<En, En>>> x = map.stream().map(p -> new Pair<>(Fk.Fk(En.En(p.second.first), p.first),
-				new Pair<>(En.En(p.second.first), En.En(p.second.second)))).collect(Collectors.toSet());
-		return Util.toMapSafely(x);
+		Map<Fk, Pair<En, En>> ret = Util.mk();
+		for (Pair<String, Pair<String, String>> p : map) {
+			ret.put(Fk.Fk(En.En(p.second.first), p.first),
+				new Pair<>(En.En(p.second.first), En.En(p.second.second)));
+		}
+		return ret;
 	}
 
 	public final TyExp typeSide;

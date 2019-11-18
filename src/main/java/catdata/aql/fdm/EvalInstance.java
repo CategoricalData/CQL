@@ -3,7 +3,7 @@ package catdata.aql.fdm;
 import java.util.Map;
 
 import catdata.Chc;
-import catdata.Pair;
+import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
 import catdata.aql.DP;
@@ -35,9 +35,9 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 
 		J = new SaturatedInstance<>(alg, dp(), I.requireConsistency(), I.allowUnsafeJava(), false, null);
 
-		// if (J.size() < 1024*16) {
-		// validate();
-		// }
+		if (J.size() < 1024*16) {
+		 validate();
+		}
 	}
 
 	@Override
@@ -70,8 +70,7 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> lhs,
 			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> rhs) {
 		if (ctx != null && !ctx.isEmpty()) {
-			throw new RuntimeException(
-					"Anomaly: please report.  Note to Ryan: caused by call to instance dp on non-ground eq");
+			Util.anomaly();
 		}
 		return atType(lhs) ? I.dp().eq(null, I.reprT(alg.intoY(lhs)), I.reprT(alg.intoY(rhs)))
 				: alg.intoX(lhs).equals(alg.intoX(rhs));

@@ -1,5 +1,16 @@
 package catdata.aql.exp;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Collection;
+import java.util.List;
+
+import catdata.Pair;
+import catdata.ParseException;
+import catdata.Program;
+import catdata.Triple;
+import catdata.aql.RawTerm;
+
 //import catdata.aql.grammar.AqlLexerRules;
 //import catdata.aql.grammar.AqlParser;
 
@@ -11,7 +22,9 @@ package catdata.aql.exp;
  * @author fredrick.eisele
  *
  */
-public class Antlr4Parser { // implements IAqlParser {
+public class Antlr4Parser   {
+
+	
 	/*
 	 * protected Antlr4Parser() { }
 	 * 

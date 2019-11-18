@@ -47,6 +47,7 @@ public class AqlJs<Ty, Sym> {
 		this.java_tys = java_tys;
 		Object last = "";
 
+		
 		if (java_tys.isEmpty()) {
 			engine = null;
 			iso1 = null;
@@ -260,5 +261,12 @@ public class AqlJs<Ty, Sym> {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "AqlJs [java_tys=" + java_tys + ", java_parsers=" + java_parsers + ", java_fns=" + java_fns + "]";
+	}
+	
+	
 
 }

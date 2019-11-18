@@ -1,5 +1,7 @@
 package catdata.aql.fdm;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -31,7 +33,7 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 		F = f;
 		I = i;
 
-		Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new CCollage<>();
+		Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new CCollage<>(F.dst.collage());
 
 		I.sks().entrySet((k, v) -> {
 			col.sks().put(k, v);
@@ -41,8 +43,13 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 			col.gens().put(gen, F.ens.get(I.gens().get(gen)));
 		});
 
+		List<Pair<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>,Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>>> l = new ArrayList<>(col.eqs().size());
 		I.eqs((a, b) -> {
-			col.eqs().add(new Eq<>(null, F.trans(a), F.trans(b)));
+			Term<Ty,En2,Sym,Fk2,Att2,Gen,Sk> aa = F.trans(a);
+			Term<Ty,En2,Sym,Fk2,Att2,Gen,Sk> bb = F.trans(b);
+			Eq<Ty, En2, Sym, Fk2, Att2, Gen, Sk> w = new Eq<>(null, aa, bb);
+			col.eqs().add(w);
+			l.add(new Pair<>(aa, bb));
 		});
 
 		Function<Gen, Object> printGen = (x) -> I.algebra().printX(I.type(Term.Gen(x)).r, I.algebra().nf(Term.Gen(x)));
@@ -50,7 +57,8 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 				.toString(z -> I.algebra().printY(y, z).toString(), Util.voidFn());
 		InitialAlgebra<Ty, En2, Sym, Fk2, Att2, Gen, Sk> initial = new InitialAlgebra<>(strat, schema(), col, printGen,
 				printSk);
-		J = new LiteralInstance<>(schema(), col, initial.dp(), initial,
+		
+		J = new LiteralInstance<>(schema(), col.gens(), col.sks(), l, initial.dp(), initial,
 				(Boolean) strat.getOrDefault(AqlOption.require_consistency),
 				(Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		validate();

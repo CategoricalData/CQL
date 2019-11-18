@@ -67,7 +67,7 @@ public class SchExpColim extends SchExp {
 	}
 
 	@Override
-	public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+	public synchronized Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		return exp.eval(env, isC).schemaStr;
 	}
 

@@ -141,12 +141,6 @@ public class SqlTypeSide extends TypeSide<Ty, Sym> {
 		m.put(Ty.Ty("Clob"), "java.lang.Object");
 		m.put(Ty.Ty("Other"), "java.lang.Object");
 
-		/*
-		 * m.put("Date", "java.lang.Object"); //TODO aql m.put("Time",
-		 * "java.lang.Object"); //TODO aql m.put("Timestamp", "java.lang.Object");
-		 * //TODO aql
-		 */
-
 		m.put(Ty.Ty("Date"), "java.lang.Object");
 		m.put(Ty.Ty("Time"), "java.sql.Time");
 		m.put(Ty.Ty("Timestamp"), "java.sql.Timestamp");
@@ -160,11 +154,6 @@ public class SqlTypeSide extends TypeSide<Ty, Sym> {
 		m.put(Ty.Ty("Longvarbinary"), "return input[0]"); // TODO CQL
 		m.put(Ty.Ty("Varbinary"), "return input[0]"); // TODO CQL
 		m.put(Ty.Ty("Binary"), "return input[0]"); // TODO CQL
-
-		/*
-		 * m.put("Date", "return input[0]"); m.put("Time", "return input[0]");
-		 * m.put("Timestamp", "return input[0]");
-		 */
 
 		m.put(Ty.Ty("Clob"), "return input[0]");
 		m.put(Ty.Ty("Date"), "return input[0]"); // java.sql.Date.valueOf(input[0])");

@@ -12,9 +12,11 @@ import java.awt.GridLayout;
 import java.awt.Paint;
 import java.awt.Stroke;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import com.google.common.base.Function;
@@ -723,8 +724,8 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		Map<X, Integer> referredTo = new THashMap<>();
 		Map<Y, Integer> referredTo2 = new THashMap<>();
 
-		Set<X> set = new THashSet<>();
-		Map<En, List<X>> all = new THashMap<>();
+		Set<X> set = new LinkedHashSet<>();
+		Map<En, List<X>> all = new LinkedHashMap<>();
 		int fresh = 0;
 
 		for (En en : ens) {
@@ -815,6 +816,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 					}
 				}
 			}
+			//System.out.println("RET " + en + " " + header + " data " + Arrays.deepToString(data));
 			ret.put(en, new Pair<>(header, data));
 		}
 
@@ -830,17 +832,20 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		BiFunction<Ty, Object, Object> b = (y, x) -> ((Term<Ty, Void, Sym, Void, Void, Void, Y>) x)
 				.toString(z -> alg.printY(alg.talg().sks.get(z), z).toString(), Util.voidFn());
 
+		
 		enTableSimpl(alg, ret, a, b, a);
 		
 		return ret;
 	}
 
-	private static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> void enTableSimpl(
+	private synchronized static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> void enTableSimpl(
 			Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg, Map<En, Pair<List<String>, Object[][]>> ret,
 			BiFunction<En, Object, Object> f, BiFunction<Ty, Object, Object> g, BiFunction<En, Object, Object> h) {
 
 		for (En en : ret.keySet()) {
 			Object[][] arr = ret.get(en).second;
+			//System.out.println("en(before) " + en + " " + Arrays.deepToString(arr));
+			
 			for (int i = 0; i < arr.length; i++) {
 				Object[] o = arr[i];
 				int j = 0;
@@ -852,10 +857,13 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				}
 				for (Fk fk : alg.schema().fksFrom(en)) {
 					En e = alg.schema().fks.get(fk).second;
+				//	System.out.println("On fk " + fk + " tgt is " + e + " and o " + Arrays.deepToString(o));
 					o[1 + j] = h.apply(e, o[1 + j]);
 					j++;
 				}
 			}
+			
+			//System.out.println("en(after) " + en + " " + Arrays.deepToString(arr));
 		}
 
 	}

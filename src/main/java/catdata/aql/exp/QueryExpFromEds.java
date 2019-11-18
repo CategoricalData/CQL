@@ -74,7 +74,7 @@ public class QueryExpFromEds extends QueryExp {
 	}
 
 	@Override
-	public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E {
+	public <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) {
 		return v.visit(params, this);
 	}
 

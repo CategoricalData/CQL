@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -339,7 +341,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 	}
 
 	public static <X, Y> TypeSide<X, Y> initial(AqlOptions ops) {
-		return new TypeSide<>(Collections.emptySet(), Collections.emptyMap(), Collections.emptySet(),
+		return new TypeSide<>(new LinkedHashSet<>(0), new LinkedHashMap<>(0), Collections.emptySet(),
 				new AqlJs<>(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
 						Collections.emptyMap()),
 				DP.initial(), ops);
@@ -413,7 +415,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 
 			@Override
 			public Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs() {
-				return new AbstractCollection<>() {
+				Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> ret = new AbstractCollection<>() {
 
 					@Override
 					public Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> iterator() {
@@ -426,6 +428,21 @@ public class TypeSide<Ty, Sym> implements Semantics {
 					}
 					
 				};
+				
+				int j = 0;
+				for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> i : ret) {
+					j++;
+				}
+				if (j != ret.size()) {
+					Util.anomaly();
+				}
+				
+				return ret;
+			}
+			
+			@Override
+			public String toString() {
+				return this.toString(new CCollage<>());
 			}
 			
 		};
@@ -484,7 +501,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 	private String toString;
 
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		if (toString != null) {
 			return toString;
 		}

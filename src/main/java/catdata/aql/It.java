@@ -39,12 +39,7 @@ public class It implements Iterator<ID>, Serializable {
 				return false;
 			}
 			ID other = (ID) obj;
-			/*
-			 * if (!getOuterType().equals(other.getOuterType())) {
-			 * System.out.println("Please report this message to Ryan."); return false;
-			 * //throw new RuntimeException("Anomaly: please report"); }
-			 */
-
+		
 			if (str == null) {
 				if (other.str != null)
 					return false;

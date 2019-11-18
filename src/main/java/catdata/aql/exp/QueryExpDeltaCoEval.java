@@ -197,7 +197,7 @@ public final class QueryExpDeltaCoEval extends QueryExp {
 		Map<En, Pair<Map<Chc<Void, Pair<Integer, Att>>, Integer>, Map<Integer, Chc<Void, Pair<Integer, Att>>>>> isos2 = new THashMap<>();
 		int skidx = 0;
 		for (En en2 : F0.dst.ens) {
-			Collage<Ty, En, Sym, Fk, Att, Var, Void> col = new CCollage<>();
+			Collage<Ty, En, Sym, Fk, Att, Var, Void> col = new CCollage<>(F0.dst.collage());
 			col.gens().put(v, en2);
 
 			InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Void> initial = new InitialAlgebra<>(ops, F0.dst, col, (y) -> y,

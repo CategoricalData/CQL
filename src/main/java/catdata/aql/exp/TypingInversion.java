@@ -46,7 +46,6 @@ import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
 import catdata.apg.exp.ApgTyExp;
 import catdata.apg.exp.ApgTyExp.ApgTyExpRaw;
 import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
-import catdata.aql.AqlOptions;
 import catdata.aql.RawTerm;
 import catdata.aql.exp.ColimSchExp.ColimSchExpQuotient;
 import catdata.aql.exp.ColimSchExp.ColimSchExpRaw;

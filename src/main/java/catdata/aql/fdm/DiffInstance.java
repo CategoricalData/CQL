@@ -11,6 +11,8 @@ import java.util.function.BiFunction;
 
 import com.google.common.collect.Iterators;
 
+import catdata.Pair;
+import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.DP;
 import catdata.aql.Eq;
@@ -90,21 +92,31 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 
 		boolean dontCheckClosure = false;
 
+		Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> ooo = new AbstractCollection<>() {
+			@Override
+			public synchronized Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Y>> iterator() {
+				return Iterators.transform(I.algebra().talg().eqs.iterator(), x->new Eq<>(null,x.first,x.second));
+			}
+
+			@Override
+			public int size() {
+				return I.algebra().talg().eqs.size();
+			}
+		};
+
+
+		int j = 0;
+		for (Eq<Ty, Void, Sym, Void, Void, Void, Y> i : ooo) {
+			j++;
+		}
+		if (j != ooo.size()) {
+			Util.anomaly();
+		}
 		
 		ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> alg 
 		= new ImportAlgebra<>(I.schema(), ens, tys, fks, atts,
 				I.algebra()::printX, I.algebra()::printY, dontCheckClosure,
-				new AbstractCollection<>() {
-					@Override
-					public Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Y>> iterator() {
-						return Iterators.transform(I.algebra().talg().eqs.iterator(), x->new Eq<>(null,x.first,x.second));
-					}
-
-					@Override
-					public int size() {
-						return I.algebra().talg().eqs.size();
-					}
-		});
+				ooo);
 
 		K = new SaturatedInstance<>(alg, alg, rc, uj, false, Collections.EMPTY_MAP);
 		validate();

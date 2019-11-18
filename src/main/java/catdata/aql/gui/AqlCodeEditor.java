@@ -372,6 +372,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					}
 					if (z.startsWith("Anomaly")) {
 						System.out.println(z);
+						
 						new RuntimeException("Anomaly").printStackTrace();
 					}
 				}

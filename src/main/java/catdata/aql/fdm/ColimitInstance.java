@@ -1,5 +1,7 @@
 package catdata.aql.fdm;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -78,7 +80,10 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 		this.nodes = nodes;
 		this.edges = edges;
 
-		Collage<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> col = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> col = new CCollage<>(schema().collage());
+
+		List<Pair<Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>,Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>>> l = new LinkedList<>();
+		
 
 		for (N n : nodes.keySet()) {
 			nodes.get(n).gens().keySet(gen ->  {
@@ -90,21 +95,31 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 			nodes.get(n).eqs((a,b)->{
 				col.eqs().add(new Eq<>(null, a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
 						b.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
+				
+				l.add(new Pair<>(a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
+						b.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
 			});
 		}
 		for (E e : shape.edges.keySet()) {
 			Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y> h = edges.get(e);
 			
-			
 			h.src().gens().entrySet((gen,t) -> {
 				col.eqs().add(new Eq<>(null, Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
+						h.gens().apply(gen,t).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
+								x -> new Pair<>(shape.edges.get(e).second, x), Util.voidFn())));
+			
+			l.add(new Pair<>(Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
 						h.gens().apply(gen,t).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
 								x -> new Pair<>(shape.edges.get(e).second, x), Util.voidFn())));
 			});
 			h.src().sks().entrySet((sk,t) -> {
 				col.eqs().add(new Eq<>(null, Term.Sk(new Pair<>(shape.edges.get(e).first, sk)), h.sks().apply(sk,t).mapGenSk(
 						x -> new Pair<>(shape.edges.get(e).second, x), x -> new Pair<>(shape.edges.get(e).second, x))));
+				l.add(new Pair<>(Term.Sk(new Pair<>(shape.edges.get(e).first, sk)), h.sks().apply(sk,t).mapGenSk(
+						x -> new Pair<>(shape.edges.get(e).second, x), x -> new Pair<>(shape.edges.get(e).second, x))));
+
 			});
+			
 		}
 
 		Function<Pair<N, Gen>, Object> printGen = (x) -> nodes.get(x.first).algebra().nf(Term.Gen(x.second));
@@ -115,7 +130,7 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> initial = new InitialAlgebra<>(options,
 				schema(), col, printGen, printSk);
 
-		J = new LiteralInstance<>(schema(), col, initial.dp(), initial,
+		J = new LiteralInstance<>(schema(), col.gens(), col.sks(), l, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		
