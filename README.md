@@ -1,4 +1,4 @@
-Categorical Query Language 
+Categorical Query Language
 ====
 
 For more information, please see:
@@ -12,13 +12,13 @@ Build and installation
 [Java 11 Jar File (14MB)](http://categoricaldata.net/cql.jar)
 
 ### Eclipse
-	
+
 For best results, compile using the [Eclipse IDE](http://eclipse.org/jdt/).
 
 - create a new java project
-- add the src/main folder as a source folder
-- add resources as a source folder 
-- add lib/* as external jar files
+- add the src/main/java folder as a source folder
+- add resources as a separate source folder
+- add lib/* to the classpath as external jar files
 - run catdata.ide.IDE as the main class
 
 A gradle file is provided, but is not maintained.
