@@ -31,7 +31,9 @@ Related projects:
 License
 -------
 
-### Categorical Data IDE (AGPL 3 license)
+### Categorical Data IDE
+
+AGPL 3 license for non-commercial use; contact us for commercial licenses.
 
 Copyright (c) 2015+ Conexus AI, Inc.  All rights reserved.
 
