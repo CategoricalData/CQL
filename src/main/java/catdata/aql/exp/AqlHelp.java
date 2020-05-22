@@ -134,14 +134,10 @@ public class AqlHelp implements
 			return "Applies unfailing (ordered) Knuth-Bendix completion specialized to lexicographic path ordering.  If no completion precedence is given, attempts to infer a precedence using constraint-satisfaction techniques.";
 		case congruence:
 			return "Applies only to ground (variable-free) theories.  Uses the classical Nelson-Oppen congruence-closure with union-find algorithm.";
-		case e:
-			return "Uses the E prover.  Must be installed.";
 		case fail:
 			return "Applies to all theories.  Always fails with an exception.";
 		case free:
 			return "Applies only to theories without equations.  Provable equivalence is defined as the syntactic equality of two terms.";
-		case maedmax:
-			return "Uses the maedmax prover.  Must be installed.";
 		case monoidal:
 			return "Applies to theories where all equations are monadic (unary) or ground.  Applies Knuth-Bendix completion specialized to semi-Thue systems.";
 		case program:
@@ -866,11 +862,6 @@ public class AqlHelp implements
 	public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> String visit(Unit params,
 			PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) {
 		return "Emit a transform to a set of CSV files, one two-column table per entity with one column per foreign key and attribute.  There will be no headers, column 1 is the source.";
-	}
-
-	@Override
-	public String visit(Unit params, PragmaExpCheck2 exp) {
-		return "Checks if a query from s1 to s2 with constraints c1 on s1 to c2 on s2 is valid.";
 	}
 
 	public static String getOptionText(AqlOption op) {

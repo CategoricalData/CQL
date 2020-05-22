@@ -65,9 +65,6 @@ public class AqlStatic extends AbstractParser {
 						if (o.left) {
 							exns.put(n, Optional.of(o.l));
 						} else {
-							if (exp instanceof PragmaExpCheck2) {
-								((Pragma) o.r).execute();
-							}
 							env.defs.put(n, exp.kind(), o.r);
 						}
 					}

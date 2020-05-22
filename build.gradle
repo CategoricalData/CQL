@@ -126,8 +126,7 @@ idea {
 
 repositories {
     mavenCentral()
-    maven { url "https://nexus.isis.vanderbilt.edu/repository/maven-releases" }
-    maven { url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots" }
+   
 }
 
 dependencies {
@@ -149,7 +148,7 @@ dependencies {
     compile group: 'com.fifesoft', name: 'rstaui', version:'2.6.1'
     compile group: 'com.fifesoft', name: 'rsyntaxtextarea', version:'2.6.1'
     compile group: 'es.nitaur.markdown', name: 'txtmark', version:'0.16'
-    compile group: 'org.antlr', name: 'antlr4-runtime', version:'4.7.1'
+  //  compile group: 'org.antlr', name: 'antlr4-runtime', version:'4.7.1'
     // antlr group: 'org.antlr', name: 'antlr4', version: '4.7.1'
 
     testCompileOnly(

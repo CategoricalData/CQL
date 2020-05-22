@@ -80,7 +80,6 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToCsvTrans(
 				P params, R exp) throws E;
 
-		public PragmaExpCheck2 visitPragmaExpCheck2(P params, R exp) throws E;
 	}
 
 	public static interface PragmaExpVisitor<R, P, E extends Exception> {
@@ -110,7 +109,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> R visit(P params,
 				PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) throws E;
 
-		public R visit(P params, PragmaExpCheck2 exp) throws E;
+		
 	}
 
 	public abstract <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E;

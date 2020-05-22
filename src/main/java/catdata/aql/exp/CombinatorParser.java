@@ -343,13 +343,11 @@ public class CombinatorParser implements IAqlParser {
 
 				check = Parsers.tuple(token("check"), edsExp(), inst_ref.lazy()).map(x -> new PragmaExpCheck(x.c, x.b)),
 
-				check2 = Parsers.tuple(token("check_query"), query_ref.lazy(), edsExp(), edsExp())
-						.map(x -> new PragmaExpCheck2(x.b, x.c, x.d)),
-
+			
 				cons = Parsers.tuple(token("assert_consistent"), inst_ref.lazy())
 						.map(x -> new PragmaExpConsistent(x.b)),
 
-				ret = Parsers.or(jdbcQuery, check, check2, csvInst, cons, csvTrans, var, sql, js, proc, jdbcInst,
+				ret = Parsers.or(jdbcQuery, check, csvInst, cons, csvTrans, var, sql, js, proc, jdbcInst,
 						jdbcTrans, match, parens(pragma_ref));
 
 		pragma_ref.set(ret);

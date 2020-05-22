@@ -630,26 +630,6 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public PragmaExpCheck2 visitPragmaExpCheck2(Unit params, AqlTyping exp) throws RuntimeException {
-		TyExpVar t = new TyExpVar("t");
-
-		exp.defs.schs.put("s1", t);
-		exp.defs.schs.put("s2", t);
-		SchExp s1 = new SchExpVar("s1");
-		SchExp s2 = new SchExpVar("s2");
-		exp.defs.qs.put("q", new Pair(s1, s2));
-		QueryExp q = new QueryExpVar("q");
-
-		exp.defs.eds.put("c1", s1);
-		exp.defs.eds.put("c2", s2);
-
-		EdsExp c1 = new EdsExpVar("c1");
-		EdsExp c2 = new EdsExpVar("c2");
-
-		return new PragmaExpCheck2(q, c1, c2);
-	}
-
-	@Override
 	public ColimSchExpQuotient visitColimSchExpQuotient(Unit params, AqlTyping exp) throws RuntimeException {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar t = new TyExpVar("t");

@@ -30,7 +30,7 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 	private final KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> dp;
 
 	public enum ProverName {
-		auto, monoidal, program, completion, congruence, fail, free, maedmax, e
+		auto, monoidal, program, completion, congruence, fail, free
 	}
 
 	// these provers say that x = y when that is true when all java symbols are
@@ -131,16 +131,6 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 			break;
 		case monoidal:
 			dpkb = new MonoidalFreeDP<>(col_simpl.toKB());
-			break;
-		case e:
-			String exePath = (String) ops.getOrDefault(AqlOption.e_path);
-			Boolean b = (Boolean) ops.getOrDefault(AqlOption.allow_empty_sorts_unsafe);
-			dpkb = new EProver<>(exePath, col_simpl.toKB(), timeout);
-			break;
-		case maedmax:
-			exePath = (String) ops.getOrDefault(AqlOption.maedmax_path);
-			b = (Boolean) ops.getOrDefault(AqlOption.allow_empty_sorts_unsafe);
-			dpkb = new MaedmaxProver<>(exePath, col_simpl.toKB(), b, timeout);
 			break;
 		default:
 			throw new RuntimeException("Anomaly: please report");
