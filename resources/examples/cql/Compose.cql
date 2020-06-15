@@ -5,8 +5,8 @@ options
 typeside ty = literal { 
 	imports sql
 	java_functions
-		plus : Integer,Integer -> Integer = "return (input[0]+input[1])"
-		neg : Integer -> Integer = "return -(input[0])"
+		plus : Integer,Integer -> Integer = "return java.lang.Integer.valueOf(input[0]+input[1])"
+		neg : Integer -> Integer = "return java.lang.Integer.valueOf(-input[0])"
 }
  
 schema S = literal : ty {
