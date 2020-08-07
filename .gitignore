@@ -4,3 +4,7 @@
 buildSrc/.gradle/4.10.1/taskHistory/taskHistory.bin
 buildSrc/.gradle/buildOutputCleanup/cache.properties
 src/main/antlr/notes.txt
+.gradle
+out
+buildSrc/build
+
