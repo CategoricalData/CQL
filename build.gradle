@@ -51,8 +51,8 @@ task showDependencies {
 
 description = "Categorical Data IDE"
 
-sourceCompatibility = 1.9
-targetCompatibility = 1.9
+sourceCompatibility = 11
+targetCompatibility = 11
 
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
@@ -132,24 +132,27 @@ repositories {
 dependencies {
     compile group: 'net.sourceforge.collections', name: 'collections-generic', version:'4.01'
     compile group: 'commons-cli', name: 'commons-cli', version:'1.4'
+    compile group: 'org.apache.commons', name: 'commons-collections4', version:'4.1'
     compile group: 'org.apache.commons', name: 'commons-csv', version:'1.5'
     compile group: 'org.apache.commons', name: 'commons-exec', version:'1.3'
     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.7'
     compile group: 'com.h2database', name: 'h2', version:'1.4.196'
     compile group: 'org.glassfish', name: 'javax.json', version:'1.1.2'
-    compile group: 'jgraph', name: 'jgraph', version:'5.12.3.2'
+    compile group: 'jgraph', name: 'jgraph', version:'5.13.0.0'
     compile group: 'org.jparsec', name: 'jparsec', version:'3.0'
     compile group: 'net.sf.jung', name: 'jung-algorithms', version:'2.1.1'
     compile group: 'net.sf.jung', name: 'jung-api', version:'2.1.1'
     compile group: 'net.sf.jung', name: 'jung-graph-impl', version:'2.1.1'
     compile group: 'net.sf.jung', name: 'jung-visualization', version:'2.1.1'
     compile group: 'com.opencsv', name: 'opencsv', version:'4.1'
-    compile group: 'com.fifesoft', name: 'autocomplete', version:'2.6.1'
-    compile group: 'com.fifesoft', name: 'rstaui', version:'2.6.1'
-    compile group: 'com.fifesoft', name: 'rsyntaxtextarea', version:'2.6.1'
+    compile group: 'com.fifesoft', name: 'autocomplete', version:'3.1.0'
+    compile group: 'com.fifesoft', name: 'rstaui', version:'3.1.0'
+    compile group: 'com.fifesoft', name: 'rsyntaxtextarea', version:'3.1.1'
     compile group: 'es.nitaur.markdown', name: 'txtmark', version:'0.16'
-  //  compile group: 'org.antlr', name: 'antlr4-runtime', version:'4.7.1'
-    // antlr group: 'org.antlr', name: 'antlr4', version: '4.7.1'
+    compile group: 'net.sf.trove4j', name: 'trove4j', version:'3.0.3'
+    compile group: 'org.antlr', name: 'antlr4-runtime', version:'4.7.1'
+//     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.1'
+//    compile fileTree(dir: 'lib', include: '*.jar')
 
     testCompileOnly(
             'junit:junit:4.12'

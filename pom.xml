@@ -9,28 +9,13 @@
     <packaging>jar</packaging>
     <name>Categorical Data IDE</name>
     <url>http://categoricaldata.net/fql.html</url>
-    <prerequisites>
-        <maven>3.3.9</maven>
-    </prerequisites>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
+
     <build>
-        <!-- Use non-standard src directory -->
-        <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>resources</directory>
-            </resource>
-        </resources>
-        <testSourceDirectory>test/src</testSourceDirectory>
-        <testResources>
-            <testResource>
-                <directory>${basedir}/test/resources</directory>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -45,14 +30,14 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>[3.0,)</version>
+                                    <version>[3.3,)</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- 
+            <!--
             <plugin>
                <groupId>org.codehaus.mojo</groupId>
                <artifactId>build-helper-maven-plugin</artifactId>
@@ -117,8 +102,8 @@
                         </manifest>
                     </archive>
                     <descriptors>
-                      <descriptor>src/main/java/assembly/bin.xml</descriptor>
-                      <descriptor>src/main/java/assembly/jar-with-deps.xml</descriptor>
+                      <descriptor>src/main/assembly/bin.xml</descriptor>
+                      <descriptor>src/main/assembly/jar-with-deps.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>
@@ -182,8 +167,13 @@
         </plugins>
     </build>
     <distributionManagement>
-       </distributionManagement>
+    </distributionManagement>
     <dependencies>
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>3.0.3</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -225,7 +215,7 @@
         <dependency>
             <groupId>jgraph</groupId>
             <artifactId>jgraph</artifactId>
-            <version>5.12.3.2</version>
+            <version>5.13.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.jparsec</groupId>
@@ -276,17 +266,17 @@
           <!-- https://github.com/bobbylight/AutoComplete -->
             <groupId>com.fifesoft</groupId>
             <artifactId>autocomplete</artifactId>
-            <version>2.6.1</version>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rstaui</artifactId>
-            <version>2.6.1</version>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rsyntaxtextarea</artifactId>
-            <version>2.6.1</version>
+            <version>3.1.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.rjeschke/txtmark -->
         <dependency>
@@ -301,10 +291,36 @@
             <version>1.5.13</version>
         </dependency>
     -->
+<!--
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.5.2</version>
             <scope>test</scope>
         </dependency>
 
