@@ -13,13 +13,16 @@ Build and installation
 
 ### Eclipse
 
-For best results, compile using the [Eclipse IDE](http://eclipse.org/jdt/).
+For best results, compile using the [Eclipse IDE](http://eclipse.org/jdt/).  
 
+Quick build guide:
 - create a new java project
 - add the src/main/java folder as a source folder
 - add resources as a separate source folder
 - add lib/* to the classpath as external jar files
 - run catdata.ide.IDE as the main class
+
+[Detailed Build Guide](https://github.com/CategoricalData/CQL/wiki/detailed-Eclipse-build-instructions)
 
 A gradle file is provided, but is not maintained.
 
