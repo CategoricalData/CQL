@@ -129,7 +129,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 				atts0.put(toGen(en, lhs.toString()), new THashMap<>());
 			}
 			atts0.get(toGen(en, lhs.toString())).put(att,
-					objectToSk(sch, rhs, toGen(en, lhs.toString()), att, tys0, extraRepr, false, nullOnErr));
+					objectToSk(sch, rhs, toGen(en, lhs.toString()), att, tys0, extraRepr, true, nullOnErr));
 		}
 		stmt.close();
 		rs.close();
@@ -256,7 +256,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 					atts0.put(g1, new THashMap<>());
 				}
 
-				atts0.get(g1).put(att, objectToSk(sch, rhs, g1, att, tys0, extraRepr, false, nullOnErr));
+				atts0.get(g1).put(att, objectToSk(sch, rhs, g1, att, tys0, extraRepr, true, nullOnErr));
 			}
 
 		}

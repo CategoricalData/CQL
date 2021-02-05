@@ -1,0 +1,1 @@
+Typeside for RDF/Jena import

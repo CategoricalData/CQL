@@ -24,7 +24,6 @@ import org.jparsec.functors.Tuple5;
 import catdata.Pair;
 import catdata.Program;
 import catdata.Quad;
-import catdata.Triple;
 import catdata.mpl.Mpl.MplExp;
 import catdata.mpl.Mpl.MplExp.MplEval;
 import catdata.mpl.Mpl.MplExp.MplSch;

@@ -1,0 +1,1 @@
+Given a relational olog encoded as a CQL schema, emit the CQL spans.

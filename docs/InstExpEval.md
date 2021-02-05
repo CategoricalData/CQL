@@ -1,0 +1,1 @@
+Evaluates a query.  Generalizes relational conjunctive queries to the case of multiple tables connected by constraints.

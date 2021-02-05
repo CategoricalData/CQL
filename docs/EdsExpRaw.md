@@ -1,0 +1,1 @@
+A set of data integrity constraints, i.e., a theory in regular logic or a set of embedded dependencies (EDs), or finite limit logic plus epis.  Each constraint is also a transform; satisfying it is tantamount to solving a lifting problem.  See All_Syntax for an example.  Note that you can write 'exists unique'.

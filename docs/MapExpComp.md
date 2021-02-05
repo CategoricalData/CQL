@@ -1,0 +1,1 @@
+Composes two mappings left to right.

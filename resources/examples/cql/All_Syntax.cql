@@ -3,8 +3,8 @@
 //global options at start of file, see manual or options button
 options
 	timeout = 30
-	
-//////////// Kind comment 
+
+//////////// Kind comment
 
 html { (* "some html" *) } //be sure to escape slashes and quotes
 md { (* "some markdown" *) }
@@ -15,7 +15,7 @@ graph g1 = literal {
 	nodes
 		n1 n2
 	edges
-		f : n1 -> n2		
+		f : n1 -> n2
 }
 
 //////////// Kind typeside
@@ -25,25 +25,25 @@ typeside ty2 = sql
 typeside ty3 = typesideOf (empty : ty1)
 typeside ty4 = literal {
 	imports //order of sections (imports, types, ...) matters, but sections can be omitted
-		ty1 
+		ty1
 	types
-		Nat	
+		Nat
 	constants
 		zero : Nat
 	functions
 		succ : Nat -> Nat
 		plus : Nat, Nat -> Nat
-	java_types 
-	 	String = "java.lang.String"
-	java_constants
-	 	String = "return input[0]"	
-	java_functions
-	 	append : String, String -> String = "return input[0] + input[1]"		
-	equations	
+	external_types
+	 	String -> "java.lang.String"
+	external_parsers
+	 	String -> "x => x"
+	external_functions
+	 	append : String, String -> String = "(x, y) => x.concat(y)"
+	equations
 		forall x. plus(zero, x) = x
 	 	forall x, y. plus(succ(x),y) = succ(plus(x,y))
 	 options
-	 	prover = completion	
+	 	prover = completion
 }
 
 //////////// Kind schema
@@ -51,19 +51,19 @@ typeside ty4 = literal {
 schema s1 = empty : ty2
 schema s2 = schemaOf (empty : s1)
 schema s3 = literal : ty4 {
-	imports 
+	imports
 		s1
 	entities
-		Employee 
+		Employee
 		Department
 	foreign_keys
 		manager   : Employee -> Employee
 		worksIn   : Employee -> Department
 		secretary : Department -> Employee
-	path_equations 
+	path_equations
 		Employee.manager.manager = Employee.manager
 		Employee.manager.worksIn = Employee.worksIn
-  		Department.secretary.worksIn = Department 
+  		Department.secretary.worksIn = Department
   	attributes
   		ename	: Employee -> String
      	age			: Employee -> Nat
@@ -72,8 +72,9 @@ schema s3 = literal : ty4 {
      observation_equations
      	forall e. cummulative_age(e) = plus(age(e), age(manager(e)))
 	options
-		prover = completion		
+		prover = completion
 }
+schema ss = prefix s3 "hi"
 // getSchema - see Tutorial\ TSP.aql for an example
 
 //////////// Kind mapping
@@ -94,15 +95,17 @@ mapping m3 = literal : s3 -> s3 {
 
 	entity
 		Department -> Department
-	foreign_keys	
+	foreign_keys
 		secretary -> secretary
 	attributes
-		dname -> dname	
-		
+		dname -> dname
+
 	options
-		dont_validate_unsafe = true // this isn't a real mapping		
+		dont_validate_unsafe = true // this isn't a real mapping
 }
 //getMapping - see FinanceColim2
+mapping ma = to_prefix s3 "hi"
+mapping mb = from_prefix s3 "hi"
 
 //////////// Kind query
 
@@ -115,7 +118,7 @@ query q2 = literal : s3 -> s3 {
 		 		      attributes ename -> e.ename
 		 		      	     age -> e.age
 		 		      	     cummulative_age -> e.cummulative_age
-		 		      foreign_keys 
+		 		      foreign_keys
 		 		      manager -> {e -> e.manager d -> d}
 					worksIn -> {d -> e.worksIn}
    }
@@ -123,7 +126,7 @@ query q2 = literal : s3 -> s3 {
 						attributes dname -> d.dname
 						foreign_keys secretary -> {d -> d e -> d.secretary} }
 	options
-		dont_validate_unsafe = true // this isn't a real query		
+		dont_validate_unsafe = true // this isn't a real query
 }
 query q3 = simple : s3 {
 	from e:Employee
@@ -133,12 +136,12 @@ query q3 = simple : s3 {
 		prover = completion
 }
 //eval q4 ~ delta m3 and coeval q4 ~ sigma m3
-query q4 = toQuery m3 { options dont_validate_unsafe = true } // this isn't a real query 
+query q4 = toQuery m3 { options dont_validate_unsafe = true } // this isn't a real query
 
 //coeval q4 ~ delta (id s3) and eval q4 ~ pi (id s3)
-query q5 = toCoQuery identity s2 { 
-	options 
-		prover = completion 
+query q5 = toCoQuery identity s2 {
+	options
+		prover = completion
 		query_remove_redundancy = false //this increases the proving burden on this example
 }
 query q6 = [ identity s2 ; identity s2 ]
@@ -152,7 +155,7 @@ schema s7 = cod_m m1
 //////////// Kind instance
 instance i1 = empty : s3
 instance i0 = except (empty : s1) (empty : s1)
-instance i2 = distinct i1
+instance i2 = i1 //distinct i1
 instance i3 = dom_t (identity i1)
 instance i4 = cod_t (identity i1)
 instance i5 = eval (identity s3) i1
@@ -161,7 +164,7 @@ instance i7 = sigma (identity s3) i1 { options prover = completion second_prover
 instance i8 = delta (identity s3) i1
 instance i20 = coproduct i1 + i2 : s3 { options prover = completion }
 instance i11 = coequalize (identity i1) (identity i1) { options prover = completion  second_prover = completion}
-instance i12 = chase literal : s3 { } i3 
+instance i12 = chase literal : s3 { } i3
 instance i15 = anonymize i12
 instance i16 = frozen q3 Q
 instance i17 = pi (identity s2) (empty : s2) { options prover = completion second_prover = completion}
@@ -175,17 +178,17 @@ instance i18 = cascade_delete i1 : s3
 //quotient_query - see Link example
 
 instance i13 = literal : s3 {
-	generators 
+	generators
 		e : Employee
-	equations 
+	equations
 		e.manager = e
 		e.worksIn.secretary = e
 	multi_equations
-		ename -> {e Al, e.manager Al}		
+		ename -> {e Al, e.manager Al}
 	options
 		prover = completion
 		second_prover = completion
-} 
+}
 
 
 
@@ -196,16 +199,16 @@ transform tb = except (identity (empty : s1)) (empty : s1)
 transform t0 = include i7 i7
 transform t1 = identity i1
 transform t2 = [t1 ; t1]
-transform t3 = distinct t1
-transform t3x= distinct_return i1
+transform t3 = distinct (identity empty : s1)
+transform t3x= distinct_return empty : s1
 transform t4 = eval (identity s3) t1
 //the { options } blocks are optional
-transform t5 = coeval (identity s3) t1 { options prover = completion second_prover = completion} { options prover = completion second_prover = completion} 
-transform t6 = sigma (identity s3) t1 { options prover = completion second_prover = completion} { options prover = completion second_prover = completion} 
-transform t6x= pi (identity s1) (identity (empty : s1)) { options prover = completion second_prover = completion} { options prover = completion second_prover = completion } 
+transform t5 = coeval (identity s3) t1 { options prover = completion second_prover = completion} { options prover = completion second_prover = completion}
+transform t6 = sigma (identity s3) t1 { options prover = completion second_prover = completion} { options prover = completion second_prover = completion}
+transform t6x= pi (identity s1) (identity (empty : s1)) { options prover = completion second_prover = completion} { options prover = completion second_prover = completion }
 transform t7 = delta (identity s3) t1
-transform t8 = unit (identity s3) i1 { options prover = completion second_prover = completion} 
-transform t9 = counit (identity s3) i1 { options prover = completion second_prover = completion} 
+transform t8 = unit (identity s3) i1 { options prover = completion second_prover = completion}
+transform t9 = counit (identity s3) i1 { options prover = completion second_prover = completion}
 transform t10= counit_query (identity s3) i1 { options prover = completion second_prover = completion}
 //import_jdbc - see JDBC example
 //import_csv - see Finance Colim example
@@ -235,7 +238,7 @@ constraints c1 = literal : s3 {
 //////////// Kind pragma
 
 command p1 = check c1 i3 //check instance against constraints
-command p2 = assert_consistent i3 
+command p2 = assert_consistent i3
 command p3 = exec_cmdline {
 //	"echo hello"
 //	"echo world"
@@ -244,7 +247,7 @@ command p4 = exec_js {
 	"1+2;"
 	"2+3;"
 }
-query q8 = fromConstraints 0 c1  
+query q8 = fromConstraints 0 c1
 constraints cx = fromSchema s1
 
 //check_query -- see Query ED example
@@ -263,7 +266,5 @@ constraints cx = fromSchema s1
 //quotient - see PharmaColim2
 //coproduct - see PharmaColim2
 //modify - see PharmaColim2
-//colimit - unnecessarily verbose; recommend quotient instead 
-//wrap - see manual; recommend quotient instead 
-
-
+//colimit - unnecessarily verbose; recommend quotient instead
+//wrap - see manual; recommend quotient instead

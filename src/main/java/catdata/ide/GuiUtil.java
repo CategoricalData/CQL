@@ -42,6 +42,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.BadLocationException;
@@ -161,13 +162,20 @@ public class GuiUtil {
 
 	@SuppressWarnings("serial")
 	public static JPanel makeTable(Border b, String border, Object[][] rowData, Object... colNames) {
-		JTable t = new JTable(rowData, colNames) {
+		return makeTable2(b, border, rowData, colNames).first;
+
+	}
+
+	public static Pair<JPanel,JTable> makeTable2(Border b, String border, Object[][] rowData, Object... colNames) {
+		JTable t = new JTable(new DefaultTableModel(rowData, colNames)) {
 			@Override
 			public Dimension getPreferredScrollableViewportSize() {
 				Dimension d = getPreferredSize();
 				return new Dimension(Integer.max(640, d.width), (d.height));
 			}
 		};
+		
+		
 		JPanel p = new JPanel(new GridLayout(1, 1));
 		TableRowSorter<?> sorter = new MyTableRowSorter(t.getModel());
 		if (colNames.length > 0) {
@@ -191,7 +199,9 @@ public class GuiUtil {
 		Font font = UIManager.getFont("TableHeader.font");
 		p.setBorder(BorderFactory.createTitledBorder(b, border, TitledBorder.DEFAULT_JUSTIFICATION,
 				TitledBorder.DEFAULT_POSITION, font, Color.black));
-		return p;
+		
+		//t.setModel(new DefaultTableModel(rowData, colNames));
+		return new Pair<>(p, t);
 
 	}
 
@@ -237,13 +247,13 @@ public class GuiUtil {
 
 		JPanel tt = new JPanel(new GridLayout(1, 1));
 		tt.add(new PDControlScrollPane(t));
-		 TableRowSorter<?> sorter = new MyTableRowSorter(t.getModel());
-		 if (colNames.length > 0) {
-		 sorter.toggleSortOrder(0);
-		 }
-		 t.setRowSorter(sorter);
+		TableRowSorter<?> sorter = new MyTableRowSorter(t.getModel());
+		if (colNames.length > 0) {
+			sorter.toggleSortOrder(0);
+		}
+		t.setRowSorter(sorter);
 
-		 sorter.allRowsChanged();
+		sorter.allRowsChanged();
 
 		for (int row = 0; row < t.getRowCount(); row++) {
 			int rowHeight = t.getRowHeight();
@@ -320,6 +330,16 @@ public class GuiUtil {
 		return null;
 	}
 
+	public static void writeFile(String text, String file) {
+		try {
+			Util.writeFile(text, file);
+		} catch (IOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Could not write file " + file);
+		}
+		
+	}
+	
 	public static String readFile(File file) {
 		try (FileReader r = new FileReader(file)) {
 			return Util.readFile(r);

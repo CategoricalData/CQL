@@ -19,7 +19,7 @@ import catdata.aql.fdm.CoEvalEvalUnitTransform;
 import catdata.aql.fdm.Row;
 
 public class TransExpCoEvalEvalUnit<Gen, Sk, X, Y> extends
-		TransExp<Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> {
+		TransExp<Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>, Chc<En,Ty>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>, Chc<En,Ty>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> {
 	public final QueryExp Q;
 	public final InstExp<Gen, Sk, X, Y> I;
 	public final Map<String, String> options;
@@ -84,7 +84,7 @@ public class TransExpCoEvalEvalUnit<Gen, Sk, X, Y> extends
 	}
 
 	@Override
-	public Pair<InstExp<Gen, Sk, X, Y>, InstExp<Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>>> type(
+	public Pair<InstExp<Gen, Sk, X, Y>, InstExp<Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>, Chc<En,Ty>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>, Chc<En,Ty>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>>> type(
 			AqlTyping G) {
 		if (!Q.type(G).second.equals(I.type(G))) {
 			throw new RuntimeException(
@@ -95,7 +95,7 @@ public class TransExpCoEvalEvalUnit<Gen, Sk, X, Y> extends
 	}
 
 	@Override
-	public Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> eval0(
+	public Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>, Chc<En,Ty>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>, X, Y, Row<En, Chc<Integer, Term<Ty, En, Sym, Fk, Att, Triple<Var, X, En>, Chc<Triple<Var, X, En>, Y>>>, Chc<En,Ty>>, Chc<Chc<Triple<Var, X, En>, Y>, Pair<Integer, Att>>> eval0(
 			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);

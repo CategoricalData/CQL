@@ -25,19 +25,19 @@ import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 /**
- * 
+ *
  * @author Ryan Wisnesky
  *
  *         Implements "unfailing" aka "ordered" Knuth-Bendix completion.
- * 
+ *
  *         Handles empty sorts correctly.
- * 
+ *
  *         Will not orient var = const.
- * 
+ *
  *         Added special support for associative and commutative theories as
  *         described in "On Using Ground Joinable Equations in Equational
  *         Theorem Proving" (both semantic and syntactic methods)
- * 
+ *
  *         E-reduction instantiates free variables with a minimal constant, as
  *         described in "Decision Problems in Ordered Rewriting". This is
  *         necessary to use only-ground-complete systems as decision procedures
@@ -46,14 +46,14 @@ import gnu.trove.set.hash.THashSet;
  *         different variables would get instantiated to the same minimal
  *         constant. The paper cited gives only one example where this is sound,
  *         it doesn't say the procedure is always sound.)
- * 
+ *
  * @param <C> the type of functions/constants (should be comparable, or silent
  *        errors occur)
  * @param <V> the type of variables (should be comparable, or silent errors
  *        occur)
  * @param <T> the type of types
- * 
- * 
+ *
+ *
  */
 public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 
@@ -1408,7 +1408,7 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 	}
 
 	public static <C, V, T> List<C> inferPrec(Map<C, Integer> symbols,
-			Collection<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R0) {
+			Iterable<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>>> R0) {
 		Set<DAG<C>> ret = tru();
 		for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, T>> R : R0) {
 			ret = and(ret, gt_lpoInfer(R.first, R.second));
@@ -1450,5 +1450,10 @@ public class LPOUKB<T, C, V> extends DPKB<T, C, V> {
 	public void add(C c, T t) {
 		throw new RuntimeException("Cannot add constants with LPOUKB");
 	}
+
+  @Override
+  public boolean supportsTrivialityCheck() {
+    return isComplete;
+  }
 
 }

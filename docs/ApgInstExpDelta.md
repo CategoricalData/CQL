@@ -1,0 +1,1 @@
+Delta (model reduct) functor along a schema mapping, applied to an instance.

@@ -5,17 +5,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import catdata.Util;
 import catdata.aql.AqlProver.ProverName;
-import catdata.aql.exp.Att;
-import catdata.aql.exp.En;
-import catdata.aql.exp.Fk;
-import catdata.aql.exp.Gen;
-import catdata.aql.exp.Sk;
-import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
 import gnu.trove.map.hash.THashMap;
 
 public final class AqlOptions {
@@ -42,6 +34,8 @@ public final class AqlOptions {
 		proverOptionNames.add(AqlOption.prover);
 		proverOptionNames.add(AqlOption.second_prover);
 		proverOptionNames.add(AqlOption.e_path);
+		proverOptionNames.add(AqlOption.vampire_path);
+		proverOptionNames.add(AqlOption.triviality_check_best_effort);
 
 		return proverOptionNames;
 	}
@@ -60,25 +54,27 @@ public final class AqlOptions {
 		return optionNames;
 	}
 
-	public static final AqlOptions initialOptions = new AqlOptions();
+	public static AqlOptions initialOptions = new AqlOptions(); // removed final for sql checker
 
-	public enum AqlOption { allow_aggregation_unsafe, fast_consistency_check, diverge_warn, diverge_limit, csv_entity_name,
-		interpet_as_frozen, static_timeout, prover_simplify_max, talg_reduction, prover_allow_fresh_constants,
-		second_prover, simple_query_entity, quotient_use_chase, chase_style, allow_empty_sorts_unsafe, maedmax_path,
-		program_allow_nonconfluence_unsafe, gui_sample, gui_sample_size, import_dont_check_closure_unsafe, js_env_name,
-		interpret_as_algebra, csv_field_delim_char, csv_escape_char, csv_quote_char, csv_file_extension,
-		csv_generate_ids, csv_emit_ids, id_column_name, always_reload, varchar_length, gui_max_table_size,
-		gui_max_graph_size, gui_max_string_size, gui_rows_to_display, gui_show_atts, random_seed, num_threads,
-		eval_max_temp_size, eval_reorder_joins, eval_max_plan_depth, eval_join_selectivity, eval_use_indices,
-		eval_use_sql_above, eval_approx_sql_unsafe, eval_sql_persistent_indices, query_remove_redundancy,
-		import_as_theory, import_null_on_err_unsafe, simplify_names, left_bias, jdbc_quote_char,
-		map_nulls_arbitrarily_unsafe, jdbc_default_class, jdbc_default_string, jdbc_no_distinct_unsafe,
-		toCoQuery_max_term_size, program_allow_nontermination_unsafe, completion_precedence, completion_sort,
-		completion_compose, completion_filter_subsumed, completion_syntactic_ac, allow_java_eqs_unsafe,
-		require_consistency, timeout, dont_verify_is_appropriate_for_prover_unsafe, dont_validate_unsafe, static_typing,
-		prover, start_ids_at, coproduct_allow_entity_collisions_unsafe, coproduct_allow_type_collisions_unsafe,
-		import_col_seperator, csv_import_prefix, csv_prepend_entity, prepend_entity_on_ids, jdbc_export_truncate_after,
-		import_missing_is_empty, jdbc_query_export_convert_type, e_path, completion_unfailing;
+	public enum AqlOption {
+		allow_sql_import_all_unsafe, jena_reasoner, allow_aggregation_unsafe, import_sql_direct_prefix,
+		fast_consistency_check, diverge_warn, diverge_limit, csv_entity_name, interpet_as_frozen, static_timeout,
+		prover_simplify_max, talg_reduction, prover_allow_fresh_constants, second_prover, simple_query_entity,
+		quotient_use_chase, chase_style, allow_empty_sorts_unsafe, maedmax_path, program_allow_nonconfluence_unsafe,
+		gui_sample, gui_sample_size, import_dont_check_closure_unsafe, js_env_name, interpret_as_algebra,
+		csv_field_delim_char, csv_escape_char, csv_quote_char, csv_file_extension, csv_generate_ids, csv_emit_ids,
+		id_column_name, always_reload, varchar_length, gui_max_table_size, gui_max_graph_size, gui_max_string_size,
+		gui_rows_to_display, gui_show_atts, random_seed, num_threads, eval_max_temp_size, eval_reorder_joins,
+		eval_max_plan_depth, eval_join_selectivity, eval_use_indices, eval_use_sql_above, eval_approx_sql_unsafe,
+		eval_sql_persistent_indices, query_remove_redundancy, import_as_theory, import_null_on_err_unsafe,
+		simplify_names, left_bias, jdbc_quote_char, map_nulls_arbitrarily_unsafe, jdbc_default_class,
+		jdbc_default_string, jdbc_no_distinct_unsafe, toCoQuery_max_term_size, program_allow_nontermination_unsafe,
+		completion_precedence, completion_sort, completion_compose, completion_filter_subsumed, completion_syntactic_ac,
+		allow_java_eqs_unsafe, require_consistency, timeout, dont_verify_is_appropriate_for_prover_unsafe,
+		dont_validate_unsafe, static_typing, prover, start_ids_at, coproduct_allow_entity_collisions_unsafe,
+		coproduct_allow_type_collisions_unsafe, import_col_seperator, csv_import_prefix, csv_prepend_entity,
+		prepend_entity_on_ids, jdbc_export_truncate_after, import_missing_is_empty, jdbc_query_export_convert_type,
+		e_path, vampire_path, completion_unfailing, graal_language, triviality_check_best_effort, check_command_export_file;
 
 		private String getString(Map<String, String> map) {
 			String n = map.get(toString());
@@ -130,8 +126,6 @@ public final class AqlOptions {
 			return ret;
 		}
 
-		
-
 		public ProverName getDPName(Map<String, String> map) {
 			return ProverName.valueOf(getString(map));
 		}
@@ -172,182 +166,103 @@ public final class AqlOptions {
 	// anything 'unsafe' should default to false
 	// @SuppressWarnings("static-method")
 	private static Object getDefault(AqlOption option) {
-		switch (option) {
-		case allow_aggregation_unsafe:
-			return false;
-		case csv_entity_name:
-			return "E";
-		case left_bias:
-			return false;
-		case static_timeout:
-			return 5L;
-		case fast_consistency_check:
-			return true;
-		// case lax_literals:
-		// return false;
-		case interpet_as_frozen:
-			return false;
-		case simplify_names:
-			return true;
-		case gui_show_atts:
-			return false;
-		case prover_allow_fresh_constants:
-			return true;
-		case talg_reduction:
-			return Integer.MAX_VALUE;
-		case prover_simplify_max:
-			return 64;
-		case jdbc_quote_char:
-			return "\"";
-		case simple_query_entity:
-			return "Q";
-		case program_allow_nonconfluence_unsafe:
-			return false;
-		case quotient_use_chase:
-			return false;
-		case jdbc_no_distinct_unsafe:
-			return false;
-		case jdbc_export_truncate_after:
-			return -1;
-		case prepend_entity_on_ids:
-			return true;
-		case csv_prepend_entity:
-			return false;
-		case import_null_on_err_unsafe:
-			return false;
-		case csv_import_prefix:
-			return "";
-		case import_missing_is_empty:
-			return false;
-		case import_col_seperator:
-			return "_";
-		case toCoQuery_max_term_size:
-			return 3;
-		case csv_generate_ids:
-			return false;
-		case csv_file_extension:
-			return "csv";
-		case start_ids_at:
-			return 0;
+		return switch (option) {
+		case allow_sql_import_all_unsafe -> false;
+		case allow_aggregation_unsafe -> false;
+		case csv_entity_name -> "E";
+		case import_sql_direct_prefix -> "";
+		case left_bias -> false;
+		case static_timeout -> 5L;
+		case fast_consistency_check -> true;
+		case jena_reasoner -> "";
+		case check_command_export_file -> "";
+		// case lax_literals -> false;
+		case interpet_as_frozen -> false;
+		case simplify_names -> true;
+		case gui_show_atts -> false;
+		case prover_allow_fresh_constants -> true;
+		case talg_reduction -> Integer.MAX_VALUE;
+		case prover_simplify_max -> 64;
+		case jdbc_quote_char -> "\"";
+		case simple_query_entity -> "Q";
+		case program_allow_nonconfluence_unsafe -> false;
+		case quotient_use_chase -> false;
+		case jdbc_no_distinct_unsafe -> false;
+		case jdbc_export_truncate_after -> -1;
+		case prepend_entity_on_ids -> true;
+		case csv_prepend_entity -> false;
+		case import_null_on_err_unsafe -> false;
+		case csv_import_prefix -> "";
+		case import_missing_is_empty -> true;
+		case import_col_seperator -> "_";
+		case toCoQuery_max_term_size -> 3;
+		case csv_generate_ids -> false;
+		case csv_file_extension -> "csv";
+		case start_ids_at -> 0;
 
-		case map_nulls_arbitrarily_unsafe:
-			return false;
-		case coproduct_allow_type_collisions_unsafe:
-			return false;
-		case coproduct_allow_entity_collisions_unsafe:
-			return false;
-		case eval_max_temp_size:
-			return 1024 * 1024 * 8;
-		case import_as_theory:
-			return false;
-		case eval_reorder_joins:
-			return true;
-		case allow_java_eqs_unsafe:
-			return false;
-		case num_threads:
-			return numProc;
-		case random_seed:
-			return 0;
-		case completion_precedence:
-			return null;
-		case prover:
-			return ProverName.auto;
-		case dont_validate_unsafe:
-			return false;
-		case require_consistency:
-			return true;
-		case timeout:
-			return 30L;
-		case dont_verify_is_appropriate_for_prover_unsafe:
-			return false;
-		case completion_compose:
-			return true;
-		case completion_filter_subsumed:
-			return true;
-		case completion_sort:
-			return true;
-		case completion_syntactic_ac:
-			return false;
-		case static_typing:
-			return false;
-		case always_reload:
-			return false;
-		case csv_escape_char:
-			return '\\';
-		case csv_field_delim_char:
-			return ',';
+		case map_nulls_arbitrarily_unsafe -> false;
+		case coproduct_allow_type_collisions_unsafe -> false;
+		case coproduct_allow_entity_collisions_unsafe -> false;
+		case eval_max_temp_size -> 1024 * 1024 * 8;
+		case import_as_theory -> false;
+		case eval_reorder_joins -> true;
+		case allow_java_eqs_unsafe -> false;
+		case num_threads -> numProc;
+		case random_seed -> 0;
+		case completion_precedence -> null;
+		case prover -> ProverName.auto;
+		case dont_validate_unsafe -> false;
+		case require_consistency -> true;
+		case timeout -> 30L;
+		case dont_verify_is_appropriate_for_prover_unsafe -> false;
+		case completion_compose -> true;
+		case completion_filter_subsumed -> true;
+		case completion_sort -> true;
+		case completion_syntactic_ac -> false;
+		case static_typing -> false;
+		case always_reload -> false;
+		case csv_escape_char -> '\\';
+		case csv_field_delim_char -> ',';
 
-		case id_column_name:
-			return "id";
+		case id_column_name -> "id";
 
-		case csv_quote_char:
-			return '\"';
-		case varchar_length:
-			return 256;
+		case csv_quote_char -> '\"';
+		case varchar_length -> 256;
 
-		case program_allow_nontermination_unsafe:
-			return false;
-		case gui_max_table_size:
-			return 1024;
-		case gui_max_string_size:
-			return 8096;
-		case gui_max_graph_size:
-			return 128;
-		case eval_join_selectivity:
-			return 0.5f;
-		case eval_max_plan_depth:
-			return 8;
-		case eval_use_indices:
-			return true;
-		case gui_rows_to_display:
-			return 32;
-		case query_remove_redundancy:
-			return true;
-		case eval_sql_persistent_indices:
-			return false;
-		case jdbc_default_class:
-			return "org.h2.Driver";
-		case jdbc_query_export_convert_type:
-			return "varchar";
-		case jdbc_default_string:
-			return "jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1";
-		case interpret_as_algebra:
-			return false;
-		case js_env_name:
-			return "aql_env";
-		case import_dont_check_closure_unsafe:
-			return false;
-		case gui_sample:
-			return true;
-		case gui_sample_size:
-			return 2;
+		case program_allow_nontermination_unsafe -> false;
+		case gui_max_table_size -> 16384;
+		case gui_max_string_size -> 8096 * 8;
+		case gui_max_graph_size -> 512 * 10;
+		case eval_join_selectivity -> 0.5f;
+		case eval_max_plan_depth -> 8;
+		case eval_use_indices -> true;
+		case gui_rows_to_display -> 128;
+		case query_remove_redundancy -> true;
+		case eval_sql_persistent_indices -> false;
+		case jdbc_default_class -> "org.h2.Driver";
+		case jdbc_query_export_convert_type -> "varchar";
+		case jdbc_default_string -> "jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1";
+		case interpret_as_algebra -> false;
+		case js_env_name -> "aql_env";
+		case import_dont_check_closure_unsafe -> false;
+		case gui_sample -> true;
+		case gui_sample_size -> 2;
+		case graal_language -> ExternalCodeUtils.LANG_JS;
+		case triviality_check_best_effort -> true;
 
-		case eval_approx_sql_unsafe:
-			return false;
-		case eval_use_sql_above:
-			return 16 * 1024;
-		case maedmax_path:
-			return "/home/ryan/maedmax/maedmax";
-		case allow_empty_sorts_unsafe:
-			return false;
-		case chase_style:
-			return "parallel";
-		case csv_emit_ids:
-			return true;
-		case e_path:
-			return "/usr/local/bin/eprover";
-		case completion_unfailing:
-			return true;
-		case second_prover:
-			return ProverName.auto;
-		case diverge_limit:
-			return 32;
-		case diverge_warn:
-			return true;
-		default:
-			throw new RuntimeException("Anomaly: please report: " + option);
-		}
-
+		case eval_approx_sql_unsafe -> false;
+		case eval_use_sql_above -> 16 * 1024;
+		case maedmax_path -> "/home/ryan/maedmax/maedmax";
+		case allow_empty_sorts_unsafe -> false;
+		case chase_style -> "parallel";
+		case csv_emit_ids -> true;
+		case e_path -> "/usr/local/bin/eprover";
+		case vampire_path -> "/usr/local/bin/vampire";
+		case completion_unfailing -> true;
+		case second_prover -> ProverName.auto;
+		case diverge_limit -> 32;
+		case diverge_warn -> true;
+		};
 	}
 
 	public Object getOrDefault(Map<String, String> map, AqlOption op) {
@@ -373,179 +288,101 @@ public final class AqlOptions {
 		}
 	}
 
-	private static Object getFromMap(Map<String, String> map, /*Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,*/
+	private static Object getFromMap(Map<String, String> map, /* Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, */
 			AqlOption op) {
-		switch (op) {
-		case allow_aggregation_unsafe:
-			return op.getBoolean(map);
-		case fast_consistency_check:
-			return op.getBoolean(map);
-		case csv_entity_name:
-			return op.getString(map);
-		case left_bias:
-			return op.getBoolean(map);
-		case static_timeout:
-			return op.getLong(map);
+		return switch (op) {
+		case allow_aggregation_unsafe -> op.getBoolean(map);
+		case fast_consistency_check -> op.getBoolean(map);
+		case csv_entity_name -> op.getString(map);
+		case left_bias -> op.getBoolean(map);
+		case static_timeout -> op.getLong(map);
+		case jena_reasoner -> op.getString(map);
+		case allow_sql_import_all_unsafe -> op.getBoolean(map);
+		case import_sql_direct_prefix -> op.getString(map);
 		// case lax_literals:
 		// return op.getBoolean(map);
-		case interpet_as_frozen:
-			return op.getBoolean(map);
-		case simplify_names:
-			return op.getBoolean(map);
-		case gui_show_atts:
-			return op.getBoolean(map);
-		case second_prover:
-			return op.getDPName(map);
-		case talg_reduction:
-			return op.getInteger(map);
-		case prover_simplify_max:
-			return op.getInteger(map);
-		case jdbc_quote_char:
-			return op.getString(map);
-		case simple_query_entity:
-			return op.getString(map);
-		case program_allow_nonconfluence_unsafe:
-			return op.getBoolean(map);
-		case quotient_use_chase:
-			return op.getBoolean(map);
-		case jdbc_query_export_convert_type:
-			return op.getString(map);
-		case jdbc_no_distinct_unsafe:
-			return op.getBoolean(map);
-		case jdbc_export_truncate_after:
-			return op.getInteger(map);
-		case prepend_entity_on_ids:
-			return op.getBoolean(map);
-		case csv_prepend_entity:
-			return op.getBoolean(map);
-		case import_null_on_err_unsafe:
-			return op.getBoolean(map);
-		case csv_import_prefix:
-			return op.getString(map);
-		case import_missing_is_empty:
-			return op.getBoolean(map);
-		case import_col_seperator:
-			return op.getString(map);
-		case toCoQuery_max_term_size:
-			return op.getBoolean(map);
-		case csv_generate_ids:
-			return op.getBoolean(map);
-		case csv_file_extension:
-			return op.getString(map);
-		case map_nulls_arbitrarily_unsafe:
-			return op.getBoolean(map);
-		case coproduct_allow_type_collisions_unsafe:
-			return op.getBoolean(map);
-		case coproduct_allow_entity_collisions_unsafe:
-			return op.getBoolean(map);
-		case import_as_theory:
-			return op.getBoolean(map);
-		case start_ids_at:
-			return op.getInteger(map);
-		case eval_max_temp_size:
-			return op.getInteger(map);
-		case eval_reorder_joins:
-			return op.getBoolean(map);
-		case num_threads:
-			return op.getInteger(map);
-		case gui_max_table_size:
-			return op.getInteger(map);
-		case gui_max_graph_size:
-			return op.getInteger(map);
-		case gui_max_string_size:
-			return op.getInteger(map);
-		case random_seed:
-			return op.getInteger(map);
-		case allow_java_eqs_unsafe:
-			return op.getBoolean(map);
-		case completion_precedence:
-			return map.get(op.toString());
-		case prover:
-			return op.getDPName(map);
-		case require_consistency:
-			return op.getBoolean(map);
-		case timeout:
-			return op.getLong(map);
-		case dont_verify_is_appropriate_for_prover_unsafe:
-			return op.getBoolean(map);
-		case completion_compose:
-			return op.getBoolean(map);
-		case completion_filter_subsumed:
-			return op.getBoolean(map);
-		case completion_sort:
-			return op.getBoolean(map);
-		case completion_syntactic_ac:
-			return op.getBoolean(map);
-		case dont_validate_unsafe:
-			return op.getBoolean(map);
-		case static_typing:
-			return op.getBoolean(map);
-		case always_reload:
-			return op.getBoolean(map);
-		case csv_escape_char:
-			return op.getChar(map);
-		case csv_field_delim_char:
-			return op.getChar(map);
-		case id_column_name:
-			return op.getString(map);
-		case csv_quote_char:
-			return op.getChar(map);
-		case varchar_length:
-			return op.getInteger(map);
-		case program_allow_nontermination_unsafe:
-			return op.getBoolean(map);
-		case eval_join_selectivity:
-			return op.getFloat(map);
-		case eval_max_plan_depth:
-			return op.getInteger(map);
-		case eval_use_indices:
-			return op.getBoolean(map);
-		case gui_rows_to_display:
-			return op.getInteger(map);
-		case query_remove_redundancy:
-			return op.getBoolean(map);
-		case eval_approx_sql_unsafe:
-			return op.getBoolean(map);
-		case eval_use_sql_above:
-			return op.getInteger(map);
-		case eval_sql_persistent_indices:
-			return op.getBoolean(map);
-		case jdbc_default_class:
-			return op.getString(map);
-		case jdbc_default_string:
-			return op.getString(map);
-		case interpret_as_algebra:
-			return op.getBoolean(map);
-		case js_env_name:
-			return op.getString(map);
-		case import_dont_check_closure_unsafe:
-			return op.getBoolean(map);
-		case gui_sample:
-			return op.getBoolean(map);
-		case gui_sample_size:
-			return op.getInteger(map);
-		case maedmax_path:
-			return op.getString(map);
-		case allow_empty_sorts_unsafe:
-			return op.getBoolean(map);
-		case chase_style:
-			return op.getString(map);
-		case csv_emit_ids:
-			return op.getBoolean(map);
-		case e_path:
-			return op.getString(map);
-		case completion_unfailing:
-			return op.getBoolean(map);
-		case prover_allow_fresh_constants:
-			return op.getBoolean(map);
-		case diverge_limit:
-			return op.getInteger(map);
-		case diverge_warn:
-			return op.getBoolean(map);
-		default:
-			break;
-		}
-		throw new RuntimeException("Anomaly: please report");
+		case interpet_as_frozen -> op.getBoolean(map);
+		case simplify_names -> op.getBoolean(map);
+		case gui_show_atts -> op.getBoolean(map);
+		case second_prover -> op.getDPName(map);
+		case talg_reduction -> op.getInteger(map);
+		case prover_simplify_max -> op.getInteger(map);
+		case jdbc_quote_char -> op.getString(map);
+		case simple_query_entity -> op.getString(map);
+		case check_command_export_file -> op.getString(map);
+		case program_allow_nonconfluence_unsafe -> op.getBoolean(map);
+		case quotient_use_chase -> op.getBoolean(map);
+		case jdbc_query_export_convert_type -> op.getString(map);
+		case jdbc_no_distinct_unsafe -> op.getBoolean(map);
+		case jdbc_export_truncate_after -> op.getInteger(map);
+		case prepend_entity_on_ids -> op.getBoolean(map);
+		case csv_prepend_entity -> op.getBoolean(map);
+		case import_null_on_err_unsafe -> op.getBoolean(map);
+		case csv_import_prefix -> op.getString(map);
+		case import_missing_is_empty -> op.getBoolean(map);
+		case import_col_seperator -> op.getString(map);
+		case toCoQuery_max_term_size -> op.getBoolean(map);
+		case csv_generate_ids -> op.getBoolean(map);
+		case csv_file_extension -> op.getString(map);
+		case map_nulls_arbitrarily_unsafe -> op.getBoolean(map);
+		case coproduct_allow_type_collisions_unsafe -> op.getBoolean(map);
+		case coproduct_allow_entity_collisions_unsafe -> op.getBoolean(map);
+		case import_as_theory -> op.getBoolean(map);
+		case start_ids_at -> op.getInteger(map);
+		case eval_max_temp_size -> op.getInteger(map);
+		case eval_reorder_joins -> op.getBoolean(map);
+		case num_threads -> op.getInteger(map);
+		case gui_max_table_size -> op.getInteger(map);
+		case gui_max_graph_size -> op.getInteger(map);
+		case gui_max_string_size -> op.getInteger(map);
+		case random_seed -> op.getInteger(map);
+		case allow_java_eqs_unsafe -> op.getBoolean(map);
+		case completion_precedence -> map.get(op.toString());
+		case prover -> op.getDPName(map);
+		case require_consistency -> op.getBoolean(map);
+		case timeout -> op.getLong(map);
+		case dont_verify_is_appropriate_for_prover_unsafe -> op.getBoolean(map);
+		case completion_compose -> op.getBoolean(map);
+		case completion_filter_subsumed -> op.getBoolean(map);
+		case completion_sort -> op.getBoolean(map);
+		case completion_syntactic_ac -> op.getBoolean(map);
+		case dont_validate_unsafe -> op.getBoolean(map);
+		case static_typing -> op.getBoolean(map);
+		case always_reload -> op.getBoolean(map);
+		case csv_escape_char -> op.getChar(map);
+		case csv_field_delim_char -> op.getChar(map);
+		case id_column_name -> op.getString(map);
+		case csv_quote_char -> op.getChar(map);
+		case varchar_length -> op.getInteger(map);
+		case program_allow_nontermination_unsafe -> op.getBoolean(map);
+		case eval_join_selectivity -> op.getFloat(map);
+		case eval_max_plan_depth -> op.getInteger(map);
+		case eval_use_indices -> op.getBoolean(map);
+		case gui_rows_to_display -> op.getInteger(map);
+		case query_remove_redundancy -> op.getBoolean(map);
+		case eval_approx_sql_unsafe -> op.getBoolean(map);
+		case eval_use_sql_above -> op.getInteger(map);
+		case eval_sql_persistent_indices -> op.getBoolean(map);
+		case jdbc_default_class -> op.getString(map);
+		case jdbc_default_string -> op.getString(map);
+		case interpret_as_algebra -> op.getBoolean(map);
+		case js_env_name -> op.getString(map);
+		case import_dont_check_closure_unsafe -> op.getBoolean(map);
+		case gui_sample -> op.getBoolean(map);
+		case gui_sample_size -> op.getInteger(map);
+		case maedmax_path -> op.getString(map);
+		case allow_empty_sorts_unsafe -> op.getBoolean(map);
+		case chase_style -> op.getString(map);
+		case csv_emit_ids -> op.getBoolean(map);
+		case e_path -> op.getString(map);
+		case vampire_path -> op.getString(map);
+		case completion_unfailing -> op.getBoolean(map);
+		case prover_allow_fresh_constants -> op.getBoolean(map);
+		case diverge_limit -> op.getInteger(map);
+		case diverge_warn -> op.getBoolean(map);
+		case graal_language -> op.getString(map);
+		case triviality_check_best_effort -> op.getBoolean(map);
+		};
 	}
 
 	public Object getOrDefault(AqlOption op) {
@@ -588,7 +425,9 @@ public final class AqlOptions {
 
 	static String msg0 = "completion_precedence = \"a b c\" means a < b < c";
 	static String msg1 = msg0 + "\n\nAvailable provers: " + Arrays.toString(ProverName.values());
-	static String msg = msg1
+	static String msg2 = msg1 + "\n\nAvailable Graal languages: "
+			+ org.graalvm.polyglot.Engine.create().getLanguages().keySet();
+	static String msg = msg2
 			+ "\n\nOption descriptions are available in the CQL manual, see http://categoricaldata.net";
 
 	public static String getMsg() {

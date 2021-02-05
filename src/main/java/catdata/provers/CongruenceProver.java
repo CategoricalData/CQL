@@ -160,4 +160,9 @@ public class CongruenceProver<T, C, V> extends DPKB<T, C, V> {
 		this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
 	}
 
+  @Override
+  public boolean supportsTrivialityCheck() {
+    return false;
+  }
+
 }

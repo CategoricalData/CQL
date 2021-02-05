@@ -1,0 +1,1 @@
+Repairs a database that may not conform to a set of constraints.  It can also be used for data integration in the traditional, relational, regular logic / ED style.  If the chase succeeds, the result instance will satisfy the constraints.  The options will be used for the construction of the intermediate instances during the chase process.

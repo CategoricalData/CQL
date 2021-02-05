@@ -16,7 +16,6 @@ import catdata.aql.Collage.CCollage;
 import catdata.aql.It.ID;
 import catdata.aql.Kind;
 import catdata.aql.Query;
-import catdata.aql.RawTerm;
 import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.Var;

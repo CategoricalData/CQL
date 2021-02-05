@@ -1,0 +1,1 @@
+Relationalizes an instance; that is, equates all rows that are equivalent up to observation of attributes.  Converts from bags to sets.

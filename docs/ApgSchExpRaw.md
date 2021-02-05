@@ -1,0 +1,1 @@
+An APG schema literal, consisting of a set of labels and a function taking each label to a type.

@@ -11,7 +11,6 @@ import java.util.function.BiFunction;
 
 import com.google.common.collect.Iterators;
 
-import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.DP;
@@ -95,12 +94,12 @@ public class DiffInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<
 		Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> ooo = new AbstractCollection<>() {
 			@Override
 			public synchronized Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Y>> iterator() {
-				return Iterators.transform(I.algebra().talg().eqs.iterator(), x->new Eq<>(null,x.first,x.second));
+				return Iterators.transform(I.algebra().talg().eqsNoDefns().iterator(), x->new Eq<>(null,x.first,x.second));
 			}
 
 			@Override
 			public int size() {
-				return I.algebra().talg().eqs.size();
+				return I.algebra().talg().eqsNoDefns().size();
 			}
 		};
 

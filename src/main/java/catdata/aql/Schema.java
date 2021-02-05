@@ -6,13 +6,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterators;
@@ -23,7 +21,7 @@ import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.graph.DAG;
-
+import gnu.trove.map.hash.THashMap;
 
 public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
@@ -116,17 +114,15 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
 	}
 
-	public boolean acyclic() {
+	public String acyclic() {
 		DAG<En> dag = new DAG<>();
 		for (Fk fk : fks.keySet()) {
 			boolean ok = dag.addEdge(fks.get(fk).first, fks.get(fk).second);
 			if (!ok) {
-				return false;
-				// throw new RuntimeException("Adding dependency on " + fk + " causes
-				// circularity " + dag);
+				return "Adding dependency on " + fk + " causes circularity " + dag;
 			}
 		}
-		return true;
+		return null;
 	}
 
 	private String toString(
@@ -183,7 +179,6 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		this.ens = ens;
 		dp = semantics;
 		validate(checkJava);
-		//typeSide.tys.
 	}
 
 	public final DP<Ty, En, Sym, Fk, Att, Void, Void> dp;
@@ -254,9 +249,14 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
 					@Override
 					public Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> iterator() {
-						return Iterators.transform(eqs.iterator(),
+						Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> xxx = Iterators.transform(eqs.iterator(),
 								(t) -> new Eq<>(Collections.singletonMap(t.first.first, Chc.inRight(t.first.second)),
 										t.second.convert(), t.third.convert()));
+
+						Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> yyy = Iterators.transform(typeSide.eqs.iterator(),
+								(t) -> new Eq<Ty, En, Sym, Fk, Att, Gen, Sk>(Util.inLeft(t.first), t.second.convert(),
+										t.third.convert()));
+						return Iterators.concat(xxx, yyy);
 					}
 
 					@Override
@@ -265,21 +265,12 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 					}
 
 				};
-				
-				int j = 0;
-				for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> i : ret) {
-					j++;
-				}
-				if (j != ret.size()) {
-					Util.anomaly();
-				}
+
 				return ret;
 			}
 
 		};
 	}
-
-	
 
 	@Override
 	public final int hashCode() {
@@ -300,31 +291,54 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		if (obj == null)
 			return false;
 		Schema<?, ?, ?, ?, ?> other = (Schema<?, ?, ?, ?, ?>) obj;
-		if (atts == null) {
-			if (other.atts != null)
-				return false;
-		} else if (!atts.equals(other.atts))
-			return false;
 		if (ens == null) {
 			if (other.ens != null)
 				return false;
 		} else if (!ens.equals(other.ens))
-			return false;
-		if (eqs == null) {
-			if (other.eqs != null)
-				return false;
-		} else if (!eqs.equals(other.eqs))
 			return false;
 		if (fks == null) {
 			if (other.fks != null)
 				return false;
 		} else if (!fks.equals(other.fks))
 			return false;
+		if (atts == null) {
+			if (other.atts != null)
+				return false;
+		} else if (!atts.equals(other.atts))
+			return false;
 		if (typeSide == null) {
 			if (other.typeSide != null)
 				return false;
 		} else if (!typeSide.equals(other.typeSide))
 			return false;
+		if (eqs == null) {
+			if (other.eqs != null)
+				return false;
+		} else if (!collectionEq(eqs, other.eqs)) {
+			return false;
+		}
+		return true;
+	}
+
+	private static boolean collectionEq(Collection<?> actual, Collection<?> expected) {
+		if (actual == expected) {
+			return true;
+		}
+		if (actual == null || expected == null) {
+			Util.anomaly();
+		}
+		if (actual.size() != expected.size()) {
+			return false;
+		}
+		Iterator<?> actIt = actual.iterator();
+		Iterator<?> expIt = expected.iterator();
+		while (actIt.hasNext() && expIt.hasNext()) {
+			Object e = expIt.next();
+			Object a = actIt.next();
+			if (!e.equals(a)) {
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -399,6 +413,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	}
 
 	private Map<En, List<Fk>> fksFrom = Util.mk();
+	private Map<En, List<Fk>> fksTo = Util.mk();
 
 	public synchronized final Collection<Fk> fksFrom(En en) {
 		if (fksFrom.containsKey(en)) {
@@ -414,6 +429,20 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return l;
 	}
 
+	public synchronized final Collection<Fk> fksTo(En en) {
+		if (fksTo.containsKey(en)) {
+			return fksTo.get(en);
+		}
+		List<Fk> l = new LinkedList<>();
+		for (Fk fk : fks.keySet()) {
+			if (fks.get(fk).second.equals(en)) {
+				l.add(fk);
+			}
+		}
+		fksTo.put(en, l);
+		return l;
+	}
+
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> fold(List<Fk> fks,
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> head) {
 		for (Fk fk : fks) {
@@ -422,22 +451,45 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return head;
 	}
 
-	public static String truncate(String x, int truncate) {
-		if (truncate == -1) {
-			return x;
+	// Chc<Fk, Att>
+
+	private final Map<Object, String> isoC1 = Util.mk();
+	private final Map<String, Object> isoC2 = Util.mk();
+
+	private int i = 0;
+
+	private final synchronized String convert(Object e) {
+		if (isoC1.containsKey(e)) {
+			return isoC1.get(e);
 		}
-		if (x.length() > truncate) {
-			return x.substring(x.length() - truncate, x.length());
+		isoC1.put(e, "s" + i);
+		isoC2.put("s" + i, e);
+		i++;
+
+		return isoC1.get(e);
+	}
+
+	public synchronized String truncate(Chc<Fk, Att> x, boolean b) {
+		if (!b) {
+			return x.toStringMash();
 		}
-		return x;
+		return convert(x);
+
+	}
+
+	public synchronized String truncate(En x, boolean b) {
+		if (!b) {
+			return x.toString();
+		}
+		return convert(x);
 	}
 
 	static int constraint_static = 0;
 
 	// (k,q,f) where q is a bunch of drops and then adds and f is the adding of
 	// constraints and
-	public Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> toSQL(String prefix, String idTy,
-			String idCol, int truncate, Function<Fk, String> fun, int vlen, String tick) {
+	public synchronized Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> toSQL(String prefix,
+			String idTy, String idCol, boolean truncate, int vlen, String tick) {
 		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> sqlSrcSchs = new LinkedHashMap<>();
 
 		for (En en1 : ens) {
@@ -446,19 +498,23 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			l.add(tick + idCol + tick + " " + idTy + " primary key");
 			List<String> f = new LinkedList<>();
 			for (Fk fk1 : fksFrom(en1)) {
-				l.add(tick + truncate(fun.apply(fk1), truncate) + tick + " " + idTy + " not null ");
+				l.add(tick + truncate(Chc.inLeft(fk1), truncate) + tick + " " + idTy + " not null ");
 				k.add(Chc.inLeft(fk1));
-				f.add("alter table " + tick + truncate(prefix + en1, truncate) + tick + " add constraint " + tick
-						+ truncate(prefix + en1 + fk1 + constraint_static++, truncate) + tick + " foreign key (" + tick
-						+ truncate(fun.apply(fk1), truncate) + tick + ") references " + tick
-						+ truncate(prefix + fks.get(fk1).second, truncate) + tick + "(" + tick + idCol + tick + ");");
+				f.add("alter table " + tick + prefix + truncate(en1, truncate) + tick + " add constraint " + tick
+						+ prefix + constraint_static++ + tick + " foreign key (" + tick
+						+ truncate(Chc.inLeft(fk1), truncate) + tick + ") references " + tick + prefix
+						+ truncate(fks.get(fk1).second, truncate) + tick + "(" + tick + idCol + tick + ");");
 			}
 			for (Att att1 : attsFrom(en1)) {
-				l.add(tick + truncate(att1.toString(), truncate) + tick + " "
+				l.add(tick + truncate(Chc.inRight(att1), truncate) + tick + " "
 						+ SqlTypeSide.mediate(vlen, atts.get(att1).second.toString()));
 				k.add(Chc.inRight(att1));
 			}
-			String str = "create table " + tick + prefix + en1 + tick + "(" + Util.sep(l, ", ") + ");";
+			String str = "create table " + tick + prefix + truncate(en1, truncate) + tick + "(" + Util.sep(l, ", ")
+					+ ");";
+			// System.out.println("entity is " + en1 + "(" + truncate(en1,truncate) + ")");
+			// System.out.println(str);
+			// System.out.println(isoC1);
 			List<String> q = new LinkedList<>();
 			// q.add("drop table if exists " + prefix + en1 + ";");
 			q.add(str);
@@ -467,25 +523,71 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return sqlSrcSchs;
 	}
 
-	public Map<En, List<String>> toSQL_srcIdxs(Pair<Collection<Fk>, Collection<Att>> indices) {
+	int j = 0;
+
+	public synchronized Map<En, List<String>> toSQL_srcIdxs(Pair<Collection<Fk>, Collection<Att>> indices) {
 		Map<En, List<String>> sqlSrcSchsIdxs = new LinkedHashMap<>();
 		for (En en1 : ens) {
 			List<String> x = new LinkedList<>();
 			for (Fk fk1 : fksFrom(en1)) {
 				if (indices.first.contains(fk1)) {
-					x.add("create index " + en1 + fk1 + " on " + en1 + "(" + fk1 + ")");
+					x.add("create index " + "idx" + j++ + " on " + convert(en1) + "(" + convert(Chc.inLeft(fk1)) + ")");
 				}
 			}
 			for (Att att1 : attsFrom(en1)) {
 				if (indices.second.contains(att1)) {
 					if (!cannotBeIndexed(atts.get(att1).second)) {
-						x.add("create index " + en1 + att1 + " on " + en1 + "(" + att1 + ")");
+						x.add("create index " + "idx" + j++ + " on " + convert(en1) + "(" + convert(Chc.inRight(att1))
+								+ ")");
 					}
 				}
 			}
 			sqlSrcSchsIdxs.put(en1, x);
 		}
 		return sqlSrcSchsIdxs;
+	}
+
+	static int sql = 0;
+	static Map<Object, String> sqlAtt = new THashMap<>();
+	static Map<Object, String> sqlAtt0 = new THashMap<>();
+
+	public static synchronized String conv(Object a) {
+		String z = sqlAtt.get(a);
+		if (z != null) {
+			return z;
+		}
+		String w = "en" + sql++;
+		sqlAtt.put(a, w);
+		return w;
+	}
+
+	public static synchronized String conv0(Object a) {
+		String z = sqlAtt0.get(a);
+		if (z != null) {
+			return z;
+		}
+		String w = "att" + att++;
+		sqlAtt0.put(a, w);
+		return w;
+	}
+
+	static int att = 0;
+
+	public synchronized String toCheckerTpTp() {
+		StringBuffer sb = new StringBuffer();
+		if (!fks.isEmpty() || !eqs.isEmpty()) {
+			Util.anomaly();
+		}
+		for (En en : ens) {
+			sb.append("tff(" + conv(en) + "_entity, type, " + conv(en) + ": $tType).\n");
+			sb.append("tff(" + conv(en) + "_pred, type, " + conv(en) + ": " + conv(en) + " > $o).\n");
+		}
+		for (Entry<Att, Pair<En, Ty>> k : atts.entrySet()) {
+			String b = k.getValue().second.toString();
+			String a = conv(k.getValue().first);
+			sb.append("tff(" + conv0(k.getKey()) + "_att, type, " + conv0(k.getKey()) + ": " + a + " > " + b + ").\n");
+		}
+		return sb.toString();
 	}
 
 	private boolean cannotBeIndexed(Ty t) {

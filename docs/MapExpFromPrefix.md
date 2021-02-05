@@ -1,0 +1,1 @@
+Returns the canonical mapping from a schema with a prefix into that schema.

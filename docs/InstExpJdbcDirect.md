@@ -1,0 +1,1 @@
+Import over JDBC into a schema without foreign keys, by directly matching CQL attribute and entity names

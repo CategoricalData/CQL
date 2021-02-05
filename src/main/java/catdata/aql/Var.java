@@ -1,5 +1,7 @@
 package catdata.aql;
 
+import org.apache.commons.exec.util.StringUtils;
+
 import gnu.trove.map.hash.THashMap;
 
 public final class Var implements Comparable<Var> {
@@ -24,6 +26,9 @@ public final class Var implements Comparable<Var> {
 
 	@Override
 	public String toString() {
+		if (var.contains(" ") || var.contains("\n") || var.contains("\t")) {
+			return StringUtils.quoteArgument(var);
+		}
 		return var;
 	}
 

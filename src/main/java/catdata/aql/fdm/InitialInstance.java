@@ -7,7 +7,6 @@ import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
 import catdata.aql.DP;
 import catdata.aql.Instance;
 import catdata.aql.Schema;

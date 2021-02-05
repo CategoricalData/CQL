@@ -1,0 +1,1 @@
+Gets the schema of an instance.

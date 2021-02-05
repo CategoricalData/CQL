@@ -1,0 +1,1 @@
+Emits a query over JDBC as a set of views.

@@ -1,0 +1,1 @@
+Co-evaluates a query.  Note: co-evaluation is not inversion, but a kind of one-sided inverse called an adjunction.

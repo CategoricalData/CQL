@@ -1,9 +1,9 @@
 //In a relational data exchange setting, there are no function symbols or equations.
 typeside Ty = literal {
-	java_types
-		dom = "java.lang.Object"
-	java_constants
-		dom = "return input[0]"
+	external_types
+		dom -> "java.lang.Object"
+	external_parsers
+		dom -> "x => x"
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -17,9 +17,9 @@ schema S = literal : Ty {
 		SdeptId : SDeptEmp -> dom
 		SmgrName : SDeptEmp -> dom
 		SempId : SDeptEmp -> dom
-} 
+}
 
-//target relational schema.  
+//target relational schema.
 schema T = literal : Ty {
 	entities
 		TDept TEmp
@@ -29,35 +29,35 @@ schema T = literal : Ty {
 		TdeptId : TDept -> dom
 		TmgrId : TDept -> dom
 		TmgrName : TDept -> dom
-} 
+}
 
-//To encode a relational data exchange setting in CQL, we must disjoint union the 
+//To encode a relational data exchange setting in CQL, we must disjoint union the
 //source and target schemas together.
 schema ST = literal : Ty {
-	imports 
+	imports
 		S T
-} 
+}
 
-//all EDs are expressed on the combined schema ST.  
+//all EDs are expressed on the combined schema ST.
 constraints theEDs = literal : ST {
 	//managers work in the departments they manage (stronger than FK)
 	//Dept(d,m,n) -> Emp(m,d)
 	forall d:TDept ->
- 	exists e:TEmp 
+ 	exists e:TEmp
  	where d.TdeptId = e.TwrksIn  d.TmgrId = e.TempId
- 
+
 	//every employee works in some department (FK)
 	//Emp(e,d) -> exists M,N. Dept(d,M,N)
  	forall e:TEmp ->
 	exists d:TDept
- 	where d.TdeptId = e.TwrksIn	
- 	
+ 	where d.TdeptId = e.TwrksIn
+
 	//every DeptEmp is a department and an employee
 	//DeptEmp(d,n,e) -> exists M. Dept(d, M, n) , Emp(e, d)
 	forall de:SDeptEmp ->
 	exists d:TDept e:TEmp
  	where de.SdeptId = d.TdeptId d.TdeptId = e.TwrksIn de.SdeptId = d.TdeptId de.SempId = e.TempId
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -71,8 +71,8 @@ instance I = literal : ST {
 
 //The three EDs are 'weakly acyclic'.  Thus we know any chase sequence will terminate in polynomial time.
 //J = Dept(cs, null1, null2), Emp(1, cs), Emp(null2, cs)
-//intuitively, null2 = alice's manager id, null3 = alice's manager's name 
-instance J = chase theEDs I 
+//intuitively, null2 = alice's manager id, null3 = alice's manager's name
+instance J = chase theEDs I
 
 command JisOk1 = check theEDs J //verify the chased instance satisfies the EDs
 
@@ -86,12 +86,12 @@ schema Sch = literal : Ty {
 		E
 	attributes
 		att1 att2 att3 : E -> dom
-} 
+}
 
-//says (att1,att2) is a primary key 
+//says (att1,att2) is a primary key
 constraints PkForSch = literal : Sch {
 	forall x y : E
-	where x.att1 = y.att1  x.att2 = y.att3 
+	where x.att1 = y.att1  x.att2 = y.att3
 	->
 	where x.att3 = y.att3
 }

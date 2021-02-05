@@ -2,6 +2,7 @@ package catdata.aql.exp;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -127,18 +128,11 @@ public class InstExpCsv
 			}
 			Reader r = map.get(k);
 
-			// File file = new File(map.get(k));
-			// BufferedReader fileReader = new BufferedReader(r);
-			// String s;
-			/// while ((s = fileReader.readLine()) != null) {
-			// System.out.println(s);
-			// }
-
 			final CSVReader reader = new CSVReaderBuilder(r).withCSVParser(parser)
 					.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
 
 			List<String[]> rows = reader.readAll();
-			
+
 			ret.put(En.En(k), rows);
 			reader.close();
 			r.close();
@@ -165,17 +159,20 @@ public class InstExpCsv
 		for (En en : sch.ens) {
 			String x = f + op.getOrDefault(AqlOption.csv_import_prefix) + "/" + en.toString() + "."
 					+ op.getOrDefault(AqlOption.csv_file_extension);
-			InputStream is = makeURL(x);
 			try {
+				InputStream is = makeURL(x);
 				Reader r = new InputStreamReader(is);
 				m.put(en.str, r);
-			} catch (Exception ex) {
-				ex.printStackTrace();
+			} catch (FileNotFoundException ex) {
 				if (!(boolean) op.getOrDefault(AqlOption.import_missing_is_empty)) {
+					ex.printStackTrace();
 					throw new RuntimeException(
 							"Missing: " + x + ". \n\nPossible options to consider: " + AqlOption.import_missing_is_empty
 									+ " and " + AqlOption.csv_import_prefix + " and " + AqlOption.csv_file_extension);
 				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				throw new RuntimeException(ex);
 			}
 		}
 		return start2(m, op, sch, false);
@@ -283,24 +280,23 @@ public class InstExpCsv
 
 	}
 
-	private String mediate(String en, boolean prepend, String sep, String pre,
-			Map<String, String> map, String x) {
-			if (map.containsKey(x)) {
-				return map.get(x);
+	private String mediate(String en, boolean prepend, String sep, String pre, Map<String, String> map, String x) {
+		if (map.containsKey(x)) {
+			return map.get(x);
+		}
+		String z = x;
+		if (prepend) {
+			int i = x.indexOf(en + sep);
+			if (i != 0) {
+				map.put(x, pre + z);
+				return pre + z;
 			}
-			String z = x;
-			if (prepend) {
-				int i = x.indexOf(en + sep);
-				if (i != 0) {
-					map.put(x, pre + z);
-					return pre + z;
-				}
-				String temp = x.substring((en + sep).length());
-				map.put(x, pre + temp);
-				return pre + temp;
-			}
-			map.put(x, pre + z);
-			return pre + z;
+			String temp = x.substring((en + sep).length());
+			map.put(x, pre + temp);
+			return pre + temp;
+		}
+		map.put(x, pre + z);
+		return pre + z;
 	}
 
 	// TODO aql shredded input format for CSV

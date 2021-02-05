@@ -1,0 +1,1 @@
+An APG typeside literal, consisting of a set of types and a set of values and a typing function taking each value to a type.

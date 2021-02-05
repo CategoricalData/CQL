@@ -1,0 +1,1 @@
+An APG morphism, consisting of a function taking labels to labels and a function taking elements to elements.

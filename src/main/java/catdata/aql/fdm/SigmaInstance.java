@@ -33,7 +33,7 @@ public class SigmaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
 		F = f;
 		I = i;
 
-		Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new CCollage<>(F.dst.collage());
+		Collage<Ty, En2, Sym, Fk2, Att2, Gen, Sk> col = new CCollage<>();
 
 		I.sks().entrySet((k, v) -> {
 			col.sks().put(k, v);

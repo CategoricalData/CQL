@@ -29,7 +29,6 @@ import catdata.aql.Instance;
 import catdata.aql.It.ID;
 import catdata.aql.Kind;
 import catdata.aql.NoAlgInstance;
-import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
@@ -256,9 +255,9 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 		for (Pair<String, String> p : gens) {
 			String gen = p.first;
 			String ty = p.second;
-			if (col.getEns().contains(En.En(ty))) {
+			if (sch.ens.contains(En.En(ty))) {
 				col.gens().put(Gen.Gen(gen), En.En(ty));
-			} else if (col.tys().contains(Ty.Ty(ty))) {
+			} else if (sch.typeSide.tys.contains(Ty.Ty(ty))) {
 				col.sks().put(Sk.Sk(gen), Ty.Ty(ty));
 			} else {
 				throw new LocException(find("generators", p),
@@ -384,7 +383,8 @@ public final class InstExpRaw extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Int
 			if (z.kind() != Kind.INSTANCE) {
 				throw new RuntimeException("Import of wrong kind: " + z);
 			}
-			//SchExp u = ((InstExp)z).type(G);
+			SchExp u = ((InstExp)z).type(G);
+		
 			//if (!schema.equals(u)) {
 			//	throw new RuntimeException("Import instance schema mismatch on " + z + ", is " + u + " and not " + schema + " as expected.");
 			//}

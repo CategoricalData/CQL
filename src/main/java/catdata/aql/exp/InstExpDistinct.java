@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import catdata.Pair;
+import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
@@ -50,7 +51,9 @@ public final class InstExpDistinct<Gen, Sk, X, Y> extends InstExp<Gen, Sk, X, Y>
 		if (isC) {
 			throw new IgnoreException();
 		}
-		return DistinctInstance.make(ii);
+		AqlOptions ops = env.defaults;
+		
+		return new DistinctInstance<>(ii, ops);
 	}
 
 	@Override

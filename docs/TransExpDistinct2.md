@@ -1,0 +1,1 @@
+Computes the transform distinct(I) to I, taking each row to its equivalence class representative

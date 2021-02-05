@@ -1,0 +1,1 @@
+Computes a colimit of instances and transforms.

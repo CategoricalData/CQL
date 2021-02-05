@@ -1,0 +1,1 @@
+Returns the schema associated with a SQL DB.

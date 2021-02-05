@@ -1,0 +1,1 @@
+Terminal object in the category of APGs

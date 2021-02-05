@@ -1,4 +1,0 @@
-id,currency_id,currency_code,currency_name,currency_country_id,currency_country
-rcur1,1,USD,US Dollar,6,rcty6
-rcur2,2,EUR,Euro,4,rcty4
-rcur3,3,JPY,Japanese Yen,5,rcty5

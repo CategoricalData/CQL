@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 import catdata.Util;
 
 /**
- * 
+ *
  * A morphism of graphs taking nodes to nodes and edges to (possibly empty)
  * paths.
- * 
+ *
  * @author ryan
  */
 public final class Match<N1, E1, N2, E2> {
@@ -112,5 +112,15 @@ public final class Match<N1, E1, N2, E2> {
 				.collect(Collectors.toList());
 		return "nodes\n\t" + Util.sep(nodesStr, "\n\t") + "\n\nedges\n\t" + Util.sep(edgesStr, "\n\t");
 	}
+
+  /// For testing only
+
+  boolean testNodes(java.util.function.Function<Map<N1, N2>, Boolean> f) {
+    return f.apply(nodes);
+  }
+
+  boolean testEdges(java.util.function.Function<Map<E1, List<E2>>, Boolean> f) {
+    return f.apply(edges);
+  }
 
 }

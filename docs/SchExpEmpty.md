@@ -1,0 +1,1 @@
+Returns the empty schema on a type side.

@@ -11,9 +11,14 @@ Build and installation
 
 [Java 11 Jar File (14MB)](http://categoricaldata.net/cql.jar)
 
-### Eclipse
+### Gradle
 
-For best results, compile using the [Eclipse IDE](http://eclipse.org/jdt/).  
+The recommended build method is [Gradle](https://gradle.org), invoked with the `gradlew` script. Useful tasks include:
+- `run`: run the CQL IDE
+- `shadowJar`: build the CQL IDE as a JAR in `build/libs`
+- `tasks`: show all available tasks
+
+### Eclipse
 
 Quick build guide:
 - create a new java project

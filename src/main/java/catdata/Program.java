@@ -232,6 +232,15 @@ public class Program<X> implements Prog {
 		return true;
 	}
 	
+	public boolean comp(Program<X> obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		boolean b = options.equals(obj.options) && exps.equals(obj.exps);
+		return b;
+	}
+	
 	
 
 }

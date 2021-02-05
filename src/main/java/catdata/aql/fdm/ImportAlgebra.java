@@ -59,6 +59,7 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 			ts += x.size();
 		}
 
+		//TODO: land onto definitions rather than equations
 		talg = new TAlg<>(new THashMap<>(ts), new ArrayList<>(eqs.size()));
 		for (Entry<Ty, Collection<Y>> ty : tys.entrySet()) {
 			for (Y y : ty.getValue()) {
@@ -66,11 +67,9 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 			}
 		}
 		for (Eq<Ty, Void, Sym, Void, Void, Void, Y> x : eqs) {
-			talg.eqs.add(new Pair<>(x.lhs, x.rhs));
+			talg.eqsNoDefns().add(new Pair<>(x.lhs, x.rhs));
 		}
 		
-		
-
 		for (Entry<En, Collection<X>> en : ens.entrySet()) {
 			for (X x : en.getValue()) {
 				gens.put(x, en.getKey());
@@ -131,7 +130,12 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 		if (ctx != null && !ctx.isEmpty()) {
 			Util.anomaly();
 		} else if (lhs.hasTypeType()) {
-			return intoY(lhs).equals(intoY(rhs)); // free talg
+			if (schema.typeSide.js.java_tys.isEmpty()) {
+				return intoY(lhs).equals(intoY(rhs)); // free talg
+			}
+			return schema.typeSide.js.reduce(intoY(lhs)).equals(schema.typeSide.js.reduce(intoY(rhs))); // free talg
+
+//			schema.typeSide.js.reduce(lhs)
 		}
 		return intoX(lhs).equals(intoX(rhs));
 	}
@@ -193,12 +197,16 @@ public class ImportAlgebra<Ty, En, Sym, Fk, Att, X, Y> extends Algebra<Ty, En, S
 
 	@Override
 	public boolean hasFreeTypeAlgebra() {
-		return talg.eqs.isEmpty();
+		return talg.eqsNoDefns().isEmpty();
 	}
 
 	@Override
 	public int size(En en) {
-		return ens.get(en).size();
+		var x = ens.get(en); 
+		if (x == null) {
+			throw new RuntimeException("Cannot find " + en + " in " + ens.keySet());
+		}
+		return x.size();
 	}
 
 	@Override

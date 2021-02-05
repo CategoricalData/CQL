@@ -14,7 +14,7 @@ public enum Language {
 //	FPQL,
 //	OPL,
 	MPL,
-	CQL;//, CQL_ALT;
+	CQL, CQL_ALT;
 
 	public static Language getDefault() {
 		return CQL;
@@ -34,8 +34,8 @@ public enum Language {
 		 case MPL: return "MPL";
 		case CQL:
 			return "CQL";
-		//case CQL_ALT:
-		//	return "CQL ALT";
+		case CQL_ALT:
+			return "CQL ALT";
 		case EASIK:
 			return "EASIK";
 		case SKETCH:
@@ -51,8 +51,8 @@ public enum Language {
 		 case MPL: return "M";
 		case CQL:
 			return " ";
-		//case CQL_ALT:
-		//	return " ";
+		case CQL_ALT:
+			return " ";
 		case EASIK:
 			return "E";
 		case SKETCH:
@@ -67,8 +67,8 @@ public enum Language {
 		switch (this) {
 		case CQL:
 			return "cql";
-		//case CQL_ALT:
-	//		return "cql";
+		case CQL_ALT:
+			return "cql";
 		case EASIK:
 			return "easik";
 		case SKETCH:
@@ -85,8 +85,8 @@ public enum Language {
 		switch (this) {
 		case CQL:
 			return "cql";
-	//	case CQL_ALT:
-	//		return "cql_extra";
+		case CQL_ALT:
+			return "cql_extra";
 		case EASIK:
 			return "easik";
 		case SKETCH:
@@ -106,8 +106,8 @@ public enum Language {
 			return new AqlCodeEditor(title, id, content);
 		case MPL:
 			return new MplCodeEditor(title, id, content);
-		//case CQL_ALT:
-		//	return new AqlCodeEditor(title, id, content);
+		case CQL_ALT:
+			return new AqlCodeEditor(title, id, content);
 		case EASIK:
 		case SKETCH:
 		default:
@@ -122,8 +122,8 @@ public enum Language {
 			return Examples.getExamples(Language.CQL);
 		case MPL:
 			return Examples.getExamples(Language.MPL);
-		//case CQL_ALT:
-			//return Examples.getExamples(Language.CQL_ALT);
+		case CQL_ALT:
+			return Examples.getExamples(Language.CQL_ALT);
 		case EASIK:
 			return Examples.getExamples(Language.EASIK);
 		case SKETCH:

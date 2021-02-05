@@ -1,0 +1,1 @@
+The codomain (range) of a transform / database homomorphism.

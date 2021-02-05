@@ -1,24 +1,24 @@
 
-typeside TyJava = literal { 
-	java_types
-		string = "java.lang.String"
-		nat = "java.lang.Integer"
-	java_constants
-		string = "return input[0]"
-		nat = "return java.lang.Integer.parseInt(input[0])"
-	java_functions
-		plus : nat,nat -> nat = "return (input[0] + input[1]).intValue()"
+typeside TyJava = literal {
+	external_types
+		string -> "java.lang.String"
+		nat -> "java.lang.Integer"
+	external_parsers
+		string -> "x => x"
+		nat -> "parseInt"
+	external_functions
+		plus : nat,nat -> nat = "(x, y) => x + y"
 }
 
 schema SJava = literal : TyJava {
 	entities
-		Employee 
+		Employee
 		Department
 	foreign_keys
 		manager   : Employee -> Employee
 		worksIn   : Employee -> Department
 		secretary : Department -> Employee
-	path_equations 
+	path_equations
 		Employee.manager.worksIn = Employee.worksIn
   		Department.secretary.worksIn = Department
   		Employee.manager.manager = Employee.manager
@@ -30,28 +30,28 @@ schema SJava = literal : TyJava {
      observation_equations
      	forall e. cummulative_age(e) = plus(age(e), age(manager(e)))
      options
-     	prover_simplify_max = 64	
+     	prover_simplify_max = 64
 }
 
 instance IJava = literal : SJava {
-	generators 
+	generators
 		a b c : Employee
 		m s : Department
-	equations 
+	equations
 		first(a) = Al
 		first(b) = Bob  last(b) = Bo
-		first(c) = Carl 
+		first(c) = Carl
 		name(m)  = Math name(s) = CS
-		age(a) = age(c) 
+		age(a) = age(c)
 		manager(a) = b manager(b) = b manager(c) = c
 		worksIn(a) = m worksIn(b) = m worksIn(c) = s
-		secretary(s) = c secretary(m) = b 
+		secretary(s) = c secretary(m) = b
 		secretary(worksIn(a)) = manager(a)
 		worksIn(a) = worksIn(manager(a))
-		age(a) = "2" 
+		age(a) = "2"
 		age(manager(a)) = "1"
 	 options
-     	prover_simplify_max = 64		
+     	prover_simplify_max = 64
 }
 
 //basic query syntax
@@ -67,10 +67,10 @@ query Q = simple : SJava {
 instance J = eval Q IJava
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//demonstrates 'interpret as instance' option.   which interprets the instance as a model, 
-//similar to JDBC / CSV import.  This behavior can be useful when writing down an 
-//instance that is already saturated and for which one wants to check the schema constraints, 
-//rather than impose them  
+//demonstrates 'interpret as instance' option.   which interprets the instance as a model,
+//similar to JDBC / CSV import.  This behavior can be useful when writing down an
+//instance that is already saturated and for which one wants to check the schema constraints,
+//rather than impose them
 
 schema SS = literal : empty {
     entities
@@ -95,21 +95,21 @@ instance I1 = literal : SS {
                 //fails because b != c.  This is 'algebra' semantics
   		//options
           		//interpret_as_algebra = true
-}          		
+}
 
 /////////////////////////////////////////////////////////////////
 
-typeside Ty = literal { 
+typeside Ty = literal {
 	types
- 		string 
+ 		string
  		nat
 	constants
  		Al Akin Bob Bo Carl Cork Dan Dunn Math CS : string
  		zero : nat
- 	functions 		
+ 	functions
 	 	succ		: nat -> nat
 	 	plus		: nat, nat -> nat
-	equations  
+	equations
 	 	forall x. plus(zero, x) = x
 	 	forall x, y. plus(succ(x),y) = succ(plus(x,y))
 	options
@@ -118,13 +118,13 @@ typeside Ty = literal {
 
 schema S = literal : Ty {
 	entities
-		Employee 
+		Employee
 		Department
 	foreign_keys
 		manager   : Employee -> Employee
 		worksIn   : Employee -> Department
 		secretary : Department -> Employee
-	path_equations 
+	path_equations
 		Employee.manager.worksIn = Employee.worksIn
   		Department.secretary.worksIn = Department
   	attributes
@@ -139,26 +139,24 @@ schema S = literal : Ty {
 }
 
 instance I = literal : S {
-	generators 
+	generators
 		a b c : Employee
 		m s : Department
-	equations 
+	equations
 		first(a) = Al
 		first(b) = Bob  last(b) = Bo
-		first(c) = Carl 
+		first(c) = Carl
 		name(m)  = Math name(s) = CS
-		age(a) = age(c) 
+		age(a) = age(c)
 		manager(a) = b manager(b) = b manager(c) = c
 		worksIn(a) = m worksIn(b) = m worksIn(c) = s
-		secretary(s) = c secretary(m) = b 
+		secretary(s) = c secretary(m) = b
 		secretary(worksIn(a)) = manager(a)
 		worksIn(a) = worksIn(manager(a))
-		age(a) = zero.succ.succ 
+		age(a) = zero.succ.succ
 		age(manager(a)) = zero.succ
 	options
 		prover = completion
 		second_prover = completion
 		completion_precedence = "cummulative_age zero a b c m s Al Akin Bob Bo Carl Cork Dan Dunn Math CS first last name age manager worksIn secretary succ plus"
-} 
-
-
+}

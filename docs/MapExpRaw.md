@@ -1,0 +1,1 @@
+A mapping literal, or derived theory morphism, constant on type sides.  Each source entity maps to a target entity, each foreign key to a path, and each attribute to a lambda term with one variable.  See All_Syntax for an example.

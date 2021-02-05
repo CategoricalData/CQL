@@ -1,0 +1,1 @@
+The schema part of a colimit of schemas.

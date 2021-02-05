@@ -3,12 +3,9 @@ package catdata.apg;
 import java.util.List;
 
 import catdata.Pair;
-import catdata.Triple;
 import catdata.Util;
 
 public class ApgPreTerm {
-
-	
 
 	@Override
 	public String toString() {
@@ -19,7 +16,7 @@ public class ApgPreTerm {
 			return str + "@" + ty;
 		}
 		if (fields != null) {
-			return "(" + Util.sep(fields.iterator(), " , ", x->x.first + ": " + x.second) + ")";
+			return "(" + Util.sep(fields.iterator(), " , ", x -> x.first + ": " + x.second) + ")";
 		}
 		if (inj != null) {
 			return "<" + inj + ": " + arg + ">"; // + Util.sep(m, ": ", " ");
@@ -37,10 +34,15 @@ public class ApgPreTerm {
 			}
 			return s;
 		}
-		return Util.anomaly();}
+		if (head != null) {
+			return head + "(" + Util.sep(args, ", ") + ")";
+		}
+		return Util.anomaly();
+	}
 
-
-	private ApgPreTerm(String str, List<Pair<String, ApgPreTerm>> fields, ApgPreTerm inj, String field, ApgTy<Object> ty, String proj, String deref,List<Pair<String, Pair<String, ApgPreTerm>>> cases) {
+	private ApgPreTerm(String str, List<Pair<String, ApgPreTerm>> fields, ApgPreTerm inj, String field,
+			ApgTy<Object> ty, String proj, String deref, List<Pair<String, Pair<String, ApgPreTerm>>> cases,
+			String head, List<ApgPreTerm> args) {
 		this.str = str;
 		this.fields = fields;
 		this.arg = inj;
@@ -49,46 +51,61 @@ public class ApgPreTerm {
 		this.proj = proj;
 		this.deref = deref;
 		this.cases = cases;
-	}
-	
-	
-	public static ApgPreTerm ApgPreTermStr(String str) {
-		return new ApgPreTerm(str, null, null, null, null, null, null, null);
-	}
-	public static ApgPreTerm ApgPreTermTuple(List<Pair<String, ApgPreTerm>> fields) {
-		return new ApgPreTerm(null, fields, null, null, null, null, null, null);
-	}
-	public static ApgPreTerm ApgPreTermInj(String field, ApgPreTerm inj) {
-		return new ApgPreTerm(null, null, inj, field, null, null, null, null);
-	}
-	public static ApgPreTerm ApgPreTermBase(String str, ApgTy<Object> ty) {
-		return new ApgPreTerm(str, null, null, null, ty, null, null, null);
-	}
-	public static ApgPreTerm ApgPreTermInjAnnot(String field, ApgPreTerm inj, ApgTy ty) {
-		return new ApgPreTerm(null, null, inj, field, ty, null, null, null);
-	}
-	public static ApgPreTerm ApgPreTermProj(String proj, ApgPreTerm e) {
-		return new ApgPreTerm(null, null, e, null, null, proj, null, null);
-	}
-	public static ApgPreTerm ApgPreTermDeref(String deref, ApgPreTerm e) {
-		return new ApgPreTerm(null, null, e, null, null, null, deref, null);
-	}
-	public static ApgPreTerm ApgPreTermCase(ApgPreTerm x, List<Pair<String, Pair<String, ApgPreTerm>>> cases, ApgTy ty) {
-		return new ApgPreTerm(null, null, x, null, ty, null, null, cases);
+		this.head = head;
+		this.args = args;
 	}
 
-	
+	public static ApgPreTerm ApgPreTermStr(String str) {
+		return new ApgPreTerm(str, null, null, null, null, null, null, null, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermTuple(List<Pair<String, ApgPreTerm>> fields) {
+		return new ApgPreTerm(null, fields, null, null, null, null, null, null, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermInj(String field, ApgPreTerm inj) {
+		return new ApgPreTerm(null, null, inj, field, null, null, null, null, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermBase(String str, ApgTy<Object> ty) {
+		return new ApgPreTerm(str, null, null, null, ty, null, null, null, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermInjAnnot(String field, ApgPreTerm inj, ApgTy ty) {
+		return new ApgPreTerm(null, null, inj, field, ty, null, null, null, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermProj(String proj, ApgPreTerm e) {
+		return new ApgPreTerm(null, null, e, null, null, proj, null, null, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermDeref(String deref, ApgPreTerm e) {
+		return new ApgPreTerm(null, null, e, null, null, null, deref, null, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermCase(ApgPreTerm x, List<Pair<String, Pair<String, ApgPreTerm>>> cases,
+			ApgTy ty) {
+		return new ApgPreTerm(null, null, x, null, ty, null, null, cases, null, null);
+	}
+
+	public static ApgPreTerm ApgPreTermApp(String head, List<ApgPreTerm> l) {
+		return new ApgPreTerm(null, null, null, null, null, null, null, null, head, l);
+	}
+
 	public final ApgTy<Object> ty;
 	public final String str;
 	public final List<Pair<String, ApgPreTerm>> fields;
-	
+
+	public final List<ApgPreTerm> args;
+	public final String head;
+
 	public final ApgPreTerm arg;
 	public final String inj;
 	public final String proj;
 	public final String deref;
-	
+
 	public final List<Pair<String, Pair<String, ApgPreTerm>>> cases;
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -101,8 +118,11 @@ public class ApgPreTerm {
 		result = prime * result + ((proj == null) ? 0 : proj.hashCode());
 		result = prime * result + ((deref == null) ? 0 : deref.hashCode());
 		result = prime * result + ((cases == null) ? 0 : cases.hashCode());
+		result = prime * result + ((args == null) ? 0 : args.hashCode());
+		result = prime * result + ((head == null) ? 0 : head.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -152,9 +172,17 @@ public class ApgPreTerm {
 				return false;
 		} else if (!str.equals(other.str))
 			return false;
+		if (args == null) {
+			if (other.args != null)
+				return false;
+		} else if (!args.equals(other.args))
+			return false;
+		if (head == null) {
+			if (other.head != null)
+				return false;
+		} else if (!head.equals(other.head))
+			return false;
 		return true;
 	}
-	
-	
-	
+
 }

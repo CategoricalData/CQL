@@ -1,0 +1,1 @@
+Executes java script code in the java virtual machine a la type sides.  Used to intialize type side state, usually.  The CQL environment being constructed can be accessed by the variable named by the option  js_env_name.

@@ -1,0 +1,1 @@
+Imports a JSON-LD instance (as a URI) in .json format

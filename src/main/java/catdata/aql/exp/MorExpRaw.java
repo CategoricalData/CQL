@@ -22,7 +22,6 @@ import catdata.aql.Collage;
 import catdata.aql.Collage.CCollage;
 import catdata.aql.Kind;
 import catdata.aql.Mor;
-import catdata.aql.RawTerm;
 import catdata.aql.Term;
 import catdata.aql.TypeSide;
 import catdata.aql.Var;
@@ -232,7 +231,7 @@ public class MorExpRaw extends MorExp implements Raw {
 		for (Pair<String, Pair<List<Pair<String, String>>, RawTerm>> eq : syms) {
 			try {
 				Chc<Ty,Void> et = Chc.inLeft(ens0.get(src0.syms.get(eq.first).second));
-				Triple<Map<Var, Chc<Ty, Void>>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> 
+				Triple<Map<Var, Chc<Ty, Void>>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>>
 				tr = TyExpRaw.infer1x(TyExpRaw.yyy(eq.second.first), eq.second.second, null, et, dcol, "", dst0.js);
 			//x	syms0.put(sym, new Pair)
 				//	col.eqs.add(new Eq<>(tr.first, tr.second, tr.third));

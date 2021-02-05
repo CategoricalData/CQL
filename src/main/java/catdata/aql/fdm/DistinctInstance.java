@@ -1,88 +1,193 @@
 package catdata.aql.fdm;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.BiConsumer;
 
-import org.apache.commons.collections4.iterators.IteratorIterable;
+import org.apache.commons.collections.ListUtils;
 
-import com.google.common.collect.Iterators;
+import com.github.jsonldjava.shaded.com.google.common.collect.Iterables;
 
 import catdata.Chc;
 import catdata.Pair;
+import catdata.Util;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
+import catdata.aql.AqlOptions;
 import catdata.aql.DP;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
+import catdata.aql.Var;
 import catdata.graph.UnionFind;
 import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
 
+//TODO: x = y 1/2 optimization
 public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
 	private final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
 
-	private final LinkedList<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = new LinkedList<>();
+	private final Map<En, boolean[][]> distinguished = new THashMap<>();
 
-	private final UnionFind<X> uf;
-	
-	public static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> make(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
-		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> j = new DistinctInstance<>(i);
-		if (i.size() == j.size()) {
-			return j;
-		}
-		for (;;) {
-			i = new DistinctInstance(j);
-			if (i.size() == j.size()) {
-				return j;
-			}
-			j = i;
-		}
-			
+	private final Map<En, UnionFind<X>> ufs = new THashMap<>();
+
+	private final int conv(En en, X x) {
+		return ufs.get(en).iso2.get(x);
 	}
 
-	private DistinctInstance(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
-		I = i;
-		// eqs.addAll();
-		uf = new UnionFind<>(I.size(), I.algebra().allXs());
-		for (En en : schema().ens) {
-			for (X x : I.algebra().en(en)) {
-				for (X y : I.algebra().en(en)) {
-					if (!x.equals(y) && obsEq(en, x, y)) {
-						uf.union(x, y);
-						eqs.add(new Pair<>(I.algebra().repr(en, x).convert(), I.algebra().repr(en, y).convert()));
-					}
+	private final X deconv(En en, int x) {
+		return ufs.get(en).iso1[x];
+	}
+
+	private boolean notd(En en, int x, int y, List<Fk> path, boolean[] changed) {
+		En en0 = en;
+		int x0 = x;
+		int y0 = y;
+		var m0 = distinguished.get(en);
+		if (x == y) {
+			return true;
+		}
+		var m = m0;
+		if (m[x][y] || m[y][x]) {
+			return false;
+		}
+		for (Fk fk : path) {
+			En en2 = schema().fks.get(fk).second;
+			x = conv(en2, I.algebra().fk(fk, deconv(en, x)));
+			y = conv(en2, I.algebra().fk(fk, deconv(en, y)));
+			en = en2;
+
+			if (x == y) {
+				return true;
+			}
+			m = distinguished.get(en);
+			if (m[x][y] || m[y][x]) {
+				
+		//		System.out.println(en0 + " " + I.algebra().printX(en0, deconv(en0, x0)) + " <> "
+		//				+ I.algebra().printX(en0, deconv(en0, y0)) + " Distinguish on fk " + fk);
+		//		System.out.println(Arrays.deepToString(m0));
+
+				if (m0[x0][y0] || m0[y0][x0]) {
+					Util.anomaly();
 				}
-			}
-		}
-		
-		// validate();
-	}
-
-	private boolean obsEq(En en, X x, X y) {
-		//System.out.println("At " + en + ": " + x + " = " + y);
-		for (Fk fk : schema().fksFrom(en)) {
-			if (!I.algebra().fk(fk, x).equals(I.algebra().fk(fk, y))) {
-			//	System.out.println("false on " + fk);
+				m0[x0][y0] = true;
+				m0[y0][x0] = true;
+				changed[0] = true;
 				return false;
 			}
 		}
 		for (Att att : schema().attsFrom(en)) {
-			if (!I.dp().eq(null, I.reprT(I.algebra().att(att, x)), I.reprT(I.algebra().att(att, y)))) {
-			//	System.out.println("false on " + att);
+			var a = I.algebra().att(att, deconv(en, x));
+			var b = I.algebra().att(att, deconv(en, y));
+
+			if (!I.dp().eq(null, I.reprT(a), I.reprT(b))) {
+				if (m0[x0][y0] || m0[y0][x0]) {
+					Util.anomaly();
+				}
+				m0[x0][y0] = true;
+				m0[y0][x0] = true;
+				changed[0] = true;
+			//	System.out.println(en0 + " " + I.algebra().printX(en0, deconv(en0, x0)) + " <> "
+			//			+ I.algebra().printX(en0, deconv(en0, y0)) + " distinguish on " + I.reprT(a) + " and "
+			//			+ I.reprT(b));
+			//	System.out.println(Arrays.deepToString(m0));
 				return false;
 			}
 		}
-		//System.out.println("true ");
 		return true;
 	}
 
-	private X conv(X x) {
-		return uf.find(x);
+	public DistinctInstance(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0, AqlOptions ops) {
+		I = I0;
+		Map<En, List<List<Fk>>> paths = new THashMap<>();
+
+		for (En en : I.schema().ens) {
+			ufs.put(en, new UnionFind<>(I.algebra().size(en), I.algebra().en(en)));
+			int num = I.algebra().size(en);
+			distinguished.put(en, new boolean[num][num]);
+			List<Fk> l = Collections.emptyList();
+			paths.put(en, Collections.singletonList(l));
+		}
+
+		for (;;) {
+
+			boolean[] changed = new boolean[] { false };
+		//	System.out.println("round start");
+
+			for (En en : I.schema().ens) {
+				for (List<Fk> path : paths.get(en)) {
+					En en2 = path.isEmpty() ? en : schema().fks.get(path.get(0)).first;
+					boolean[][] d = distinguished.get(en2);
+					for (int x = 0; x < d.length; x++) {
+						for (int y = x; y < d.length; y++) {
+							if (x == y) {
+								continue;
+							}
+							notd(en2, x, y, path, changed);
+						}
+					}
+				}
+			}
+			//System.out.println("round finished");
+			if (!changed[0]) {
+			
+				break;
+			}
+			Map<En, List<List<Fk>>> paths0 = new THashMap<>();
+			for (En en : I.schema().ens) {
+				paths0.put(en, new LinkedList<>());
+			}
+			for (En en : I.schema().ens) {
+				List<List<Fk>> it = paths.get(en);
+				for (List<Fk> path : it) {
+					for (Fk fk : I.schema().fksFrom(en)) {
+						En en2 = schema().fks.get(fk).second;
+						paths0.get(en2).add(ListUtils.union(path, Collections.singletonList(fk)));
+						// TODO: not consider equivalent paths?
+					}
+				}
+			}
+			// System.out.println("paths0: " + paths0);
+			paths = paths0;
+		}
+
+		
+		
+		for (En en : schema().ens) {
+			boolean[][] d = distinguished.get(en);
+//			System.out.println(Arrays.deepToString(d));
+			UnionFind<X> uf = ufs.get(en);
+			for (int x = 0; x < d.length; x++) {
+				for (int y = x; y < d.length; y++) {
+					if (x == y) {
+						continue;
+					}
+					if (!d[x][y] || !d[y][x]) {
+//						System.out.println(en + " " + I.algebra().printX(en, deconv(en, x)) + " = "
+//								+ I.algebra().printX(en, deconv(en, y)));
+						eqs.add(new Pair<>(I.algebra().repr(en, deconv(en, x)).convert(), I.algebra().repr(en, deconv(en, y)).convert()));
+						uf.union(x, y);
+					}
+				}
+			}
+		}
+
+//		this.validateMore();
+//		algebra().validateMore();
+		// System.out.println(algebra());
+		// System.out.println(this);
+
+		algebra = new InnerAlgebra();
+
+		validate();
+		// I.eqs((l, r) -> {
+		// if (!dp().eq(null, l, r)) {
+		// throw new RuntimeException("Equation " + l + " = " + r + " not preserved in
+		// quotient (anomaly).");
+		// }
+		// });
 	}
 
 	@Override
@@ -95,6 +200,16 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		return I.gens();
 	}
 
+	private List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = new LinkedList<>();
+
+	public synchronized void eqs(
+			BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
+		I.eqs(f);
+		for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq : eqs) {
+			f.accept(eq.first, eq.second);
+		}
+	}
+
 	@Override
 	public IMap<Sk, Ty> sks() {
 		return I.sks();
@@ -102,24 +217,40 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 	@Override
 	public DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
-		return I.dp();
+		return new DP<Ty, En, Sym, Fk, Att, Gen, Sk>() {
+
+			@Override
+			public String toStringProver() {
+				return "Distinct-instance wrapper of " + I.algebra().toStringProver();
+			}
+
+			@Override
+			public boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
+					Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
+				if (ctx != null && !ctx.isEmpty()) {
+					throw new RuntimeException("Cannot answer a non-ground equation");
+				}
+
+				Chc<Ty, En> x = I.type(rhs);
+				if (x.left) {
+					return I.dp().eq(null, lhs, rhs);
+				}
+				return algebra().intoX(lhs.convert()).equals(algebra().intoX(rhs.convert()));
+			}
+		};
 	}
 
 	@Override
 	public Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra() {
-		return new InnerAlgebra();
+		return algebra;
 	}
+
+	private Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra;
 
 	private final class InnerAlgebra extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
-		Map<En, Collection<X>> map = (new THashMap<>());
-
 		private InnerAlgebra() {
-			for (En en : schema().ens) {
-				Set<X> set = new THashSet<>();
-				I.algebra().en(en).forEach(x -> set.add(conv(x)));
-				map.put(en, set);
-			}
+
 		}
 
 		@Override
@@ -129,12 +260,12 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 		@Override
 		public Iterable<X> en(En en) {
-			return map.get(en);
+			return Iterables.filter(I.algebra().en(en), x -> ufs.get(en).find(x).equals(x));
 		}
 
 		@Override
 		public X fk(Fk fk, X x) {
-			return conv(I.algebra().fk(fk, x));
+			return ufs.get(I.schema().fks.get(fk).second).find(I.algebra().fk(fk, x));
 		}
 
 		@Override
@@ -149,7 +280,7 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 		@Override
 		public X gen(Gen gen) {
-			return conv(I.algebra().gen(gen));
+			return ufs.get(I.gens().get(gen)).find(I.algebra().gen(gen));
 		}
 
 		@Override
@@ -164,7 +295,7 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 		@Override
 		public String toStringProver() {
-			return "Distinct-instance wrapper of " + I.algebra().toStringProver();
+			return "Distinct-instance algebra wrapper of " + I.algebra().toStringProver();
 		}
 
 		@Override
@@ -182,26 +313,33 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			return I.algebra().hasFreeTypeAlgebra();
 		}
 
-		@Override
-		public boolean hasFreeTypeAlgebraOnJava() {
-			return I.algebra().hasFreeTypeAlgebraOnJava();
-		}
+		private Map<En, Integer> sizes = new THashMap<>();
 
 		@Override
-		public int size(En en) {
-			return map.get(en).size();
+		public synchronized int size(En en) {
+			if (sizes.containsKey(en)) {
+				return sizes.get(en);
+			}
+			int i = ufs.get(en).size();
+			sizes.put(en, i);
+			return i;
 		}
 
 		@Override
 		public Chc<Sk, Pair<X, Att>> reprT_prot(Y y) {
-			return I.algebra().reprT_prot(y);
+			Chc<Sk, Pair<X, Att>> x = I.algebra().reprT_prot(y);
+			if (x.left) {
+				return x;
+			}
+			Pair<X, Att> p = x.r;
+			En en = schema().atts.get(p.second).first;
+			return Chc.inRightNC(new Pair<>(ufs.get(en).find(p.first), p.second));
 		}
 
 		@Override
 		public boolean hasNulls() {
 			return I.algebra().hasNulls();
 		}
-
 	}
 
 	@Override
@@ -214,5 +352,4 @@ public class DistinctInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		return I.allowUnsafeJava();
 	}
 
-	
 }

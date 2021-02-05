@@ -19,7 +19,7 @@ import catdata.aql.fdm.CoEvalEvalCoUnitTransform;
 import catdata.aql.fdm.Row;
 
 public class TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> extends
-		TransExp<Triple<Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Chc<Triple<Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Y>, Gen, Sk, Integer, Chc<Chc<Triple<Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Y>, Pair<Integer, Att>>, X, Y> {
+		TransExp<Triple<Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Chc<Triple<Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Y>, Gen, Sk, Integer, Chc<Chc<Triple<Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Y>, Pair<Integer, Att>>, X, Y> {
 
 	public final QueryExp Q;
 	public final InstExp<Gen, Sk, X, Y> I;
@@ -107,7 +107,7 @@ public class TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> extends
 	}
 
 	@Override
-	public Pair<InstExp<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Y>, Integer, Chc<Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Y>, Pair<Integer, Att>>>, InstExp<Gen, Sk, X, Y>> type(
+	public Pair<InstExp<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Y>, Integer, Chc<Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Y>, Pair<Integer, Att>>>, InstExp<Gen, Sk, X, Y>> type(
 			AqlTyping G) {
 		if (!Q.type(G).first.equals(I.type(G))) {
 			throw new RuntimeException("Q has src schema " + Q.type(G).first + " but instance has schema " + I.type(G));
@@ -117,7 +117,7 @@ public class TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> extends
 	}
 
 	@Override
-	public Transform<Ty, En, Sym, Fk, Att, Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Y>, Gen, Sk, Integer, Chc<Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, En>, Y>, Pair<Integer, Att>>, X, Y> eval0(
+	public Transform<Ty, En, Sym, Fk, Att, Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Y>, Gen, Sk, Integer, Chc<Chc<Triple<catdata.aql.Var, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, En>, Y>, Pair<Integer, Att>>, X, Y> eval0(
 			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);

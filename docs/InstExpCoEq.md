@@ -1,0 +1,1 @@
+Co-equalizes two parallel transforms / database homomorphisms.

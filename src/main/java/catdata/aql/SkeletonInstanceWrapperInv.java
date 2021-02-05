@@ -188,7 +188,7 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
 					talg.sks.put(i, ty);
 				}
 			}
-			I.eqsT((lhs, rhs) -> talg.eqs.add(new Pair<>(lhs, rhs)));
+			I.eqsT((lhs, rhs) -> talg.eqsNoDefns().add(new Pair<>(lhs, rhs)));
 			return talg;
 		}
 

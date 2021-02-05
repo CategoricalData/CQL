@@ -17,7 +17,7 @@ import catdata.aql.Transform;
 import catdata.aql.fdm.Row;
 
 public final class TransExpPi<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> extends
-		TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2> {
+		TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2> {
 
 	public final MapExp F;
 	public final TransExp<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> t;
@@ -87,7 +87,7 @@ public final class TransExpPi<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> extends
 	}
 
 	@Override
-	public Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2>> type(
+	public Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2>> type(
 			AqlTyping G) {
 		Pair<InstExp<Gen1, Sk1, X1, Y1>, InstExp<GEn, Sk2, X2, Y2>> x = t.type(G);
 		if (!G.eq(x.first.type(G), F.type(G).first)) {
@@ -96,11 +96,12 @@ public final class TransExpPi<Gen1, Sk1, GEn, Sk2, X1, Y1, X2, Y2> extends
 		}
 		InstExpPi<Gen1, Sk1, X1, Y1> a = new InstExpPi<>(F, x.first, options1);
 		InstExpPi<GEn, Sk2, X2, Y2> b = new InstExpPi<>(F, x.second, options2);
-		return new Pair<>(a, b);
+		Pair<InstExpPi<Gen1, Sk1, X1, Y1>, InstExpPi<GEn, Sk2, X2, Y2>> ret = new Pair<>(a,b);
+		return new Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2>>(a, b);
 	}
 
 	@Override
-	public synchronized Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>>, Y2> eval0(
+	public synchronized Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, GEn, Sk2>>, Chc<En,Ty>>, Y2> eval0(
 			AqlEnv env, boolean isC) {
 		QueryExp q = new QueryExpDeltaCoEval(F, Util.toList(options1));
 		return new TransExpEval<>(q, t, Util.toList(options2)).eval0(env, isC);

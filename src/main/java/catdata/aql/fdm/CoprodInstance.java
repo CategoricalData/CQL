@@ -4,7 +4,6 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
@@ -16,34 +15,37 @@ import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
-import catdata.aql.AqlProver;
-import catdata.aql.Collage;
-import catdata.aql.Algebra.TAlg;
-import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.DP;
-import catdata.aql.Head;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.TIntHashSet;
 
-public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
-		extends Instance<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> {
+public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
+		Instance<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> {
 
 	private final Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> insts;
 	private final Schema<Ty, En, Sym, Fk, Att> sch;
-	
-	//TAlg<Ty, Sym, Pair<String, Y>> col;
-	
-	
-	public static <X,Y,Z> IMap<X,Z> mapValues(IMap<X,Y> map, BiFunction<X,Y,Z> f) {
+
+	// TAlg<Ty, Sym, Pair<String, Y>> col;
+
+	@Override
+	public synchronized void eqs(
+			BiConsumer<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>> f) {
+		for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
+			x.getValue()
+					.eqs((a, b) -> f.accept(a.mapGenSk(p -> new Pair<>(x.getKey(), p), p -> new Pair<>(x.getKey(), p)),
+							b.mapGenSk(p -> new Pair<>(x.getKey(), p), p -> new Pair<>(x.getKey(), p))));
+		}
+
+	}
+
+	public static <X, Y, Z> IMap<X, Z> mapValues(IMap<X, Y> map, BiFunction<X, Y, Z> f) {
 		return new IMap<>() {
 
 			@Override
 			public Z get(X x) {
-				return f.apply(x,map.get(x));
+				return f.apply(x, map.get(x));
 			}
 
 			@Override
@@ -53,7 +55,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 			@Override
 			public void entrySet(BiConsumer<? super X, ? super Z> g) {
-				map.entrySet((x,y)->g.accept(x, f.apply(x, y)));
+				map.entrySet((x, y) -> g.accept(x, f.apply(x, y)));
 			}
 
 			@Override
@@ -69,25 +71,21 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			@Override
 			public void put(X x, Z y) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		};
 	}
 
+	// final int eqsize2;
 
-
-	
-	//final int eqsize2;
-	
 	public CoprodInstance(Map<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> insts0,
 			Schema<Ty, En, Sym, Fk, Att> sch0, boolean uj, boolean rc) {
 		this.insts = insts0;
 		this.sch = sch0;
 		this.uj = uj;
 		this.rc = rc;
-	
-		
+
 		for (String x : insts0.keySet()) {
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = insts0.get(x);
 			if (!i.algebra().hasFreeTypeAlgebra() || !i.schema().equals(sch)) {
@@ -96,9 +94,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 		}
 
 //		Util.anomaly();
-		
-//		validate();
-
+		//validate();
 	}
 
 	@Override
@@ -123,7 +119,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			@Override
 			public void entrySet(BiConsumer<? super Pair<String, Gen>, ? super En> f) {
 				for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
-					x.getValue().gens().forEach((p,q)->f.accept(new Pair<>(x.getKey(),p), q));
+					x.getValue().gens().forEach((p, q) -> f.accept(new Pair<>(x.getKey(), p), q));
 				}
 			}
 
@@ -133,7 +129,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
 					ret += x.getValue().gens().size();
 				}
-				return ret;				
+				return ret;
 			}
 
 			@Override
@@ -145,7 +141,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			public void put(Pair<String, Gen> x, En y) {
 				Util.anomaly();
 			}
-			
+
 		};
 	}
 
@@ -166,7 +162,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			@Override
 			public void entrySet(BiConsumer<? super Pair<String, Sk>, ? super Ty> f) {
 				for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
-					x.getValue().sks().forEach((p,q)->f.accept(new Pair<>(x.getKey(),p), q));
+					x.getValue().sks().forEach((p, q) -> f.accept(new Pair<>(x.getKey(), p), q));
 				}
 			}
 
@@ -176,7 +172,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
 					ret += x.getValue().sks().size();
 				}
-				return ret;				
+				return ret;
 			}
 
 			@Override
@@ -188,7 +184,7 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			public void put(Pair<String, Sk> x, Ty y) {
 				Util.anomaly();
 			}
-			
+
 		};
 	}
 
@@ -222,17 +218,17 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				if (ctx != null && !ctx.isEmpty()) {
 					return Util.anomaly();
 				}
-				//print
-				System.out.print("eq " + lhs + " = " + rhs);
+				// print
+				// System.out.print("eq " + lhs + " = " + rhs);
 				if (lhs.hasTypeType()) {
 					if (schema().typeSide.js.java_tys.isEmpty()) {
 						boolean b = algebra().intoY(rhs).equals(algebra().intoY(lhs));
-						System.out.println(" " + b);
+						// System.out.println(" " + b);
 						return b;
 					}
 					boolean b = schema().typeSide.js.reduce(algebra().intoY(rhs))
 							.equals(schema().typeSide.js.reduce(algebra().intoY(lhs)));
-					System.out.println(" " + b);
+					// System.out.println(" " + b);
 					return b;
 
 				}
@@ -244,17 +240,15 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 	}
 
 	private Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> alg;
+
 	@Override
 	public synchronized Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> algebra() {
 		if (alg != null) {
 			return alg;
 		}
-		
-	
-		
+
 		alg = new Algebra<>() {
 
-			
 			@Override
 			public Schema<Ty, En, Sym, Fk, Att> schema() {
 				return sch;
@@ -262,12 +256,12 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 			@Override
 			public boolean hasFreeTypeAlgebra() {
-				return true;
+				return talg.talg.out.eqsNoDefns().isEmpty(); 
 			}
 
 			@Override
 			public boolean hasFreeTypeAlgebraOnJava() {
-				return true;
+				return talg.talg.out.eqsNoDefns().isEmpty(); //TODO
 			}
 
 			@Override
@@ -278,10 +272,11 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 					public synchronized Iterator<Pair<String, X>> iterator() {
 						Iterator<Pair<String, X>> ret = Collections.emptyIterator();
 						for (Entry<String, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> x : insts.entrySet()) {
-							ret = Iterators.concat(Iterators.transform(x.getValue().algebra().en(en).iterator(),i->new Pair<>(x.getKey(),i)), ret);
+							ret = Iterators.concat(Iterators.transform(x.getValue().algebra().en(en).iterator(),
+									i -> new Pair<>(x.getKey(), i)), ret);
 						}
 						return ret;
-						
+
 					}
 
 					@Override
@@ -292,16 +287,9 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 						}
 						return ret;
 					}
-					
+
 				};
-				
-				int j = 0;
-				for (Pair<String, X> i : ret) {
-					j++;
-				}
-				if (j != ret.size()) {
-					Util.anomaly();
-				}
+
 				return ret;
 //				return ens.get(en);
 			}
@@ -317,22 +305,22 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 
 			@Override
-			public Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> att(Att att, Pair<String, X> x) {
-				//return insts.get(x.first).algebra().att(att, x.second).mapGenSk(x0 -> x0,
-					//	(x0 -> new Pair<>(x.first, x0)));
+			public Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> att(Att att,
+					Pair<String, X> x) {
 				return reprT0(Chc.inRight(new Pair<>(x, att)));
 			}
 
-			private Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> reprT0(Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> chc) {
+			private Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> reprT0(
+					Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> chc) {
 				talg();
 				return schema().typeSide.js.java_tys.isEmpty() ? talg.simpl(Term.Sk(chc))
 						: schema().typeSide.js.reduce(talg.simpl(Term.Sk(chc)));
 			}
 
 			@Override
-			public Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> sk(Pair<String, Sk> sk) {
+			public Term<Ty, Void, Sym, Void, Void, Void, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> sk(
+					Pair<String, Sk> sk) {
 				return reprT0(Chc.inLeft(sk));
-				//return insts.get(sk.first).algebra().sk(sk.second).mapGenSk(x0 -> x0, (x0 -> new Pair<>(sk.first, x0))); // .ma
 			}
 
 			@Override
@@ -340,39 +328,34 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				return insts.get(x.first).algebra().repr(en, x.second).mapGen(y -> new Pair<>(x.first, y));
 			}
 
-			 TalgSimplifier 	<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>>	
-			talg; //= new TalgSimplifier(This, null, null, 9999);
+			TalgSimplifier<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> talg;
 
 			@Override
 			public synchronized TAlg<Ty, Sym, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> talg0() {
 				if (talg != null) {
 					return talg.talg.out;
 				}
-				Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>>
-				This = this;
-				
-				Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> 
-				w = CoprodInstance.this.collage().eqsAsPairs().iterator();
-				
+				Algebra<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Pair<String, X>, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>>> This = this;
+
+				Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>>>> w = CoprodInstance.this
+						.collage().eqsAsPairs().iterator();
+
 				Map<Pair<String, Sk>, Ty> m = Instance.imapToMapNoScan(sks());
-				
 
-				talg = new TalgSimplifier<>(This, w, m, 9999);
+				talg = new TalgSimplifier<>(This, w, m, 9999); // TODO
+				// System.out.println(talg);
 				return talg.talg.out;
-				
-				/*if (talg != null) {
-					return talg;
-				}
-				
-				talg = new TAlg<>(new THashMap<>(), new LinkedList<>());
 
-				for (String x : insts.keySet()) {
-					Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i = insts.get(x);
-					for (Y y : i.algebra().talg().sks.keySet()) {
-						talg.sks.put(new Pair<>(x, y), i.algebra().talg().sks.get(y));
-					}
-				}
-				return talg; */
+				/*
+				 * if (talg != null) { return talg; }
+				 * 
+				 * talg = new TAlg<>(new THashMap<>(), new LinkedList<>());
+				 * 
+				 * for (String x : insts.keySet()) { Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X,
+				 * Y> i = insts.get(x); for (Y y : i.algebra().talg().sks.keySet()) {
+				 * talg.sks.put(new Pair<>(x, y), i.algebra().talg().sks.get(y)); } } return
+				 * talg;
+				 */
 			}
 
 			@Override
@@ -387,10 +370,11 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 			@Override
 			public Object printY(Ty ty, Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> y) {
-				//if (y.left) {
-				//	return insts.get(y.r.first).algebra().printY(ty, y.r.second);
-				//}
-				return "todo " + y; //
+				if (!y.left) {
+					return insts.get(y.r.first.first).algebra().att(y.r.second, y.r.first.second);
+				} else {
+					return insts.get(y.l.first).algebra().sk(y.l.second);
+				}
 			}
 
 			@Override
@@ -402,9 +386,9 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 				return ret;
 			}
 
-		
 			@Override
-			public Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> reprT_prot(Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> y) {
+			public Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> reprT_prot(
+					Chc<Pair<String, Sk>, Pair<Pair<String, X>, Att>> y) {
 				return y;
 			}
 
@@ -419,11 +403,8 @@ public class CoprodInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 			}
 
 		};
-		
+
 		return alg;
 	}
-
-
-	
 
 }

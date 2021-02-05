@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import catdata.Chc;
 import catdata.Pair;
-import catdata.Util;
 import catdata.provers.DPKB;
 
 public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
@@ -52,15 +51,16 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 		if (lhs.hasTypeType(ctx)) {
 			lhs2 = js.reduce(lhs2);
 			rhs2 = js.reduce(rhs2);
-			
-			dealWithNew(lhs2, allowNew);
-			dealWithNew(rhs2, allowNew);
+
 		}
 
 		boolean b;
 		if (lhs2.equals(rhs2)) {
 			b = true;
 		} else {
+			dealWithNew(lhs2, allowNew);
+			dealWithNew(rhs2, allowNew);
+
 			b = dpkb.eq(ctx, lhs2.toKB(), rhs2.toKB());
 		}
 
@@ -86,6 +86,11 @@ public class KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym, Fk
 	@Override
 	public String toStringProver() {
 		return "Definitional simplification and reflexivity wrapping plus java of\n\n" + dpkb;
+	}
+
+	@Override
+	public boolean supportsTrivialityCheck() {
+		return dpkb.supportsTrivialityCheck();
 	}
 
 };

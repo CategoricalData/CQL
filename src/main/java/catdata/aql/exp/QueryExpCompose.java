@@ -122,6 +122,12 @@ public final class QueryExpCompose extends QueryExp {
 			throw new IgnoreException();
 		}
 
+		return doCompose(ops, q1, q2);
+
+	}
+
+	public static <Ty, En, Sym, Fk, Att> Query<Ty, En, Sym, Fk, Att, En, Fk, Att> doCompose(AqlOptions ops,
+			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1, Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q2) {
 		Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> ens = new THashMap<>();
 		Map<Att, Chc<Term<Ty, En, Sym, Fk, Att, Var, Var>,Agg<Ty, En, Sym, Fk, Att>>> atts = new THashMap<>();
 		Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
@@ -280,10 +286,9 @@ public final class QueryExpCompose extends QueryExp {
 		// System.out.println("fks " + fks);
 		// System.out.println("sks " + sks);
 		return Query.makeQuery2(zzz, Collections.emptyMap(), ens, atts, fks, sks, q1.src, q2.dst, ops);
-
 	}
 
-	public synchronized Term<Ty, En, Sym, Fk, Att, Var, Var> transT(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1,
+	public static synchronized <Ty, En, Sym, Fk, Att> Term<Ty, En, Sym, Fk, Att, Var, Var> transT(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1,
 			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q2,
 			Map<En, Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>>> iso,
 			Term<Ty, En, Sym, Fk, Att, Var, Var> t, En En, Var v) {
@@ -319,7 +324,7 @@ public final class QueryExpCompose extends QueryExp {
 		return Util.anomaly();
 	}
 
-	public synchronized Term<Ty, En, Sym, Fk, Att, Var, Var> trans(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1,
+	public static  synchronized <Ty, En, Sym, Fk, Att>Term<Ty, En, Sym, Fk, Att, Var, Var> trans(Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1,
 			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q2,
 			Map<En, Pair<Map<Var, Pair<Var, Var>>, Map<Pair<Var, Var>, Var>>> iso, Var p,
 			Term<Void, En, Void, Fk, Void, Var, Void> t, En En) {

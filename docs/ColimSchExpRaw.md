@@ -1,0 +1,1 @@
+Computes a colimit of schemas and mappings given by a graph.  The option static_typing when disabled causes CQL to type check the colimit at runtime rather than compile time.  This will reduce the number of transforms required to compute any particular colimit, at the cost of potential runtime failure.  See All_Syntax for an example.

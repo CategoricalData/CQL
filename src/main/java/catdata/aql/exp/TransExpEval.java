@@ -19,7 +19,7 @@ import catdata.aql.fdm.EvalTransform;
 import catdata.aql.fdm.Row;
 
 public class TransExpEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
-		TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2> {
+		TransExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>, Chc<En,Ty>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>, Chc<En,Ty>>, Y2> {
 
 	public final QueryExp Q;
 	public final TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t;
@@ -44,7 +44,7 @@ public class TransExpEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
 	}
 
 	@Override
-	public Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2>> type(
+	public Pair<InstExp<Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1>, InstExp<Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>, Chc<En,Ty>>, Y2, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>, Chc<En,Ty>>, Y2>> type(
 			AqlTyping G) {
 		if (!t.type(G).first.type(G).equals(Q.type(G).first)) {
 			throw new RuntimeException(
@@ -56,7 +56,7 @@ public class TransExpEval<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends
 	}
 
 	@Override
-	public Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>>, Y2> eval0(
+	public Transform<Ty, En, Sym, Fk, Att, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>, Chc<En,Ty>>, Y2, Row<En, Chc<X1, Term<Ty, En, Sym, Fk, Att, Gen1, Sk1>>, Chc<En,Ty>>, Y1, Row<En, Chc<X2, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>>, Chc<En,Ty>>, Y2> eval0(
 			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);

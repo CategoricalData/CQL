@@ -48,7 +48,9 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			StringBuffer sb = new StringBuffer("Labelled nulls:\n");
 			sb.append(Util.sep(sks, " : ", "\n"));
 			sb.append("\nEquations\n");
-			sb.append(Util.sep(eqs, " = "));
+			sb.append(Util.sep(eqs.iterator(), " \n ", x -> x.first + " = " + x.second));
+			// sb.append("\nDefinitions\n");
+			// sb.append(Util.sep(subst, " -> ", "\n"));
 
 			toString = sb.toString();
 			return toString;
@@ -58,11 +60,29 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 				Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs) {
 			this.sks = sks;
 			this.eqs = eqs;
+//			this.subst = subst;
 		}
 
 		public final Map<Y, Ty> sks;
 
-		public final Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs;
+		public Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqsNoDefns() {
+			return eqs;
+		}
+
+		public Iterable<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> allEqs() {
+			if (eqs == null) {
+				Util.anomaly();
+			}
+			return new Iterable<>() {
+
+				@Override
+				public Iterator<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> iterator() {
+					return eqs.iterator();
+				}
+			};
+		}
+
+		private final Collection<Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> eqs;
 
 		public Ty type(TypeSide<Ty, Sym> ts, Term<Ty, Void, Sym, Void, Void, Void, Y> e) {
 			return toCollage(ts, false).type(Collections.emptyMap(), e).l;
@@ -155,7 +175,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 				@Override
 				public synchronized Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> eqs() {
 					if (!addTsEqs) {
-						
+
 						Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> ret = new AbstractCollection<>() {
 
 							@Override
@@ -165,41 +185,27 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 							@Override
 							public int size() {
-								return eqs.size();
+								return eqs.size(); // +subst.size();
 							}
 						};
 
-						int j = 0;
-						for (Eq<Ty, Void, Sym, Void, Void, Void, Y> i : ret) {
-							j++;
-						}
-						if (j != ret.size()) {
-							Util.anomaly();
-						}
 						return ret;
 					}
 					Collection<Eq<Ty, Void, Sym, Void, Void, Void, Y>> ret = new AbstractCollection<>() {
 
 						@Override
 						public synchronized Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Y>> iterator() {
-							Collage<Ty, Void, Sym, Void, Void, Void, Y> c 
-							 = ts.collage();
+							Collage<Ty, Void, Sym, Void, Void, Void, Y> c = ts.collage();
 							return Iterators.concat(c.eqs().iterator(),
 									Iterators.transform(eqs.iterator(), x -> new Eq<>(null, x.first, x.second)));
 						}
 
 						@Override
 						public int size() {
-							return eqs.size() + ts.eqs.size();
+							return eqs.size() + ts.eqs.size(); // + subst.size();
 						}
 					};
-					int j = 0;
-					for (Eq<Ty, Void, Sym, Void, Void, Void, Y> i : ret) {
-						j++;
-					}
-					if (j != ret.size()) {
-						Util.anomaly();
-					}
+
 					return ret;
 				}
 			};
@@ -218,12 +224,21 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 
 	public abstract boolean hasNulls();
 
-	public abstract boolean hasFreeTypeAlgebra();
+	public boolean hasFreeTypeAlgebra() {
+		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : talg().eqs) {
+			if (!schema().typeSide.eqs.contains(new Triple<>(Collections.EMPTY_MAP, eq.first, eq.second))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
 		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : talg().eqs) {
 			if (schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, eq.first))) {
-				return false;
+				if (!schema().typeSide.eqs.contains(new Triple<>(Collections.EMPTY_MAP, eq.first, eq.second))) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -286,7 +301,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			}
 		};
 	}
-	
+
 	public synchronized Collection<X> en_indexedAtt(En en, Att att, Object y) {
 		Triple<En, Att, Object> t = new Triple<>(en, att, y);
 		if (att_index.containsKey(t)) {
@@ -426,7 +441,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	public abstract Object printX(En en, X x);
 
 	public abstract Object printY(Ty ty, Y y);
-	
+
 	private static <X> Collection<X> iterToColLazy(Iterable<X> it) {
 		return new AbstractCollection<>() {
 			@Override
@@ -523,15 +538,16 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	/**
 	 * MUST close this connection
 	 */
-	public Connection createAndLoad(Map<En, List<String>> indices, Pair<TObjectIntMap<X>, TIntObjectMap<X>> j,
-			int vlen) {
+	public synchronized Connection createAndLoad(Map<En, List<String>> indices,
+			Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, int vlen) {
 		try {
 			Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> xxx = schema().toSQL("", "integer",
-					Query.internal_id_col_name, -1, Object::toString, vlen, "");
+					Query.internal_id_col_name, true, vlen, "");
+			// System.out.println(xxx);
 			Connection conn = DriverManager.getConnection("jdbc:h2:mem:db_temp_" + session_id++ + ";DB_CLOSE_DELAY=-1");
 			String tick = "";
 			String idcol = Query.internal_id_col_name;
-			int truncate = -1;
+			// int truncate = -1;
 
 			try (Statement stmt = conn.createStatement()) {
 				for (En en1 : schema().ens) {
@@ -557,14 +573,10 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 					for (Chc<Fk, Att> aHeader : header) {
 						hdrQ.add("?");
 						Chc<Fk, Att> chc = aHeader;
-						if (chc.left) {
-							hdr.add(tick + Schema.truncate(chc.l.toString(), truncate) + tick); // TODO aql unsafe
-						} else {
-							hdr.add(tick + Schema.truncate(chc.r.toString(), truncate) + tick); // TODO aql unsafe
-						}
+						hdr.add(tick + schema().truncate(chc, true) + tick); // TODO aql unsafe
 					}
 					for (X x : en(en1)) {
-						storeMyRecord(hdrQ, hdr, j, conn, x, qqq.first, en1.toString(), "", "");
+						storeMyRecord(hdrQ, hdr, j, conn, x, qqq.first, en1, "", "", true);
 					}
 				}
 
@@ -613,13 +625,13 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	}
 
 	public synchronized void storeMyRecord(List<String> hdrQ, List<String> hdr,
-			Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, Connection conn2, X x, List<Chc<Fk, Att>> header, String table,
-			String prefix, String tick) throws Exception {
+			Pair<TObjectIntMap<X>, TIntObjectMap<X>> j, Connection conn2, X x, List<Chc<Fk, Att>> header, En en,
+			String prefix, String tick, boolean truncate) throws Exception {
 
 		StringBuffer sb = new StringBuffer("INSERT INTO ");
 		sb.append(tick);
 		sb.append(prefix);
-		sb.append(table);
+		sb.append(schema().truncate(en, truncate));
 		sb.append(tick);
 		sb.append("(");
 		boolean b = false;
@@ -691,6 +703,34 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 			}
 		}
 		return ret;
+	}
+
+	public int estimateNullSize(float factor) {
+		int i = 0;
+		for (En x : schema().ens) {
+			int rows = size(x);
+			int cols = schema().attsFrom(x).size();
+			float f = rows * cols * factor;
+			i += f;
+		}
+		return i;
+	}
+
+	public void validateMore() {
+
+		for (En en : schema().ens) {
+			int i = 0;
+			List<X> l = new LinkedList<>();
+			for (X x : en(en)) {
+				i++;
+				l.add(x);
+			}
+			int j = size(en);
+			if (i != j) {
+				throw new RuntimeException(
+						"On entity " + en + ", given size is " + j + " but counted " + i + ": " + Util.sep(l, ", "));
+			}
+		}
 	}
 
 }

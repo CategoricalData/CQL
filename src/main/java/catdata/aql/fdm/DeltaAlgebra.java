@@ -9,7 +9,6 @@ import java.util.Map;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
 import catdata.aql.Instance;
 import catdata.aql.Mapping;
 import catdata.aql.Schema;

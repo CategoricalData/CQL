@@ -341,10 +341,12 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 		} else if (att() != null) {
 			Pair<En, Ty> t = atts.get(att());
 			if (t == null) {
-				throw new RuntimeException("In " + this + ", " + att() + " is not an attribute. Available: " + atts.keySet() );
+				throw new RuntimeException(
+						"In " + this + ", " + att() + " is not an attribute. Available: " + atts.keySet());
 			}
 			Chc<Ty, En> u = arg.type(ctxt, ctxe, tys, syms, java_tys_string, ens, atts, fks, gens, sks);
 			if (!Chc.inRight(t.first).equals(u)) {
+
 				throw new RuntimeException("In " + this + ", " + "argument " + arg + " has sort " + u.toStringMash()
 						+ " but requires " + t.first);
 			}
@@ -375,7 +377,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 		} else if (sk() != null) {
 			Ty tye = sks.get(sk());
 			if (tye == null) {
-				//System.out.println("** " + sks);
+				// System.out.println("** " + sks);
 				String xxx = sks.size() > 1024 ? " too big to print " : Util.sep(sks, ":", ", ");
 				throw new RuntimeException("In " + this + ", " + "the labelled null " + sk()
 						+ " has no associated type.\n\nAvailable: " + xxx);
@@ -439,20 +441,20 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 		// _hashCode = hashCode2();
 	}
 
-	public String toStringSql(String tick) {
+	public String toStringSql(Schema sch, String tick, boolean convert) {
 		if (var != null) {
 			return var.toString();
 		} else if (sym() != null) {
 			if (args.isEmpty()) {
 				return sym().toString();
 			}
-			return sym().toString() + "("
-					+ Util.sep(args.stream().map(x -> x.toStringSql(tick)).collect(Collectors.toList()), ", ") + ")";
+			return sym().toString() + "(" + Util.sep(
+					args.stream().map(x -> x.toStringSql(sch, tick, convert)).collect(Collectors.toList()), ", ") + ")";
 
 		} else if (att() != null) {
-			return arg.toStringSql(tick) + "." + tick + att().toString() + tick;
+			return arg.toStringSql(sch, tick, convert) + "." + tick + sch.truncate(Chc.inRight(att()), convert) + tick;
 		} else if (fk() != null) {
-			return arg.toStringSql(tick) + "." + tick + fk().toString() + tick;
+			return arg.toStringSql(sch, tick, convert) + "." + tick + sch.truncate(Chc.inLeft(fk()), convert) + tick;
 		} else if (gen() != null) {
 			return gen().toString();
 		} else if (sk() != null) {
@@ -461,6 +463,35 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 			return obj().toString(); // + "@" + ty;
 		}
 		throw new RuntimeException("Anomaly: please report");
+	}
+
+	
+	static int sqlVar = 0;
+	static Map<Var, String> sqlVars = new THashMap<>();
+	
+	public synchronized static String sqlVar(Var var) {
+		String s = sqlVars.get(var);
+		if (s != null) {
+			return s;
+		}
+		String w = "X" + sqlVar;
+		sqlVars.put(var, w);
+		sqlVar++;
+		return w;
+	}
+	
+	public synchronized String toTpTpForChecker() {
+		if (var != null) {
+			return sqlVar(var);
+		} else if (sym() != null) {
+			if (args == null || args.isEmpty()) {
+				return sym().toString().toLowerCase();
+			}
+			return sym().toString() + "(" + Util.sep(args.stream().map(x->x.toTpTpForChecker()).collect(Collectors.toList()), ",") + ")";
+		} else if (att() != null) {
+			return Schema.conv0(att()) + "(" + arg.toTpTpForChecker() + ")";
+		}
+		return Util.anomaly();
 	}
 
 	// TODO: eventually, will want to quote, escape, etc
@@ -517,8 +548,8 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 
 	@Override
 	public String toString() {
-		//return toStringUnambig();
-		return toString(Object::toString, Object::toString);
+		// return toStringUnambig();
+		return toString(x -> Util.maybeQuote(x.toString()), x -> Util.maybeQuote(x.toString()));
 	}
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Head(
@@ -579,24 +610,26 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 	}
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> Obj(Object obj, Ty ty) {
+		if (obj == null) {
+			throw new RuntimeException("Encountered null external value");
+		}
 		return mkTerm(null, null, null, null, null, null, null, null, obj, ty);
 	}
 
 	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
-		//return hashCode2();
+		// return hashCode2();
 	}
 
 	@Override
 	public boolean equals(Object x) {
-		/* boolean b = (this == x);
-		 boolean c = (hashCode2() == ((Term)x).hashCode2());
-		 if (b != c) {
-		 Util.anomaly();
-		 }*/
+		/*
+		 * boolean b = (this == x); boolean c = (hashCode2() == ((Term)x).hashCode2());
+		 * if (b != c) { Util.anomaly(); }
+		 */
 		return this == x;
-		//return this.equals2(x);
+		// return this.equals2(x);
 	}
 
 	// returns null if no var
@@ -752,6 +785,9 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 	}
 
 	public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> subst(Map<Var, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> map) {
+		if (map == null || map.isEmpty()) {
+			return this;
+		}
 		if (var != null) {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> z = map.get(var);
 			if (z != null) {
@@ -1051,11 +1087,11 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 		result = prime * result + ((arg == null) ? 0 : arg.hashCode2());
 		if (args != null) {
 			for (Term<Ty, En, Sym, Fk, Att, Gen, Sk> x : args) {
-				result = prime * result + (x.hashCode2());	
+				result = prime * result + (x.hashCode2());
 			}
-		} //else {
-		//	result = prime * result; // + ((args == null) ? 0 : args.hashCode());
-		//}
+		} // else {
+			// result = prime * result; // + ((args == null) ? 0 : args.hashCode());
+			// }
 		result = prime * result + ((var == null) ? 0 : var.hashCode());
 		result = prime * result + ((_head == null) ? 0 : _head.hashCode());
 		return result;

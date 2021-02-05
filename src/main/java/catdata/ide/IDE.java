@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;

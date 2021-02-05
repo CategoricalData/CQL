@@ -1,0 +1,1 @@
+Checks if an instance satifies a constraint.

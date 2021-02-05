@@ -17,7 +17,7 @@ import catdata.aql.Term;
 import catdata.aql.fdm.Row;
 
 public final class InstExpPi<Gen, Sk, X, Y> extends
-		InstExp<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> {
+		InstExp<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y> {
 
 	public final InstExp<Gen, Sk, X, Y> I;
 	public final MapExp F;
@@ -126,14 +126,14 @@ public final class InstExpPi<Gen, Sk, X, Y> extends
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> eval0(
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y> eval0(
 			AqlEnv env, boolean isC) {
 		QueryExp q = new QueryExpDeltaCoEval(F, Util.toList(options));
 		InstExpEval<Gen, Sk, X, Y> r = new InstExpEval<>(q, I, Util.toList(options));
 		
-		Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> 
+		Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y> 
 		w = r.eval(env, isC);
-		
+		 
 		return w;
 	}
 

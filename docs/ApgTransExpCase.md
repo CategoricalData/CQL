@@ -1,0 +1,1 @@
+Case analysis morphism in the category of APGs.

@@ -29,7 +29,6 @@ import catdata.aql.It.ID;
 import catdata.aql.Kind;
 import catdata.aql.Query;
 import catdata.aql.Query.Agg;
-import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Transform;
@@ -196,14 +195,14 @@ public class QueryExpRaw extends QueryExp implements Raw {
 
 	public static class PreAgg {
 		public final Pair<String, String> ctx;
-		
+
 		public final List<Pair<String, String>> lgens;
-			
+
 		public final List<Pair<RawTerm, RawTerm>> leqs;
-			
+
 		public final RawTerm ret, zero, op;
 
-		public PreAgg(List<Pair<String, String>> lgens, 
+		public PreAgg(List<Pair<String, String>> lgens,
 				List<Pair<RawTerm, RawTerm>> leqs,
 				 RawTerm ret, Pair<String, String> b, RawTerm zero, RawTerm op) {
 			this.ctx = b;
@@ -271,12 +270,12 @@ public class QueryExpRaw extends QueryExp implements Raw {
 
 		@Override
 		public String toString() {
-				return "from " + Util.sep(lgens.iterator(), " ", x -> x.first + ":" + x.second) + "\n\twhere " + Util.sep(leqs.iterator(), "\t", x->x.first+"="+x.second) + "\n\treturn " + ret + "\n\taggregate " + zero + "\n\tlambda " + ctx.first + " " + ctx.second + ". " + op; 
+				return "from " + Util.sep(lgens.iterator(), " ", x -> x.first + ":" + x.second) + "\n\twhere " + Util.sep(leqs.iterator(), "\t", x->x.first+"="+x.second) + "\n\treturn " + ret + "\n\taggregate " + zero + "\n\tlambda " + ctx.first + " " + ctx.second + ". " + op;
 		}
-		
+
 	}
-	
-	
+
+
 	public static class PreBlock {
 		public final List<Pair<LocStr, String>> gens;
 		public final List<Pair<Integer, Pair<RawTerm, RawTerm>>> eqs;
@@ -660,7 +659,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		this.options = Util.toMapSafely(options);
 		this.consts = new THashMap<>(Util.toMapSafely(LocStr.set2(consts)));
 		this.params = new THashMap<>(Util.toMapSafely(LocStr.set2(params)));
-	
+
 		Set<Block> bb = Util.toSetSafely(list).stream().map(x -> new Block(x.second, x.first, x.second.star))
 				.collect(Collectors.toSet());
 		blocks = new THashMap<>();
@@ -682,9 +681,9 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			for (Pair<LocStr, Chc<RawTerm, PreAgg>> y : x.second.atts) {
 				b3.put(Att.Att(z, y.first.str), y.first.loc);
 			}
-			
+
 			List<InteriorLabel<Object>> f = new LinkedList<>();
-			
+
 			f.add(new InteriorLabel<>("entities", blocks.get(z.str), x.first.loc, y -> x.first.str).conv());
 
 			raw.put(x.first.str, f);
@@ -730,7 +729,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 		return new Pair<>(src, dst);
 	}
 
-	
+
 	@Override
 	public synchronized Query<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
 		Schema<Ty, En, Sym, Fk, Att> src0 = src.eval(env, isC);
@@ -774,7 +773,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 				w.src().gens().forEach((pp,qq)->{
 					m.put(pp, w.gens().apply(pp, qq));
 				});
-				
+
 				fks0.put(Fk, new Pair<>(m, v.doNotValidate.get(Fk)));
 			}
 
@@ -822,8 +821,12 @@ public class QueryExpRaw extends QueryExp implements Raw {
 					Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>> sks = new THashMap<>();
 					Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> trans = new THashMap<>();
 					for (Pair<Var, RawTerm> v : pp.second.gens) {
+						var qqq = dst0.fks.get(pp.first);
+						if (qqq == null) {
+							throw new RuntimeException("Not a foreign key: " + pp.first);
+						}
 						Map<String, Chc<catdata.aql.exp.En, catdata.aql.exp.Ty>> Map = unVar(
-								ens0.get(dst0.fks.get(pp.first).first).first);
+								ens0.get(qqq.first).first);
 						Map<String, Chc<Ty, En>> Map1 = Util.map(Map, (k, x) -> new Pair<>(k, x.reverse()));
 						Collage<Ty, En, Sym, Fk, Att, Var, Var> col = cols.get(dst0.fks.get(pp.first).first);
 						Chc<catdata.aql.exp.En, catdata.aql.exp.Ty> required = ens0
@@ -844,7 +847,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
 							sks.put(v.first, r);
 						}
 					}
-//					boolean doNotCheckEqs = (Boolean) 
+//					boolean doNotCheckEqs = (Boolean)
 //							.getOrDefault(AqlOption.dont_validate_unsafe);
 //					System.out.println("++++++++" + doNotCheckEqs);
 					fks0.put(pp.first, new Pair<>(trans, new AqlOptions(pp.second.options, env.defaults)));
@@ -896,35 +899,35 @@ public class QueryExpRaw extends QueryExp implements Raw {
 			col.sks().put(Var.Var(q), tt);
 		}
 		Map<String, Chc<Ty, En>> ens1 = Util.map(Map, (y, x) -> new Pair<>(y, x.reverse()));
-		
+
 		if (pp.second.left) {
 			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk> term = RawTerm
 					.infer1x(ens1, pp.second.l, null, required, col.convert(), "", src0.typeSide.js).second;
-			atts0.put(pp.first, Chc.inLeft(Query.freeze(term.convert(), params, set)));			
+			atts0.put(pp.first, Chc.inLeft(Query.freeze(term.convert(), params, set)));
 		} else {
 			PreAgg pre = pp.second.r;
-			
+
 			Map<String, Chc<Ty, En>> ens1x = new THashMap<>(ens1);
 			ens1x.put(pre.ctx.first, required);
 			ens1x.put(pre.ctx.second, required);
 			Set<Var> setq = new THashSet<>(set);
 			setq.add(Var.Var(pre.ctx.first));
 			setq.add(Var.Var(pre.ctx.second));
-			
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> 
+
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			zeroX = RawTerm.infer1x(ens1x, pre.zero, null, required, col.convert(), "", src0.typeSide.js).second;
-			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var> 
+			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>
 			zero  = Query.freeze(zeroX.convert(), params, set);
-			
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> 
+
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			opX   = RawTerm.infer1x(ens1x, pre.op, null, required, col.convert(), "", src0.typeSide.js).second;
-		
-			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var> 
+
+			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>
 			op    = Query.freezeAgg(opX.convert(), params, setq, pre.ctx.first, pre.ctx.second);
-			
-			
-			
-			
+
+
+
+
 			Map<Var, En> lfrom = new THashMap<>();
 			Map<String, Chc<Ty,En>> u = new THashMap<>(ens1);
 			for (Pair<String, String> k : pre.lgens) {
@@ -940,20 +943,20 @@ public class QueryExpRaw extends QueryExp implements Raw {
 				u.put(k.first, Chc.inRight(en));
 			}
 
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> 
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 			retX   = RawTerm.infer1x(u, pre.ret, null, required, col.convert(), "", src0.typeSide.js).second;
-			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var> 
+			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>
 			ret    = Query.freeze(retX.convert(), params, set);
 
-			Set<Pair<Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>> 
+			Set<Pair<Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>>
 			lwhere = new THashSet<>();
-			
+
 			for (Pair<RawTerm, RawTerm> eq : pre.leqs) {
-				//Term<Ty, En, Sym, Fk, Att, Gen, Sk> 
+				//Term<Ty, En, Sym, Fk, Att, Gen, Sk>
 				//eqX   = RawTerm.infer1x(ens1x, eq.first, eq.second, required, col.convert(), "", src0.typeSide.js).second;
-				//Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var> 
+				//Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>
 				//eqY    = Query.freeze(retX.convert(), params, set);
-				
+
 				Triple<Map<catdata.aql.Var, Chc<catdata.aql.exp.Ty, catdata.aql.exp.En>>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Gen, Sk>> x = RawTerm
 						.infer1x(u, eq.first, eq.second, null,
 								col.convert(), "In equation " + eq.first + " = " + eq.second + ", ", src0.typeSide.js)
@@ -962,11 +965,11 @@ public class QueryExpRaw extends QueryExp implements Raw {
 						Query.freeze(x.third.convert(), params, set)));
 
 			}
-			
+
 			Pair<catdata.aql.Var, catdata.aql.Var> ctx = new Pair<>(Var.Var(pre.ctx.first), Var.Var(pre.ctx.second));
 
 			Agg<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att> agg = new Agg<>(zero, op, lfrom, lwhere, ret, ctx);
-			
+
 			atts0.put(pp.first, Chc.inRight(agg));
 		}
 	}

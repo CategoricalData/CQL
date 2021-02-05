@@ -3,17 +3,17 @@ package catdata.aql.exp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import catdata.Pair;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
+import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.fdm.DistinctInstance;
-import catdata.aql.fdm.IdentityTransform;
 
 public final class TransExpDistinct2<Gen, Sk, X, Y> extends TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y> {
 
@@ -61,7 +61,7 @@ public final class TransExpDistinct2<Gen, Sk, X, Y> extends TransExp<Gen, Sk, Ge
 
 	@Override
 	public Pair<InstExp<Gen, Sk, X, Y>, InstExp<Gen, Sk, X, Y>> type(AqlTyping G) {
-		return new Pair<>(new InstExpDistinct<>(t), t);
+		return new Pair<>(t, new InstExpDistinct<>(t));
 	}
 
 	@Override
@@ -70,7 +70,32 @@ public final class TransExpDistinct2<Gen, Sk, X, Y> extends TransExp<Gen, Sk, Ge
 		if (isC) {
 			throw new IgnoreException();
 		}
-		return new IdentityTransform<>(x, Optional.of(DistinctInstance.make(x)));
+		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X,Y> y = new DistinctInstance<>(x, env.defaults);
+		
+		
+		return new Transform<>() {
+
+			@Override
+			public BiFunction<Gen, En, Term<Void, En, Void, Fk, Void, Gen, Void>> gens() {
+				return (gen, en) -> Term.Gen(gen);
+			}
+
+			@Override
+			public BiFunction<Sk, Ty, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> sks() {
+				return (sk, ty) -> Term.Sk(sk);
+			}
+
+			@Override
+			public Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> src() {
+				return x;
+			}
+
+			@Override
+			public Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> dst() {
+				return y;
+			}
+			
+		};
 	}
 
 	@Override

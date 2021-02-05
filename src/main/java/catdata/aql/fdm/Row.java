@@ -11,9 +11,9 @@ import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 
 // these have to be tagged with the entity to be unique across entities
-public class Row<En2, X> {
+public class Row<En2, X, T> {
 
-	public <Z, T> Row<En2, Z> map(BiFunction<X, T, Z> f) {
+	public <Z> Row<En2, Z, T> map(BiFunction<X, T, Z> f) {
 		if (tail == null) {
 			return new Row<>(en2);
 		}
@@ -23,8 +23,8 @@ public class Row<En2, X> {
 	private final En2 en2;
 	private final Var v;
 	private final X x;
-	private final Row<En2, X> tail;
-	public final Object t;
+	private final Row<En2, X, T> tail;
+	public final T t;
 
 	private Map<Var, X> map;
 
@@ -32,7 +32,7 @@ public class Row<En2, X> {
 		if (map != null) {
 			return map;
 		}
-		Row<En2, X> r = this;
+		Row<En2, X, T> r = this;
 		map = new THashMap<>();
 		for (;;) {
 			if (r.tail == null) {
@@ -42,16 +42,11 @@ public class Row<En2, X> {
 			r = r.tail;
 		}
 	}
-/*
-	public final boolean containsKey(Var vv) {
-		if (tail == null) {
-			return false;
-		} else if (v.equals(vv)) {
-			return true;
-		}
-		return tail.containsKey(vv);
-	}
-*/
+
+	/*
+	 * public final boolean containsKey(Var vv) { if (tail == null) { return false;
+	 * } else if (v.equals(vv)) { return true; } return tail.containsKey(vv); }
+	 */
 	public final X get(Var vv) {
 		if (v.equals(vv)) {
 			return x;
@@ -70,7 +65,7 @@ public class Row<En2, X> {
 		this.t = null;
 	}
 
-	public Row(Row<En2, X> tail, Var v, X x, En2 en2, Object t) {
+	public Row(Row<En2, X, T> tail, Var v, X x, En2 en2, T t) {
 		this.v = v;
 		this.x = x;
 		this.tail = tail;
@@ -78,10 +73,11 @@ public class Row<En2, X> {
 		this.t = t;
 	}
 
-	public static <X, En2> Row<En2, X> mkRow(List<Var> order, Map<Var, X> ctx, En2 en2, Map ctx2, Map ctx3) {
-		Row<En2, X> r = new Row<>(en2);
+	public static <X, En2, T> Row<En2, X, T> mkRow(List<Var> order, Map<Var, X> ctx, En2 en2, Map<Var, T> ctx2,
+			Map<Var, T> ctx3) {
+		Row<En2, X, T> r = new Row<>(en2);
 		for (Var v : order) {
-			Object t1 = ctx2.get(v);
+			T t1 = ctx2.get(v);
 			if (t1 == null) {
 				t1 = ctx3.get(v);
 			}
@@ -121,7 +117,7 @@ public class Row<En2, X> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Row<?, ?> other = (Row<?, ?>) obj;
+		Row<?, ?, ?> other = (Row<?, ?, ?>) obj;
 		if (en2 == null) {
 			if (other.en2 != null)
 				return false;
@@ -146,7 +142,7 @@ public class Row<En2, X> {
 	}
 
 	// use provable equality as equals fn?
-	public boolean rowEquals(BiPredicate<X, X> f, Row<En2, X> e) {
+	public boolean rowEquals(BiPredicate<X, X> f, Row<En2, X, T> e) {
 		if (!this.en2.equals(e.en2)) {
 			return false;
 		}

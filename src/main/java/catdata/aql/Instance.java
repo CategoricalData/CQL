@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -82,7 +84,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 	public abstract Schema<Ty, En, Sym, Fk, Att> schema();
 
-	public abstract IMap<Gen, En> gens();
+	public abstract IMap<Gen, En> gens(); //kind of weird that this is abstract but eqs isn't, but freedom!
 
 	public abstract IMap<Sk, Ty> sks();
 
@@ -92,10 +94,16 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 
 	public synchronized void eqs(
 			BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
-		for (En en : schema().ens) {
-			if (schema().fksFrom(en).size() + schema().attsFrom(en).size() == 0) {
-				continue;
+
+		gens().forEach((gen, en) -> {
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> g = Term.Gen(gen);
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> q = algebra().repr(en, algebra().gen(gen)).convert();
+			if (!q.equals(g)) {
+				f.accept(q, g);
 			}
+		}); 
+
+		for (En en : schema().ens) {
 			for (X x : algebra().en(en)) {
 				Term<Ty, En, Sym, Fk, Att, Gen, Sk> q = algebra().repr(en, x).convert();
 				for (Fk fk : schema().fksFrom(en)) {
@@ -105,10 +113,11 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 					Chc<Ty, En> a = type(lhs);
 					Chc<Ty, En> b = type(rhs);
 					if (!a.equals(b) || !en2.equals(a.r)) {
-						throw new RuntimeException("Equation return type mismatch: " + lhs + " = " + rhs + " has " + a + " and " + b);
+						throw new RuntimeException(
+								"Equation return type mismatch: " + lhs + " = " + rhs + " has " + a + " and " + b);
 					}
 					if (!lhs.equals(rhs)) {
-						//add type check
+						// add type check
 						f.accept(lhs, rhs);
 					}
 				}
@@ -119,7 +128,8 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 					Chc<Ty, En> a = type(lhs);
 					Chc<Ty, En> b = type(rhs);
 					if (!a.equals(b) || !ty2.equals(a.l)) {
-						throw new RuntimeException("Equation return type mismatch: " + lhs + " = " + rhs + " has " + a + " and " + b);
+						throw new RuntimeException(
+								"Equation return type mismatch: " + lhs + " = " + rhs + " has " + a + " and " + b);
 					}
 					if (!lhs.equals(rhs)) {
 						f.accept(lhs, rhs);
@@ -127,14 +137,25 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 				}
 			}
 		}
-		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : algebra().talg().eqs) {
+		for (
+
+		Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq :
+
+		algebra().talg().allEqs()) {
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> a = algebra().reprT(eq.first);
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> b = algebra().reprT(eq.second);
 			if (!a.equals(b)) {
 				f.accept(a, b);
 			}
 		}
-		//what about equations in talg?
+		sks().entrySet((k, v) -> {
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> a = algebra().reprT(algebra().sk(k));
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> b = Term.Sk(k);
+			if (!a.equals(b)) {
+				f.accept(a, b);
+			}
+		});
+
 	}
 
 	public abstract DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp();
@@ -143,14 +164,15 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		Util.assertNotNull(term);
 //		schema().validate(true);
 		return term.type(Collections.emptyMap(), Collections.emptyMap(), schema().typeSide.tys, schema().typeSide.syms,
-				schema().typeSide.js.java_tys, schema().ens, schema().atts, schema().fks, imapToMapNoScan(gens()), imapToMapNoScan(sks()));
+				schema().typeSide.js.java_tys, schema().ens, schema().atts, schema().fks, imapToMapNoScan(gens()),
+				imapToMapNoScan(sks()));
 	}
 
 	public final void validate() {
 		validateNoTalg();
 		if (requireConsistency() && !algebra().hasFreeTypeAlgebra()) {
 			RuntimeException ex = new RuntimeException(
-					"Not necessarily consistent.  This isn't necessarily an error, but is unusual.  Set require_consistency=false to proceed.  Type algebra is\n\n"
+					"Not necessarily conservative over the typeside (type algebra has equations).  This isn't necessarily an error, but is unusual.  Set require_consistency=false to proceed.  Type algebra is\n\n"
 							+ algebra().talg());
 			ex.printStackTrace();
 			throw ex;
@@ -160,9 +182,8 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 					"Unsafe use of java - CQL's behavior is undefined.  Possible solution: add allow_java_eqs_unsafe=true, change the equations, or contact support at info@catinf.com.  Type algebra is\n\n"
 							+ algebra().talg());
 		}
-		toString();
+	//	toString();
 	}
-	
 
 	public synchronized final Term<Ty, En, Sym, Fk, Att, Gen, Sk> reprT(Term<Ty, Void, Sym, Void, Void, Void, Y> y) {
 		Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret = algebra().reprT(y);
@@ -184,7 +205,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		}
 
 		for (;;) {
-			//System.out.println(model);
+			// System.out.println(model);
 			boolean changed = false;
 			for (Sym f : schema().typeSide.syms.keySet()) {
 				List<Ty> s = schema().typeSide.syms.get(f).first;
@@ -225,19 +246,19 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 	public Map<Ty, Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> model;
 
 	public static interface IMap<X, Y> {
-		public default String sep(String x, String y) {
+		public default String sep(String x, String y, Function<Object, String> f) {
 			StringBuffer sb = new StringBuffer();
 			boolean[] first = new boolean[] { true };
-			if (size() > 8096) {
-				return "too big to show";
-			}
+			/*
+			 * if (size() > 8096) { return "too big to show"; }
+			 */
 			entrySet((k, v) -> {
 				if (first[0]) {
 					first[0] = false;
 				} else {
 					sb.append(y);
 				}
-				sb.append(k);
+				sb.append(f.apply(k));
 				sb.append(x);
 				sb.append(v);
 			});
@@ -252,7 +273,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		public default void forEach(BiConsumer<? super X, ? super Y> f) {
 			entrySet(f);
 		}
-		
+
 		public void entrySet(BiConsumer<? super X, ? super Y> f);
 
 		public default void keySet(Consumer<X> f) {
@@ -292,7 +313,8 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		// check that each gen/sk is in tys/ens
 		gens().forEach((gen, en) -> {
 			if (!schema().ens.contains(en)) {
-				throw new RuntimeException("On generator " + gen + ", the entity " + en + " is not declared.  Available:\n" + schema().ens);
+				throw new RuntimeException("On generator " + gen + ", the entity " + en
+						+ " is not declared.  Available:\n" + schema().ens);
 			}
 		});
 
@@ -314,9 +336,10 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		});
 	}
 
-	//private String toString(Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq) {
-	//	return eq.first + " = " + eq.second;
-	//}
+	// private String toString(Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty,
+	// En, Sym, Fk, Att, Gen, Sk>> eq) {
+	// return eq.first + " = " + eq.second;
+	// }
 
 	public abstract Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra();
 
@@ -327,15 +350,15 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			return collage;
 		}
 		collage = new CCollage<>(schema().collage());
-		
-		gens().entrySet((k,v) -> {
+
+		gens().entrySet((k, v) -> {
 			collage().gens().put(k, v);
 		});
-		sks().entrySet((k,v) -> {
+		sks().entrySet((k, v) -> {
 			collage().sks().put(k, v);
 		});
-		
-		eqs((a,b) -> {
+
+		eqs((a, b) -> {
 			collage.eqs().add(new Eq<>(null, a, b));
 		});
 		return collage;
@@ -356,36 +379,42 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 		return collage.equals(other.collage);
 	}
 
-	
-	
-	public static <X,Y,Z> IMap<X,Z> transformValues(IMap<X,Y> map, BiFunction<X,Y,Z> g) {
+	public static <X, Y, Z> IMap<X, Z> transformValues(IMap<X, Y> map, BiFunction<X, Y, Z> g, Predicate<X> p, int size) {
 		return new IMap<>() {
 
 			@Override
 			public int size() {
+				if (p != null) {
+					return size;
+				}
 				return map.size();
 			}
 
 			@Override
 			public boolean isEmpty() {
+				if (p != null) {
+					return size == 0;
+				}
 				return map.isEmpty();
 			}
 
 			@SuppressWarnings("unchecked")
 			@Override
 			public boolean containsKey(Object key) {
-				return map.containsKey((X)key);
+				return map.containsKey((X) key);
 			}
 
 			@SuppressWarnings("unchecked")
 			@Override
 			public synchronized Z get(Object key) {
-				return g.apply((X)key, map.get((X)key));
+				return g.apply((X) key, map.get((X) key));
 			}
-	
+
 			@Override
 			public synchronized void entrySet(BiConsumer<? super X, ? super Z> f) {
-				map.entrySet((a,b)->f.accept(a, g.apply(a,b)));
+				map.entrySet((a, b) -> { 
+					if (p == null || p.test(a)) f.accept(a, g.apply(a, b)); 
+				});
 			}
 
 			@Override
@@ -397,18 +426,18 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			public Z remove(X x) {
 				return Util.anomaly();
 			}
-		
-		};
-	} 
-	
-	public static <X,Y> Map<X,Y> imapToMapNoScan(IMap<X,Y> map) {
-		return new Map<X,Y>() {
 
-			@Override 
+		};
+	}
+
+	public static <X, Y> Map<X, Y> imapToMapNoScan(IMap<X, Y> map) {
+		return new Map<X, Y>() {
+
+			@Override
 			public synchronized void forEach(BiConsumer<? super X, ? super Y> f) {
 				map.entrySet(f);
 			}
-			
+
 			@Override
 			public synchronized int size() {
 				return map.size();
@@ -422,7 +451,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			@SuppressWarnings("unchecked")
 			@Override
 			public synchronized boolean containsKey(Object key) {
-				return map.containsKey((X)key);
+				return map.containsKey((X) key);
 			}
 
 			@Override
@@ -433,7 +462,7 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			@SuppressWarnings("unchecked")
 			@Override
 			public synchronized Y get(Object key) {
-				return map.get((X)key);
+				return map.get((X) key);
 			}
 
 			@Override
@@ -470,17 +499,16 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 			public synchronized Set<Entry<X, Y>> entrySet() {
 				return Util.anomaly();
 			}
-			
+
 			@Override
 			public synchronized String toString() {
 				return map.toString();
 			}
 
-		
 		};
-	} 
+	}
 
-	public static <X,Y> IMap<X,Y> mapToIMap(Map<X,Y> map) {
+	public static <X, Y> IMap<X, Y> mapToIMap(Map<X, Y> map) {
 		return new IMap<>() {
 
 			@Override
@@ -508,34 +536,34 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 				return map.remove(x);
 			}
 
-		
 			@Override
 			public synchronized void put(X x, Y y) {
 				map.put(x, y);
 			}
-			
+
 			@Override
 			public synchronized String toString() {
 				return map.toString();
 			}
 		};
 	}
-	
+
 	public final String toString(String g, String w) {
-		if (size() > 8096) {
-			return "too big to display";
-		}
+		/*
+		 * if (size() > 8096) { return "too big to display"; }
+		 */
 		final StringBuilder sb = new StringBuilder();
 		final List<String> eqs0 = new ArrayList<>(size());
-		eqs((a,b) -> {
+		eqs((a, b) -> {
 			eqs0.add(a + " = " + b);
 		});
 		sb.append(g);
+
 		if (!gens().isEmpty()) {
-			sb.append("\n\t" + gens().sep(":", "\n\t"));
+			sb.append("\n\t" + gens().sep(":", "\n\t", x -> Util.maybeQuote(x.toString())));
 		}
 		if (!sks().isEmpty()) {
-			sb.append("\n\t" + sks().sep(":", "\n\t"));
+			sb.append("\n\t" + sks().sep(":", "\n\t", x -> Util.maybeQuote(x.toString())));
 		}
 		sb.append(w);
 		if (!eqs0.isEmpty()) {
@@ -557,27 +585,30 @@ public abstract class Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> implements S
 	}
 
 	public void validateMore() {
-		
-		gens().entrySet((gen,en)-> {
+
+		gens().entrySet((gen, en) -> {
 			if (!schema().ens.contains(en)) {
 				throw new RuntimeException("On generator " + gen + ", the entity " + en + " is not declared.");
 			}
 		});
-		
-		 sks().entrySet((sk,ty)-> {
+
+		sks().entrySet((sk, ty) -> {
 			if (!schema().typeSide.tys.contains(ty)) {
 				throw new RuntimeException(
 						"On labelled null " + sk + ", the type " + ty + " is not declared." + "\n\n" + this);
 			}
 		});
-		
-		eqs((a,b) -> {
+
+		eqs((a, b) -> {
 			Chc<Ty, En> x = type(a);
 			Chc<Ty, En> y = type(b);
 			if (!x.equals(y)) {
 				Util.anomaly();
 			}
 		});
+		
+		
+		
 	}
 
 }

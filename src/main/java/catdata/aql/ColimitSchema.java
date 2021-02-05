@@ -23,6 +23,7 @@ import catdata.aql.exp.Att;
 import catdata.aql.exp.En;
 import catdata.aql.exp.Fk;
 import catdata.aql.exp.Gen;
+import catdata.aql.exp.RawTerm;
 import catdata.aql.exp.Sk;
 import catdata.aql.exp.Sym;
 import catdata.aql.exp.Ty;
@@ -845,6 +846,12 @@ public class ColimitSchema<N> implements Semantics {
 		}
 		UnionFind<Pair<N, En>> uf = new UnionFind<>(ens.size(), ens);
 		for (Quad<N, En, N, En> s : eqEn) {
+			if (!nodes.containsKey(s.first)) {
+				throw new RuntimeException("Not a schema: " + s.first);
+			}
+			if (!nodes.containsKey(s.third)) {
+				throw new RuntimeException("Not a schema: " + s.first);
+			}
 			if (!nodes.get(s.first).ens.contains(s.second)) {
 				throw new RuntimeException("Not an entity in " + s.first + ", " + s.second);
 			}
@@ -934,6 +941,9 @@ public class ColimitSchema<N> implements Semantics {
 
 		Set<Pair<N, En>> ens = (new LinkedHashSet<>());
 		for (N n : shape.nodes) {
+			if (!nodes.containsKey(n)) {
+				throw new RuntimeException("No schema for node " + n);
+			}
 			Schema<Ty, En, Sym, Fk, Att> s = nodes.get(n);
 			for (En en : s.ens) {
 				ens.add(new Pair<>(n, en));

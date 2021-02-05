@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import catdata.Chc;
+import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Collage.CCollage;
 import catdata.provers.CompletionProver;
@@ -15,8 +16,9 @@ import catdata.provers.DPKB;
 import catdata.provers.EProver;
 import catdata.provers.FailProver;
 import catdata.provers.FreeProver;
-import catdata.provers.MaedmaxProver;
+import catdata.provers.KBExp;
 import catdata.provers.ProgramProver;
+import catdata.provers.VampireProver;
 
 //TODO: aql cache hashcode for term?
 
@@ -30,7 +32,7 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 	private final KBtoDP<Ty, En, Sym, Fk, Att, Gen, Sk> dp;
 
 	public enum ProverName {
-		auto, monoidal, program, completion, congruence, fail, free
+		auto, monoidal, program, completion, congruence, fail, free, e, vampire
 	}
 
 	// these provers say that x = y when that is true when all java symbols are
@@ -43,22 +45,22 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 	// you may not have
 	// x = y and y = z -> x = z when java is involved.
 
-	public AqlProver(AqlOptions ops, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, AqlJs<Ty, Sym> js) {
+	private AqlProver(AqlOptions ops, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, AqlJs<Ty, Sym> js, boolean doTrivialityCheck) {
 		ProverName name = (ProverName) ops.getOrDefault(AqlOption.prover);
 		long timeout = (Long) ops.getOrDefault(AqlOption.timeout);
 		Integer shouldSimplifyMax = (Integer) ops.getOrDefault(AqlOption.prover_simplify_max);
 		boolean shouldSimplify = col.eqs().size() < shouldSimplifyMax;
 		boolean allowNew = (boolean) ops.getOrDefault(AqlOption.prover_allow_fresh_constants);
-		
+
 		Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> fn;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_simpl;
 		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col_big;
-		
+
 		if (col.eqs().size() == 0 && name.equals(ProverName.auto)) {
 			shouldSimplify = false;
 			name = ProverName.free;
 		}
-			
+
 		if (shouldSimplify) {
 			CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> simp = new CollageSimplifier<>(col);
 			col_simpl = simp.simplified;
@@ -73,78 +75,90 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 		if (name.equals(ProverName.auto)) {
 			name = auto(ops, col_simpl);
 			if (name == null) {
-				RuntimeException ex =  new RuntimeException(
-						"Cannot automatically chose prover: theory is not free, ground, monoidal, or program.  Possible solutions include: \n\n0) Upgrade to Conexus CQL \n\n1) use the completion prover, possibly with an explicit precedence (see KB example) \n\n2) Reorient equations from left to right to obtain a size-reducing orthogonal rewrite system \n\n3) Remove all equations involving function symbols of arity > 1 \n\n4) Remove all type side and schema equations \n\n5) disable checking of equations in queries using dont_validate_unsafe=true as an option \n\n6) adding options program_allow_nontermination_unsafe=true \n\n7) Switching to the e prover, as described in the CQL manual \n\n8) emailing support, info@conexus.ai\n\n\n" + col_simpl);
+				RuntimeException ex = new RuntimeException(
+						"Cannot automatically chose prover: theory is not free, ground, monoidal, or program.  Possible solutions include: \n\n0) Upgrade to Conexus CQL \n\n1) use the completion prover, possibly with an explicit precedence (see KB example) \n\n2) Reorient equations from left to right to obtain a size-reducing orthogonal rewrite system \n\n3) Remove all equations involving function symbols of arity > 1 \n\n4) Remove all type side and schema equations \n\n5) disable checking of equations in queries using dont_validate_unsafe=true as an option \n\n6) adding options program_allow_nontermination_unsafe=true \n\n7) Switching to the e prover, as described in the CQL manual \n\n8) emailing support, info@conexus.ai\n\n\n"
+								+ col_simpl);
 				ex.printStackTrace();
 				throw ex;
 			}
 		}
 
-		DPKB<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> dpkb;
+		DPKB<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> dpkb = switch (name) {
+  		case auto -> throw new RuntimeException("Anomaly: please report");
+  		case fail -> new FailProver<>(null);
+  		case free -> dpkb = new FreeProver<>(col_simpl.toKB());
+  		case congruence -> new CongruenceProverUniform<>(col_simpl.toKB());
+  		case program -> {
+        boolean check = !(Boolean) ops.getOrDefault(AqlOption.dont_verify_is_appropriate_for_prover_unsafe);
+  			boolean check2 = !(Boolean) ops.getOrDefault(AqlOption.program_allow_nonconfluence_unsafe);
+  			check = check && check2;
+  			boolean allowNonTerm = (Boolean) ops.getOrDefault(AqlOption.program_allow_nontermination_unsafe);
+  			try {
+  				if (!allowNonTerm) {
+  					col_simpl = reorient(col_simpl);
+  				}
+  			} catch (Exception ex) {
+  				throw new RuntimeException(ex.getMessage()
+  						+ "\n\nPossible solution: add options program_allow_nontermination_unsafe=true, or prover=completion");
+  			}
+  			yield new ProgramProver<>(check, VarIt.it(), col_simpl.toKB());
+      }
+  		case completion -> {
+        String str = (String) ops.getOrDefault(AqlOption.completion_precedence);
 
-		// try {
-		switch (name) {
-		case auto:
-			throw new RuntimeException("Anomaly: please report");
-		case fail:
-			dpkb = new FailProver<>(null);
-			break;
-		case free:
-			dpkb = new FreeProver<>(null);
-			break;
-		case congruence:
-			dpkb = new CongruenceProverUniform<>(col_simpl.toKB());
-			break;
-		case program:
-			boolean check = !(Boolean) ops.getOrDefault(AqlOption.dont_verify_is_appropriate_for_prover_unsafe);
-			boolean check2 = !(Boolean) ops.getOrDefault(AqlOption.program_allow_nonconfluence_unsafe);
-			check = check && check2;
-			boolean allowNonTerm = (Boolean) ops.getOrDefault(AqlOption.program_allow_nontermination_unsafe);
-			try {
-				if (!allowNonTerm) {
-					col_simpl = reorient(col_simpl);
-				}
-			} catch (Exception ex) {
-				throw new RuntimeException(ex.getMessage()
-						+ "\n\nPossible solution: add options program_allow_nontermination_unsafe=true, or prover=completion");
+  			List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec = null;
+  			if (str != null) {
+  				List<String> z = Arrays.asList(str.trim().split("\\s+"));
+  				prec = new ArrayList<>(z.size());
+  				Collage<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk> col2 = (Collage<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk>) col;
+  				for (String x : z) {
+  					try {
+  						Head o = catdata.aql.exp.RawTerm.toHeadNoPrim(x, col2);
+  						prec.add(o);
+  					} catch (Exception ex) {
+  					}
+  				}
+  			}
+
+  			yield new CompletionProver<>(ops, col_simpl.toKB(), prec);
+      }
+  		case monoidal -> new catdata.aql.MonoidalFreeDP<>(col_simpl.toKB());
+  		case e -> {
+        String exePath = (String) ops.getOrDefault(AqlOption.e_path);
+  			yield new EProver<>(exePath, col_simpl.toKB(), timeout);
+      }
+      case vampire -> {
+        String exePath = (String) ops.getOrDefault(AqlOption.vampire_path);
+  			yield new VampireProver<>(exePath, col_simpl.toKB(), timeout);
+      }
+		};
+
+		if (doTrivialityCheck &&
+        (boolean) ops.getOrDefault(AqlOption.triviality_check_best_effort) &&
+        dpkb.supportsTrivialityCheck()) {
+  		List<Chc<Ty, En>> trivial = Util.list();
+      try {
+        Var x = Var.Var(Util.uniqueName()), y = Var.Var(Util.uniqueName());
+  			KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> l = dpkb.kb.factory.KBVar(x), r = dpkb.kb.factory.KBVar(y);
+  			for (Chc<Ty, En> sort : dpkb.kb.inhabGen()) {
+  				Map<Var, Chc<Ty, En>> m = Util.mk();
+  				m.put(x, sort);
+  				m.put(y, sort);
+  				if (dpkb.eq(m, l, r)) {
+  					trivial.add(sort);
+  				}
+  			}
+      } catch (Exception e) {
+        throw new RuntimeException("Error in triviality check: " + e.getMessage() + "\nConsider setting the option triviality_check_best_effort = false", e);
+      }
+			if (!trivial.isEmpty()) {
+				throw new RuntimeException("Trivial sorts detected: " + Util.map(trivial, Chc::toStringMash));
 			}
-			dpkb = new ProgramProver<>(check, VarIt.it(), col_simpl.toKB());
-			break;
-		case completion:
-		//	KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> kb = col_simpl.toKB();
-			
-			String str = (String) ops.getOrDefault(AqlOption.completion_precedence);
-
-			List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec = null;
-			if (str != null) {
-				List<String> z = Arrays.asList(str.trim().split("\\s+"));
-				prec = new ArrayList<>(z.size());
-				Collage<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk>
-				col2 = (Collage<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk>) col;
-				for (String x : z) {
-					Head o = RawTerm.toHeadNoPrim(x, col2);
-					prec.add(o);
-				}				
-			} 
-			
-			dpkb = new CompletionProver<>(ops, col_simpl.toKB(), prec);
-			break;
-		case monoidal:
-			dpkb = new MonoidalFreeDP<>(col_simpl.toKB());
-			break;
-		default:
-			throw new RuntimeException("Anomaly: please report");
 		}
 
 		dp = new KBtoDP<>(js, fn, dpkb, allowNew, col_big);
-
-		// } catch (InterruptedException exn) {
-		// throw new RuntimeInterruptedException(exn);
-		// }
 	}
 
-	
-	
 	private static <Sk, En, Fk, Ty, Att, Sym, Gen> ProverName auto(AqlOptions ops,
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 		if (col.eqs().isEmpty()) {
@@ -230,17 +244,17 @@ public class AqlProver<Ty, En, Sym, Fk, Att, Gen, Sk> implements DP<Ty, En, Sym,
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> DP<Ty, En, Sym, Fk, Att, Gen, Sk> createInstance(AqlOptions options,
 			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, Schema<Ty, En, Sym, Fk, Att> schema) {
-		return new AqlProver<>(options, col, schema.typeSide.js);
+		return new AqlProver<>(options, col, schema.typeSide.js, false);
 	}
 
 	public static <Ty, En, Sym, Fk, Att> DP<Ty, En, Sym, Fk, Att, Void, Void> createSchema(AqlOptions options,
 			Collage<Ty, En, Sym, Fk, Att, Void, Void> col, TypeSide<Ty, Sym> typeSide) {
-		return new AqlProver<>(options, col, typeSide.js);
+		return new AqlProver<>(options, col, typeSide.js, true);
 	}
 
 	public static <Ty, Sym> DP<Ty, Void, Sym, Void, Void, Void, Void> createTypeSide(AqlOptions options,
 			Collage<Ty, Void, Sym, Void, Void, Void, Void> col, AqlJs<Ty, Sym> js) {
-		return new AqlProver<>(options, col, js);
+		return new AqlProver<>(options, col, js, true);
 	}
 
 }

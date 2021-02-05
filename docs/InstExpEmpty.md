@@ -1,0 +1,1 @@
+The instance with no generators or nulls.

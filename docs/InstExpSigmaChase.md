@@ -1,0 +1,1 @@
+Performs a sigma, but using an alternative algorithm that is faster but only on free type sides.

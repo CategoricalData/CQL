@@ -1,0 +1,1 @@
+Perform a difference operation on two instances; this operation is adjoint to co-product.

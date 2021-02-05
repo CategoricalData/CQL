@@ -1,0 +1,1 @@
+Turns an ED into a query, such that the ED holds when the query's one foreign key is surjective.

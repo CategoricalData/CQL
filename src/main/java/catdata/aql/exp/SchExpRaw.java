@@ -27,7 +27,6 @@ import catdata.aql.Collage;
 import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
-import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.TypeSide;
@@ -126,7 +125,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 			}
 			eqs0.add(new Triple<>(new Pair<>(var, En.En(a.get(0))), toFk(a, col, var).convert(), toFk(b, col, var).convert()));
 		}
-		
+
 		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : eqs0) {
 			col.eqs().add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)), eq.second,
 					eq.third));
@@ -134,7 +133,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 
 		// forces type checking before prover construction
 		//col.validate();
-		
+
 		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, env.defaults));
 		return ret;
 
@@ -151,7 +150,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 			}
 			Fk fk = Fk.Fk(en, it.next());
 			if (!col.fks().containsKey(fk)) {
-				throw new RuntimeException("Not a foreign key with source " + en + ": " + fk + ".");				
+				throw new RuntimeException("Not a foreign key with source " + en + ": " + fk + ".");
 			}
 			ret = Term.Fk(fk, ret);
 			en = col.fks().get(fk).second;
@@ -177,8 +176,11 @@ public final class SchExpRaw extends SchExp implements Raw {
 	private Map<Fk, Pair<En, En>> conv1(Set<Pair<String, Pair<String, String>>> map) {
 		Map<Fk, Pair<En, En>> ret = Util.mk();
 		for (Pair<String, Pair<String, String>> p : map) {
-			ret.put(Fk.Fk(En.En(p.second.first), p.first),
-				new Pair<>(En.En(p.second.first), En.En(p.second.second)));
+			Fk z = Fk.Fk(En.En(p.second.first), p.first);
+			if (ret.containsKey(z)) {
+				throw new RuntimeException("Duplicate column on same table: " + z + " on " + p.second.first);
+			}
+			ret.put(z, new Pair<>(En.En(p.second.first), En.En(p.second.second)));
 		}
 		return ret;
 	}
@@ -343,14 +345,14 @@ public final class SchExpRaw extends SchExp implements Raw {
 		this.atts = LocStr.set2(atts);
 		this.t_eqs = LocStr.proj2(list2);
 		this.options = Util.toMapSafely(options);
-		
+
 		if (this.fks.size() != fks.size()) {
 			throw new RuntimeException("Error: schema literal contains duplicate foreign keys.");
 		}
 		if (this.atts.size() != atts.size()) {
 			throw new RuntimeException("Error: schema literal contains duplicate attributes.");
 		}
-	
+
 //		Util.toMapSafely(fks); // check no dups here rather than wait until eval
 //		Util.toMapSafely(atts);
 
@@ -400,7 +402,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 			List<Pair<String, Pair<String, Ty>>> atts, List<Quad<String, String, RawTerm, RawTerm>> list2,
 			List<Pair<String, String>> options, @SuppressWarnings("unused") Object o) {
 		this.typeSide = typeSide;
-		
+
 		this.imports = new THashSet<>(imports);
 		this.ens = (new THashSet<>(ens));
 		this.fks = (new THashSet<>(fks));
@@ -410,10 +412,10 @@ public final class SchExpRaw extends SchExp implements Raw {
 		this.atts = (atts.stream().map(x -> new Pair<>(x.first, new Pair<>(x.second.first, x.second.second.str)))
 				.collect(Collectors.toSet()));
 		if (this.atts.size() != atts.size()) {
-			throw new RuntimeException("Error: schema literal contains duplicate attributes.");
+			throw new RuntimeException("Error: schema literal contains duplicate attributes: " + atts);
 		}
 		this.p_eqs = (new THashSet<>(list));
-		
+
 		this.t_eqs = (new THashSet<>(list2));
 		this.options = Util.toMapSafely(options);
 		// Util.toMapSafely(fks); // check no dups here rather than wait until eval
@@ -437,7 +439,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 			//	throw new RuntimeException("Import schema typeside mismatch on " + z + ", is " + u + " and not " + typeSide + " as expected.");
 			//}
 		}
-		return typeSide;	
+		return typeSide;
 	}
 
 	@Override

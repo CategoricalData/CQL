@@ -56,11 +56,6 @@ import catdata.Util;
 import catdata.ide.CodeTextPanel;
 import catdata.ide.Example;
 import catdata.ide.GuiUtil;
-import catdata.sql.SqlColumn;
-import catdata.sql.SqlForeignKey;
-import catdata.sql.SqlLoader;
-import catdata.sql.SqlSchema;
-import catdata.sql.SqlType;
 
 // aql sqlchecker should use fk names
 

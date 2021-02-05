@@ -1,5 +1,6 @@
 package catdata.aql.exp;
 
+
 public abstract class AqlParserFactory {
 
 	public enum Mode {

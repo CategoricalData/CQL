@@ -1,0 +1,1 @@
+Computes the transform (except i1 i) -> (except i2 i) from a transform i1 -> i2.

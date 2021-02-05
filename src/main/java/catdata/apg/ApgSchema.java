@@ -3,10 +3,7 @@ package catdata.apg;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
-import java.util.function.Function;
 
-import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Kind;
 import catdata.aql.Semantics;

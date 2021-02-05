@@ -1,19 +1,19 @@
-typeside Ty = literal { 
-	java_types
-		String = "java.lang.String"
-	java_constants
-		String = "return input[0]"
+typeside Ty = literal {
+	external_types
+		String -> "java.lang.String"
+	external_parsers
+		String -> "x => x"
 }
 
 schema NormalizedSchema = literal : Ty {
 	entities
-		Male 
+		Male
 		Female
 	foreign_keys
 		mother : Male -> Female
   	attributes
   		female_name : Female -> String
-  		male_name : Male -> String 
+  		male_name : Male -> String
 }
 
 instance NormalizedData = literal : NormalizedSchema {
@@ -21,13 +21,13 @@ instance NormalizedData = literal : NormalizedSchema {
 		Al Bob Charlie : Male
 		Ellie Fran : Female
 	equations
-		Al.male_name = Albert 
+		Al.male_name = Albert
 		Al.mother = Ellie
-		
+
 		Bob.male_name = George
 		Bob.mother = Ellie
-		
-		Charlie.male_name = Charles	
+
+		Charlie.male_name = Charles
 		Charlie.mother = Fran
 
 		Ellie.female_name = Elaine

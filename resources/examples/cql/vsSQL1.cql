@@ -1,11 +1,11 @@
 /*
-Problem 1: 
+Problem 1:
 
-Find a sub-database (i.e., populate fresh Employee and Department tables, 
-including constraints) where 	
+Find a sub-database (i.e., populate fresh Employee and Department tables,
+including constraints) where
 
  1) every employee works in the same department as their manager
- 2) every department's secretary works in that department 	
+ 2) every department's secretary works in that department
 
 Schema:
 
@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS Department;
 CREATE TABLE Employee(
 id INT PRIMARY KEY,
 name VARCHAR(255),
-manager INT, 
+manager INT,
 worksIn INT
 );
 
@@ -28,7 +28,7 @@ secretary INT,
 ALTER TABLE Employee ADD CONSTRAINT e1
 FOREIGN KEY (manager) REFERENCES Employee (id);
 
-ALTER TABLE Employee ADD CONSTRAINT e2 
+ALTER TABLE Employee ADD CONSTRAINT e2
 FOREIGN KEY (worksIn) REFERENCES Department (id);
 
 ALTER TABLE Department ADD CONSTRAINT d1
@@ -36,9 +36,9 @@ FOREIGN KEY (secretary) REFERENCES Employee (id);
 
 Example input DB:
 
-INSERT INTO Employee VALUES 
-(101, 'Alan', 103, 10), 
-(102, 'Camille', 102, 2), 
+INSERT INTO Employee VALUES
+(101, 'Alan', 103, 10),
+(102, 'Camille', 102, 2),
 (103, 'Andrey', 103, 10);
 
 INSERT INTO Department VALUES
@@ -50,18 +50,18 @@ INSERT INTO Department VALUES
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Example schema and instance about employees
 
-typeside Ty = literal { 
-	java_types
-		String = "java.lang.String"
-		Int = "java.lang.Integer"
-	java_constants
-		String = "return input[0]"
-		Int = "return java.lang.Integer.parseInt(input[0])"
+typeside Ty = literal {
+	external_types
+		String -> "java.lang.String"
+		Int -> "java.lang.Integer"
+	external_parsers
+		String -> "x => x"
+		Int -> "parseInt"
 }
 
 schema S = literal : Ty {
 	entities
-		Employee 
+		Employee
 		Department
 	foreign_keys
 		manager   : Employee -> Employee
@@ -75,26 +75,26 @@ schema S = literal : Ty {
 schema T = literal : Ty {
 	imports
 		S
-	path_equations 
+	path_equations
 		Employee.manager.worksIn = Employee.worksIn
   		Department.secretary.worksIn = Department
 }
 
-/* Error in query bad: Target equation v.manager.worksIn = v.worksIn not respected: 
+/* Error in query bad: Target equation v.manager.worksIn = v.worksIn not respected:
    transforms to v.manager.worksIn = v.worksIn, which is not provable in the sub-query for Employee
   *//*
 query bad = literal : S -> T {
 	entity Employee -> {from
-		v : Employee 
+		v : Employee
 	attributes
-		first -> v.first 	
+		first -> v.first
 	foreign_keys
 		manager -> {v -> v.manager}
 		worksIn -> {v -> v.worksIn}
 	}
 
 	entity Department -> {from
-		v : Department 
+		v : Department
 	attributes
 		name -> v.name
 	foreign_keys
@@ -104,19 +104,19 @@ query bad = literal : S -> T {
 
 query good1 = literal : S -> T {
 	entity Employee -> {from
-		e : Employee 
+		e : Employee
 	where
 		e.manager = e
 		e.worksIn.secretary = e
 	attributes
-		first -> e.first 	
+		first -> e.first
 	foreign_keys
 		manager -> {e -> e.manager}
 		worksIn -> {d -> e.worksIn}
 	}
 
 	entity Department -> {from
-		d : Department  
+		d : Department
 	where
 		d.secretary.worksIn = d
 		d.secretary.manager = d.secretary
@@ -128,16 +128,15 @@ query good1 = literal : S -> T {
 }
 
 instance I = literal : S {
-	generators 
+	generators
 		101 102 103 : Employee
 		2 10 : Department
-	multi_equations 
+	multi_equations
 		manager   -> {101 103, 102 102, 103 103}
 		worksIn   -> {101 10, 102 2, 103 10}
 		secretary -> {10 101, 2 102}
  		first 	-> {101 Alan, 102 Camille, 103 Audrey}
-     	name 	-> {10 "Applied Math", 2 "Pure Math"}	
+     	name 	-> {10 "Applied Math", 2 "Pure Math"}
 }
 
 instance J = eval good1 I
-

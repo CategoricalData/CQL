@@ -1,31 +1,20 @@
 package catdata.provers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.list.TreeList;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 import catdata.Chc;
 import catdata.Triple;
-import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.exp.Att;
-import catdata.aql.exp.En;
-import catdata.aql.exp.Fk;
-import catdata.aql.exp.Gen;
-import catdata.aql.exp.Sk;
-import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
-import catdata.aql.Collage;
 import catdata.aql.Head;
-import catdata.aql.RawTerm;
 import catdata.aql.Var;
 import catdata.aql.VarIt;
 import gnu.trove.map.hash.THashMap;
@@ -36,12 +25,8 @@ public class CompletionProver<Ty, En, Sym, Fk, Att, Gen, Sk>
 
 	private final LPOUKB<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> cp;
 
-	
-	
-	
-	@SuppressWarnings("unchecked")
-	public CompletionProver(AqlOptions ops,
-			KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> xx, List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec2) {
+	public CompletionProver(AqlOptions ops, KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> xx,
+			List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec2) {
 		super(xx);
 		boolean sort = (Boolean) ops.getOrDefault(AqlOption.completion_sort);
 		boolean filter_subsumed = (Boolean) ops.getOrDefault(AqlOption.completion_filter_subsumed);
@@ -49,30 +34,22 @@ public class CompletionProver<Ty, En, Sym, Fk, Att, Gen, Sk>
 		boolean syntactic_ac = (Boolean) ops.getOrDefault(AqlOption.completion_syntactic_ac);
 		boolean unfailing = (Boolean) ops.getOrDefault(AqlOption.completion_unfailing);
 
-		Collection<Triple<KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>, Map<Var, Chc<Ty, En>>>> E0 = kb.eqs.stream().map(x -> new Triple<>(x.second, x.third, x.first)).collect(Collectors.toList());
+		Iterable<Triple<KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var>, Map<Var, Chc<Ty, En>>>> E0 = Iterables
+				.transform(kb.eqs, x -> new Triple<>(x.second, x.third, x.first));
 
-						
 		if (prec2 == null) {
 			Map<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Integer> m = new THashMap<>();
 			for (Head<Ty, En, Sym, Fk, Att, Gen, Sk> c : kb.syms.keySet()) {
 				m.put(c, kb.syms.get(c).first.size());
 			}
 			prec2 = LPOUKB.inferPrec(m, E0);
-		} 
-		
-		List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec =  new TreeList<>(prec2);
-		/* for (Head<Ty, En, Sym, Fk, Att, Gen, Sk> c : init) {
-			if (!kb.syms.keySet().contains(c)) {
-				prec.remove(c); // simplfied away
-			}
 		}
-		if (!prec.isEmpty() && prec.get(0) == null) {
-			throw new RuntimeException("Anomaly: please report");
-		}*/
+
+		List<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> prec = new TreeList<>(prec2);
 		KBOptions options = new KBOptions(unfailing, sort, false, true, Integer.MAX_VALUE, Integer.MAX_VALUE,
 				filter_subsumed, compose, syntactic_ac); // this ignores all but 4 options, see LPOUKB
 
-		//Util.assertNoDups(prec);
+		// Util.assertNoDups(prec);
 
 		Set<Head<Ty, En, Sym, Fk, Att, Gen, Sk>> sigMinusPrec = (new THashSet<>(kb.syms.keySet()));
 		sigMinusPrec.removeAll(prec);
@@ -81,7 +58,7 @@ public class CompletionProver<Ty, En, Sym, Fk, Att, Gen, Sk>
 			throw new RuntimeException(
 					"Incorrect precedence. Symbols in signature but not precedence: " + sigMinusPrec);
 		}
-		cp = new LPOUKB<>(E0, VarIt.it(), Collections.emptySet(), options, prec, kb);
+		cp = new LPOUKB<>(Lists.newArrayList(E0), VarIt.it(), Collections.emptySet(), options, prec, kb);
 
 	}
 
@@ -99,6 +76,11 @@ public class CompletionProver<Ty, En, Sym, Fk, Att, Gen, Sk>
 	@Override
 	public void add(Head<Ty, En, Sym, Fk, Att, Gen, Sk> c, Chc<Ty, En> t) {
 		throw new RuntimeException("Completion does not support adding new constants.");
+	}
+
+	@Override
+	public boolean supportsTrivialityCheck() {
+		return cp.supportsTrivialityCheck();
 	}
 
 }

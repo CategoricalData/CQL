@@ -1,0 +1,1 @@
+Returns a new schema where every entity and attribute and foreign key is now named by the given prefix plus the old name (e.g. col to prefixcol)

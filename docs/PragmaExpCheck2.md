@@ -1,0 +1,1 @@
+Checks if a query from s1 to s2 with constraints c1 on s1 to c2 on s2 is valid.

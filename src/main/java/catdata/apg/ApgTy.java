@@ -1,6 +1,7 @@
 package catdata.apg;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 import catdata.Pair;
@@ -141,5 +142,17 @@ public class ApgTy<L> {
 
 	public <X> ApgTy<X> convert() {
 		return (ApgTy<X>) this;
+	}
+
+	public void validate(ApgSchema<L> dst) {
+		if (m != null) {
+			for (Entry<String, ApgTy<L>> x : m.entrySet()) {
+				x.getValue().validate(dst);
+			}
+		} else if (l != null) {
+			if (!dst.schema.containsKey(l)) {
+				throw new RuntimeException("Not a schema abel: " + l);
+			}			
+		}
 	}
 }

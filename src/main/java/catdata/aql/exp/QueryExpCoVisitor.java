@@ -15,6 +15,10 @@ public interface QueryExpCoVisitor<R, P, E extends Exception> {
 
 	public QueryExpRaw visitQueryExpRaw(P params, R exp) throws E;
 
+	public QueryExpSpanify visitQueryExpSpanify(P params, R exp) throws E;
+	
+	public QueryExpMapToSpanQuery visitQueryExpMapToSpanQuery(P params, R exp) throws E;
+	
 	public QueryExpDeltaCoEval visitQueryExpDeltaCoEval(P params, R exp) throws E;
 
 	public QueryExpDeltaEval visitQueryExpDeltaEval(P params, R exp) throws E;

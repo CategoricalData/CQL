@@ -14,6 +14,7 @@ import catdata.InteriorLabel;
 import catdata.LocStr;
 import catdata.Pair;
 import catdata.Raw;
+import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
 import catdata.apg.ApgTypeside;
@@ -79,10 +80,11 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 
 	public static final class ApgTyExpRaw extends ApgTyExp implements Raw {
 
-		public ApgTyExpRaw(List<ApgTyExp> imports, List<Pair<LocStr, Pair<String, String>>> functions) {
+		public ApgTyExpRaw(List<ApgTyExp> imports, List<Pair<LocStr, Pair<String, String>>> functions,
+				List<Pair<LocStr, Triple<List<String>, String, String>>> udfs) {
 			this.imports = Util.toSetSafely(imports);
 			this.types = Util.toMapSafely(LocStr.set2(functions));
-
+			this.udfs = Util.toMapSafely(LocStr.set2(udfs));
 			doGuiIndex(functions);
 		}
 
@@ -98,11 +100,15 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 		@Override
 		public String toString() {
 			return "literal {" + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " "))) + "\ntypes"
-					+ Util.sep(types, " -> ", "\n\t", x->x.first + " " + x.second) + "\n}";
+					+ Util.sep(types, " -> ", "\n\t", x -> x.first + " " + x.second)
+					+ Util.sep(udfs, " : ", "\n\t", x -> Util.sep(x.first, ",") + " -> " + x.second + " = " + x.third)
+					+ "\n}";
 		}
 
 		public final Set<ApgTyExp> imports;
 		public final Map<String, Pair<String, String>> types;
+
+		public final Map<String, Triple<List<String>, String, String>> udfs;
 
 		private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
 
@@ -139,7 +145,8 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 			try {
 				Map<String, String> tys = Util.map(types, (k, v) -> new Pair<>(k, v.first));
 				Map<String, String> fns = Util.map(types, (k, v) -> new Pair<>(k, v.second));
-				AqlJs<String, String> js = new AqlJs<>(Collections.emptyMap(), tys, fns, Collections.emptyMap());
+				AqlJs<String, String> js = new AqlJs<>(env.defaults, Collections.emptyMap(), tys, fns,
+						Collections.emptyMap());
 
 				Map<String, Pair<Class<?>, Function<String, Object>>> types0 = new THashMap<>();
 				for (ApgTyExp w : imports) {
@@ -148,15 +155,23 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 				}
 
 				for (Entry<String, Pair<String, String>> x : types.entrySet()) {
-                    types0.put(x.getKey(),
-							new Pair<>(Class.forName(x.getValue().first), z -> js.parse(x.getKey(), z)));
-
+					types0.put(x.getKey(), new Pair<>(Class.forName(x.getValue().first), z -> js.parse(x.getKey(), z)));
 				}
-				return new ApgTypeside(types0);
+
+				Map<String, Triple<List<String>, String, Function<List<Object>, Object>>> udfs0 = new THashMap<>();
+				for (Entry<String, Triple<List<String>, String, String>> e : udfs.entrySet()) {
+					String name = e.getKey();
+          List<String> domain = e.getValue().first;
+          String codomain = e.getValue().second;
+          String source = e.getValue().third;
+          Function<List<Object>, Object> func = args -> js.invoke(codomain, source, (Object[]) args.toArray());
+					udfs0.put(name, new Triple<>(domain, codomain, func));
+				}
+
+				return new ApgTypeside(types0, udfs0);
 			} catch (ClassNotFoundException e) {
 				throw new RuntimeException("Class not found: " + e.getMessage());
 			}
-
 		}
 
 		@Override
@@ -165,6 +180,7 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 			int result = 1;
 			result = prime * result + ((imports == null) ? 0 : imports.hashCode());
 			result = prime * result + ((types == null) ? 0 : types.hashCode());
+			result = prime * result + ((udfs == null) ? 0 : udfs.hashCode());
 			return result;
 		}
 
@@ -186,6 +202,11 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 				if (other.types != null)
 					return false;
 			} else if (!types.equals(other.types))
+				return false;
+			if (udfs == null) {
+				if (other.udfs != null)
+					return false;
+			} else if (!udfs.equals(other.udfs))
 				return false;
 			return true;
 		}
@@ -258,9 +279,5 @@ public abstract class ApgTyExp extends Exp<ApgTypeside> {
 		}
 
 	}
-	
-	
-	
-	
 
 }

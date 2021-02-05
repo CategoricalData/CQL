@@ -134,6 +134,7 @@ public class Examples {
 			for (Language l : Language.values()) {
 				List<Example> list = examples2.get(l);
 				Path myPath = fileSystem.getPath("examples/" + l.filePath() + "/");
+				if (!Files.exists(myPath)) continue;
 				try (Stream<Path> walk = Files.walk(myPath, 1)) {
 					for (Iterator<Path> it = walk.iterator(); it.hasNext();) {
 						Path p = it.next();

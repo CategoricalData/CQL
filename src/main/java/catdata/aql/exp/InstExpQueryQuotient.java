@@ -1,6 +1,5 @@
 package catdata.aql.exp;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -149,10 +148,10 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 			return (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>) I0;
 		}
 
-		System.out.println("q " + q);
-		System.out.println("I0 " + I0);
+		//System.out.println("q " + q);
+		//System.out.println("I0 " + I0);
 		EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Void, Void, X, Y> J = new EvalInstance<>(q, I0, op);
-		System.out.println("J " + J);
+	//	System.out.println("J " + J);
 		
 		boolean useChase = (boolean) op.getOrDefault(AqlOption.quotient_use_chase);
 
@@ -173,6 +172,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
 				mm.get(en).add(new Pair<>(x1.l, x2.l));
 			});
 
+	//	return	Util.anomaly();
 			SigmaChaseAlgebra<Ty, En, Sym, Fk, Att, En, Fk, Att, Gen, Sk, X, Y> alg = new SigmaChaseAlgebra<>(
 					Mapping.id(I0.schema()), I0, mm, op);
 

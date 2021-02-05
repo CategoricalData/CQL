@@ -114,13 +114,13 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<Gen, Null<?>, Gen
 		} else if (sch.typeSide.js.java_tys.containsKey(ty)) {
 			if (shouldJS) {
 				try {
-					return Term.Obj(sch.typeSide.js.parse(ty, (String) rhs), ty);
+					return Term.Obj(sch.typeSide.js.parse(ty, rhs.toString()), ty);
 				} catch (Exception ex) {
 					if (errMeansNull) {
 						return objectToSk(sch, null, x, att, sks, extraRepr, shouldJS, errMeansNull);
 					}
 					ex.printStackTrace();
-					throw new RuntimeException("Error while importing " + rhs + " of class " + rhs.getClass()
+					throw new RuntimeException("On att " + att.en + "." + att.str + ", error while importing " + rhs + " of class " + rhs.getClass()
 							+ ".  Consider option import_null_on_err_unsafe.  Error was " + ex.getMessage());
 				}
 			}

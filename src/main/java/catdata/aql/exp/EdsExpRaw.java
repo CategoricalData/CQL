@@ -26,7 +26,6 @@ import catdata.aql.Collage.CCollage;
 import catdata.aql.Constraints;
 import catdata.aql.ED;
 import catdata.aql.Kind;
-import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
@@ -186,6 +185,7 @@ public class EdsExpRaw extends EdsExp implements Raw {
 
 	@Override
 	public SchExp type(AqlTyping G) {
+		schema.type(G);
 		return schema;
 	}
 

@@ -1,0 +1,1 @@
+An APG mapping literal, consisting of an assignment of labels to types and labels to open terms.

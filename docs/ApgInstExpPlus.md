@@ -1,0 +1,1 @@
+Co-product object in the category of APGs.

@@ -3,6 +3,7 @@ package catdata.aql;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +31,86 @@ import gnu.trove.set.hash.THashSet;
 
 public class ED {
 
-	public <Gen, Sk> String tptp(String x, int i, KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> th) {
-		// th.validate();
-		// System.out.println(th.toString());
+	private String conv(Schema<Ty, En, Sym, Fk, Att> sch, Chc<Ty, En> x) {
+		return x.left ? x.l.toString() : Schema.conv(x.r);
+	}
+
+	public synchronized <X, Y> String tptp(String x, boolean preamble,
+			KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, X, Y>, Var> kb) {
+		StringBuffer sb = new StringBuffer();
+		if (preamble) {
+			sb.append(kb.tptp_preamble());
+			sb.append("\n");
+		}
+		sb.append(this.tptp(x, KBTheory.j++, kb));
+		sb.append("\n");
+		String tptp = sb.toString();
+		return tptp;
+	}
+
+	public <Gen, Sk> String tptpXSorted(Schema<Ty, En, Sym, Fk, Att> sch) {
 		StringBuffer sb = new StringBuffer("");
-		sb.append("fof(eq" + i + "," + x + ",(");
 		List<String> w = new LinkedList<>();
 		if (!As.isEmpty()) {
-			sb.append("! [");
+			sb.append("(! [");
+			sb.append(Util.sep(As, ":", ", ", x -> x.left ? x.l.toString() : Schema.conv(x.r),
+					x -> Term.sqlVar((Var) x)));
+			sb.append("] : ");
+			for (Var v : As.keySet()) {
+				if (!As.get(v).left) {
+					w.add(conv(sch, As.get(v)) + "(" + Term.sqlVar(v) + ")");
+				}
+			}
+		}
+		List<String> l1 = new LinkedList<>();
+		for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : Awh) {
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> l = eq.first.mapGenSk(Util.voidFn(), Util.voidFn());
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> r = eq.second.mapGenSk(Util.voidFn(), Util.voidFn());
+			l1.add(l.toTpTpForChecker() + " = " + r.toTpTpForChecker());
+		}
+		sb.append("((");
+		if (!Util.union(l1, w).isEmpty()) {
+			sb.append("(" + Util.sep(Util.union(l1, w), " & ") + ")");
+			sb.append(" => ");
+		}
+
+		List<String> u = new LinkedList<>();
+		if (!Es.isEmpty()) {
+			sb.append("? [");
+			sb.append(Util.sep(Es, ":", ", ", x -> x.left ? x.l.toString() : Schema.conv(x.r),
+					x -> Term.sqlVar((Var) x)));
+			sb.append("] : ");
+			for (Var v : Es.keySet()) {
+				if (!Es.get(v).left) {
+					u.add(conv(sch, Es.get(v)) + "(" + Term.sqlVar(v) + ")");
+				}
+			}
+		}
+		List<String> l2 = new LinkedList<>();
+		for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : Ewh) {
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> l = eq.first.mapGenSk(Util.voidFn(), Util.voidFn());
+			Term<Ty, En, Sym, Fk, Att, Gen, Sk> r = eq.second.mapGenSk(Util.voidFn(), Util.voidFn());
+			l2.add(l.toTpTpForChecker() + " = " + r.toTpTpForChecker());
+		}
+		if (!Util.union(l2, u).isEmpty()) {
+			sb.append("(" + Util.sep(Util.union(l2, u), " & ") + ")");
+		} else {
+			sb.append("$true"); // TODO
+		}
+		sb.append(")))");
+
+		if (isUnique) {
+			Util.anomaly();
+		}
+
+		return sb.toString();
+	}
+
+	public <Gen, Sk> String tptpX(KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> th) {
+		StringBuffer sb = new StringBuffer("");
+		List<String> w = new LinkedList<>();
+		if (!As.isEmpty()) {
+			sb.append("(! [");
 			sb.append(Util.sep(As.keySet().stream().map(th::convertV).collect(Collectors.toList()), ","));
 			sb.append("] : ");
 			for (Var v : As.keySet()) {
@@ -53,11 +126,8 @@ public class ED {
 		sb.append("(");
 		if (!Util.union(l1, w).isEmpty()) {
 			sb.append("(" + Util.sep(Util.union(l1, w), " & ") + ")");
-		} else {
-			sb.append("$true");
+			sb.append(" => ");
 		}
-
-		sb.append(" => ");
 
 		List<String> u = new LinkedList<>();
 		if (!Es.isEmpty()) {
@@ -77,10 +147,18 @@ public class ED {
 		if (!Util.union(l2, u).isEmpty()) {
 			sb.append("(" + Util.sep(Util.union(l2, u), " & ") + ")");
 		} else {
-			sb.append("$true");
+			sb.append("$true"); // TODO
 		}
-		sb.append("))).");
+		sb.append("))");
+
+		if (isUnique) {
+			Util.anomaly();
+		}
 		return sb.toString();
+	}
+
+	public <Gen, Sk> String tptp(String x, int i, KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> th) {
+		return "fof(eq" + i + "," + x + ",(" + tptpX(th) + ")).";
 	}
 
 	public LiteralTransform<Ty, En, Sym, Fk, Att, Var, Var, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>, Integer, Chc<Var, Pair<Integer, Att>>> asTransform(
@@ -88,7 +166,7 @@ public class ED {
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> I = front(sch),
 				J = back(sch);
 
-		return new LiteralTransform<>((x,t)->Term.Gen(x), (x,t)->Term.Sk(x), I, J, true);
+		return new LiteralTransform<>((x, t) -> Term.Gen(x), (x, t) -> Term.Sk(x), I, J, true);
 	}
 
 	public LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> front(
@@ -113,13 +191,14 @@ public class ED {
 
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col, (y) -> y,
 				(x, y) -> y);
-
+//col.validate();
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
 				sch, col.gens(), col.sks(), eqs0, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
 		x.validate();
+		// System.out.println("front " + x);
 		return x;
 	}
 
@@ -152,6 +231,7 @@ public class ED {
 				col.gens().put(gen, ty);
 			}
 		}
+
 		for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq0 : Ewh) {
 			eqs0.add(new Pair<>(freeze(eq0.first), freeze(eq0.second)));
 			col.eqs().add(new Eq<>(null, freeze(eq0.first), freeze(eq0.second)));
@@ -159,11 +239,14 @@ public class ED {
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Var, Var> initial = new InitialAlgebra<>(options, sch, col, (y) -> y,
 				(x, y) -> y);
 
+		// System.out.println("===== " + sch + " \n **** " + col + "&&&&&");
+		// col.validate();
 		LiteralInstance<Ty, En, Sym, Fk, Att, Var, Var, Integer, Chc<Var, Pair<Integer, Att>>> x = new LiteralInstance<>(
 				sch, col.gens(), col.sks(), eqs0, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
+		// System.out.println("back " + x);
 		x.validate();
 		return x;
 	}
@@ -186,10 +269,9 @@ public class ED {
 
 	public synchronized final Query<Ty, En, Sym, Fk, Att, En, Fk, Att> getQ(Schema<Ty, En, Sym, Fk, Att> schema) {
 		if (!cache.containsKey(schema)) {
-			Schema<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att> zzz = getEDSchema(
-					schema.typeSide, options);
+			Schema<Ty, En, Sym, Fk, Att> zzz = getEDSchema(schema.typeSide, options);
 
-			Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>, AqlOptions>> is2 = Util
+			Map<En, Triple<Map<Var, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> is2 = Util
 					.map(is, (k, x) -> new Pair<>(k, new Triple<>(
 							Util.map(x.first, (kk, z) -> new Pair<>(kk, z.reverse())), x.second, x.third)));
 
@@ -202,7 +284,7 @@ public class ED {
 	public String toString() {
 
 		String toString = "";
-	
+
 		if (!As.isEmpty()) {
 			toString += "\tforall";
 			List<String> temp = new LinkedList<>();
@@ -244,7 +326,7 @@ public class ED {
 			toString += "\n\t\t" + Util.sep(temp, "\n\t\t") + "\n";
 		}
 		return toString;
-		
+
 	}
 
 //	public final Schema<Ty, En, Sym, Fk, Att> schema;
@@ -253,9 +335,9 @@ public class ED {
 
 	public final Map<Var, Chc<Ty, En>> Es;
 
-	public final Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> Awh;
+	public Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> Awh;
 
-	public final Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> Ewh;
+	public Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> Ewh;
 
 	private final Term<Ty, En, Sym, Fk, Att, Var, Var> freeze(Term<Ty, En, Sym, Fk, Att, Void, Void> t) {
 		Term<Ty, En, Sym, Fk, Att, Var, Var> ret = t.mapGenSk(Util.voidFn(), Util.voidFn());
@@ -286,7 +368,7 @@ public class ED {
 		return ret;
 	}
 
-	Map<En, Triple<Map<Var, Chc<Ty, En>>, Collection<Eq<Ty, catdata.aql.exp.En, Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Var, Var>>, AqlOptions>> is = new THashMap<>();
+	Map<En, Triple<Map<Var, Chc<Ty, En>>, Collection<Eq<Ty, En, Sym, Fk, Att, Var, Var>>, AqlOptions>> is = new THashMap<>();
 
 	Map<Fk, Pair<Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>>, AqlOptions>> fks = new THashMap<>();
 	Map<Fk, Map<Var, Term<Ty, En, Sym, Fk, Att, Var, Var>>> sks = new THashMap<>();
@@ -322,17 +404,18 @@ public class ED {
 		Es = new THashMap<>();
 		Awh = new THashSet<>();
 		Ewh = new THashSet<>();
+		// System.out.println("In ED constructor " + h.src() + "\n\n" + h.dst());
 
-		h.src().gens().entrySet((gen1,t) -> { 
+		h.src().gens().entrySet((gen1, t) -> {
 			As.put(Var.Var("A" + gen1), Chc.inRight(h.src().gens().get(gen1)));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> l = unfreeze("A", Term.Gen(gen1));
-			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.gens().apply(gen1,t).convert());
+			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.gens().apply(gen1, t).convert());
 			Ewh.add(new Pair<>(l, r));
 		});
-		h.src().sks().entrySet((sk1,t) -> {
+		h.src().sks().entrySet((sk1, t) -> {
 			As.put(Var.Var("A" + sk1), Chc.inLeft(h.src().sks().get(sk1)));
 			Term<Ty, En, Sym, Fk, Att, Void, Void> l = unfreeze("A", Term.Sk(sk1));
-			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.sks().apply(sk1,t));
+			Term<Ty, En, Sym, Fk, Att, Void, Void> r = unfreeze("E", h.sks().apply(sk1, t));
 			Ewh.add(new Pair<>(l, r));
 		});
 		h.dst().gens().entrySet((gen2, x) -> {
@@ -341,11 +424,19 @@ public class ED {
 		h.dst().sks().entrySet((sk2, x) -> {
 			Es.put(Var.Var("E" + sk2), Chc.inLeft(h.dst().sks().get(sk2)));
 		});
-		h.src().eqs((a,b)->{
-			Awh.add(new Pair<>(unfreeze("A", a), unfreeze("A", b)));
+		// System.out.println(h);
+		// System.out.println(h.src());
+		// System.out.println(h.dst());
+
+		h.src().eqs((a, b) -> {
+			Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> z = new Pair<>(
+					unfreeze("A", a), unfreeze("A", b));
+			Awh.add(z);
 		});
-		h.dst().eqs((a,b)->{
-			Ewh.add(new Pair<>(unfreeze("E", a), unfreeze("E", b)));
+		h.dst().eqs((a, b) -> {
+			Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> z = new Pair<>(
+					unfreeze("E", a), unfreeze("E", b));
+			Ewh.add(z);
 		});
 
 		this.isUnique = false;
@@ -353,10 +444,92 @@ public class ED {
 			throw new RuntimeException("The forall and exists clauses do not use disjoint variables.");
 		}
 
+		for (;;) {
+			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> z2 = simplify(Es,
+					Ewh);
+			if (z2 == null) {
+				break;
+			}
+			Ewh = z2;
+		}
+		for (;;) {
+			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> z2 = simplify2(Es,
+					Ewh);
+			if (z2 == null) {
+				break;
+			}
+			Ewh = z2;
+		}
+		/**
+		 * for (;;) { vars must be removed from target as well Set<Pair<Term<Ty, En,
+		 * Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> z2 =
+		 * simplify(As, Awh); if (z2 == null) { break; } Awh = z2; }
+		 */
+		Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> it = Ewh
+				.iterator();
+
+		while (it.hasNext()) {
+			Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> j = it.next();
+			if (j.first.equals(j.second) || Awh.contains(j) || Awh.contains(new Pair<>(j.second, j.first))) {
+				it.remove();
+			}
+
+		}
+
+		Iterator<Entry<Var, Chc<Ty, En>>> itt = As.entrySet().iterator();
+		while (itt.hasNext()) {
+			Entry<Var, Chc<Ty, En>> e = itt.next();
+			for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : Awh) {
+				if (eq.first.isVar() && eq.first.var.equals(e.getKey())) {
+					itt.remove();
+					Awh = subst(eq.first.var, eq.second, Awh);
+					Ewh = subst(eq.first.var, eq.second, Ewh);
+				} else if (eq.second.isVar() && eq.second.var.equals(e.getKey())) {
+					itt.remove();
+					Awh = subst(eq.second.var, eq.first, Awh);
+					Ewh = subst(eq.second.var, eq.first, Ewh);
+				}
+			}
+		}
+
+		it = Ewh.iterator();
+		while (it.hasNext()) {
+			Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> j = it.next();
+			if (j.first.att() != null && j.second.att() != null && j.first.att().equals(j.second.att())) {
+				for (Pair<Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>> eq2 : Ewh) {
+					if (eq2.first.equals(j.first.arg) && eq2.second.equals(j.second.arg)) {
+						it.remove();
+						break;
+					}
+					if (eq2.second.equals(j.first.arg) && eq2.first.equals(j.second.arg)) {
+						it.remove();
+						break;
+					}
+				}
+			}
+		}
+		it = Awh.iterator();
+		while (it.hasNext()) {
+			Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> j = it.next();
+			if (j.first.att() != null && j.second.att() != null && j.first.att().equals(j.second.att())) {
+				for (Pair<Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>> eq2 : Awh) {
+					if (eq2.first.equals(j.first.arg) && eq2.second.equals(j.second.arg)) {
+						it.remove();
+						break;
+					}
+					if (eq2.second.equals(j.first.arg) && eq2.first.equals(j.second.arg)) {
+						it.remove();
+						break;
+					}
+				}
+			}
+		}
+
 		is.put(FRONT, new Triple<>(As, freeze(Awh), options));
 		Map<Var, Chc<Ty, En>> AsEs = new THashMap<>();
 		AsEs.putAll(As);
 		AsEs.putAll(Es);
+
 		is.put(BACK, new Triple<>(AsEs, freeze(Util.union(Awh, Ewh)), options));
 
 		Map<Var, Term<Void, En, Void, Fk, Void, Var, Void>> Map1 = new THashMap<>();
@@ -373,9 +546,143 @@ public class ED {
 		sks.put(ED.UNIT, Map2);
 
 		this.options = options;
-		//asTransform(h.src().schema()); 
+
+		// asTransform(h.src().schema());
 	}
 
+	private Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> subst(Var var,
+			Term<Ty, En, Sym, Fk, Att, Void, Void> t,
+			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> wh) {
+
+		Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> ret = new THashSet<>(
+				wh.size());
+		Map<Var, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>> m = Collections
+				.singletonMap(var, t);
+		for (Pair<Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>> eq : wh) {
+			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void> a = eq.first
+					.subst(m);
+			Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void> b = eq.second
+					.subst(m);
+			if (!a.equals(b)) {
+				ret.add(new Pair<>(a, b));
+			}
+		}
+		return ret;
+
+	}
+
+	private Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> simplify2(
+			Map<Var, Chc<Ty, En>> AsEs,
+			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> in) {
+		Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> it = in
+				.iterator();
+		while (it.hasNext()) {
+			Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq = it.next();
+			if (eq.second.var != null && !eq.first.getVars().contains(eq.second.var)
+					&& AsEs.containsKey(eq.second.var)) {
+				// System.out.println("HIT " + eq.second.var);
+				it.remove();
+				AsEs.remove(eq.second.var);
+				Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> set = new THashSet<>();
+				Map<Var, Term<Ty, En, Sym, Fk, Att, Void, Void>> m = Collections.singletonMap(eq.second.var, eq.first);
+
+				for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq2 : in) {
+					set.add(new Pair<>(eq2.first.subst(m), eq2.second.subst(m)));
+				}
+				return set;
+			} else if (eq.first.var != null && !eq.second.getVars().contains(eq.first.var)
+					&& AsEs.containsKey(eq.first.var)) {
+				// System.out.println("HIT " + eq.second.var);
+				it.remove();
+				AsEs.remove(eq.first.var);
+				Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> set = new THashSet<>();
+				Map<Var, Term<Ty, En, Sym, Fk, Att, Void, Void>> m = Collections.singletonMap(eq.first.var, eq.second);
+
+				for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq2 : in) {
+					set.add(new Pair<>(eq2.first.subst(m), eq2.second.subst(m)));
+				}
+				return set;
+			}
+		}
+		// TODO: reverse of this
+		return null;
+	}
+
+	private Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> simplify(
+			Map<Var, Chc<Ty, En>> AsEs,
+			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> in) {
+		Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> it = in
+				.iterator();
+		outer: while (it.hasNext()) {
+			Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq = it.next();
+			if (eq.second.var != null && Es.containsKey(eq.second.var)) {
+				for (Var v : eq.first.vars()) {
+					if (Es.containsKey(v)) {
+						continue outer;
+					}
+				}
+
+				// System.out.println("HIT " + eq.second.var);
+				it.remove();
+				// System.out.println("before " + AsEs.size());
+				Chc<Ty, En> b = AsEs.remove(eq.second.var);
+				// System.out.println("after " + AsEs.size());
+				if (b == null) {
+					Util.anomaly();
+				}
+				Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> set = new THashSet<>();
+				for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq2 : in) {
+					Map<Var, Term<Ty, En, Sym, Fk, Att, Void, Void>> m = Collections.singletonMap(eq.second.var,
+							eq.first);
+					set.add(new Pair<>(eq2.first.subst(m), eq2.second.subst(m)));
+				}
+				return set;
+			}
+			if (eq.first.var != null && Es.containsKey(eq.first.var)) {
+				for (Var v : eq.second.vars()) {
+					if (Es.containsKey(v)) {
+						continue outer;
+					}
+				}
+
+				// System.out.println("HIT " + eq.second.var);
+				it.remove();
+				// System.out.println("before " + AsEs.size());
+				Chc<Ty, En> b = AsEs.remove(eq.first.var);
+				// System.out.println("after " + AsEs.size());
+				if (b == null) {
+					Util.anomaly();
+				}
+				Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> set = new THashSet<>();
+				for (Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq2 : in) {
+					Map<Var, Term<Ty, En, Sym, Fk, Att, Void, Void>> m = Collections.singletonMap(eq.first.var,
+							eq.second);
+					set.add(new Pair<>(eq2.first.subst(m), eq2.second.subst(m)));
+				}
+				return set;
+			}
+		}
+		// TODO: reverse of this
+		return null;
+	}
+
+	public void validate(Schema<Ty, En, Sym, Fk, Att> sch) {
+		for (Pair<Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>, Term<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, Void, Void>> x : Awh) {
+
+			Map<Var, catdata.aql.exp.Ty> m = new THashMap<>();
+			Map<Var, catdata.aql.exp.En> n = new THashMap<>();
+			for (Entry<Var, Chc<catdata.aql.exp.Ty, catdata.aql.exp.En>> v : As.entrySet()) {
+				if (v.getValue().left) {
+					m.put(v.getKey(), v.getValue().l);
+				} else {
+					n.put(v.getKey(), v.getValue().r);
+				}
+			}
+			x.first.type(m, n, sch.typeSide.tys, sch.typeSide.syms, sch.typeSide.js.java_tys, sch.ens, sch.atts,
+					sch.fks, null, null);
+
+		}
+	}
 
 	public ED(/* Schema<Ty, En, Sym, Fk, Att> schema, */ Map<Var, Chc<Ty, En>> as, Map<Var, Chc<Ty, En>> es,
 			Set<Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> awh,
@@ -387,6 +694,9 @@ public class ED {
 		Awh = new THashSet<>(awh);
 		Ewh = new THashSet<>(ewh);
 		this.isUnique = isUnique;
+		if (isUnique && Es.isEmpty()) {
+			Util.anomaly();
+		}
 		if (!Collections.disjoint(As.keySet(), Es.keySet())) {
 			throw new RuntimeException("The forall and exists clauses do not use disjoint variables.");
 		}

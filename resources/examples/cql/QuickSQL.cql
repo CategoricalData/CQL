@@ -1,3 +1,4 @@
+
 /*
 This example is recommended for anyone dealing with SQL data and is built-in to the IDE as QuickSQL. 
 It imports a cloud-based MySQL database about employees and departments into CQL, 
@@ -21,12 +22,14 @@ command ViewSrc = exec_jdbc "jdbc:mysql://mysql.categoricaldata.net:3306/aql_tut
 	"SELECT * FROM Department"	
 }
 
-//We next import that database into CQL.  
-//The only difference between the SQL and CQL tables is that in CQL we can see 
-//globally unique row numbers and references."
+//We next import that database into CQL in a quick and dirty (best effort) way.  
+//In this case, the only difference between the SQL and CQL tables is that in CQL we can see 
+//globally unique row numbers and references.  In general, however, SQL databases
+//need to be imported explicitly - see the JDBCSQL example.
 //In this case, we are using a public MySQL DB that uses back-ticks for quotes. 
 instance EmpDept = import_jdbc_all "jdbc:mysql://mysql.categoricaldata.net:3306/aql_tutorial?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" {
 	options jdbc_quote_char = "`"
+    allow_sql_import_all_unsafe=true
 }
 
 //We can examine the imported SQL schema, although we will not discuss it further here. 

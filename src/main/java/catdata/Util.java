@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -78,24 +79,27 @@ public class Util {
             return t;
         }
     });
-	public static <X> X timeout(Callable<X> c, long timeout) {
+	public static <X> X timeout(Callable<X> c, long timeout, String pre) {
 		Future<X> future = executor.submit(c);
 		try {
 			return future.get(timeout, TimeUnit.MILLISECONDS);
 		} catch (TimeoutException ex) {
 			future.cancel(true);
-			throw new RuntimeException("Timeout after " + (timeout / 1000)
+			throw new RuntimeException(pre + "Timeout after " + (timeout / 1000)
 							+ " seconds. \n\nPossible solution: add options timeout=X where X > " + (timeout / 1000)
 							+ " is how many seconds to wait.");
 		} catch (ExecutionException ex) {
 			ex.printStackTrace();
-			throw new RuntimeException(ex);
+			throw new RuntimeException(pre + ex.getMessage());
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}  catch (ThreadDeath d) {
 			throw new RuntimeInterruptedException(d);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(pre + e.getMessage());
 		}
-		
+
 	}
 
 	private static Map<String, Class<?>> load_cache = new THashMap<>();
@@ -237,12 +241,16 @@ public class Util {
 		return l == null ? Collections.emptyList() : l;
 	}
 
-	public static String sep(Collection<?> c, String sep) {
+	public static String sep(Iterable<?> c, String sep) {
 		return sep(c.iterator(), sep);
 	}
 
 	public static String sep(Iterator<?> c, String sep) {
 		return sep(c, sep, Object::toString);
+	}
+
+	public static <X> String sep(Iterable<X> c, String sep, Function<X, String> fun) {
+		return sep(c.iterator(), sep, fun);
 	}
 
 	public static <X> String sep(Iterator<X> c, String sep, Function<X, String> fun) {
@@ -259,6 +267,16 @@ public class Util {
 		}
 		return ret.toString();
 	}
+
+  public static String buildString(Consumer<StringBuilder> build) {
+    StringBuilder sb = new StringBuilder();
+    build.accept(sb);
+    return sb.toString();
+  }
+
+  public static void appendf(StringBuilder sb, String fmt, Object... args) {
+    sb.append(String.format(fmt, args));
+  }
 
 	public static <X, Y> boolean isBijection(Map<X, Y> m, Set<X> X, Set<Y> Y) {
 		if (!m.keySet().equals(X)) {
@@ -344,6 +362,13 @@ public class Util {
 		}
 		return ret;
 	}
+	public static <X, Y> List<Y> map(List<X> xs, Function<X, Y> f) {
+		List<Y> ret = list();
+		for (X x : xs) {
+			ret.add(f.apply(x));
+		}
+		return ret;
+	}
 
 	public static <X, Y> Y fold(X[] xs, Y y, Function<Pair<X, Y>, Y> f) {
 		for (X x : xs) {
@@ -371,7 +396,7 @@ public class Util {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param m  target
 	 * @param m2 source
 	 */
@@ -493,26 +518,26 @@ public class Util {
 	}
 
 	/*
-	 * 
+	 *
 	 * public static List<List<Integer>> multiply_many(List<List<Integer>> l,
 	 * List<List<List<Integer>>> r) { List<List<Integer>> ret = l; for
 	 * (List<List<Integer>> x : r) { ret = mat_conv2(mult(mat_conv1(x),
 	 * mat_conv1(l))); } return ret; }
-	 * 
+	 *
 	 * public static List<List<Integer>> multiply(List<List<Integer>> l,
 	 * List<List<Integer>> r) { return mat_conv2(mult(mat_conv1(l), mat_conv1(r)));
 	 * }
-	 * 
+	 *
 	 * private static int[][] mat_conv1(List<List<Integer>> l) { int[][] ret = new
 	 * int[l.size()][]; int w = 0; for (List<Integer> r : l) { int[] q = new
 	 * int[r.size()]; int cnt = 0; for (int x : r) { q[cnt++] = x; } ret[w++] = q; }
 	 * return ret; }
-	 * 
+	 *
 	 * // public for OPL example public static List<List<Integer>> mat_conv2(int[][]
 	 * l) { List<List<Integer>> ret = new LinkedList<>(); for (int[] r : l) {
 	 * List<Integer> q = new LinkedList<>(); for (int x : r) { q.add(x); }
 	 * ret.add(q); } return ret; }
-	 * 
+	 *
 	 * private static int[][] mult(int[][] A, int[][] B) { int mA = A.length; int nA
 	 * = A[0].length; int mB = B.length; int nB = B[0].length; if (nA != mB) throw
 	 * new RuntimeException("Illegal matrix dimensions: " + mat_conv2(A) + " and " +
@@ -572,13 +597,13 @@ public class Util {
 	/*
 	 * public static <X, Y> List<Y> proj2(Collection<Pair<X, Y>> l) { return
 	 * l.stream().map(x -> x.second).collect(Collectors.toList()); }
-	 * 
+	 *
 	 * public static <X, Y> List<X> proj1(Collection<Pair<X, Y>> l) { return
 	 * l.stream().map(x -> x.first).collect(Collectors.toList()); }
 	 */
 	@SuppressWarnings("unchecked")
-	public static <X> String sep(Collection<?> order, Map<?, ?> m, String sep1, String sep2, boolean skip,
-			Function<X, String> fn) {
+	public static <X,Y> String sep(Collection<?> order, Map<?, ?> m, String sep1, String sep2, boolean skip,
+			Function<X, String> fn, Function<Y, String> fn2) {
 		StringBuffer ret = new StringBuffer("");
 		Boolean[] b = new Boolean[] {false};
 		if (order == null) {
@@ -587,10 +612,10 @@ public class Util {
 					ret.append(sep2);
 				}
 				b[0] = true;
-				ret.append(o);
+				ret.append(fn2.apply((Y) o));
 				ret.append(sep1);
 				ret.append(fn.apply((X) m.get(o)));
-			});			
+			});
 		} else {
 			for (Object o : order) {
 				Object z = m.get(o);
@@ -601,7 +626,7 @@ public class Util {
 					ret.append(sep2);
 				}
 				b[0] = true;
-				ret.append(o);
+				ret.append(fn2.apply((Y) o));
 				ret.append(sep1);
 				ret.append(fn.apply((X) m.get(o)));
 			}
@@ -610,12 +635,20 @@ public class Util {
 	}
 
 	public static String sep(Map<?, ?> m, String sep1, String sep2) {
-		return sep(null, m, sep1, sep2, false, Object::toString);
+		return sep(null, m, sep1, sep2, false, Object::toString, x->x.toString());
 	}
 
-	public static <X> String sep(Map<?, X> m, String sep1, String sep2, Function<X, String> fn) {
-		return sep(null, m, sep1, sep2, false, fn);
+	public static <X,Y> String sep(Map<?, X> m, String sep1, String sep2, Function<X, String> fn) {
+		return sep(null, m, sep1, sep2, false, fn, Object::toString);
 	}
+
+	public static <X,Y> String sep(Map<?, X> m, String sep1, String sep2, Function<X, String> fn, Function<Y, String> f) {
+		return sep(null, m, sep1, sep2, false, fn, f);
+	}
+
+  public static String uniqueName() {
+    return java.util.UUID.randomUUID().toString().replace('-', '_');
+  }
 
 	public static String q(Object o) {
 		if (o == null) {
@@ -710,11 +743,11 @@ public class Util {
 
 		return ret;
 	}
-	
+
 	public static <X, Y> Map<X, Y> toMapSafelyNoDupsList(List<Pair<X, Y>> t) {
 		return toMapSafelyNoDups(t);
 	}
-	
+
 	public static <X, Y> Map<X, Y> toMapSafelyNoDups(Collection<Pair<X, Y>> t) {
 		Map<X, Y> ret = new THashMap<>(t.size());
 
@@ -724,7 +757,7 @@ public class Util {
 
 		return ret;
 	}
-	
+
 	public static <X, Y> void putSafelyNoDups(Map<X, Y> ret, X k, Y v) {
 		if (ret.containsKey(k)) {
 			throw new RuntimeException("Two distinct bindings for " + k + ": " + v + " and " + ret.get(k));
@@ -865,7 +898,7 @@ public class Util {
 		ret.sort(AlphabeticalComparator);
 		return ret;
 	}
-	
+
 	public static List<String> closest(String z, Collection<String> tys) {
 		List<String> ret = new ArrayList<>(tys);
 
@@ -903,7 +936,7 @@ public class Util {
 /*
 	*/
 /*
-	
+
 */
 	public static <X, Y> Map<X, Collection<Y>> newSetsFor0(Collection<X> xs) {
 		Map<X, Collection<Y>> ret = (new THashMap<>(xs.size()));
@@ -1034,7 +1067,7 @@ public class Util {
 	/**
 	 * Levenshtein Edit Distance
 	 * http://rosettacode.org/wiki/Levenshtein_distance#Java
-	 * 
+	 *
 	 * @param s1
 	 * @param s2
 	 * @return
@@ -1068,7 +1101,7 @@ public class Util {
 	/**
 	 * Calculates a similarity (a number within 0 and 1) between two strings as 1 /
 	 * 1 + editDistance
-	 * 
+	 *
 	 */
 	public static double similarity(String s1, String s2) { // TODO aql
 		return (1) / ((double) 1 + editDistance(s1, s2));
@@ -1268,6 +1301,14 @@ public class Util {
 		return ret;
 	}
 
+  public static List<Integer> range(int maxExclusive) {
+    List<Integer> ret = new ArrayList<>(maxExclusive);
+    for (int i = 0; i < maxExclusive; i++) {
+      ret.add(i);
+    }
+    return ret;
+  }
+
 	static class NiceMap<X, Y> implements Map<X, Y> {
 
 		private final Map<X, Y> m;
@@ -1326,7 +1367,7 @@ public class Util {
 		public Y put(X key, Y value) {
 			Y r = m.put(key, value);
 			if (r != null && !r.equals(value)) {
-				anomaly();
+				throw new RuntimeException("Conflict on " + key + ", was " + r + " now is " + value);
 			}
 			return r;
 		}

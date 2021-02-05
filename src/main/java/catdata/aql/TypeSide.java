@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.collect.Iterators;
@@ -32,7 +33,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 		for (Ty t : ctx) {
 			ret.put(Var.Var(t.toString() + (i++)), Chc.inLeft(t));
 		}
-		return makeModel(ret).get(ty);
+		return makeModel(ret, -1).get(ty);
 	}
 
 	public static Collection<Object> enumerate(String clazz) {
@@ -54,7 +55,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 	}
 
 	public synchronized Map<Ty, Set<Term<Ty, Void, Sym, Void, Void, Void, Void>>> makeModel(
-			Map<Var, Chc<Ty, Void>> ctx) {
+			Map<Var, Chc<Ty, Void>> ctx, int inbound) {
 		Map<Ty, Set<Term<Ty, Void, Sym, Void, Void, Void, Void>>> model = Util.mk();
 		for (Ty ty : collage().tys()) {
 			model.put(ty, (new THashSet<>()));
@@ -71,7 +72,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 			}
 		}
 
-		for (;;) {
+		for (int bound = 0; bound < inbound; bound++) {
 			boolean changed = false;
 			for (Sym f : syms.keySet()) {
 				List<Ty> s = syms.get(f).first;
@@ -106,7 +107,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 		if (model != null) {
 			return model;
 		}
-		this.model = makeModel(Util.mk());
+		this.model = makeModel(Util.mk(), -1);
 
 		return model;
 	}
@@ -127,7 +128,19 @@ public class TypeSide<Ty, Sym> implements Semantics {
 
 	public final AqlJs<Ty, Sym> js;
 
-	private <En, Fk, Att, Gen, Sk> Ty type(Map<Var, Ty> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
+  public synchronized void addTy(Ty ty) {
+    tys.add(ty);
+  }
+
+  public synchronized void addSym(Sym sym, Pair<List<Ty>, Ty> sort) {
+    syms.put(sym, sort);
+  }
+
+  public synchronized void addEq(Map<Var, Ty> ctx, Term<Ty, Void, Sym, Void, Void, Void, Void> lhs, Term<Ty, Void, Sym, Void, Void, Void, Void> rhs) {
+    eqs.add(new Triple<>(ctx, lhs, rhs));
+  }
+
+	public <En, Fk, Att, Gen, Sk> Ty type(Map<Var, Ty> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> term) {
 		if (!term.isTypeSide()) {
 			throw new RuntimeException(term + " is not a typeside term");
 		}
@@ -135,7 +148,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 				Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
 		if (!t.left) {
 			throw new RuntimeException(term + " has type " + t.l
-					+ " which is not in the typeside.  (This should be impossible, report to Ryan)");
+					+ " which is not in the typeside. Anomaly: please report");
 		}
 		return t.l;
 	}
@@ -169,7 +182,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 		boolean checkJava = !((Boolean) strategy.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 		this.strat = strategy;
 
-		this.js = new AqlJs<>(syms, java_tys_string, java_parser_string, java_fns_string);
+		this.js = new AqlJs<>(strategy, syms, java_tys_string, java_parser_string, java_fns_string);
 
 		// if (checkJava) {
 		validate(checkJava);
@@ -342,7 +355,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 
 	public static <X, Y> TypeSide<X, Y> initial(AqlOptions ops) {
 		return new TypeSide<>(new LinkedHashSet<>(0), new LinkedHashMap<>(0), Collections.emptySet(),
-				new AqlJs<>(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+				new AqlJs<>(ops, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
 						Collections.emptyMap()),
 				DP.initial(), ops);
 	}
@@ -353,7 +366,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
 		if (semantics != null) {
 			return semantics;
 		}
-		semantics = AqlProver.createTypeSide(strat, collage(), js); 
+		semantics = AqlProver.createTypeSide(strat, collage(), js);
 
 		return semantics;
 	}
@@ -426,9 +439,9 @@ public class TypeSide<Ty, Sym> implements Semantics {
 					public int size() {
 						return eqs.size();
 					}
-					
+
 				};
-				
+
 				int j = 0;
 				for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> i : ret) {
 					j++;
@@ -436,15 +449,15 @@ public class TypeSide<Ty, Sym> implements Semantics {
 				if (j != ret.size()) {
 					Util.anomaly();
 				}
-				
+
 				return ret;
 			}
-			
+
 			@Override
 			public String toString() {
 				return this.toString(new CCollage<>());
 			}
-			
+
 		};
 	}
 
@@ -510,7 +523,11 @@ public class TypeSide<Ty, Sym> implements Semantics {
 
 		List<String> eqs1 = new LinkedList<>();
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> x : eqs) {
-			eqs1.add("forall " + Util.sep(x.first, ":", ",") + ". " + x.second + " = " + x.third);
+			if (x.first.isEmpty()) {
+				eqs1.add(x.second + " = " + x.third);
+			} else {
+				eqs1.add("forall " + Util.sep(x.first, ":", ",") + ". " + x.second + " = " + x.third);
+			}
 		}
 		eqs1 = Util.alphabetical(eqs1);
 		List<String> eqs0 = Util.alphabetical(eqs1);
@@ -537,16 +554,16 @@ public class TypeSide<Ty, Sym> implements Semantics {
 
 		if (!js.java_tys.isEmpty()) {
 			toString += "\njava_types";
-			toString += "\n\t" + Util.sep(tys0, js.java_tys, " = ", "\n\t", true, Object::toString);
+			toString += "\n\t" + Util.sep(tys0, js.java_tys, " = ", "\n\t", true, Object::toString, Object::toString);
 		}
 
 		if (!js.java_parsers.isEmpty()) {
 			toString += "\njava_constants";
-			toString += "\n\t" + Util.sep(tys0, js.java_parsers, " = ", "\n\t", true, Object::toString);
+			toString += "\n\t" + Util.sep(tys0, js.java_parsers, " = ", "\n\t", true, Object::toString, Object::toString);
 		}
 		if (!js.java_fns.isEmpty()) {
 			toString += "\njava_functions";
-			toString += "\n\t" + Util.sep(syms0, js.java_fns, " = ", "\n\t", true, Object::toString);
+			toString += "\n\t" + Util.sep(syms0, js.java_fns, " = ", "\n\t", true, Object::toString, Object::toString);
 		}
 
 		return toString;
@@ -559,6 +576,36 @@ public class TypeSide<Ty, Sym> implements Semantics {
 			}
 		}
 		return false;
+	}
+
+
+	public String toCheckerTpTp() {
+		StringBuffer sb = new StringBuffer();
+		if (!js.java_tys.isEmpty()) {
+			Util.anomaly();
+		}
+		for (Ty ty : tys) {
+			sb.append("tff(" + ty + "_type, type, " + ty + ": $tType).\n");
+		}
+		for (Entry<Sym, Pair<List<Ty>, Ty>> o : syms.entrySet()) {
+			String b = o.getValue().second.toString();
+			String a = Util.sep(o.getValue().first, "*");
+			if (o.getValue().first.isEmpty()) {
+				sb.append("tff(" + o.getKey() + "_type, type, " + o.getKey() + ": " + b + ").\n");
+			} else if (o.getValue().first.size() == 1) {
+				sb.append("tff(" + o.getKey() + "_type, type, " + o.getKey() + ": " + a + " > " + b + ").\n");
+			} else {
+				sb.append("tff(" + o.getKey() + "_type, type, " + o.getKey() + ": (" + a + ") > " + b + ").\n");
+			}
+		}
+		int i = 0;
+		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : eqs) {
+			if (!eq.first.isEmpty()) {
+				Util.anomaly();
+			}
+			sb.append("tff(ts" + (i++) + ", axiom, (" + eq.second.toTpTpForChecker() + " = " + eq.third.toTpTpForChecker() + ")).\n");
+		}
+		return sb.toString();
 	}
 
 }

@@ -18,11 +18,6 @@ import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.It.ID;
-import catdata.aql.exp.Att;
-import catdata.aql.exp.En;
-import catdata.aql.exp.Fk;
-import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
 import catdata.aql.fdm.ComposeTransform;
 import catdata.aql.fdm.IdentityTransform;
 import catdata.aql.fdm.LiteralTransform; //TODO aql why depend fdm
@@ -109,10 +104,6 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			return true;
 		}
 
-		//public void type(Frozen<Ty, En1, Sym, Fk1, Att1> fr) {
-			
-			
-		//}
 
 	
 		public Frozen<Ty, En1, Sym, Fk1, Att1> toFrozen(Map<Var, Ty> params, Schema<Ty, En1, Sym, Fk1, Att1> schema,
@@ -127,7 +118,6 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			wh.addAll(leqs);
 		
 			return new Frozen<>(fr,fr2,order,wh,schema,options);
-				
 		}
 		
 		public String toString() {
@@ -683,7 +673,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		}
 		for (En2 en2 : ens2.keySet()) {
 			if (!dst.ens.contains(en2)) {
-				throw new RuntimeException("there is a query for " + en2 + ", which is not an entity in the target");
+				throw new RuntimeException("there is a query for " + en2 + ", which is not an entity in the target: " + dst.ens);
 			}
 		}
 		for (Att2 att2 : dst.atts.keySet()) {
@@ -694,7 +684,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		for (Att2 att2 : atts.keySet()) {
 			if (!dst.atts.containsKey(att2)) {
 				throw new RuntimeException(
-						"there is an attributes clause for " + att2 + ", which is not an attribute in the target");
+						"there is an attributes clause for " + att2 + ", which is not an attribute in the target: " + dst.atts);
 			}
 		}
 		for (Fk2 fk2 : dst.fks.keySet()) {
@@ -705,7 +695,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		for (Fk2 fk2 : fks2.keySet()) {
 			if (!dst.fks.containsKey(fk2)) {
 				throw new RuntimeException(
-						"there is a transform for " + fk2 + ", which is not a foreign key in the target");
+						"there is a transform for " + fk2 + ", which is not a foreign key in the target: " + dst.fks);
 			}
 		}
 	}
@@ -720,7 +710,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			if (m.left) {
 				fr.type(m.l);
 			} else {
-				m.r.toFrozen(params, src, fr.options, fr);
+				m.r.toFrozen(params, src, fr.options, fr).validate();
 			}
 		}
 		for (Triple<Pair<Var, En2>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> eq : dst.eqs) {
@@ -778,7 +768,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			}
 			String x = m3.isEmpty() ? "" : " \nattributes\n\t";
 			String y = m2.isEmpty() ? "" : " \nforeign_keys\n\t";
-			m1.put("entity " + en2, "{" + ens.get(en2).toString("\nfrom", " where `").trim() + x
+			m1.put("entity " + en2, "{" + ens.get(en2).toString("\nfrom", " where ").trim() + x
 					+ Util.sep(m3, " -> ", "\n\t") + "\n" + y + Util.sep(m2, " -> ", "\n\t") + "\n}");
 
 			// ret += "\n\nforeign_keys\n\n";
@@ -910,7 +900,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	// this is used internally
 	public static final String internal_id_col_name = "rowid";
 
-	public synchronized Map<En2, String> toSQL(String tick) {
+	public synchronized Map<En2, String> toSQL(String tick, boolean truncate) {
 		if (ret != null) {
 			return ret;
 		}
@@ -932,14 +922,14 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			List<String> tempL = new ArrayList<>(gens.size());
 
 			for (Var v : gens.keySet()) {
-				temp.add(tick + gens.get(v) + tick + " as " + v);
+				temp.add(tick + src.truncate(gens.get(v), truncate) + tick + " as " + v);
 				tempL.add(v.toString() + "." + tick + idCol + tick + " as " + v);
 			}
 
 			toString2 += Util.sep(temp, ", ");
 
 			if (!eqs.isEmpty()) {
-				toString2 += whereToString(eqs, idCol, tick);
+				toString2 += whereToString(eqs, idCol, tick, truncate);
 			}
 
 			String toString3 = " select ";
@@ -965,9 +955,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	 */
 	public Pair<List<String>, Map<En2, String>> toSQLViews(String pre, String post, String idCol, String ty,
 			String tick) {
-		if (!(src.typeSide.tys.containsAll(SqlTypeSide.tys()))) {
-			throw new RuntimeException("Not on SQL typeside");
-		}
+		//if (!(src.typeSide.tys.containsAll(SqlTypeSide.tys()))) {
+		//	throw new RuntimeException("Not on SQL typeside");
+		//}
 
 		List<String> ret1 = new LinkedList<>();
 		Map<En2, String> ret2 = new THashMap<>();
@@ -992,7 +982,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				if (!atts.get(att2).left) {
 					throw new RuntimeException("SQL translation for aggregation not yet supported.");
 				}
-				select.add(atts.get(att2).l.toStringSql(tick) + " as " + tick + att2 + tick);
+				select.add(atts.get(att2).l.toStringSql(src, tick, false) + " as " + tick + att2 + tick);
 			}
 			for (Fk2 fk2 : dst.fksFrom(en2)) {
 				select.add(sk(fks.get(fk2), idCol, ty, tick) + " as " + tick + fk2 + tick);
@@ -1000,7 +990,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			// TODO ADD FOREIGN KEYS aql
 
 			String xxx = "  select " + Util.sep(select, ", ") + "\nfrom " + Util.sep(from, ", ") + "\n "
-					+ whereToString(eqs, idCol, tick);
+					+ whereToString(eqs, idCol, tick, false);
 
 			ret1.add("drop view if exists " + tick + post + en2 + tick);
 
@@ -1057,9 +1047,10 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 	}
 
+	
 	private String whereToString(
 			Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqs,
-			String idCol, String tick) {
+			String idCol, String tick, boolean truncate) {
 		if (eqs.isEmpty()) {
 			return "";
 		}
@@ -1073,10 +1064,10 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			} else if (eq.first.sk() != null) {
 				newLhs = "?";
 				if (consts.containsKey(eq.first.sk())) {
-					newLhs = quotePrim(consts.get(eq.first.sk()).convert()).toStringSql(tick);
+					newLhs = consts.get(eq.first.sk()).toStringSql(src,tick,truncate);
 				}
 			} else {
-				newLhs = quotePrim(eq.first).toStringSql(tick);
+				newLhs = eq.first.toStringSql(src,tick,truncate);
 			}
 			String newRhs;
 			if (eq.second.gen() != null) {
@@ -1084,38 +1075,39 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			} else if (eq.second.sk() != null) {
 				newRhs = "?";
 				if (consts.containsKey(eq.second.sk())) {
-					newRhs = quotePrim(consts.get(eq.second.sk()).convert()).toStringSql(tick);
+					newRhs = consts.get(eq.second.sk()).toStringSql(src,tick,truncate);
 				}
 			} else {
-				newRhs = quotePrim(eq.second).toStringSql(tick);
+				newRhs = eq.second.toStringSql(src,tick,truncate);
 			}
 			temp.add(newLhs + " = " + newRhs);
 		}
 		toString2 += Util.sep(temp, " and ");
 		return toString2;
 	}
-
-	private Term<Ty, En1, Sym, Fk1, Att1, Var, Var> quotePrim(Term<Ty, En1, Sym, Fk1, Att1, Var, Var> t) {
+	
+/*
+	private Term<Ty, En1, Sym, Fk1, Att1, Var, Var> quotePrim(Term<Ty, En1, Sym, Fk1, Att1, Var, Var> t, boolean b) {
 		if (t.var != null || t.gen() != null || t.sk() != null) {
 			return t;
 		} else if (t.sym() != null && t.args.size() == 0) {
 			return t;
 		} else if (t.fk() != null) {
-			return Term.Fk(t.fk(), quotePrim(t.arg));
+			return Term.Fk(Fk.fksrc.truncate(Chc.inLeft(t.fk()), b), quotePrim(t.arg, b));
 		} else if (t.att() != null) {
-			return Term.Att(t.att(), quotePrim(t.arg));
+			return Term.Att(t.att(), quotePrim(t.arg, b));
 		} else if (t.obj() != null) {
 			return Term.Obj("'" + t.obj() + "'", t.ty());
 		} else if (t.sym() != null) {
 			List<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> l = new ArrayList<>();
 			for (Term<Ty, En1, Sym, Fk1, Att1, Var, Var> x : t.args) {
-				l.add(quotePrim(x));
+				l.add(quotePrim(x, b));
 			}
 			return Term.Sym(t.sym(), l);
 		}
 		return Util.anomaly();
 	}
-
+*/
 	public static <Ty, En, Sym, Fk, Att> Query<Ty, En, Sym, Fk, Att, En, Fk, Att> id(AqlOptions options,
 			Schema<Ty, En, Sym, Fk, Att> S, Schema<Ty, En, Sym, Fk, Att> T) {
 		Var v = Var.Var("v");

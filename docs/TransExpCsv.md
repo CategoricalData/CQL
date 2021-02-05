@@ -1,0 +1,1 @@
+Imports a transform from CSV data, one file per entity.  The first column is interpreted as the source and the second column as the target.
