@@ -1,0 +1,1 @@
+The domain of a transform / database homormorphism.

@@ -2,10 +2,10 @@ package catdata.aql;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
 
 import catdata.Chc;
+import catdata.Util;
 
 public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> implements Semantics {
 
@@ -134,7 +134,7 @@ public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, 
 			return toString;
 		}
 
-		toString = toString("generators", "nulls");
+		toString = toString("generators", "");
 
 		return toString;
 	}
@@ -144,18 +144,18 @@ public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, 
 		sb.append("\n\t");
 		src().gens().entrySet((k,v) -> {
 			sb.append("\n\t");
-			sb.append(k);
+			sb.append(Util.maybeQuote(k.toString()));
 			sb.append(" -> ");
-			sb.append(v);
+			sb.append(gens().apply(k, v));
 			sb.append("\n\t");
 		});
 		sb.append("\n");
 		sb.append(t);
 		src().sks().entrySet((k,v) -> {
 			sb.append("\n\t");
-			sb.append(k);
+			sb.append(Util.maybeQuote(k.toString()));
 			sb.append(" -> ");
-			sb.append(v);
+			sb.append(sks().apply(k, v));
 			sb.append("\n\t");
 		});
 		return sb.toString();

@@ -1,6 +1,6 @@
 package catdata.aql.fdm;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -9,7 +9,6 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.DP;
-import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Schema;
 import catdata.aql.Term;
@@ -81,20 +80,19 @@ public class Anonymized<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Instance<Ty
 
 		@Override
 		public TAlg<Ty, Sym, Y> talg0() {
-			TAlg<Ty, Sym, Y> col = new TAlg<>(I.algebra().talg().sks, new ArrayList<>(I.algebra().talg().eqs.size()));
-			col.eqs.clear();
-			for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : I.algebra().talg().eqs) {
-				col.eqs.add(new Pair<>(iso1(eq.first), iso1(eq.second)));
+			TAlg<Ty, Sym, Y> col = new TAlg<>(I.algebra().talg().sks, new LinkedList<>());
+			for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> eq : I.algebra().talg().allEqs()) {
+				col.eqsNoDefns().add(new Pair<>(iso1(eq.first), iso1(eq.second)));
 			}
 			return col;
 		}
 
 		public boolean hasFreeTypeAlgebra() {
-			return talg().eqs.isEmpty();
+			return talg().eqsNoDefns().isEmpty();
 		}
 
 		public boolean hasFreeTypeAlgebraOnJava() {
-			return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
+			return talg().eqsNoDefns().stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
 					.collect(Collectors.toList()).isEmpty();
 		}
 

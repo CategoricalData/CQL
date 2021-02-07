@@ -1,0 +1,1 @@
+Given an OWL import and a relational olog encoded as a CQL schema, emit a query from the former to the latter.

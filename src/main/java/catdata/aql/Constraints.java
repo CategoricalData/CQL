@@ -40,7 +40,26 @@ public class Constraints implements Semantics {
 		return ret;
 	}
 
-	public synchronized <X,Y> String tptp(String x, int[] i, boolean preamble,
+	/*
+	 * public synchronized <X,Y> String tptp( KBTheory<Chc<Ty, En>, Head<Ty, En,
+	 * Sym, Fk, Att, X, Y>, Var> kb) { List<String> lll = new LinkedList<>(); for
+	 * (ED ed : eds) { lll.add(ed.tptpX(kb)); } return "fof(thegoal,conjecture,(" +
+	 * (lll.isEmpty() ? "$true" : Util.sep(lll, " & ")) + "))."; }
+	 */
+
+	static int i = 0;
+
+	public synchronized <X, Y> String tptpSorted(String x, Schema<Ty, En, Sym, Fk, Att> kb) {
+		StringBuffer sb = new StringBuffer();
+
+		for (ED ed : eds) {
+			sb.append("tff(ed" + i++ + "," + x + ",(" + ed.tptpXSorted(kb) + ")).\n");
+		}
+		String tptp = sb.toString();
+		return tptp;
+	}
+
+	public synchronized <X, Y> String tptp(String x, boolean preamble,
 			KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, X, Y>, Var> kb) {
 		StringBuffer sb = new StringBuffer();
 		if (preamble) {
@@ -48,7 +67,7 @@ public class Constraints implements Semantics {
 			sb.append("\n");
 		}
 		for (ED ed : eds) {
-			sb.append(ed.tptp(x, i[0]++, kb));
+			sb.append(ed.tptp(x, KBTheory.j++, kb));
 			sb.append("\n");
 		}
 		String tptp = sb.toString();
@@ -66,7 +85,7 @@ public class Constraints implements Semantics {
 
 	@Override
 	public String toString() {
-		return Util.sep(eds, "\n=====================================================================\n\n");
+		return Util.sep(eds, "\n\n");
 	}
 
 	public Constraints(Schema<Ty, En, Sym, Fk, Att> schema, List<ED> eds, AqlOptions options) {
@@ -84,6 +103,10 @@ public class Constraints implements Semantics {
 	private static List<ED> desugar(List<ED> eds, AqlOptions options) {
 		List<ED> l = new ArrayList<>(eds.size() * 2);
 		for (ED x : eds) {
+			if (x.Ewh.isEmpty() && x.Es.isEmpty()) {
+				// continue;
+			}
+
 			l.add(new ED(x.As, x.Es, x.Awh, x.Ewh, false, options));
 
 			if (x.isUnique) {
@@ -138,6 +161,7 @@ public class Constraints implements Semantics {
 			}
 		}
 		// System.out.println("----");
+		int k = 0;
 		Instance<Ty, En, Sym, Fk, Att, ?, ?, X, ?> ret = I;
 		for (;;) {
 			@SuppressWarnings("unchecked")
@@ -147,13 +171,20 @@ public class Constraints implements Semantics {
 			if (ret2 == null) {
 				return ret;
 			}
+			ret2.validateMore();
+//			System.out.println(ret2.size());
+//			System.out.println("------------------------------");
+
+//			System.out.println(ret2);
+//			System.out.println(ret2.algebra());
+
 			ret = ret2;
 		}
 	}
 
-	public synchronized <Gen, Sk, X, Y> Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> triggers(
+	public synchronized <Gen, Sk, X, Y> Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>> triggers(
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, AqlOptions options) {
-		Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> T = new LinkedList<>();
+		Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>> T = new LinkedList<>();
 
 		BiPredicate<Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> fn = (a,
 				e) -> {
@@ -167,31 +198,28 @@ public class Constraints implements Semantics {
 		};
 		int i = 0;
 		int j = 0;
+		// System.out.println(I);
+		// System.out.println(I.algebra());
 		for (ED ed : eds) {
 			i++;
 			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> Q = ed.getQ(schema);
 			EvalInstance<Ty, En, Sym, Fk, Att, Gen, Sk, En, Fk, Att, X, Y> QI = new EvalInstance<>(Q, I, options);
-			//System.out.println(I);
-			//if (j++ > 2) {
-				
-			//		Util.anomaly();
-				
-			//}
-			
-			outer: for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> e : QI.algebra().en(ED.FRONT)) {
-				 //System.out.println("Consider " + e);
-				for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> a : QI.algebra().en(ED.BACK)) {
+			// System.out.println(Q);
+			// System.out.println(QI);
+			// System.out.println(QI.algebra());
 
-					Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> aa = QI.algebra().fk(ED.UNIT, a);
-					// System.out.println("try " + a );
+			outer: for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>> e : QI.algebra().en(ED.FRONT)) {
+				// System.out.println("Consider " + e);
+				for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>> a : QI.algebra().en(ED.BACK)) {
+
+					Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>> aa = QI.algebra().fk(ED.UNIT, a);
+					// System.out.println("try " + a);
 					if (aa.rowEquals(fn, e)) {
-					//	 System.out.println("hit");
+						// System.out.println("hit");
 						continue outer;
 					}
 					// System.out.println("Consider " + aa + " and " + e + ": miss");
 				}
-				 //System.out.println(ed.hashCode() + " and " + e + " " +
-				 //Thread.currentThread());
 				// System.out.println("miss");
 				T.add(new Pair<>(i - 1, e));
 			}
@@ -235,32 +263,38 @@ public class Constraints implements Semantics {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		ColimitInstance<THREE, TWO, Ty, En, Sym, Fk, Att, ?, ?, ?, ?> ret = new ColimitInstance(j.src().schema(), shape,
 				nodes, edges, options);
-		// System.out.println("-------------------------------");
-		// System.out.println(ret);
+
+		/*
+		 * System.out.println(j.src()); System.out.println(j.dst());
+		 * System.out.println(j); System.out.println("&&0");
+		 * System.out.println(k.src()); System.out.println(k.dst());
+		 * System.out.println(k); System.out.println("&&1"); System.out.println(ret);
+		 * System.out.println("&&2");
+		 */
+
 		return ret;
 	}
 
 	public synchronized <Gen, Sk, X, Y> Instance<Ty, En, Sym, Fk, Att, ?, ?, ?, ?> step(
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, AqlOptions options) {
-		Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> T = triggers(I, options);
+		Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>> T = triggers(I, options);
 
 		// System.out.println("------" + T.size() + " ");
 		if (T.isEmpty()) {
 			return null;
 		}
 
-		DMG<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Void> shape = new DMG<>(T,
+		DMG<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Void> shape = new DMG<>(T,
 				new THashMap<>());
-		Map<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Instance<Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>>> nodesA = Util
+		Map<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Instance<Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>>> nodesA = Util
 				.mk(), nodesE = Util.mk();
 
+		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Term<Void, En, Void, Fk, Void, Gen, Void>> aaa = new THashMap<>();
+		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Void>> xxx = new THashMap<>();
+		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> bbb = new THashMap<>();
+		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Term<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>>> yyy = new THashMap<>();
 
-		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>,  Term<Void, En, Void, Fk, Void, Gen, Void>> aaa = new THashMap<>();
-		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>,  Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Void>> xxx = new THashMap<>(); 
-		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>,  Term<Ty, En, Sym, Fk, Att, Gen, Sk>> bbb = new THashMap<>(); 
-		Map<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>,  Term<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>>> yyy = new THashMap<>();
-
-		for (Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> t : T) {
+		for (Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>> t : T) {
 			ED tfirst = eds.get(t.first);
 			Query<Ty, En, Sym, Fk, Att, En, Fk, Att> Q = tfirst.getQ(schema);
 			Instance<Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>> A = Q.ens.get(ED.FRONT);
@@ -270,42 +304,66 @@ public class Constraints implements Semantics {
 
 			nodesA.put(t, A);
 			nodesE.put(t, E);
-			AE.src().gens().entrySet((v,to) -> {
-			//	En en = tfirst.As.get(v).r;
-				Term<Void, En, Void, Fk, Void, Var, Void> xx = AE.gens().apply(v,to);
-				Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var> p = new Pair<>(t, v);
-				Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Void> ww = xx
+			AE.src().gens().entrySet((v, to) -> {
+				// En en = tfirst.As.get(v).r;
+				Term<Void, En, Void, Fk, Void, Var, Void> xx = AE.gens().apply(v, to);
+				Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var> p = new Pair<>(t, v);
+				Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Void> ww = xx
 						.mapGen(v0 -> new Pair<>(t, v0));
 				xxx.put(p, ww);
 				aaa.put(p, I.algebra().repr(to, t.second.get(v).l));
 
 			});
-			AE.src().sks().entrySet((v,to) -> {
+			AE.src().sks().entrySet((v, to) -> {
 				Term<Ty, En, Sym, Fk, Att, Var, Var> xx = AE.sks().apply(v, to);
-				Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var> p = new Pair<>(t, v);
+				Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var> p = new Pair<>(t, v);
 				yyy.put(p, xx.mapGenSk(v0 -> new Pair<>(t, v0), v0 -> new Pair<>(t, v0)));
 				bbb.put(p, t.second.get(v).r);
 			});
+
+			/*
+			 * System.out.println("A"); System.out.println(A.toString());
+			 * System.out.println(A.algebra().toString()); System.out.println("E");
+			 * System.out.println(E.toString()); System.out.println(E.algebra().toString());
+			 * System.out.println("A->E"); System.out.println(AE.toString());
+			 */
+
 		}
 
-		ColimitInstance<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Void, Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>> A0 = new ColimitInstance<>(
+		ColimitInstance<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Void, Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>> A0 = new ColimitInstance<>(
 				schema, shape, nodesA, Collections.emptyMap(), options);
 
-		ColimitInstance<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Void, Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>> E0 = new ColimitInstance<>(
+		ColimitInstance<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Void, Ty, En, Sym, Fk, Att, Var, Var, ID, Chc<Var, Pair<ID, Att>>> E0 = new ColimitInstance<>(
 				schema, shape, nodesE, Collections.emptyMap(), options);
 
-		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, En, Term<Void, En, Void, Fk, Void, Gen, Void>> aaa2 = (in,l)->aaa.get(in);
-		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, En, Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Void>> xxx2 = (in,l)->xxx.get(in);
-		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Ty, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> bbb2 =(in,l)->bbb.get(in);
-		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Ty, Term<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>>> yyy2=(in,l)->yyy.get(in); 
+		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, En, Term<Void, En, Void, Fk, Void, Gen, Void>> aaa2 = (
+				in, l) -> aaa.get(in);
+		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, En, Term<Void, En, Void, Fk, Void, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Void>> xxx2 = (
+				in, l) -> xxx.get(in);
+		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Ty, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> bbb2 = (
+				in, l) -> bbb.get(in);
+		BiFunction<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Ty, Term<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>>> yyy2 = (
+				in, l) -> yyy.get(in);
 
-		LiteralTransform<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Gen, Sk, Integer, Chc<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Integer, Att>>, X, Y> A0I = new LiteralTransform<>(
+		LiteralTransform<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Gen, Sk, Integer, Chc<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Integer, Att>>, X, Y> A0I = new LiteralTransform<>(
 				aaa2, bbb2, A0, I, false);
 
-		LiteralTransform<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Integer, Chc<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Integer, Att>>, Integer, Chc<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>, Var>, Pair<Integer, Att>>> A0E0 = new LiteralTransform<>(
+		LiteralTransform<Ty, En, Sym, Fk, Att, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Integer, Chc<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Integer, Att>>, Integer, Chc<Pair<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>>, Var>, Pair<Integer, Att>>> A0E0 = new LiteralTransform<>(
 				xxx2, yyy2, A0, E0, false);
 
-		return pushout(A0E0, A0I, options);
+		var ret = pushout(A0E0, A0I, options); /// wtf
+
+		/*
+		 * System.out.println("A0"); System.out.println(A0.toString());
+		 * System.out.println(A0.algebra().toString()); System.out.println("I");
+		 * System.out.println(I.toString()); System.out.println("E0");
+		 * System.out.println(E0.toString()); System.out.println("ret");
+		 * System.out.println(ret.toString()); System.out.println("A0->I");
+		 * System.out.println(A0I.toString()); System.out.println("A0->E0");
+		 * System.out.println(A0E0.toString()); System.out.println("&&");
+		 */
+
+		return ret;
 	}
 
 	@Override

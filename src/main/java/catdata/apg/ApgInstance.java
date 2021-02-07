@@ -13,7 +13,6 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.aql.Kind;
 import catdata.aql.Semantics;
-import gnu.trove.map.hash.THashMap;
 
 public class ApgInstance<L,E> implements Semantics {
 	

@@ -12,7 +12,7 @@ public class LineException extends RuntimeException {
 		super(string == null ? "" : string);
 		this.decl = decl == null ? "" : decl;
 		this.kind = kind == null ? "" : kind;
-		str = string == null ? "" : string;
+		this.str = string == null ? "" : string;
 	}
 
 	@Override

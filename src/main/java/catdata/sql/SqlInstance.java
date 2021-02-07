@@ -29,21 +29,24 @@ public class SqlInstance {
 			SqlColumn scol = fk.map.get(tcol);
 			cand.put(tcol, row.get(scol));
 		}
-
 		Map<SqlColumn, Optional<Object>> ret = null;
-		for (Map<SqlColumn, Optional<Object>> tuple : get(fk.target)) {
+
+		outer: for (Map<SqlColumn, Optional<Object>> tuple : get(fk.target)) {
 			for (SqlColumn col : fk.target.pk) {
-				if (cand.get(col).equals(tuple.get(col))) {
-					if (ret != null) {
-						throw new RuntimeException();
-					}
-					ret = tuple;
+				if (!cand.get(col).equals(tuple.get(col))) {
+					continue outer;
 				}
 			}
+			if (ret != null) {
+				throw new RuntimeException("Target is not actually a key: " + fk + " in " + row);
+			}
+			ret = tuple;
 		}
+
 		if (ret == null) {
-			throw new RuntimeException();
+			throw new RuntimeException("Could not resolve: " + fk + " in " + row);
 		}
+
 		return ret;
 	}
 
@@ -56,21 +59,25 @@ public class SqlInstance {
 
 	public SqlInstance(SqlSchema schema, Connection conn, boolean errMeansNull, boolean useDistinct, String tick)
 			throws SQLException {
-		if (schema == null || conn == null) {
-			throw new RuntimeException();
+		if (schema == null) {
+			throw new RuntimeException("Null schema given to SqlInstance");
+		}
+		if (conn == null) {
+			throw new RuntimeException("Null JDBC connection given to SqlInstance");
 		}
 		this.schema = schema;
 		this.tick = tick;
 		// this.conn = conn;
 		String d = useDistinct ? "DISTINCT" : "";
 		for (SqlTable table : schema.tables) {
-			try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY )) {
-				System.out.println("SELECT " + d + " * FROM " + tick + table.name + tick);
+			try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+				// System.out.println("SELECT " + d + " * FROM " + tick + table.name + tick);
 				stmt.execute("SELECT " + d + " * FROM " + tick + table.name + tick);
 				try (ResultSet resultSet = stmt.getResultSet()) {
-					int rowCount = resultSet.last() ? resultSet.getRow() : 0; 
-					resultSet.first();
-					Set<Map<SqlColumn, Optional<Object>>> rows = new THashSet<>(rowCount);
+					int sz = resultSet.getFetchSize();
+					// int rowCount = resultSet.last() ? resultSet.getRow() : 0;
+					// resultSet.first();
+					Set<Map<SqlColumn, Optional<Object>>> rows = new THashSet<>(sz);
 					while (resultSet.next()) {
 						Map<SqlColumn, Optional<Object>> row = new THashMap<>(table.columns.size());
 						for (SqlColumn col : table.columns) {
@@ -82,7 +89,10 @@ public class SqlInstance {
 									row.put(col, Optional.empty());
 								}
 							} catch (Exception ex) {
+								ex.printStackTrace();
 								if (errMeansNull) {
+									System.err.println("Errors mean null - continuing import");
+									System.err.flush();
 									row.put(col, Optional.empty());
 								} else {
 									throw ex;

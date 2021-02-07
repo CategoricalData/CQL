@@ -42,6 +42,10 @@ public abstract class QueryExp extends Exp<Query<Ty, En, Sym, Fk, Att, En, Fk, A
 		public R visit(P params, QueryExpVar exp) throws E;
 
 		public R visit(P params, QueryExpRaw exp) throws E;
+		
+		public R visit(P params, QueryExpSpanify exp) throws E;
+
+		public R visit(P params, QueryExpMapToSpanQuery exp) throws E;
 
 		public R visit(P params, QueryExpDeltaCoEval exp) throws E;
 

@@ -1,0 +1,1 @@
+If  Q : S to T  is a query and t  is a  T -entity, then  frozen  Q  t  is the ``frozen'' or ``canonical''  S -instance for  t  in  Q .

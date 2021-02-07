@@ -1,0 +1,1 @@
+Convert an RDF instance into spans without using OWL

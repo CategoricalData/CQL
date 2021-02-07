@@ -1,22 +1,30 @@
 package catdata.aql.exp;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import catdata.Chc;
 import catdata.Pair;
 import catdata.Program;
+import catdata.Triple;
 import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.DP;
 import catdata.aql.Kind;
 import catdata.aql.Schema;
+import catdata.aql.Term;
 import catdata.aql.exp.TyExp.TyExpLit;
 import catdata.aql.exp.TyExp.TyExpSch;
 import catdata.aql.fdm.AqlPivot;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
@@ -33,17 +41,27 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		public abstract SchExpRaw visitSchExpRaw(P params, R exp) throws E;
 
+		public abstract SchExpRdf visitSchExpRdf(P params, R exp) throws E;
+
 		public abstract SchExpColim visitSchExpColim(P params, R exp) throws E;
 
 		public abstract SchExpDom visitSchExpDom(P params, R exp) throws E;
+
+		public abstract SchExpPrefix visitSchExpPrefix(P params, R exp) throws E;
 
 		public abstract SchExpCod visitSchExpCod(P params, R exp) throws E;
 
 		public abstract SchExpSrc visitSchExpSrc(P params, R exp) throws E;
 
+		public abstract SchExpSpan visitSchExpSpan(P params, R exp) throws E;
+
 		public abstract SchExpDst visitSchExpDst(P params, R exp) throws E;
 
 		public abstract SchExpJdbcAll visitSchExpJdbcAll(P params, R r);
+
+		public abstract SchExpMsCatalog visitSchExpMsCatalog(P params, R r);
+
+		public abstract SchExpMsQuery visitSchExpMsQuery(P params, R r);
 
 		public abstract SchExpCsv visitSchExpCsv(P params, R r);
 
@@ -66,11 +84,21 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		public abstract <N> R visit(P params, SchExpColim exp) throws E;
 
+		public abstract R visit(P param, SchExpMsCatalog exp);
+
+		public abstract R visit(P param, SchExpMsQuery exp);
+
+		public abstract R visit(P param, SchExpPrefix exp);
+
 		public abstract R visit(P param, SchExpDom schExpDom);
 
 		public abstract R visit(P params, SchExpCod exp) throws E;
 
+		public abstract R visit(P param, SchExpRdf exp);
+
 		public abstract R visit(P param, SchExpSrc schExpDom);
+
+		public abstract R visit(P param, SchExpSpan exp);
 
 		public abstract R visit(P params, SchExpDst exp) throws E;
 
@@ -572,6 +600,7 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		@Override
 		public TyExp type(AqlTyping G) {
+			inst.type(G);
 			return new TyExpSch(this);
 		}
 
@@ -715,6 +744,9 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		@Override
 		public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+			if (!env.defs.schs.containsKey(var)) {
+				throw new RuntimeException("Missing schema: " + var);
+			}
 			return env.defs.schs.get(var);
 		}
 
@@ -825,4 +857,431 @@ public abstract class SchExp extends Exp<Schema<Ty, En, Sym, Fk, Att>> {
 
 		}
 	}
+
+	///////////////////////////////////
+
+	public static final class SchExpRdf extends SchExp {
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return Collections.emptyList();
+		}
+
+		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
+			return v.visit(param, this);
+		}
+
+		@Override
+		public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+			return v.visitSchExpRdf(params, r);
+		}
+
+		@Override
+		public Map<String, String> options() {
+			return Collections.emptyMap();
+		}
+
+		public SchExpRdf() {
+		}
+
+		@Override
+		public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+			return InstExpRdfAll.makeSch().eval(env, isC);
+		}
+
+		@Override
+		public int hashCode() {
+			return 0;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "rdf";
+		}
+
+		@Override
+		public SchExp resolve(AqlTyping G, Program<Exp<?>> prog) {
+			return this;
+		}
+
+		@Override
+		public TyExp type(AqlTyping G) {
+			return new TyExpRdf();
+		}
+
+		@Override
+		protected void allowedOptions(Set<AqlOption> set) {
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+
+		}
+	}
+
+	///////////////////////////////////
+
+	public static final class SchExpMsCatalog extends SchExp {
+
+		private final String dom;
+		private final TyExp ty;
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return ty.deps();
+		}
+
+		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
+			return v.visit(param, this);
+		}
+
+		@Override
+		public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+			return v.visitSchExpMsCatalog(params, r);
+		}
+
+		@Override
+		public Map<String, String> options() {
+			return Collections.emptyMap();
+		}
+
+		public SchExpMsCatalog(TyExp t, String d) {
+			this.dom = d;
+			this.ty = t;
+		}
+
+		@Override
+		public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+			String base = MsSqlCatalog.cql_schema.replace("Other", dom);
+			return CombinatorParser.parseSchExpRaw("literal : " + ty + "{\n" + base + "\n}").eval(env, isC);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((dom == null) ? 0 : dom.hashCode());
+			result = prime * result + ((ty == null) ? 0 : ty.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			SchExpMsCatalog other = (SchExpMsCatalog) obj;
+			if (dom == null) {
+				if (other.dom != null)
+					return false;
+			} else if (!dom.equals(other.dom))
+				return false;
+			if (ty == null) {
+				if (other.ty != null)
+					return false;
+			} else if (!ty.equals(other.ty))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ms_catalog " + ty + " " + dom;
+		}
+
+		@Override
+		public SchExp resolve(AqlTyping G, Program<Exp<?>> prog) {
+			return this;
+		}
+
+		@Override
+		public TyExp type(AqlTyping G) {
+			return new TyExpSql();
+		}
+
+		@Override
+		protected void allowedOptions(Set<AqlOption> set) {
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			ty.mapSubExps(f);
+		}
+	}
+
+	////////////////////////////////////
+
+	public static final class SchExpMsQuery extends SchExp {
+
+		private final String dom;
+		private final TyExp ty;
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return ty.deps();
+		}
+
+		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
+			return v.visit(param, this);
+		}
+
+		@Override
+		public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+			return v.visitSchExpMsQuery(params, r);
+		}
+
+		@Override
+		public Map<String, String> options() {
+			return Collections.emptyMap();
+		}
+
+		public SchExpMsQuery(TyExp t, String d) {
+			this.dom = d;
+			this.ty = t;
+		}
+
+		@Override
+		public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+			StringBuffer sb = new StringBuffer();
+			try {
+				for (int i = 0; i < MsSqlQuery.size; i++) {
+					String s = (String) MsSqlQuery.class.getField("str" + i).get(null);
+					sb.append("\n");
+					sb.append(s.replace("CQL_RESERVED_CQL", dom));
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				throw new RuntimeException(ex);
+			}
+			return CombinatorParser.parseSchExpRaw("literal : " + ty + "{\n" + sb.toString() + "\n}").eval(env, isC);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((dom == null) ? 0 : dom.hashCode());
+			result = prime * result + ((ty == null) ? 0 : ty.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			SchExpMsQuery other = (SchExpMsQuery) obj;
+			if (dom == null) {
+				if (other.dom != null)
+					return false;
+			} else if (!dom.equals(other.dom))
+				return false;
+			if (ty == null) {
+				if (other.ty != null)
+					return false;
+			} else if (!ty.equals(other.ty))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ms_query " + ty + " " + dom;
+		}
+
+		@Override
+		public SchExp resolve(AqlTyping G, Program<Exp<?>> prog) {
+			return this;
+		}
+
+		@Override
+		public TyExp type(AqlTyping G) {
+			return new TyExpSql();
+		}
+
+		@Override
+		protected void allowedOptions(Set<AqlOption> set) {
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			ty.mapSubExps(f);
+		}
+	}
+
+	//////////////////////////////////////////////////////
+
+	public static final class SchExpPrefix extends SchExp {
+
+		private final String dom;
+		private final SchExp sch;
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return sch.deps();
+		}
+
+		public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
+			return v.visit(param, this);
+		}
+
+		@Override
+		public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+			return v.visitSchExpPrefix(params, r);
+		}
+
+		@Override
+		public Map<String, String> options() {
+			return Collections.emptyMap();
+		}
+
+		public SchExpPrefix(SchExp t, String d) {
+			this.dom = d;
+			this.sch = t;
+		}
+
+		@Override
+		public Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+			Schema<Ty, En, Sym, Fk, Att> old = sch.eval(env, isC);
+
+			Set<En> ens = new THashSet<>(old.ens.size() * 2);
+			Map<Att, Pair<En, Ty>> atts = new THashMap<>(old.atts.size() * 2);
+			Map<Fk, Pair<En, En>> fks = new THashMap<>(old.fks.size() * 2);
+			for (En en : old.ens) {
+				En en2 = En.En(dom + en.str);
+				ens.add(en2);
+				for (Att att : old.attsFrom(en)) {
+					atts.put(Att.Att(en2, dom + att.str), new Pair<>(en2, old.atts.get(att).second));
+				}
+				for (Fk fk : old.fksFrom(en)) {
+					fks.put(Fk.Fk(en2, dom + fk.str), new Pair<>(en2, En.En(dom + old.fks.get(fk).second)));
+				}
+			}
+
+			Collection<Triple<Pair<catdata.aql.Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs = new ArrayList<>(
+					old.eqs.size());
+			for (Triple<Pair<catdata.aql.Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : old.eqs) {
+				Term<Ty, En, Sym, Fk, Att, Void, Void> a = eq.second.map(w -> w, w -> w,
+						fk -> Fk.Fk(En.En(dom + old.fks.get(fk).first.str), dom + fk.str),
+						att -> Att.Att(En.En(dom + old.atts.get(att).first.str), dom + att.str), x -> Util.abort(x),
+						x -> Util.abort(x));
+				Term<Ty, En, Sym, Fk, Att, Void, Void> b = eq.third.map(w -> w, w -> w,
+						fk -> Fk.Fk(En.En(dom + old.fks.get(fk).first.str), dom + fk.str),
+						att -> Att.Att(En.En(dom + old.atts.get(att).first.str), dom + att.str), x -> Util.abort(x),
+						x -> Util.abort(x));
+				eqs.add(new Triple<>(new Pair<>(eq.first.first, En.En(dom + eq.first.second.str)), a, b));
+			}
+
+			DP<Ty, En, Sym, Fk, Att, Void, Void> dp = new DP<Ty, En, Sym, Fk, Att, Void, Void>() {
+
+				@Override
+				public String toStringProver() {
+					return "Prefix renaming";
+				}
+
+				@Override
+				public boolean eq(Map<catdata.aql.Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Void, Void> lhs,
+						Term<Ty, En, Sym, Fk, Att, Void, Void> rhs) {
+
+					Map<catdata.aql.Var, Chc<Ty, En>> ctx2 = null;
+
+					if (ctx != null) {
+						ctx2 = new THashMap<>(ctx.size());
+
+						for (Entry<catdata.aql.Var, Chc<Ty, En>> k : ctx.entrySet()) {
+							ctx.put(k.getKey(), k.getValue().left ? Chc.inLeft(k.getValue().l)
+									: Chc.inRight(En.En(dom + k.getValue().r.str)));
+
+						}
+					}
+
+					Term<Ty, En, Sym, Fk, Att, Object, Object> a = lhs.map(w -> w, w -> w,
+							fk -> Fk.Fk(En.En(dom + old.fks.get(fk).first.str), dom + fk.str),
+							att -> Att.Att(En.En(dom + old.atts.get(att).first.str), dom + att.str), x -> Util.abort(x),
+							x -> Util.abort(x));
+					Term<Ty, En, Sym, Fk, Att, Object, Object> b = rhs.map(w -> w, w -> w,
+							fk -> Fk.Fk(En.En(dom + old.fks.get(fk).first.str), dom + fk.str),
+							att -> Att.Att(En.En(dom + old.atts.get(att).first.str), dom + att.str), x -> Util.abort(x),
+							x -> Util.abort(x));
+
+					return old.dp().eq(ctx2, a, b);
+				}
+
+			};
+			return new Schema<>(old.typeSide, ens, atts, fks, eqs, dp, false);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((dom == null) ? 0 : dom.hashCode());
+			result = prime * result + ((sch == null) ? 0 : sch.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			SchExpPrefix other = (SchExpPrefix) obj;
+			if (dom == null) {
+				if (other.dom != null)
+					return false;
+			} else if (!dom.equals(other.dom))
+				return false;
+			if (sch == null) {
+				if (other.sch != null)
+					return false;
+			} else if (!dom.equals(other.dom))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "prefix " + sch + " " + dom;
+		}
+
+		@Override
+		public SchExp resolve(AqlTyping G, Program<Exp<?>> prog) {
+			return this;
+		}
+
+		@Override
+		public TyExp type(AqlTyping G) {
+			return new TyExpSql();
+		}
+
+		@Override
+		protected void allowedOptions(Set<AqlOption> set) {
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			sch.mapSubExps(f);
+		}
+	}
+
 }

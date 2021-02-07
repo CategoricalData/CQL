@@ -28,8 +28,17 @@ public class SqlTypeSide extends TypeSide<Ty, Sym> {
 		return ret;
 	}
 
+	/**
+	 * Force language to JavaScript to match hard-coded parsers and functions.
+	 */
+	private static AqlOptions modifyOps(AqlOptions ops) {
+		Map<String, String> opsMod = Util.mk();
+		opsMod.put("graal_language", ExternalCodeUtils.LANG_JS);
+		return new AqlOptions(opsMod, ops);
+	}
+
 	private SqlTypeSide(AqlOptions ops) {
-		super(tys(), syms(), eqs(), jts(), jps(), jfs(), ops);
+		super(tys(), syms(), eqs(), jts(), jps(), jfs(), modifyOps(ops));
 	}
 
 	public static Set<Ty> tys() {
@@ -111,8 +120,8 @@ public class SqlTypeSide extends TypeSide<Ty, Sym> {
 		throw new RuntimeException("Unknown sql type: " + s);
 	}
 
-	private static Map<Ty, String> jts() {
-		Map<Ty, String> m = (new THashMap<>(32));
+	public static Map<Ty, String> jts() {
+		Map<Ty, String> m = new THashMap<>(32);
 		m.put(Ty.Ty("Longvarbinary"), "[B"); // TODO aql
 		m.put(Ty.Ty("Varbinary"), "[B"); // TODO aql
 		m.put(Ty.Ty("Binary"), "[B"); // TODO aql
@@ -151,48 +160,50 @@ public class SqlTypeSide extends TypeSide<Ty, Sym> {
 	private static Map<Ty, String> jps() {
 		Map<Ty, String> m = (new THashMap<>(32));
 
-		m.put(Ty.Ty("Longvarbinary"), "return input[0]"); // TODO CQL
-		m.put(Ty.Ty("Varbinary"), "return input[0]"); // TODO CQL
-		m.put(Ty.Ty("Binary"), "return input[0]"); // TODO CQL
+		final String ID = "x => x";
 
-		m.put(Ty.Ty("Clob"), "return input[0]");
-		m.put(Ty.Ty("Date"), "return input[0]"); // java.sql.Date.valueOf(input[0])");
-		m.put(Ty.Ty("Time"), "return java.sql.Time.valueOf(input[0])");
-		m.put(Ty.Ty("Timestamp"), "return java.sql.Timestamp.valueOf(input[0])");
+		m.put(Ty.Ty("Longvarbinary"), ID); // TODO CQL
+		m.put(Ty.Ty("Varbinary"), ID); // TODO CQL
+		m.put(Ty.Ty("Binary"), ID); // TODO CQL
 
-		m.put(Ty.Ty("Bigint"), "return new java.lang.Long(input[0])");
-		m.put(Ty.Ty("Boolean"), "return new java.lang.Boolean(input[0])");
-		m.put(Ty.Ty("Char"), "return input[0]"); // TODO aql
-		m.put(Ty.Ty("Bit"), "return new java.lang.Boolean(input[0])");
+		m.put(Ty.Ty("Clob"), ID);
+		m.put(Ty.Ty("Date"), ID); // java.sql.Date.valueOf(input[0])");
+		m.put(Ty.Ty("Time"), "x => java.sql.Time.valueOf(x)");
+		m.put(Ty.Ty("Timestamp"), "x => java.sql.Timestamp.valueOf(x)");
 
-		m.put(Ty.Ty("Double"), "return new java.lang.Double(input[0])");
-		m.put(Ty.Ty("Doubleprecision"), "return new java.lang.Double(input[0])");
-		m.put(Ty.Ty("Numeric"), "return new java.math.BigDecimal(input[0])");
+		m.put(Ty.Ty("Bigint"), "x => new java.lang.Long(x)");
+		m.put(Ty.Ty("Boolean"), "x => new java.lang.Boolean(x)");
+		m.put(Ty.Ty("Char"), ID); // TODO aql
+		m.put(Ty.Ty("Bit"), "x => new java.lang.Boolean(x)");
 
-		m.put(Ty.Ty("Decimal"), "return new java.math.BigDecimal(input[0])");
-		m.put(Ty.Ty("Real"), "return new java.lang.Float(input[0])");
+		m.put(Ty.Ty("Double"), "x => new java.lang.Double(x)");
+		m.put(Ty.Ty("Doubleprecision"), "x => new java.lang.Double(x)");
+		m.put(Ty.Ty("Numeric"), "x => new java.math.BigDecimal(x)");
 
-		m.put(Ty.Ty("Float"), "return new java.lang.Float(input[0])");
-		m.put(Ty.Ty("Integer"), "return new java.lang.Integer(input[0])");
+		m.put(Ty.Ty("Decimal"), "x => new java.math.BigDecimal(x)");
+		m.put(Ty.Ty("Real"), "x => new java.lang.Float(x)");
 
-		m.put(Ty.Ty("Tinyint"), "return new java.lang.Integer(input[0])");
-		m.put(Ty.Ty("Smallint"), "return new java.lang.Integer(input[0])");
-		m.put(Ty.Ty("Text"), "return input[0]");
-		m.put(Ty.Ty("String"), "return input[0]");
+		m.put(Ty.Ty("Float"), "x => new java.lang.Float(x)");
+		m.put(Ty.Ty("Integer"), "x => new java.lang.Integer(x)");
 
-		m.put(Ty.Ty("Nvarchar"), "return input[0]");
-		m.put(Ty.Ty("Varchar"), "return input[0]");
-		m.put(Ty.Ty("Longvarchar"), "return input[0]");
-		m.put(Ty.Ty("Custom"), "return input[0]");
-		m.put(Ty.Ty("Other"), "return input[0]");
-		m.put(Ty.Ty("Blob"), "return input[0]");
+		m.put(Ty.Ty("Tinyint"), "x => new java.lang.Integer(x)");
+		m.put(Ty.Ty("Smallint"), "x => new java.lang.Integer(x)");
+		m.put(Ty.Ty("Text"), ID);
+		m.put(Ty.Ty("String"), ID);
+
+		m.put(Ty.Ty("Nvarchar"), ID);
+		m.put(Ty.Ty("Varchar"), ID);
+		m.put(Ty.Ty("Longvarchar"), ID);
+		m.put(Ty.Ty("Custom"), ID);
+		m.put(Ty.Ty("Other"), ID);
+		m.put(Ty.Ty("Blob"), ID);
 		return m;
 	}
 
 	private static Map<Sym, String> jfs() {
 		Map<Sym, String> m = new THashMap<>(2);
-		m.put(Sym.Sym("true"), "return true");
-		m.put(Sym.Sym("false"), "return false");
+		m.put(Sym.Sym("true"), "x => true");
+		m.put(Sym.Sym("false"), "x => false");
 		return Collections.unmodifiableMap(m);
 
 	}

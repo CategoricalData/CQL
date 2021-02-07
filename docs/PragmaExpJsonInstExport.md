@@ -1,0 +1,1 @@
+Exports an instance as JSON

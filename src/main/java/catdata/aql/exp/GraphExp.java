@@ -55,7 +55,7 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
 
 		public abstract <N> R visit(P params, GraphExpVar exp) throws E;
 
-		public abstract <String, Stringx> R visit(P params, GraphExpLiteral exp) throws E;
+		public abstract R visit(P params, GraphExpLiteral exp) throws E;
 	}
 
 	public static interface GraphExpCoVisitor<R, P, E extends Exception> {
@@ -63,7 +63,7 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
 
 		public abstract <N> GraphExpVar visitGraphExpVar(P params, R exp) throws E;
 
-		public abstract <String, Stringx> GraphExpLiteral visitGraphExpLiteral(P params, R exp) throws E;
+		public abstract GraphExpLiteral visitGraphExpLiteral(P params, R exp) throws E;
 	}
 
 	public abstract <R, P, Ex extends Exception> R accept(P params, GraphExpVisitor<R, P, Ex> v) throws Ex;

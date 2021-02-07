@@ -15,7 +15,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
@@ -28,7 +27,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -74,9 +72,9 @@ import org.fife.rsta.ui.search.SearchEvent;
 import org.fife.rsta.ui.search.SearchListener;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.ErrorStrip;
+import org.fife.ui.rsyntaxtextarea.ErrorStrip.ErrorStripMarkerToolTipProvider;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
-import org.fife.ui.rsyntaxtextarea.ErrorStrip.ErrorStripMarkerToolTipProvider;
 import org.fife.ui.rsyntaxtextarea.folding.CurlyFoldParser;
 import org.fife.ui.rsyntaxtextarea.folding.Fold;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
@@ -93,17 +91,15 @@ import catdata.LineException;
 import catdata.LocException;
 import catdata.ParseException;
 import catdata.Prog;
-import catdata.Unit;
 import catdata.Util;
 
 /**
- * 
+ *
  * @author ryan
- * 
+ *
  *         The FQL code editor
  */
-public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> extends JPanel
-		implements SearchListener {
+public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> extends JPanel implements SearchListener {
 
 	public String getClickedWord() {
 		String content = topArea.getText();
@@ -275,7 +271,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	public final RSyntaxTextArea topArea;
 
 	protected final JPanel respAreaX;
-	
+
 	protected final CodeTextPanel respArea2 = new CodeTextPanel("", "");
 
 	private FindDialog findDialog;
@@ -365,37 +361,36 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 				truncated = true;
 				break;
 			}
-			sb.append(WordUtils.wrap(line, 40));			
+			sb.append(WordUtils.wrap(line, 40));
 		}
 		if (truncated) {
 			sb.append("\n\nThis error message was truncated.");
 		}
 		return sb.toString();
-//		
+//
 //		List<String> s = w.lines().map(x -> x.substring(0, Integer.min(80, x.length()))).collect(Collectors.toList());
 //		return Util.sep(s.subList(0, Integer.min(s.size(), 80)), "\n");
 	}
-	
+
 	protected ErrorStrip errorStrip;
-	
-	private static class CqlErrorStripMarkerToolTipProvider
-	implements ErrorStripMarkerToolTipProvider {
 
-	@Override
-	public String getToolTipText(List<ParserNotice> notices) {
-		StringBuilder sb = new StringBuilder("<html>");
-		if  (notices.size() > 1) {
-			sb.append("Error 1 of ");
-			sb.append(Integer.toString(notices.size()));
-			sb.append(". ");
+	private static class CqlErrorStripMarkerToolTipProvider implements ErrorStripMarkerToolTipProvider {
+
+		@Override
+		public String getToolTipText(List<ParserNotice> notices) {
+			StringBuilder sb = new StringBuilder("<html>");
+			if (notices.size() > 1) {
+				sb.append("Error 1 of ");
+				sb.append(Integer.toString(notices.size()));
+				sb.append(". ");
+			}
+			sb.append(notices.get(0).getMessage().replace("\n", "<br>"));
+			sb.append("</html>");
+			return sb.toString();
+
 		}
-		sb.append(notices.get(0).getMessage().replace("\n", "<br>"));
-		sb.append("</html>");
-		return sb.toString();
-	
-	}
 
-}
+	}
 
 	protected CodeEditor(String title, Integer id, String content, LayoutManager l) {
 		super(l);
@@ -404,24 +399,22 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		p = new JPanel(new BorderLayout());
 		Util.assertNotNull(id);
 		history.add(0);
-		//last_keystroke = System.currentTimeMillis();
+		// last_keystroke = System.currentTimeMillis();
 		// respArea.setWordWrap(true);
 		AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
 
 		atmf.putMapping(getATMFlhs(), getATMFrhs());
 		FoldParserManager.get().addFoldParserMapping(getATMFlhs(), new CurlyFoldParser());
 
-		startThread();
-
 		topArea = new RSyntaxTextArea();
 		errorStrip = new ErrorStrip(topArea);
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
-		//ToolTipManager.sharedInstance().setInitialDelay(0);
-		//ToolTipManager.sharedInstance().setReshowDelay(0);
+		// ToolTipManager.sharedInstance().setInitialDelay(0);
+		// ToolTipManager.sharedInstance().setReshowDelay(0);
 		errorStrip.setMarkerToolTipProvider(new CqlErrorStripMarkerToolTipProvider());
 		errorStrip.setShowMarkedOccurrences(false);
 		errorStrip.setShowMarkAll(true);
-		//errorStrip.setSh
+		// errorStrip.setSh
 
 		topArea.addMouseListener(new MouseAdapter() {
 			@Override
@@ -432,7 +425,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		});
 
-	
 		if (getATMFrhs() != null) {
 			topArea.setSyntaxEditingStyle(getATMFlhs());
 		}
@@ -442,7 +434,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 		InputMap inputMap = topArea.getInputMap();
 
-		
 		KeyStroke key2;
 		key2 = System.getProperty("os.name").contains("Windows")
 				? KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.META_MASK)
@@ -574,13 +565,13 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		respArea2.setPreferredSize(new Dimension(600, 200));
 		topArea.setOpaque(true);
 		respArea2.setOpaque(true);
-		respAreaX = new JPanel(new GridLayout(1,1));
+		respAreaX = new JPanel(new GridLayout(1, 1));
 		respAreaX.add(respArea2);
 		IdeOptions.theCurrentOptions.apply(this);
 
 		initSearchDialogs();
 
-		//last_keystroke = System.currentTimeMillis();
+		// last_keystroke = System.currentTimeMillis();
 
 		jsp = new JScrollPane(getComp());
 		jsp.setBorder(BorderFactory.createEmptyBorder());
@@ -603,7 +594,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		validateBox.setHorizontalTextPosition(SwingConstants.LEFT);
 		validateBox.setHorizontalAlignment(SwingConstants.LEFT);
 		validateBox.addActionListener(x -> {
-			outline_alphabetical(alphaBox.isSelected()); //just triggers
+			outline_alphabetical(alphaBox.isSelected()); // just triggers
 		});
 
 		gbc.weightx = 1;
@@ -614,9 +605,9 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		p.setBorder(BorderFactory.createEtchedBorder());
 
 		p.setMinimumSize(new Dimension(0, 0));
-		
-		
-		
+
+		startThread();
+
 	}
 
 	public synchronized void addToHistory(int i) {
@@ -703,7 +694,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		xx1.add(newtop);
 		xx1.add(respAreaX);
 		xx1.setBorder(BorderFactory.createEmptyBorder());
-	
+
 		respAreaX.setMinimumSize(new Dimension(0, 0));
 
 		this.removeAll();
@@ -713,18 +704,18 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	public void foldAll(boolean b) {
 		SwingUtilities.invokeLater(() -> {
-		int i = topArea.getFoldManager().getFoldCount();
-		for (int j = 0; j < i; j++) {
-			Fold fold = topArea.getFoldManager().getFold(j);
-			fold.setCollapsed(b);
-		}
-		topArea.revalidate();
-		topArea.repaint();
-		sp.revalidate();
-		sp.repaint();
-		setCaretPos(topArea.getCaretPosition());
-		topArea.getFoldManager().reparse();
-		topArea.revalidate();
+			int i = topArea.getFoldManager().getFoldCount();
+			for (int j = 0; j < i; j++) {
+				Fold fold = topArea.getFoldManager().getFold(j);
+				fold.setCollapsed(b);
+			}
+			topArea.revalidate();
+			topArea.repaint();
+			sp.revalidate();
+			sp.repaint();
+			setCaretPos(topArea.getCaretPosition());
+			topArea.getFoldManager().reparse();
+			topArea.revalidate();
 		});
 	}
 
@@ -786,11 +777,9 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		// topArea.for
 	}
 
-	
-
-	//protected final String[] toUpdate = new String[] { null };
+	// protected final String[] toUpdate = new String[] { null };
 	protected volatile String toDisplay = null;
-	//private Thread thread, temp;
+	// private Thread thread, temp;
 
 	public synchronized void runAction() {
 		if (started) {
@@ -817,14 +806,14 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 				DateFormat format = DateFormat.getTimeInstance();
 				String foo2 = title;
 				foo2 += " - " + format.format(new Date(start));
-				//foo2 += " - " + format.format(new Date(start));
+				// foo2 += " - " + format.format(new Date(start));
 				String foo = foo2;
 				long t = init.timeout() * 1000;
-				display = Util.timeout(() -> makeDisplay(foo, init, env, start, middle), t);
+				display = Util.timeout(() -> makeDisplay(foo, init, env, start, middle), t, "");
 
 				if (display.exn() == null) {
-					toDisplay = textFor(display,env); // "Done";
-					respArea2.setText(textFor(display,env)); // "Done");
+					toDisplay = textFor(display, env); // "Done";
+					respArea2.setText(textFor(display, env)); // "Done");
 					respAreaX.removeAll();
 					respAreaX.add(respArea2);
 				} else {
@@ -857,21 +846,17 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 			} finally {
 				started = false;
 			}
-			
+
 		});
-		
+
 		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
-		
+
 	}
 
 	private volatile boolean started = false;
 
-	
-
-	
-
-	protected abstract String textFor(DDisp display,Env env);
+	protected abstract String textFor(DDisp display, Env env);
 
 	protected abstract DDisp makeDisplay(String foo, Progg init, Env env, long start, long middle);
 
@@ -961,8 +946,6 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		// clearSpellCheck();
 	}
 
-	
-		 
 	@SuppressWarnings("static-method")
 	protected Collection<String> reservedWords() {
 		return Collections.emptySet();
@@ -1046,16 +1029,14 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	private volatile Boolean outline_on_left = true;
 	public volatile Boolean outline_prefix_kind = true;
 	private volatile Boolean outline_elongated = true;
-	//public volatile long sleepDelay = 2;
+	// public volatile long sleepDelay = 2;
 	public volatile Boolean outline_types = true;
 //	public volatile Long last_keystroke = null;
 
-	/* public void set_delay(int i) {
-		if (i < 1) {
-			i = 1;
-		}
-		sleepDelay = (long) i * 1000;
-	} */
+	/*
+	 * public void set_delay(int i) { if (i < 1) { i = 1; } sleepDelay = (long) i *
+	 * 1000; }
+	 */
 
 	public void outline_types(Boolean bool) {
 		outline_types = bool;
@@ -1069,12 +1050,11 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	public void outline_alphabetical(Boolean bool) {
 		outline_alphabetical = bool;
-		if (q.isEmpty()) {
-			parsed_prog_string = "";
-			//parsed_prog = null;
-			q.add(Unit.unit);
-		}
-		//doUpdate();
+		/*
+		 * if (q.isEmpty()) { parsed_prog_string = ""; //parsed_prog = null;
+		 * q.add(Unit.unit); }
+		 */
+		// doUpdate();
 	}
 
 	public void outline_on_left(Boolean bool) {
@@ -1094,7 +1074,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	///////////////////////////////////////////////////////////
 
-	protected abstract void doUpdate();
+	// protected abstract void doUpdate();
 
 	protected DefaultMutableTreeNode makeTree(List<String> set) {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
@@ -1113,11 +1093,11 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		TreePath t1 = tree.getSelectionPath();
 
 		Enumeration<TreePath> p = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
-		
+
 		DefaultTreeModel zz = new DefaultTreeModel(makeTree(set));
 		SwingUtilities.invokeLater(() -> {
 			tree.setModel(zz);
-		
+
 			if (p == null) {
 				return;
 			}
@@ -1130,7 +1110,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 				} catch (Exception ex) {
 				}
 			}
-	
+
 			if (t1 != null) {
 				TreePath t2 = conv(t1);
 				if (t2 != null) {
@@ -1204,18 +1184,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	public final JLabel oLabel = new JLabel("", JLabel.CENTER);
 	public final JScrollPane jsp;
 	public final JCheckBox validateBox = new JCheckBox("Prove", true);
-	/*
-	 * public void startThread() { Thread t = new Thread(new Runnable() {
-	 * 
-	 * @Override public void run() { long x = 0; for (;;) { long l =
-	 * System.currentTimeMillis(); // threadBody(); long r =
-	 * System.currentTimeMillis(); x = r - l;
-	 * 
-	 * try { long todo = sleepDelay - x; if (todo > 100) { Thread.sleep(todo); } }
-	 * catch (Throwable e1) { return; } if (isClosed) { return; } } }
-	 * 
-	 * }); t.setDaemon(true); t.setPriority(Thread.MIN_PRIORITY); t.start(); }
-	 */
+
 	protected JTree tree;
 
 	protected DefaultTreeCellRenderer makeRenderer() {
@@ -1290,17 +1259,11 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 		}
 	}
 
-	protected LinkedBlockingDeque<Unit> q = new LinkedBlockingDeque<>(1);
 	protected volatile long qt = -1;
-
-
-	
 
 	public void setOutlineFont(Font font) {
 		getComp().setFont(font);
 	}
-
-	
 
 	public class TreeLabel {
 		public final String s;
@@ -1341,6 +1304,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 
 	}
 
+
 	private void startThread() {
 		Thread t = new Thread(new Runnable() {
 			@Override
@@ -1359,7 +1323,7 @@ public abstract class CodeEditor<Progg extends Prog, Env, DDisp extends Disp> ex
 	}
 
 	public void deployAction() {
-		
+
 	}
 
 }

@@ -1,0 +1,1 @@
+Given a relational olog encoded as a CQL schema as a source, and another as a target, and a CQL mapping from the former to the latter, emit a query from the spanified latter to the spanified former.

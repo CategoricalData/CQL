@@ -1,5 +1,5 @@
 
-rootProject.name = 'fql'
+rootProject.name = 'cql'
 
 // include 'aql'
 // include 'aql_grammar'

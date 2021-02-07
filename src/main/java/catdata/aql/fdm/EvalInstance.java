@@ -1,5 +1,6 @@
 package catdata.aql.fdm;
 
+import java.util.List;
 import java.util.Map;
 
 import catdata.Chc;
@@ -14,13 +15,13 @@ import catdata.aql.Term;
 import catdata.aql.Var;
 
 public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> extends
-		Instance<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y>
-		implements DP<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> {
+		Instance<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y>
+		implements DP<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y> {
 
 	private final Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Q;
 	private final Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I;
 	private final EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> alg;
-	private final SaturatedInstance<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> J;
+	private final SaturatedInstance<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y> J;
 
 	public EvalInstance(Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q,
 			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i, AqlOptions options) {
@@ -35,8 +36,8 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 
 		J = new SaturatedInstance<>(alg, dp(), I.requireConsistency(), I.allowUnsafeJava(), false, null);
 
-		if (J.size() < 1024*16) {
-		 validate();
+		if (J.size() < 1024 * 16) {
+			validate();
 		}
 	}
 
@@ -46,7 +47,7 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 	}
 
 	@Override
-	public IMap<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, En2> gens() {
+	public IMap<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, En2> gens() {
 		return J.gens();
 	}
 
@@ -56,19 +57,19 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 	}
 
 	@Override
-	public DP<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> dp() {
+	public DP<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y> dp() {
 		return this;
 	}
 
 	@Override
-	public Algebra<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> algebra() {
+	public Algebra<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y> algebra() {
 		return alg;
 	}
 
 	@Override
 	public boolean eq(Map<Var, Chc<Ty, En2>> ctx,
-			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> lhs,
-			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> rhs) {
+			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y> lhs,
+			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y> rhs) {
 		if (ctx != null && !ctx.isEmpty()) {
 			Util.anomaly();
 		}
@@ -77,7 +78,7 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 	}
 
 	private boolean atType(
-			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> term) {
+			Term<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1,Ty>>, Y> term) {
 		if (term.obj() != null || term.sk() != null) {
 			return true;
 		} else if (term.gen() != null) {
@@ -107,6 +108,8 @@ public class EvalInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
 		return I.allowUnsafeJava();
 	}
 
-	
+	public List<Var> order(En2 en2) {
+		return alg.order.get(en2);
+	}
 
 }

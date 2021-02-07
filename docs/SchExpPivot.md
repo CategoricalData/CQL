@@ -1,0 +1,1 @@
+Converts an instance into a schema.  The schema will be a finite directed graph isomorphic to the term / initial model of the input instance.  Operationally, it is like converting to 'triple' or 'key value' form.

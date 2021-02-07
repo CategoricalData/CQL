@@ -14,4 +14,6 @@ public abstract class DPKB<T, C, V> {
 
 	public abstract void add(C c, T t);
 
+	public abstract boolean supportsTrivialityCheck();
+
 }

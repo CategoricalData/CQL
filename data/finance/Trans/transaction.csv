@@ -1,7 +1,0 @@
-id,transaction_id,transaction_date,transaction_asset_id,transaction_portfolio_id,transaction_buy_sell_ind,transaction_quantity,transaction_price,transaction_currency_id,transaction_asset,transaction_currency
-tt1,1,1/1/2011,1,1,B,200,5.5100,2,ta1,tc2
-tt2,2,6/1/2011,1,1,S,100,5.5000,2,ta1,tc2
-tt3,3,9/1/2013,3,2,B,150,2.5000,1,ta3,tc1
-tt4,4,3/1/2014,3,2,S,150,3.5000,1,ta3,tc1
-tt5,5,2/1/2013,5,3,B,200,1.6000,3,ta5,tc3
-tt6,6,7/1/2013,5,3,S,100,1.5000,3,ta5,tc3

@@ -1,5 +1,5 @@
 html { (* "
-<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"> 
+<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
  <html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">
  <body>
 " *) }
@@ -15,14 +15,14 @@ Generally the typeside defines the way CQL kinds connect to a computational envi
 particular typeside is limited to a string type used to display human readable labels and
 descriptions. More generally, CQL type sides can be much more complex supporting such things as
 functions that can be called in line to enhance the definition of schemas as well as queries. Such
-considerations are beyond the scope of this demonstration. 
+considerations are beyond the scope of this demonstration.
 " *) }
 
 typeside tString = literal {
-    java_types
-        String = "java.lang.String"
-    java_constants
-        String = "return input[0]"
+    external_types
+        String -> "java.lang.String"
+    external_parsers
+        String -> "x => x"
 	}
 
 md { (* "
@@ -46,11 +46,11 @@ schema sPatientMed = literal : tString {
 	attributes
 		PM_Dosage : PatientMed -> String
 		PM_Patient_Name : Patient -> String
-		PM_Med_Type : Medication -> String	
+		PM_Med_Type : Medication -> String
 }
 schema sPatientAE = literal : tString {
 	entities
-		Patient PatientAE AdvrsEvnt 
+		Patient PatientAE AdvrsEvnt
 	foreign_keys
 		PA_Patient : PatientAE -> Patient
 		PA_AE : PatientAE -> AdvrsEvnt
@@ -88,7 +88,7 @@ md { (* "
 
 Instances for each of the three schemas above. CQL instances differ from SQL instances in that
 primary keys which provide a unique identifier for a record are replaced with generators. A
-generator plays a more active role than an identifier they serve to generate records even in the 
+generator plays a more active role than an identifier they serve to generate records even in the
 absense of data. This happens through the process of saturation. During the process of saturation
 if data is missing (either foreign key values or literals) a typed null value is added that is
 typed by the generator and the column where the value occures.
@@ -179,8 +179,8 @@ md { (* "
 ## Migrating data using sigma
 
 Having assembled the desired target schema we must now move the instance data associated with the
-source schemas. Sigma is a CQL kind that moves instance data through the mappings created by the 
-colimit. The syntax takes one such schema mapping together with an instance associated with the 
+source schemas. Sigma is a CQL kind that moves instance data through the mappings created by the
+colimit. The syntax takes one such schema mapping together with an instance associated with the
 source schema and produces an instance in the target schema.
 " *) }
 
@@ -195,7 +195,7 @@ md { (* "
 
 The coproduct construction is also sometimes called a sum. The relational analog is union distinct.
 The effect of this construction is to disjointly combine the sepperate instances produced by sigma
-in the previous step into a single instance. 
+in the previous step into a single instance.
 " *) }
 instance iPAM_Asmbly_Sum = coproduct iPMinPAM_Asmbly + iPAinPAM_Asmbly + iCinPAM_Asmbly : sPAM_Assembly
 
@@ -208,7 +208,7 @@ md { (* "
 As in the case of the schema merge produced by the colimit above we now need to identify records
 that are duplicates of one another and merge those records. The quotient query provides a mechanism
 for identifying duplicates based on matching attribute values identified using the query syntax.
-In this case we are assuming the program name is a natural key for programs. The quotient query is 
+In this case we are assuming the program name is a natural key for programs. The quotient query is
 analogous to the colimit quotient used above for merging schemas at the entity level.
 " *) }
 instance iPAM_Asmbly = quotient_query iPAM_Asmbly_Sum {
@@ -225,7 +225,7 @@ md { (* "
 
 ## Adding constraints
 
-Constraints can be added using the query construction. The process begins with the definition of 
+Constraints can be added using the query construction. The process begins with the definition of
 the target schema that has the desired constraints.
 " *) }
 
@@ -248,7 +248,7 @@ schema sPAM_Norm = literal : tString {
 		Date_Reported : PatientAE -> String
 		Med_Type : Medication -> String
 		Patient_Name : Patient -> String
-		Preferred_Term : AdverseEvent -> String	
+		Preferred_Term : AdverseEvent -> String
 		Causal_Cat : Causality -> String
 }
 
@@ -261,10 +261,10 @@ A CQL query differs from a relational query in that the result of the query is a
 a single table. As such, CQL can verify that the query definition is 'structure preserving'. This
 means that the movement of data from the source schema to the target schema is done in a way that
 ensures the data integrety of the source schema is faithfully enforced by the query mapping. This
-verification of structure preservation takes place when the query is compiled. 
+verification of structure preservation takes place when the query is compiled.
 
 A broad view of the CQL query construction reveals that a CQL query generalizes a SQL query in that
-each entity block is analogous to a SQL query. That is, the assembly of a single target entity 
+each entity block is analogous to a SQL query. That is, the assembly of a single target entity
 is analogous to a SQL query but for the addition of the foreign keys block. The foreign keys block
 provides a mechanism (described below) for construction of outgoing foreign keys. Such foreign keys
 are in fact columns of the entity being defined and so CQL extends SQL by knitting together multiple
@@ -281,8 +281,8 @@ equation that enforces the commutitive diagram defined in the target schema.
 
 The population of the foreign key column involves assigning the target generator of the target
 entity blocks where the two target entities are constructed (PatientAE and PatientMed) to the
-corresponding target generator in the source entity block (PAM). For the mapping of existing foreign 
-key column (AE_Causality) we assign the target entity generator from the block where that entity is 
+corresponding target generator in the source entity block (PAM). For the mapping of existing foreign
+key column (AE_Causality) we assign the target entity generator from the block where that entity is
 constructed.
 
 The remaining blocks are identity mappings.
@@ -347,7 +347,7 @@ query qPAM_Norm = literal : sPAM_Assembly -> sPAM_Norm {
 			attributes
 				// Since we have forced the two source attributes to be the same using the
 				// quotient query we can pick either one.
-				Patient_Name -> p.PA_Patient_Name 
+				Patient_Name -> p.PA_Patient_Name
 		}
 	entity
 		Medication -> {
@@ -371,7 +371,7 @@ md { (* "
 ## Migrate data
 
 The CQL query construction generalizes the sigma data migration construction as follows. Sigma is
-functional in that it is many to one. That is, sigma migrates data from many source entities into 
+functional in that it is many to one. That is, sigma migrates data from many source entities into
 a single target entity. The query construction acts like a generalized relation which can map many
 source entities into many target entities. The movement of an instance is emplemented by the
 application of the eval keyword. Eval takes a query and applies it to an instance of the source
@@ -527,7 +527,7 @@ query qDWHRpt = literal : sPAMDWH -> sPAM_Rpt {
 				pam : F_PAM
 			attributes
 				Causal_Cat -> pam.Causal_Cat
-				Patient_Name -> pam.PAM_Patient.Patient_Name 
+				Patient_Name -> pam.PAM_Patient.Patient_Name
 				Medication -> pam.PAM_Medication.Med_Type
 				AE_Preferred_Term -> pam.PAM_AdverseEvent.Preferred_Term
 		}

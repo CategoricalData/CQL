@@ -19,7 +19,7 @@ import catdata.aql.fdm.EvalInstance;
 import catdata.aql.fdm.Row;
 
 public final class InstExpEval<Gen, Sk, X, Y> extends
-		InstExp<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> {
+		InstExp<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y> {
 
 	public final QueryExp Q;
 	public final InstExp<Gen, Sk, X, Y> I;
@@ -103,7 +103,7 @@ public final class InstExpEval<Gen, Sk, X, Y> extends
 	}
 
 	@Override
-	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>, Y> eval0(
+	public synchronized Instance<Ty, En, Sym, Fk, Att, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En,Ty>>, Y> eval0(
 			AqlEnv env, boolean isC) {
 		if (isC) {
 			Q.eval(env, true);

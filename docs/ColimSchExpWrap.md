@@ -1,0 +1,1 @@
+Wraps a colimit of schemas as another schema by providing two mappings witnessing the isomorphism.

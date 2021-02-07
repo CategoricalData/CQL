@@ -22,21 +22,20 @@ import gnu.trove.map.hash.THashMap;
  */
 public class MonoidalProver<T, C, V> extends DPKB<T, C, V> {
 
-	private final Thue<Chc<Chc<Unit, T>, C>> thue;
+	private final Thue thue;
 
 	public MonoidalProver(KBTheory<T, C, V> th) {
 		super(th);
 
 		// !_1 = (might be superflous) TODO aql
-		List<Pair<List<Chc<Chc<Unit, T>, C>>, List<Chc<Chc<Unit, T>, C>>>> rules = (new LinkedList<>());
+		List<Pair<List<Chc<Chc<Unit, T>, C>>, List<Chc<Chc<Unit, T>, C>>>> rules = new LinkedList<>();
 		rules.add(new Pair<>(Collections.singletonList(Chc.inLeft(Chc.inLeft(Unit.unit))), Collections.emptyList()));
 
 		// e : t -> 1 = !_1 - don't have any
 		Map<Chc<Chc<Unit, T>, C>, Pair<Chc<Unit, T>, Chc<Unit, T>>> typing = new THashMap<>();
 		Collection<Chc<Unit, T>> types = (new ArrayList<>(th.tys.size() + 1));
 		types.add(Chc.inLeft(Unit.unit));
-		
-		
+
 		// (e : t -> t').!_t' = !_t
 		for (C c : th.syms.keySet()) {
 			if (th.syms.get(c).first.size() > 1) {
@@ -56,13 +55,13 @@ public class MonoidalProver<T, C, V> extends DPKB<T, C, V> {
 			typing.put(Chc.inLeft(Chc.inRight(t)), new Pair<>(Chc.inRight(t), Chc.inLeft(Unit.unit)));
 
 		}
-	//	System.out.println(rules);
+		// System.out.println(rules);
 		for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : th.eqs) {
 			rules.add(new Pair<>(trans(eq.first, eq.second), trans(eq.first, eq.third)));
 		}
-		//System.out.println(rules);
-	thue = new Thue<>(rules, typing.keySet());
-		//thue = new ThueSlow<>(rules);
+		// System.out.println(rules);
+		thue = new Thue<>(rules, typing.keySet());
+		// thue = new ThueSlow(rules);
 		//
 		// kb.complete();
 	}
@@ -93,14 +92,16 @@ public class MonoidalProver<T, C, V> extends DPKB<T, C, V> {
 
 	@Override
 	public synchronized boolean eq(Map<V, T> ctx, KBExp<C, V> lhs, KBExp<C, V> rhs) {
+
 		if (!lhs.isVar() && lhs.getArgs().size() > 1) {
 			throw new RuntimeException("On eq, not monoidal: " + lhs + ", please report.");
-		}
-		if (!rhs.isVar() && rhs.getArgs().size() > 1) {
+		} else if (!rhs.isVar() && rhs.getArgs().size() > 1) {
 			throw new RuntimeException("On eq, not monoidal: " + rhs + ", please report.");
+		} else if (ctx.size() > 1) {
+			throw new RuntimeException("On eq, not monoidal: " + ctx + ", please report.");
 		}
-		//System.out.println(lhs + " =? " + rhs);
-		//System.out.println(trans(ctx, lhs) + " =? " + trans(ctx, rhs));
+		// System.out.println(lhs + " =? " + rhs);
+		// System.out.println(trans(ctx, lhs) + " =? " + trans(ctx, rhs));
 		return thue.equiv(trans(ctx, lhs), trans(ctx, rhs));
 	}
 
@@ -121,5 +122,10 @@ public class MonoidalProver<T, C, V> extends DPKB<T, C, V> {
 		this.thue.rules.add(new Pair<>(lhs, rhs));
 		this.thue.complete();
 
+	}
+
+	@Override
+	public boolean supportsTrivialityCheck() {
+		return false;
 	}
 }

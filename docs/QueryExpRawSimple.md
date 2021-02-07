@@ -1,0 +1,1 @@
+A simplified query syntax for targeting a single output table and inferring the return table columns.  Use * after the word attributes to return all possible attributes.

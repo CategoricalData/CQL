@@ -1,8 +1,10 @@
 
 apg_typeside Ty = literal {
-	types 
-		Str -> "java.lang.String"  "return input[0]"
-		Nat -> "java.lang.Integer" "return java.lang.Integer.parseInt(input[0])"
+	types
+		Str -> "java.lang.String"  "x => x"
+		Nat -> "java.lang.Integer" "parseInt"
+	functions
+		append : Str,Str -> Str = "(x, y) => x.concat(y)"
 }
 
 ////////////////////////////////////////////////////////////
@@ -41,7 +43,7 @@ apg_instance Edge = literal : EdgeSch {
 apg_schema PropertySch = literal : Ty {
 	labels
 		User -> ()
-		name -> (User:label User * name:base Str)	
+		name -> (User:label User * name:base Str)
 }
 apg_instance Property = literal : PropertySch {
 	elements
@@ -68,8 +70,8 @@ apg_instance Alias = literal : AliasSch {
 apg_schema HyperElementsSch = literal : Ty {
 	labels
 		User -> ()
-		Trip -> (user1:label User * user2:label User * event1:<place:label PlaceEvent + null:()> * event2:<place:label PlaceEvent + null:()>) 
-		PlaceEvent -> (place:label Place * event:label UnixTimeSeconds) 
+		Trip -> (user1:label User * user2:label User * event1:<place:label PlaceEvent + null:()> * event2:<place:label PlaceEvent + null:()>)
+		PlaceEvent -> (place:label Place * event:label UnixTimeSeconds)
 		Place -> ()
 		UnixTimeSeconds -> base Nat
 }
@@ -87,7 +89,7 @@ apg_instance HyperElements = literal : HyperElementsSch {
 		p1 : Place -> ()
 		p2 : Place -> ()
 		p3 : Place -> ()
-		s1 : UnixTimeSeconds -> 1 
+		s1 : UnixTimeSeconds -> 1
 		s2 : UnixTimeSeconds -> 1
 		s3 : UnixTimeSeconds -> 4
 		s4 : UnixTimeSeconds -> 3
@@ -97,7 +99,7 @@ apg_instance HyperElements = literal : HyperElementsSch {
 
 apg_schema MSch = literal : Ty {
 	labels
-		PlateNumber -> (id: base Str * region_id: base Str * region_lp: base Str) 
+		PlateNumber -> (id: base Str * region_id: base Str * region_lp: base Str)
 }
 apg_instance M = literal : MSch {
 	elements
@@ -126,8 +128,8 @@ apg_morphism k = literal : N -> M {
 		p1q1 -> p2
 }
 
-apg_instance CoEqjk = coequalize j k 
-apg_morphism CoEqjkt = coequalize j k 
+apg_instance CoEqjk = coequalize j k
+apg_morphism CoEqjkt = coequalize j k
 apg_morphism CoEqjkt_u = coequalize_u j k CoEqjkt //id
 
 ///////////////////////////////////////////////////////////////////
@@ -150,7 +152,7 @@ apg_instance G = literal : GSch {
 apg_morphism h = literal : G -> G {
 	labels
 		L3->L3 L4->L4 L5->L5 L6->L6
-	elements	
+	elements
 		e4->e4 e3->e3 e5->e5 e6->e6
 }
 
@@ -166,8 +168,8 @@ apg_morphism t3 = fst G G
 apg_morphism t4 = snd G G
 apg_morphism t5 = inl G G
 apg_morphism t6 = inr G G
-apg_morphism t7 = (t3,t4) 
-apg_morphism t8 = <t5|t6> 
+apg_morphism t7 = (t3,t4)
+apg_morphism t8 = <t5|t6>
 apg_morphism t9 = identity G
 apg_morphism t0 = [ t9 ; t9 ]
 apg_morphism ta = equalize t9 t9
@@ -176,7 +178,7 @@ apg_morphism tb = equalize_u t9 t9 t9
 apg_schema x = <VertexSch + VertexSch>
 apg_schema y = (VertexSch * VertexSch)
 apg_schema z = empty Ty
-apg_schema w = unit Ty 
+apg_schema w = unit Ty
 
 /////////////////////////////////////////////////////////////////
 
@@ -203,7 +205,7 @@ apg_schema G2Sch = literal : Ty {
 }
 apg_instance G2 = literal : G2Sch {
 	elements
-		e:L -> (a:hi, b:0)	
+		e:L -> (a:hi, b:0)
 }
 apg_schema H2Sch = literal : Ty {
 	labels
@@ -211,13 +213,13 @@ apg_schema H2Sch = literal : Ty {
 }
 apg_instance H2 = literal : H2Sch {
 	elements
-		e:L -> (b:hi, a:0)		
+		e:L -> (b:hi, a:0)
 }
 apg_morphism m2 = literal : G2 -> H2 {
 	labels
 		L -> L
 	elements
-		e -> e	
+		e -> e
 }
 
 /////////////////////////////////////////////////////////////////
@@ -271,17 +273,17 @@ apg_schema Sx = literal : Ty {
 
 apg_mapping Fx = literal : Sx -> Tx {
 	labels
-		sLbl -> lambda v: label tLbl. 
+		sLbl -> lambda v: label tLbl.
 			case !tLbl(v) where
 				age  -> lambda x. <AGE: x> : <AGE: base Nat + NAME: base Str>
-		 		name -> lambda x. <NAME: x> : <AGE: base Nat + NAME: base Str>
+		 		name -> lambda x. <NAME: append(x,x)> : <AGE: base Nat + NAME: base Str>
 			: <AGE: base Nat + NAME: base Str>
 }
 
 apg_instance Jx = literal : Tx {
 	elements
 		e : tLbl -> <age: 40>
+		f : tLbl -> <name: alice>
 }
 
 apg_instance Ix = delta Fx Jx
-

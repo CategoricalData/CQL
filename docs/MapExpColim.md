@@ -1,0 +1,1 @@
+Get the mapping to an input schema in a schema colimit.

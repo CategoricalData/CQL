@@ -10,6 +10,9 @@ public class En {
 	}
 
 	public synchronized static En En(String str) {
+		/* if (!str.equals(str.toLowerCase())) {
+			Util.anomaly();
+		} */
 		En en = SchExpRaw.enCache.get(str);
 		if (en != null) {
 			return en;

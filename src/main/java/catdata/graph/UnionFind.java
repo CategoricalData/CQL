@@ -30,6 +30,9 @@ public class UnionFind<X> {
 
 	@SuppressWarnings("unchecked")
 	public UnionFind(int n, Iterable<X> xs) {
+		if (n == 0) {
+			n = 1;
+		}
 		parent = new int[n];
 		size = new int[n];
 		iso1 = (X[]) new Object[n];
@@ -48,8 +51,17 @@ public class UnionFind<X> {
 		}
 	}
 
-	public int find(int p) {
-		
+	public int size() {
+		int ret = 0;
+		for (int i = 0; i < top; i++) {
+			if (size[i] > 0) {
+				ret++;
+			}
+		}
+		return ret;
+	}
+
+	public int Find(int p) {
 		int root = p;
 		while (root != parent[root]) {
 			root = parent[root];
@@ -65,29 +77,24 @@ public class UnionFind<X> {
 
 	public X find(X p) {
 		int x = iso2.get(p);
-		if (x == -1) {
-			System.out.println(p);
-			System.out.println(iso2);
-		}
-		return iso1[find(x)];
+		return iso1[Find(x)];
 	}
 
 	public boolean connected(X p, X q) {
 		int pp = iso2.get(p);
 		int qq = iso2.get(q);
-		int a = find(pp);
-		int b = find(qq);
+		int a = Find(pp);
+		int b = Find(qq);
 		return a == b;
-
 	}
 
 	public synchronized void union(X p, X q) {
 		union(iso2.get(p), iso2.get(q));
 	}
 
-	private synchronized void union(int p, int q) {
-		int rootP = find(p);
-		int rootQ = find(q);
+	public synchronized void union(int p, int q) {
+		int rootP = Find(p);
+		int rootQ = Find(q);
 		if (rootP == rootQ) {
 			return;
 		}
@@ -96,9 +103,11 @@ public class UnionFind<X> {
 		if (size[rootP] < size[rootQ]) {
 			parent[rootP] = rootQ;
 			size[rootQ] = size[rootQ] + size[rootP];
+			size[rootP] = 0;
 		} else {
 			parent[rootQ] = rootP;
 			size[rootP] = size[rootP] + size[rootQ];
+			size[rootQ] = 0;
 		}
 	}
 
@@ -125,7 +134,7 @@ public class UnionFind<X> {
 		if (i == -1) {
 			return -1;
 		}
-		return find(i);
+		return Find(i);
 	}
 
 }

@@ -19,7 +19,6 @@ import org.w3c.dom.NodeList;
 import catdata.Pair;
 import catdata.Triple;
 import catdata.Util;
-import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
@@ -524,9 +523,9 @@ public class EasikAql {
 	 * "java.math.BigDecimal"; // case "Time" : return "java.sql.time"; // case
 	 * "TimeStamp" : return "java.sql.TimeStamp"; default: return
 	 * "java.lang.Object"; }
-	 * 
+	 *
 	 * }
-	 * 
+	 *
 	 * public static String javaParserFor(String s) { switch (s) { case "BigInt":
 	 * return "return new java.lang.Long(input[0])"; case "Boolean": return
 	 * "return new java.lang.Boolean(input[0])"; case "Char": return
@@ -546,11 +545,11 @@ public class EasikAql {
 	 * // TODO: CQL add operations here public static TyExpRaw sql(Set<String> used)
 	 * { List<Pair<String, String>> java_tys = new LinkedList<>(); List<Pair<String,
 	 * String>> java_parsers = new LinkedList<>();
-	 * 
+	 *
 	 * for (String s0 : used) { String s = easikTypeToString(s0); java_tys.add(new
 	 * Pair<>(s, javaClassFor(s))); java_parsers.add(new Pair<>(s,
 	 * javaParserFor(s))); }
-	 * 
+	 *
 	 * return new TyExpRaw(new LinkedList<>(), new LinkedList<>(), new
 	 * LinkedList<>(), new LinkedList<>(), java_tys, java_parsers, new
 	 * LinkedList<>(), new LinkedList<>()); }

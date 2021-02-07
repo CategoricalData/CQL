@@ -1,0 +1,1 @@
+Performs a pi or join-all operation along a mapping.  It is recommended to use eval of queries instead, because pi has non-intuitive semantics and is computationally intractable.

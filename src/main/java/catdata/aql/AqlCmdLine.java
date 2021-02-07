@@ -5,8 +5,8 @@ import java.io.FileReader;
 
 import catdata.Program;
 import catdata.Util;
-import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.exp.AqlEnv;
+import catdata.aql.exp.AqlMultiDriver;
 import catdata.aql.exp.AqlParserFactory;
 import catdata.aql.exp.AqlTyping;
 import catdata.aql.exp.Exp;
@@ -27,18 +27,18 @@ class AqlCmdLine {
 			Program<Exp<?>> program = AqlParserFactory.getParser().parseProgram(s);
 			AqlEnv env = new AqlEnv(program);
 			env.typing = new AqlTyping(program, false);
+			AqlMultiDriver d = new AqlMultiDriver(program, env);
+			d.start();
+			
 			String html = "";
 			for (String n : program.order) {
 				Exp<?> exp = program.exps.get(n);
-				Object val = Util.timeout(() -> exp.eval(env, false),
-						(Long) exp.getOrDefault(env, AqlOption.timeout) * 1000);
+				Object val = env.get(exp.kind(), n);
 				if (val == null) {
-					throw new RuntimeException("anomaly, please report: null result on " + exp);
-				} else if (exp.kind().equals(Kind.PRAGMA)) {
-					((Pragma) val).execute();
+					html += exp.kind() + " " + n + " = no result for " + n;
+				} else {
+					html += exp.kind() + " " + n + " = " + val + "\n\n";
 				}
-				env.defs.put(n, exp.kind(), val);
-				html += exp.kind() + " " + n + " = " + val + "\n\n";
 			}
 			return html.trim();
 		} catch (Throwable ex) {

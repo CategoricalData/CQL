@@ -1,0 +1,1 @@
+The schema for Microsoft SQL server queries.

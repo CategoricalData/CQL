@@ -5,21 +5,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-//import java.util.HashSet;
-//import java.util.LinkedHashMap;
 import java.util.LinkedList;
-//import java.util.HashSet;
-//import java.util.LinkedHashMap;
-//import java.util.LinkedList;
-//import java.util.LinkedHashMap;
-//import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
+
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
+import catdata.Unit;
 import catdata.Util;
 import catdata.provers.KBExpFactoryNewImpl;
 import catdata.provers.KBTheory;
@@ -33,13 +29,14 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	}
 
 	public static class CCollage<Ty, En, Sym, Fk, Att, Gen, Sk> implements Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
-		public CCollage() {}
-			
+		public CCollage() {
+		}
+
 		@Override
 		public String toString() {
 			return toString(new CCollage<>());
-		} 
-		
+		}
+
 		public CCollage(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 			tys().addAll(col.tys());
 			syms().putAll(col.syms());
@@ -53,7 +50,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			sks().putAll(col.sks());
 			eqs.addAll(col.eqs());
 		}
-		
+
 		public Set<Ty> tys() {
 			return tys;
 		}
@@ -93,11 +90,11 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		public Map<Sk, Ty> sks() {
 			return sks;
 		}
-		
+
 		public Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs() {
 			return eqs;
 		}
-		
+
 		private final Set<Ty> tys = Collections.synchronizedSet(new LinkedHashSet<>());
 		private final Map<Sym, Pair<List<Ty>, Ty>> syms = Util.mk();
 		private final Map<Ty, String> java_tys = Util.mk();
@@ -112,19 +109,19 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		private final Map<Sk, Ty> sks = Util.mk();
 
 		private final Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs = new LinkedList<>();
-		
+
 	}
-	
+
 	public Set<Ty> tys();
 
 	public Map<Sym, Pair<List<Ty>, Ty>> syms();
-	
+
 	public Map<Ty, String> java_tys();
-	
+
 	public Map<Ty, String> java_parsers();
 
 	public Map<Sym, String> java_fns();
-	
+
 	public Set<En> getEns();
 
 	public Map<Att, Pair<En, Ty>> atts();
@@ -134,9 +131,9 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public Map<Gen, En> gens();
 
 	public Map<Sk, Ty> sks();
-	
+
 	public Collection<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> eqs();
-	
+
 	public default void addEqs(
 			Collection<Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>>> set) {
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : set) {
@@ -165,9 +162,8 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		return Collections.synchronizedCollection(p);
 	}
 
-
 	public default void validate() {
-		
+
 		for (Sym sym : syms().keySet()) {
 			Pair<List<Ty>, Ty> ty = syms().get(sym);
 			if (!tys().contains(ty.second)) {
@@ -182,7 +178,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			}
 			// System.out.println(sym);
 		}
-		
+
 		for (Ty k : java_parsers().keySet()) {
 			if (!java_tys().containsKey(k)) {
 				throw new RuntimeException(
@@ -202,8 +198,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			String clazz = java_tys().get(ty);
 			Util.load(clazz);
 		}
-		
-		
+
 		for (Att att : atts().keySet()) {
 			Pair<En, Ty> ty = atts().get(att);
 			if (!tys().contains(ty.second)) {
@@ -224,7 +219,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 						"On foreign key " + fk + ", the source entity " + ty.first + " is not declared.");
 			}
 		}
-		
+
 		for (Gen gen : gens().keySet()) {
 			En en = gens().get(gen);
 			if (!getEns().contains(en)) {
@@ -238,108 +233,18 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 						"On labelled null " + sk + ", the type " + ty + " is not declared." + "\n\n" + this);
 			}
 		}
-		
+
 		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : eqs()) {
 			Chc<Ty, En> x = type(eq.ctx, eq.lhs);
 			Chc<Ty, En> y = type(eq.ctx, eq.rhs);
 			if (!x.equals(y)) {
-				Util.anomaly();
+				throw new RuntimeException("On " + eq + ", lhs and rhs types are " + x + " and " + y);
 			}
 		}
 	}
 
-	
-	
-
-/*
-	@SuppressWarnings("unchecked")
-	private default Term<Ty, En, Sym, Fk, Att, Gen, Sk> upgradeTypeSide(Term<Ty, Void, Sym, Void, Void, Void, Void> term) {
-		return (Term<Ty, En, Sym, Fk, Att, Gen, Sk>) term;
-	}
-*/
-	/*@Override
-	public int hashCode() {
-		int prime = 31;
-		int result = 1;
-		result = prime * result + ((atts() == null) ? 0 : atts().hashCode());
-		result = prime * result + ((eqs == null) ? 0 : eqs.hashCode());
-		result = prime * result + ((fks() == null) ? 0 : fks().hashCode());
-		result = prime * result + ((gens() == null) ? 0 : gens().hashCode());
-		result = prime * result + ((java_fns() == null) ? 0 : java_fns().hashCode());
-		result = prime * result + ((java_parsers() == null) ? 0 : java_parsers().hashCode());
-		result = prime * result + ((java_tys() == null) ? 0 : java_tys().hashCode());
-		result = prime * result + ((sks() == null) ? 0 : sks().hashCode());
-		result = prime * result + ((syms() == null) ? 0 : syms().hashCode());
-		result = prime * result + ((tys() == null) ? 0 : tys().hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Collage<?, ?, ?, ?, ?, ?, ?> other = (Collage<?, ?, ?, ?, ?, ?, ?>) obj;
-		if (atts() == null) {
-			if (other.atts() != null)
-				return false;
-		} else if (!atts().equals(other.atts()))
-			return false;
-		if (eqs == null) {
-			if (other.eqs != null)
-				return false;
-		} else if (!eqs.equals(other.eqs))
-			return false;
-		if (fks() == null) {
-			if (other.fks() != null)
-				return false;
-		} else if (!fks().equals(other.fks()))
-			return false;
-		if (gens() == null) {
-			if (other.gens() != null)
-				return false;
-		} else if (!gens().equals(other.gens()))
-			return false;
-		if (java_fns() == null) {
-			if (other.java_fns() != null)
-				return false;
-		} else if (!java_fns().equals(other.java_fns()))
-			return false;
-		if (java_parsers() == null) {
-			if (other.java_parsers() != null)
-				return false;
-		} else if (!java_parsers().equals(other.java_parsers()))
-			return false;
-		if (java_tys() == null) {
-			if (other.java_tys() != null)
-				return false;
-		} else if (!java_tys().equals(other.java_tys()))
-			return false;
-		if (sks() == null) {
-			if (other.sks() != null)
-				return false;
-		} else if (!sks().equals(other.sks()))
-			return false;
-		if (syms() == null) {
-			if (other.syms() != null)
-				return false;
-		} else if (!syms().equals(other.syms()))
-			return false;
-		if (tys() == null) {
-			if (other.tys() != null)
-				return false;
-		} else if (!tys().equals(other.tys()))
-			return false;
-		return true;
-	} */
-
-	
-
-
-	public default <Ty1, En1, Sym1, Fk1, Att1, Gen1, Sk1> String toString(Collage<Ty1, En1, Sym1, Fk1, Att1, Gen1, Sk1> skip) {
+	public default <Ty1, En1, Sym1, Fk1, Att1, Gen1, Sk1> String toString(
+			Collage<Ty1, En1, Sym1, Fk1, Att1, Gen1, Sk1> skip) {
 		StringBuilder toString = new StringBuilder("");
 
 		toString.append("types\n\t");
@@ -415,8 +320,8 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	public default KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> toKB() {
 
 		@SuppressWarnings("unchecked")
-		KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> kb = new KBTheory<>(
-				KBExpFactoryNewImpl.factory);
+		KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> kb = new KBTheory<>(KBExpFactoryNewImpl.factory,
+				Unit.unit);
 
 		for (Ty ty : tys()) {
 			kb.tys.add(Chc.inLeft(ty));
@@ -425,9 +330,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 			kb.tys.add(Chc.inRight(en));
 		}
 
-		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : eqs()) {
-			kb.eqs.add(new Triple<>(eq.ctx, eq.lhs.toKB(), eq.rhs.toKB()));
-		}
+		kb.eqs = Iterables.transform(eqs(), eq -> new Triple<>(eq.ctx, eq.lhs.toKB(), eq.rhs.toKB()));
 
 		toKbObj(this, kb.syms);
 		toKbSym(this, kb.syms);
@@ -514,19 +417,6 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		return true;
 	}
 
-	public default Collage<Ty, En, Sym, Fk, Att, Gen, Sk> entities_only() {
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> ret = new CCollage<>();
-		ret.getEns().addAll(getEns());
-		ret.fks().putAll(fks());
-		ret.gens().putAll(gens());
-		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : eqs()) {
-			if (!type(eq.ctx, eq.lhs).left) {
-				ret.eqs().add(eq);
-			}
-		}
-		return ret;
-	}
-
 	public default void addAll(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> v) {
 		tys().addAll(v.tys());
 		getEns().addAll(v.getEns());
@@ -539,11 +429,12 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 		java_tys().putAll(v.java_tys());
 		java_fns().putAll(v.java_fns());
 		java_parsers().putAll(v.java_parsers());
-		
+
 	}
 
 	public default Collection<String> allSymbolsAsStrings() {
-		Collection<String> ret = new THashSet<>(syms().size()+atts().size()+fks().size()+gens().size()+sks().size());
+		Collection<String> ret = new THashSet<>(
+				syms().size() + atts().size() + fks().size() + gens().size() + sks().size());
 		for (Sym k : syms().keySet()) {
 			ret.add(k.toString());
 		}
@@ -610,8 +501,7 @@ public interface Collage<Ty, En, Sym, Fk, Att, Gen, Sk> {
 	}
 
 	public default void removeAll(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> collage) {
-		
+
 	}
 
-	
 }

@@ -1,0 +1,1 @@
+Imports an RDF instance (as a URI) in XML or TTL format (or any format supported by Apache Jena)

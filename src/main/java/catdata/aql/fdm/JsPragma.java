@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import catdata.Util;
-import catdata.aql.AqlJs;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.ExternalCodeUtils;
 import catdata.aql.Pragma;
 import catdata.aql.exp.AqlEnv;
-import gnu.trove.map.hash.THashMap;
 
 public class JsPragma extends Pragma {
 
@@ -32,18 +31,18 @@ public class JsPragma extends Pragma {
 	public void execute() {
 		List<String> ret = new LinkedList<>();
 		String e = (String) options.getOrDefault(AqlOption.js_env_name);
-		Map<String, Object> m = new THashMap<>();
-		m.put(e, env);
-		for (String js : jss) {
-			try {
-				@SuppressWarnings("deprecation")
-				Object o = AqlJs.exec(js, m);
-				ret.add(js + (o == null ? "" : " : " + o));
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				ret.add(js + " : " + ex.getMessage());
-			}
-		}
+    try (ExternalCodeUtils ext = new ExternalCodeUtils()) {
+      ext.bind(ExternalCodeUtils.LANG_JS, e, env);
+      for (String js : jss) {
+  			try {
+          Object o = ext.eval(ExternalCodeUtils.LANG_JS, Object.class, js);
+      		ret.add(js + (o == null ? "" : " : " + o));
+  			} catch (Exception ex) {
+  				ex.printStackTrace();
+  				ret.add(js + " : " + ex.getMessage());
+  			}
+  		}
+    }
 		responses.add(Util.sep(ret, "\n"));
 	}
 

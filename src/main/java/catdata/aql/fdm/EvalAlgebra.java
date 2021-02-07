@@ -30,47 +30,46 @@ import catdata.aql.SqlTypeSide;
 import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.Var;
+import catdata.aql.exp.En;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> extends
-		Algebra<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Y> {
+		Algebra<Ty, En2, Sym, Fk2, Att2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>, Y, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1, Ty>>, Y> {
 
 	private final Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Q;
 
 	private final Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I;
 
-	private final Map<En2, Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>>>> ens = new THashMap<>();
+	private final Map<En2, Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>, Chc<En1, Ty>>>>> ens = new THashMap<>();
 
 	@Override
-	public Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> fk(Fk2 fk,
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row) {
+	public Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> fk(Fk2 fk,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> row) {
 		Transform<Ty, En1, Sym, Fk1, Att1, Var, Var, Var, Var, ID, Chc<Var, Pair<ID, Att1>>, ID, Chc<Var, Pair<ID, Att1>>> t = Q.fks
 				.get(fk);
 
 		List<Var> l = ens.get(Q.dst.fks.get(fk).second).first;
 		En2 en2 = Q.dst.fks.get(fk).second;
-		Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> r = new Row<>(en2);
-
-//		Map<Var, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> ret = new THashMap<>(l.size());
+		Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> r = new Row<>(en2);
 		for (Var v : l) {
 			if (t.src().gens().containsKey(v)) {
-				r = new Row<>(r, v, trans2(row, t.gens().apply(v,t.src().gens().get(v)).convert()), en2, t.src().gens().get(v));
+				r = new Row<>(r, v, trans2(row, t.gens().apply(v, t.src().gens().get(v)).convert()), en2,
+						Chc.inLeft(t.src().gens().get(v)));
 			} else {
-				r = new Row<>(r, v, trans2(row, t.sks().apply(v,t.src().sks().get(v)).convert()), en2, t.src().sks().get(v));
+				r = new Row<>(r, v, trans2(row, t.sks().apply(v, t.src().sks().get(v)).convert()), en2,
+						Chc.inRight(t.src().sks().get(v)));
 			}
 
 		}
 
-		return r; // Row.mkRow(l, ret, Q.dst.fks.get(fk).second,
-					// Q.ens.get(Q.dst.fks.get(fk).second).gens,
-					// Q.ens.get(Q.dst.fks.get(fk).second).sks);
+		return r;
 	}
 
 	private Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> trans2(
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> row,
 			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> term) {
 		if (term.gen() != null) {
 			return row.get(term.gen());
@@ -97,16 +96,16 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	@Override
-	public Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> gen(
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> gen) {
+	public Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> gen(
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> gen) {
 		return gen;
 	}
 
-	private final Map<Att2, Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> aggs;
+	private final Map<Att2, Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>, Term<Ty, Void, Sym, Void, Void, Void, Y>>> aggs;
 
 	@Override
 	public synchronized Term<Ty, Void, Sym, Void, Void, Void, Y> att(Att2 att,
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> x) {
 		if (!Q.atts.get(att).left) {
 			return aggs.get(att).get(x);
 		}
@@ -116,7 +115,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	@Override
-	public Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> en(En2 en) {
+	public Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> en(En2 en) {
 		return ens.get(en).second;
 	}
 
@@ -126,8 +125,8 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	@Override
-	public Term<Void, En2, Void, Fk2, Void, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Void> repr(En2 en,
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
+	public Term<Void, En2, Void, Fk2, Void, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>, Void> repr(En2 en,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> x) {
 		return Term.Gen(x);
 	}
 
@@ -137,14 +136,15 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	@Override
-	public Object printX(En2 en2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x) {
-		return x.toString(z -> {
+	public Object printX(En2 en2, Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> x) {
+		return x.toString((Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> z) -> {
 			if (!z.left) {
 				return z.r.toString();
 			}
-			@SuppressWarnings("unchecked")
-			En1 en1 = (En1) x.t;
-
+			En1 en1 = x.t.l;
+			if (!I.schema().ens.contains(en1)) {
+				Util.anomaly();
+			}
 			return I.algebra().printX(en1, z.l).toString();
 		});
 	}
@@ -179,7 +179,8 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			q = q.deParam();
 		}
 		Connection conn = null;
-		boolean safe = (I.algebra().talg().sks.isEmpty() && I.algebra().talg().eqs.isEmpty()) || allowUnsafeSql();
+		boolean safe = (I.algebra().talg().sks.isEmpty() && I.algebra().talg().eqsNoDefns().isEmpty())
+				|| allowUnsafeSql();
 		boolean useSql = I.size() >= minSizeForSql() && safe && (SqlTypeSide.tys().containsAll(I.schema().typeSide.tys))
 				&& SqlTypeSide.syms().keySet()
 						.containsAll(I.schema().typeSide.syms.keySet()) /* && !q.hasAgg() should be fine */;
@@ -202,7 +203,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			this.Q = q;
 		}
 		for (En2 en2 : Q.ens.keySet()) {
-			Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>>> x = eval(en2,
+			Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>>> x = eval(en2,
 					this.Q.ens.get(en2), conn, useSql);
 			ens.put(en2, x);
 		}
@@ -217,10 +218,10 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			List<Var> plan = new LinkedList<>(agg.lgens.keySet());
 			boolean useIndices = false;
 
-			Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Term<Ty, Void, Sym, Void, Void, Void, Y>> map = new THashMap<>();
+			Map<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>, Term<Ty, Void, Sym, Void, Void, Void, Y>> map = new THashMap<>();
 
-			for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row : ens.get(en2).second) {
-				Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = new LinkedList<>();
+			for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> row : ens.get(en2).second) {
+				Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> ret = new LinkedList<>();
 				Collection<Object> done = new THashSet<>(plan.size());
 				Frozen<Ty, En1, Sym, Fk1, Att1> ddd = agg.toFrozen(Q.params, Q.src, options, this.Q.ens.get(en2));
 				ret.add(row);
@@ -239,7 +240,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 				Term<Ty, Void, Sym, Void, Void, Void, Y> qq = I.schema().typeSide.js.reduce(result2t);
 				list.add(qq);
 
-				for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> x : ret) {
+				for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> x : ret) {
 					Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> aaaa = trans1x(x, agg.ret, I,
 							Q.ens.get(Q.dst.atts.get(entry.getKey()).first));
 					Term<Ty, Void, Sym, Void, Void, Void, Y> result2 = I.algebra().intoY(aaaa);
@@ -301,20 +302,23 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 		return (int) options.getOrDefault(AqlOption.eval_use_sql_above);
 	}
 
-	private Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>>> eval(En2 en2,
+	public final Map<En2, List<Var>> order = new THashMap<>();
+
+	private Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>>> eval(En2 en2,
 			Frozen<Ty, En1, Sym, Fk1, Att1> q, Connection conn, boolean useSql) {
 		// Integer k = maxTempSize();
 		if (useSql) {
 			for (Frozen<Ty, En1, Sym, Fk1, Att1> z : Q.ens.values()) {
 				if (!z.sks().isEmpty()) {
-					throw new RuntimeException("FROM clauses can't bind types in SQL.");
+					throw new RuntimeException("FROM clauses can't bind types in SQL.  Given: " + q);
 				}
 			}
-			Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>>> ret2 = evalSql(en2, q,
+			order.put(en2, q.order);
+			Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>>> ret2 = evalSql(en2, q,
 					I.algebra().intifyX((int) options.getOrDefault(AqlOption.start_ids_at)), conn);
 			return ret2;
 		}
-		Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = new LinkedList<>();
+		Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> ret = new LinkedList<>();
 		List<Var> plan = q.order(options, I);
 		boolean useIndices = useIndices() && q.gens.size() > 1 && I.algebra().hasFreeTypeAlgebra();
 		ret.add(new Row<>(en2));
@@ -329,28 +333,31 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			ret = EvalAlgebra.extend(ret, v, q, I, useIndices, x, done);
 			done.add(v);
 		}
+		// System.out.println("plan " + plan);
+		// System.out.println("order " + Q.ens.get(en2).order);
+		order.put(en2, plan);
 		return new Pair<>(plan, ret);
 
 	}
 
-	private Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>>> evalSql(En2 en2,
+	private Pair<List<Var>, Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>>> evalSql(En2 en2,
 			Frozen<Ty, En1, Sym, Fk1, Att1> q, Pair<TObjectIntMap<X>, TIntObjectMap<X>> pair, Connection conn) {
 
 		if (q.gens.isEmpty()) {
-			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = new LinkedList<>();
+			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> ret = new LinkedList<>();
 			ret.add(new Row<>(en2));
 			return new Pair<>((Collections.emptyList()), ret);
 		}
 		List<Var> order = new LinkedList<>();
-		q.gens().keySet((x)->{
+		q.gens().keySet((x) -> {
 			order.add(x);
 		});
 		try (Statement stmt = conn.createStatement()) {
-			ResultSet rs = stmt.executeQuery(Q.toSQL("").get(en2));
-			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = (new LinkedList<>());
+			ResultSet rs = stmt.executeQuery(Q.toSQL("", true).get(en2));
+			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> ret = (new LinkedList<>());
 			// ResultSetMetaData rsmd = rs.getMetaData();
 			while (rs.next()) {
-				Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> r = new Row<>(en2);
+				Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> r = new Row<>(en2);
 				for (Var v : order) {
 					X x = pair.second.get(rs.getInt(v.var));
 					if (x == null) {
@@ -358,7 +365,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 						rs.close();
 						throw new RuntimeException("Encountered a NULL generator");
 					}
-					r = new Row<>(r, v, Chc.inLeft(x), r.en2(), q.gens.get(v));
+					r = new Row<>(r, v, Chc.inLeft(x), r.en2(), Chc.inLeft(q.gens.get(v)));
 				}
 				ret.add(r);
 			}
@@ -373,7 +380,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y, En2> List<Pair<Fk1, X>> getAccessPath(Var v,
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
 			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Collection<Object> done) {
 		List<Pair<Fk1, X>> ret = new LinkedList<>();
 		q2.eqs((a, b) -> {
@@ -395,7 +402,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y, En2> List<Pair<Att1, Object>> getAccessPath2(Var v,
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
 			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Collection<Object> done) {
 		List<Pair<Att1, Object>> ret = new LinkedList<>();
 		q2.eqs((a, b) -> {
@@ -422,7 +429,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> trans1x(
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> tuple,
 			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2,
 			Frozen<Ty, En1, Sym, Fk1, Att1> Q) {
 		if (first.var != null) {
@@ -467,7 +474,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, X, Y> Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> trans1(
-			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple,
+			Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> tuple,
 			Term<Ty, En1, Sym, Fk1, Att1, Var, Var> first, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2,
 			Frozen<Ty, En1, Sym, Fk1, Att1> Q, Collection<Object> done) {
 		// if (!tuple.asMap().keySet().equals(done)) {
@@ -537,14 +544,14 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	// TODO CQL slowness hurts chase
-	public static <En2, X, Y, Ty, En1, Sym, Fk1, Att1, Gen, Sk> Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> extend(
-			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> tuples, Var v,
+	public static <En2, X, Y, Ty, En1, Sym, Fk1, Att1, Gen, Sk> Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> extend(
+			Collection<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> tuples, Var v,
 			Frozen<Ty, En1, Sym, Fk1, Att1> q, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I, boolean useIndices,
 			Chc<En1, Ty> enOrTy, Collection<Object> done) {
-		List<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>> ret = new LinkedList<>();
+		List<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>> ret = new LinkedList<>();
 
 		Iterator<Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> dom;
-		for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> tuple : tuples) {
+		for (Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> tuple : tuples) {
 			if (useIndices && enOrTy.left) {
 				List<Pair<Fk1, X>> l1 = EvalAlgebra.getAccessPath(v, tuple, q, I, done);
 				List<Pair<Att1, Object>> l2 = EvalAlgebra.getAccessPath2(v, tuple, q, I, done);
@@ -557,9 +564,9 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 			outer: while (dom.hasNext()) {
 				Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> x = dom.next();
 
-				Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>> row = new Row<>(tuple, v, x, tuple.en2(),
+				Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> row = new Row<>(tuple, v, x, tuple.en2(),
 						enOrTy);
-				
+
 				for (Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> eq : q
 						.eqsAsIterable()) {
 					Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = EvalAlgebra.trans1(row, eq.first, I, q,
@@ -592,7 +599,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
 	}
 
 	@Override
-	public Chc<Y, Pair<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>>, Att2>> reprT_prot(Y y) {
+	public Chc<Y, Pair<Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>>, Att2>> reprT_prot(Y y) {
 		return Chc.inLeft(y);
 	}
 

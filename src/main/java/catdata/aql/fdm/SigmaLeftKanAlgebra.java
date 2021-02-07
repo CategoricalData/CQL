@@ -31,7 +31,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 		implements DP<Ty, En2, Sym, Fk2, Att2, Gen, Sk> {
 
 	public boolean hasFreeTypeAlgebra() {
-		return talg().eqs.isEmpty();
+		return talg().eqsNoDefns().isEmpty();
 	}
 	
 	
@@ -41,7 +41,7 @@ public class SigmaLeftKanAlgebra<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, S
 	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
+		return talg().eqsNoDefns().stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
 				.collect(Collectors.toList()).isEmpty();
 	}
 

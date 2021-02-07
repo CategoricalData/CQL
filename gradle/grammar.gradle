@@ -1,7 +1,0 @@
-
-generateGrammarSource {
-    maxHeapSize = "64m"
-    arguments += ["-visitor", "-listener", "-long-messages",
-                  "-package", "catdata.aql.grammar",
-                  "-grammar", "AqlParser.g4"]
-}

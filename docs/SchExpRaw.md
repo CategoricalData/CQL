@@ -1,0 +1,1 @@
+A literal schema, or an extension of a type side by attributes (entity to type, unary) and foreign keys (entity to entity, unary) and equations in a single variable with entity sort. See All_Syntax for an example.

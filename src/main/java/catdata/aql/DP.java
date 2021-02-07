@@ -7,6 +7,10 @@ import catdata.Chc;
 public interface DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
 	public abstract String toStringProver();
+	
+	public default boolean supportsTrivialityCheck() {
+		return false;
+	}
 
 	boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs);

@@ -21,8 +21,7 @@ import gnu.trove.set.hash.THashSet;
 public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		extends Instance<Ty, En1, Sym, Fk1, Att1, Var, Var, ID, Chc<Var, Pair<ID, Att1>>> {
 
-	
-	//private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>();
+	// private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col = new Collage<>();
 
 	public final Map<Var, En1> gens;
 	public final Map<Var, Ty> sks;
@@ -34,10 +33,10 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 
 	public final AqlOptions options;
 	public final List<Var> order;
-	
-	public Frozen(Map<Var, En1> gens,  Map<Var, Ty> sks, List<Var> order,
-			Set<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqs, Schema<Ty, En1, Sym, Fk1, Att1> schema,
-			AqlOptions options) {
+
+	public Frozen(Map<Var, En1> gens, Map<Var, Ty> sks, List<Var> order,
+			Set<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqs,
+			Schema<Ty, En1, Sym, Fk1, Att1> schema, AqlOptions options) {
 		Util.assertNotNull(options);
 		this.order = order;
 		this.gens = gens;
@@ -92,8 +91,9 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 	}
 
 	@Override
-	public synchronized void eqs(BiConsumer<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> f) {
-		eqs.forEach(x->f.accept(x.first, x.second));
+	public synchronized void eqs(
+			BiConsumer<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>> f) {
+		eqs.forEach(x -> f.accept(x.first, x.second));
 	}
 
 	@Override
@@ -203,7 +203,9 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		return ret;
 	}
 
-	public <Gen, Sk, X, Y> List<Var> order(AqlOptions options, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I) {
+	public synchronized <Gen, Sk, X, Y> List<Var> order(AqlOptions options,
+			Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I) {
+
 		if (!(Boolean) options.getOrDefault(AqlOption.eval_reorder_joins)
 				|| gens().size() > (Integer) options.getOrDefault(AqlOption.eval_max_plan_depth)) {
 			return new ArrayList<>(Util.union(gens.keySet(), sks.keySet()));
@@ -224,11 +226,8 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 		return lowest_plan;
 	}
 
-	public Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> 
-					 eqsAsIterable() {
+	public Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, Var, Var>, Term<Ty, En1, Sym, Fk1, Att1, Var, Var>>> eqsAsIterable() {
 		return eqs;
 	}
-
-	
 
 }

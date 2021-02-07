@@ -1,0 +1,1 @@
+A literal directed multi graph, given as nodes and edges.  See All_Syntax for an example.

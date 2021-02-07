@@ -19,7 +19,7 @@ CREATE TABLE Employee(
 CREATE TABLE Department(
  id INT PRIMARY KEY,
  name VARCHAR(255),
- secretary INT,
+ secretary INT
 )"
  
 "
@@ -87,7 +87,7 @@ instance J = import_jdbc ""  : S {
 //use name as first name
   //use null as last name
   //use id as age	
-	Employee -> "SELECT id, manager, worksIn, name AS first, NULL as last, id AS age FROM Employee"
+	Employee -> "SELECT id, manager, worksIn, name AS first, 'lname' as last, id AS age FROM Employee"
 	Department -> "SELECT id, secretary, name FROM Department"
 
 	options
@@ -129,12 +129,31 @@ command view2 = exec_jdbc ""  {
 }
 
 //to import all the data in a SQL DB at once onto an auto-generated schema, use the following:
-instance import_all_inst = import_jdbc_all "" 
+instance import_all_inst = import_jdbc_all "" {
+ options allow_sql_import_all_unsafe=true
+}
 //the schema can be obtained as
 schema import_all_schema = schemaOf import_all_inst
 //or
-schema import_all_schema_2 = import_jdbc_all "" 
+schema import_all_schema_2 = import_jdbc_all "" {
+ options allow_sql_import_all_unsafe=true
+}
 
+/////////////////////
+//direct method to land sql data
+
+schema S_direct = literal : sql {
+	entities
+		Employee 
+		Department
+  	attributes
+		manager  name : Employee -> Other
+		worksIn   : Employee -> Other
+		secretary : Department -> Other
+  		name 	  : Department -> Other
+ }
+
+instance I = import_jdbc_direct "" "ROW_NUMBER() OVER ()" : S_direct 
 
 ////////////////////////////////////////////////////////////
 //

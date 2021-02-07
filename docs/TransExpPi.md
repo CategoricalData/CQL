@@ -1,0 +1,1 @@
+Computes the transform (pi m i1) -> (pi m i2) from a transform i1 -> i2.

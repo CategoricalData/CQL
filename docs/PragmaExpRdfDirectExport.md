@@ -1,0 +1,1 @@
+Emit RDF triples for a CQL instance with one table and three columns, subject, predicate, object

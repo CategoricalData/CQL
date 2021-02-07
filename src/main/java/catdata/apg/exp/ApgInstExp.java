@@ -50,7 +50,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 		public abstract ApgInstExpVar visitApgInstExpVar(P param, R exp) throws E;
 
 		public abstract ApgInstExpRaw visitApgInstExpRaw(P param, R exp) throws E;
-		
+
 		public abstract ApgInstExpDelta visitApgInstExpDelta(P param, R exp) throws E;
 
 		public abstract ApgInstExpEqualize visitApgInstExpEqualize(P params, R r) throws E;
@@ -77,7 +77,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 		public abstract R visit(P params, ApgInstExpEqualize exp) throws E;
 
 		public abstract R visit(P params, ApgInstExpCoEqualize exp) throws E;
-		
+
 		public abstract R visit(P params, ApgInstExpDelta exp) throws E;
 
 	}
@@ -193,13 +193,13 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 		public final Set<ApgInstExp> imports;
 		public final Map<String, Pair<String, ApgPreTerm>> Es;
 
-		public ApgInstExpRaw(ApgSchExp typeside0, List<ApgInstExp> imports0, 
+		public ApgInstExpRaw(ApgSchExp typeside0, List<ApgInstExp> imports0,
 				List<Pair<LocStr, Pair<String, ApgPreTerm>>> Es0) {
 			Util.assertNotNull(typeside0, imports0, Es0);
 			this.typeside = typeside0;
 			this.imports = Util.toSetSafely(imports0);
 			this.Es = Util.toMapSafely(LocStr.list2(Es0));
-	
+
 			doGuiIndex(imports0, Es0);
 		}
 
@@ -262,22 +262,30 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 		@Override
 		protected synchronized ApgInstance eval0(AqlEnv env, boolean isCompileTime) {
 			ApgSchema<Object> ts = typeside.eval(env, isCompileTime);
-			Map<Object, Pair<Object, ApgTerm<Object,Object>>> Es0 = new THashMap<>();
-		
+			Map<Object, Pair<Object, ApgTerm<Object, Object>>> Es0 = new THashMap<>();
+
 			for (ApgInstExp w : imports) {
 				ApgInstance x = w.eval(env, isCompileTime);
 				Util.putAllSafely(Es0, x.Es);
 			}
 			for (Entry<String, Pair<String, ApgPreTerm>> eld : Es.entrySet()) {
-				Pair<Object, ApgTerm<Object,Object>> p = new Pair<>(eld.getValue().first,eval0(eld.getValue().second, ts, ts.schema.get(eld.getValue().first), Es0));
+				ApgTy<Object> z = ts.schema.get(eld.getValue().first);
+				if (z == null) {
+					throw new RuntimeException(eld.getValue().first + " not found in " + ts.schema.keySet() + " (perhaps the instance is not on the schema you intend?)");
+				}
+				Pair<Object, ApgTerm<Object, Object>> p = new Pair<>(eld.getValue().first,
+						eval0(eld.getValue().second, ts, z, Es0));
 				Es0.put(eld.getKey(), p);
 			}
 
 			return new ApgInstance<>(ts, Es0);
 		}
 
-		private ApgTerm<Object,Object> eval0(ApgPreTerm term, ApgSchema<Object> ts, ApgTy<Object> ty,
-				Map<Object, Pair<Object, ApgTerm<Object,Object>>> Es0) {
+		private ApgTerm<Object, Object> eval0(ApgPreTerm term, ApgSchema<Object> ts, ApgTy<Object> ty,
+				Map<Object, Pair<Object, ApgTerm<Object, Object>>> Es0) {
+			if (ty == null) {
+				Util.anomaly();
+			}
 			if (ty.b != null) {
 				if (term.str == null) {
 					throw new RuntimeException("Expecting data at type " + ty.b + ", but received " + term);
@@ -314,14 +322,14 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 				if (term.fields == null) {
 					throw new RuntimeException("Expecting tuple at type " + ty + ", but received " + term);
 				}
-				Map<String, ApgTerm<Object,Object>> map = new THashMap<>();
+				Map<String, ApgTerm<Object, Object>> map = new THashMap<>();
 
 				for (Pair<String, ApgPreTerm> x : term.fields) {
 					ApgTy<Object> w = ty.m.get(x.first);
 					if (w == null) {
 						throw new RuntimeException("In " + term + ", " + x.first + ", is not a field in " + ty);
 					}
-					ApgTerm<Object,Object> o = eval0(x.second, ts, w, Es0);
+					ApgTerm<Object, Object> o = eval0(x.second, ts, w, Es0);
 					map.put(x.first, o);
 				}
 				for (String w : ty.m.keySet()) {
@@ -339,11 +347,11 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 				if (w == null) {
 					throw new RuntimeException("In " + term + ", " + term.inj + ", is not a field in " + ty);
 				}
-				ApgTerm<Object,Object> o2 = eval0(term.arg, ts, w, Es0);
-				ApgTerm<Object,Object> o = o2.convert();
+				ApgTerm<Object, Object> o2 = eval0(term.arg, ts, w, Es0);
+				ApgTerm<Object, Object> o = o2.convert();
 
-				ApgTerm<Object,Object> z = ApgTerm.ApgTermInj(term.inj, o, d.get(term.inj));
-				
+				ApgTerm<Object, Object> z = ApgTerm.ApgTermInj(term.inj, o, d.get(term.inj));
+
 				return z.convert();
 			}
 
@@ -356,7 +364,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((Es == null) ? 0 : Es.hashCode());
-			//result = prime * result + ((Ls == null) ? 0 : Ls.hashCode());
+			// result = prime * result + ((Ls == null) ? 0 : Ls.hashCode());
 			result = prime * result + ((typeside == null) ? 0 : typeside.hashCode());
 			return result;
 		}
@@ -617,7 +625,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 			if (!a0.equals(b0)) {
 				throw new RuntimeException("Different typesides: " + a0 + " and " + b0);
 			}
-			return new ApgSchExpTimes(a,b);
+			return new ApgSchExpTimes(a, b);
 		}
 
 		@SuppressWarnings("rawtypes")
@@ -709,7 +717,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 			if (!a0.equals(b0)) {
 				throw new RuntimeException("Different typesides: " + a0 + " and " + b0);
 			}
-			return new ApgSchExpPlus(a,b);
+			return new ApgSchExpPlus(a, b);
 		}
 
 		@Override
@@ -890,14 +898,14 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 		}
 
 	}
-	
+
 	//////////////////////////////////////
-	
+
 	public static final class ApgInstExpDelta extends ApgInstExp {
-	
+
 		public ApgInstExp J;
 		public ApgMapExp F;
-		
+
 		public ApgInstExpDelta(ApgMapExp f, ApgInstExp j) {
 			J = j;
 			F = f;
@@ -977,10 +985,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 		public Collection<Pair<String, Kind>> deps() {
 			return Util.union(J.deps(), F.deps());
 		}
-		
-		
-		
+
 	}
-	
-	
+
 }

@@ -1,0 +1,1 @@
+Given a term in context x:E |- e : t in the target of a query, returns a transform frozen t -> frozen E.

@@ -3,14 +3,8 @@ package catdata.aql.fdm;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import org.apache.commons.collections4.iterators.IteratorIterable;
-
-import com.google.common.collect.Iterators;
-
 import catdata.Pair;
-import catdata.Unit;
 import catdata.aql.Algebra;
-import catdata.aql.Collage;
 import catdata.aql.DP;
 import catdata.aql.Instance;
 import catdata.aql.Schema;

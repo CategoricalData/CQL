@@ -1,0 +1,1 @@
+Compose two queries, left to right.

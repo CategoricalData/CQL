@@ -1,0 +1,1 @@
+An APG instance literal on a schema, consisting of a set of elements and a function taking each element to a label and to an APG term in such a way that the term has the type given by the schema.

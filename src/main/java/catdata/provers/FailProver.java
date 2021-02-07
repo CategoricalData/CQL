@@ -23,4 +23,9 @@ public class FailProver<T, C, V> extends DPKB<T, C, V> {
 		throw new RuntimeException("Fail");
 	}
 
+  @Override
+  public boolean supportsTrivialityCheck() {
+    return false;
+  }
+
 }

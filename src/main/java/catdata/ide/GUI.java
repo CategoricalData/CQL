@@ -49,7 +49,6 @@ import catdata.aql.exp.AqlEnv;
 import catdata.aql.gui.AqlCodeEditor;
 import catdata.ide.IdeOptions.IdeOption;
 import catdata.nested.NraViewer;
-import catdata.sql.SqlChecker;
 import easik.Easik;
 import easik.ui.menu.popup.ImportSketchAction;
 import gnu.trove.map.hash.THashMap;
@@ -207,7 +206,7 @@ public class GUI extends JPanel {
 
 		Menu toolsMenu = new Menu("Tools");
 
-		
+
 		MenuItem optionsItem = new MenuItem("Options");
 		toolsMenu.add(optionsItem);
 		optionsItem.addActionListener(e -> IdeOptions.showOptions());
@@ -224,10 +223,6 @@ public class GUI extends JPanel {
 		toolsMenu.add(sqlMapperItem);
 		sqlMapperItem.addActionListener(x -> SqlMapper.showGuesser());
 */
-		MenuItem sqlCheckItem = new MenuItem("SQL Checker");
-		toolsMenu.add(sqlCheckItem);
-		sqlCheckItem.addActionListener(x -> new SqlChecker()); 
-
 		MenuItem shredItem = new MenuItem("NR Shredder");
 		toolsMenu.add(shredItem);
 		shredItem.addActionListener(x -> new NraViewer());
@@ -415,18 +410,18 @@ public class GUI extends JPanel {
             addActionListener(this);
         }
 
-       
+
 
         @Override
-        public Dimension getPreferredSize(){ 
-            Dimension dim = super.getPreferredSize(); 
+        public Dimension getPreferredSize(){
+            Dimension dim = super.getPreferredSize();
           //  if ( !layingOut ) {
                 dim.width = 40 + dim.width;
            // }
-            return dim; 
+            return dim;
         }
     }
-	
+
 	private static JPanel makeToolBar() {
 		JPanel toolBar = new JPanel(new GridLayout(1, 9));
 
@@ -448,7 +443,7 @@ public class GUI extends JPanel {
 				ed.abortAction();
 			}
 		}); */
-		
+
 		JButton deployB = new JButton("Deploy");
 		deployB.addActionListener(e -> {
 			CodeEditor ed = (CodeEditor) editors.getComponentAt(editors.getSelectedIndex());
@@ -520,11 +515,11 @@ public class GUI extends JPanel {
 
 		p.add(back);
 		p.add(fwd);
-		
+
 		toolBar.add(deployB);
 		toolBar.add(optionsb);
 		toolBar.add(p);
-		
+
 		//toolBar.add(helpb);
 		//JPanel p = new JPanel(new BorderLayout());
 		toolBar.add(new JLabel("Example:", SwingConstants.RIGHT));
@@ -552,7 +547,7 @@ public class GUI extends JPanel {
 		//MenuItem im = new MenuItem("Infer Map/Query/Trans/Inst");
 		//im.addActionListener(x -> infer());
 		//menu.add(im);
-		
+
 
 		MenuItem ih = new MenuItem("Emit HTML");
 		ih.addActionListener(x -> {
@@ -570,11 +565,11 @@ public class GUI extends JPanel {
 		MenuItem formatItem = new MenuItem("Code Format");
 		menu.add(formatItem);
 		formatItem.addActionListener(x -> formatActionAql());
-		
+
 		MenuItem html = new MenuItem("Visual Edit");
 		html.addActionListener(x -> {
 			CodeEditor<?, ?, ?> c = getSelectedEditor();
-			if (c == null) { 
+			if (c == null) {
 				return;
 			}
 			if (c instanceof AqlCodeEditor) {
@@ -601,7 +596,7 @@ public class GUI extends JPanel {
 		//MenuItem abortItem = new MenuItem("Stop");
 		//toolsMenu.add(abortItem);
 		//abortItem.addActionListener(e -> abortAction());
-		
+
 		MenuItem deployItem = new MenuItem("Deploy");
 		menu.add(deployItem);
 		deployItem.addActionListener(e -> deployAction());
@@ -753,13 +748,13 @@ public class GUI extends JPanel {
 
 	/*
 	 * private static class AllFilter extends FileFilter {
-	 * 
+	 *
 	 * @Override public boolean accept(File f) { for (Language l :
 	 * Language.values()) { if (f.getName().endsWith("." + l.fileExtension())) {
 	 * return true; } }
-	 * 
+	 *
 	 * return f.isDirectory(); }
-	 * 
+	 *
 	 * @Override public String getDescription() { return "All CatData Files"; } }
 	 */
 	public static class AllNameFilter implements FilenameFilter {
@@ -830,7 +825,7 @@ public class GUI extends JPanel {
 		}
 		saveDialog = new FileDialog((Dialog) null, "Save", FileDialog.SAVE);
 		saveDialog.setFile("*." + lang.fileExtension());
-		
+
 		// openDialog.setFilenameFilter(new AllNameFilter());
 		// if (!GlobalOptions.debug.general.file_path.isEmpty()) {
 		saveDialog.setDirectory(IdeOptions.theCurrentOptions.getFile(IdeOption.FILE_PATH).getAbsolutePath());
@@ -949,21 +944,21 @@ public class GUI extends JPanel {
 		editors.setTabComponentAt(i, new ButtonTabComponent(editors, x -> GUI.deInc(x)));
 		editors.setSelectedIndex(i);
 
-			
+
 		c.topArea.setCaretPosition(0);
 		c.topArea.requestFocusInWindow();
-		
-	
-		
+
+
+
 		//thr.execute(() -> { try {
 		//		Thread.sleep(4000);
-		//		SwingUtilities.invokeLater(() -> 
+		//		SwingUtilities.invokeLater(() ->
 		//		c.foldAll(true));
 		//	} catch (InterruptedException e) {
 		//	}
-			
+
 	//});
-		
+
 		return c.id;
 	}
 

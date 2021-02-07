@@ -1,19 +1,19 @@
-//one = two should not be provable 
-typeside EmptySortsCheck = literal { 
+//one = two should not be provable
+typeside EmptySortsCheck = literal {
 	types
- 		Void 
+ 		Void
  		nat
 	constants
  		one two : nat
- 	equations  
-	 	 forall x:Void. one = two 
+ 	equations
+	 	 forall x:Void. one = two
 	options
 		prover = completion
 //		completion_precedence = "one two"
-} 
+}
 
 typeside Group = literal {
-	types 
+	types
 		S
 	constants
 		e : S
@@ -30,7 +30,7 @@ typeside Group = literal {
 }
 
 typeside LR = literal {
-	types 
+	types
 		S
 	constants
 		e : S
@@ -47,7 +47,7 @@ typeside LR = literal {
 }
 
 typeside RL = literal {
-	types 
+	types
 		S
 	constants
 		e : S
@@ -71,7 +71,7 @@ typeside Arith = literal {
 	functions
 		succ : N -> N
 		plus : N,N -> N
-		times : N,N -> N  
+		times : N,N -> N
 	equations
 		forall x. plus(zero, x) = x
 		forall x, y. plus(succ(x),y) = succ(plus(x,y))
@@ -79,13 +79,13 @@ typeside Arith = literal {
 		forall x, y. times(succ(x),y) = plus(y,times(x,y))
 	options
 		prover = completion
-//		completion_precedence = "zero succ plus times"	
-} 
- 
+//		completion_precedence = "zero succ plus times"
+}
+
 //try ((a o b) o (c o d)) = ((a o c) o (b o d)) and
 //forall p q r s. ((p o q) o (r o s)) = ((p o r) o (q o s))
 typeside Entropic = literal {
-	 types 
+	 types
 		S
 	constants
 		a b c d : S
@@ -96,11 +96,11 @@ typeside Entropic = literal {
 		forall x, y. o(o(x,y),x) = x
 	options
 		prover = completion
-		completion_precedence = "o a b c d"	
-} 
+		completion_precedence = "o a b c d"
+}
 
 typeside ACUIN = literal {
-	types 
+	types
 		S
 	constants
 		e : S
@@ -114,7 +114,7 @@ typeside ACUIN = literal {
 //		forall x. o(x, x) = x
 	options
 		prover = completion
-		completion_precedence = "e n o"	
+		completion_precedence = "e n o"
 //		completion_syntactic_ac = true
 //		timeout = 10
 }
@@ -135,7 +135,7 @@ typeside DistributiveLattice = literal {
 		 forall x. (x u f)=x
 		 forall x y. (y u x) = (x u y)
 		 forall x y z. (x u (y u z)) = ((x u y) u z)
-		 forall x. (x u t) = t		 
+		 forall x. (x u t) = t
 		 //forall x y z. (x n (y u z)) = ((x n y) u (x n z))
 	options
 		prover=completion

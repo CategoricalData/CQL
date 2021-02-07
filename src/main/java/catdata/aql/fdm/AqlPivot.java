@@ -54,7 +54,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 		Set<Pair<Term<Ty, En, Sym, Fk, Att, X, Y>, Term<Ty, En, Sym, Fk, Att, X, Y>>> eqs0 = new THashSet<>();
 		Collage<Ty, En, Sym, Fk, Att, X, Y> col = new CCollage<>();
 		
-		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> x : I.algebra().talg().eqs) {
+		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> x : I.algebra().talg().allEqs()) {
 			col.eqs().add(new Eq<>(null, x.first.convert(), x.second.convert()));
 		}
 		col.sks().putAll(I.algebra().talg().sks);
@@ -121,7 +121,7 @@ public class AqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 			ctx0.add(y);
 			tysX.put(ty, ctx0);
 		}
-		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> x : I.algebra().talg().eqs) {
+		for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> x : I.algebra().talg().allEqs()) {
 			eqsX.add(new Eq<>(null, x.first, x.second));
 		}
 		DP<Ty, En, Sym, Fk, Att, Void, Void> dp1 = new DP<>() {

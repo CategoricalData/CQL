@@ -1,17 +1,9 @@
 package catdata.aql;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 
 import catdata.Pair;
 import catdata.Util;
@@ -19,7 +11,7 @@ import gnu.trove.map.hash.THashMap;
 
 public class AqlJs<Ty, Sym> {
 
-	private static final String postfix = "\n\nPossibly helpful info: 32-bit Java integers cannot exceed 2 billion; if you need larger numbers please use strings \n\nPossibly helpful info: javascript arguments are accessed as input[0], input[1], etc.\n\nPossibly useful links: http://docs.oracle.com/javase/8/docs/api/ and http://docs.oracle.com/javase/8/docs/technotes/guides/scripting/nashorn/intro.html .";
+	private static final String postfix = ""; //\n\nPossibly helpful info: 32-bit Java integers cannot exceed 2 billion; if you need larger numbers please use strings \n\nPossibly useful link: http://docs.oracle.com/javase/8/docs/api/ .";
 
 	private final Map<Ty, String> iso1;
 	private final Map<Sym, String> iso2;
@@ -29,135 +21,81 @@ public class AqlJs<Ty, Sym> {
 	public final Map<Ty, String> java_parsers;
 	public final Map<Sym, String> java_fns;
 
-	private final ScriptEngine engine;
+	private final ExternalCodeUtils external;
 
-	{
-		try {
-			Class.forName("jdk.nashorn.api.scripting.NashornScriptEngine");
-		} catch (Throwable thr) {
-			thr.printStackTrace();
-		}
-	}
+	private final String languageId, languageName;
 
-	public AqlJs(Map<Sym, Pair<List<Ty>, Ty>> syms, Map<Ty, String> java_tys, Map<Ty, String> java_parsers,
-			Map<Sym, String> java_fns) {
+	public AqlJs(String languageId, Map<Sym, Pair<List<Ty>, Ty>> syms, Map<Ty, String> java_tys,
+			Map<Ty, String> java_parsers, Map<Sym, String> java_fns) {
+		this.languageId = languageId;
 		this.syms = syms;
 		this.java_fns = java_fns;
 		this.java_parsers = java_parsers;
 		this.java_tys = java_tys;
 		Object last = "";
 
-		
 		if (java_tys.isEmpty()) {
-			engine = null;
 			iso1 = null;
 			iso2 = null;
-			//cache = null;
+			external = null;
+			languageName = null;
 			return;
 		}
+
 		iso1 = new THashMap<>(java_parsers.size());
-		iso2 = new THashMap<>(java_parsers.size());
-	//	cache = new THashMap<>(java_parsers.size());
+		iso2 = new THashMap<>(java_fns.size());
+
+		external = new ExternalCodeUtils();
+		languageName = external.getLanguageName(languageId)
+				.orElseThrow(() -> new RuntimeException("Graal language not installed: " + languageId));
+
 		try {
-			engine = new ScriptEngineManager().getEngineByName("nashorn");
-			Compilable eng = (Compilable) engine;
-
-			int i = 0;
-			for (Ty k : java_parsers.keySet()) {
-				String m = java_parsers.get(k);
-				String w = "aqljsparser_" + i;
-			
-				if (m.equals("return input[0]")) {
-				//	cache.put(k, new THashMap<>());
-					iso1.put(k, "");
-				} else {
-					String ret = "function aqljsparser_" + i + "(input) { " + m + " }\n\n";
-				//	cache.put(k, new THashMap<>());
-					iso1.put(k, w);
-					CompiledScript x = eng.compile(ret);
-					x.eval();
-				}
-				
-				i++;
-				last = k;
+			for (Map.Entry<Ty, String> entry : java_parsers.entrySet()) {
+				iso1.put(entry.getKey(), entry.getValue());
+				last = entry.getKey();
 			}
-			i = 0;
-			for (Sym k : java_fns.keySet()) {
-				String ret = "function aqljsfn_" + i + "(input) { " + java_fns.get(k) + " }\n\n";
-				iso2.put(k, "aqljsfn_" + i);
-				i++;
-				// engine.eval(ret);
-
-				CompiledScript x = eng.compile(ret);
-				x.eval();
-
-				last = k;
+			for (Map.Entry<Sym, String> entry : java_fns.entrySet()) {
+				iso2.put(entry.getKey(), entry.getValue());
+				last = entry.getKey();
 			}
 		} catch (Throwable e) {
-			throw new RuntimeException(
-					"In javascript execution, " + e.getMessage() + postfix + "\n\nlast binding evaluated: " + last);
+			throw new RuntimeException("In " + languageName + " execution, " + e.getMessage() + postfix
+					+ "\n\nlast binding evaluated: " + last);
 		}
+	}
+
+	public AqlJs(AqlOptions ops, Map<Sym, Pair<List<Ty>, Ty>> syms, Map<Ty, String> java_tys,
+			Map<Ty, String> java_parsers, Map<Sym, String> java_fns) {
+		this((String) ops.getOrDefault(AqlOptions.AqlOption.graal_language), syms, java_tys, java_parsers, java_fns);
+	}
+
+	public synchronized Object invoke(Ty ty, String source, Object... args) {
+		return external.invoke(languageId, Util.load(java_tys.get(ty)), source, args);
 	}
 
 	private synchronized Object apply(Sym name, List<Object> args) {
 		try {
 			// TODO aql check inputs and outputs here?
-			Object ret = ((Invocable) engine).invokeFunction(iso2.get(name), args);
-			check(syms.get(name).second, ret);
-			return ret;
+			return invoke(syms.get(name).second, iso2.get(name), args.toArray());
 		} catch (Throwable e) {
-			throw new RuntimeException("In javascript execution of " + name + " on arguments " + args + ", "
+			throw new RuntimeException("In " + languageName + " execution of " + name + " on arguments " + args + ", "
 					+ Util.sep(args.stream().map(x -> x.getClass()).collect(Collectors.toList()), ",") + " , "
-					+ e.getClass() + " error: " + e.getMessage() + postfix);
+					+ e.getClass() + " error: " + e.getMessage() + postfix, e);
 		}
 	}
 
-	//private Map<Ty, Map<String, Object>> cache = new THashMap<>();
-	public synchronized Object parse(Ty name, String o) {
-		String z = iso1.get(name);
-		if (z == null) {
-			throw new RuntimeException("In javascript execution of " + o + " no javascript definition for " + name);
+	public synchronized Object parse(Ty ty, String toParse) {
+		String parser = iso1.get(ty);
+		if (parser == null) {
+			throw new RuntimeException(
+					"In " + languageName + " execution of " + toParse + " no javascript definition for " + ty);
 		}
-		//Map<String, Object> g = cache.get(name);
-		//Object h = g.get(o);
-		//if (h != null) {
-		//	return h;
-		//}
 		try {
-			Object ret;
-			if (z.equals("")) {
-				ret = o;
-				if (!java_tys.get(name).equals("java.lang.String")) {
-					check(name, ret);
-				} 
-			} else {
-				ret = ((Invocable) engine).invokeFunction(z, Collections.singletonList(o));
-				check(name, ret);
-			}
-			
-		//	g.put(o, ret);
-			return ret;
+			return invoke(ty, parser, toParse);
 		} catch (Throwable e) {
-			if (e.getMessage() != null && e.getMessage().contains("jdk.nashorn.internal.codegen.TypeMap")) {
-				throw new RuntimeException(
-						"The Java Runtime has suffered an internal error and the IDE must be restarted.\n\n"
-								+ e.getMessage());
-			}
-			// e.printStackTrace();
-			throw new RuntimeException("In javascript execution of " + o + " (of " + o.getClass()
-					+ ") cannot convert to " + name + " error: " + e.getMessage() + postfix
-					+ "\n\nPossible fix: check the java_constants of the typeside for type conversion errors.");
-		}
-	}
-
-	private void check(Ty ty, Object o) {
-		if (o == null) {
-			throw new RuntimeException("evaluation return null." + postfix);
-		}
-		String clazz = java_tys.get(ty);
-		Class<?> c = Util.load(clazz);
-		if (!c.isInstance(o)) {
-			throw new RuntimeException(o + " does not have type " + c + ", has type " + o.getClass());
+			throw new RuntimeException("In " + languageName + " execution of " + toParse + " cannot convert to " + ty
+					+ " error: " + e.getMessage() + postfix
+					+ "\n\nPossible fix: check the external_parsers of the typeside for type conversion errors.");
 		}
 	}
 
@@ -214,19 +152,6 @@ public class AqlJs<Ty, Sym> {
 		throw new RuntimeException("Anomaly: please report");
 	}
 
-	@Deprecated
-	public static synchronized Object exec(String s, Map<String, Object> m) {
-		ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-		try {
-			Bindings b = engine.createBindings();
-			b.putAll(m);
-			return engine.eval(s, b);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("Error executing " + s + ": " + e.getMessage() + postfix, e);
-		}
-	}
-
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -266,7 +191,4 @@ public class AqlJs<Ty, Sym> {
 	public String toString() {
 		return "AqlJs [java_tys=" + java_tys + ", java_parsers=" + java_parsers + ", java_fns=" + java_fns + "]";
 	}
-	
-	
-
 }

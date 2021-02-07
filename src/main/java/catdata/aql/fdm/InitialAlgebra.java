@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import catdata.Chc;
 import catdata.Pair;
+import catdata.Triple;
 import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
@@ -19,6 +19,7 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.AqlProver;
 import catdata.aql.AqlProver.ProverName;
 import catdata.aql.Collage;
+import catdata.aql.Collage.CCollage;
 import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Schema;
@@ -32,10 +33,10 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 
-public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
+public final class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>
 		implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> {
-	
+
 	@Override
 	public boolean hasNulls() {
 		return talg().sks.isEmpty();
@@ -65,7 +66,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 	private Function<Gen, Object> printGen;
 	private BiFunction<Ty, Sk, Object> printSk;
 
-	Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
+	private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
 
 	private final DP<Void, En, Void, Fk, Void, Gen, Void> dp_en;
 	private final DP<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> dp_ty;
@@ -76,74 +77,87 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 	private final boolean talg_is_cons;
 
 	@SuppressWarnings("unchecked")
-	public InitialAlgebra(AqlOptions ops, Schema<Ty, En, Sym, Fk, Att> schema,
-			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, Function<Gen, Object> printGen,
-			BiFunction<Ty, Sk, Object> printSk) {
-		//col.validate();
+	public InitialAlgebra(AqlOptions ops, Schema<Ty, En, Sym, Fk, Att> schema, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> o,
+			Function<Gen, Object> printGen, BiFunction<Ty, Sk, Object> printSk) {
+		// col.validate();
 		this.schema = schema;
 		Util.assertNotNull(printGen, printSk);
 		this.printGen = printGen;
 		this.printSk = printSk;
-		this.col = col;
-		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> zzz = col.entities_only();
-		zzz.addAll(schema.collage());
+		this.col = new CCollage<>(o);
+		Collage<Ty, En, Sym, Fk, Att, Gen, Sk> zzz = new CCollage<>();
+		zzz.getEns().addAll(schema.ens);
+		zzz.fks().putAll(schema.fks);
+		zzz.gens().putAll(o.gens());
+		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schema.eqs) {
+			if (!schema.type(eq.first, eq.second).left) {
+				zzz.eqs().add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)),
+						eq.second.convert(), eq.third.convert()));
+			}
+		}
+		zzz.validate();
+		// System.out.println("ZZZ " + zzz);
+		for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs()) {
+			if (!eq.ctx.isEmpty()) {
+				continue; // easier for clients to pass in typeside equations so we dont abort here
+			}
+			if (!eq.lhs.hasTypeType()) {
+				zzz.eqs().add(eq);
+			}
+		}
+		// Collage<Ty, En, Sym, Fk, Att, Gen, Sk> zzz = col.entities_only(schema);
+		// zzz.addAll(schema.collage());
 		int limit = (int) ops.getOrDefault(AqlOption.diverge_limit);
 		boolean warn = (boolean) ops.getOrDefault(AqlOption.diverge_warn);
 		boolean fast = (boolean) ops.getOrDefault(AqlOption.fast_consistency_check);
-
+		// zzz.validate();
 		// System.out.println(col.eqs);
-		checkTermination(schema, zzz.gens().size(), col.eqs().size(), warn, limit);
+		checkTermination(schema, zzz.gens().size(), zzz.eqs().size(), warn, limit);
+
 		this.dp_en = (DP<Void, En, Void, Fk, Void, Gen, Void>) AqlProver.createInstance(ops, zzz, schema);
+
+		/*
+		 * for (Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att,
+		 * Gen, Sk>> x : zzz.eqsAsPairs()) { if (!dp_en.eq(null, x.first.convert(),
+		 * x.second.convert())) { System.out.println(x.first + " = " + x.second);
+		 * //System.out.println(this); Util.anomaly(); } }
+		 */
+
 		ens = new THashMap<>(16, .75f);
 		for (En en : schema.ens) {
 			ens.put(en, new TIntHashSet(16, .75f, -1));
 		}
-		while (saturate1());
+		while (saturate1(col))
+			;
 
-		talg = new TalgSimplifier<>(this, col.eqsAsPairs().iterator(), col.sks(), (Integer) ops.getOrDefault(AqlOption.talg_reduction));
+		talg = new TalgSimplifier<>(this, col.eqsAsPairs().iterator(), col.sks(),
+				(Integer) ops.getOrDefault(AqlOption.talg_reduction));
 
 		ProverName p = (ProverName) ops.getOrDefault(AqlOption.second_prover);
 		AqlOptions lll = new AqlOptions(ops, AqlOption.prover, p);
 		lll = new AqlOptions(lll, AqlOption.completion_precedence, null);
-	
-		
-		//TODO AQL performance
-		if (!fast && !talg.talg.out.eqs.isEmpty() && !schema().typeSide.eqs.isEmpty()) {
-			/*Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> talg2 = new CCollage<>(talg());
-			talg2.eqs().clear();
-			talg2.addAll(schema().typeSide.collage());
-			//System.out.println(talg2);
-			DP<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> z = AqlProver.createInstance(lll, talg2,
-					Schema.terminal(schema.typeSide));
-			*/
-		boolean b = false;  /*
-			Iterator<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>>> it = talg().eqs.iterator();
-			while (it.hasNext()) {
-				//System.out.print(".");
-				Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> x = it.next();
-				if (!z.eq(x.ctx, x.lhs, x.rhs)) {
-					b = true;
-				//	break;
-				} else {
-					it.remove();
-				}
-				
-			}
-			//System.out.println(".");  */
-			Util.anomaly();
-			talg_is_cons = !b; 
-		} else { 
-			talg_is_cons = talg.talg.out.eqs.isEmpty();
+
+		col.addAll(schema.collage());
+		col.addAll(schema.typeSide.collage());
+		// System.out.println("col1 is " + col);
+
+		// TODO AQL performance
+		if (!fast && !talg.talg.out.eqsNoDefns().isEmpty() && !schema().typeSide.eqs.isEmpty()) {
+			boolean b = false; 
+			// Util.anomaly();
+			talg_is_cons = !b;
+		} else {
+			talg_is_cons = super.hasFreeTypeAlgebra();
 		}
-	//	Collage<Ty, Void, Sym, Void, Void, Void, Chc<Sk,Pair<Integer,Att>>> z = schema.typeSide.collage();
-	//	talg().eqs.addAll(z.eqs());
-		
-//		System.out.println("ZZZ " + talg().toCollage(schema().typeSide) );
+	
 		this.dp_ty = AqlProver.createInstance(lll, talg().toCollage(schema().typeSide, true),
 				Schema.terminal(schema().typeSide));
-	//	talg().eqs.removeAll(z.eqs);
-		
+
+		code = System.identityHashCode(col);
+
 	}
+
+	private final int code;
 
 	private void checkTermination(Schema<Ty, En, Sym, Fk, Att> c, int genSize, int eqSize, boolean check, int limit) {
 		if (!check || c.fks.size() > limit || genSize == 0 || c.eqs.size() > 0 || eqSize > 0) {
@@ -181,22 +195,22 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		fks.put(x, map);
 
 		if (fresh % 10000 == 0) {
-			if (Thread.currentThread().isInterrupted() ) {
-				
+			if (Thread.currentThread().isInterrupted()) {
+
 				throw new IgnoreException();
 			}
 		}
 		return true;
 	}
 
-	private boolean saturate1() {
+	private boolean saturate1(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
 		boolean changed = false;
 		for (Gen gen : col.gens().keySet()) {
 			En en = col.gens().get(gen);
 			Term<Void, En, Void, Fk, Void, Gen, Void> xx = Term.Gen(gen);
 			changed = changed | add(en, xx);
 		}
-		for (Fk fk : col.fks().keySet()) {
+		for (Fk fk : schema().fks.keySet()) {
 			Pair<En, En> e = schema().fks.get(fk);
 			TIntIterator it = ens.get(e.first).iterator();
 			while (it.hasNext()) {
@@ -237,7 +251,7 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 				return ens.get(en).size();
 			}
 		};
-		
+
 		int j = 0;
 		for (Integer i : ret) {
 			j++;
@@ -285,6 +299,11 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 	@Override
 	public synchronized boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
 			Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
+		if (ctx != null && !ctx.isEmpty()) {
+			throw new RuntimeException("Cannot answer a non-ground equation");
+		}
+		// System.out.println(System.identityHashCode(col) + "in eq col is " + col);
+
 		Chc<Ty, En> x = col.type(Collections.emptyMap(), lhs);
 		if (!x.left) {
 			return nf0(x.r, lhs.convert()) == nf0(x.r, rhs.convert());
@@ -312,10 +331,11 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 		return talg_is_cons;
 	}
 
-	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
+	/*public boolean hasFreeTypeAlgebraOnJava() {
+		return talg().eqsNoDefns().stream()
+				.filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema().typeSide, x.first)))
 				.collect(Collectors.toList()).isEmpty();
-	}
+	}*/
 
 	@Override
 	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<Integer, Att>>> sk(Sk sk) {
@@ -333,6 +353,9 @@ public class InitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk>
 	}
 
 	public String talgToString() {
+		if (talg == null) {
+			return "";
+		}
 		return this.talg.toString();
 	}
 

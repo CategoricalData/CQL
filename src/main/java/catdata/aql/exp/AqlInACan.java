@@ -86,7 +86,7 @@ class AqlInACan {
 				if (exp.kind() == Kind.PRAGMA) {
 					throw new RuntimeException("Commands disabled in web-CQL");
 				}
-				Object o = Util.timeout(() -> exp.eval(env, false), 10 * 1000); // hardcode timeout, do not exec pragmas
+				Object o = Util.timeout(() -> exp.eval(env, false), 10 * 1000, "Error in " + n + ": "); // hardcode timeout, do not exec pragmas
 				env.defs.put(n, exp.kind(), o);
 				if (exp.kind().equals(Kind.INSTANCE)) {
 					html += "<p><h2>" + n + " =\n</h2>" + toHtml(env, (Instance<Ty, En, Sym, Fk, Att, Gen, Sk, ?, ?>) o)

@@ -1,0 +1,1 @@
+Schema with one table R and subject predicate object columns on the RDF typeside.

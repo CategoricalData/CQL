@@ -1,0 +1,1 @@
+The typeside of a schema.

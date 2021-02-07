@@ -7,6 +7,7 @@ import java.util.Map;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
+import catdata.Util;
 import catdata.provers.DPKB;
 import catdata.provers.KBExp;
 import catdata.provers.KBTheory;
@@ -35,7 +36,7 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 				it.remove();
 			}
 		}
-		//System.out.println(local);
+		// System.out.println(local);
 		dpkb = new MonoidalProver<>(local);
 	}
 
@@ -89,6 +90,9 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 	@Override
 	public synchronized boolean eq(Map<Var, Chc<Ty, En>> ctx, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> lhs,
 			KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Var> rhs) {
+		if (ctx.size() > 1) {
+			Util.anomaly();
+		}
 		if (lhs.getArgs().size() > 1 && rhs.getArgs().size() > 1) {
 			if (!lhs.f().equals(rhs.f())) {
 				return false;
@@ -100,6 +104,7 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 					return false;
 				}
 			}
+			//System.out.println("true on " + lhs + " and " + rhs);
 			return true;
 		} else if (lhs.getArgs().size() <= 1 && rhs.getArgs().size() <= 1) {
 			return dpkb.eq(ctx, lhs, rhs);
@@ -111,6 +116,11 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 	public synchronized void add(Head<Ty, En, Sym, Fk, Att, Gen, Sk> c, Chc<Ty, En> t) {
 		this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
 		dpkb.add(c, t);
+	}
+
+	@Override
+	public boolean supportsTrivialityCheck() {
+		return false;
 	}
 
 };

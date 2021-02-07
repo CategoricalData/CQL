@@ -1,0 +1,1 @@
+Returns the query that, when evaluated, has the same effect as a delta.  And we co-evaluated, as sigma.

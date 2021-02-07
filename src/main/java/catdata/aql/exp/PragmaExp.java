@@ -1,14 +1,26 @@
 package catdata.aql.exp;
 
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFFormat;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -16,10 +28,13 @@ import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Constraints;
+import catdata.aql.ED;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.Pragma;
+import catdata.aql.RdfExporter;
 import catdata.aql.Term;
+import catdata.aql.Var;
 import catdata.aql.fdm.JdbcPragma;
 import catdata.aql.fdm.JsPragma;
 import catdata.aql.fdm.ProcPragma;
@@ -54,15 +69,15 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	}
 
 	public static interface PragmaExpCoVisitor<R, P, E extends Exception> {
-		public <Gen, Sk, X, Y> PragmaExpConsistent<Gen, Sk, X, Y> visitPragmaExpConsistent(P params, R exp) throws E;
+		public <X, Y> PragmaExpConsistent<X, Y> visitPragmaExpConsistent(P params, R exp) throws E;
 
-		public <Gen, Sk, X, Y> PragmaExpCheck<Gen, Sk, X, Y> visitPragmaExpCheck(P params, R exp) throws E;
+		public <X, Y> PragmaExpCheck<X, Y> visitPragmaExpCheck(P params, R exp) throws E;
 
 		public PragmaExpMatch visitPragmaExpMatch(P params, R exp) throws E;
 
 		public PragmaExpSql visitPragmaExpSql(P params, R exp) throws E;
 
-		public <Gen, Sk, X, Y> PragmaExpToCsvInst<Gen, Sk, X, Y> visitPragmaExpToCsvInst(P params, R exp) throws E;
+		public <X, Y> PragmaExpToCsvInst<X, Y> visitPragmaExpToCsvInst(P params, R exp) throws E;
 
 		public PragmaExpVar visitPragmaExpVar(P params, R exp) throws E;
 
@@ -70,7 +85,13 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		public PragmaExpProc visitPragmaExpProc(P params, R exp) throws E;
 
-		public <Gen, Sk, X, Y> PragmaExpToJdbcInst<Gen, Sk, X, Y> visitPragmaExpToJdbcInst(P params, R exp) throws E;
+		public <X, Y> PragmaExpJsonInstExport<X, Y> visitPragmaExpJsonInstExport(P params, R exp) throws E;
+
+		public <X, Y> PragmaExpRdfDirectExport<X, Y> visitPragmaExpRdfDirectExport(P params, R exp) throws E;
+
+		public <X, Y> PragmaExpRdfInstExport<X, Y> visitPragmaExpRdfInstExport(P params, R exp) throws E;
+
+		public <X, Y> PragmaExpToJdbcInst<X, Y> visitPragmaExpToJdbcInst(P params, R exp) throws E;
 
 		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToJdbcTrans(
 				P params, R exp) throws E;
@@ -80,18 +101,17 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> visitPragmaExpToCsvTrans(
 				P params, R exp) throws E;
 
+		public PragmaExpCheck2 visitPragmaExpCheck2(P params, R exp) throws E;
 	}
 
 	public static interface PragmaExpVisitor<R, P, E extends Exception> {
-		public <Gen, Sk, X, Y> R visit(P params, PragmaExpConsistent<Gen, Sk, X, Y> exp) throws E;
+		public <X, Y> R visit(P params, PragmaExpConsistent<X, Y> exp) throws E;
 
-		public <Gen, Sk, X, Y> R visit(P params, PragmaExpCheck<Gen, Sk, X, Y> exp) throws E;
+		public <X, Y> R visit(P params, PragmaExpCheck<X, Y> exp) throws E;
 
 		public R visit(P params, PragmaExpMatch exp) throws E;
 
 		public R visit(P params, PragmaExpSql exp) throws E;
-
-		public <Gen, Sk, X, Y> R visit(P params, PragmaExpToCsvInst<Gen, Sk, X, Y> exp) throws E;
 
 		public R visit(P params, PragmaExpVar exp) throws E;
 
@@ -99,7 +119,13 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		public R visit(P params, PragmaExpProc exp) throws E;
 
-		public <Gen, Sk, X, Y> R visit(P params, PragmaExpToJdbcInst<Gen, Sk, X, Y> exp) throws E;
+		public <X, Y> R visit(P params, PragmaExpJsonInstExport<X, Y> exp) throws E;
+
+		public <X, Y> R visit(P params, PragmaExpRdfInstExport<X, Y> exp) throws E;
+
+		public <X, Y> R visit(P params, PragmaExpRdfDirectExport<X, Y> exp) throws E;
+
+		public <X, Y> R visit(P params, PragmaExpToJdbcInst<X, Y> exp) throws E;
 
 		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> R visit(P params,
 				PragmaExpToJdbcTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) throws E;
@@ -109,7 +135,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public <Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> R visit(P params,
 				PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> exp) throws E;
 
-		
+		public R visit(P params, PragmaExpCheck2 exp) throws E;
+
+		public <X, Y> R visit(P params, PragmaExpToCsvInst<X, Y> pragmaExpToCsvInst);
+
 	}
 
 	public abstract <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E;
@@ -117,7 +146,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@SuppressWarnings("hiding")
-	public static final class PragmaExpConsistent<Gen, Sk, X, Y> extends PragmaExp {
+	public static final class PragmaExpConsistent<X, Y> extends PragmaExp {
 		public final InstExp<Gen, Sk, X, Y> I;
 
 		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
@@ -156,7 +185,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			PragmaExpConsistent<?, ?, ?, ?> other = (PragmaExpConsistent<?, ?, ?, ?>) obj;
+			PragmaExpConsistent<?, ?> other = (PragmaExpConsistent<?, ?>) obj;
 			if (I == null) {
 				if (other.I != null)
 					return false;
@@ -206,9 +235,10 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@SuppressWarnings("hiding")
-	public static final class PragmaExpCheck<Gen, Sk, X, Y> extends PragmaExp {
+	public static final class PragmaExpCheck<X, Y> extends PragmaExp {
 		public InstExp<Gen, Sk, X, Y> I;
 		public EdsExp C;
+		public Map<String, String> ops;
 
 		@Override
 		public void mapSubExps(Consumer<Exp<?>> f) {
@@ -220,19 +250,20 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return v.visit(params, this);
 		}
 
-		public PragmaExpCheck(InstExp<Gen, Sk, X, Y> i, EdsExp c) {
+		public PragmaExpCheck(InstExp<Gen, Sk, X, Y> i, EdsExp c, List<Pair<String, String>> o) {
 			I = i;
 			C = c;
+			ops = Util.toMapSafely(o);
 		}
 
 		@Override
 		public Map<String, String> options() {
-			return Collections.emptyMap();
+			return ops;
 		}
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
-
+			set.add(AqlOption.check_command_export_file);
 		}
 
 		@Override
@@ -241,6 +272,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			int result = 1;
 			result = prime * result + ((C == null) ? 0 : C.hashCode());
 			result = prime * result + ((I == null) ? 0 : I.hashCode());
+			result = prime * result + ((I == null) ? 0 : ops.hashCode());
 			return result;
 		}
 
@@ -252,7 +284,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			PragmaExpCheck<?, ?, ?, ?> other = (PragmaExpCheck<?, ?, ?, ?>) obj;
+			PragmaExpCheck<?, ?> other = (PragmaExpCheck<?, ?>) obj;
 			if (C == null) {
 				if (other.C != null)
 					return false;
@@ -262,6 +294,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				if (other.I != null)
 					return false;
 			} else if (!I.equals(other.I))
+				return false;
+			if (ops == null) {
+				if (other.ops != null)
+					return false;
+			} else if (!ops.equals(other.ops))
 				return false;
 			return true;
 		}
@@ -277,35 +314,122 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				throw new IgnoreException();
 			}
 			return new Pragma() {
+				Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J;
 
 				@Override
 				public synchronized void execute() {
-					Instance J = I.eval(env, isC);
+					J = I.eval(env, isC);
 					Constraints q = C.eval(env, isC);
-					Collection t = q.triggers(J, env.defaults);
-					if (!t.isEmpty()) {
-						throw new RuntimeException("Not satisfied.\n\n" + printTriggers(q, t, J));
+					Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>>> t = q
+							.triggers(J, env.defaults);
+					String outPath = (String) new AqlOptions(ops, env.defaults)
+							.getOrDefault(AqlOption.check_command_export_file);
+					if (!outPath.isBlank()) {
+						try {
+								Util.writeFile(printCsv(q, t, J), outPath);
+							} catch (Exception ex) {
+								ex.printStackTrace();
+								throw new RuntimeException(ex);
+							}
+					
+					} else {
+						if (!t.isEmpty()) {
+							throw new RuntimeException("Not satisfied.\n\n" + printTriggers(q, t, J));
+						} 
 					}
 				}
 
-				private String printTriggers(Constraints q,
-						Collection<Pair<Integer, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> t,
+				private String printCsv(Constraints q,
+						Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>>> t,
 						@SuppressWarnings("unused") Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J) {
-					Map<Integer, List<Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>>> m = new THashMap<>(
+					Map<Integer, List<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>>> m = new THashMap<>(
 							t.size());
-					for (Pair<Integer, Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> p : t) {
+
+					for (Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>> p : t) {
 						if (!m.containsKey(p.first)) {
 							m.put(p.first, new LinkedList<>());
 						}
-						List<Row<String, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>> l = m.get(p.first);
+						List<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>> l = m.get(p.first);
+						l.add(p.second);
+					}
+
+					JsonObjectBuilder xxx = Json.createObjectBuilder();
+					for (Integer ed : m.keySet()) {
+						JsonArrayBuilder yyy = Json.createArrayBuilder();
+						for (Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>> x : m.get(ed)) {
+							JsonObjectBuilder zzz = Json.createObjectBuilder();
+							for (Entry<catdata.aql.Var, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> entry : x.asMap().entrySet()) {
+								var x2 = entry.getValue();
+								if (x2.left) {
+									Chc<Ty, En> z = q.eds.get(ed).As.get(entry.getKey());
+									if (z.left) {
+										zzz.add(entry.getKey().var, x2.r.toString());
+									} else {
+										En en = z.r;
+										X xx = x2.l;
+										JsonObjectBuilder jjj = Json.createObjectBuilder();
+										for (Att att : J.schema().attsFrom(en)) {
+											jjj.add(att.str, J.algebra().reprT(J.algebra().att(att, xx)).toString());
+										}
+										zzz.add(entry.getKey().var, jjj);
+									}
+								} else {
+									zzz.add(entry.getKey().var, x2.r.toString());
+								}
+							}						
+							yyy.add(zzz);
+						}
+						xxx.add(q.eds.get(ed).toString(), yyy);
+					}
+					
+					return xxx.build().toString();
+				}
+
+				
+				private String thePrintFn(Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>> list,
+						ED ed) {
+
+					return "\t" + Util.sep(list.asMap().entrySet(), ",  ",
+							x -> x.getKey() + " -> " + helper(x.getKey(), x.getValue(), ed));
+				}
+				
+
+				private String helper(Var v, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> x, ED ed) {
+					if (x.left) {
+						Chc<Ty, En> z = ed.As.get(v);
+						if (z.left) {
+							return x.r.toString();
+						} else {
+							En en = z.r;
+							List<String> w = new LinkedList<>();
+							X xx = x.l;
+							for (Att att : J.schema().attsFrom(en)) {
+								w.add(att + ":" + J.algebra().reprT(J.algebra().att(att, xx)).toString());
+							}
+							return (String) J.algebra().printX(en, xx) + "  [" + Util.sep(w, ", ") + "]";
+						}
+					}
+					return x.r.toString();
+				}
+
+				private String printTriggers(Constraints q,
+						Collection<Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>>> t,
+						@SuppressWarnings("unused") Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> J) {
+					Map<Integer, List<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>>> m = new THashMap<>(
+							t.size());
+
+					for (Pair<Integer, Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>> p : t) {
+						if (!m.containsKey(p.first)) {
+							m.put(p.first, new LinkedList<>());
+						}
+						List<Row<En, Chc<X, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>, Chc<En, Ty>>> l = m.get(p.first);
 						l.add(p.second);
 					}
 					String ret = "";
 					for (Integer ed : m.keySet()) {
 						ret += "======================\n";
 						ret += "On constraint\n\n" + q.eds.get(ed).toString() + "\n\nthe failing triggers are:\n\n";
-						ret += Util.sep(m.get(ed).iterator(), "\n",
-								r -> Util.sep(r.map((z, e) -> z.toStringMash()).asMap(), "->", ", "));
+						ret += Util.sep(Util.map(m.get(ed), x -> thePrintFn(x, q.eds.get(ed))), "\n");
 						ret += "\n";
 					}
 					if (ret.equals("")) {
@@ -470,11 +594,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public static final class PragmaExpSql extends PragmaExp {
-		private final List<String> sqls;
+		public final List<String> sqls;
 
 		private final String jdbcString;
 
-	//	private final String clazz;
+		// private final String clazz;
 
 		private final Map<String, String> options;
 
@@ -491,8 +615,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options;
 		}
 
-		public PragmaExpSql( String jdbcString, List<String> sqls, List<Pair<String, String>> options) {
-		//	this.clazz = clazz;
+		public PragmaExpSql(String jdbcString, List<String> sqls, List<Pair<String, String>> options) {
+			// this.clazz = clazz;
 			this.jdbcString = jdbcString;
 			this.options = Util.toMapSafely(options);
 			this.sqls = sqls;
@@ -502,7 +626,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		public int hashCode() {
 			int prime = 31;
 			int result = 1;
-			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			// result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options == null) ? 0 : options.hashCode());
 			result = prime * result + ((sqls == null) ? 0 : sqls.hashCode());
@@ -551,9 +675,8 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder().append("exec_jdbc ").append(" ")
-					.append(Util.quote(jdbcString)).append(" {")
-					.append(Util.sep(sqls.stream().map(Util::quote).collect(Collectors.toList()), "\n"));
+			final StringBuilder sb = new StringBuilder().append("exec_jdbc ").append(" ").append(Util.quote(jdbcString))
+					.append(" {").append(Util.sep(sqls.stream().map(Util::quote).collect(Collectors.toList()), "\n"));
 
 			if (!options.isEmpty()) {
 				sb.append("\n\toptions").append(Util.sep(options, "\n\t\t", " = "));
@@ -577,7 +700,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@SuppressWarnings("hiding")
-	public static final class PragmaExpToCsvInst<Gen, Sk, X, Y> extends PragmaExp {
+	public static final class PragmaExpToCsvInst<X, Y> extends PragmaExp {
 
 		public final String file;
 
@@ -658,7 +781,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			PragmaExpToCsvInst<?, ?, ?, ?> other = (PragmaExpToCsvInst<?, ?, ?, ?>) obj;
+			PragmaExpToCsvInst<?, ?> other = (PragmaExpToCsvInst<?, ?>) obj;
 			if (file == null) {
 				if (other.file != null)
 					return false;
@@ -1049,11 +1172,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 	/////////////////////////////////////////////////
 
 	@SuppressWarnings("hiding")
-	public static class PragmaExpToJdbcInst<Gen, Sk, X, Y> extends PragmaExp {
+	public static class PragmaExpToJdbcInst<X, Y> extends PragmaExp {
 
 		public final String jdbcString;
 		public final String prefix;
-		//public final String clazz;
+		// public final String clazz;
 
 		@Override
 		protected void allowedOptions(Set<AqlOption> set) {
@@ -1088,7 +1211,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				List<Pair<String, String>> options) {
 			this.jdbcString = jdbcString;
 			this.prefix = prefix;
-			//this.clazz = clazz;
+			// this.clazz = clazz;
 			this.options = Util.toMapSafely(options);
 			I = i;
 		}
@@ -1101,11 +1224,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		@Override
 		public synchronized Pragma eval0(AqlEnv env, boolean isC) {
 			String toGet = jdbcString;
-			//String driver = clazz;
+			// String driver = clazz;
 			AqlOptions op = new AqlOptions(options, env.defaults);
-			//if (clazz.trim().isEmpty()) {
-			//	driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
-			//}
+			// if (clazz.trim().isEmpty()) {
+			// driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
+			// }
 			if (jdbcString.trim().isEmpty()) {
 				toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 			}
@@ -1118,8 +1241,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		@Override
 		public String makeString() {
 			final StringBuilder sb = new StringBuilder().append("export_jdbc_instance ").append(I).append(" ")
-					.append(" ").append(Util.quote(jdbcString)).append(" ")
-					.append(Util.quote(prefix));
+					.append(" ").append(Util.quote(jdbcString)).append(" ").append(Util.quote(prefix));
 			if (!options.isEmpty()) {
 				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
 			}
@@ -1131,7 +1253,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			int prime = 31;
 			int result = 1;
 			result = prime * result + ((I == null) ? 0 : I.hashCode());
-			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			// result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options == null) ? 0 : options.hashCode());
 			result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
@@ -1146,7 +1268,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			PragmaExpToJdbcInst<?, ?, ?, ?> other = (PragmaExpToJdbcInst<?, ?, ?, ?>) obj;
+			PragmaExpToJdbcInst<?, ?> other = (PragmaExpToJdbcInst<?, ?>) obj;
 
 			if (I == null) {
 				if (other.I != null)
@@ -1203,11 +1325,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			return options1;
 		}
 
-		public PragmaExpToJdbcTrans(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h,String jdbcString,
-				String prefix, List<Pair<String, String>> options1, List<Pair<String, String>> options2) {
+		public PragmaExpToJdbcTrans(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h, String jdbcString, String prefix,
+				List<Pair<String, String>> options1, List<Pair<String, String>> options2) {
 			this.jdbcString = jdbcString;
 			this.prefix = prefix;
-			//this.clazz = clazz;
+			// this.clazz = clazz;
 			this.options1 = Util.toMapSafely(options1);
 			this.options2 = Util.toMapSafely(options2);
 			this.h = h;
@@ -1228,13 +1350,13 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				throw new IgnoreException();
 			}
 			String toGet = jdbcString;
-		//	String driver = clazz;
+			// String driver = clazz;
 			AqlOptions op1 = new AqlOptions(options1, env.defaults);
 			AqlOptions op2 = new AqlOptions(options2, env.defaults);
 
-			//if (clazz.trim().isEmpty()) {
-			//	driver = (String) op1.getOrDefault(AqlOption.jdbc_default_class);
-			//}
+			// if (clazz.trim().isEmpty()) {
+			// driver = (String) op1.getOrDefault(AqlOption.jdbc_default_class);
+			// }
 			if (jdbcString.trim().isEmpty()) {
 				toGet = (String) op1.getOrDefault(AqlOption.jdbc_default_string);
 			}
@@ -1244,8 +1366,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		@Override
 		public String makeString() {
 			final StringBuilder sb = new StringBuilder().append("export_jdbc_transform ").append(h).append(" ")
-					.append(" ").append(Util.quote(jdbcString)).append(" ")
-					.append(Util.quote(prefix)).append(" ");
+					.append(" ").append(Util.quote(jdbcString)).append(" ").append(Util.quote(prefix)).append(" ");
 			if (!options1.isEmpty()) {
 				sb.append("{");
 				sb.append("\n\toptions").append(Util.sep(options1, "\n\t\t", " = ")).append("\n");
@@ -1264,7 +1385,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			int prime = 31;
 			int result = 1;
 			result = prime * result + ((h == null) ? 0 : h.hashCode());
-			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			// result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options1 == null) ? 0 : options1.hashCode());
 			result = prime * result + ((options2 == null) ? 0 : options2.hashCode());
@@ -1287,7 +1408,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 					return false;
 			} else if (!h.equals(other.h))
 				return false;
-		if (jdbcString == null) {
+			if (jdbcString == null) {
 				if (other.jdbcString != null)
 					return false;
 			} else if (!jdbcString.equals(other.jdbcString))
@@ -1348,7 +1469,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			this.jdbcString = jdbcString;
 			this.prefixSrc = prefixSrc;
 			this.prefixDst = prefixDst;
-			//this.clazz = clazz;
+			// this.clazz = clazz;
 			this.options = Util.toMapSafely(options);
 			this.Q = Q;
 		}
@@ -1368,11 +1489,11 @@ public abstract class PragmaExp extends Exp<Pragma> {
 				throw new IgnoreException();
 			}
 			String toGet = jdbcString;
-			//String driver = clazz;
+			// String driver = clazz;
 			AqlOptions op = new AqlOptions(options, env.defaults);
-			////if (clazz.trim().isEmpty()) {
-			//	driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
-			//}
+			//// if (clazz.trim().isEmpty()) {
+			// driver = (String) op.getOrDefault(AqlOption.jdbc_default_class);
+			// }
 			if (jdbcString.trim().isEmpty()) {
 				toGet = (String) op.getOrDefault(AqlOption.jdbc_default_string);
 			}
@@ -1381,9 +1502,9 @@ public abstract class PragmaExp extends Exp<Pragma> {
 
 		@Override
 		public String makeString() {
-			final StringBuilder sb = new StringBuilder().append("export_jdbc_query ").append(Q).append(" ")
-					.append(" ").append(Util.quote(jdbcString)).append(" ")
-					.append(Util.quote(prefixSrc)).append(" ").append(Util.quote(prefixDst));
+			final StringBuilder sb = new StringBuilder().append("export_jdbc_query ").append(Q).append(" ").append(" ")
+					.append(Util.quote(jdbcString)).append(" ").append(Util.quote(prefixSrc)).append(" ")
+					.append(Util.quote(prefixDst));
 			if (!options.isEmpty()) {
 				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
 			}
@@ -1395,7 +1516,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((Q == null) ? 0 : Q.hashCode());
-			//result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+			// result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 			result = prime * result + ((options == null) ? 0 : options.hashCode());
 			result = prime * result + ((prefixDst == null) ? 0 : prefixDst.hashCode());
@@ -1417,7 +1538,7 @@ public abstract class PragmaExp extends Exp<Pragma> {
 					return false;
 			} else if (!Q.equals(other.Q))
 				return false;
-		if (jdbcString == null) {
+			if (jdbcString == null) {
 				if (other.jdbcString != null)
 					return false;
 			} else if (!jdbcString.equals(other.jdbcString))
@@ -1441,4 +1562,469 @@ public abstract class PragmaExp extends Exp<Pragma> {
 		}
 
 	}
+
+	///////////////
+
+	public static class PragmaExpRdfInstExport<X, Y> extends PragmaExp {
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((I == null) ? 0 : I.hashCode());
+			result = prime * result + ((file == null) ? 0 : file.hashCode());
+			result = prime * result + ((options == null) ? 0 : options.hashCode());
+			result = prime * result + ((tycons == null) ? 0 : tycons.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PragmaExpRdfInstExport other = (PragmaExpRdfInstExport) obj;
+			if (I == null) {
+				if (other.I != null)
+					return false;
+			} else if (!I.equals(other.I))
+				return false;
+			if (file == null) {
+				if (other.file != null)
+					return false;
+			} else if (!file.equals(other.file))
+				return false;
+			if (options == null) {
+				if (other.options != null)
+					return false;
+			} else if (!options.equals(other.options))
+				return false;
+			if (tycons == null) {
+				if (other.tycons != null)
+					return false;
+			} else if (!tycons.equals(other.tycons))
+				return false;
+			return true;
+		}
+
+		@Override
+		protected void allowedOptions(Set<AqlOption> set) {
+			set.add(AqlOption.start_ids_at);
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			I.map(f);
+		}
+
+		public final Map<String, String> options;
+		public final String file;
+		public final InstExp<Gen, Sk, X, Y> I;
+		public final Map<String, Pair<String, String>> tycons;
+
+		@Override
+		public Map<String, String> options() {
+			return options;
+		}
+
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+			return v.visit(params, this);
+		}
+
+		public PragmaExpRdfInstExport(InstExp<Gen, Sk, X, Y> i, String f, List<Pair<String, String>> options,
+				List<Pair<String, Pair<String, String>>> l) {
+			this.options = Util.toMapSafely(options);
+			I = i;
+			this.file = f;
+			if (l == null) {
+				this.tycons = Collections.emptyMap();
+			} else {
+				this.tycons = Util.toMapSafely(l);
+			}
+		}
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return I.deps();
+		}
+
+		@Override
+		public synchronized Pragma eval0(AqlEnv env, boolean isC) {
+			AqlOptions op = new AqlOptions(options, env.defaults);
+			if (isC) {
+				throw new IgnoreException();
+			}
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0 = I.eval(env, isC);
+			int start = (int) op.getOrDefault(AqlOption.start_ids_at);
+
+			Map<Ty, String> map1 = new THashMap<>();
+			Map<Ty, Function<Object, String>> map2 = new THashMap<>();
+			catdata.aql.ExternalCodeUtils ext = new catdata.aql.ExternalCodeUtils();
+			String lang = (String) op.getOrDefault(AqlOptions.AqlOption.graal_language);
+			for (Entry<String, Pair<String, String>> k : tycons.entrySet()) {
+				Function<Object, String> f = x -> ext.invoke(lang, String.class, k.getValue().second, x);
+				map1.put(Ty.Ty(k.getKey()), k.getValue().first);
+				map2.put(Ty.Ty(k.getKey()), f);
+			}
+
+			return new Pragma() {
+
+				String s = null;
+
+				@Override
+				public synchronized void execute() {
+					if (s == null) {
+						try {
+							Model m = RdfExporter.xmlExport1(I0, start, map2, map1);
+							RDFDataMgr.write(new FileOutputStream(file), m, RDFFormat.RDFXML_PRETTY);
+							if (m.size() < 8096) {
+								s = Util.readFile(new FileReader(file));
+							}
+							s = "Size " + m.size();
+						} catch (Exception e) {
+							e.printStackTrace();
+							s = file + "\n\n" + e.getMessage() + "\n\n" + s;
+						}
+					}
+				}
+
+				@Override
+				public synchronized String toString() {
+					return s;
+				}
+
+			};
+		}
+
+		// TODO: add map
+		@Override
+		public String makeString() {
+			final StringBuilder sb = new StringBuilder().append("export_rdf_instance_xml ").append(I).append(" ")
+					.append(" ");
+			if (!options.isEmpty()) {
+				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
+			}
+			return sb.toString();
+		}
+
+		@Override
+		public Optional<Chc<String, Object>> type(AqlTyping G) {
+			I.type(G);
+			return Optional.empty();
+		}
+
+	}
+
+	////////////////////////////////////////////
+
+	public static class PragmaExpJsonInstExport<X, Y> extends PragmaExp {
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((I == null) ? 0 : I.hashCode());
+			result = prime * result + ((file == null) ? 0 : file.hashCode());
+			result = prime * result + ((options == null) ? 0 : options.hashCode());
+			result = prime * result + ((tycons == null) ? 0 : tycons.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PragmaExpJsonInstExport other = (PragmaExpJsonInstExport) obj;
+			if (I == null) {
+				if (other.I != null)
+					return false;
+			} else if (!I.equals(other.I))
+				return false;
+			if (file == null) {
+				if (other.file != null)
+					return false;
+			} else if (!file.equals(other.file))
+				return false;
+			if (options == null) {
+				if (other.options != null)
+					return false;
+			} else if (!options.equals(other.options))
+				return false;
+			if (tycons == null) {
+				if (other.tycons != null)
+					return false;
+			} else if (!tycons.equals(other.tycons))
+				return false;
+			return true;
+		}
+
+		@Override
+		protected void allowedOptions(Set<AqlOption> set) {
+			set.add(AqlOption.start_ids_at);
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			I.map(f);
+		}
+
+		public final Map<String, String> options;
+		public final String file;
+		public final InstExp<Gen, Sk, X, Y> I;
+		public final Map<String, Pair<String, String>> tycons;
+
+		@Override
+		public Map<String, String> options() {
+			return options;
+		}
+
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+			return v.visit(params, this);
+		}
+
+		public PragmaExpJsonInstExport(InstExp<Gen, Sk, X, Y> i, String f, List<Pair<String, String>> options,
+				List<Pair<String, Pair<String, String>>> l) {
+			this.options = Util.toMapSafely(options);
+			I = i;
+			this.file = f;
+			if (l == null) {
+				this.tycons = Collections.emptyMap();
+			} else {
+				this.tycons = Util.toMapSafely(l);
+			}
+		}
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return I.deps();
+		}
+
+		@Override
+		public synchronized Pragma eval0(AqlEnv env, boolean isC) {
+			AqlOptions op = new AqlOptions(options, env.defaults);
+			if (isC) {
+				throw new IgnoreException();
+			}
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0 = I.eval(env, isC);
+			int start = (int) op.getOrDefault(AqlOption.start_ids_at);
+
+			Map<Ty, String> map1 = new THashMap<>();
+			Map<Ty, Function<Object, String>> map2 = new THashMap<>();
+			catdata.aql.ExternalCodeUtils ext = new catdata.aql.ExternalCodeUtils();
+			String lang = (String) op.getOrDefault(AqlOptions.AqlOption.graal_language);
+			for (Entry<String, Pair<String, String>> k : tycons.entrySet()) {
+				Function<Object, String> f = x -> ext.invoke(lang, String.class, k.getValue().second, x);
+				map1.put(Ty.Ty(k.getKey()), k.getValue().first);
+				map2.put(Ty.Ty(k.getKey()), f);
+			}
+
+			return new Pragma() {
+
+				String s = null;
+
+				@Override
+				public synchronized void execute() {
+					if (s == null) {
+
+						try {
+							Model m = RdfExporter.xmlExport1(I0, start, map2, map1);
+							RDFDataMgr.write(new FileOutputStream(file), m, RDFFormat.JSONLD_PRETTY);
+							if (m.size() < 8096) {
+								s = Util.readFile(new FileReader(file));
+							}
+							s = "Size " + m.size();
+						} catch (Exception e) {
+							e.printStackTrace();
+							s = file + "\n\n" + e.getMessage() + "\n\n" + s;
+						}
+					}
+				}
+
+				@Override
+				public synchronized String toString() {
+					return s;
+				}
+
+			};
+		}
+
+		// TODO: add map
+		@Override
+		public String makeString() {
+			final StringBuilder sb = new StringBuilder().append("export_json_instance ").append(I).append(" ");
+			if (!options.isEmpty()) {
+				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
+			}
+			return sb.toString();
+		}
+
+		@Override
+		public Optional<Chc<String, Object>> type(AqlTyping G) {
+			I.type(G);
+			return Optional.empty();
+		}
+
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+
+	public static class PragmaExpRdfDirectExport<X, Y> extends PragmaExp {
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((I == null) ? 0 : I.hashCode());
+			result = prime * result + ((file == null) ? 0 : file.hashCode());
+			result = prime * result + ((options == null) ? 0 : options.hashCode());
+			result = prime * result + ((tycons == null) ? 0 : tycons.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PragmaExpRdfDirectExport other = (PragmaExpRdfDirectExport) obj;
+			if (I == null) {
+				if (other.I != null)
+					return false;
+			} else if (!I.equals(other.I))
+				return false;
+			if (file == null) {
+				if (other.file != null)
+					return false;
+			} else if (!file.equals(other.file))
+				return false;
+			if (options == null) {
+				if (other.options != null)
+					return false;
+			} else if (!options.equals(other.options))
+				return false;
+			if (tycons == null) {
+				if (other.tycons != null)
+					return false;
+			} else if (!tycons.equals(other.tycons))
+				return false;
+			return true;
+		}
+
+		@Override
+		protected void allowedOptions(Set<AqlOption> set) {
+			set.add(AqlOption.start_ids_at);
+		}
+
+		@Override
+		public void mapSubExps(Consumer<Exp<?>> f) {
+			I.map(f);
+		}
+
+		public final Map<String, String> options;
+		public final String file;
+		public final InstExp<Gen, Sk, X, Y> I;
+		public final Map<String, Pair<String, String>> tycons;
+
+		@Override
+		public Map<String, String> options() {
+			return options;
+		}
+
+		public <R, P, E extends Exception> R accept(P params, PragmaExpVisitor<R, P, E> v) throws E {
+			return v.visit(params, this);
+		}
+
+		public PragmaExpRdfDirectExport(InstExp<Gen, Sk, X, Y> i, String f, List<Pair<String, String>> options,
+				List<Pair<String, Pair<String, String>>> l) {
+			this.options = Util.toMapSafely(options);
+			I = i;
+			this.file = f;
+			if (l == null) {
+				this.tycons = Collections.emptyMap();
+			} else {
+				this.tycons = Util.toMapSafely(l);
+			}
+		}
+
+		@Override
+		public Collection<Pair<String, Kind>> deps() {
+			return I.deps();
+		}
+
+		@Override
+		public synchronized Pragma eval0(AqlEnv env, boolean isC) {
+			AqlOptions op = new AqlOptions(options, env.defaults);
+			if (isC) {
+				throw new IgnoreException();
+			}
+			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0 = I.eval(env, isC);
+
+			Map<Ty, String> map1 = new THashMap<>();
+			Map<Ty, Function<Object, String>> map2 = new THashMap<>();
+			catdata.aql.ExternalCodeUtils ext = new catdata.aql.ExternalCodeUtils();
+			String lang = (String) op.getOrDefault(AqlOptions.AqlOption.graal_language);
+			for (Entry<String, Pair<String, String>> k : tycons.entrySet()) {
+				Function<Object, String> f = x -> ext.invoke(lang, String.class, k.getValue().second, x);
+				map1.put(Ty.Ty(k.getKey()), k.getValue().first);
+				map2.put(Ty.Ty(k.getKey()), f);
+			}
+
+			return new Pragma() {
+
+				String s = null;
+
+				@Override
+				public synchronized void execute() {
+					if (s == null) {
+						try {
+							Model m = RdfExporter.xmlExportRdf(I0);
+							RDFDataMgr.write(new FileOutputStream(file), m, RDFFormat.RDFXML_PRETTY);
+							if (m.size() < 8096) {
+								s = Util.readFile(new FileReader(file));
+							}
+							s = "Size " + m.size();
+						} catch (Exception e) {
+							e.printStackTrace();
+							s = file + "\n\n" + e.getMessage() + "\n\n" + s;
+						}
+					}
+				}
+
+				@Override
+				public synchronized String toString() {
+					return s;
+				}
+
+			};
+		}
+
+		// TODO: add map
+		@Override
+		public String makeString() {
+			final StringBuilder sb = new StringBuilder().append("export_rdf_direct_xml ").append(I).append(" ")
+					.append(" ");
+			if (!options.isEmpty()) {
+				sb.append(" {").append("\n\toptions").append(Util.sep(options, "\n\t\t", " = ")).append("}");
+			}
+			return sb.toString();
+		}
+
+		@Override
+		public Optional<Chc<String, Object>> type(AqlTyping G) {
+			I.type(G);
+			return Optional.empty();
+		}
+
+	}
+
 }

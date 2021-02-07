@@ -1,7 +1,6 @@
 package catdata.provers;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -89,10 +88,10 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 
 	// private final Map<KBExp<C,V>, KBExp<C,V>> cache = (new HashMap<>());
 
-	private KBExp<C, V> red(KBExp<C, V> e, Set<T> g) {
+	private KBExp<C, V> red(KBExp<C, V> e, Map<V, T> ctx) {
 		while (true) {
 
-			KBExp<C, V> e0 = step(e, g);
+			KBExp<C, V> e0 = step(e, ctx);
 			if (e.equals(e0)) {
 				return e0;
 			}
@@ -100,20 +99,20 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 		}
 	}
 
-	private KBExp<C, V> step(KBExp<C, V> ee, Set<T> g) {
+	private KBExp<C, V> step(KBExp<C, V> ee, Map<V, T> ctx) {
 		Util.assertNotNull(ee);
 		// if (Thread.currentThread().isInterrupted()) {
 		// throw new RuntimeInterruptedException(new InterruptedException());
 		// }
 		if (ee.isVar()) {
-			return step1(ee, g);
+			return step1(ee, ctx);
 		}
 		List<KBExp<C, V>> args0 = (new ArrayList<>(ee.getArgs().size()));
 		for (KBExp<C, V> arg : ee.getArgs()) {
-			args0.add(step(arg, g)); // needs to be step for correctness
+			args0.add(step(arg, ctx)); // needs to be step for correctness
 		}
 		KBExp<C, V> ret = kb.factory.KBApp(ee.f(), args0);
-		return step1(ret, g);
+		return step1(ret, ctx);
 
 	}
 
@@ -136,7 +135,7 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 		return changed;
 	}
 
-	private synchronized KBExp<C, V> step1(KBExp<C, V> e0, Set<T> g) {
+	private synchronized KBExp<C, V> step1(KBExp<C, V> e0, Map<V, T> ctx) {
 		KBExp<C, V> e = e0;
 		for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> r0 : kb.eqs) {
 			Pair<KBExp<C, V>, KBExp<C, V>> r = new Pair<>(r0.second, r0.third);
@@ -152,7 +151,7 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 				continue;
 			}
 			//System.out.println("s " + s + " applies " + applies(r0.first, s, g) + " g " + g);
-			if (!applies(r0.first, s, g)) {
+			if (!applies(s, r0.first, ctx)) {
 				continue;
 			}
 			e = rhs.substitute(s);
@@ -161,16 +160,16 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 		return e;
 	}
 
-	private synchronized boolean applies(Map<V, T> ruleCtx, Map<V, KBExp<C, V>> subst, Collection<T> inhab) {
-		Util.assertNotNull(subst);
-		Set<T> need = (new THashSet<>());
-		for (V ruleVar : ruleCtx.keySet()) {
-			Util.assertNotNull(ruleVar);
-			if (!subst.containsKey(ruleVar)) {
-				need.add(ruleCtx.get(ruleVar));
-			}
+	private synchronized boolean applies(Map<V, KBExp<C, V>> subst, Map<V, T> ruleCtx, Map<V, T> ctx) {
+    Map<V, T> unionCtx = Util.mk();
+    unionCtx.putAll(ruleCtx);
+    unionCtx.putAll(ctx);
+		for (V x : subst.keySet()) {
+      if (!kb.type(unionCtx, subst.get(x)).equals(unionCtx.get(x))) {
+        return false;
+      }
 		}
-		return inhab.containsAll(need);
+		return true;
 	}
 
 	@Override
@@ -180,7 +179,7 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 		g.addAll(ctx.values());
 		inhabGen(g);
 		// System.out.println(g);
-		return red(lhs, g).equals(red(rhs, g));
+		return red(lhs, ctx).equals(red(rhs, ctx));
 	}
 
 	@Override
@@ -194,5 +193,10 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 		groundInhabited.add(t);
 		inhabGen(groundInhabited);
 	}
+
+  @Override
+  public boolean supportsTrivialityCheck() {
+    return true;
+  }
 
 }

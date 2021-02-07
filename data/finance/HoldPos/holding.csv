@@ -1,6 +1,0 @@
-id,holding_id,holding_client_no,holding_portfolio_id,holding_asset_id,holding_quantity,holding_purchase_date,holding_purchase_price,holding_currency_code,holding_begin_date,holding_end_date,holding_client
-hph1,1,1,1,1,200,1/1/11,5.51,EUR,1/1/11,6/1/11,hpc1
-hph2,2,1,1,1,100,1/1/11,5.51,EUR,6/1/11,,hpc1
-hph3,3,2,3,3,150,9/1/13,2.5,USD,9/1/13,3/1/14,hpc2
-hph4,4,2,3,5,200,2/1/13,1.6,JPY,2/1/13,7/1/13,hpc2
-hph5,5,2,3,5,100,2/1/13,1.6,JPY,7/1/13,NULL,hpc2

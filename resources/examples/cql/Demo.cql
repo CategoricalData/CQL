@@ -1,24 +1,24 @@
 // Universal Warehousing Demo
 
 // user defined functions, in Java
-typeside Type = literal { 
-	java_types
-		String = "java.lang.String"
-	java_constants
-		String = "return input[0]"
-	java_functions
-		toUpper : String -> String  = "return input[0].toUpperCase()"
+typeside Type = literal {
+	external_types
+		String -> "java.lang.String"
+	external_parsers
+		String -> "x => x"
+	external_functions
+		toUpper : String -> String  = "x => x.toUpperCase()"
 }
 
 ///////////////////////////////////////////////////////////////////////////
 // input schemas
 
 schema AmphibianSchema = literal : Type {
-	entities 
+	entities
 		Amphibian Animal
-	foreign_keys 
-		toAnimal : Amphibian -> Animal    
-	attributes	
+	foreign_keys
+		toAnimal : Amphibian -> Animal
+	attributes
 	     species : Animal -> String
 }
 
@@ -26,32 +26,32 @@ schema LandSchema = literal : Type {
 	imports
 		AmphibianSchema
 	entities
-		LandAnimal	
-	foreign_keys 
+		LandAnimal
+	foreign_keys
 		isA : Amphibian  -> LandAnimal
 		isA : LandAnimal -> Animal
-	path_equations 
-		Amphibian.isA.isA = Amphibian.toAnimal     
-} 
+	path_equations
+		Amphibian.isA.isA = Amphibian.toAnimal
+}
 
 schema WaterSchema = literal : Type {
 	imports
-		AmphibianSchema 
+		AmphibianSchema
 	entities
-		WaterAnimal	
-	foreign_keys 
+		WaterAnimal
+	foreign_keys
 		isA : Amphibian  -> WaterAnimal
 		isA : WaterAnimal -> Animal
-	path_equations 
-		Amphibian.isA.isA = Amphibian.toAnimal     
-} 
+	path_equations
+		Amphibian.isA.isA = Amphibian.toAnimal
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //input instances
 
-instance LandInstance = import_csv "http://categoricaldata.net/demo/LandDB/" : LandSchema 
+instance LandInstance = import_csv "http://categoricaldata.net/demo/LandDB/" : LandSchema
 
-instance WaterInstance = import_csv "http://categoricaldata.net/demo/WaterDB/" : WaterSchema 
+instance WaterInstance = import_csv "http://categoricaldata.net/demo/WaterDB/" : WaterSchema
 
 ///////////////////////////////////////////////////////////////////////////.....
 //compute the canonical schema colimit, then enhances its semantics
@@ -61,7 +61,7 @@ schema_colimit UniversalWarehouseSchema = quotient LandSchema + WaterSchema : Ty
 		LandSchema.Animal = WaterSchema.Animal
 		LandSchema.Amphibian = WaterSchema.Amphibian
 	path_equations
-		Amphibian.LandSchema_Amphibian_toAnimal = Amphibian.WaterSchema_Amphibian_toAnimal			
+		Amphibian.LandSchema_Amphibian_toAnimal = Amphibian.WaterSchema_Amphibian_toAnimal
 }
 
 schema_colimit ModifiedWarehouseSchema = modify UniversalWarehouseSchema {
@@ -77,7 +77,7 @@ schema_colimit ModifiedWarehouseSchema = modify UniversalWarehouseSchema {
 		//Land.LandAnimal_isA -> isA
 	rename attributes
 		Animal.LandSchema_Animal_species  -> land_species
-		Animal.WaterSchema_Animal_species -> water_species	
+		Animal.WaterSchema_Animal_species -> water_species
 	remove foreign_keys
 		Amphibian.redundantL -> land_is	. isA
 		Amphibian.redundantW -> water_is. isA
@@ -110,16 +110,16 @@ options
 command storeWH = export_jdbc_instance Warehouse "" ""
 
 //view exported SQL instance
-command view1 = exec_jdbc ""  { 
+command view1 = exec_jdbc ""  {
 	"SELECT * FROM \"Animal\""
 	"SELECT * FROM \"Amphibian\""
 	"SELECT * FROM \"Land\""
 	"SELECT * FROM \"Water\""
 
+"DROP TABLE \"Amphibian\""
+"DROP TABLE \"Land\""
+"DROP TABLE \"Water\""
 	"DROP TABLE \"Animal\"" //drop tables in case we want to run the demo again
-	"DROP TABLE \"Amphibian\""
-	"DROP TABLE \"Land\""
-	"DROP TABLE \"Water\""
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,11 +140,11 @@ transform RoundTripLandFn = unit LandToWarehouse LandInstance
 query LandToAmphibians = literal : LandSchema -> AmphibianSchema {
 	entity Amphibian -> {from amp:Amphibian
 	                     //where amp.toAnimal.species = "frog"
-						 foreign_keys toAnimal -> {anim -> amp.toAnimal}}  
-						 
+						 foreign_keys toAnimal -> {anim -> amp.toAnimal}}
+
 	entity Animal -> {from anim:Animal
 	                  //where anim.species = "frog"
-				      attributes species -> anim.species} 				      
+				      attributes species -> anim.species}
 }
 
 instance RoundTripAmphibians = eval LandToAmphibians RoundTripLand
@@ -153,13 +153,13 @@ instance RoundTripAmphibians = eval LandToAmphibians RoundTripLand
 // Application 3 : Check and/or repair additional rules
 
 constraints AllFksInjective = literal : WarehouseSchema {
-	forall a1 a2 : Amphibian where a1.land_is  = a2.land_is  -> where a1 = a2 
-	forall a1 a2 : Amphibian where a1.water_is = a2.water_is -> where a1 = a2 
+	forall a1 a2 : Amphibian where a1.land_is  = a2.land_is  -> where a1 = a2
+	forall a1 a2 : Amphibian where a1.water_is = a2.water_is -> where a1 = a2
 	forall l1 l2 : Land      where l1.isA      = l2.isA      -> where l1 = l2
 	forall w1 w2 : Water     where w1.isA      = w2.isA      -> where w1 = w2
 }
 
-command cmd = check AllFksInjective Warehouse 
+command cmd = check AllFksInjective Warehouse
 
 instance ANonInjectiveWarehouse = literal : WarehouseSchema {
 	generators
@@ -170,4 +170,4 @@ instance ANonInjectiveWarehouse = literal : WarehouseSchema {
 		frog2.land_is = frog
 }
 
-instance RepairedInjectiveWarehouse = chase AllFksInjective ANonInjectiveWarehouse 
+instance RepairedInjectiveWarehouse = chase AllFksInjective ANonInjectiveWarehouse

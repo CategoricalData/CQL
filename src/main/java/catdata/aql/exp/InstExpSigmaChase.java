@@ -23,7 +23,6 @@ import catdata.aql.Term;
 import catdata.aql.fdm.LiteralInstance;
 import catdata.aql.fdm.SigmaChaseAlgebra;
 import catdata.aql.fdm.SigmaLeftKanAlgebra;
-import gnu.trove.set.hash.THashSet;
 
 public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {
 
@@ -175,7 +174,7 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 			zz.validate();
 			zz.validateMore();
 			
-			System.out.println("valid " + zz);
+			//System.out.println("valid " + zz);
 			return zz;
 		} else if (type.equals("parallel")) {
 

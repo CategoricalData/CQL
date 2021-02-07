@@ -17,7 +17,18 @@ public abstract class InstExp<Gen, Sk, X, Y> extends Exp<Instance<Ty, En, Sym, F
 	public abstract <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E;
 
 	public static interface InstExpCoVisitor<R, P, E extends Exception> {
+		public abstract InstExpXmlAll visitInstExpXmlAll(P param, R exp) throws E;
+
+		public abstract InstExpXmlAll visitInstExpMarkdown(P param, R exp) throws E;
+
+		public abstract InstExpSpanify visitInstExpSpanify(P param, R exp) throws E;
+
 		public abstract InstExpJdbcAll visitInstExpJdbcAll(P param, R exp) throws E;
+
+		public abstract InstExpRdfAll visitInstExpRdfAll(P param, R exp) throws E;
+
+		public abstract InstExpJsonAll visitInstExpJsonAll(P param, R exp) throws E;
+
 
 		public abstract <Gen, Sk, X, Y> InstExpSigma<Gen, Sk, X, Y> visitInstExpSigma(P param, R exp) throws E;
 
@@ -78,10 +89,24 @@ public abstract class InstExp<Gen, Sk, X, Y> extends Exp<Instance<Ty, En, Sym, F
 		public abstract InstExpRandom visitInstExpRandom(P param, R exp) throws E;
 
 		public abstract InstExpRaw visitInstExpRaw(P param, R exp) throws E;
+		
+		public abstract InstExpJdbcDirect visitInstExpJdbcDirect(P param, R exp) throws E;
 	}
 
 	public static interface InstExpVisitor<R, P, E extends Exception> {
 		public abstract R visit(P param, InstExpJdbcAll exp) throws E;
+
+		public abstract R visit(P param, InstExpJdbcDirect exp) throws E;
+
+		public abstract R visit(P param, InstExpMarkdown exp) throws E;
+		
+		public abstract R visit(P param, InstExpRdfAll exp) throws E;
+		
+		public abstract R visit(P param, InstExpSpanify exp) throws E;
+
+		public abstract R visit(P param, InstExpJsonAll exp) throws E;
+
+		public abstract R visit(P param, InstExpXmlAll exp) throws E;
 
 		public abstract <Gen, Sk, X, Y> R visit(P param, InstExpSigma<Gen, Sk, X, Y> exp) throws E;
 

@@ -11,12 +11,9 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
-import catdata.aql.Collage;
-import catdata.aql.Eq;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
-import catdata.aql.Term;
 import catdata.aql.fdm.SigmaInstance;
 
 public final class InstExpSigma<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {

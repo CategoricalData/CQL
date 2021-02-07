@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.apache.commons.csv.CSVPrinter;
 
 import catdata.Pair;

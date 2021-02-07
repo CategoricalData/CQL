@@ -368,9 +368,8 @@ public final class AqlMultiDriver implements Callable<Unit> {
 
 	@Override
 	public Unit call() {
-		String k2 = "";
-		String n = "";
-
+		Kind k = null;
+		String n = null;
 		try {
 			while (true) {
 				n = null;
@@ -397,10 +396,10 @@ public final class AqlMultiDriver implements Callable<Unit> {
 
 				}
 				Exp<?> exp = env.prog.exps.get(n);
-				Kind k = exp.kind();
+				k = exp.kind();
 				long time1 = System.currentTimeMillis();
 				Object val = Util.timeout(() -> exp.eval(env, false),
-						(Long) exp.getOrDefault(env, AqlOption.timeout) * 1000);
+						(Long) exp.getOrDefault(env, AqlOption.timeout) * 1000, "");
 				if (val == null) {
 					throw new RuntimeException("anomaly, please report: null result on " + exp);
 				} else if (k.equals(Kind.PRAGMA)) {
@@ -434,7 +433,7 @@ public final class AqlMultiDriver implements Callable<Unit> {
 				if (e instanceof LocException) {
 					exn.add((LocException) e);
 				} else {
-					exn.add(new LineException(e.getMessage(), n, k2));
+					exn.add(new LineException(e.getMessage(), n, k.toString()));
 				}
 				notifyAll();
 				interruptAll();

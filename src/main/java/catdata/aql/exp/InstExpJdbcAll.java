@@ -41,7 +41,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 
 	private final Map<String, String> options;
 
-	//private final String clazz;
+	// private final String clazz;
 	private final String jdbcString;
 
 	@Override
@@ -62,20 +62,17 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 		return options;
 	}
 
-	public InstExpJdbcAll(/*String clazz, */String jdbcString, List<Pair<String, String>> options) {
-		//this.clazz = clazz;
+	public InstExpJdbcAll(/* String clazz, */String jdbcString, List<Pair<String, String>> options) {
+		// this.clazz = clazz;
 		this.jdbcString = jdbcString;
 		this.options = Util.toMapSafely(options);
 	}
 
-	public static String sqlTypeToAqlType(String s) {
-		String x = s.toLowerCase();
-		return x.substring(0, 1).toUpperCase() + x.substring(1, x.length());
-	}
-
+	
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.addAll(AqlOptions.proverOptionNames());
+		set.add(AqlOption.allow_sql_import_all_unsafe);
 		set.add(AqlOption.jdbc_default_class);
 		set.add(AqlOption.jdbc_default_string);
 		set.add(AqlOption.import_null_on_err_unsafe);
@@ -88,6 +85,12 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 	private Instance<Ty, En, Sym, Fk, Att, Gen, Null<?>, Gen, Null<?>> toInstance(AqlEnv env, SqlInstance inst,
 			SqlSchema info) {
 		AqlOptions ops = new AqlOptions(options, env.defaults);
+		boolean allow = (boolean) ops.getOrDefault(AqlOption.allow_sql_import_all_unsafe);
+		if (!allow) {
+			throw new RuntimeException(
+					"Please use jdbc_import instead.  jdbc_import_all is best-effort only and unsound (reasoning on the resulting schema and data will not respect e.g. SQL null or key semantics). Set allow_sql_import_all_unsafe=true to continue.  Also, please see services.conexus.com for a more elaborate mechanism to translate (some of) SQL to CQL.");
+		}
+
 		Schema<Ty, En, Sym, Fk, Att> sch = makeSchema(env, info, ops);
 
 		Map<En, Collection<Gen>> ens0 = Util.newSetsFor0(sch.ens);
@@ -102,37 +105,17 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 
 		boolean nullOnErr = (Boolean) ops.getOrDefault(AqlOption.import_null_on_err_unsafe);
 		boolean dontCheckClosure = (Boolean) ops.getOrDefault(AqlOption.import_dont_check_closure_unsafe);
-		// String tick = (String) ops.getOrDefault(AqlOption.jdbc_quote_char);
-		// String sep = (String) ops.getOrDefault(AqlOption.import_col_seperator);
 
 		int fr = 0;
 		Map<SqlTable, Map<Map<SqlColumn, Optional<Object>>, Gen>> iso1 = new THashMap<>();
 
 		for (SqlTable table : info.tables) {
+			System.err.println("Log: Import All: on table " + table.name);
 			Set<Map<SqlColumn, Optional<Object>>> tuples = inst.get(table);
 			En x = En.En(table.name);
 			Map<Map<SqlColumn, Optional<Object>>, Gen> i1 = new THashMap<>();
-			SqlColumn thePk = null;
-			if (table.pk.size() == 1) {
-				thePk = Util.get0(table.pk);
-//					 TINYINT SMALLINT  INTEGER  BIGINT VARCHAR
-			}
 			for (Map<SqlColumn, Optional<Object>> tuple : tuples) {
-				Gen i;
-				if (thePk == null) {
-					i = Gen.Gen(Integer.toString(fr++));
-				} else {
-					Optional<Object> xx = tuple.get(thePk);
-					if (!xx.isPresent()) {
-						Util.anomaly();
-					}
-					Object oo = xx.get();
-					if (!(oo instanceof Integer) || !(oo instanceof String)) {
-						i = Gen.Gen(Integer.toString(fr++));
-					} else {
-						i = Gen.Gen(xx.get().toString());
-					}
-				}
+				Gen i = Gen.Gen(Integer.toString(fr++));
 				i1.put(tuple, i);
 
 				// i2.put(i, tuple);
@@ -149,6 +132,8 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 				}
 			}
 			iso1.put(table, i1);
+			System.err.println("Log: Import All: complete " + table.name);
+
 			// iso2.put(table, i2);
 		}
 
@@ -156,7 +141,14 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 			for (Map<SqlColumn, Optional<Object>> in : inst.get(fk.source)) {
 				Map<SqlColumn, Optional<Object>> out = inst.follow(in, fk);
 				Gen tgen = iso1.get(fk.target).get(out);
+				if (tgen == null) {
+					throw new RuntimeException("Cannot find a foreign key target for " + fk);
+				}
 				Gen sgen = iso1.get(fk.source).get(in);
+				if (sgen == null) {
+					throw new RuntimeException("Cannot find a foreign key source for " + fk);
+				}
+
 				if (!fks0.containsKey(sgen)) {
 					fks0.put(sgen, new THashMap<>());
 				}
@@ -174,7 +166,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 	public Schema<Ty, En, Sym, Fk, Att> makeSchema(AqlEnv env, SqlSchema info, AqlOptions ops) {
 		TypeSide<Ty, Sym> typeSide = SqlTypeSide.SqlTypeSide(ops);
 
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col0 = new CCollage<>();
+		Collage<Ty, En, Sym, Fk, Att, Void, Void> col0 = new CCollage<>(typeSide.collage());
 
 		for (SqlTable table : info.tables) {
 			En x = En.En(table.name);
@@ -185,7 +177,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 							+ " against table " + col0.atts().get(Att.Att(En.En(table.name), c.name)).first
 							+ "\n\n.Possible solution: set option jdbc_import_col_seperator so as to avoid name collisions.");
 				}
-				col0.atts().put(Att.Att(x, c.name), new Pair<>(x, Ty.Ty(sqlTypeToAqlType(c.type.name))));
+				col0.atts().put(Att.Att(x, c.name), new Pair<>(x, Ty.Ty(SchExpJdbcAll.sqlTypeToAqlType(typeSide, c.type.name))));
 			}
 		}
 		Var v = Var.Var("x");
@@ -250,7 +242,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 	public int hashCode() {
 		int prime = 31;
 		int result = 1;
-	//	result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
+		// result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 		result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		return result;
@@ -265,7 +257,7 @@ public class InstExpJdbcAll extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 		if (getClass() != obj.getClass())
 			return false;
 		InstExpJdbcAll other = (InstExpJdbcAll) obj;
-			if (jdbcString == null) {
+		if (jdbcString == null) {
 			if (other.jdbcString != null)
 				return false;
 		} else if (!jdbcString.equals(other.jdbcString))

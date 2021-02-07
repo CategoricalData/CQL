@@ -1,0 +1,1 @@
+Imports an XML instance (as a URI) in .xml format

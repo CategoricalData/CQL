@@ -1,0 +1,1 @@
+The empty typeside with no types.

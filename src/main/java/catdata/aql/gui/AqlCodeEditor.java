@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Function;
 
 import javax.swing.DefaultListModel;
@@ -56,6 +58,7 @@ import catdata.ide.CodeEditor;
 import catdata.ide.CodeTextPanel;
 import catdata.ide.GUI;
 import catdata.ide.Language;
+import gnu.trove.set.hash.THashSet;
 
 @SuppressWarnings("serial")
 public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, AqlDisplay> {
@@ -99,14 +102,8 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		}
 	}
 
-	
-
 	public AqlCodeEditor(String title, int id, String content) {
 		super(title, id, content, new BorderLayout());
-		// aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
-		//JMenuItem im = new JMenuItem("Infer Map/Query/Trans/Inst");
-		//im.addActionListener(x -> infer());
-	//	topArea.getPopupMenu().add(im, 0);
 
 		DocumentListener listener = new DocumentListener() {
 			@Override
@@ -128,15 +125,15 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		JMenuItem html = new JMenuItem("Visual Edit");
 		html.addActionListener(x -> visualEdit());
 		topArea.getPopupMenu().add(html, 0);
-
-		q.add(Unit.unit);
 		
+		q.offer(Unit.unit);
+
 	}
 
 	public void visualEdit() {
 		Extensions.getExtensions().visualEdit(this);
 	}
-	
+
 	public void deployAction() {
 		Extensions.getExtensions().deploy(this);
 	}
@@ -215,12 +212,8 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		if (acs == null) {
 			acs = Collections.synchronizedList(new LinkedList<>());
 		}
-		acs.add(ac); // System.out.println("...");
+		acs.add(ac);
 	}
-
-	// private void addCompletionProviders(CompletionProvider prover) {
-
-	// }
 
 	private static CompletionProvider createCompletionProvider() {
 		DefaultCompletionProvider provider = new DefaultCompletionProvider();
@@ -296,7 +289,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		driver = new AqlMultiDriver(init, last_env);
 		respAreaX.removeAll();
 		respAreaX.add(driver.all);
-		//respAreaX.revalidate();
+		// respAreaX.revalidate();
 		driver.start();
 		last_env = driver.env; // constructor blocks
 		last_prog = init;
@@ -308,7 +301,7 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			throw last_env.exn;
 		}
 
-		//respAreaX.setToolTipText("Done.");
+		// respAreaX.setToolTipText("Done.");
 		return last_env;
 	}
 
@@ -316,22 +309,6 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 	protected String textFor(AqlDisplay disp, AqlEnv env) {
 		return disp.text == null ? "Done." : disp.text;
 	}
-
-	/*public void infer() {
-		try {
-			String s = Inferrer.infer(topArea.getSelectedText(), aqlStatic.env);
-			if (s != null) {
-				topArea.insert(s, topArea.getSelectionEnd());
-			}
-		} catch (Throwable thr) {
-			thr.printStackTrace();
-			String z = "Anomaly, please report";
-			if (thr.getMessage() != null) {
-				z = thr.getMessage();
-			}
-			respArea2.setText(z);
-		}
-	}*/
 
 	@Override
 	protected boolean omit(String s, Program<Exp<?>> p) {
@@ -344,14 +321,11 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 
 	}
 
+	protected final LinkedBlockingDeque<Unit> q = new LinkedBlockingDeque<>(1);
+
 	protected void doUpdate() {
-		if (q.isEmpty()) {
-			q.add(Unit.unit);
-		}
-		// qt = System.currentTimeMillis();
+		q.offer(Unit.unit);
 	}
-	
-	
 
 	public void clearSpellCheck() {
 		SwingUtilities.invokeLater(() -> {
@@ -360,25 +334,28 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 				topArea.addParser(aqlStatic);
 				topArea.forceReparsing(aqlStatic);
 				topArea.revalidate();
-	
+
 				respAreaX.removeAll();
 				respAreaX.add(respArea2);
 				StringBuffer sb = new StringBuffer();
+				Set<String> seen = new THashSet<>();
 				for (ParserNotice x : aqlStatic.result.getNotices()) {
 					String z = x.getMessage();
+					if (seen.contains(z)) {
+						continue;
+					} else {
+						seen.add(z);
+					}
 					if (!z.startsWith("Depends") && !z.startsWith("Anomaly")) {
-						sb.append(((StaticParserNotice)x).msg);
+						sb.append(((StaticParserNotice) x).msg);
 						sb.append("\n\n");
 					}
 					if (z.startsWith("Anomaly")) {
 						System.out.println(z);
-						
 						new RuntimeException("Anomaly").printStackTrace();
 					}
 				}
 				respArea2.setText(sb.toString());
-			//	errorStrip.setMarkerToolTipProvider(provider);
-			//	topArea.setmark
 			} catch (Throwable t) {
 			}
 		});
@@ -392,8 +369,13 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		while (!isClosed) {
 			String s;
 			try {
-				q.takeFirst();
+				while (q == null) {
+					Thread.currentThread().sleep(1000); //in a just world, q would initialize before the superclass constructor starts the thread
+				}
+				q.take(); // q can be null here? wtf
+
 				s = topArea.getText();
+
 				// todo: shortcut on ""?
 			} catch (InterruptedException e) {
 				return; /// ?
@@ -402,27 +384,36 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 				continue;
 			}
 			parsed_prog_string = s;
-			// aqlStatic = new AqlStatic(new Program<>(Collections.emptyList(), ""));
-			// topArea.forceReparsing(aqlStatic);
-			oLabel.setText(" ? ");
 
 			try {
-				aqlStatic.result.clearNotices();
+				Program<Exp<?>> last_parsed_prog = parsed_prog;
 				parsed_prog = parse(s);
-				if (q.peek() != null) {
+				Object z;
+
+				z = q.peek();
+
+				if (z != null || parsed_prog.comp(last_parsed_prog)) {
+
 					continue;
 				}
+				oLabel.setText(" ? ");
+
+				aqlStatic.result.clearNotices();
+
 				// parsed_prog = z;
-				aqlStatic = new AqlStatic(parsed_prog);				
+				aqlStatic = new AqlStatic(parsed_prog);
 				topArea.clearParsers();
 				topArea.addParser(aqlStatic);
 				clearSpellCheck();
 				aqlStatic.typeCheck(topArea);
 				if (q.peek() != null) {
+
 					continue;
 				}
 				build();
-				if (!validateBox.isSelected() || q.peek() != null) {
+				z = q.peek();
+				if (!validateBox.isSelected() || z != null) {
+
 					continue;
 				}
 				aqlStatic.validate(topArea);
@@ -434,11 +425,12 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 				} else {
 					oLabel.setText("err");
 				}
+
 			} catch (ParseException exn) {
 				try {
 					DefaultParserNotice notice = new StaticParserNotice((Parser) aqlStatic, exn.getMessage(), exn.line,
 							Color.red);
-					
+					aqlStatic.result.clearNotices();
 					aqlStatic.result.addNotice(notice);
 					clearSpellCheck();
 					oLabel.setText("err");
@@ -446,20 +438,18 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 					thr.printStackTrace();
 					oLabel.setText("anomaly please report");
 				}
-				// continue;
+				parsed_prog = null;
 			} catch (Throwable exn) {
 				try {
-					// exn.printStackTrace();
-					// DefaultParserNotice notice = new StaticParserNotice((Parser)aqlStatic,
-					// exn.getMessage(), exn.line, Color.red);
 					clearSpellCheck();
 					oLabel.setText("err");
 				} catch (Throwable thr) {
 					thr.printStackTrace();
 					oLabel.setText("anomaly please report");
 				}
+				parsed_prog = null;
 			}
-			// oLabel.setText(text);
+
 		}
 	}
 
@@ -479,8 +469,6 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		}
 	}
 
-	
-
 	@Override
 	protected DefaultMutableTreeNode makeTree(List<String> set) {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
@@ -489,7 +477,6 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		for (String k : set) {
 			Exp<?> e = aqlStatic.env.prog.exps.get(k);
 			if (e == null) {
-				// System.out.println(k + " " + s);
 				Util.anomaly();
 			}
 			if (e.kind().equals(Kind.COMMENT)) {
@@ -523,8 +510,6 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 			}
 		}
 	}
-
-//	final AqlCodeEditor codeEditor;
 
 	private <X, Y, Z> void add(DefaultMutableTreeNode root, Collection<X> x, Y y, Function<X, Z> f) {
 		if (x.size() > 0) {
@@ -561,16 +546,17 @@ public final class AqlCodeEditor extends CodeEditor<Program<Exp<?>>, AqlEnv, Aql
 		// }
 		return model;
 	}
-	
+
 	private int shouldFold = 0;
+
 	@Override
 	public void setVisible(boolean b) {
 		super.setVisible(b);
-		
+
 		if (shouldFold++ < 2) {
-			foldAll(true); 
+			foldAll(true);
 		}
-		
+
 	}
 
 }

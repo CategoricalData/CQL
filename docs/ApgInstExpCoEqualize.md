@@ -1,0 +1,1 @@
+CoEqualizer object of two parallel morphisms in the category of APGs.

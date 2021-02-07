@@ -465,13 +465,13 @@ public class SimilarityFloodingMatcher<N1, N2, E1, E2>
 
 		// check for convergence
 
-//		Match<N1,E1,N2,E2> best = createMatchFromIpg(ipg_n, sigmap_n);
+		Match<N1,E1,N2,E2> best = createMatchFromIpg(ipg_n, sigmap_n);
 //		//System.out.println("best match is " + best + "\n");
 //		//System.out.println("----------------------------");
 
-//		return best;
+		return best;
 
-		throw new RuntimeException("Todo");
+//		throw new RuntimeException("Todo");
 	}
 
 	// function for the fixpt computation based on ad mat representation of ipg

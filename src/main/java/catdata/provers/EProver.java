@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.Optional;
 
+import catdata.Pair;
 import catdata.Util;
 
 public class EProver<T, C, V> extends DPKB<T, C, V> {
@@ -20,7 +22,7 @@ public class EProver<T, C, V> extends DPKB<T, C, V> {
 
 	}
 
-	public static boolean check(String exePath, long seconds, String s) {
+	public static Pair<Optional<Boolean>, String> check(String exePath, long seconds, String s) {
 		Process proc;
 		BufferedReader reader;
 
@@ -36,25 +38,37 @@ public class EProver<T, C, V> extends DPKB<T, C, V> {
 			}
 			Util.writeFile(s, g.getAbsolutePath());
 			// System.out.println(g.getAbsolutePath());
-
-			String str = exePath + " --silent --auto --cpu-limit=" + seconds + " " + g.getAbsolutePath();
+			//--proof-object
+			String str = exePath + "  --auto --proof-object --cpu-limit=" + seconds + " " + g.getAbsolutePath();
 			proc = Runtime.getRuntime().exec(str);
 
 			reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
 			String line;
+			StringBuffer sb = new StringBuffer();
 
 			while ((line = reader.readLine()) != null) {
-				// System.out.println(line);
+				sb.append(line);
+				sb.append("\n");
 				if (line.contains("# Proof found!")) {
-					return true;
+					return new Pair<>(Optional.of(true), sb.toString());
 				} else if (line.contains("# No proof found!")) {
-					return false;
+					return new Pair<>(Optional.of(false), sb.toString());
+				} else if (line.contains("# Failure:")) {
+					return new Pair<>(Optional.empty(), sb.toString());
 				}
 			}
-			throw new RuntimeException("Theorem prover error");
+			System.err.println(sb.toString());
+			reader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+			line = null;
+			while ((line = reader.readLine()) != null) {
+				System.err.print(line);
+			}
+
+			throw new RuntimeException("0Internal theorem prover anomaly.");
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
+			throw new RuntimeException("1Internal theorem prover anomaly: " + e.getLocalizedMessage());
 		}
 	}
 
@@ -77,10 +91,10 @@ public class EProver<T, C, V> extends DPKB<T, C, V> {
 			if (g == null) {
 				Util.anomaly();
 			}
-			Util.writeFile(kb.tptp_preamble() + "\n\n" + kb.tptp(ctx, lhs, rhs), g.getAbsolutePath());
+			Util.writeFile(kb.tff(ctx, lhs, rhs), g.getAbsolutePath());
 			// System.out.println(g.getAbsolutePath());
 
-			String str = exePath + " --silent  --cpu-limit=" + seconds + " " + g.getAbsolutePath();
+			String str = exePath + " --auto --silent --cpu-limit=" + seconds + " " + g.getAbsolutePath();
 			proc = Runtime.getRuntime().exec(str);
 
 			reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -88,12 +102,17 @@ public class EProver<T, C, V> extends DPKB<T, C, V> {
 			String line;
 
 			while ((line = reader.readLine()) != null) {
-				// System.out.println(line);
+				 System.out.println(line);
 				if (line.contains("# Proof found!")) {
 					return true;
 				} else if (line.contains("# No proof found!")) {
 					return false;
 				}
+			}
+			reader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+			line = null;
+			while ((line = reader.readLine()) != null) {
+				System.err.print(line);
 			}
 			throw new RuntimeException("Theorem prover error: did not decide " + lhs + " = " + rhs);
 		} catch (IOException e) {
@@ -110,5 +129,10 @@ public class EProver<T, C, V> extends DPKB<T, C, V> {
 	public void add(C c, T t) {
 
 	}
+
+  @Override
+  public boolean supportsTrivialityCheck() {
+    return true;
+  }
 
 }

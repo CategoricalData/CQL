@@ -7,8 +7,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import catdata.Pair;
-import catdata.aql.Kind;
 import catdata.aql.AqlOptions.AqlOption;
+import catdata.aql.Kind;
 import catdata.aql.fdm.InitialInstance;
 
 public final class InstExpEmpty extends InstExp<Void, Void, Void, Void> {

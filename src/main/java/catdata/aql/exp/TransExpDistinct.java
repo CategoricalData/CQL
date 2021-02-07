@@ -68,7 +68,7 @@ public final class TransExpDistinct<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 			t.eval(env, true);
 			throw new IgnoreException();
 		}
-		return new DistinctTransform<>(t.eval(env, false));
+		return new DistinctTransform<>(t.eval(env, false), env.defaults, env.defaults);
 	}
 
 	@Override

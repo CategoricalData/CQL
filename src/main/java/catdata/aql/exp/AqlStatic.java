@@ -65,12 +65,15 @@ public class AqlStatic extends AbstractParser {
 						if (o.left) {
 							exns.put(n, Optional.of(o.l));
 						} else {
+							if (exp instanceof PragmaExpCheck2) {
+								((Pragma) o.r).execute();
+							}
 							env.defs.put(n, exp.kind(), o.r);
 						}
 					}
 
 					return Unit.unit;
-				}, l * 1000);
+				}, l * 1000, "");
 			} catch (Exception ex) {
 				if (ex.getMessage() == null) {
 					ex.printStackTrace();

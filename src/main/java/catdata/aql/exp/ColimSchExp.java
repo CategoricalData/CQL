@@ -22,7 +22,6 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.ColimitSchema;
 import catdata.aql.Kind;
 import catdata.aql.Mapping;
-import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.exp.SchExp.SchExpVar;
 import gnu.trove.map.hash.THashMap;
@@ -161,7 +160,9 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 			Map<String, Schema<Ty, En, Sym, Fk, Att>> nodes0 = new THashMap<>();
 			Set<En> ens = new THashSet<>(nodes.size());
 			for (String n : nodes.keySet()) {
-				nodes0.put(n, nodes.get(n).eval(env, isC));
+				SchExp w = nodes.get(n);
+				Schema<Ty, En, Sym, Fk, Att> z = w.eval(env, isC);
+				nodes0.put(n, z);
 				ens.addAll(nodes0.get(n).ens.stream().map(x -> En.En(n + "_" + x)).collect(Collectors.toSet()));
 			}
 
@@ -284,6 +285,12 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 		@Override
 		public Set<String> type(AqlTyping G) {
 			ty.type(G);
+			for (String n : nodes.keySet()) {
+				TyExp w = nodes.get(n).type(G);
+				if (!w.equals(ty)) {
+					throw new RuntimeException("Schema for " + n + " is on typeside " + w + " and not on " + ty);
+				}
+			}
 			return nodes.keySet();
 		}
 
@@ -301,7 +308,10 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 		public TyExp typeOf(AqlTyping G) {
 			ty.type(G);
 			for (String n : nodes.keySet()) {
-				nodes.get(n).type(G);
+				TyExp w = nodes.get(n).type(G);
+				if (!w.equals(ty)) {
+					throw new RuntimeException("Schema for " + n + " is on typeside " + w + " and not on " + ty);
+				}
 			}
 			return ty;
 		}
@@ -389,10 +399,10 @@ public abstract class ColimSchExp extends Exp<ColimitSchema<String>> {
 		@Override
 		public TyExp typeOf(AqlTyping G) {
 			Exp<?> l = G.prog.exps.get(var);
-			
+
 			if (l == null) {
 				throw new RuntimeException("Not a colimit schema variable: " + var);
-			} 
+			}
 			return ((ColimSchExp) l).typeOf(G);
 
 		}

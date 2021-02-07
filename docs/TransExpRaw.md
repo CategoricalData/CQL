@@ -1,0 +1,1 @@
+A literal transform, given as a morphism of instances constant on the schema.  Hence, a target term for each source generator or labelled null.  See All_Syntax for an example.

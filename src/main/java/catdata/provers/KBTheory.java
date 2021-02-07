@@ -2,14 +2,21 @@ package catdata.provers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.github.jsonldjava.shaded.com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 
 import catdata.Pair;
 import catdata.Triple;
+import catdata.Unit;
 import catdata.Util;
 import gnu.trove.set.hash.THashSet;
 
@@ -23,18 +30,17 @@ public class KBTheory<T, C, V> {
 	}
 
 	public KBTheory(KBTheory<T, C, V> kb2) {
-		this(kb2.factory);
+		this(kb2.factory, Unit.unit);
 		this.tys.addAll(kb2.tys);
 		this.syms.putAll(kb2.syms);
-		this.eqs.addAll(kb2.eqs);
+		this.eqs = kb2.eqs;
 		// validate(); // TODO aql disable for production
 	}
 
 	public void add(KBTheory<T, C, V> kb2) {
 		this.tys.addAll(kb2.tys);
 		this.syms.putAll(kb2.syms);
-		this.eqs.addAll(kb2.eqs);
-		// validate(); // TODO aql disable for production
+		this.eqs = Iterables.concat(eqs, kb2.eqs);
 	}
 
 	public synchronized void validate() {
@@ -71,21 +77,29 @@ public class KBTheory<T, C, V> {
 	public final Collection<T> tys;
 	public Map<C, Pair<List<T>, T>> syms;
 
-	public final Collection<Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>>> eqs;
+	public Iterable<Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>>> eqs;
 
-	public KBTheory(KBExpFactory<T, C, V> factory) {
-		this.tys = (new THashSet<>());
+	public KBTheory(KBExpFactory<T, C, V> factory, Unit unit) {
+		this.tys = new THashSet<>();
 		this.syms = Util.mk();
-		this.eqs = (new THashSet<>());
+		this.eqs = new THashSet<>();
 		this.factory = factory;
 	}
-	/*
-	 * public KBTheory(Collection<T> tys, Map<C, Pair<List<T>, T>> syms,
-	 * Collection<Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>>> eqs,
-	 * KBExpFactoryImpl<T,C,V> factory) { this.tys = tys; this.syms = syms; this.eqs
-	 * = eqs; this.factory = factory; validate(); // TODO aql disable for production
-	 * }
-	 */
+
+	public Set<T> inhabGen() {
+		Set<T> inhab = new THashSet<>();
+		inhabGen(inhab);
+		return inhab;
+	}
+
+	public KBTheory(KBExpFactory<T, C, V> factory, Collection<T> tys, Map<C, Pair<List<T>, T>> syms,
+			Iterable<Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>>> eqs) {
+		super();
+		this.factory = factory;
+		this.tys = tys;
+		this.syms = syms;
+		this.eqs = eqs;
+	}
 
 	public void inhabGen(Set<T> inhabited) {
 		while (inhabGen1(inhabited))
@@ -105,6 +119,10 @@ public class KBTheory<T, C, V> {
 		return changed;
 	}
 
+	public T type(Map<V, T> ctx, KBExp<C, V> e) {
+		return e.type(syms, ctx);
+	}
+
 	private final Map<Object, String> isoC1 = Util.mk();
 	private final Map<String, Object> isoC2 = Util.mk();
 
@@ -115,6 +133,23 @@ public class KBTheory<T, C, V> {
 	private final Map<String, Object> isoT2 = Util.mk();
 
 	private int i = 0;
+
+	// TODO: port to open source cql
+	public final synchronized <X> X convert(KBExp<C, V> e, Function<String, X> v,
+			BiFunction<String, Iterator<X>, X> f) {
+		if (e.isVar()) {
+			return v.apply(convertV(e.getVar()));
+		}
+		Iterator<X> l = Iterators.transform(e.getArgs().iterator(), arg -> convert(arg, v, f));
+		return f.apply(convertC(e.f()), l);
+	}
+
+	static String strip(Object s) {
+		return "";
+		// return s.toString().replace(" ", "").replace(",", "").replace("(",
+		// "").replace(")", "").replace("inl", "")
+		// .replace("inr", "");
+	}
 
 	public final synchronized String convert(KBExp<C, V> e) {
 		if (e.isVar()) {
@@ -134,8 +169,8 @@ public class KBTheory<T, C, V> {
 		if (isoV1.containsKey(e)) {
 			return isoV1.get(e);
 		}
-		isoV1.put(e, "V" + i);
-		isoV2.put("V" + i, e);
+		isoV1.put(e, "V" + i + strip(e));
+		isoV2.put("V" + i + strip(e), e);
 		i++;
 
 		return isoV1.get(e);
@@ -145,8 +180,8 @@ public class KBTheory<T, C, V> {
 		if (isoC1.containsKey(e)) {
 			return isoC1.get(e);
 		}
-		isoC1.put(e, "s" + i);
-		isoC2.put("s" + i, e);
+		isoC1.put(e, "s" + i + strip(e));
+		isoC2.put("s" + i + strip(e), e);
 		i++;
 
 		return isoC1.get(e);
@@ -156,8 +191,8 @@ public class KBTheory<T, C, V> {
 		if (isoT1.containsKey(e)) {
 			return isoT1.get(e);
 		}
-		isoT1.put(e, "p" + i);
-		isoT2.put("p" + i, e);
+		isoT1.put(e, "p" + i + strip(e));
+		isoT2.put("p" + i + strip(e), e);
 		i++;
 
 		return isoT1.get(e);
@@ -167,17 +202,34 @@ public class KBTheory<T, C, V> {
 
 	public synchronized String tptp(Map<V, T> ctx, KBExp<C, V> lhs, KBExp<C, V> rhs) {
 		StringBuffer sb = new StringBuffer(tptp());
-		sb.append("fof(eq" + 0 + ",conjecture,(");
+		sb.append("fof(eq" + j + ",conjecture,(");
+		j++;
 		if (!ctx.isEmpty()) {
 			sb.append("! [");
 			sb.append(Util.sep(ctx.keySet().stream().map(this::convertV).collect(Collectors.toList()), ","));
 			sb.append("] : (");
 		}
-		sb.append("($true");
-		for (V v : ctx.keySet()) {
-			sb.append(" & " + convertT(ctx.get(v)) + "(" + convertV(v) + ")");
+
+		if (ctx.keySet().isEmpty()) {
+
+		} else if (ctx.keySet().size() == 1) {
+			sb.append("(");
+			for (V v : ctx.keySet()) {
+				sb.append(convertT(ctx.get(v)) + "(" + convertV(v) + ")");
+			}
+			sb.append(") => ");
+		} else {
+			boolean first = true;
+			sb.append("(");
+			for (V v : ctx.keySet()) {
+				if (!first) {
+					sb.append(" & ");
+				}
+				sb.append(convertT(ctx.get(v)) + "(" + convertV(v) + ")");
+				first = false;
+			}
+			sb.append(") => ");
 		}
-		sb.append(") => ");
 
 		sb.append(convert(lhs) + " = " + convert(rhs) + "))");
 		if (!ctx.isEmpty()) {
@@ -188,12 +240,47 @@ public class KBTheory<T, C, V> {
 		return sb.toString();
 	}
 
+	public synchronized String tptp_typed_nonempty() {
+		StringBuilder sb = new StringBuilder();
+		for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : eqs) {
+			Map<V, T> ctx = eq.first;
+			sb.append("tff(eq" + j + ",axiom,(");
+			if (!ctx.isEmpty()) {
+				sb.append("! [");
+				sb.append(Util.sep(ctx.keySet().stream().map(this::convertV).collect(Collectors.toList()), ","));
+				sb.append("] : ((");
+
+				boolean first = true;
+				for (V v : ctx.keySet()) {
+					if (first == false) {
+						sb.append(" & ");
+					}
+					sb.append(convertT(ctx.get(v)) + "(" + convertV(v) + ")");
+					first = false;
+				}
+				sb.append(") => ");
+			}
+			sb.append(convert(eq.second) + " = " + convert(eq.third) + "))");
+			if (!ctx.isEmpty()) {
+				sb.append(")");
+			}
+			sb.append(".");
+			sb.append(System.lineSeparator());
+			j++;
+		}
+
+		String tptp = sb.toString();
+		return tptp;
+	}
+
+	public static int j = 0;
+
 	public synchronized String tptp() {
 		// if (tptp != null) {
 		// return tptp;
 		// }
 
-		int j = 1; // 0 reserved for other tptp fn
+		// int j = 1; // 0 reserved for other tptp fn
 		StringBuilder sb = new StringBuilder();
 		for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : eqs) {
 			Map<V, T> ctx = eq.first;
@@ -201,13 +288,18 @@ public class KBTheory<T, C, V> {
 			if (!ctx.isEmpty()) {
 				sb.append("! [");
 				sb.append(Util.sep(ctx.keySet().stream().map(this::convertV).collect(Collectors.toList()), ","));
-				sb.append("] : (");
+				sb.append("] : ((");
+
+				boolean first = true;
+				for (V v : ctx.keySet()) {
+					if (first == false) {
+						sb.append(" & ");
+					}
+					sb.append(convertT(ctx.get(v)) + "(" + convertV(v) + ")");
+					first = false;
+				}
+				sb.append(") => ");
 			}
-			sb.append("($true");
-			for (V v : ctx.keySet()) {
-				sb.append(" & " + convertT(ctx.get(v)) + "(" + convertV(v) + ")");
-			}
-			sb.append(") => ");
 			sb.append(convert(eq.second) + " = " + convert(eq.third) + "))");
 			if (!ctx.isEmpty()) {
 				sb.append(")");
@@ -227,7 +319,7 @@ public class KBTheory<T, C, V> {
 		// if (preamble != null) {
 		// return preamble;
 		// }
-		int j = 0; // 0 reserved for other tptp fn
+		// int j = 0; // 0 reserved for other tptp fn
 		StringBuilder sb = new StringBuilder();
 
 		for (T t : tys) {
@@ -238,22 +330,20 @@ public class KBTheory<T, C, V> {
 				}
 				y.add("(~" + convertT(t2) + "(X))");
 			}
-
+			if (y.isEmpty()) {
+				continue;
+			}
 			sb.append("fof(sort" + (j++) + ",axiom,(");
 			sb.append("! [ X ] ");
 			sb.append(" : (");
 			sb.append(convertT(t) + "(X) => (");
-			if (y.isEmpty()) {
-				sb.append("$true");
-			} else {
-				sb.append(Util.sep(y, " & "));
-			}
+			sb.append(Util.sep(y, " & "));
 
 			sb.append(")))).\n");
 		}
 
 		for (C c : syms.keySet()) {
-			sb.append("fof(sym" + j + ",axiom,(");
+			sb.append("fof(sym" + (j++) + ",axiom,(");
 			List<String> l = new LinkedList<>();
 			int i = 0;
 			for (@SuppressWarnings("unused")
@@ -263,20 +353,27 @@ public class KBTheory<T, C, V> {
 			}
 
 			if (!syms.get(c).first.isEmpty()) {
-				sb.append("! [ ");
-				sb.append(Util.sep(l, ","));
-				sb.append(" ] : (");
+				sb.append("![");
+				sb.append(Util.sep(l, ", "));
+				sb.append("] : (");
 			}
 
 			i = 0;
-			sb.append("($true");
-			for (T t : syms.get(c).first) {
-				sb.append(" & ");
-				String x = "X" + (i++);
-				sb.append(convertT(t) + "(" + x + ")");
+			if (!syms.get(c).first.isEmpty()) {
+				sb.append("(");
+				boolean first = true;
+				for (T t : syms.get(c).first) {
+					if (!first) {
+						sb.append(" & ");
+					}
+					String x = "X" + (i++);
+					sb.append(convertT(t) + "(" + x + ")");
+					first = false;
+				}
+				sb.append(") => ");
 			}
-			sb.append(") => ");
-			sb.append(convertT(syms.get(c).second) + "(" + convertC(c) + "(" + Util.sep(l, ",") + "))");
+      String args = l.isEmpty() ? "" : "(" + Util.sep(l, ",") + ")";
+			sb.append(convertT(syms.get(c).second) + "(" + convertC(c) + args + ")");
 			if (!syms.get(c).first.isEmpty()) {
 				sb.append(")");
 			}
@@ -314,4 +411,88 @@ public class KBTheory<T, C, V> {
 		return tptp_cnf;
 	}
 
+	public String printIso() {
+		return Util.sep(isoC1, "=", "\n") + "\n" + Util.sep(isoT1, "=", "\n");
+	}
+
+  // TODO deprecate other TPTP methods, the proliferation is ridiculous
+
+  public String tff(Map<V, T> ctx, KBExp<C, V> lhs, KBExp<C, V> rhs) {
+    return tff() + tffSentence(TffRole.CONJECTURE, tffEquation(ctx, lhs, rhs));
+  }
+
+  public String tff() {
+    StringBuilder sb = new StringBuilder();
+    for (T ty : tys) {
+      sb.append(tffTypeDeclaration(ty));
+    }
+    for (C sym : syms.keySet()) {
+      sb.append(tffSymDeclaration(sym));
+    }
+    for (T ty : inhabGen()) {
+      sb.append(tffSentence(TffRole.AXIOM, tffInhabited(ty)));
+    }
+    for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : eqs) {
+      sb.append(tffSentence(TffRole.AXIOM, tffEquation(eq.first, eq.second, eq.third)));
+    }
+    return sb.toString();
+  }
+
+  private String tffTypeDeclaration(T ty) {
+    return tffSentence(TffRole.TYPE, String.format("%s : " + TYPE_TYPE, convertT(ty)));
+  }
+
+  private String tffSymDeclaration(C sym) {
+    return tffSentence(TffRole.TYPE, String.format("%s : %s", convertC(sym), tffType(syms.get(sym))));
+  }
+
+  private String tffType(Pair<List<T>, T> type) {
+    List<T> args = type.first;
+    String argsStr = args.isEmpty() ? "" : Util.sep(args, " * ", this::convertT) + " > ";
+    return argsStr + convertT(type.second);
+  }
+
+  private String tffEquation(Map<V, T> ctx, KBExp<C, V> lhs, KBExp<C, V> rhs) {
+    String equation = String.format("%s = %s", convert(lhs), convert(rhs));
+    if (ctx.isEmpty()) {
+      return equation;
+    } else {
+      String inhabCondition = Util.sep(ctx.values(), " & ", this::tffInhabited);
+      String quantifiers = Util.sep(ctx.entrySet(), ", ", e -> {
+        return String.format("%s:%s", convertV(e.getKey()), convertT(e.getValue()));
+      });
+      return String.format("(%s) => ![%s] : %s", inhabCondition, quantifiers, equation);
+    }
+  }
+
+  private String tffInhabited(T ty) {
+    return String.format("%s(%s)", INHABITED_PREDICATE, convertT(ty));
+  }
+
+  private static final String INHABITED_PREDICATE = "inhabited",
+                              TYPE_TYPE = "$tType",
+                              FORMULA_TYPE = "$o";
+
+  private String tffSentence(TffRole role, String content) {
+    return String.format("tff(%s%d, %s, (%s)).\n", role, fresh(), role, content);
+  }
+
+  private static enum TffRole {
+    TYPE("type"), AXIOM("axiom"), CONJECTURE("conjecture");
+
+    public final String role;
+
+    TffRole(String role) {
+      this.role = role;
+    }
+
+    public String toString() {
+      return role;
+    }
+  }
+
+  private java.util.concurrent.atomic.AtomicInteger counter = new java.util.concurrent.atomic.AtomicInteger();
+  private int fresh() {
+    return counter.getAndIncrement();
+  }
 }

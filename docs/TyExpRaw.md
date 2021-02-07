@@ -1,0 +1,1 @@
+A typeside literal: a multi-sorted equational theory.  See All_Syntax for an example.  Note that class names in javascript should be fully qualified.

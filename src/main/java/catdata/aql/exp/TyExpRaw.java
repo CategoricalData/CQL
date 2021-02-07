@@ -26,7 +26,6 @@ import catdata.aql.Collage;
 import catdata.aql.Collage.CCollage;
 import catdata.aql.Eq;
 import catdata.aql.Kind;
-import catdata.aql.RawTerm;
 import catdata.aql.Term;
 import catdata.aql.TypeSide;
 import catdata.aql.Var;
@@ -110,7 +109,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 			col.syms().put(s, new Pair<>(l1, Ty.Ty(kv.getValue().second)));
 			col.java_fns().put(s, kv.getValue().third);
 		}
-		
+
 		// do above because find() requires the index
 		doGuiIndex(types, functions, eqsX, java_tys_string, java_parser_string, java_fns_string);
 	}
@@ -353,7 +352,7 @@ public final class TyExpRaw extends TyExp implements Raw {
 		for (TyExp k : imports) {
 			col.addAll(k.eval(env, isC).collage());
 		}
-		AqlJs<Ty, Sym> js = new AqlJs<>(col.syms(), col.java_tys(), col.java_parsers(), col.java_fns());
+		AqlJs<Ty, Sym> js = new AqlJs<>(ops, col.syms(), col.java_tys(), col.java_parsers(), col.java_fns());
 
 		for (Triple<List<Pair<String, String>>, RawTerm, RawTerm> eq : eqs) {
 			try {
@@ -397,16 +396,17 @@ public final class TyExpRaw extends TyExp implements Raw {
 	protected void allowedOptions(Set<AqlOption> set) {
 		set.add(AqlOption.allow_java_eqs_unsafe);
 		set.addAll(AqlOptions.proverOptionNames());
+    set.add(AqlOption.graal_language);
 	}
 
 	@Override
 	public Object type(AqlTyping G) {
 		return Unit.unit;
-	}
+	} 
 
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
-		
+
 	}
 
 }

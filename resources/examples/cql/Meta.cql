@@ -16,7 +16,7 @@ schema cat = literal : empty {
 		Pair.Fst.cod = Pair.Snd.dom
 		Pair.Snd.cod = Pair.comp.cod
 	options
-} 
+}
 
 constraints theEDs = literal : cat {
 //every composable pair gives a Pair
@@ -35,9 +35,9 @@ constraints theEDs = literal : cat {
 	->
 	where idf.comp = idf.Snd
 //associativity
- 	forall fg gh fgThenh fThengh: Pair 
- 	where 
- 		fg.Snd = gh.Fst 
+ 	forall fg gh fgThenh fThengh: Pair
+ 	where
+ 		fg.Snd = gh.Fst
  		fgThenh.Fst = fg.comp
  		fgThenh.Snd = gh.Snd
  		fThengh.Fst = fg.Fst
@@ -48,7 +48,7 @@ constraints theEDs = literal : cat {
 
 // You can make similar constraints on CQLschema.
 schema CQLschema = literal : empty {
-	imports 
+	imports
 		cat
 	entities
 		StringAtt IntAtt
@@ -64,18 +64,18 @@ instance mysch = literal : CQLschema  {
 		name: StringAtt
 	equations
 		f.dom=c f.cod=d
-		name.on=c		
+		name.on=c
 }
 
-typeside Ty = literal { 
-	java_types
-		String = "java.lang.String"
-		Integer = "java.lang.Integer"
-	java_constants
-		String = "return input[0]"
-		Integer = "return java.lang.Integer.parseInt(input[0])"
-	java_functions
-		plus : Integer,Integer -> Integer = "return (input[0] + input[1]).intValue()"
+typeside Ty = literal {
+	external_types
+		String -> "java.lang.String"
+		Integer -> "java.lang.Integer"
+	external_parsers
+		String -> "x => x"
+		Integer -> "parseInt"
+	external_functions
+		plus : Integer,Integer -> Integer = "(x, y) => x + y"
 }
 schema CQLinstance = literal : Ty {
 	imports CQLschema
@@ -95,11 +95,11 @@ schema CQLinstance = literal : Ty {
 		//col.on = row.inTable // StringCell
 		//col.on = row.inTable // IntCell
 		fkCell.col.dom = fkCell.row.inTable // fkCell
-		//col.cod = row.pointsTo // fkCell	
+		//col.cod = row.pointsTo // fkCell
 	attributes
 		value : StringCell -> String
 		value : IntCell -> Integer
-	
+
 }
 
 //add all constraints for categories + ...
@@ -115,7 +115,7 @@ constraints moreEDs = literal : CQLinstance {
 	where r.inTable=sa.on ->
  	exists unique value:IntCell
  	where value.col=sa value.row=r
-// fk fields are nonempty and atomic 	
+// fk fields are nonempty and atomic
 	forall r:recordID m:Mor
 	where r.inTable=m.dom ->
  	exists unique value:fkCell
@@ -123,7 +123,7 @@ constraints moreEDs = literal : CQLinstance {
 }
 
 /*
-For given CQL schemas X and Y, there may be no CQL schema MapXY such that MapXY-Inst ~ CQL mappings X -> Y.  Rather, the mappings X -> Y are isomorphic to the transforms X* => Y*, where X* and Y* are the Schema instances associated to X and Y. 
+For given CQL schemas X and Y, there may be no CQL schema MapXY such that MapXY-Inst ~ CQL mappings X -> Y.  Rather, the mappings X -> Y are isomorphic to the transforms X* => Y*, where X* and Y* are the Schema instances associated to X and Y.
 
 But, there is an CQL schema Mapping := CQLSchema * Arrow such that Mapping-Inst ~ all CQL mappings of any type.
 

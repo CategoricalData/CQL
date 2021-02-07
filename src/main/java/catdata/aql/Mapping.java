@@ -2,7 +2,6 @@ package catdata.aql;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,11 @@ public final class Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements S
 					Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> lhs,
 					Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> rhs) {
 				return Util.anomaly();
+			}
+
+			@Override
+			public boolean supportsTrivialityCheck() {
+				return false;
 			}
 
 		};

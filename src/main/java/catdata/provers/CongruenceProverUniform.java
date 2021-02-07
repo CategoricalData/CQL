@@ -205,4 +205,9 @@ public class CongruenceProverUniform<T, C, V> extends DPKB<T, C, V> {
 		this.g.get(t).put(c, Collections.emptyMap());
 	}
 
+  @Override
+  public boolean supportsTrivialityCheck() {
+    return false;
+  }
+
 }

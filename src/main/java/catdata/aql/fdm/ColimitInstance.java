@@ -36,7 +36,9 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 	@SuppressWarnings("unused")
 	private final Map<E, Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y>> edges;
 
-	private final Instance<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>, Integer, Chc<Pair<N, Sk>, Pair<Integer, Att>>> J;
+	public final Instance<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>, Integer, Chc<Pair<N, Sk>, Pair<Integer, Att>>> J;
+
+	// TODO: override eqs?
 
 	public ColimitInstance(Schema<Ty, En, Sym, Fk, Att> schema, DMG<N, E> shape,
 			Map<N, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>> nodes,
@@ -53,26 +55,6 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 						+ "\n\n, not " + schema + "\n\nas expected");
 			}
 
-	//		Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> reqdSrc = nodes.get(shape.edges.get(e).first);
-		//	Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> reqdDst = nodes.get(shape.edges.get(e).second);
-
-		//	Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> givenSrc = edges.get(e).src();
-		//	Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> givenDst = edges.get(e).dst();
-
-			/*
-			// TODO aql in general, this will be too strong - want isomorphism
-			if (reqdSrc.size() < 1000 && givenSrc.size() < 1000 ) {
-				if (!reqdSrc.collage().equals(givenSrc.collage())) {
-					throw new RuntimeException(
-							"On " + e + ", its source is \n\n" + givenSrc + " \n\n but should be \n\n " + reqdSrc);
-				}
-			}
-			if (reqdDst.size() < 1000 && givenDst.size() < 1000 )
-			if (!reqdDst.collage().equals(givenDst.collage())) {
-				throw new RuntimeException(
-						"On " + e + ", its target is \n\n " + givenDst + " \n\n but should be \n\n " + reqdDst);
-			}
-			// } */
 		}
 
 		this.schema = schema;
@@ -82,58 +64,63 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 
 		Collage<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> col = new CCollage<>(schema().collage());
 
-		List<Pair<Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>,Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>>> l = new LinkedList<>();
-		
+		List<Pair<Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>, Term<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>>>> l = new LinkedList<>();
 
 		for (N n : nodes.keySet()) {
-			nodes.get(n).gens().keySet(gen ->  {
+			nodes.get(n).gens().keySet(gen -> {
 				col.gens().put(new Pair<>(n, gen), nodes.get(n).gens().get(gen));
 			});
 			nodes.get(n).sks().keySet(sk -> {
 				col.sks().put(new Pair<>(n, sk), nodes.get(n).sks().get(sk));
 			});
-			nodes.get(n).eqs((a,b)->{
+			nodes.get(n).eqs((a, b) -> {
 				col.eqs().add(new Eq<>(null, a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
 						b.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
-				
+
 				l.add(new Pair<>(a.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x)),
 						b.mapGenSk(x -> new Pair<>(n, x), x -> new Pair<>(n, x))));
 			});
 		}
 		for (E e : shape.edges.keySet()) {
 			Transform<Ty, En, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y> h = edges.get(e);
-			
-			h.src().gens().entrySet((gen,t) -> {
-				col.eqs().add(new Eq<>(null, Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
-						h.gens().apply(gen,t).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
-								x -> new Pair<>(shape.edges.get(e).second, x), Util.voidFn())));
-			
-			l.add(new Pair<>(Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
-						h.gens().apply(gen,t).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
+
+			h.src().gens().entrySet((gen, t) -> {
+				col.eqs()
+						.add(new Eq<>(null, Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
+								h.gens().apply(gen, t).map(Util.voidFn(), Util.voidFn(), Function.identity(),
+										Util.voidFn(), x -> new Pair<>(shape.edges.get(e).second, x), Util.voidFn())));
+
+				l.add(new Pair<>(Term.Gen(new Pair<>(shape.edges.get(e).first, gen)),
+						h.gens().apply(gen, t).map(Util.voidFn(), Util.voidFn(), Function.identity(), Util.voidFn(),
 								x -> new Pair<>(shape.edges.get(e).second, x), Util.voidFn())));
 			});
-			h.src().sks().entrySet((sk,t) -> {
-				col.eqs().add(new Eq<>(null, Term.Sk(new Pair<>(shape.edges.get(e).first, sk)), h.sks().apply(sk,t).mapGenSk(
-						x -> new Pair<>(shape.edges.get(e).second, x), x -> new Pair<>(shape.edges.get(e).second, x))));
-				l.add(new Pair<>(Term.Sk(new Pair<>(shape.edges.get(e).first, sk)), h.sks().apply(sk,t).mapGenSk(
+			h.src().sks().entrySet((sk, t) -> {
+				col.eqs()
+						.add(new Eq<>(null, Term.Sk(new Pair<>(shape.edges.get(e).first, sk)),
+								h.sks().apply(sk, t).mapGenSk(x -> new Pair<>(shape.edges.get(e).second, x),
+										x -> new Pair<>(shape.edges.get(e).second, x))));
+				l.add(new Pair<>(Term.Sk(new Pair<>(shape.edges.get(e).first, sk)), h.sks().apply(sk, t).mapGenSk(
 						x -> new Pair<>(shape.edges.get(e).second, x), x -> new Pair<>(shape.edges.get(e).second, x))));
 
 			});
-			
+
 		}
 
-		Function<Pair<N, Gen>, Object> printGen = (x) -> nodes.get(x.first).algebra().nf(Term.Gen(x.second));
+		Function<Pair<N, Gen>, Object> printGen = (x) -> "(" + x.first + ", "
+				+ nodes.get(x.first).algebra().nf(Term.Gen(x.second)) + ")";
 
-		BiFunction<Ty, Pair<N, Sk>, Object> printSk = (y, x) -> nodes.get(x.first).algebra().sk(x.second)
-				.toString(w -> nodes.get(x.first).algebra().printY(y, w).toString(), Util.voidFn());
+		BiFunction<Ty, Pair<N, Sk>, Object> printSk = (y, x) -> "(" + x.first + ", " + nodes.get(x.first).algebra()
+				.sk(x.second).toString(w -> nodes.get(x.first).algebra().printY(y, w).toString(), Util.voidFn()) + ")";
 
 		InitialAlgebra<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> initial = new InitialAlgebra<>(options,
 				schema(), col, printGen, printSk);
 
+		
 		J = new LiteralInstance<>(schema(), col.gens(), col.sks(), l, initial.dp(), initial,
 				(Boolean) options.getOrDefault(AqlOption.require_consistency),
 				(Boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
-		
+
+	
 	}
 
 	@Override
@@ -150,8 +137,6 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 	public IMap<Pair<N, Sk>, Ty> sks() {
 		return J.sks();
 	}
-
-	
 
 	@Override
 	public DP<Ty, En, Sym, Fk, Att, Pair<N, Gen>, Pair<N, Sk>> dp() {
@@ -172,7 +157,5 @@ public class ColimitInstance<N, E, Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends
 	public boolean allowUnsafeJava() {
 		return J.allowUnsafeJava();
 	}
-
-	
 
 }

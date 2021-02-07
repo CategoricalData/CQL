@@ -25,7 +25,6 @@ import catdata.aql.Eq;
 import catdata.aql.Kind;
 import catdata.aql.Query;
 import catdata.aql.Query.Agg;
-import catdata.aql.RawTerm;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Var;
@@ -148,7 +147,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 		Collage<Ty, En, Sym, Fk, Att, Void, Void> colForDst = new CCollage<>(src0.typeSide.collage());
 		colForDst.getEns().add(EEn);
 		for (Pair<Att, Chc<RawTerm, PreAgg>> p : block.get().atts) {
-			
+
 			if (p.second.left) {
 				Map<String, Chc<Ty, En>> s = Util.inRight(QueryExpRaw.unVar(cols.get(EEn).gens()));
 				Term<Ty, catdata.aql.exp.En, Sym, Fk, Att, Gen, Sk> term = RawTerm.infer1x(s, p.second.l, p.second.l, null,

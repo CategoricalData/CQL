@@ -1,0 +1,1 @@
+Returns the range / codomain of a mapping.

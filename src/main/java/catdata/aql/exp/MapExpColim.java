@@ -86,7 +86,11 @@ public class MapExpColim extends MapExp {
 
 	@Override
 	public Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> eval0(AqlEnv env, boolean isC) {
-		return exp.eval(env, isC).mappingsStr.get(node);
+		Map<String, Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att>> z = exp.eval(env, isC).mappingsStr;
+		if (!z.containsKey(node)) {
+			throw new RuntimeException("No mapping for " + node + " given.");
+		}
+		return z.get(node);
 	}
 
 	@Override

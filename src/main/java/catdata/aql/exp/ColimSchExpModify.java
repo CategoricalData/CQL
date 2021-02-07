@@ -22,7 +22,6 @@ import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.ColimitSchema;
 import catdata.aql.Collage;
 import catdata.aql.Kind;
-import catdata.aql.RawTerm;
 import catdata.aql.Term;
 import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;

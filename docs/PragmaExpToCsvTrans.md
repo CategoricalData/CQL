@@ -1,0 +1,1 @@
+Emit a transform to a set of CSV files, one two-column table per entity with one column per foreign key and attribute.  There will be no headers, column 1 is the source.

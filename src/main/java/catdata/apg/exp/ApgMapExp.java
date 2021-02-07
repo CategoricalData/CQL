@@ -2,6 +2,7 @@ package catdata.apg.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -361,9 +362,30 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
 								"Branch return type " + w.first + " is not " + term.ty + " as expected.");
 					}
 					map.put(z.getKey(), new Pair<>(Var.Var(z.getValue().first), w.second));
-				}
+				} 
 
 				return new Pair<>(term.ty, ApgTerm.ApgTermCase(x.second, map, term.ty));
+			} else if (term.head != null) {
+				Triple<List<String>, String, Function<List<Object>, Object>> t = ts.udfs.get(term.head);
+				if (t == null) {
+					throw new RuntimeException("Not a UDF: " + term.head);
+				}
+				List<Pair<ApgTy<Object>, ApgTerm<Object, Void>>> l = Util.map(term.args, x->infer(ts, ctx, x, atts));
+				if (l.size() != t.first.size()) {
+					throw new RuntimeException("In " + term + ", given " + l.size() + " arguments, not " + t.first.size() + " as expected.");
+				}
+				Iterator<Pair<ApgTy<Object>, ApgTerm<Object, Void>>> it = l.iterator();
+				Iterator<String> jt = t.first.iterator();
+				List<ApgTerm<Object, Void>> ll = new LinkedList<>();
+				for (int i = 0; i < l.size(); i++) {
+					Pair<ApgTy<Object>, ApgTerm<Object, Void>> x = it.next();
+					String y = jt.next();
+					if (x.first.b == null || !x.first.b.equals(y)) {
+						throw new RuntimeException("In " + term + ", argument " + i + " (" + term.args.get(i) + ") has type " + x + " not " + y + " as expected.");
+					}				
+					ll.add(x.second);
+				}
+				return new Pair<>(ApgTy.ApgTyB(t.second), ApgTerm.ApgTermApp(term.head, ll));
 			}
 
 			return Util.anomaly();

@@ -2,26 +2,26 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Example schema and instance about employees
 
-typeside Ty = literal { 
-	java_types
-		String = "java.lang.String"
-		Int = "java.lang.Integer"
-	java_constants
-		String = "return input[0]"
-		Int = "return java.lang.Integer.parseInt(input[0])"
-	java_functions
-		plus : Int,Int -> Int = "return (input[0] + input[1]).intValue()"
+typeside Ty = literal {
+	external_types
+		String -> "java.lang.String"
+		Int -> "java.lang.Integer"
+	external_parsers
+		String -> "x => x"
+		Int -> "parseInt"
+	external_functions
+		plus : Int,Int -> Int = "(x, y) => x + y"
 }
 
 schema EmpSchema = literal : Ty {
 	entities
-		Employee 
+		Employee
 		Department
 	foreign_keys
 		manager   : Employee -> Employee
 		worksIn   : Employee -> Department
 		secretary : Department -> Employee
-	path_equations 
+	path_equations
 		Employee.manager.worksIn = Employee.worksIn
   		Department.secretary.worksIn = Department
 //  	Employee.manager.manager = Employee.manager
@@ -31,10 +31,10 @@ schema EmpSchema = literal : Ty {
 }
 
 instance EmpInstance = literal : EmpSchema {
-	generators 
+	generators
 		101 102 103 : Employee
 		q10 x02 : Department
-	equations 
+	equations
 		manager(101) = 103  worksIn(101) = q10  first(101) = Al    last(101) = Akin
 		manager(102) = 102  worksIn(102) = x02  first(102) = Bob   last(102) = Bo
 		manager(103) = 103  worksIn(103) = q10  first(103) = Carl  last(103) = Cork
@@ -44,14 +44,14 @@ instance EmpInstance = literal : EmpSchema {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// example sigma/delta data migrations 
+// example sigma/delta data migrations
 
 schema S = literal : Ty {
 	entities
 		N1 N2
 	foreign_keys
 		f : N1 -> N2 //
-	attributes		
+	attributes
 		name : N1 -> String
 		salary : N1 -> Int
 		age : N2 -> Int
@@ -60,7 +60,7 @@ schema S = literal : Ty {
 schema T = literal : Ty {
 	entities
 		N
-	attributes		
+	attributes
 		name : N -> String
 		salary : N -> Int
 		age : N -> Int
@@ -86,9 +86,9 @@ instance I = literal : S {
 		1 2 3 : N1
 		4 5 6 : N2
 	equations
-		name(1) = Alice  salary(1) = 100  
-		name(2) = Bob    salary(2) = 250  
-		name(3) = Sue    salary(3) = 300  
+		name(1) = Alice  salary(1) = 100
+		name(2) = Bob    salary(2) = 250
+		name(3) = Sue    salary(3) = 300
 
 		age(4) = 20  age(5) = 20  age(6) = 30
 
@@ -101,10 +101,10 @@ transform unitSigmaFDeltaF = unit F I //is identity
 
 query Q = literal : T -> S {
 	entity
-		N1 -> {from n1:N attributes name -> n1.name salary -> n1.salary 
+		N1 -> {from n1:N attributes name -> n1.name salary -> n1.salary
 		foreign_keys f -> {n2 -> n1}}
 	entity	N2 -> {from n2:N attributes age -> n2.age}
-	
+
 }
 
 instance coevalQI = coeval Q I
@@ -117,13 +117,13 @@ schema DeptNameSchema = literal : Ty {
 	entities
 		Manager
 	attributes
-		deptName : Manager -> String	
+		deptName : Manager -> String
 }
 
 query Query = literal : EmpSchema -> DeptNameSchema {
 	entity
 		Manager -> {from e:Employee
-					attributes deptName -> e.manager.worksIn.name}		
+					attributes deptName -> e.manager.worksIn.name}
 }
 
 instance QueryResult = eval Query EmpInstance //has bag semantics
@@ -140,8 +140,7 @@ constraints NameIsDeptKey = literal : EmpSchema {
 	where d1 = d2
 }
 
-command CheckNameIsDeptKey = check NameIsDeptKey EmpInstance //the constraint holds 
+command CheckNameIsDeptKey = check NameIsDeptKey EmpInstance //the constraint holds
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // see 'Pharma Colim' example for schema and data integration
-

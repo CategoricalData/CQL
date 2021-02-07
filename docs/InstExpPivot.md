@@ -1,0 +1,1 @@
+Computes the instance pivot i instance j such that sigma f j = i.  Has one row per entity, i.e., is initial on the entity side.

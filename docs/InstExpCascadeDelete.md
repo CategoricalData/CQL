@@ -1,0 +1,1 @@
+Populate a schema S by doing a cascade delete of the input instance, removing any tuples violating a path or observation equation.

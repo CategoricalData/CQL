@@ -10,8 +10,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Iterators;
-
 //import org.apache.commons.collections4.list.TreeList;
 
 import catdata.Chc;
@@ -259,12 +257,12 @@ public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
 		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : schema().typeSide.eqs) {
 			l.add(new Eq<>(Util.inLeft(eq.first), talg.transX(eq.second.convert()), talg.transX(eq.third.convert())));
 		}
-		b = Util.diff(talg().eqs, l).isEmpty();
+		b = Util.diff(talg().eqsNoDefns(), l).isEmpty();
 		return b;
 	}
 
 	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqs.stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema.typeSide, x.first)))
+		return talg().eqsNoDefns().stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema.typeSide, x.first)))
 				.collect(Collectors.toList()).isEmpty();
 	}
 
