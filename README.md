@@ -51,16 +51,20 @@ Contains binary distributions of
 
 jparsec (Apache),
 JUNG (BSD),
-RSyntaxTextArea and autocomplete (BSD),
-Commons Generics, CSV, and Exec (Apache),
+RSyntaxTextArea, autocomplete and rstaui (BSD),
+Commons CSV, Exec, and Collections4 (Apache),
+H2 (EPL),
 OpenCSV (Apache),
-JFlex (BSD),
-H2 (Mozilla Public License or Eclipse Public License),
 JGraph (BSD),
+Javax JSON (CDDL) and json.org JSON (JSON),
 txtmark (Apache),
+GraalVM (MIT),
+Commonmark (BSD),
 commons-lang-3 (Apache),
 Google Guava (Apache),
 Gnu Trove (LGPL),
+Picocli (Apache),
+Apache HttpComponents and Jena (Apache)
 
 And a source distribution of
 

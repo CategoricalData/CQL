@@ -56,7 +56,6 @@ import catdata.aql.AqlOptions;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Instance;
 import catdata.aql.Kind;
-import catdata.aql.NLP;
 import gnu.trove.map.hash.THashMap;
 
 public class InstExpMarkdown extends InstExp<Gen, Null<?>, Gen, Null<?>> {
@@ -99,29 +98,8 @@ public class InstExpMarkdown extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 
 	class WordCountVisitor implements Visitor {
 
-		NLP nlp;
-
 		private void doOne(Text x) {
-
-			for (Pair<String, List<Quad<Double, String, String, String>>> y : nlp.main(x.getLiteral())) {
-				// emit(parent, pre + "text", Chc.inRight(parent.toString()));
-				emit(y, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", Chc.inRight(pre2 + "parses"));
-				emit(x, pre2 + "child", Chc.inLeft(y));
-				emit(y, pre2 + "parent", Chc.inLeft(x));
-				emit(y, pre2 + "sentence", Chc.inRight(y.first));
-
-				for (Quad<Double, String, String, String> z : y.second) {
-					emit(y, pre2 + "child", Chc.inLeft(z));
-					emit(z, pre2 + "parent", Chc.inLeft(y));
-					emit(z, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", Chc.inRight(pre2 + "parse"));
-
-					emit(z, pre2 + "confidence", Chc.inRight(Double.toString(z.first)));
-					emit(z, pre2 + "subject", Chc.inRight(z.second));
-					emit(z, pre2 + "verb", Chc.inRight(z.third));
-					emit(z, pre2 + "object", Chc.inRight(z.fourth));
-				}
-
-			}
+      throw new RuntimeException("Only in Conexus CQL");
 		}
 
 		int index = 0;
@@ -133,7 +111,6 @@ public class InstExpMarkdown extends InstExp<Gen, Null<?>, Gen, Null<?>> {
 
 		public WordCountVisitor() {
 			this.model = ModelFactory.createDefaultModel();
-			nlp = new NLP();
 		}
 
 		private void emit(Object xx, String y, Chc<Object, String> z) {
