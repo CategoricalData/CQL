@@ -1,7 +1,7 @@
 options
 	always_reload = true
 	
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 schema T = literal : sql {
 	entities 
@@ -20,9 +20,9 @@ constraints D = literal : T {
 
 constraints D0 = literal : T { }
 
-//command check_id = check_query (identity T) D0 D
+#command check_id = check_query (identity T) D0 D
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 schema S1 = literal : sql {
 	entities
@@ -43,7 +43,7 @@ query Q1 = literal : S1 -> T {
 	}
 }
 
-//command check1 = check_query Q1 C1 D
+#command check1 = check_query Q1 C1 D
 
 instance I1 = literal : S1 {
 	generators
@@ -56,7 +56,7 @@ instance J1 = eval Q1 I1
 
 command check1_redundant = check D J1
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 schema S2 = literal : sql {
 	entities 
@@ -82,7 +82,7 @@ query Q2 = literal : S2 -> T {
 	}
 }
 
-//command check2 = check_query Q2 C2 D
+#command check2 = check_query Q2 C2 D
 
 instance I2 = literal : S2 {
 	generators
@@ -99,7 +99,7 @@ instance J2 = eval Q2 I2
 
 command check2_redundant = check D J2
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 query Q3 = literal : T -> T {
 	entity T1 -> {from t2:T2 
@@ -111,7 +111,7 @@ query Q3 = literal : T -> T {
 	}
 }
 
-//command check3 = check_query Q3 D0 D
+#command check3 = check_query Q3 D0 D
 
 instance I3 = literal : T {
 	generators
@@ -125,7 +125,7 @@ instance J3 = eval Q3 I3
 
 command check3_redundant = check D J3
 
-//////////////////////////////////////////////////////////////////////////
+#####################################
 
 query Q4 = literal : T -> T {
 	entity T1 -> {from t1:T1 t2:T2
@@ -138,7 +138,7 @@ query Q4 = literal : T -> T {
 	}
 }
 
-//command check4 = check_query Q4 D0 D
+#command check4 = check_query Q4 D0 D
 
 instance I4 = literal : T {
 	generators
@@ -155,7 +155,7 @@ instance J4 = eval Q4 I4
 
 command check4_redundant = check D J4
 
-/////////////////////////////////////////////////////////////////////////
+####################################/
 
 query Q5 = literal : T -> T {
 	entity T1 -> {from t1:T1 t2:T2
@@ -167,7 +167,7 @@ query Q5 = literal : T -> T {
 	}
 }
 
-//command check5 = check_query Q5 D0 D
+#command check5 = check_query Q5 D0 D
 
 instance J5 = eval Q5 I4
 

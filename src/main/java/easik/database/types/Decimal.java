@@ -26,130 +26,130 @@ import easik.xml.xsd.nodes.types.XSDType;
  * and occupy significantly more space than FLOAT or DOUBLE PRECISION types.
  */
 public class Decimal extends EasikType {
-	/**  */
-	private int precision, scale;
+  /**  */
+  private int precision, scale;
 
-	/**
-	 * Recreates the object from the attributes returned by attributes().
-	 *
-	 * @param attr the attributes
-	 */
-	public Decimal(final Map<String, String> attr) {
-		this(Integer.parseInt(attr.get("precision")), Integer.parseInt(attr.get("scale")));
-	}
+  /**
+   * Recreates the object from the attributes returned by attributes().
+   *
+   * @param attr the attributes
+   */
+  public Decimal(final Map<String, String> attr) {
+    this(Integer.parseInt(attr.get("precision")), Integer.parseInt(attr.get("scale")));
+  }
 
-	/**
-	 *
-	 *
-	 * @param p
-	 * @param s
-	 */
-	public Decimal(final int p, final int s) {
-		precision = p;
-		scale = s;
-	}
+  /**
+   *
+   *
+   * @param p
+   * @param s
+   */
+  public Decimal(final int p, final int s) {
+    precision = p;
+    scale = s;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public int getPrecision() {
-		return precision;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public int getPrecision() {
+    return precision;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public int getScale() {
-		return scale;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public int getScale() {
+    return scale;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return "DECIMAL(" + precision + ',' + scale + ')';
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "DECIMAL(" + precision + ',' + scale + ')';
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		final int decimal = input.indexOf('.');
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    final int decimal = input.indexOf('.');
 
-		if (decimal >= 0) {
-			if (decimal > precision - scale) {
-				return input.matches("^[-+]?\\d{0," + (precision - 1) + "}.\\d{1," + (precision - decimal) + "}$");
-			}
-			return input.matches("^[-+]?\\d{0," + (precision - 1) + "}.\\d{1," + scale + "}$");
+    if (decimal >= 0) {
+      if (decimal > precision - scale) {
+        return input.matches("^[-+]?\\d{0," + (precision - 1) + "}.\\d{1," + (precision - decimal) + "}$");
+      }
+      return input.matches("^[-+]?\\d{0," + (precision - 1) + "}.\\d{1," + scale + "}$");
 
-		}
-		return input.matches("^[-+]?\\d{1," + precision + "}$");
+    }
+    return input.matches("^[-+]?\\d{1," + precision + "}$");
 
-	}
+  }
 
-	/**
-	 * Returns the attributes of this object
-	 *
-	 * @return
-	 */
-	@Override
-	public Map<String, String> attributes() {
-		final Map<String, String> attr = new HashMap<>(2);
+  /**
+   * Returns the attributes of this object
+   *
+   * @return
+   */
+  @Override
+  public Map<String, String> attributes() {
+    final Map<String, String> attr = new HashMap<>(2);
 
-		attr.put("precision", String.valueOf(precision));
-		attr.put("scale", String.valueOf(scale));
+    attr.put("precision", String.valueOf(precision));
+    attr.put("scale", String.valueOf(scale));
 
-		return attr;
-	}
+    return attr;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.DECIMAL;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.DECIMAL;
+  }
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setDouble(col, Double.parseDouble(value));
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setDouble(col, Double.parseDouble(value));
+  }
 
-	/**
-	 * Not just a basic type, requires a restriction.
-	 *
-	 * @return the xml schema type.
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		final XSDRestriction dectype = new XSDRestriction("dec" + precision + '_' + scale, XSDBaseType.xsDecimal,
-				FacetEnum.TOTALDIGITS, String.valueOf(precision));
+  /**
+   * Not just a basic type, requires a restriction.
+   *
+   * @return the xml schema type.
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    final XSDRestriction dectype = new XSDRestriction("dec" + precision + '_' + scale, XSDBaseType.xsDecimal,
+        FacetEnum.TOTALDIGITS, String.valueOf(precision));
 
-		dectype.addFacet(FacetEnum.FRACTIONDIGITS, String.valueOf(scale));
+    dectype.addFacet(FacetEnum.FRACTIONDIGITS, String.valueOf(scale));
 
-		return new XSDSimpleType(dectype);
-	}
+    return new XSDSimpleType(dectype);
+  }
 }

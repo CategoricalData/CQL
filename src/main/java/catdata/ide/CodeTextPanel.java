@@ -27,88 +27,88 @@ import javax.swing.undo.UndoManager;
  */
 public class CodeTextPanel extends JPanel {
 
-	public final JTextArea area;
+  public final JTextArea area;
 
-	public void setText(String s) {
-		area.setText(s);
-		area.setCaretPosition(0);
-		// System.out.println(s.substring(0, Integer.min(5, s.length())));
-	}
+  public void setText(String s) {
+    area.setText(s);
+    area.setCaretPosition(0);
+    // System.out.println(s.substring(0, Integer.min(5, s.length())));
+  }
 
-	public String getText() {
-		return area.getText();
-	}
+  public String getText() {
+    return area.getText();
+  }
 
-	public CodeTextPanel(String title, String text) {
-		this(BorderFactory.createEtchedBorder(), title, text);
-	}
+  public CodeTextPanel(String title, String text) {
+    this(BorderFactory.createEtchedBorder(), title, text);
+  }
 
-	JScrollPane p;
+  JScrollPane p;
 
-	public CodeTextPanel(Border bb, String title, String text) {
-		super(new GridLayout(1, 1));
-		if (bb != null) {
-			Border b = BorderFactory.createTitledBorder(bb, title);
-			setBorder(b);
-		}
-		area = new JTextArea(text);
-		p = new JScrollPane(area);
-		// p.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		add(p);
-		p.setBorder(BorderFactory.createEmptyBorder());
-		setText(text);
+  public CodeTextPanel(Border bb, String title, String text) {
+    super(new GridLayout(1, 1));
+    if (bb != null) {
+      Border b = BorderFactory.createTitledBorder(bb, title);
+      setBorder(b);
+    }
+    area = new JTextArea(text);
+    p = new JScrollPane(area);
+    // p.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    add(p);
+    p.setBorder(BorderFactory.createEmptyBorder());
+    setText(text);
 
-		area.setFont(new Font("Courier", Font.PLAIN, 13));
-		// area.setEditable(false);
+    area.setFont(new Font("Courier", Font.PLAIN, 13));
+    // area.setEditable(false);
 
-		UndoManager m = new UndoManager();
-		m.setLimit(16); // since common case is lots of dots in bottom panels
-		// area.setundoManager = new UndoManager();
-		Document doc = area.getDocument();
-		doc.addUndoableEditListener((UndoableEditEvent e) -> m.addEdit(e.getEdit()));
+    UndoManager m = new UndoManager();
+    m.setLimit(16); // since common case is lots of dots in bottom panels
+    // area.setundoManager = new UndoManager();
+    Document doc = area.getDocument();
+    doc.addUndoableEditListener((UndoableEditEvent e) -> m.addEdit(e.getEdit()));
 
-		InputMap im = area.getInputMap(JComponent.WHEN_FOCUSED);
-		ActionMap am = area.getActionMap();
+    InputMap im = area.getInputMap(JComponent.WHEN_FOCUSED);
+    ActionMap am = area.getActionMap();
 
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
+    im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo");
+    im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
 
-		am.put("Undo", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					if (m.canUndo()) {
-						m.undo();
-					}
-				} catch (CannotUndoException exp) {
-					exp.printStackTrace();
-				}
-			}
-		});
-		am.put("Redo", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					if (m.canRedo()) {
-						m.redo();
-					}
-				} catch (CannotUndoException exp) {
-					exp.printStackTrace();
-				}
-			}
-		});
+    am.put("Undo", new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        try {
+          if (m.canUndo()) {
+            m.undo();
+          }
+        } catch (CannotUndoException exp) {
+          exp.printStackTrace();
+        }
+      }
+    });
+    am.put("Redo", new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        try {
+          if (m.canRedo()) {
+            m.redo();
+          }
+        } catch (CannotUndoException exp) {
+          exp.printStackTrace();
+        }
+      }
+    });
 
-		setWordWrap(true);
+    setWordWrap(true);
 
-		IdeOptions.theCurrentOptions.apply(this.area);
-	}
+    IdeOptions.theCurrentOptions.apply(this.area);
+  }
 
-	private void setWordWrap(boolean b) {
-		area.setLineWrap(b);
-		area.setWrapStyleWord(b);
-		// p.revalidate();
-		// getScrollableTracksViewportWidth
-		// area.getScrgetViewport().set
-	}
+  private void setWordWrap(boolean b) {
+    area.setLineWrap(b);
+    area.setWrapStyleWord(b);
+    // p.revalidate();
+    // getScrollableTracksViewportWidth
+    // area.getScrgetViewport().set
+  }
 
 }

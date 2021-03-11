@@ -17,59 +17,59 @@ import easik.xml.xsd.nodes.types.XSDType;
  * java's built-in Integer class.
  */
 public class Int extends EasikType {
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return "INTEGER";
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "INTEGER";
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		return input.matches("^[-+]?\\d{1,10}$");
-	}
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    return input.matches("^[-+]?\\d{1,10}$");
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.INTEGER;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.INTEGER;
+  }
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setInt(col, Integer.parseInt(value));
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setInt(col, Integer.parseInt(value));
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		return XSDBaseType.xsInt;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    return XSDBaseType.xsInt;
+  }
 }

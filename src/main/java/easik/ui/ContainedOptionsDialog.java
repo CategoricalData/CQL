@@ -8,12 +8,12 @@ package easik.ui;
  * it does everything itself).
  */
 public interface ContainedOptionsDialog {
-	/**
-	 * Called when the user accepts or dismisses the dialog.
-	 *
-	 * @param accepted will be true if the user clicked OK and the data was verified
-	 *                 successfully; false if the user cancelled or closed the
-	 *                 dialog.
-	 */
-	public void accepted(boolean accepted);
+  /**
+   * Called when the user accepts or dismisses the dialog.
+   *
+   * @param accepted will be true if the user clicked OK and the data was verified
+   *                 successfully; false if the user cancelled or closed the
+   *                 dialog.
+   */
+  public void accepted(boolean accepted);
 }

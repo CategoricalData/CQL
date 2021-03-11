@@ -19,11 +19,11 @@ import easik.model.vertex.ModelVertex;
  * @version 06-2014 Federico Mora
  */
 public interface PathAcceptingState<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>> {
-	/**
-	 * Hook used by states to transmit information about a path.
-	 *
-	 * @param path A ModelPath<SketchFrame, SketchGraphModel,Sketch,EntityNode,
-	 *             SketchEdge> element.
-	 */
-	public void passPath(ModelPath<F, GM, M, N, E> path);
+  /**
+   * Hook used by states to transmit information about a path.
+   *
+   * @param path A ModelPath<SketchFrame, SketchGraphModel,Sketch,EntityNode,
+   *             SketchEdge> element.
+   */
+  public void passPath(ModelPath<F, GM, M, N, E> path);
 }

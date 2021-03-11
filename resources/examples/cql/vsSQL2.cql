@@ -1,50 +1,49 @@
-/*
-Problem 2: starting from these schemas:
+#Problem 2: starting from these schemas:
+#
+#create table Amphibian(id varchar(32) primary key not null,
+#	name varchar(32),
+#	land varchar(32) not null,
+#	water varchar(32) not null);
+#
+#create table LandAnimal(id varchar(32) primary key not null,
+#	name varchar(32));
+#
+#create table WaterAnimal(id varchar(32) primary key not null,
+#	name varchar(32));
+#
+#alter table Amphibian add constraint a1 foreign key (land) references LandAnimal (id);
+#alter table Amphibian add constraint a2 foreign key (water) references WaterAnimal (id);
+#
+#Sample data:
+#
+#insert into Amphibian  values ('a1','gecko','l1','w2'), ('a2','frog','l2', 'w3');
+#insert into LandAnimal values ('l1','gecko'), ('l2','frog'), ('l3','human'), ('l4','cow'), ('l5','horse');
+#insert into WaterAnimal values ('w1','fish'), ('w2','gecko'), ('w3','frog'), ('w4','dolphin');
+#
+#Populate the below schemas (the above, plus Animal table, plus 2 new columns in Animal and Amphibian) according to the rule:
+#
+# - an amphibian is an animal that is both a land animal and a water animal
+#
+#create table Amphibian(id varchar(32) primary key not null,
+#	name varchar(32),
+#	land varchar(32) not null,
+#	water varchar(32) not null);
+#
+#create table LandAnimal(id varchar(32) primary key not null,
+#	name varchar(32),
+#	animal varchar(32) not null);
+#
+#create table WaterAnimal(id varchar(32) primary key not null,
+#	name varchar(32),
+#	animal varchar(32) not null);
+#
+#create table Animal(id varchar(32) primary key not null);
+#
+#alter table Amphibian add constraint a1 foreign key (land) references LandAnimal (id);
+#alter table Amphibian add constraint a2 foreign key (water) references WaterAnimal (id);
+#alter table LandAnimal add constraint l1 foreign key (animal) references Animal (id);
+#alter table WaterAnimal add constraint w1 foreign key (animal) references Animal (id);
 
-create table Amphibian(id varchar(32) primary key not null,
-	name varchar(32),
-	land varchar(32) not null,
-	water varchar(32) not null);
-
-create table LandAnimal(id varchar(32) primary key not null,
-	name varchar(32));
-
-create table WaterAnimal(id varchar(32) primary key not null,
-	name varchar(32));
-
-alter table Amphibian add constraint a1 foreign key (land) references LandAnimal (id);
-alter table Amphibian add constraint a2 foreign key (water) references WaterAnimal (id);
-
-Sample data:
-
-insert into Amphibian  values ('a1','gecko','l1','w2'), ('a2','frog','l2', 'w3');
-insert into LandAnimal values ('l1','gecko'), ('l2','frog'), ('l3','human'), ('l4','cow'), ('l5','horse');
-insert into WaterAnimal values ('w1','fish'), ('w2','gecko'), ('w3','frog'), ('w4','dolphin');
-
-Populate the below schemas (the above, plus Animal table, plus 2 new columns in Animal and Amphibian) according to the rule:
-
- - an amphibian is an animal that is both a land animal and a water animal
-
-create table Amphibian(id varchar(32) primary key not null,
-	name varchar(32),
-	land varchar(32) not null,
-	water varchar(32) not null);
-
-create table LandAnimal(id varchar(32) primary key not null,
-	name varchar(32),
-	animal varchar(32) not null);
-
-create table WaterAnimal(id varchar(32) primary key not null,
-	name varchar(32),
-	animal varchar(32) not null);
-
-create table Animal(id varchar(32) primary key not null);
-
-alter table Amphibian add constraint a1 foreign key (land) references LandAnimal (id);
-alter table Amphibian add constraint a2 foreign key (water) references WaterAnimal (id);
-alter table LandAnimal add constraint l1 foreign key (animal) references Animal (id);
-alter table WaterAnimal add constraint w1 foreign key (animal) references Animal (id);
-*/
 
 
 typeside Type = literal {

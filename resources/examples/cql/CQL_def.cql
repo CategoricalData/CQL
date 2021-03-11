@@ -1,7 +1,7 @@
 typeside cql_sorts = literal {
 	types
 		G T S I M Q H C P U O
-		//graph, typeside, schema, instance, mapping, query, transform, constraints, pragma, schema-colimit, object
+		#graph, typeside, schema, instance, mapping, query, transform, constraints, pragma, schema-colimit, object
 }
 
 typeside cql_literals = literal {
@@ -48,7 +48,7 @@ typeside cql_cat = literal {
 
 constraints cql_cat_constraints = literal : empty : cql_cat {
 	
-	forall s:S f:M where dom_M(f) = s -> where comp_M(id_M(s), f) = f //etc
+	forall s:S f:M where dom_M(f) = s -> where comp_M(id_M(s), f) = f #etc
 
 }
 

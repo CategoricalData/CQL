@@ -18,59 +18,59 @@ import easik.xml.xsd.nodes.types.XSDType;
  * is essentially a FLOAT(24).
  */
 public class Float extends EasikType {
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return "FLOAT";
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "FLOAT";
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		return input.matches("^([+−]?)(?=\\d|\\.\\d)\\d*(\\.\\d*)?([Ee]([+−]?\\d+))?$");
-	}
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    return input.matches("^([+−]?)(?=\\d|\\.\\d)\\d*(\\.\\d*)?([Ee]([+−]?\\d+))?$");
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.FLOAT;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.FLOAT;
+  }
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setFloat(col, java.lang.Float.parseFloat(value));
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setFloat(col, java.lang.Float.parseFloat(value));
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		return XSDBaseType.xsFloat;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    return XSDBaseType.xsFloat;
+  }
 }

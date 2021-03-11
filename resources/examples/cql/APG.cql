@@ -7,7 +7,7 @@ apg_typeside Ty = literal {
 		append : Str,Str -> Str = "(x, y) => x.concat(y)"
 }
 
-////////////////////////////////////////////////////////////
+##############################
 
 apg_schema VertexSch = literal : Ty {
 	labels
@@ -20,7 +20,7 @@ apg_instance Vertex = literal : VertexSch {
 		t1 : Trip -> ()
 }
 
-////////////////////////////////////////////////////////////
+##############################
 
 apg_schema EdgeSch = literal : Ty {
 	imports
@@ -38,7 +38,7 @@ apg_instance Edge = literal : EdgeSch {
 		r1 : rider  -> (Trip:t1 , User:u2)
 }
 
-////////////////////////////////////////////////////////////
+##############################
 
 apg_schema PropertySch = literal : Ty {
 	labels
@@ -52,7 +52,7 @@ apg_instance Property = literal : PropertySch {
 		n2 : name -> (User:u1, name:"Arthur P. Dent")
 }
 
-////////////////////////////////////////////////////////////
+##############################
 
 apg_schema AliasSch = literal : Ty {
 	labels
@@ -65,7 +65,7 @@ apg_instance Alias = literal : AliasSch {
 		d2 : Long -> 5
 }
 
-////////////////////////////////////////////////////////////
+##############################
 
 apg_schema HyperElementsSch = literal : Ty {
 	labels
@@ -95,7 +95,7 @@ apg_instance HyperElements = literal : HyperElementsSch {
 		s4 : UnixTimeSeconds -> 3
 }
 
-///////////////////////////////////////////////////////////////////
+#################################/
 
 apg_schema MSch = literal : Ty {
 	labels
@@ -130,9 +130,9 @@ apg_morphism k = literal : N -> M {
 
 apg_instance CoEqjk = coequalize j k
 apg_morphism CoEqjkt = coequalize j k
-apg_morphism CoEqjkt_u = coequalize_u j k CoEqjkt //id
+apg_morphism CoEqjkt_u = coequalize_u j k CoEqjkt #id
 
-///////////////////////////////////////////////////////////////////
+#################################/
 
 apg_schema GSch = literal : Ty {
 	labels
@@ -180,7 +180,7 @@ apg_schema y = (VertexSch * VertexSch)
 apg_schema z = empty Ty
 apg_schema w = unit Ty
 
-/////////////////////////////////////////////////////////////////
+###############################
 
 apg_schema G0Sch = literal : Ty {
 	labels
@@ -222,7 +222,7 @@ apg_morphism m2 = literal : G2 -> H2 {
 		e -> e
 }
 
-/////////////////////////////////////////////////////////////////
+###############################
 
 apg_schema T = literal : Ty {
 	labels
@@ -233,7 +233,7 @@ apg_schema S = literal : Ty {
 		sLbl -> (age: base Str * name: base Nat * ssn: base Nat)
 }
 
-// for mappings for now, terms must be fully type-annotated
+# for mappings for now, terms must be fully type-annotated
 apg_mapping F = literal : S -> T {
 	labels
 		sLbl -> lambda v: label tLbl. (ssn: 0@Nat, name: .age(!tLbl(v)), age: .name(!tLbl(v)))
@@ -260,7 +260,7 @@ apg_morphism mt = literal : J -> J2 {
 
 apg_morphism dmt = delta F mt
 
-//
+#
 
 apg_schema Tx = literal : Ty {
 	labels

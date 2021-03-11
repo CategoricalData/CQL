@@ -104,8 +104,8 @@ instance I = random : C {
 		c2 -> 10
 		c3 -> 10
 		c4 -> 10
-	//options
-	//	random_seed = 2
+	#options
+	#	random_seed = 2
 }
 
 instance J = sigma_chase F I

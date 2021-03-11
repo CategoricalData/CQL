@@ -19,58 +19,58 @@ import easik.view.View;
  * Menu action for redoing the last undone change.
  */
 public class RedoAction extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = 4038451403532026959L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = 4038451403532026959L;
 
-	/**  */
-	private JGraph graph;
+  /**  */
+  private JGraph graph;
 
-	/**
-	 *
-	 *
-	 * @param graph
-	 */
-	private RedoAction(JGraph graph) {
-		super("Redo");
+  /**
+   *
+   *
+   * @param graph
+   */
+  private RedoAction(JGraph graph) {
+    super("Redo");
 
-		putValue(Action.SHORT_DESCRIPTION, "Redo the last undone change");
+    putValue(Action.SHORT_DESCRIPTION, "Redo the last undone change");
 
-		this.graph = graph;
+    this.graph = graph;
 
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
-	}
+    putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+  }
 
-	/**
-	 *
-	 *
-	 * @param sketch
-	 */
-	public RedoAction(Sketch sketch) {
-		this((JGraph) sketch);
-	}
+  /**
+   *
+   *
+   * @param sketch
+   */
+  public RedoAction(Sketch sketch) {
+    this((JGraph) sketch);
+  }
 
-	/**
-	 *
-	 *
-	 * @param view
-	 */
-	public RedoAction(View view) {
-		this((JGraph) view);
-	}
+  /**
+   *
+   *
+   * @param view
+   */
+  public RedoAction(View view) {
+    this((JGraph) view);
+  }
 
-	/**
-	 * When action is performed, do a redo.
-	 *
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		EasikGraphModel model = (EasikGraphModel) graph.getModel();
+  /**
+   * When action is performed, do a redo.
+   *
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    EasikGraphModel model = (EasikGraphModel) graph.getModel();
 
-		if (model.canRedo()) {
-			model.redo();
-		}
-	}
+    if (model.canRedo()) {
+      model.redo();
+    }
+  }
 }

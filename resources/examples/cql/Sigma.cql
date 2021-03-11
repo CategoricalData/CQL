@@ -5,19 +5,23 @@ typeside Type = literal {
 		gecko frog human cow horse dolphin fish : String
 }
 
+
 schema C = literal : Type {
-	entities 
+	entity
 		Amphibian
+	foreign_keys
+		IsAL: LandAnimal
+		IsAW: WaterAnimal
+	attributes	
+		attA: String 
+	
+	entities 
 		LandAnimal
 		WaterAnimal
-	foreign_keys
-		IsAL: Amphibian -> LandAnimal
-		IsAW: Amphibian -> WaterAnimal
 	attributes
-		attA: Amphibian -> String 
 		attL: LandAnimal -> String 
 		attW: WaterAnimal -> String
-}
+} 
 
 instance I = literal : C {
 	generators 
@@ -106,8 +110,8 @@ instance K = delta F J
 
 transform v = unit F I
 
-//////////////////////////////////////////////////////////////
-//this particular migration can also be done as a colimit as follows.
+###############################
+#this particular migration can also be done as a colimit as follows.
 
 schema Animal = literal : Type {
   entities
@@ -139,19 +143,19 @@ instance i_amphibian = literal : Animal {
 
 transform t_amphland = literal : i_amphibian -> i_land {
   generators
-	aa1 -> la1 // match amphibian gecko to land gecko
-	aa2 -> la2 // match amphibian frog to land frog
+	aa1 -> la1 # match amphibian gecko to land gecko
+	aa2 -> la2 # match amphibian frog to land frog
 }
 
 transform t_amphwater = literal : i_amphibian -> i_water {
   generators
-	aa1 -> wa2 // match amphibian gecko to water gecko
-	aa2 -> wa3 // match amphibian frog to water frog
+	aa1 -> wa2 # match amphibian gecko to water gecko
+	aa2 -> wa3 # match amphibian frog to water frog
 }
 
 graph Span = literal {
   nodes
-	Amp Lan Wat // Amphibian LandAnimal WaterAnimal
+	Amp Lan Wat # Amphibian LandAnimal WaterAnimal
   edges
 	AmpLan : Amp -> Lan 
 	AmpWat : Amp -> Wat 

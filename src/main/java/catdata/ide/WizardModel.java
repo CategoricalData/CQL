@@ -20,57 +20,57 @@ import catdata.ide.Wizard.WizardModelChangeEvent;
  */
 public abstract class WizardModel<T> {
 
-	private final List<ChangeListener> listeners = new LinkedList<>();
+  private final List<ChangeListener> listeners = new LinkedList<>();
 
-	public abstract boolean isComplete();
+  public abstract boolean isComplete();
 
-	public abstract T complete() throws IllegalStateException;
+  public abstract T complete() throws IllegalStateException;
 
-	protected abstract Map<String, ? extends JComponent> getAllPages();
+  protected abstract Map<String, ? extends JComponent> getAllPages();
 
-	protected abstract void forward0();
+  protected abstract void forward0();
 
-	public String forward() {
-		String oldstate = getState();
+  public String forward() {
+    String oldstate = getState();
 
-		forward0();
+    forward0();
 
-		String newstate = getState();
+    String newstate = getState();
 
-		for (ChangeListener l : listeners) {
-			l.stateChanged(new WizardModelChangeEvent<>(this, newstate, oldstate));
-		}
+    for (ChangeListener l : listeners) {
+      l.stateChanged(new WizardModelChangeEvent<>(this, newstate, oldstate));
+    }
 
-		return newstate;
-	}
+    return newstate;
+  }
 
-	protected abstract boolean canGoForward();
+  protected abstract boolean canGoForward();
 
-	protected abstract void back0();
+  protected abstract void back0();
 
-	public String back() {
-		String oldstate = getState();
+  public String back() {
+    String oldstate = getState();
 
-		back0();
+    back0();
 
-		String newstate = getState();
+    String newstate = getState();
 
-		for (ChangeListener l : listeners) {
-			l.stateChanged(new WizardModelChangeEvent<>(this, newstate, oldstate));
-		}
+    for (ChangeListener l : listeners) {
+      l.stateChanged(new WizardModelChangeEvent<>(this, newstate, oldstate));
+    }
 
-		return newstate;
-	}
+    return newstate;
+  }
 
-	protected abstract boolean canGoBack();
+  protected abstract boolean canGoBack();
 
-	protected abstract String getState();
+  protected abstract String getState();
 
-	public void registerModelListener(ChangeListener l) {
-		listeners.add(l);
-	}
+  public void registerModelListener(ChangeListener l) {
+    listeners.add(l);
+  }
 
-	public void unregisterModelListener(ChangeListener l) {
-		listeners.remove(l);
-	}
+  public void unregisterModelListener(ChangeListener l) {
+    listeners.remove(l);
+  }
 }

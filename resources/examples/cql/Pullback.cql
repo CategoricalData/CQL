@@ -5,7 +5,7 @@ typeside Type = literal {
 		dom -> "x => x"
 }
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 schema CoSpan = literal : Type {
 	entities
@@ -49,8 +49,8 @@ instance I = literal : CoSpan {
 		c1.g = d3
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//pullbacks, using queries
+##################################################
+#pullbacks, using queries
 
 query pullback = literal : CoSpan -> Square {
 
@@ -81,8 +81,8 @@ instance J = eval pullback I
 
 transform t = counit_query pullback I
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//pullbacks, using constraints (EDs) and the chase
+##################################################
+#pullbacks, using constraints (EDs) and the chase
 
 instance K = literal : Square {
 	imports

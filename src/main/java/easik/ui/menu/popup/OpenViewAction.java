@@ -14,40 +14,40 @@ import easik.overview.vertex.ViewNode;
  * Action for setting the frame associated with a view node visible.
  */
 public class OpenViewAction extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = -7259816059777287059L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = -7259816059777287059L;
 
-	/** The overview in which the action occurs. */
-	private Overview _theOverview;
+  /** The overview in which the action occurs. */
+  private Overview _theOverview;
 
-	/**
-	 *
-	 *
-	 * @param inOverview
-	 */
-	public OpenViewAction(Overview inOverview) {
-		super("Open view...");
+  /**
+   *
+   *
+   * @param inOverview
+   */
+  public OpenViewAction(Overview inOverview) {
+    super("Open view...");
 
-		_theOverview = inOverview;
-	}
+    _theOverview = inOverview;
+  }
 
-	/**
-	 * Set the view frame associated with the selected view node as visible.
-	 * 
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object[] selection = _theOverview.getSelectionCells();
+  /**
+   * Set the view frame associated with the selected view node as visible.
+   * 
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    Object[] selection = _theOverview.getSelectionCells();
 
-		for (Object sel : selection) {
-			if (sel instanceof ViewNode) {
-				((ViewNode) sel).getFrame().setVisible(true);
-			}
-		}
+    for (Object sel : selection) {
+      if (sel instanceof ViewNode) {
+        ((ViewNode) sel).getFrame().setVisible(true);
+      }
+    }
 
-		_theOverview.clearSelection();
-	}
+    _theOverview.clearSelection();
+  }
 }

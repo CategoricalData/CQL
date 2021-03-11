@@ -2,29 +2,29 @@ package catdata.aql;
 
 import java.util.Iterator;
 
-public class VarIt implements Iterator<Var> {
+public class VarIt implements Iterator<String> {
 
-	private static int index = 0;
+  private static int index = 0;
 
-	private VarIt() {
-	}
+  private VarIt() {
+  }
 
-	public static Iterator<Var> it() {
-		return new VarIt();
-	}
+  public static Iterator<String> it() {
+    return new VarIt();
+  }
 
-	private Var fresh() {
-		return Var.Var("v" + index++);
-	}
+  private static String fresh() {
+    return ("v" + index++);
+  }
 
-	@Override
-	public boolean hasNext() {
-		return true;
-	}
+  @Override
+  public boolean hasNext() {
+    return true;
+  }
 
-	@Override
-	public Var next() {
-		return fresh();
-	}
+  @Override
+  public String next() {
+    return fresh();
+  }
 
 }

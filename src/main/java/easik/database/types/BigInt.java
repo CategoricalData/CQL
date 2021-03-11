@@ -15,59 +15,59 @@ import easik.xml.xsd.nodes.types.XSDType;
  * -2^63 to 2^63-1.
  */
 public class BigInt extends EasikType {
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return "BIGINT";
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "BIGINT";
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		return input.matches("^[-+]?\\d{1,19}$");
-	}
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    return input.matches("^[-+]?\\d{1,19}$");
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.BIGINT;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.BIGINT;
+  }
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setLong(col, Long.parseLong(value));
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setLong(col, Long.parseLong(value));
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		return XSDBaseType.xsLong;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    return XSDBaseType.xsLong;
+  }
 }

@@ -22,45 +22,45 @@ import easik.model.vertex.ModelVertex;
  * @see org.jgraph.graph.VertexView
  */
 public class ModelVertexView<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
-		extends VertexView {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = -5757046501364392384L;
+    extends VertexView {
+  /**
+   *    
+   */
+  private static final long serialVersionUID = -5757046501364392384L;
 
-	/** The renderer for this view */
-	@SuppressWarnings("rawtypes")
-	public static transient ModelVertexRenderer _renderer = new ModelVertexRenderer();
+  /** The renderer for this view */
+  @SuppressWarnings("rawtypes")
+  public static transient ModelVertexRenderer _renderer = new ModelVertexRenderer();
 
-	/**
-	 * Sets the cell that this view will be used to render.
-	 *
-	 * @param vertex The SketchVertex to be rendered by this view.
-	 */
-	public ModelVertexView(ModelVertex<F, GM, M, N, E> vertex) {
-		super(vertex);
-	}
+  /**
+   * Sets the cell that this view will be used to render.
+   *
+   * @param vertex The SketchVertex to be rendered by this view.
+   */
+  public ModelVertexView(ModelVertex<F, GM, M, N, E> vertex) {
+    super(vertex);
+  }
 
-	/**
-	 * Returns our made-for-Easik vertex renderer
-	 *
-	 * @return
-	 */
-	@Override
-	public ModelVertexRenderer<F, GM, M, N, E> getRenderer() {
-		return _renderer;
-	}
+  /**
+   * Returns our made-for-Easik vertex renderer
+   *
+   * @return
+   */
+  @Override
+  public ModelVertexRenderer<F, GM, M, N, E> getRenderer() {
+    return _renderer;
+  }
 
-	/**
-	 * Returns a perimeter point for edges to use.
-	 *
-	 * @param edge   The edge
-	 * @param source The source of the edge
-	 * @param p      The desitination of the edge
-	 * @return The perimeter intersection point
-	 */
-	@Override
-	public Point2D getPerimeterPoint(EdgeView edge, Point2D source, Point2D p) {
-		return getRenderer().getPerimeterPoint(this, source, p);
-	}
+  /**
+   * Returns a perimeter point for edges to use.
+   *
+   * @param edge   The edge
+   * @param source The source of the edge
+   * @param p      The desitination of the edge
+   * @return The perimeter intersection point
+   */
+  @Override
+  public Point2D getPerimeterPoint(EdgeView edge, Point2D source, Point2D p) {
+    return getRenderer().getPerimeterPoint(this, source, p);
+  }
 }

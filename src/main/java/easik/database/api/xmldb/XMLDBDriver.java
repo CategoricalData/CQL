@@ -13,5 +13,5 @@ import easik.database.base.PersistenceDriver;
  * @version Summer 2012, Easik 2.2
  */
 public abstract class XMLDBDriver extends PersistenceDriver {
-	// Just a stub for now
+  // Just a stub for now
 }

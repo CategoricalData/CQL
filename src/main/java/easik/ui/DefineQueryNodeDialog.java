@@ -20,67 +20,67 @@ import easik.view.vertex.QueryNode;
  * @author Christian Fiddick
  */
 public class DefineQueryNodeDialog extends OptionsDialog {
-	private static final long serialVersionUID = 4044546505124282150L;
+  private static final long serialVersionUID = 4044546505124282150L;
 
-	/** The inputs for our fields */
-	private JTextField name;
+  /** The inputs for our fields */
+  private JTextField name;
 
-	/** The query no which we are editing */
-	private QueryNode ourNode;
+  /** The query no which we are editing */
+  private QueryNode ourNode;
 
-	/**  */
-	private JScrollPane query;
+  /**  */
+  private JScrollPane query;
 
-	/**
-	 *
-	 * @param parent
-	 * @param title
-	 * @param inNode
-	 */
-	public DefineQueryNodeDialog(JFrame parent, String title, QueryNode inNode) {
-		super(parent, title);
+  /**
+   *
+   * @param parent
+   * @param title
+   * @param inNode
+   */
+  public DefineQueryNodeDialog(JFrame parent, String title, QueryNode inNode) {
+    super(parent, title);
 
-		setSize(300, 200);
+    setSize(300, 200);
 
-		ourNode = inNode;
+    ourNode = inNode;
 
-		showDialog();
-	}
+    showDialog();
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public List<Option> getOptions() {
-		LinkedList<Option> opts = new LinkedList<>();
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public List<Option> getOptions() {
+    LinkedList<Option> opts = new LinkedList<>();
 
-		// Add the name field
-		opts.add(new Option(new JLabel("Name"), name = JUtils.textField(ourNode.getName())));
+    // Add the name field
+    opts.add(new Option(new JLabel("Name"), name = JUtils.textField(ourNode.getName())));
 
-		// Add the query area
-		opts.add(new Option(new JLabel("Query"), query = JUtils.textArea(ourNode.getQuery())));
+    // Add the query area
+    opts.add(new Option(new JLabel("Query"), query = JUtils.textArea(ourNode.getQuery())));
 
-		return opts;
-	}
+    return opts;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String getName() {
-		return name.getText();
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String getName() {
+    return name.getText();
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public String getQuery() {
-		return JUtils.taText(query);
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public String getQuery() {
+    return JUtils.taText(query);
+  }
 }

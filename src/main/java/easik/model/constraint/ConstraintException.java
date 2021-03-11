@@ -7,17 +7,17 @@ package easik.model.constraint;
  * @author Christian Fiddick
  */
 public class ConstraintException extends Exception {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = -6258249785253711331L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = -6258249785253711331L;
 
-	/**
-	 *
-	 *
-	 * @param message
-	 */
-	public ConstraintException(String message) {
-		super(message);
-	}
+  /**
+   *
+   *
+   * @param message
+   */
+  public ConstraintException(String message) {
+    super(message);
+  }
 }

@@ -1,21 +1,20 @@
-/*
-  CQL + EDs is equivalent to Evan Patterson's "relational ologs".  Going to the latter from the former is trivial.
- 
-  The algorithm for translating a relational olog to CQL + EDs involves structural recursion on formulae,
-  so here is just an example instead.
+#  CQL + EDs is equivalent to Evan Patterson's "relational ologs".  Going to the latter from the former is trivial.
+# 
+#  The algorithm for translating a relational olog to CQL + EDs involves structural recursion on formulae,
+#  so here is just an example instead.
+#
+#  Look at Section 8 of the relational ologs paper.  Each relational olog is equivalent to a bunch of n-ary relation symbols
+#  and formulae in "regular logic" (i.e., each operator in table 2 can be defined as a formula in regular logic).  
+#  Then, each n-ary relation symbol turns into an n-way CQL span, and each formula in regular logic:
+#
+#    forall xs. (exists ys. phi(xs,ys)) -> (exists ys. psi(xs, ys))
+#
+#  is equivalent to an ED by virtue of "classical logic" (which holds in the category of Sets):
+#
+#    forall xs ys. phi(xs,ys) -> exists ys'. psi(xs, ys’)
+#
+# The CQL file below does a bunch of the "friend of a friend" example from Evan's section 8 using the above translation.
 
-  Look at Section 8 of the relational ologs paper.  Each relational olog is equivalent to a bunch of n-ary relation symbols
-  and formulae in "regular logic" (i.e., each operator in table 2 can be defined as a formula in regular logic).  
-  Then, each n-ary relation symbol turns into an n-way CQL span, and each formula in regular logic:
-
-    forall xs. (exists ys. phi(xs,ys)) -> (exists ys. psi(xs, ys))
-
-  is equivalent to an ED by virtue of "classical logic" (which holds in the category of Sets):
-
-    forall xs ys. phi(xs,ys) -> exists ys'. psi(xs, ys’)
-
-  The CQL file below does a bunch of the "friend of a friend" example from Evan's section 8 using the above translation.
-*/
 
 
 typeside Ty = literal {
@@ -26,17 +25,17 @@ typeside Ty = literal {
 
 schema FOAF = literal : Ty {
 	entities
-		//entities
+		#entities
 		Person
 		Organization
-		//spans
+		#spans
 		knows
 		friend_of
 		works_at
 		salary
 		enemy_of
 		frenemy_of
-	foreign_keys //total functions
+	foreign_keys #total functions
 		knows1 : knows -> Person
 		knows2 : knows -> Person
 		friend_of1 : friend_of -> Person
@@ -49,7 +48,7 @@ schema FOAF = literal : Ty {
 		enemy_of2 : enemy_of -> Person
 		frenemy_of1 : frenemy_of -> Person
 		frenemy_of2 : frenemy_of -> Person
-	attributes //total functions
+	attributes #total functions
 		family_name : Person -> String
 		age : Person -> Number	
 		given_name : Person -> String
@@ -63,9 +62,9 @@ where k1.knows1 = k2.knows2
      k1.knows2 = k2.knows1	
 }
 
-//x:person y:organization | exists z:number salary(x,y,z) -> works_at(x,y)
-//equivalent, classically etc to
-//x:person y:organization z:number | salary(x,y,z) -> works_at(x,y)
+#x:person y:organization | exists z:number salary(x,y,z) -> works_at(x,y)
+#equivalent, classically etc to
+#x:person y:organization z:number | salary(x,y,z) -> works_at(x,y)
 constraints works_at_determined1 = literal : FOAF {
 forall s:salary ->
 exists w:works_at 
@@ -73,7 +72,7 @@ where s.salary1 = w.works_at1
      s.salary2 = w.works_at2
 }
 
-//x:person y:organization | works_at(x,y) -> exists z:number salary(x,y,z) 
+#x:person y:organization | works_at(x,y) -> exists z:number salary(x,y,z) 
 constraints works_at_determined2 = literal : FOAF {
 forall w:works_at ->
 exists s:salary 
@@ -81,7 +80,7 @@ where s.salary1 = w.works_at1
      s.salary2 = w.works_at2
 }
 
-//frenemy_of is intersection of friend_of and enemy_of
+#frenemy_of is intersection of friend_of and enemy_of
 constraints frenemy_determined = literal : FOAF {
 forall fr : frenemy_of ->
 exists f : friend_of

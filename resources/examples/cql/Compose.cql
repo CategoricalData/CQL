@@ -3,7 +3,10 @@ options
 	require_consistency=false
 
 typeside ty = literal {
-	imports sql
+	external_types
+		Double -> "java.lang.Double" 
+	external_parsers
+		Double -> "x => new java.lang.Double(x)"
 	external_functions
 		plus : Double,Double -> Double = "(x, y) => x + y"
 		neg : Double -> Double = "x => -x"
@@ -98,7 +101,7 @@ query qTS = literal : T -> S {
 }
 query qUS = [qUT ; qTS]
 
-/////////////////
+########
 
 instance I = literal : U {
 	generators
@@ -126,7 +129,7 @@ instance K = eval qUS I
 
 transform fr = frozen qTS lambda x:s0. x.ss.att : Double
 
-/////////////////////////////////////////////////
+########################
 
 typeside Ty = literal {
 	types
@@ -172,7 +175,7 @@ instance JJ = eval QQ II
 
 instance KK = coeval QQ II
 
-//transform t = unit_query Q I   INFINTE
+#transform t = unit_query Q I   INFINTE
 
 transform t2 = counit_query QQ II
 

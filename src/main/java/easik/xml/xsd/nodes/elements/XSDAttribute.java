@@ -19,40 +19,40 @@ import easik.xml.xsd.nodes.types.XSDType;
  * @version $$Id$$
  */
 public class XSDAttribute extends XSDAbstractElement {
-	/**
-	 *
-	 *
-	 * @param name
-	 * @param elementType
-	 */
-	public XSDAttribute(final String name, final XSDType elementType) {
-		this(name, null, elementType);
-	}
+  /**
+   *
+   *
+   * @param name
+   * @param elementType
+   */
+  public XSDAttribute(final String name, final XSDType elementType) {
+    this(name, null, elementType);
+  }
 
-	/**
-	 *
-	 *
-	 * @param name
-	 * @param parent
-	 * @param elementType
-	 */
-	public XSDAttribute(final String name, final XSDBaseNode parent, final XSDType elementType) {
-		super(name, parent, elementType);
+  /**
+   *
+   *
+   * @param name
+   * @param parent
+   * @param elementType
+   */
+  public XSDAttribute(final String name, final XSDBaseNode parent, final XSDType elementType) {
+    super(name, parent, elementType);
 
-		setTagName("attribute");
-	}
+    setTagName("attribute");
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String getBody() {
-		if (getElementType().isReferencable()) {
-			return lineSep;
-		}
-		return getElementType().toString() + lineSep;
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String getBody() {
+    if (getElementType().isReferencable()) {
+      return lineSep;
+    }
+    return getElementType().toString() + lineSep;
 
-	}
+  }
 }

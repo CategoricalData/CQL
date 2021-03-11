@@ -16,59 +16,59 @@ import easik.xml.xsd.nodes.types.XSDType;
  * automatically converted to an INTEGER instead. See also Integer and BigInt.
  */
 public class SmallInt extends EasikType {
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return "SMALLINT";
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "SMALLINT";
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		return input.matches("^[-+]?\\d{1,5}$");
-	}
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    return input.matches("^[-+]?\\d{1,5}$");
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.SMALLINT;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.SMALLINT;
+  }
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setInt(col, Integer.parseInt(value));
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setInt(col, Integer.parseInt(value));
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		return XSDBaseType.xsShort;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    return XSDBaseType.xsShort;
+  }
 }

@@ -18,59 +18,59 @@ import easik.xml.xsd.nodes.types.XSDType;
  * your db handles BLOB/BYTEA/binary data types before using this BLOB type.
  */
 public class Blob extends EasikType {
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return "BLOB";
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "BLOB";
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		return true;
-	}
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    return true;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.BLOB;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.BLOB;
+  }
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setString(col, value);
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setString(col, value);
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		return XSDBaseType.xsHexBinary;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    return XSDBaseType.xsHexBinary;
+  }
 }

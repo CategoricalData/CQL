@@ -38,96 +38,96 @@ import easik.sketch.vertex.EntityNode;
  * </ul>
  */
 public class ColumnNaming {
-	// The db driver, for driver-specific operations (i.e. quoting and
-	// identifier cleaning)
+  // The db driver, for driver-specific operations (i.e. quoting and
+  // identifier cleaning)
 
-	/**  */
-	private PersistenceDriver dbd;
+  /**  */
+  private PersistenceDriver dbd;
 
-	// The formats used for primary and foreign keys.
+  // The formats used for primary and foreign keys.
 
-	/**  */
-	private String pkFormat, fkFormat;
+  /**  */
+  private String pkFormat, fkFormat;
 
-	/**
-	 * Creates a new ColumnNaming object for the specified driver and options.
-	 *
-	 * @param dbd the Database object for this column naming object.
-	 */
-	public ColumnNaming(final PersistenceDriver dbd) {
-		pkFormat = dbd.getOptionString("pkFormat");
+  /**
+   * Creates a new ColumnNaming object for the specified driver and options.
+   *
+   * @param dbd the Database object for this column naming object.
+   */
+  public ColumnNaming(final PersistenceDriver dbd) {
+    pkFormat = dbd.getOptionString("pkFormat");
 
-		if (pkFormat == null) {
-			pkFormat = "<table>_id"; // Fall back to this mainly for historic
-										// reasons: Easik v1 always used this
-										// format
-		}
+    if (pkFormat == null) {
+      pkFormat = "<table>_id"; // Fall back to this mainly for historic
+                    // reasons: Easik v1 always used this
+                    // format
+    }
 
-		fkFormat = dbd.getOptionString("fkFormat");
+    fkFormat = dbd.getOptionString("fkFormat");
 
-		if (fkFormat == null) {
-			fkFormat = "<target>_<edge>"; // Completely *unlike* Easik v1: the
-											// v1 "<target>_id" doesn't allow
-											// multiple edges
-		}
+    if (fkFormat == null) {
+      fkFormat = "<target>_<edge>"; // Completely *unlike* Easik v1: the
+                      // v1 "<target>_id" doesn't allow
+                      // multiple edges
+    }
 
-		this.dbd = dbd;
-	}
+    this.dbd = dbd;
+  }
 
-	/**
-	 * Takes an EntityNode and returns the name of the primary key column for that
-	 * table/node. The name will <b>not</b> be quoted; quoteId() should be called on
-	 * the resulting value before using it in the db.
-	 *
-	 * @param table the table whose primary key is desired
-	 * @return the primary key column name
-	 * @see #qualifiedPK(easik.sketch.vertex.EntityNode)
-	 */
-	public String tablePK(final EntityNode table) {
-		return table.getPrimaryKeyName(pkFormat);
-	}
+  /**
+   * Takes an EntityNode and returns the name of the primary key column for that
+   * table/node. The name will <b>not</b> be quoted; quoteId() should be called on
+   * the resulting value before using it in the db.
+   *
+   * @param table the table whose primary key is desired
+   * @return the primary key column name
+   * @see #qualifiedPK(easik.sketch.vertex.EntityNode)
+   */
+  public String tablePK(final EntityNode table) {
+    return table.getPrimaryKeyName(pkFormat);
+  }
 
-	/**
-	 * Takes two EntityNodes and returns the name of the foreign key column in the
-	 * source table pointing to the target table. The name will <b>not</b> be
-	 * quoted; quoteId() should be called on the resulting value before using it in
-	 * the db.
-	 *
-	 * @param edge the edge between the tables being referenced
-	 * @return the foreign key column name (i.e. of the column in the edge's source
-	 *         node)
-	 * @see #qualifiedFK(easik.sketch.edge.SketchEdge)
-	 * @see easik.sketch.edge.SketchEdge#getForeignKeyName(String)
-	 */
-	public String tableFK(final SketchEdge edge) {
-		return edge.getForeignKeyName(fkFormat);
-	}
+  /**
+   * Takes two EntityNodes and returns the name of the foreign key column in the
+   * source table pointing to the target table. The name will <b>not</b> be
+   * quoted; quoteId() should be called on the resulting value before using it in
+   * the db.
+   *
+   * @param edge the edge between the tables being referenced
+   * @return the foreign key column name (i.e. of the column in the edge's source
+   *         node)
+   * @see #qualifiedFK(easik.sketch.edge.SketchEdge)
+   * @see easik.sketch.edge.SketchEdge#getForeignKeyName(String)
+   */
+  public String tableFK(final SketchEdge edge) {
+    return edge.getForeignKeyName(fkFormat);
+  }
 
-	/**
-	 * Takes an EntityNode, and returns the quoted, fully-qualified name of the
-	 * primary key column. Fully-qualified typically means
-	 * <code>tablename.columnname</code> (though, if identifier quoting occurs, it
-	 * might be quoted, such as <code>"tablename"."columnname"</code>). In constrast
-	 * to the result of tablePK(), this value should not be passed to quoteId().
-	 *
-	 * @param table the table having the desired primary key
-	 * @return the quoted, qualified column reference string
-	 */
-	public String qualifiedPK(final EntityNode table) {
-		return dbd.quoteId(table) + '.' + dbd.quoteId(tablePK(table));
-	}
+  /**
+   * Takes an EntityNode, and returns the quoted, fully-qualified name of the
+   * primary key column. Fully-qualified typically means
+   * <code>tablename.columnname</code> (though, if identifier quoting occurs, it
+   * might be quoted, such as <code>"tablename"."columnname"</code>). In constrast
+   * to the result of tablePK(), this value should not be passed to quoteId().
+   *
+   * @param table the table having the desired primary key
+   * @return the quoted, qualified column reference string
+   */
+  public String qualifiedPK(final EntityNode table) {
+    return dbd.quoteId(table) + '.' + dbd.quoteId(tablePK(table));
+  }
 
-	/**
-	 * Takes two EntityNodes, and returns the quoted, fully-qualified name of the
-	 * foreign key column connecting them. Fully-qualified typically means
-	 * <code>tablename.columnname</code> (though, if identifier quoting occurs, it
-	 * might be quoted, such as <code>"tablename"."columnname"</code>). In contrast
-	 * to tableFK(), this value should not be passed to quoteId.
-	 *
-	 * @param edge the edge between the source table and target table
-	 * @return the quoted, qualified column reference string
-	 */
-	public String qualifiedFK(final SketchEdge edge) {
-		return dbd.quoteId(edge.getSourceEntity().getName()) + '.' + dbd.quoteId(tableFK(edge));
-	}
+  /**
+   * Takes two EntityNodes, and returns the quoted, fully-qualified name of the
+   * foreign key column connecting them. Fully-qualified typically means
+   * <code>tablename.columnname</code> (though, if identifier quoting occurs, it
+   * might be quoted, such as <code>"tablename"."columnname"</code>). In contrast
+   * to tableFK(), this value should not be passed to quoteId.
+   *
+   * @param edge the edge between the source table and target table
+   * @return the quoted, qualified column reference string
+   */
+  public String qualifiedFK(final SketchEdge edge) {
+    return dbd.quoteId(edge.getSourceEntity().getName()) + '.' + dbd.quoteId(tableFK(edge));
+  }
 }

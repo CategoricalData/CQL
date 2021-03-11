@@ -6,11 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 
 import catdata.Chc;
 import catdata.Pair;
@@ -118,7 +114,7 @@ public abstract class Exp<X> {
 			Object t = type(G);
 			return Chc.inRightNC(t);
 		} catch (Throwable thr) {
-			//thr.printStackTrace();
+			// thr.printStackTrace();
 			if (thr.getMessage() == null) {
 				thr.printStackTrace();
 				return Chc.inLeftNC("Anomaly Please Report");
@@ -156,54 +152,56 @@ public abstract class Exp<X> {
 			return Optional.of(Chc.inLeftNC(s));
 		}
 	}
- 
-	public static interface ExpVisitor<P, X, Sch extends X, Mor extends X, Ty extends X, Inst extends X, M extends X, Q extends X, Trans extends X, Col extends X, Com extends X, Con extends X, Gr extends X, Prag extends X, E extends Exception, A1,A2,A3,A4,A5>
-			extends SchExpVisitor<Sch, P, E>, TyExpVisitor<Ty, P, E>, InstExpVisitor<Inst, P, E>,
-			MapExpVisitor<M, P, E>, QueryExpVisitor<Q, P, E>, TransExpVisitor<Trans, P, E>,
-			ColimSchExpVisitor<Col, P, E>, CommentExpVisitor<Com, P, E>, EdsExpVisitor<Con, P, E>,
-			GraphExpVisitor<Gr, P, E>, PragmaExpVisitor<Prag, P, E>, MorExpVisitor<Mor, P, E>, ApgTyExpVisitor<A1,P,E>, ApgInstExpVisitor<A2,P,E>, ApgTransExpVisitor<A3,P>, ApgSchExpVisitor<A4,P>, ApgMapExpVisitor<A5,P> {
+
+	public static interface ExpVisitor<P, X, Sch extends X, Mor extends X, Ty extends X, Inst extends X, M extends X, Q extends X, Trans extends X, Col extends X, Com extends X, Con extends X, Gr extends X, Prag extends X, E extends Exception, A1, A2, A3, A4, A5>
+			extends SchExpVisitor<Sch, P, E>, TyExpVisitor<Ty, P, E>, InstExpVisitor<Inst, P, E>, MapExpVisitor<M, P, E>,
+			QueryExpVisitor<Q, P, E>, TransExpVisitor<Trans, P, E>, ColimSchExpVisitor<Col, P, E>, CommentExpVisitor<Com, P, E>,
+			EdsExpVisitor<Con, P, E>, GraphExpVisitor<Gr, P, E>, PragmaExpVisitor<Prag, P, E>, MorExpVisitor<Mor, P, E>,
+			ApgTyExpVisitor<A1, P, E>, ApgInstExpVisitor<A2, P, E>, ApgTransExpVisitor<A3, P>, ApgSchExpVisitor<A4, P>,
+			ApgMapExpVisitor<A5, P> {
 	}
 
-	public <P, Z, Sch extends Z, Ty extends Z, Inst extends Z, Mor extends Z, M extends Z, Q extends Z, Trans extends Z, Col extends Z, Com extends Z, Con extends Z, Gr extends Z, Prag extends Z, E extends Exception, A1 extends Z,A2 extends Z,A3 extends Z,A4 extends Z, A5 extends Z> Z accept0(
-			P params, ExpVisitor<P, Z, Sch, Mor, Ty, Inst, M, Q, Trans, Col, Com, Con, Gr, Prag, E, A1,A2,A3,A4,A5> v) throws E {
+	public <P, Z, Sch extends Z, Ty extends Z, Inst extends Z, Mor extends Z, M extends Z, Q extends Z, Trans extends Z, Col extends Z, Com extends Z, Con extends Z, Gr extends Z, Prag extends Z, E extends Exception, A1 extends Z, A2 extends Z, A3 extends Z, A4 extends Z, A5 extends Z> Z accept0(
+			P params, ExpVisitor<P, Z, Sch, Mor, Ty, Inst, M, Q, Trans, Col, Com, Con, Gr, Prag, E, A1, A2, A3, A4, A5> v)
+			throws E {
 		switch (kind()) {
-		case COMMENT:
-			return ((CommentExp) this).accept(params, v);
-		case CONSTRAINTS:
-			return ((EdsExp) this).accept(params, v);
-		case GRAPH:
-			return ((GraphExp) this).accept(params, v);
-		case INSTANCE:
-			return ((InstExp<?, ?, ?, ?>) this).accept(params, v);
-		case MAPPING:
-			return ((MapExp) this).accept(params, v);
-		case THEORY_MORPHISM:
-			return ((MorExp) this).accept(params, v);	
-		case PRAGMA:
-			return ((PragmaExp) this).accept(params, v);
-		case QUERY:
-			return ((QueryExp) this).accept(params, v);
-		case SCHEMA:
-			return ((SchExp) this).accept(params, v);
-		case SCHEMA_COLIMIT:
-			return ((ColimSchExp) this).accept(params, v);
-		case TRANSFORM:
-			return ((TransExp<?, ?, ?, ?, ?, ?, ?, ?>) this).accept(params, v);
-		case TYPESIDE:
-			return ((TyExp) this).accept(params, v);
-		case APG_typeside:
-			return ((ApgTyExp) this).accept(params, v);	
-		case APG_instance:
-			return ((ApgInstExp) this).accept(params, v);	
-		case APG_morphism:
-			return ((ApgTransExp) this).accept(params, v);	
-		case APG_mapping:
-			return ((ApgMapExp) this).accept(params, v);
-		case APG_schema:
-			return ((ApgSchExp) this).accept(params, v);	
-			
-		default:
-			return Util.anomaly();
+			case COMMENT:
+				return ((CommentExp) this).accept(params, v);
+			case CONSTRAINTS:
+				return ((EdsExp) this).accept(params, v);
+			case GRAPH:
+				return ((GraphExp) this).accept(params, v);
+			case INSTANCE:
+				return ((InstExp<?, ?, ?, ?>) this).accept(params, v);
+			case MAPPING:
+				return ((MapExp) this).accept(params, v);
+			case THEORY_MORPHISM:
+				return ((MorExp) this).accept(params, v);
+			case PRAGMA:
+				return ((PragmaExp) this).accept(params, v);
+			case QUERY:
+				return ((QueryExp) this).accept(params, v);
+			case SCHEMA:
+				return ((SchExp) this).accept(params, v);
+			case SCHEMA_COLIMIT:
+				return ((ColimSchExp) this).accept(params, v);
+			case TRANSFORM:
+				return ((TransExp<?, ?, ?, ?, ?, ?, ?, ?>) this).accept(params, v);
+			case TYPESIDE:
+				return ((TyExp) this).accept(params, v);
+			case APG_typeside:
+				return ((ApgTyExp) this).accept(params, v);
+			case APG_instance:
+				return ((ApgInstExp) this).accept(params, v);
+			case APG_morphism:
+				return ((ApgTransExp) this).accept(params, v);
+			case APG_mapping:
+				return ((ApgMapExp) this).accept(params, v);
+			case APG_schema:
+				return ((ApgSchExp) this).accept(params, v);
+
+			default:
+				return Util.anomaly();
 
 		}
 	}
@@ -218,6 +216,10 @@ public abstract class Exp<X> {
 
 	@SuppressWarnings("unchecked")
 	public final X eval(AqlEnv env, boolean isCompileTime) {
+		boolean b = (boolean) getOrDefault(env, AqlOption.always_reload);
+		if (b) {
+			return eval0(env, isCompileTime);
+		}
 		synchronized (env.cache) {
 			X x = (X) env.cache.get(this);
 			if (x != null) {
@@ -239,14 +241,6 @@ public abstract class Exp<X> {
 			}
 		}
 
-	}
-
-	private final Supplier<String> latestToString = Suppliers.memoizeWithExpiration(this::makeString, 20,
-			TimeUnit.SECONDS);
-
-	@Override
-	public String toString() {
-		return this.latestToString.get();
 	}
 
 	public String printNicely(AqlTyping g) {
@@ -275,15 +269,14 @@ public abstract class Exp<X> {
 		return sb.toString();
 	}
 
-	public String makeString() {
-		return "undefined expression";
-	}
-
 	@Override
 	public abstract int hashCode();
 
 	@Override
 	public abstract boolean equals(Object o);
+
+	@Override
+	public abstract String toString();
 
 	/**
 	 * This will not capture global order constraints; for example, that commands

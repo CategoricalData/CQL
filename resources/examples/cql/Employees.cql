@@ -54,7 +54,7 @@ instance IJava = literal : SJava {
      	prover_simplify_max = 64
 }
 
-//basic query syntax
+#basic query syntax
 query Q = simple : SJava {
 	from e:Employee
 	where e.first = Al
@@ -66,11 +66,11 @@ query Q = simple : SJava {
 
 instance J = eval Q IJava
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//demonstrates 'interpret as instance' option.   which interprets the instance as a model,
-//similar to JDBC / CSV import.  This behavior can be useful when writing down an
-//instance that is already saturated and for which one wants to check the schema constraints,
-//rather than impose them
+##################################################
+#demonstrates 'interpret as instance' option.   which interprets the instance as a model,
+#similar to JDBC / CSV import.  This behavior can be useful when writing down an
+#instance that is already saturated and for which one wants to check the schema constraints,
+#rather than impose them
 
 schema SS = literal : empty {
     entities
@@ -81,7 +81,7 @@ schema SS = literal : empty {
         Person.mother = Person.father
 }
 
-//works; sets b = c.  This is normal ‘theory’ or ‘initial algebra' semantics
+#works; sets b = c.  
 instance I1 = literal : SS {
         generators
                 a b c : Person
@@ -92,12 +92,12 @@ instance I1 = literal : SS {
                 b.mother = b b.father = b
                 c.mother = c c.father = c
 
-                //fails because b != c.  This is 'algebra' semantics
-  		//options
-          		//interpret_as_algebra = true
+                #fails because b != c.  This is 'algebra' semantics
+  		#options
+          		#interpret_as_algebra = true
 }
 
-/////////////////////////////////////////////////////////////////
+################################/
 
 typeside Ty = literal {
 	types

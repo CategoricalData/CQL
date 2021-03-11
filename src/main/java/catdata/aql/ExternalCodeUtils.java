@@ -11,7 +11,7 @@ public class ExternalCodeUtils implements AutoCloseable {
 
   public static final String LANG_JS = "js";
 
-	private final Context context = Context.newBuilder()
+  private final Context context = Context.newBuilder()
       .allowHostAccess(HostAccess.ALL)
       .allowHostClassLookup(className -> true)
       .build();

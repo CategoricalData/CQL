@@ -101,7 +101,7 @@ added to further restrict the values over which a particular column may vary.
 In contrast, CQL provides a declarative structure that allows the user to define an algebraic
 definition of the type side. In its current implementation CQL defines this algebra by wrapping
 a selection of Java types and functions. In this sequence of files we will restrict the type side
-to a string type compatible with a MySQL Varchar. This will allow us to label records in a way
+to a string type compatible with a MySQL String. This will allow us to label records in a way
 that will provide human readable output associated with the sequence of models we produce. This
 will also allow us to integrate with an external RDBMS by exporting and importing various CQL
 constructions.
@@ -119,7 +119,7 @@ Type sides are an CQL construction that extends the built in types typically fou
 provides the possibility of introducing programming language features that can be used to enhance
 the power of a database. These features are roughly analogous to stored functions that can be
 invoked inline within an SQL statement. To illustrate how this capability works we will create a
-type side that exposes a string type which we label Varchar in anticipation of later integration
+type side that exposes a string type which we label String in anticipation of later integration
 with an external RDBMS. To this we add the Java string matches method to illustrate how Java
 functions can be exposed to the CQL framework. For more details we refer the reader to the
 examples available by selecting the dropdown in the upper right hand corner of the application.
@@ -127,14 +127,10 @@ Specifically, the CQL Tutorial example.
 " *) }
 
 typeside TypeSide = literal {
-    external_types
-        Varchar -> "java.lang.String"
-        Bool -> "java.lang.Boolean"
-    external_parsers
-        Varchar -> "x => x"
-        Bool -> "x => java.lang.Boolean.parseBoolean(x)"
+   imports 
+   sql
     external_functions
-        Matches : Varchar, Varchar -> Bool = "(x, y) => x.matches(y)"
+        Matches : String, String -> Boolean ="(x , y) => ((x.isPresent() && y.isPresent()) ? java.util.Optional.of(new RegExp(y.get).test(x.get())) : java.util.Optional.empty())"
 }
 
 
@@ -172,7 +168,7 @@ schema sT = literal : TypeSide {
     entities
         Task
     attributes
-        TName : Task -> Varchar
+        TName : Task -> String
 }
 
 md { (* "
@@ -184,8 +180,8 @@ schema sSnT = literal : TypeSide {
     entities
       SkillNeededForTask
     attributes
-      skill : SkillNeededForTask -> Varchar
-      task : SkillNeededForTask -> Varchar
+      skill : SkillNeededForTask -> String
+      task : SkillNeededForTask -> String
 }
 
 
@@ -285,16 +281,7 @@ length `n` in `C` is a sequence of arrows arranged head to tail as follows:
 
 " *) }
 
-/* Rendered using Javascript:
-html { (* "
-$$
-\\begin{CD}
- \\cdot     @>f_n>> \\cdot  @>f_{n-1}>> \\cdot @. \\ldots @. \\cdot @>f_2>> \\cdot @>f_1>> \\cdot
-\\end{CD}
-$$
-" *)
-}
-*/
+
 
 md { (* "
 For any adjacent pair of arrows in such a path we must have `target(f_k)` = `source(f_k-1)`. Such
@@ -315,8 +302,8 @@ the object `A`.
 
 We now introduce the fourth section in the schema declaration below, the `observation_equations`
 section. The `observation_equations` section is an example of a path equation. Notice that
-`SCNameOnSkill` is an arrow from `Skill` to `Varchar`. As such it is a path of length one. Similarly
-there is a path from `Skill` to `Varchar` that is a path of length two obtained by composing the
+`SCNameOnSkill` is an arrow from `Skill` to `String`. As such it is a path of length one. Similarly
+there is a path from `Skill` to `String` that is a path of length two obtained by composing the
 foreign key arrow `fk_HasClass` with the attribute arrow `SCName`. The observation equation is a
 declaration that those two paths are equal.
 
@@ -334,9 +321,9 @@ schema sS = literal : TypeSide {
     foreign_keys
         fk_HasClass : Skill -> SkillClass
     attributes
-        SName : Skill -> Varchar
-        SCNameOnSkl : Skill -> Varchar
-        SCName : SkillClass -> Varchar
+        SName : Skill -> String
+        SCNameOnSkl : Skill -> String
+        SCName : SkillClass -> String
     observation_equations
         SCNameOnSkl = fk_HasClass.SCName
 }
@@ -657,7 +644,7 @@ query qWrtngSklS = simple : sS {
     from
       s: Skill
     where
-      Matches(s.SName, ".*Writing") = true
+      Matches(s.SName, ".*Writing"@String) = true@Boolean
     attributes
       Skill_Name -> s.SName
       Skill_Class_Name -> s.SCNameOnSkl
@@ -680,8 +667,8 @@ schema sSkl = literal : TypeSide {
     entities
       tSkill
     attributes
-      Skill_Name : tSkill -> Varchar
-      Skill_Class_Name : tSkill -> Varchar
+      Skill_Name : tSkill -> String
+      Skill_Class_Name : tSkill -> String
 }
 
 md { (* "
@@ -697,7 +684,7 @@ query qWrtngSklC = literal : sS -> sSkl {
           from
             s: Skill
           where
-          Matches(s.SName, ".*Writing") = true
+          Matches(s.SName, ".*Writing"@String) = true@Boolean
           attributes
           Skill_Name -> s.SName
           Skill_Class_Name -> s.SCNameOnSkl
@@ -745,7 +732,7 @@ query qScl = literal : sS -> sS {
             SName -> s.SName
             SCNameOnSkl -> s.SCNameOnSkl
           foreign_keys
-      // fk_HasClass : Skill -> SkillClass
+      # fk_HasClass : Skill -> SkillClass
       fk_HasClass -> {sc -> s.fk_HasClass}
       }
 
@@ -774,7 +761,7 @@ coproduct with a instance coproduct in a moment, but for now examine the automat
 coproduct in the runtime viewer.
 " *) }
 schema_colimit S_T_SnT_SumAuto = coproduct sT + sS + sSnT : TypeSide
-//schema_colimit S_T_SnT_SumAuto = quotient sT + sS + sSnT: TypeSide {}
+#schema_colimit S_T_SnT_SumAuto = quotient sT + sS + sSnT: TypeSide {}
 
 md { (* "
 The automatically generated schema colimit prefixes each object within the target schema with the
@@ -948,13 +935,13 @@ schema sSTSpn = literal : TypeSide {
       fk_SkillNeeded : SkillNdFrTask -> Skill
       fk_ForTask     : SkillNdFrTask -> Task
     attributes
-      SName         : Skill -> Varchar
-      SCNameOnSkl   : Skill -> Varchar
-      SCName        : SkillClass -> Varchar
-      TName         : Task -> Varchar
-      skill         : SkillNdFrTask -> Varchar
-      skillclass    : SkillNdFrTask -> Varchar
-      task          : SkillNdFrTask -> Varchar
+      SName         : Skill -> String
+      SCNameOnSkl   : Skill -> String
+      SCName        : SkillClass -> String
+      TName         : Task -> String
+      skill         : SkillNdFrTask -> String
+      skillclass    : SkillNdFrTask -> String
+      task          : SkillNdFrTask -> String
     observation_equations
       SCNameOnSkl = fk_HasClass.SCName
       skill = fk_SkillNeeded.SName
@@ -984,7 +971,7 @@ query qS_T_SnT_SumToSTSpn = literal : sS_T_SnT_Sum -> sSTSpn {
                 SName -> ss.lSName
                 SCNameOnSkl -> ss.lSCNameOnSkl
                foreign_keys
-                      // fk_HasClass : Skill -> SkillClass
+                      # fk_HasClass : Skill -> SkillClass
         fk_HasClass    -> {scsc -> ss.lfk_HasClass}
         }
     entity    SkillClass -> {
@@ -1007,9 +994,9 @@ query qS_T_SnT_SumToSTSpn = literal : sS_T_SnT_Sum -> sSTSpn {
                 skillclass -> sn.lfk_HasClass.lSCName
                 task  -> snt.ltask
                 foreign_keys
-        // fk_SnT_S    : SkillNdFrTask -> Skill
+        # fk_SnT_S    : SkillNdFrTask -> Skill
         fk_SkillNeeded -> {ss -> sn}
-        // fk_SnT_T    : SkillNdFrTask -> Task
+        # fk_SnT_T    : SkillNdFrTask -> Task
         fk_ForTask     -> {tt -> nt}
         }
    entity     Task -> {
@@ -1048,8 +1035,8 @@ are listed using the `pShwTbls` pragma.
 
 md { (* "
 Export the results of the above construction of the span and its representative instance. The
-`export_jdbc_instance` defaults strings varchar(64). In this case we illustrate how that default
-can be overridden using the varchar_length option.
+`export_jdbc_instance` defaults strings String(64). In this case we illustrate how that default
+can be overridden using the String_length option.
 " *) }
 command pCleanUp2 = exec_jdbc "" {
 "DROP TABLE IF EXISTS sts_SkillNdFrTask"
@@ -1099,12 +1086,12 @@ schema sSPSpn = literal : TypeSide {
       fk_SpP_S   : SkillPrvdByPerson -> SpecificSkill
       fk_SpP_P   : SkillPrvdByPerson -> Person
     attributes
-      SSName SSGSName SSSCName : SpecificSkill -> Varchar
-      GSName GSSCName : GeneralSkill -> Varchar
-      SCName : SkillClass -> Varchar
-      PName  : Person -> Varchar
-      skill  : SkillPrvdByPerson -> Varchar
-      person : SkillPrvdByPerson -> Varchar
+      SSName SSGSName SSSCName : SpecificSkill -> String
+      GSName GSSCName : GeneralSkill -> String
+      SCName : SkillClass -> String
+      PName  : Person -> String
+      skill  : SkillPrvdByPerson -> String
+      person : SkillPrvdByPerson -> String
     observation_equations
       SSGSName = fk_IsType.GSName
       SSSCName = fk_IsType.fk_HasClass.SCName
@@ -1118,17 +1105,17 @@ We have already set up a set of tables and associated instance in our source RDB
 that instance using a command analogous to the `iSTSpnImp` imported instance.
 " *) }
 instance iSPSpnImp = empty : sSPSpn
-/*
-import_jdbc "jdbc:mysql://mysql.conexus.ai:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" : sSPSpn {
-   SpecificSkill -> "select id, fk_IsType, SSName, SSGSName, SSSCName from sps_SpecificSkill"
-   GeneralSkill -> "select id, fk_HasClass, GSName, GSSCName from sps_GeneralSkill"
-   SkillClass -> "select id, SCName from sps_SkillClass"
-   Person -> "select id, PName from sps_Person"
-   SkillPrvdByPerson -> "select id, fk_SpP_S, fk_SpP_P, skill, person from sps_SkillPrvdByPerson"
-   options
-   	jdbc_quote_char = "`"
-}
-*/
+
+#import_jdbc "jdbc:mysql://mysql.conexus.ai:3306/ci_test?user=catinfcom&password=FDiUY!pr&serverTimezone=America/New_York" : sSPSpn {
+#   SpecificSkill -> "select id, fk_IsType, SSName, SSGSName, SSSCName from sps_SpecificSkill"
+#   GeneralSkill -> "select id, fk_HasClass, GSName, GSSCName from sps_GeneralSkill"
+#   SkillClass -> "select id, SCName from sps_SkillClass"
+#   Person -> "select id, PName from sps_Person"
+#   SkillPrvdByPerson -> "select id, fk_SpP_S, fk_SpP_P, skill, person from sps_SkillPrvdByPerson"
+#   options
+#   	jdbc_quote_char = "`"
+#
+
 md { (* "
 In this example we begin to see for the first time a more representative example of the full
 capability of the `schema_colimit` construction. In this more interesting colimit we are gluing
@@ -1167,9 +1154,9 @@ schema_colimit STSpn_SPSpn_CoLimAuto = quotient sSTSpn + sSPSpn : TypeSide {
       sSTSpn.SkillClass = sSPSpn.SkillClass
     path_equations
       sSPSpn_SpecificSkill__sSTSpn_Skill.sSTSpn_Skill_fk_HasClass = sSPSpn_SpecificSkill__sSTSpn_Skill.sSPSpn_SpecificSkill_fk_IsType.sSPSpn_GeneralSkill_fk_HasClass
-//    observation_equations
-//      forall s. s.sSTSpn_SName = s.sSPSpn_SName
-//      forall c. c.sSTSpn_SCName = c.sSPSpn_SCName
+#    observation_equations
+#      forall s. s.sSTSpn_SName = s.sSPSpn_SName
+#      forall c. c.sSTSpn_SCName = c.sSPSpn_SCName
 }
 
 md { (* "
@@ -1257,37 +1244,35 @@ instance iSTSpn_SPSpn_Merge2 = quotient_query iST_SP_Sum {
 
 
 }
-/*
-// Set up the SkillMatch and SkillClassMatch tables based on the exports.
-command pSetUpSkillMatch = exec_jdbc "" {
-"DROP TABLE IF EXISTS SkillMatch"
-"DROP TABLE IF EXISTS SkillClassMatch"
 
-"create table SkillMatch as
-select
-  concat('s', t.id) as sm_id,
-  p.id as ps_id,
-  t.id as ts_id,
-  t.fk_HasClass
-from
-  sps_SpecificSkill p
-  join sts_Skill t
-    on p.SSName = t.SName
-  join sps_GeneralSkill gs
-    on p.fk_IsType = gs.id"
-
-"create table SkillClassMatch as
-select
-  concat('sc', t.id) as scm_id,
-  p.id as psc_id,
-  t.id as tsc_id
-from
-  sps_SkillClass as p
-  join sts_SkillClass as t
-    on p.SCName = t.SCName"
-}
-
-*/
+# Set up the SkillMatch and SkillClassMatch tables based on the exports.
+#command pSetUpSkillMatch = exec_jdbc "" {
+#"DROP TABLE IF EXISTS SkillMatch"
+#"DROP TABLE IF EXISTS SkillClassMatch"
+#
+#"create table SkillMatch as
+#select
+#  concat('s', t.id) as sm_id,
+#  p.id as ps_id,
+#  t.id as ts_id,
+#  t.fk_HasClass
+#from
+#  sps_SpecificSkill p
+#  join sts_Skill t
+#    on p.SSName = t.SName
+#  join sps_GeneralSkill gs
+#    on p.fk_IsType = gs.id"
+#
+#"create table SkillClassMatch as
+#select
+#  concat('sc', t.id) as scm_id,
+#  p.id as psc_id,
+#  t.id as tsc_id
+#from
+#  sps_SkillClass as p
+#  join sts_SkillClass as t
+#    on p.SCName = t.SCName"
+#}
 
 
 md { (* "
@@ -1378,22 +1363,7 @@ md { (* "
 The counit transform injects `iDltSgmColim` back into the merged instance `iSTSpn_SPSpn_Merge3`.
 " *) }
 
-/*
-md { (* "
-Additional work that could be added to this tutorial in a later release:
 
-  1. Examples of how relational nulls are handled when imported into CQL. This could be done
-     easily by creating an alternative to `iS_T_SnT_Sum` by replacing `iSklSklCls1` with `iSkl`.
-     Following that repeat all dependent constructions to see how null values appear on export
-     and then are translated when imported.
-
-  2. Follow the discussion above with additional constructions illustrating the connections
-     between sigma, delta and pi and eval and coeval.
-
-  3. Develop some examples of how one can use uber flowers to create data warehouse marts.
-
-" *) }
-*/
 
 html { (* "
 </body></html>" *) }

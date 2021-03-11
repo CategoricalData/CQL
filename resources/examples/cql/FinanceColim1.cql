@@ -1,5 +1,5 @@
-////////////////////////////////////////////////////////////////////////
-// Financial Data Warehousing
+####################################
+# Financial Data Warehousing
 
 typeside Ty = literal {
 	external_types
@@ -18,7 +18,7 @@ typeside Ty = literal {
 		keygen : Integer,Integer,Integer -> Integer = "(x, y, z) => (2^x * 3^y * 5^z)"
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 schema Client = literal : Ty {
 	entities
@@ -37,7 +37,7 @@ instance ClientInstance = literal : Client {
      	description -> {cc1 "Tom Client", cc2 "Dick Client", cc3 "Harry Client"}
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 schema Portfolio = literal : Ty {
 	entities
@@ -74,7 +74,7 @@ instance PortfolioInstance = literal : Portfolio {
 		strategy -> {pp1 ps2, pp2 ps2, pp3 ps1}
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 schema Ref = literal : Ty {
 	entities
@@ -116,7 +116,7 @@ instance RefInstance = literal : Ref {
 		description  -> {ra1 Asset1, ra2 Asset2, ra3 Asset3, ra4 Asset4, ra5 Asset5, ra6 Asset6, ra7 Asset7, ra8 Asset8, ra9 Asset9, ra10 Asset10, rs1 Strategy1, rs2 Strategy2, rs3 Strategy3, rs4 Strategy4, rs5 Strategy5}
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 schema Trans = literal : Ty {
 	entities
@@ -132,7 +132,7 @@ schema Trans = literal : Ty {
 		id : currency -> Integer
 		code name : currency -> String
 		id asset_id portfolio_id quantity currency_id : transaction -> Integer
-		date  : transaction -> Date	// added as a new column
+		date  : transaction -> Date	# added as a new column
 		buy_sell_ind : transaction -> Boolean
 		price : transaction -> Double
 	observation_equations
@@ -161,7 +161,7 @@ instance TransInstance = literal : Trans {
 		currency_id -> {tt1 2, tt2 2, tt3 1, tt4 1, tt5 3, tt6 3}
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 schema HoldPos = literal : Ty {
 	entities
@@ -172,14 +172,14 @@ schema HoldPos = literal : Ty {
 		client : holding -> client
 		client : position -> client
 	attributes
-		no : client -> Integer	// new name
-		nm desc : client -> String	// new name
+		no : client -> Integer	# new name
+		nm desc : client -> String	# new name
 		id client_no portfolio_id asset_id quantity : holding -> Integer
 		purchase_date begin_date end_date : holding -> Date
 		purchase_price : holding -> Double
-		currency_code : holding -> String	// switched from _id to _code
-		id client_no asset_id quantity current_value cost_basis : position -> Integer	// new name
-		current_value_currency_code cost_basis_currency_code : position -> String	// switched from _id to _code
+		currency_code : holding -> String	# switched from _id to _code
+		id client_no asset_id quantity current_value cost_basis : position -> Integer	# new name
+		current_value_currency_code cost_basis_currency_code : position -> String	# switched from _id to _code
 	observation_equations
 		forall h:holding. h.client.no = h.client_no
 		forall p:position. p.client.no = p.client_no
@@ -212,7 +212,7 @@ instance HoldPosInstance = literal : HoldPos {
 		cost_basis_currency_code -> {hpp1 EUR, hpp2 JPY}
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 schema_colimit Colimit = quotient Client + Ref + Trans + Portfolio + HoldPos : Ty {
 	 entity_equations
@@ -248,7 +248,7 @@ instance HoldPosFwd = sigma (getMapping Colimit HoldPos) HoldPosInstance
 
 instance CoProd = coproduct ClientFwd + PortfolioFwd + RefFwd + TransFwd + HoldPosFwd : getSchema Colimit
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 instance E = quotient_query CoProd {
 	entity Client_client__HoldPos_client -> {
@@ -280,111 +280,111 @@ instance E = quotient_query CoProd {
 		quotient_use_chase = false
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 schema Target = literal : Ty {
 	entities
-		currency //Trans Ref
-		strategy //Portfolio Ref
-		asset //Trans Ref
-		transaction //Trans
-		client //HoldPos
-		position //HoldPos
-		country //Ref
-		portfolioholding //NEW
-		portfolio //Portfolio
-		holding //HoldPos
+		currency #Trans Ref
+		strategy #Portfolio Ref
+		asset #Trans Ref
+		transaction #Trans
+		client #HoldPos
+		position #HoldPos
+		country #Ref
+		portfolioholding #NEW
+		portfolio #Portfolio
+		holding #HoldPos
 
 	foreign_keys
-		portfolio_strategy : portfolio -> strategy //Portfolio
+		portfolio_strategy : portfolio -> strategy #Portfolio
 		parent : portfolio -> portfolio
 
-		position_client : position -> client //HoldPos
-		position_asset : position -> asset //NEW
-		position_current_value_currency : position -> currency //NEW
-		position_cost_basis_currency : position -> currency //NEW
+		position_client : position -> client #HoldPos
+		position_asset : position -> asset #NEW
+		position_current_value_currency : position -> currency #NEW
+		position_cost_basis_currency : position -> currency #NEW
 
-		asset_strategy : asset -> strategy //Ref
+		asset_strategy : asset -> strategy #Ref
 
-		currency_country : currency -> country //Ref
+		currency_country : currency -> country #Ref
 
-		transaction_currency : transaction -> currency //Trans
-		transaction_asset : transaction -> asset //Trans
-		transaction_portfolio : transaction -> portfolio //NEW
+		transaction_currency : transaction -> currency #Trans
+		transaction_asset : transaction -> asset #Trans
+		transaction_portfolio : transaction -> portfolio #NEW
 
-		holding_currency : holding -> currency //NEW
+		holding_currency : holding -> currency #NEW
 		holding_asset : holding -> asset
 
-		portfolioholding_holding : portfolioholding -> holding //NEW
-		portfolioholding_client : portfolioholding -> client //NEW
-		portfolioholding_portfolio : portfolioholding -> portfolio //NEW
+		portfolioholding_holding : portfolioholding -> holding #NEW
+		portfolioholding_client : portfolioholding -> client #NEW
+		portfolioholding_portfolio : portfolioholding -> portfolio #NEW
 
 	path_equations
 		portfolio.parent.parent = portfolio.parent
 
 	attributes
-		code : currency -> String //Trans Ref
-		name : currency -> String //Trans Ref
-		id : currency -> Integer //Ref
-		country_id : currency -> Integer //Ref
+		code : currency -> String #Trans Ref
+		name : currency -> String #Trans Ref
+		id : currency -> Integer #Ref
+		country_id : currency -> Integer #Ref
 
-		code : country -> String //Ref
-		name : country -> String //Ref
-		id : country -> Integer //Ref
+		code : country -> String #Ref
+		name : country -> String #Ref
+		id : country -> Integer #Ref
 
-		id : asset -> Integer //Trans Ref
-		description : asset -> String //Trans Ref
-		name : asset -> String //Trans Ref
-		strategy_id : asset -> Integer //Ref
+		id : asset -> Integer #Trans Ref
+		description : asset -> String #Trans Ref
+		name : asset -> String #Trans Ref
+		strategy_id : asset -> Integer #Ref
 
-		name : strategy -> String //Ref Portfolio
-		description : strategy -> String //Ref Portfolio
-		id : strategy -> Integer //Ref Portfolio
+		name : strategy -> String #Ref Portfolio
+		description : strategy -> String #Ref Portfolio
+		id : strategy -> Integer #Ref Portfolio
 
-		name : portfolio -> String //Portfolio
-		description : portfolio -> String //Portfolio
-		id : portfolio -> Integer //Portfolio
-		strategy_id : portfolio -> Integer //Portfolio
-		parent_portfolio_id : portfolio -> Integer	//Portfolio ADDED
+		name : portfolio -> String #Portfolio
+		description : portfolio -> String #Portfolio
+		id : portfolio -> Integer #Portfolio
+		strategy_id : portfolio -> Integer #Portfolio
+		parent_portfolio_id : portfolio -> Integer	#Portfolio ADDED
 
-		quantity : position -> Integer //HoldPos
-		current_value : position -> Integer //HoldPos
-		cost_basis : position -> Integer //HoldPos
-		id : position -> Integer //HoldPos
-		client_id : position -> Integer //HoldPos
-		asset_id : position -> Integer //HoldPos
-		current_value_currency_id : position -> Integer // HoldPos
-		cost_basis_currency_id : position -> Integer // HoldPos
+		quantity : position -> Integer #HoldPos
+		current_value : position -> Integer #HoldPos
+		cost_basis : position -> Integer #HoldPos
+		id : position -> Integer #HoldPos
+		client_id : position -> Integer #HoldPos
+		asset_id : position -> Integer #HoldPos
+		current_value_currency_id : position -> Integer # HoldPos
+		cost_basis_currency_id : position -> Integer # HoldPos
 
-		id : holding -> Integer //HoldPos
-		asset_id : holding -> Integer //HoldPos
-		currency_id : holding -> Integer //HoldPos
-		purchase_price : holding -> Double //HoldPos
-		quantity : holding -> Integer //HoldPos //HoldPos
-		purchase_date : holding -> Date //HoldPos
-		begin_date : holding -> Date //HoldPos new attribute
-		end_date : holding -> Date //HoldPos new attribute
+		id : holding -> Integer #HoldPos
+		asset_id : holding -> Integer #HoldPos
+		currency_id : holding -> Integer #HoldPos
+		purchase_price : holding -> Double #HoldPos
+		quantity : holding -> Integer #HoldPos #HoldPos
+		purchase_date : holding -> Date #HoldPos
+		begin_date : holding -> Date #HoldPos new attribute
+		end_date : holding -> Date #HoldPos new attribute
 
-		description : client -> String //HoldPos
-		name : client -> String //HoldPos
-		id : client -> Integer //HoldPos
+		description : client -> String #HoldPos
+		name : client -> String #HoldPos
+		id : client -> Integer #HoldPos
 
-		id : transaction -> Integer //Trans
-		asset_id : transaction -> Integer //Trans
-		buy_sell_ind : transaction -> Boolean //Trans
-		quantity : transaction -> Integer //Trans
-		price : transaction -> Double //Trans
-		currency_id : transaction -> Integer //Trans
-		portfolio_id : transaction -> Integer //Trans
-		date : transaction -> Date	//added as a new column
+		id : transaction -> Integer #Trans
+		asset_id : transaction -> Integer #Trans
+		buy_sell_ind : transaction -> Boolean #Trans
+		quantity : transaction -> Integer #Trans
+		price : transaction -> Double #Trans
+		currency_id : transaction -> Integer #Trans
+		portfolio_id : transaction -> Integer #Trans
+		date : transaction -> Date	#added as a new column
 
-		id : portfolioholding -> Integer //NEW todo: talk to Jee about this
-		holding_id : portfolioholding -> Integer //NEW
-		client_id : portfolioholding -> Integer //NEW
-		portfolio_id : portfolioholding -> Integer //NEW
+		id : portfolioholding -> Integer #NEW todo: talk to Jee about this
+		holding_id : portfolioholding -> Integer #NEW
+		client_id : portfolioholding -> Integer #NEW
+		portfolio_id : portfolioholding -> Integer #NEW
 
 	observation_equations
-		forall p. p.parent.id = p.parent_portfolio_id //added
+		forall p. p.parent.id = p.parent_portfolio_id #added
 		forall p. p.portfolio_strategy.id = p.strategy_id
 		forall a. a.asset_strategy.id = a.strategy_id
 		forall p. p.position_client.id = p.client_id
@@ -401,7 +401,7 @@ schema Target = literal : Ty {
 		forall p. p.position_cost_basis_currency.id = p.cost_basis_currency_id
 }
 
-////////////////////////////////////////////////////////////////////////
+####################################
 
 query ETL = literal : getSchema Colimit -> Target {
  entity currency -> {
@@ -472,7 +472,7 @@ entity	transaction -> {
 		foreign_keys
 			transaction_currency -> {c -> t.Trans_transaction_currency}
 			transaction_asset -> {a -> t.Trans_transaction_asset}
-			transaction_portfolio -> {p -> p} 	//NEW
+			transaction_portfolio -> {p -> p} 	#NEW
 	}
 
 entity	position -> {
@@ -493,22 +493,22 @@ entity	position -> {
 			cost_basis_currency_id -> cb.Ref_currency_id
  		foreign_keys
 		 	position_client -> {c -> p.HoldPos_position_client}
-			position_asset -> {a -> a}  //NEW
-			position_current_value_currency -> {c -> cv}  //NEW
-			position_cost_basis_currency -> {c -> cb}  //NEW
+			position_asset -> {a -> a}  #NEW
+			position_current_value_currency -> {c -> cv}  #NEW
+			position_cost_basis_currency -> {c -> cb}  #NEW
 	}
 
 	entity portfolio -> {
 		from
 			p:Portfolio_portfolio
 		attributes
-			parent_portfolio_id -> p.Portfolio_portfolio_parent_id //added
+			parent_portfolio_id -> p.Portfolio_portfolio_parent_id #added
 			name -> p.Portfolio_portfolio_name
 			description -> p.Portfolio_portfolio_description
 			id -> p.Portfolio_portfolio_id
 			strategy_id -> p.Portfolio_portfolio_strategy_id
 		foreign_keys
- 			parent -> {p -> p.Portfolio_portfolio_parent}  //added
+ 			parent -> {p -> p.Portfolio_portfolio_parent}  #added
 			portfolio_strategy -> {s -> p.Portfolio_portfolio_strategy}
 	}
 
@@ -543,7 +543,7 @@ entity	portfolioholding -> {
 			p.Portfolio_portfolio_client_id = h.HoldPos_holding_client.Client_client_id
 			h.HoldPos_holding_portfolio_id = p.Portfolio_portfolio_id
 		attributes
-			id -> keygen(h.HoldPos_holding_id, h.HoldPos_holding_client.Client_client_id, p.Portfolio_portfolio_id) //added by ryan
+			id -> keygen(h.HoldPos_holding_id, h.HoldPos_holding_client.Client_client_id, p.Portfolio_portfolio_id) #added by ryan
 			holding_id -> h.HoldPos_holding_id
 			client_id -> c1.Client_client_id
 			portfolio_id -> p.Portfolio_portfolio_id

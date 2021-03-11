@@ -23,56 +23,56 @@ import easik.ui.ApplicationFrame;
  * @version 2006-08-02 Kevin Green
  */
 public class DeleteFromOverviewFromTreeAction extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = -4161499877634434395L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = -4161499877634434395L;
 
-	/**  */
-	ApplicationFrame _theFrame;
+  /**  */
+  ApplicationFrame _theFrame;
 
-	/**
-	 * Sets up delete entity action
-	 *
-	 * @param inFrame
-	 * @param label
-	 */
-	public DeleteFromOverviewFromTreeAction(ApplicationFrame inFrame, String label) {
-		super(label);
+  /**
+   * Sets up delete entity action
+   *
+   * @param inFrame
+   * @param label
+   */
+  public DeleteFromOverviewFromTreeAction(ApplicationFrame inFrame, String label) {
+    super(label);
 
-		_theFrame = inFrame;
+    _theFrame = inFrame;
 
-		putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_D));
-		putValue(Action.SHORT_DESCRIPTION, "Deletes the currently selected entity");
-	}
+    putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_D));
+    putValue(Action.SHORT_DESCRIPTION, "Deletes the currently selected entity");
+  }
 
-	/**
-	 * Called when clicked upon, will delete entity.
-	 *
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// If there is nothing seleceted then just do nothing
-		if (_theFrame.getInfoTreeUI().getInfoTree().isSelectionEmpty()) {
-			return;
-		}
+  /**
+   * Called when clicked upon, will delete entity.
+   *
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    // If there is nothing seleceted then just do nothing
+    if (_theFrame.getInfoTreeUI().getInfoTree().isSelectionEmpty()) {
+      return;
+    }
 
-		int op = JOptionPane.showConfirmDialog(_theFrame, "Are you sure you want to delete the selected items?",
-				"Confirm Deletion", JOptionPane.YES_NO_OPTION);
+    int op = JOptionPane.showConfirmDialog(_theFrame, "Are you sure you want to delete the selected items?",
+        "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
-		if (op == JOptionPane.YES_OPTION) {
-			// Get currently selected object
-			DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
-					.getSelectionPath().getLastPathComponent();
+    if (op == JOptionPane.YES_OPTION) {
+      // Get currently selected object
+      DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+          .getSelectionPath().getLastPathComponent();
 
-			if (curSelected.getUserObject() instanceof SketchNode) {
-				_theFrame.getOverview().removeSketch((SketchNode) curSelected.getUserObject());
-				_theFrame.getOverview().setDirty(true);
-			} else {
-				_theFrame.getOverview().removeView((ViewNode) curSelected.getUserObject());
-				_theFrame.getOverview().setDirty(true);
-			}
-		}
-	}
+      if (curSelected.getUserObject() instanceof SketchNode) {
+        _theFrame.getOverview().removeSketch((SketchNode) curSelected.getUserObject());
+        _theFrame.getOverview().setDirty(true);
+      } else {
+        _theFrame.getOverview().removeView((ViewNode) curSelected.getUserObject());
+        _theFrame.getOverview().setDirty(true);
+      }
+    }
+  }
 }

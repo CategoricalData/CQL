@@ -16,6 +16,7 @@ import catdata.Chc;
 import catdata.Pair;
 import catdata.RuntimeInterruptedException;
 import catdata.Triple;
+import catdata.Unit;
 import catdata.Util;
 import catdata.aql.Algebra;
 import catdata.aql.AqlOptions;
@@ -26,273 +27,285 @@ import catdata.aql.DP;
 import catdata.aql.Eq;
 import catdata.aql.Schema;
 import catdata.aql.Term;
-import catdata.aql.Var;
+
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class SlowInitialAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X> extends
-		Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Chc<Sk, Pair<X, Att>>> implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> { // is
-					
-	@Override
-	public boolean hasNulls() {
-		return talg().sks.isEmpty();
-	}
-	
-	// DP
-	@Override
-	public Object printX(En en, X x) {
-		return repr(en, x).toString(Util.voidFn(), printGen);
-	}
+    Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Chc<Sk, Pair<X, Att>>> implements DP<Ty, En, Sym, Fk, Att, Gen, Sk> { // is
 
-	@Override
-	public Object printY(Ty ty, Chc<Sk, Pair<X, Att>> y) {
-		return y.left ? printSk.apply(y.l) : printX(schema.atts.get(y.r.second).first, y.r.first) + "." + y.r.second;
-	}
+  @Override
+  public boolean hasNulls() {
+    return talg().sks.isEmpty();
+  }
 
-	private final DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp; // may just be on entity side, if java
+  // DP
+  @Override
+  public Object printX(En en, X x) {
+    return repr(en, x).toString(Util.voidFn(), printGen);
+  }
 
-	private final Map<En, Set<X>> ens;
-	private final Map<X, Map<Fk, X>> fks = new THashMap<>();
-	private final Map<X, Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = new THashMap<>();
-	private final Map<Term<Void, En, Void, Fk, Void, Gen, Void>, X> nfs = new THashMap<>();
+  @Override
+  public Object printY(Ty ty, Chc<Sk, Pair<X, Att>> y) {
+    return y.left ? printSk.apply(y.l) : printX(schema.atts.get(y.r.second).first, y.r.first) + "." + y.r.second;
+  }
 
-	private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
-	private final Schema<Ty, En, Sym, Fk, Att> schema;
-	private final Iterator<X> fresh;
+  private DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp; // may just be on entity side, if java
+  private final Function<Unit, DP<Ty, En, Sym, Fk, Att, Gen, Sk>> ddp;
 
-	private final Function<Gen, String> printGen;
-	private final Function<Sk, String> printSk;
-	
-	private AqlOptions ops;
+  private final Map<En, Set<X>> ens;
+  private final Map<X, Map<Fk, X>> fks = new THashMap<>();
+  private final Map<X, Term<Void, En, Void, Fk, Void, Gen, Void>> reprs = new THashMap<>();
+  private final Map<Term<Void, En, Void, Fk, Void, Gen, Void>, X> nfs = new THashMap<>();
 
+  private final Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
+  private final Schema<Ty, En, Sym, Fk, Att> schema;
+  private final Iterator<X> fresh;
 
-	private final Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqsIt;
-	
-	public SlowInitialAlgebra(DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp, Schema<Ty, En, Sym, Fk, Att> schema,
-			Map<Gen, En> gens, Map<Sk, Ty> sks,
-			Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs,
-			Iterator<X> fresh, Function<Gen, String> printGen,
-			Function<Sk, String> printSk, AqlOptions ops) {
-		ens = Util.newSetsFor(schema.ens);
-		this.schema = schema;
-		this.fresh = fresh;
-		this.printGen = printGen;
-		this.printSk = printSk;
-		this.ops = ops;
-		this.col = new CCollage<>(schema.collage());
-		this.eqsIt = eqs;
-		gens.forEach((kk,vv)->{
-			this.col.gens().put(kk, vv);
-		});
-		sks.forEach((kk,vv)->{
-			this.col.sks().put(kk, vv);
-		});
-		eqs.forEach(p->{
-			this.col.eqs().add(new Eq<>(null,p.first,p.second));			
-		});
-		
-		
-		this.dp = dp;
-		try {
-			while (saturate1())
-				;
-		} catch (InterruptedException exn) {
-			throw new RuntimeInterruptedException(exn);
-		}
+  private final Function<Gen, String> printGen;
+  private final Function<Sk, String> printSk;
 
-	}
+  private AqlOptions ops;
 
-	private synchronized boolean add(Term<Void, En, Void, Fk, Void, Gen, Void> term) throws InterruptedException {
-		if (Thread.currentThread().isInterrupted()) {
-			throw new InterruptedException();
-		}
+  private final Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqsIt;
 
-		X x = nf0(term);
-		if (x != null) {
-			return false;
-		}
+  public SlowInitialAlgebra(Function<Unit, DP<Ty, En, Sym, Fk, Att, Gen, Sk>> dp, Schema<Ty, En, Sym, Fk, Att> schema,
+      Map<Gen, En> gens, Map<Sk, Ty> sks,
+      Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs,
+      Iterator<X> fresh, Function<Gen, String> printGen, Function<Sk, String> printSk, AqlOptions ops) {
+    ens = Util.newSetsFor(schema.ens);
+    this.schema = schema;
+    this.fresh = fresh;
+    this.printGen = printGen;
+    this.printSk = printSk;
+    this.ops = ops;
+    this.col = new CCollage<>(schema.collage());
+    this.eqsIt = eqs;
+    this.ddp = dp;
+    gens.forEach((kk, vv) -> {
+      this.col.gens().put(kk, vv);
+    });
+    sks.forEach((kk, vv) -> {
+      this.col.sks().put(kk, vv);
+    });
+    eqs.forEach(p -> {
+      this.col.eqs().add(new Eq<>(null, p.first, p.second));
+    });
 
-		x = fresh.next();
+  }
 
-		nfs.put(term, x);
-		ens.get(col.type(Collections.emptyMap(), term.convert()).r).add(x);
-		reprs.put(x, term);
+  private void initDp() {
+    if (dp != null) {
+      return;
+    }
+    this.dp = ddp.apply(Unit.unit);
+    try {
+      while (saturate1())
+        ;
+    } catch (InterruptedException exn) {
+      throw new RuntimeInterruptedException(exn);
+    }
+  }
 
-		Map<Fk, X> map = (new THashMap<>());
-		for (Fk fk : schema().fks.keySet()) {
-			if (!col.type(Collections.emptyMap(), term.convert()).r.equals(schema().fks.get(fk).first)) {
-				continue;
-			}
-			add(Term.Fk(fk, term));
-			map.put(fk, nf0(Term.Fk(fk, term)));
-		}
-		fks.put(x, map);
+  private synchronized boolean add(Term<Void, En, Void, Fk, Void, Gen, Void> term) throws InterruptedException {
+    if (Thread.currentThread().isInterrupted()) {
+      throw new InterruptedException();
+    }
 
-		return true;
-	}
+    X x = nf0(term);
+    if (x != null) {
+      return false;
+    }
 
-	@SuppressWarnings("unchecked")
-	private synchronized boolean saturate1() throws InterruptedException {
-		boolean changed = false;
-		for (Gen gen : col.gens().keySet()) {
-			@SuppressWarnings("rawtypes")
-			Term xx = Term.Gen(gen);
-			if (col.type(Collections.emptyMap(), xx).left) {
-				continue;
-			}
-			changed = changed | add(xx);
-		}
-		for (Fk fk : col.fks().keySet()) {
-			En en = col.fks().get(fk).first;
-			List<X> set = (new ArrayList<>(ens.get(schema().fks.get(fk).first)));
-			for (X x : set) { // concurrent modification otherwise
-				changed = changed | add(Term.Fk(fk, repr(en, x)));
-			}
-		}
+    x = fresh.next();
 
-		return changed;
-	}
+    nfs.put(term, x);
+    ens.get(col.type(Collections.emptyMap(), term.convert()).r).add(x);
+    reprs.put(x, term);
 
-	@Override
-	public Schema<Ty, En, Sym, Fk, Att> schema() {
-		return schema;
-	}
+    Map<Fk, X> map = (new THashMap<>());
+    for (Fk fk : schema().fks.keySet()) {
+      if (!col.type(Collections.emptyMap(), term.convert()).r.equals(schema().fks.get(fk).first)) {
+        continue;
+      }
+      add(Term.Fk(fk, term));
+      map.put(fk, nf0(Term.Fk(fk, term)));
+    }
+    fks.put(x, map);
 
-	@Override
-	public Collection<X> en(En en) {
-		return ens.get(en);
-	}
+    return true;
+  }
 
-	@Override
-	public X fk(Fk fk, X x) {
-		X r = fks.get(x).get(fk);
-		if (r == null) {
-			throw new RuntimeException("Anomaly, please report: foreign key " + fk + " on ID (" + x
-					+ ") has no mapping; available: " + fks.get(x));
-		}
-		return r;
-	}
+  @SuppressWarnings("unchecked")
+  private synchronized boolean saturate1() throws InterruptedException {
+    boolean changed = false;
+    for (Gen gen : col.gens().keySet()) {
+      @SuppressWarnings("rawtypes")
+      Term xx = Term.Gen(gen);
+      if (col.type(Collections.emptyMap(), xx).left) {
+        continue;
+      }
+      changed = changed | add(xx);
+    }
+    for (Fk fk : col.fks().keySet()) {
+      En en = col.fks().get(fk).first;
+      List<X> set = (new ArrayList<>(ens.get(schema().fks.get(fk).first)));
+      for (X x : set) { // concurrent modification otherwise
+        changed = changed | add(Term.Fk(fk, repr(en, x)));
+      }
+    }
 
-	@Override
-	public Term<Void, En, Void, Fk, Void, Gen, Void> repr(En en, X x) {
-		Term<Void, En, Void, Fk, Void, Gen, Void> ret = reprs.get(x);
-		return ret;
-	}
+    return changed;
+  }
 
-	private synchronized X nf0(Term<Void, En, Void, Fk, Void, Gen, Void> term) {
-		X xx = nfs.get(term);
-		if (xx != null) {
-			return xx;
-		}
-		En en = col.type(Collections.emptyMap(), term.convert()).r;
-		for (X x : ens.get(en)) {
-			if (dp.eq(null, term.convert(), repr(en, x).convert())) {
-				nfs.put(term, x);
-				return x;
-			}
-		}
-		return null;
-	}
+  @Override
+  public Schema<Ty, En, Sym, Fk, Att> schema() {
+    return schema;
+  }
 
-	@Override
-	public X gen(Gen gen) {
-		X x = nf0(Term.Gen(gen));
-		if (x == null) {
-			throw new RuntimeException("Anomaly: please report");
-		}
-		return x;
-	}
+  @Override
+  public Collection<X> en(En en) {
+    initDp();
+    return ens.get(en);
+  }
 
-	@Override
-	public boolean eq(Map<Var, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
-		if (ctx != null && !ctx.isEmpty()) {
-			Util.anomaly();
-		}
+  @Override
+  public X fk(Fk fk, X x) {
+    initDp();
+    X r = fks.get(x).get(fk);
+    if (r == null) {
+      throw new RuntimeException("Anomaly, please report: foreign key " + fk + " on ID (" + x
+          + ") has no mapping; available: " + fks.get(x));
+    }
+    return r;
+  }
 
-		return dp.eq(null, lhs, rhs);
-	}
+  @Override
+  public Term<Void, En, Void, Fk, Void, Gen, Void> repr(En en, X x) {
+    initDp();
+    Term<Void, En, Void, Fk, Void, Gen, Void> ret = reprs.get(x);
+    return ret;
+  }
 
-	@Override
-	public synchronized TAlg<Ty, Sym, Chc<Sk, Pair<X, Att>>> talg0() {
-		if (talg != null) {
-			return talg.talg.out;
-		}
-		talg = new TalgSimplifier<>(this, eqsIt.iterator(), col.sks(), (Integer) ops.getOrDefault(AqlOption.talg_reduction));
-		return talg.talg.out;
-	}
+  private synchronized X nf0(Term<Void, En, Void, Fk, Void, Gen, Void> term) {
+    X xx = nfs.get(term);
+    if (xx != null) {
+      return xx;
+    }
+    En en = col.type(Collections.emptyMap(), term.convert()).r;
+    for (X x : ens.get(en)) {
+      if (dp.eq(null, term.convert(), repr(en, x).convert())) {
+        nfs.put(term, x);
+        return x;
+      }
+    }
+    return null;
+  }
 
-	
-	/*private Iterable<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqsIt() {
-		return new Iterable<>() {
-			@Override
-			public Iterator<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> iterator() {
-				return Iterators.transform(col.eqs().iterator(), x->new Pair<>(x.lhs,x.rhs));
-			}
-		};
-	}*/
-	
-	@Override
-	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> att(Att att, X x) {
-		return reprT0(Chc.inRight(new Pair<>(x, att)));
-	}
+  @Override
+  public X gen(Gen gen) {
+    initDp();
+    X x = nf0(Term.Gen(gen));
+    if (x == null) {
+      throw new RuntimeException("Anomaly: please report");
+    }
+    return x;
+  }
 
-	private Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> reprT0(Chc<Sk, Pair<X, Att>> y) {
-		talg();
-		return schema().typeSide.js.java_tys.isEmpty() ? talg.simpl(Term.Sk(y))
-				: schema.typeSide.js.reduce(talg.simpl(Term.Sk(y)));
-	}
+  @Override
+  public boolean eq(Map<String, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
+      Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
+    if (ctx != null && !ctx.isEmpty()) {
+      Util.anomaly();
+    }
+    initDp();
 
-	private TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Chc<Sk, Pair<X, Att>>> talg;
+    return dp.eq(null, lhs, rhs);
+  }
 
-	Boolean b;
+  @Override
+  public synchronized TAlg<Ty, Sym, Chc<Sk, Pair<X, Att>>> talg0() {
+    if (talg != null) {
+      return talg.talg.out;
+    }
+    initDp();
+    talg = new TalgSimplifier<>(this, eqsIt.iterator(), col.sks(),
+        (Integer) ops.getOrDefault(AqlOption.talg_reduction));
+    return talg.talg.out;
+  }
 
-	public synchronized boolean hasFreeTypeAlgebra() {
-		if (b != null) {
-			return b;
-		}
-		talg();
-		Set<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> l = (new THashSet<>(
-				schema().typeSide.eqs.size()));
-		for (Triple<Map<Var, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : schema().typeSide.eqs) {
-			l.add(new Eq<>(Util.inLeft(eq.first), talg.transX(eq.second.convert()), talg.transX(eq.third.convert())));
-		}
-		b = Util.diff(talg().eqsNoDefns(), l).isEmpty();
-		return b;
-	}
+  @Override
+  public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> att(Att att, X x) {
+    initDp();
+    return reprT0(Chc.inRight(new Pair<>(x, att)));
+  }
 
-	public boolean hasFreeTypeAlgebraOnJava() {
-		return talg().eqsNoDefns().stream().filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema.typeSide, x.first)))
-				.collect(Collectors.toList()).isEmpty();
-	}
+  private Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> reprT0(Chc<Sk, Pair<X, Att>> y) {
+    talg();
+    return schema().typeSide.js.java_tys.isEmpty() ? talg.simpl(Term.Sk(y))
+        : schema.typeSide.js.reduce(talg.simpl(Term.Sk(y)));
+  }
 
-	@Override
-	public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> sk(Sk sk) {
-		return reprT0(Chc.inLeft(sk));
-	}
+  private TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Chc<Sk, Pair<X, Att>>> talg;
 
-	@Override
-	public String toStringProver() {
-		return dp.toStringProver();
-	}
+  Boolean b;
 
-//	@Override
-	public DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
-		return this;
-	}
+  @Override
+  public synchronized boolean hasFreeTypeAlgebra() {
+    if (col.eqs().size() == 0) {
+      return true;
+    }
+    if (b != null) {
+      return b;
+    }
+    initDp();
+    talg();
+    Set<Eq<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>>> l = (new THashSet<>(
+        schema().typeSide.eqs.size()));
+    for (Triple<Map<String, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>> eq : schema().typeSide.eqs) {
+      l.add(new Eq<>(Util.inLeft(eq.first), talg.transX(eq.second.convert()), talg.transX(eq.third.convert())));
+    }
+    b = Util.diff(talg().eqsNoDefns(), l).isEmpty();
+    return b;
+  }
 
-	public String talgToString() {
-		return talg.talg.toString();
-	}
+  public boolean hasFreeTypeAlgebraOnJava() {
+    if (col.eqs().size() == 0) {
+      return true;
+    }
+    return talg().eqsNoDefns().stream()
+        .filter(x -> schema().typeSide.js.java_tys.containsKey(talg().type(schema.typeSide, x.first)))
+        .collect(Collectors.toList()).isEmpty();
+  }
 
-	@Override
-	public int size(En en) {
-		return ens.get(en).size();
-	}
+  @Override
+  public Term<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> sk(Sk sk) {
+    return reprT0(Chc.inLeft(sk));
+  }
 
-	@Override
-	public Chc<Sk, Pair<X, Att>> reprT_prot(Chc<Sk, Pair<X, Att>> y) {
-		return y;
-	}
+  @Override
+  public String toStringProver() {
+    initDp();
+    return dp.toStringProver();
+  }
+
+//  @Override
+  public DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
+    return this;
+  }
+
+  public String talgToString() {
+    return talg.talg.toString();
+  }
+
+  @Override
+  public int size(En en) {
+    return ens.get(en).size();
+  }
+
+  @Override
+  public Chc<Sk, Pair<X, Att>> reprT_prot(Chc<Sk, Pair<X, Att>> y) {
+    return y;
+  }
 
 }

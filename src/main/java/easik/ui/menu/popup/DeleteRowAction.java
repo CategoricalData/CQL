@@ -20,62 +20,62 @@ import easik.ui.datamanip.UpdateMonitor;
  * Action used by the delete row popup menu item.
  */
 public class DeleteRowAction extends AbstractAction {
-	private static final long serialVersionUID = -9207665018959919191L;
+  private static final long serialVersionUID = -9207665018959919191L;
 
-	/** The sketch in which the table from which we are deleting exists. */
-	private Sketch _theSketch;
+  /** The sketch in which the table from which we are deleting exists. */
+  private Sketch _theSketch;
 
-	/**
-	 *
-	 *
-	 * @param inSketch
-	 */
-	public DeleteRowAction(Sketch inSketch) {
-		super("Delete row(s) from table...");
+  /**
+   *
+   *
+   * @param inSketch
+   */
+  public DeleteRowAction(Sketch inSketch) {
+    super("Delete row(s) from table...");
 
-		_theSketch = inSketch;
+    _theSketch = inSketch;
 
-		putValue(Action.SHORT_DESCRIPTION, "Display data in table to select and remove");
-	}
+    putValue(Action.SHORT_DESCRIPTION, "Display data in table to select and remove");
+  }
 
-	/**
-	 * Create the new entity and set up its name
-	 * 
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object[] currentSelection = _theSketch.getSelectionCells();
-		Object selected = currentSelection[0];
+  /**
+   * Create the new entity and set up its name
+   * 
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    Object[] currentSelection = _theSketch.getSelectionCells();
+    Object selected = currentSelection[0];
 
-		if (!(selected instanceof EntityNode)) {
-			System.err.println("Action only available on entity nodes: easik.ui.menu.popup.DeleteRowAction");
+    if (!(selected instanceof EntityNode)) {
+      System.err.println("Action only available on entity nodes: easik.ui.menu.popup.DeleteRowAction");
 
-			return;
-		}
+      return;
+    }
 
-		EntityNode table = (EntityNode) selected;
-		ArrayList<String> domains = new ArrayList<>();
+    EntityNode table = (EntityNode) selected;
+    ArrayList<String> domains = new ArrayList<>();
 
-		// warn user about possible cascades
-		for (SketchEdge sk : _theSketch.getEdges().values()) {
-			if (sk.getTargetEntity().getName().equals(table.getName()) && sk.getCascading() == Cascade.CASCADE) {
-				domains.add(sk.getSourceEntity().getName());
-			}
-		}
+    // warn user about possible cascades
+    for (SketchEdge sk : _theSketch.getEdges().values()) {
+      if (sk.getTargetEntity().getName().equals(table.getName()) && sk.getCascading() == Cascade.CASCADE) {
+        domains.add(sk.getSourceEntity().getName());
+      }
+    }
 
-		if (domains.size() > 0) {
-			if (JOptionPane.showConfirmDialog(_theSketch,
-					"Warning: Rows in this table may have foreign rows in " + domains.toString()
-							+ " which will be deleted on cascade",
-					"Warning", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
-				return;
-			}
-		}
+    if (domains.size() > 0) {
+      if (JOptionPane.showConfirmDialog(_theSketch,
+          "Warning: Rows in this table may have foreign rows in " + domains.toString()
+              + " which will be deleted on cascade",
+          "Warning", JOptionPane.OK_CANCEL_OPTION,
+          JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+        return;
+      }
+    }
 
-		UpdateMonitor um = _theSketch.getDatabase().newUpdateMonitor();
+    UpdateMonitor um = _theSketch.getDatabase().newUpdateMonitor();
 
-		um.deleteFrom(table);
-	}
+    um.deleteFrom(table);
+  }
 }

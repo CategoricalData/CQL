@@ -1,24 +1,23 @@
-/*
-Problem 3: Given this source table
+#Problem 3: Given this source table
+#
+#create table DeptEmp(deptId int not null, mgrName varchar(32), empId int not null)
+#
+#Populate these target tables
+#
+#create table Dept(deptId int not null, mgrId int not null, mgrName varchar(32))
+#
+#create table Emp(empId int not null, wrksIn int not null)
+#
+#Such that
+#
+#1) If (d,m,n) is in Dept, then (m,d) is in Emp
+#2) If (e,d) is in Emp, then (d,M,N) is in Dept for some M and N
+#3) If (d,n,e) is in DeptEmp, then (e,d) is in Emp and (d,M,n) is in Dept for some M
+#
+#Example input data:
+#
+#insert into DeptEmp(0, Alice, 1);
 
-create table DeptEmp(deptId int not null, mgrName varchar(32), empId int not null)
-
-Populate these target tables
-
-create table Dept(deptId int not null, mgrId int not null, mgrName varchar(32))
-
-create table Emp(empId int not null, wrksIn int not null)
-
-Such that
-
-1) If (d,m,n) is in Dept, then (m,d) is in Emp
-2) If (e,d) is in Emp, then (d,M,N) is in Dept for some M and N
-3) If (d,n,e) is in DeptEmp, then (e,d) is in Emp and (d,M,n) is in Dept for some M
-
-Example input data:
-
-insert into DeptEmp(0, Alice, 1);
-*/
 
 typeside Ty = literal {
 	external_types
@@ -27,7 +26,7 @@ typeside Ty = literal {
 		dom -> "x => x"
 }
 
-//////////////////////////////////////////////////////////////////////////
+############################################################################
 
 schema S = literal : Ty {
 	entities
@@ -54,30 +53,30 @@ schema ST = literal : Ty {
 		S T
 }
 
-//all EDs are expressed on the combined schema ST.
+#all EDs are expressed on the combined schema ST.
 constraints theEDs = literal : ST {
-	//managers work in the departments they manage (stronger than FK)
-	//Dept(d,m,n) -> Emp(m,d)
+	#managers work in the departments they manage (stronger than FK)
+	#Dept(d,m,n) -> Emp(m,d)
 	forall d:TDept ->
  	exists e:TEmp
  	where d.TdeptId = e.TwrksIn  d.TmgrId = e.TempId
 
-	//every employee works in some department (FK)
-	//Emp(e,d) -> exists M,N. Dept(d,M,N)
+	#every employee works in some department (FK)
+	#Emp(e,d) -> exists M,N. Dept(d,M,N)
  	forall e:TEmp ->
 	exists d:TDept
  	where d.TdeptId = e.TwrksIn
 
-	//every DeptEmp is a department and an employee
-	//DeptEmp(d,n,e) -> exists M. Dept(d, M, n) , Emp(e, d)
+	#every DeptEmp is a department and an employee
+	#DeptEmp(d,n,e) -> exists M. Dept(d, M, n) , Emp(e, d)
 	forall de:SDeptEmp ->
 	exists d:TDept e:TEmp
  	where de.SdeptId = d.TdeptId d.TdeptId = e.TwrksIn de.SdeptId = d.TdeptId de.SempId = e.TempId
 }
 
-/////////////////////////////////////////////////////////////////////////
+####################################/
 
-//test instance (on ST) DeptEmp(cs, alice, 1)
+#test instance (on ST) DeptEmp(cs, alice, 1)
 instance I = literal : ST {
 	generators
 		de:SDeptEmp
@@ -87,6 +86,22 @@ instance I = literal : ST {
 
 instance J = chase theEDs I
 
-command JisOk1 = check theEDs J //verify the chased instance satisfies the EDs
+command JisOk1 = check theEDs J #verify the chased instance satisfies the EDs
 
-//command InotOk = check theEDs I //the input instance does not satisfy the EDs
+#command InotOk = check theEDs I #the input instance does not satisfy the EDs
+
+
+################################################################################
+
+schema s = front theEDs 2
+
+query Q1 = front theEDs 2
+query Q2 = back theEDs 2
+
+instance J1 = eval Q1 J
+instance J2 = eval Q2 J
+instance j1 = except J1 J2 #no difference after chasing
+
+instance I1 = eval Q1 I
+instance I2 = eval Q2 I
+instance i1 = except I1 I2 #was different originally 

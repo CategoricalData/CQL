@@ -70,21 +70,17 @@ import catdata.aql.SemanticsVisitor;
 import catdata.aql.Term;
 import catdata.aql.Transform;
 import catdata.aql.TypeSide;
-import catdata.aql.Var;
 import catdata.aql.exp.AqlEnv;
 import catdata.aql.exp.AqlParserFactory;
 import catdata.aql.exp.Att;
-import catdata.aql.exp.En;
 import catdata.aql.exp.Exp;
 import catdata.aql.exp.Fk;
-import catdata.aql.exp.Gen;
 import catdata.aql.exp.RawTerm;
-import catdata.aql.exp.Sk;
 import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
 import catdata.graph.DMG;
 import catdata.ide.CodeTextPanel;
 import catdata.ide.GuiUtil;
+import catdata.ide.ProgressPanel;
 import catdata.ide.Split;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -118,19 +114,18 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	public static JComponent view(String k, Semantics s, int maxrows, Exp<?> exp, AqlEnv env, boolean showAtts) {
 		JTabbedPane ret = new JTabbedPane();
 
-		
 		String l = "Compute time: " + env.performance.get(k) + " s.\n\nSize: " + s.size();
-		if (s.size() < 1024 ) {
+		if (s.size() < 1024) {
 			new AqlViewer(maxrows, env, showAtts).visit(k, ret, s);
 			ret.addTab("Text", new CodeTextPanel("", s.toString()));
 		} else {
-//			ret.addTab("Text", new CodeTextPanel("", "Suppressed, size " + s.size() + "."));
-			ret.addTab("Text", new CodeTextPanel("", s.toString()));
+			JButton b = new JButton("Show text");
+			ProgressPanel pp = new ProgressPanel(b, b, x -> new CodeTextPanel("", s.toString()));
+			ret.addTab("Text", pp);
 			new AqlViewer(maxrows, env, showAtts).visit(k, ret, s);
 		}
 
 		ret.addTab("Expression", new CodeTextPanel("", l + "\n\n" + exp.toString()));
-		// System.out.println(exp.getClass() + " " + env.performance.get(k));
 		return ret;
 	}
 
@@ -184,23 +179,21 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		pan.add(f);
 		pan.add(b);
 		p.add(pan);
-		b.addActionListener(x -> {
+
+		return new ProgressPanel(pan, b, x -> {
 			String s = f.getText();
 			try {
 				Integer i = Integer.parseInt(s);
 				if (i < 0) {
-					return;
+					return new JLabel(s + " is negative.");
 				}
-				p.remove(pan);
-				p.add(viewCayley2(schema, i));
-				p.revalidate();
-				p.repaint();
+				return viewCayley2(schema, i);
 
 			} catch (Exception e) {
-
+				return new JLabel(s + " is not an integer.");
 			}
 		});
-		return p;
+
 	}
 
 	private <Ty, En, Sym, Fk, Att> JComponent viewCayley2(TypeSide<Ty, Sym> t) {
@@ -285,19 +278,17 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		}
 
 		// Layout<Chc<Ty, En>, Chc<Fk, Att>> layout = new KKLayout<>(sgv);
-		Layout<Term<Ty, Void, Sym, Void, Void, Void, Void>, Quad<Integer, Integer, Integer, Sym>> layout = new FRLayout<>(
-				sgv);
+		Layout<Term<Ty, Void, Sym, Void, Void, Void, Void>, Quad<Integer, Integer, Integer, Sym>> layout = new FRLayout<>(sgv);
 
 		layout.setSize(new Dimension(600, 400));
 		VisualizationViewer<Term<Ty, Void, Sym, Void, Void, Void, Void>, Quad<Integer, Integer, Integer, Sym>> vv = new VisualizationViewer<>(
 				layout);
-		DefaultModalGraphMouse<Triple<En, En, List<Fk>>, Pair<Integer, Fk>> gm = new DefaultModalGraphMouse<>();
+		DefaultModalGraphMouse<Triple<String, String, List<Fk>>, Pair<Integer, Fk>> gm = new DefaultModalGraphMouse<>();
 		gm.setMode(Mode.TRANSFORMING);
 		vv.setGraphMouse(gm);
 		gm.setMode(Mode.PICKING);
 
-		Function<Quad<Integer, Integer, Integer, Sym>, String> et = x -> x.fourth.toString() + "_" + x.third + "^"
-				+ x.second;
+		Function<Quad<Integer, Integer, Integer, Sym>, String> et = x -> x.fourth.toString() + "_" + x.third + "^" + x.second;
 		Function<Term<Ty, Void, Sym, Void, Void, Void, Void>, String> vt = x -> x.toString();
 
 		vv.getRenderContext().setEdgeLabelTransformer(et);
@@ -348,7 +339,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			List<Triple<En, En, List<Fk>>> add = new LinkedList<>();
 
 			for (Triple<En, En, List<Fk>> current : sgv2.getVertices()) {
-				outer: for (Fk fk : schema.fksFrom(current.second)) {
+				for (Fk fk : schema.fksFrom(current.second)) {
 
 					List<Fk> l = new LinkedList<>(current.third);
 					l.add(fk);
@@ -373,12 +364,12 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				if (!y.first.equals(x.first) || !y.second.equals(x.second)) {
 					continue;
 				}
-				Map<Var, Chc<Ty, En>> ctx = Collections.singletonMap(Var.Var(x.first.toString()), Chc.inRight(x.first));
-				Term<Ty, En, Sym, Fk, Att, Void, Void> t = Term.Fks(x.third, Term.Var(Var.Var(x.first.toString())));
-				Term<Ty, En, Sym, Fk, Att, Void, Void> s = Term.Fks(y.third, Term.Var(Var.Var(y.first.toString())));
+				Map<String, Chc<Ty, En>> ctx = Collections.singletonMap((x.first.toString()), Chc.inRight(x.first));
+				Term<Ty, En, Sym, Fk, Att, Void, Void> t = Term.Fks(x.third, Term.Var((x.first.toString())));
+				Term<Ty, En, Sym, Fk, Att, Void, Void> s = Term.Fks(y.third, Term.Var((y.first.toString())));
 
 				boolean b = schema.dp.eq(ctx, t, s);
-				System.out.println(t + " vs " + s + " = " + b);
+
 				if (b) {
 					continue outer;
 				}
@@ -400,10 +391,9 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 					}
 					List<Fk> l = new LinkedList<>(y.third);
 					l.add(fk);
-					Map<Var, Chc<Ty, En>> ctx = Collections.singletonMap(Var.Var(x.first.toString()),
-							Chc.inRight(x.first));
-					Term<Ty, En, Sym, Fk, Att, Void, Void> t = Term.Fks(x.third, Term.Var(Var.Var(x.first.toString())));
-					Term<Ty, En, Sym, Fk, Att, Void, Void> s = Term.Fks(l, Term.Var(Var.Var(y.first.toString())));
+					Map<String, Chc<Ty, En>> ctx = Collections.singletonMap((x.first.toString()), Chc.inRight(x.first));
+					Term<Ty, En, Sym, Fk, Att, Void, Void> t = Term.Fks(x.third, Term.Var((x.first.toString())));
+					Term<Ty, En, Sym, Fk, Att, Void, Void> s = Term.Fks(l, Term.Var((y.first.toString())));
 					if (schema.dp.eq(ctx, t, s)) {
 						sgv.addEdge(new Pair<>(temp++, fk), y, x);
 					}
@@ -481,8 +471,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				}
 			}
 			for (Att att : schema.atts.keySet()) {
-				sgv.addEdge(Chc.inRight(att), Chc.inRight(schema.atts.get(att).first),
-						Chc.inLeft(schema.atts.get(att).second));
+				sgv.addEdge(Chc.inRight(att), Chc.inRight(schema.atts.get(att).first), Chc.inLeft(schema.atts.get(att).second));
 				i++;
 				if (i >= maxrows * maxrows) {
 					triggered = true;
@@ -584,43 +573,37 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		 * Fk1, Att1, En2, Fk2, Att2> Ty(Ty ty) { Node<Ty, En1, Sym, Fk1, Att1, En2,
 		 * Fk2, Att2> n = new Node<>(); n.ty = ty; return n; }
 		 */
-		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> En1(
-				En1 en1) {
+		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> En1(En1 en1) {
 			Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> n = new Node<>();
 			n.en1 = en1;
 			return n;
 		}
 
-		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> En2(
-				En2 en2) {
+		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> En2(En2 en2) {
 			Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> n = new Node<>();
 			n.en2 = en2;
 			return n;
 		}
 
-		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Att1(
-				Att1 att1) {
+		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Att1(Att1 att1) {
 			Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> n = new Node<>();
 			n.att1 = att1;
 			return n;
 		}
 
-		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Att2(
-				Att2 att2) {
+		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Att2(Att2 att2) {
 			Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> n = new Node<>();
 			n.att2 = att2;
 			return n;
 		}
 
-		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Fk1(
-				Fk1 fk1) {
+		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Fk1(Fk1 fk1) {
 			Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> n = new Node<>();
 			n.fk1 = fk1;
 			return n;
 		}
 
-		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Fk2(
-				Fk2 fk2) {
+		public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Fk2(Fk2 fk2) {
 			Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> n = new Node<>();
 			n.fk2 = fk2;
 			return n;
@@ -766,7 +749,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		}
 		if (showAtts) {
 			for (Att1 att1 : M.src.atts.keySet()) {
-				Triple<Var, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> l = M.atts.get(att1);
+				Triple<String, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> l = M.atts.get(att1);
 				sgv.addEdge(Chc.inLeft(i++), Node.En1(M.src.atts.get(att1).first), Node.Att1(att1));
 				// sgv.addEdge(Chc.inLeft(i++), Node.Att1(att1),
 				// Node.Ty(M.src.atts.get(att1).second));
@@ -808,7 +791,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		VisualizationViewer<Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>, Chc<Integer, Integer>> vv = new VisualizationViewer<>(
 				layout);
 		Function<Node<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>, Paint> vertexPaint = x -> x.color();
-		DefaultModalGraphMouse<Chc<Ty, En>, Chc<Fk, Att>> gm = new DefaultModalGraphMouse<>();
+		DefaultModalGraphMouse<Chc<Ty, String>, Chc<Fk, Att>> gm = new DefaultModalGraphMouse<>();
 		gm.setMode(Mode.TRANSFORMING);
 		vv.setGraphMouse(gm);
 		gm.setMode(Mode.PICKING);
@@ -817,8 +800,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		// vv.getRenderContext().setVert
 		vv.getRenderContext().setEdgeStrokeTransformer(x -> {
 			if (!x.left) {
-				Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 4 },
-						0);
+				Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 4 }, 0);
 				return dashed;
 			}
 			return new BasicStroke();
@@ -872,7 +854,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 						.parseEq(input.getText());
 
 				@SuppressWarnings("unchecked")
-				final Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> z = RawTerm
+				final Triple<Map<String, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> z = RawTerm
 						.infer2(y.first, y.second, y.third, col.apply(Unit.unit), js);
 
 				boolean isEq = dp.eq(z.first, z.second, z.third);
@@ -985,9 +967,9 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		Map<En, Pair<List<String>, Object[][]>> ret = new LinkedHashMap<>();
 
 		List<En> ens = Util.alphabetical(alg.schema().ens);
-		//if (ens.size() > 32) {
-		//	ens = ens.subList(0, 31);
-	//	}
+		// if (ens.size() > 32) {
+		// ens = ens.subList(0, 31);
+		// }
 
 		Map<X, Integer> referredTo = new THashMap<>();
 		Map<Y, Integer> referredTo2 = new THashMap<>();
@@ -1010,7 +992,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 					break;
 				}
 			}
-			
+
 			lll.sort((x, y) -> Util.AlphabeticalComparator.compare(x.toString(), y.toString()));
 			for (X xx : lll) {
 				referredTo.put(xx, fresh++);
@@ -1022,20 +1004,13 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		for (En en : ens) {
 			List<Att> atts0 = Util
 					.alphabetical(alg.schema().attsFrom(en).stream().map((Att x) -> x).collect(Collectors.toList()));
-			List<Fk> fks0 = Util
-					.alphabetical(alg.schema().fksFrom(en).stream().map((Fk x) -> x).collect(Collectors.toList()));
+			List<Fk> fks0 = Util.alphabetical(alg.schema().fksFrom(en).stream().map((Fk x) -> x).collect(Collectors.toList()));
 
 			List<String> atts0x = atts0.stream().map(Object::toString).collect(Collectors.toList());
 			List<String> fks0x = fks0.stream().map(Object::toString).collect(Collectors.toList());
 			List<String> header = Util.<String>append(atts0x, fks0x);
 
-			// boolean aabr = true;
-			if (header.size() > 20) {
-				header = header.subList(0, 20); // easier on the eye
-				header.add(0, "Row (Cols Abbr)");
-			} else {
-				header.add(0, "Row");
-			}
+			header.add(0, "Row");
 
 			int n = Integer.min(limit, alg.size(en));
 			Object[][] data = new Object[n][];
@@ -1069,7 +1044,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 							row.add(t);
 						} catch (Exception ex) {
 							ex.printStackTrace();
-							row.add(Term.Var(Var.Var("ERR")));
+							row.add(Term.Var(("ERR")));
 						}
 
 						j++;
@@ -1086,7 +1061,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 						row.add(y);
 					}
 					data[i] = row.toArray();
-					
+
 					i++;
 					if (i == n) {
 						break;
@@ -1096,7 +1071,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 					throw new RuntimeException("Anomaly: expected at least " + n + " elements on " + en + " but got " + i);
 				}
 			}
-	
+
 			// Arrays.deepToString(data));
 			ret.put(en, new Pair<>(header, data));
 		}
@@ -1108,7 +1083,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			enTableSimpl(alg, ret, f, g, f);
 			return ret;
 		}
-		
+
 		BiFunction<En, Object, Object> a = (y, x) -> alg.printX(y, (X) x);
 		BiFunction<Ty, Object, Object> b = (y, x) -> ((Term<Ty, Void, Sym, Void, Void, Void, Y>) x)
 				.toString(z -> alg.printY(alg.talg().sks.get(z), z).toString(), Util.voidFn());
@@ -1129,6 +1104,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				Object[] o = arr[i];
 				if (o == null) {
 					Util.anomaly();
+					return;
 				}
 				int j = 0;
 				o[0] = f.apply(en, o[0]);
@@ -1151,8 +1127,8 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 	}
 
-	private <X, Y> Component viewAlgebra(float z,
-			Algebra<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk, X, Y> algebra) {
+	private <X, Y> JComponent viewAlgebra(float z,
+			Algebra<String, String, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, String, String, X, Y> algebra) {
 
 		JPanel top = new JPanel(new GridBagLayout());
 		top.setBorder(BorderFactory.createEmptyBorder());
@@ -1164,8 +1140,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		JLabel limit = new JLabel("Row limit:", JLabel.RIGHT);
 
 		JLabel lbl = new JLabel("Provenance:", JLabel.RIGHT);
-		JLabel ids = new JLabel(
-				" " + algebra.size() + " IDs, " + algebra.talg().sks.size() + " nulls, " + z + " seconds.",
+		JLabel ids = new JLabel(" " + algebra.size() + " IDs, " + algebra.talg().sks.size() + " nulls, " + z + " seconds.",
 				JLabel.LEFT);
 
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -1200,7 +1175,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return out;
 	}
 
-	private <X, Y> void viewAlgebraHelper(JComponent top, Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra,
+	private <X, Y> void viewAlgebraHelper(JComponent top, Algebra<String, String, Sym, Fk, Att, String, String, X, Y> algebra,
 			JPanel out, JCheckBox simp, JSlider sl, Map<Pair<Boolean, Integer>, JScrollPane> cache) {
 		boolean b = simp.isSelected();
 		int l = sl.getValue();
@@ -1226,7 +1201,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	}
 
 	private <X, Y> JScrollPane makeList2(
-			Algebra<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk, X, Y> algebra,
+			Algebra<String, String, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, String, String, X, Y> algebra,
 			boolean b, int l) {
 		List<JComponent> list = makeList(algebra, b, l);
 
@@ -1249,15 +1224,15 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return jsp;
 	}
 
-	private <X, Y> List<JComponent> makeList(Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> algebra, boolean simplify,
-			int limit) {
+	private <X, Y> List<JComponent> makeList(Algebra<String, String, Sym, Fk, Att, String, String, X, Y> algebra,
+			boolean simplify, int limit) {
 
 		List<JComponent> list = new LinkedList<>();
 
-		Map<En, Set<Pair<Integer, Integer>>> nulls = new THashMap<>();
-		Map<En, Pair<List<String>, Object[][]>> entables = makeEnTables(algebra, simplify, limit, nulls);
+		Map<String, Set<Pair<Integer, Integer>>> nulls = new THashMap<>();
+		Map<String, Pair<List<String>, Object[][]>> entables = makeEnTables(algebra, simplify, limit, nulls);
 
-		for (En en : entables.keySet()) {
+		for (String en : entables.keySet()) {
 			Pair<List<String>, Object[][]> x = entables.get(en);
 			String str;
 			if (x.second.length < algebra.size(en)) {
@@ -1266,7 +1241,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				str = en + " (" + x.second.length + ")";
 			}
 			if (x.second.length > 0) {
-				JComponent p = GuiUtil.makeBoldHeaderTable(nulls.get(en), toString(algebra.schema().attsFrom(en)),
+				JComponent p = GuiUtil.makeBoldHeaderTable(toString(algebra.schema().attsFrom(en)),
 						BorderFactory.createEmptyBorder(), str, x.second, x.first.toArray(new String[x.first.size()]));
 				list.add(p);
 			}
@@ -1275,11 +1250,11 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		List<String> header = Collections.singletonList("Row");
 
 		if (simplify) {
-			Map<Ty, Set<Y>> m = Util.revS(algebra.talg().sks);
+			Map<String, Set<Y>> m = Util.revS(algebra.talg().sks);
 
-			Map<Ty, Object[][]> tytables = makeTyTables(m, algebra);
+			Map<String, Object[][]> tytables = makeTyTables(m, algebra);
 
-			for (Ty ty : tytables.keySet()) {
+			for (String ty : tytables.keySet()) {
 				if (!m.containsKey(ty)) {
 					continue;
 				}
@@ -1306,12 +1281,12 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	@Override
 	public <T, C> Unit visit(String k, JTabbedPane ret, TypeSide<T, C> T) {
 		ret.addTab("DP", viewDP(T.semantics(), x -> T.collage(), T.js));
-		ret.addTab("Model", makeHomSet((TypeSide<Ty, Sym>) T));
+		ret.addTab("Model", makeHomSet((TypeSide<String, Sym>) T));
 		ret.addTab("Cayley", viewCayley2(T));
 		return Unit.unit;
 	}
 
-	private <En, Sym, Fk, Att, Gen, Sk, X, Y> JPanel makeHomSet(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> T) {
+	private static <En, Sym, Fk, Att, Gen, Sk, X, Y> JPanel makeHomSet(Instance<String, En, Sym, Fk, Att, Gen, Sk, X, Y> T) {
 		JPanel ret = new JPanel(new GridLayout(1, 1));
 		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		ret.add(pane);
@@ -1333,16 +1308,15 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			if (l.isEmpty()) {
 				return;
 			}
-			Ty r0 = Ty.Ty(dst.getText().trim());
-			Ty r = r0;
+			String r0 = (dst.getText().trim());
+			String r = r0;
 			Runnable runnable = () -> {
 				try {
-					Set<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> z = T.getModel().get(r);
+					Set<Term<String, En, Sym, Fk, Att, Gen, Sk>> z = T.getModel().get(r);
 					if (z == null) {
 						bot.setText("anomaly");
 						Util.anomaly();
-					}
-					if (z.isEmpty()) {
+					} else if (z.isEmpty()) {
 						bot.setText("empty");
 					} else {
 						bot.setText(Util.sep(z, "\n\n"));
@@ -1380,7 +1354,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return ret;
 	}
 
-	private JPanel makeHomSet(TypeSide<Ty, Sym> T) {
+	private static JPanel makeHomSet(TypeSide<String, Sym> T) {
 		JPanel ret = new JPanel(new GridLayout(1, 1));
 		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		ret.add(pane);
@@ -1406,17 +1380,17 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				return;
 			}
 			String[] l = src.getText().split(",");
-			Ty r = Ty.Ty(b);
-			List<Ty> l0 = new LinkedList<>();
+			String r = (b);
+			List<String> l0 = new LinkedList<>();
 			for (String j : l) {
 				String j2 = j.trim();
 				if (!j2.isEmpty()) {
-					l0.add(Ty.Ty(j2));
+					l0.add((j2));
 				}
 			}
 			Runnable runnable = () -> {
 				try {
-					Set<Term<Ty, Void, Sym, Void, Void, Void, Void>> z = T.hom(l0, r);
+					Set<Term<String, Void, Sym, Void, Void, Void, Void>> z = T.hom(l0, r);
 					// Collection<Pair<OplCtx<S, V>, OplTerm<C, V>>> z =
 					// kb.hom0(Thread.currentThread(), l0, r);
 					// List<String> u = z.stream().map(o -> OplTerm.strip(o.first + " |- " +
@@ -1462,8 +1436,14 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	@SuppressWarnings("hiding")
 	@Override
 	public <Ty, En, Sym, Fk, Att> Unit visit(String k, JTabbedPane ret, Schema<Ty, En, Sym, Fk, Att> S) {
-		
-		ret.addTab("Graph", viewSchema(S));
+
+		if (S.size() < 1024) {
+			ret.addTab("Graph", viewSchema(S));
+		} else {
+			JButton b = new JButton("Show graph");
+			ProgressPanel pp = new ProgressPanel(b, b, x -> viewSchema(S));
+			ret.addTab("Graph", pp);
+		}
 		// ret.add("Graph2", viewSchemaAlt(S));
 		ret.addTab("DP", viewDP(S.dp(), x -> S.collage(), S.typeSide.js));
 		// ret.add(new CodeTextPanel("", schema.collage().toString()), "Temp");
@@ -1474,7 +1454,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return Unit.unit;
 	}
 
-	private <Ty, En, Sym, Fk, Att> Component acyclicPanel(Schema<Ty, En, Sym, Fk, Att> s) {
+	private static <Ty, En, Sym, Fk, Att> Component acyclicPanel(Schema<Ty, En, Sym, Fk, Att> s) {
 		JPanel p = new JPanel();
 		JButton b = new JButton("Acyclic?");
 		p.add(b);
@@ -1493,30 +1473,31 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	@Override
 	public <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> Unit visit(String k, JTabbedPane ret,
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I) {
-		ret.addTab("Tables", viewAlgebra(env.performance.get(k),
-				(Algebra<catdata.aql.exp.Ty, catdata.aql.exp.En, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, catdata.aql.exp.Gen, catdata.aql.exp.Sk, X, Y>) I
-						.algebra()));
 
-		if (I.algebra().talg().sks.size() < 1024) {
+		if (I.algebra().talg().sks.size() < (1024 * 8)) {
+			ret.addTab("Tables", viewAlgebra(env.performance.get(k),
+					(Algebra<String, String, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, String, String, X, Y>) I
+							.algebra()));
+		} else {
+			JButton b = new JButton("Show tables");
+			ProgressPanel pp = new ProgressPanel(b, b, x -> viewAlgebra(env.performance.get(k),
+					(Algebra<String, String, catdata.aql.exp.Sym, catdata.aql.exp.Fk, catdata.aql.exp.Att, String, String, X, Y>) I
+							.algebra()));
+			ret.addTab("Tables", pp);
+		}
+		if (I.algebra().size() < (1024 * 8)) {
 			ret.addTab("TyAlg", new CodeTextPanel("", I.algebra().talgToString()));
-			ret.addTab("Hom-sets", makeHomSet((Instance<catdata.aql.exp.Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>) I));
-
-			if (I.size() < 1024) {
-				ret.addTab("DP", viewDP(I.dp(), x -> I.collage(), I.schema().typeSide.js));
-			} else {
-				ret.addTab("DP", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
-			}
-
+			ret.addTab("Hom-sets", makeHomSet((Instance<String, En, Sym, Fk, Att, Gen, Sk, X, Y>) I));
+			ret.addTab("DP", viewDP(I.dp(), x -> I.collage(), I.schema().typeSide.js));
 		} else {
 			ret.addTab("TyAlg", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
 			ret.addTab("Hom-sets", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
 			ret.addTab("DP", new CodeTextPanel("", "Suppressed, size " + I.algebra().talg().sks.size() + "."));
-
 		}
-		var z = new CategoryOfElements<>(I).makePanel("", Color.black);
+
+		var z = new CategoryOfElements<>(I).makePanelLazy("", Color.black);
 		ret.addTab("Graph", z);
 		// ret.addTab("DOT", z.second);
-
 		// ret.addTab("TPTP", new CodeTextPanel("", I.tptp()));
 
 		return Unit.unit;
@@ -1562,7 +1543,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return Unit.unit;
 	}
 
-	public <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> JComponent makeQueryPanel(
+	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> JComponent makeQueryPanel(
 			Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
 		try {
 
@@ -1720,7 +1701,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return Unit.unit;
 	}
 
-	private <e, L> void apgInst0(JTabbedPane pane, ApgInstance<L, e> G) {
+	private static <e, L> void apgInst0(JTabbedPane pane, ApgInstance<L, e> G) {
 		List<JComponent> list = new LinkedList<>();
 
 		Object[][] rowData;
@@ -1759,7 +1740,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		pane.addTab("Tables", p);
 	}
 
-	private <e, L> void apgInst1(JTabbedPane pane, ApgInstance<L, e> G) {
+	private static <e, L> void apgInst1(JTabbedPane pane, ApgInstance<L, e> G) {
 		List<JComponent> list = new LinkedList<>();
 
 		Map<L, Set<e>> map = Util.revS(Util.map(G.Es, (w, v) -> new Pair<>(w, v.first)));
@@ -1830,8 +1811,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	}
 
 	@Override
-	public <l1, e1, l2, e2> Unit visit(String k, JTabbedPane pane, ApgTransform<l1, e1, l2, e2> t)
-			throws RuntimeException {
+	public <l1, e1, l2, e2> Unit visit(String k, JTabbedPane pane, ApgTransform<l1, e1, l2, e2> t) throws RuntimeException {
 		List<JComponent> list = new LinkedList<>();
 
 		Object[][] rowData = new Object[t.lMap.size()][2];
@@ -1878,7 +1858,7 @@ public final class AqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return Unit.unit;
 	}
 
-	private <L> void apgSch0(JTabbedPane pane, ApgSchema<L> Ls) {
+	private static <L> void apgSch0(JTabbedPane pane, ApgSchema<L> Ls) {
 		List<JComponent> list = new LinkedList<>();
 
 		Object[][] rowData = new Object[Ls.size()][2];

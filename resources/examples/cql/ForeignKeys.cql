@@ -29,31 +29,30 @@ entity
 	Student -> {from stu:Student foreign_keys majoringIn -> {dept -> stu.majoringIn}}
 
 
-/* When 
- * 
- *   where p.worksIn = s.majoringIn 
- *   
- * is commented out the query is rejected: 
- *   
- *   Error in query findMatches: 
- *     Target equation v.studentOf.majoringIn = v.professorOf.worksIn not respected: 
- *       transforms to s.majoringIn = p.worksIn, which is not provable in the sub-query for Match.
- */entity  Match -> {from p:Professor s:Student 
+ # When 
+ # 
+ #   where p.worksIn = s.majoringIn 
+ #   
+ # is commented out the query is rejected: 
+ #   
+ #   Error in query findMatches: 
+ #     Target equation v.studentOf.majoringIn = v.professorOf.worksIn not respected: 
+ #       transforms to s.majoringIn = p.worksIn, which is not provable in the sub-query for Match.
+ #
+ entity  Match -> {from p:Professor s:Student 
 		     where p.worksIn = s.majoringIn
 		     foreign_keys professorOf -> {prof -> p}		
 			studentOf -> {stu -> s}
 		     } 
 	
-	
-
-	
-/* Disabling the equation validator will cause a runtime error when this query is executed:
- * 
- *   Error in instance MatchesForUnivX : Algebra does not satisfy equation  
- *     forall v. v.studentOf.majoringIn = v.professorOf.worksIn 
- *       on ID <Match p:[Euler],s:[Kleene]>
- */ /* options
-	    dont_validate_unsafe=true */
+ # Disabling the equation validator will cause a runtime error when this query is executed:
+ # 
+ #   Error in instance MatchesForUnivX : Algebra does not satisfy equation  
+ #     forall v. v.studentOf.majoringIn = v.professorOf.worksIn 
+ #       on ID <Match p:[Euler],s:[Kleene]>
+ #
+  # options
+	#    dont_validate_unsafe=true 
 
 } 
 

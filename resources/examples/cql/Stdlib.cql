@@ -13,7 +13,7 @@ typeside Exp = literal {
 
 		s : Nat -> Nat
 		plus : Nat, Nat -> Nat
-		//times : Nat, Nat -> Nat
+		#times : Nat, Nat -> Nat
 		if : Bool, Nat, Nat -> Nat
 		eq : Nat, Nat -> Bool
 		ne : Nat, Nat -> Bool
@@ -41,23 +41,23 @@ typeside Exp = literal {
 		forall x. (x and t) = x
 		forall x. (x and not(x)) = f
 		forall x y. (x and y) = (y and x)
-		//forall x y z. (x and (y and z)) = ((x and y) and z)
+		#forall x y z. (x and (y and z)) = ((x and y) and z)
 
 		forall x. (x or f) = x
 		forall x. (x or t) = t
 		forall x. (x or not(x)) = t
 		forall x y. (x or y) = (y or x)
-		//forall x y z. (x or (y or z)) = ((x or y) or z)
+		#forall x y z. (x or (y or z)) = ((x or y) or z)
 
 		forall x. (x plus z) = x
 		forall x. (z plus x) = x
 		forall x y. (s(x) plus y) = s((x plus y))
 		forall x y. (x plus s(y)) = s((x plus y))
 
-		//forall x. (x times z) = z
-		//forall x. (z times x) = z
-		//forall x y. (s(x) times y) = (y plus (x times y))
-		//forall x y. (x times s(y)) = (x plus (x times y))
+		#forall x. (x times z) = z
+		#forall x. (z times x) = z
+		#forall x y. (s(x) times y) = (y plus (x times y))
+		#forall x y. (x times s(y)) = (x plus (x times y))
 
 		forall x y. if(t, x, y) = x
 		forall x y. if(f, x, y) = y
@@ -103,7 +103,7 @@ typeside Exp = literal {
     triviality_check_best_effort = false
 }
 
-// example:
-// if(isNone((rangeDesc(s(z)) at s(s(z)))), length((z cons (s(z) cons nil))), z)
-// =
-// if(((s(s(z)) ne s(z)) and (s(s(s(z))) ge s(s(z)))), (s(z) plus s(z)), s(z))
+# example:
+# if(isNone((rangeDesc(s(z)) at s(s(z)))), length((z cons (s(z) cons nil))), z)
+# =
+# if(((s(s(z)) ne s(z)) and (s(s(s(z))) ge s(s(z)))), (s(z) plus s(z)), s(z))

@@ -1,17 +1,15 @@
-// Universal Warehousing Demo
+# Universal Warehousing Demo
 
-// user defined functions, in Java
+# user defined functions, in Java
 typeside Type = literal {
-	external_types
-		String -> "java.lang.String"
-	external_parsers
-		String -> "x => x"
+	imports
+		sql
 	external_functions
-		toUpper : String -> String  = "x => x.toUpperCase()"
+		toUpper : String -> String  = "x => (x.isPresent() ? java.util.Optional.of(x.get().toUpperCase()) : java.util.Optional.empty())"
 }
 
-///////////////////////////////////////////////////////////////////////////
-// input schemas
+###########################################################################
+# input schemas
 
 schema AmphibianSchema = literal : Type {
 	entities
@@ -46,15 +44,15 @@ schema WaterSchema = literal : Type {
 		Amphibian.isA.isA = Amphibian.toAnimal
 }
 
-///////////////////////////////////////////////////////////////////////////
-//input instances
+###########################################################################
+#input instances
 
 instance LandInstance = import_csv "http://categoricaldata.net/demo/LandDB/" : LandSchema
 
 instance WaterInstance = import_csv "http://categoricaldata.net/demo/WaterDB/" : WaterSchema
 
-///////////////////////////////////////////////////////////////////////////.....
-//compute the canonical schema colimit, then enhances its semantics
+###########################################################################
+#compute the canonical schema colimit, then enhances its semantics
 
 schema_colimit UniversalWarehouseSchema = quotient LandSchema + WaterSchema : Type {
 	entity_equations
@@ -73,8 +71,8 @@ schema_colimit ModifiedWarehouseSchema = modify UniversalWarehouseSchema {
 		Amphibian.WaterSchema_Amphibian_isA -> water_is
 		Amphibian.WaterSchema_Amphibian_toAnimal -> redundantW
 		Amphibian.LandSchema_Amphibian_toAnimal -> redundantL
-		//Water.WaterAnimal_isA -> isA
-		//Land.LandAnimal_isA -> isA
+		#Water.WaterAnimal_isA -> isA
+		#Land.LandAnimal_isA -> isA
 	rename attributes
 		Animal.LandSchema_Animal_species  -> land_species
 		Animal.WaterSchema_Animal_species -> water_species
@@ -83,8 +81,8 @@ schema_colimit ModifiedWarehouseSchema = modify UniversalWarehouseSchema {
 		Amphibian.redundantW -> water_is. isA
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// migrate the data onto the warehouse schema
+################################################################################################
+# migrate the data onto the warehouse schema
 
 schema  WarehouseSchema  = getSchema  ModifiedWarehouseSchema
 mapping LandToWarehouse  = getMapping ModifiedWarehouseSchema LandSchema
@@ -95,8 +93,8 @@ instance WaterInstanceForward = sigma WaterToWarehouse WaterInstance
 
 instance UnmergedWarehouse = coproduct LandInstanceForward + WaterInstanceForward : WarehouseSchema
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// merge duplicates
+################################################################################################
+# merge duplicates
 
 instance Warehouse = quotient_query UnmergedWarehouse {
 	entity Amphibian -> {from a:Amphibian b:Amphibian where toUpper(a.land_is.isA.land_species) = toUpper(b.water_is.isA.water_species)}
@@ -105,11 +103,11 @@ options
 	quotient_use_chase = false
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// export the warehouse to SQL
+################################################################################################
+# export the warehouse to SQL
 command storeWH = export_jdbc_instance Warehouse "" ""
 
-//view exported SQL instance
+#view exported SQL instance
 command view1 = exec_jdbc ""  {
 	"SELECT * FROM \"Animal\""
 	"SELECT * FROM \"Amphibian\""
@@ -119,38 +117,38 @@ command view1 = exec_jdbc ""  {
 "DROP TABLE \"Amphibian\""
 "DROP TABLE \"Land\""
 "DROP TABLE \"Water\""
-	"DROP TABLE \"Animal\"" //drop tables in case we want to run the demo again
+	"DROP TABLE \"Animal\"" #drop tables in case we want to run the demo again
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// Application 0 : View warehouse as graph
+################################################################################################
+# Application 0 : View warehouse as graph
 
 schema WarehouseAsGraph = pivot Warehouse
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// Application 1 : Project (round-trip) the warehouse back onto the land schema
+################################################################################################
+# Application 1 : Project (round-trip) the warehouse back onto the land schema
 
 instance RoundTripLand = delta LandToWarehouse Warehouse
 
 transform RoundTripLandFn = unit LandToWarehouse LandInstance
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// Application 2 : Project further onto the Amphibians schema with a query
+################################################################################################
+# Application 2 : Project further onto the Amphibians schema with a query
 
 query LandToAmphibians = literal : LandSchema -> AmphibianSchema {
 	entity Amphibian -> {from amp:Amphibian
-	                     //where amp.toAnimal.species = "frog"
+	                     #where amp.toAnimal.species = "frog"
 						 foreign_keys toAnimal -> {anim -> amp.toAnimal}}
 
 	entity Animal -> {from anim:Animal
-	                  //where anim.species = "frog"
+	                  #where anim.species = "frog"
 				      attributes species -> anim.species}
 }
 
 instance RoundTripAmphibians = eval LandToAmphibians RoundTripLand
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// Application 3 : Check and/or repair additional rules
+################################################################################################
+# Application 3 : Check and/or repair additional rules
 
 constraints AllFksInjective = literal : WarehouseSchema {
 	forall a1 a2 : Amphibian where a1.land_is  = a2.land_is  -> where a1 = a2

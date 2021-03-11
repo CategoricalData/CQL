@@ -7,29 +7,29 @@ import catdata.Pair;
 
 public class FreeProver<T, C, V> extends DPKB<T, C, V> {
 
-	public FreeProver(KBTheory<T, C, V> th) {
-		super(th);
-		if (th != null && th.eqs.iterator().hasNext()) {
-			throw new RuntimeException("not an empty theory, as required by free proving strategy");
-		}
-	}
+  public FreeProver(KBTheory<T, C, V> th) {
+    super(th);
+    if (th != null && th.eqs.iterator().hasNext()) {
+      throw new RuntimeException("not an empty theory, as required by free proving strategy");
+    }
+  }
 
-	@Override
-	public boolean eq(Map<V, T> ctx, KBExp<C, V> lhs, KBExp<C, V> rhs) {
-		return lhs.equals(rhs);
-	}
+  @Override
+  public boolean eq(Map<V, T> ctx, KBExp<C, V> lhs, KBExp<C, V> rhs) {
+    return lhs.equals(rhs);
+  }
 
-	@Override
-	public String toString() {
-		return "Free prover";
-	}
+  @Override
+  public String toString() {
+    return "Free prover";
+  }
 
-	@Override
-	public synchronized void add(C c, T t) {
-		if (this.kb != null) {
-			this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
-		}
-	}
+  @Override
+  public synchronized void add(C c, T t) {
+    if (this.kb != null) {
+      this.kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
+    }
+  }
 
   @Override
   public boolean supportsTrivialityCheck() {

@@ -1,4 +1,4 @@
-//https://suif.stanford.edu/~courses/cs243/lectures/l12-handout.pdf
+#https://suif.stanford.edu/~courses/cs243/lectures/l12-handout.pdf
 
 typeside Domains = literal {
 	external_types 

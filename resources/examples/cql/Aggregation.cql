@@ -1,4 +1,4 @@
-//Aggregation is not functorial
+#Aggregation is not functorial
 options
 	allow_aggregation_unsafe = true
 
@@ -32,10 +32,10 @@ instance I = literal : S {
 		p1 p2 p3 p4 : Emp
 		d1 d2 : Dept
 	equations
-		p1.salary = "10" /*p2.salary = "1"*/
+		p1.salary = "10" #p2.salary = "1"
 		p1.worksIn = d1 p2.worksIn = d1
 
-		p3.salary = "50" /*p2.salary = "1"*/
+		p3.salary = "50" #p2.salary = "1"
 		p3.worksIn = d2 p4.worksIn = d2
 
 }

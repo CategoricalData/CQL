@@ -14,29 +14,29 @@ import easik.xml.xsd.nodes.elements.XSDElement;
  * @since Date: 19-Aug-2009 Time: 6:39:20 PM
  */
 public class XSDKey extends XSDAbstractKey {
-	/**
-	 *
-	 *
-	 * @param name
-	 * @param appliesTo
-	 * @param fields
-	 */
-	public XSDKey(final String name, final XSDElement appliesTo, final List<String> fields) {
-		super(name, appliesTo, fields);
+  /**
+   *
+   *
+   * @param name
+   * @param appliesTo
+   * @param fields
+   */
+  public XSDKey(final String name, final XSDElement appliesTo, final List<String> fields) {
+    super(name, appliesTo, fields);
 
-		setTagName("key");
-	}
+    setTagName("key");
+  }
 
-	/**
-	 *
-	 *
-	 * @param name
-	 * @param appliesTo
-	 * @param fields
-	 */
-	public XSDKey(final String name, final XSDElement appliesTo, final String... fields) {
-		super(name, appliesTo, fields);
+  /**
+   *
+   *
+   * @param name
+   * @param appliesTo
+   * @param fields
+   */
+  public XSDKey(final String name, final XSDElement appliesTo, final String... fields) {
+    super(name, appliesTo, fields);
 
-		setTagName("key");
-	}
+    setTagName("key");
+  }
 }

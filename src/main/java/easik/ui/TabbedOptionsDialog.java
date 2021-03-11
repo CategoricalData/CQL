@@ -10,10 +10,10 @@ import java.util.List;
  * tabs (and contained options) instead of getOptions().
  */
 public interface TabbedOptionsDialog {
-	/**
-	 * Returns a list of OptionTabs to display.
-	 *
-	 * @return
-	 */
-	public List<OptionTab> getTabs();
+  /**
+   * Returns a list of OptionTabs to display.
+   *
+   * @return
+   */
+  public List<OptionTab> getTabs();
 }

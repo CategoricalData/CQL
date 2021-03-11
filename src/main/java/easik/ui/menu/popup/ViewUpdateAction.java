@@ -21,79 +21,79 @@ import easik.view.vertex.QueryNode;
 
 public class ViewUpdateAction extends AbstractAction {
 
-	private static final long serialVersionUID = -7358840132662817458L;
+  private static final long serialVersionUID = -7358840132662817458L;
 
-	/** The view in which we are working */
-	private View _ourView;
+  /** The view in which we are working */
+  private View _ourView;
 
-	/** The sketch in which the current view belongs to */
-	private Sketch _ourSketch;
+  /** The sketch in which the current view belongs to */
+  private Sketch _ourSketch;
 
-	/** The view frame */
-	@SuppressWarnings("unused")
-	private ViewFrame _ourViewFrame;
+  /** The view frame */
+  @SuppressWarnings("unused")
+  private ViewFrame _ourViewFrame;
 
-	/**
-	 * Prepare the menu option.
-	 *
-	 * @param inView
-	 */
-	public ViewUpdateAction(View inView) {
-		// should it say this??
-		super("Select row and update...");
+  /**
+   * Prepare the menu option.
+   *
+   * @param inView
+   */
+  public ViewUpdateAction(View inView) {
+    // should it say this??
+    super("Select row and update...");
 
-		_ourView = inView;
-		_ourSketch = _ourView.getSketch();
-		_ourViewFrame = _ourView.getFrame();
+    _ourView = inView;
+    _ourSketch = _ourView.getSketch();
+    _ourViewFrame = _ourView.getFrame();
 
-		putValue(Action.SHORT_DESCRIPTION, "Select a row from view table and set new column values.");
-	}
+    putValue(Action.SHORT_DESCRIPTION, "Select a row from view table and set new column values.");
+  }
 
-	/**
-	 * @param e The action event
-	 * @author Sarah van der Laan
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object[] currentSelection = _ourView.getSelectionCells();
+  /**
+   * @param e The action event
+   * @author Sarah van der Laan
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    Object[] currentSelection = _ourView.getSelectionCells();
 
-		QueryNode currNode = (QueryNode) currentSelection[0];
+    QueryNode currNode = (QueryNode) currentSelection[0];
 
-		String queryString = currNode.getQuery();
-		String entityNodeName = null;
+    String queryString = currNode.getQuery();
+    String entityNodeName = null;
 
-		// find corresponding entity node name
-		String[] tokens = queryString.split("\\s+");
-		for (int i = 0; i < tokens.length; i++) {
-			if (tokens[i].equalsIgnoreCase("from")) {
-				entityNodeName = tokens[i + 1];
-			}
-		}
+    // find corresponding entity node name
+    String[] tokens = queryString.split("\\s+");
+    for (int i = 0; i < tokens.length; i++) {
+      if (tokens[i].equalsIgnoreCase("from")) {
+        entityNodeName = tokens[i + 1];
+      }
+    }
 
-		EntityNode _ourEntityNode = null;
-		// set corresponding node in order to use
-		for (EntityNode node : _ourSketch.getEntities()) {
-			if (node.getName().equalsIgnoreCase(entityNodeName)) {
-				_ourEntityNode = node;
+    EntityNode _ourEntityNode = null;
+    // set corresponding node in order to use
+    for (EntityNode node : _ourSketch.getEntities()) {
+      if (node.getName().equalsIgnoreCase(entityNodeName)) {
+        _ourEntityNode = node;
 
-			}
-		}
+      }
+    }
 
-		if (!_ourSketch.hasDatabase()) {
-			JOptionPane.showMessageDialog(null, "Not currently connected to a database.");
-			return;
-		}
+    if (!_ourSketch.hasDatabase()) {
+      JOptionPane.showMessageDialog(null, "Not currently connected to a database.");
+      return;
+    }
 
-		UpdateMonitor um = _ourSketch.getDatabase().newUpdateMonitor();
+    UpdateMonitor um = _ourSketch.getDatabase().newUpdateMonitor();
 
-		if (um == null) {
-			JOptionPane.showMessageDialog(null, "Could not perform update: problem accessing db driver");
+    if (um == null) {
+      JOptionPane.showMessageDialog(null, "Could not perform update: problem accessing db driver");
 
-			return;
-		}
+      return;
+    }
 
-		if (_ourEntityNode != null)
-			um.updateRow(_ourEntityNode);
+    if (_ourEntityNode != null)
+      um.updateRow(_ourEntityNode);
 
-	}
+  }
 }

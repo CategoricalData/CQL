@@ -5,7 +5,7 @@ typeside Type = literal {
 		dom -> "x => x"
 }
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 schema Span = literal : Type {
 	entities
@@ -47,8 +47,8 @@ instance J = literal : Span {
 		a.g = c1
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//pushouts, using queries
+##################################################
+#pushouts, using queries
 
 query pushout = literal : Square -> Span {
 

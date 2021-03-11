@@ -1,6 +1,6 @@
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Example schema and instance about employees
+##################################################
+# Example schema and instance about employees
 
 typeside Ty = literal {
 	external_types
@@ -24,7 +24,7 @@ schema EmpSchema = literal : Ty {
 	path_equations
 		Employee.manager.worksIn = Employee.worksIn
   		Department.secretary.worksIn = Department
-//  	Employee.manager.manager = Employee.manager
+#  	Employee.manager.manager = Employee.manager
   	attributes
   		first last	: Employee -> String
      	name 		: Department -> String
@@ -43,14 +43,14 @@ instance EmpInstance = literal : EmpSchema {
 		secretary(x02) = 102  name(x02) = CS
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// example sigma/delta data migrations
+##################################################
+# example sigma/delta data migrations
 
 schema S = literal : Ty {
 	entities
 		N1 N2
 	foreign_keys
-		f : N1 -> N2 //
+		f : N1 -> N2 #
 	attributes
 		name : N1 -> String
 		salary : N1 -> Int
@@ -70,7 +70,7 @@ mapping F = literal : S -> T {
 	entity
 		N1 -> N
 	foreign_keys
-		f -> identity //
+		f -> identity #
 	attributes
 		name -> name
 		salary -> salary
@@ -92,12 +92,12 @@ instance I = literal : S {
 
 		age(4) = 20  age(5) = 20  age(6) = 30
 
-		f(1) = 4  f(2) = 5  f(3) = 6 //
+		f(1) = 4  f(2) = 5  f(3) = 6 #
 }
 
 instance sigmaFI = sigma F I
 instance deltaFsigmaFI = delta F sigmaFI
-transform unitSigmaFDeltaF = unit F I //is identity
+transform unitSigmaFDeltaF = unit F I #is identity
 
 query Q = literal : T -> S {
 	entity
@@ -110,8 +110,8 @@ query Q = literal : T -> S {
 instance coevalQI = coeval Q I
 instance evalcoevalQI = eval Q coevalQI
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// select-from-where syntax to find the name of every manager's department
+##################################################
+# select-from-where syntax to find the name of every manager's department
 
 schema DeptNameSchema = literal : Ty {
 	entities
@@ -126,12 +126,12 @@ query Query = literal : EmpSchema -> DeptNameSchema {
 					attributes deptName -> e.manager.worksIn.name}
 }
 
-instance QueryResult = eval Query EmpInstance //has bag semantics
+instance QueryResult = eval Query EmpInstance #has bag semantics
 
-instance QueryResultDistinct = distinct QueryResult //has set semantics
+instance QueryResultDistinct = distinct QueryResult #has set semantics
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// example richer constraint - name is a key for department
+##################################################
+# example richer constraint - name is a key for department
 
 constraints NameIsDeptKey = literal : EmpSchema {
 	forall d1 d2 : Department
@@ -140,7 +140,7 @@ constraints NameIsDeptKey = literal : EmpSchema {
 	where d1 = d2
 }
 
-command CheckNameIsDeptKey = check NameIsDeptKey EmpInstance //the constraint holds
+command CheckNameIsDeptKey = check NameIsDeptKey EmpInstance #the constraint holds
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// see 'Pharma Colim' example for schema and data integration
+##################################################
+# see 'Pharma Colim' example for schema and data integration

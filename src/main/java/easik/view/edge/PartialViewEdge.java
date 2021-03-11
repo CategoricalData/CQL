@@ -20,56 +20,56 @@ import easik.view.vertex.QueryNode;
  *         **Based off of PartialEdge.java
  */
 public class PartialViewEdge extends View_Edge implements UniqueIndexable {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = 1796525114292808241L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = 1796525114292808241L;
 
-	/**
-	 * Creates a new partial map edge between two entity nodes with the specified
-	 * name and SET_NULL cascading.
-	 *
-	 *
-	 * @param a
-	 * @param b
-	 * @param name The unique edge identifier
-	 * @see SketchEdge.Cascade
-	 * @see SketchEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 * @see InjectiveEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 */
-	public PartialViewEdge(QueryNode a, QueryNode b, String name) {
-		this(a, b, name, Cascade.SET_NULL);
-	}
+  /**
+   * Creates a new partial map edge between two entity nodes with the specified
+   * name and SET_NULL cascading.
+   *
+   *
+   * @param a
+   * @param b
+   * @param name The unique edge identifier
+   * @see SketchEdge.Cascade
+   * @see SketchEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   * @see InjectiveEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   */
+  public PartialViewEdge(QueryNode a, QueryNode b, String name) {
+    this(a, b, name, Cascade.SET_NULL);
+  }
 
-	/**
-	 * Creates a new partial map edge between two entity nodes with the specified
-	 * name and cascading option.
-	 *
-	 *
-	 * @param a
-	 * @param b
-	 * @param name    The unique edge identifier
-	 * @param cascade The cascading option, such as
-	 *                <code>SketchEdge.Cascade.SET_NULL</code>
-	 * @see SketchEdge.Cascade
-	 * @see SketchEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 * @see InjectiveEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 */
-	public PartialViewEdge(QueryNode a, QueryNode b, String name, Cascade cascade) {
-		super(a, b, name, cascade);
-	}
+  /**
+   * Creates a new partial map edge between two entity nodes with the specified
+   * name and cascading option.
+   *
+   *
+   * @param a
+   * @param b
+   * @param name    The unique edge identifier
+   * @param cascade The cascading option, such as
+   *                <code>SketchEdge.Cascade.SET_NULL</code>
+   * @see SketchEdge.Cascade
+   * @see SketchEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   * @see InjectiveEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   */
+  public PartialViewEdge(QueryNode a, QueryNode b, String name, Cascade cascade) {
+    super(a, b, name, cascade);
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean isPartial() {
-		return true;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public boolean isPartial() {
+    return true;
+  }
 }

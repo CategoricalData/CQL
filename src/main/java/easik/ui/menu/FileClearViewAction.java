@@ -19,55 +19,55 @@ import easik.view.View;
  * @author Rob Fletcher 2005
  */
 public class FileClearViewAction extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = 4733890144255143420L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = 4733890144255143420L;
 
-	/**  */
-	ViewFrame _theFrame;
+  /**  */
+  ViewFrame _theFrame;
 
-	/**
-	 * Create a new sketch action option.
-	 *
-	 * @param inFrame
-	 */
-	public FileClearViewAction(ViewFrame inFrame) {
-		super("Clear view");
+  /**
+   * Create a new sketch action option.
+   *
+   * @param inFrame
+   */
+  public FileClearViewAction(ViewFrame inFrame) {
+    super("Clear view");
 
-		_theFrame = inFrame;
+    _theFrame = inFrame;
 
-		putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_N));
-		putValue(Action.SHORT_DESCRIPTION, "Start new sketch");
-	}
+    putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_N));
+    putValue(Action.SHORT_DESCRIPTION, "Start new sketch");
+  }
 
-	/**
-	 * Create a new sketch. Prompts user for confirmation if current sketch is
-	 * unsaved.
-	 *
-	 * @param e The Action Event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		boolean proceed = true;
+  /**
+   * Create a new sketch. Prompts user for confirmation if current sketch is
+   * unsaved.
+   *
+   * @param e The Action Event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    boolean proceed = true;
 
-		if (!_theFrame.getMModel().isEmpty()) {
-			proceed = JUtils.confirmLoss(_theFrame);
+    if (!_theFrame.getMModel().isEmpty()) {
+      proceed = JUtils.confirmLoss(_theFrame);
 
-			// we removed something from the current view, changing the
-			// overview, so set it to dirty
-			if (proceed) {
-				_theFrame.getOverview().setDirty(true);
-			}
-		}
+      // we removed something from the current view, changing the
+      // overview, so set it to dirty
+      if (proceed) {
+        _theFrame.getOverview().setDirty(true);
+      }
+    }
 
-		if (proceed) {
-			View theView = _theFrame.getMModel();
+    if (proceed) {
+      View theView = _theFrame.getMModel();
 
-			theView.newView();
-			theView.updateThumb();
-			_theFrame.getNode().setName(theView.getOverview().getNewViewName());
-			theView.getOverview().refresh();
-		}
-	}
+      theView.newView();
+      theView.updateThumb();
+      _theFrame.getNode().setName(theView.getOverview().getNewViewName());
+      theView.getOverview().refresh();
+    }
+  }
 }

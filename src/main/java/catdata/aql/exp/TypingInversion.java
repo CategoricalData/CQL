@@ -46,58 +46,26 @@ import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
 import catdata.apg.exp.ApgTyExp;
 import catdata.apg.exp.ApgTyExp.ApgTyExpRaw;
 import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
-import catdata.aql.exp.ColimSchExp.ColimSchExpQuotient;
-import catdata.aql.exp.ColimSchExp.ColimSchExpRaw;
 import catdata.aql.exp.ColimSchExp.ColimSchExpVar;
-import catdata.aql.exp.ColimSchExp.ColimSchExpWrap;
+import catdata.aql.exp.EdsExp.EdsExpInclude;
 import catdata.aql.exp.EdsExp.EdsExpSch;
+import catdata.aql.exp.EdsExp.EdsExpSqlNull;
 import catdata.aql.exp.EdsExp.EdsExpVar;
 import catdata.aql.exp.GraphExp.GraphExpLiteral;
 import catdata.aql.exp.GraphExp.GraphExpRaw;
 import catdata.aql.exp.GraphExp.GraphExpVar;
 import catdata.aql.exp.InstExp.InstExpLit;
 import catdata.aql.exp.InstExp.InstExpVar;
-import catdata.aql.exp.MapExp.MapExpFromPrefix;
 import catdata.aql.exp.MapExp.MapExpLit;
-import catdata.aql.exp.MapExp.MapExpToPrefix;
 import catdata.aql.exp.MapExp.MapExpVar;
-import catdata.aql.exp.PragmaExp.PragmaExpCheck;
-import catdata.aql.exp.PragmaExp.PragmaExpConsistent;
-import catdata.aql.exp.PragmaExp.PragmaExpJs;
-import catdata.aql.exp.PragmaExp.PragmaExpJsonInstExport;
-import catdata.aql.exp.PragmaExp.PragmaExpMatch;
-import catdata.aql.exp.PragmaExp.PragmaExpProc;
-import catdata.aql.exp.PragmaExp.PragmaExpRdfDirectExport;
-import catdata.aql.exp.PragmaExp.PragmaExpRdfInstExport;
-import catdata.aql.exp.PragmaExp.PragmaExpSql;
-import catdata.aql.exp.PragmaExp.PragmaExpToCsvInst;
-import catdata.aql.exp.PragmaExp.PragmaExpToCsvTrans;
-import catdata.aql.exp.PragmaExp.PragmaExpToJdbcInst;
-import catdata.aql.exp.PragmaExp.PragmaExpToJdbcQuery;
-import catdata.aql.exp.PragmaExp.PragmaExpToJdbcTrans;
 import catdata.aql.exp.PragmaExp.PragmaExpVar;
-import catdata.aql.exp.QueryExp.QueryExpId;
 import catdata.aql.exp.QueryExp.QueryExpLit;
 import catdata.aql.exp.QueryExp.QueryExpVar;
-import catdata.aql.exp.SchExp.SchExpCod;
-import catdata.aql.exp.SchExp.SchExpDom;
-import catdata.aql.exp.SchExp.SchExpDst;
-import catdata.aql.exp.SchExp.SchExpEmpty;
-import catdata.aql.exp.SchExp.SchExpInst;
 import catdata.aql.exp.SchExp.SchExpLit;
-import catdata.aql.exp.SchExp.SchExpMsCatalog;
-import catdata.aql.exp.SchExp.SchExpMsQuery;
-import catdata.aql.exp.SchExp.SchExpPivot;
-import catdata.aql.exp.SchExp.SchExpPrefix;
-import catdata.aql.exp.SchExp.SchExpRdf;
-import catdata.aql.exp.SchExp.SchExpSrc;
 import catdata.aql.exp.SchExp.SchExpVar;
-import catdata.aql.exp.TransExp.TransExpId;
 import catdata.aql.exp.TransExp.TransExpLit;
 import catdata.aql.exp.TransExp.TransExpVar;
-import catdata.aql.exp.TyExp.TyExpEmpty;
 import catdata.aql.exp.TyExp.TyExpLit;
-import catdata.aql.exp.TyExp.TyExpSch;
 import catdata.aql.exp.TyExp.TyExpVar;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -109,11 +77,9 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public TyExpSch visitTyExpSch(Unit params, AqlTyping exp) {
 		SchExpVar e = new SchExpVar("s");
 		TyExpVar x = new TyExpVar("t");
-
 		TyExpSch t = new TyExpSch(e);
 		exp.defs.schs.put("s", x);
 		exp.defs.tys.put("t", Unit.unit);
-
 		return t;
 	}
 
@@ -131,15 +97,13 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public TyExpVar visitTyExpVar(Unit params, AqlTyping exp) {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar e = new TyExpVar("t");
-		// exp.prog.exps.put("t", e);
 		return e;
 	}
 
 	@Override
 	public TyExpRaw visitTyExpRaw(Unit params, AqlTyping exp) {
-		return new TyExpRaw(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList());
+		return new TyExpRaw(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 	}
 
 	@Override
@@ -223,7 +187,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	@Override
 	public SchExpLit visitSchExpLit(Unit params, AqlTyping exp) {
 		return null;
-//		return new SchExpLit(Schema.terminal(TypeSide.initial()));
+//    return new SchExpLit(Schema.terminal(TypeSide.initial()));
 	}
 
 	@Override
@@ -249,7 +213,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public SchExpRaw visitSchExpRaw(Unit params, AqlTyping exp) {
 		exp.defs.tys.put("t", Unit.unit);
 		TyExpVar e = new TyExpVar("t");
-		return new SchExpRaw(e, new LinkedList(), new LinkedList(), new LinkedList(), new LinkedList(),
+		return new SchExpRaw(e, new LinkedList(), new LinkedList(), new LinkedList(), new LinkedList(), new LinkedList(),
 				new LinkedList(), new LinkedList(), new LinkedList());
 	}
 
@@ -337,7 +301,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.schs.put("s", x);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
-//		String l = new SchExpPivot(q, new LinkedList());
+//    String l = new SchExpPivot(q, new LinkedList());
 		return new MapExpPivot(i, new LinkedList());
 	}
 
@@ -361,7 +325,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.schs.put("s2", t);
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
-//		exp.defs.maps.put("m", new Pair(s1, s2));
+//    exp.defs.maps.put("m", new Pair(s1, s2));
 		return new MapExpRaw(s1, s2, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 	}
 
@@ -518,7 +482,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public <X, Y> PragmaExpConsistent<X, Y> visitPragmaExpConsistent(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) (Object) new InstExpVar("i");
+		InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -529,7 +493,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public <X, Y> PragmaExpCheck<X, Y> visitPragmaExpCheck(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) (Object) new InstExpVar("i");
+		InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -556,7 +520,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public <X, Y> PragmaExpToCsvInst<X, Y> visitPragmaExpToCsvInst(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) (Object) new InstExpVar("i");
+		InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -584,7 +548,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public <X, Y> PragmaExpToJdbcInst<X, Y> visitPragmaExpToJdbcInst(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) (Object) new InstExpVar("i");
+		InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -724,11 +688,6 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public InstExpJdbcAll visitInstExpJdbcAll(Unit param, AqlTyping exp) {
-		return new InstExpJdbcAll("jdbc_string", Collections.emptyList());
-	}
-
-	@Override
 	public <Gen, Sk, X, Y> InstExpSigma<Gen, Sk, X, Y> visitInstExpSigma(Unit param, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
@@ -803,8 +762,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCoEq(
-			Unit param, AqlTyping exp) {
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCoEq(Unit param,
+			AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i1 = new InstExpVar("i1");
@@ -871,8 +830,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpDom<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpDom(
-			Unit param, AqlTyping exp) {
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpDom<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpDom(Unit param,
+			AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i1 = new InstExpVar("i1");
@@ -887,8 +846,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCod(
-			Unit param, AqlTyping exp) {
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> InstExpCod<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitInstExpCod(Unit param,
+			AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
 		InstExp i1 = new InstExpVar("i1");
@@ -1031,9 +990,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	@Override
 	public InstExpJdbc visitInstExpJdbc(Unit param, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
-		TyExp t = new TyExpVar("t");
+		TyExp t = new TyExpSql();
 		exp.defs.schs.put("s", t);
-		exp.defs.tys.put("t", Unit.unit);
 		return new InstExpJdbc(s, new LinkedList(), "jdbc_string", new LinkedList());
 	}
 
@@ -1121,8 +1079,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> visitTransExpCoEvalEvalCoUnit(Unit params,
-			AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpCoEvalEvalCoUnit<Gen, Sk, X, Y> visitTransExpCoEvalEvalCoUnit(Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1142,8 +1099,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> TransExpCoEvalEvalUnit<Gen, Sk, X, Y> visitTransExpCoEvalEvalUnit(Unit params,
-			AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpCoEvalEvalUnit<Gen, Sk, X, Y> visitTransExpCoEvalEvalUnit(Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1163,8 +1119,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> TransExpSigmaDeltaCounit<Gen, Sk, X, Y> visitTransExpSigmaDeltaCounit(Unit params,
-			AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpSigmaDeltaCounit<Gen, Sk, X, Y> visitTransExpSigmaDeltaCounit(Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1184,8 +1139,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen, Sk, X, Y> TransExpSigmaDeltaUnit<Gen, Sk, X, Y> visitTransExpSigmaDeltaUnit(Unit params,
-			AqlTyping exp) {
+	public <Gen, Sk, X, Y> TransExpSigmaDeltaUnit<Gen, Sk, X, Y> visitTransExpSigmaDeltaUnit(Unit params, AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1299,8 +1253,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpPi<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpPi(
-			Unit params, AqlTyping exp) {
+	public <Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> TransExpPi<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> visitTransExpPi(Unit params,
+			AqlTyping exp) {
 		SchExp s1 = new SchExpVar("s1");
 		SchExp s2 = new SchExpVar("s2");
 		TyExp t = new TyExpVar("t");
@@ -1528,10 +1482,10 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		// exp.defs.schs.put("s2", t);
 
 		SchExpVar s1 = new SchExpVar("s1");
-//		SchExpVar s2 = new SchExpVar("s2");
+//    SchExpVar s2 = new SchExpVar("s2");
 
 		exp.prog.exps.put("s1", new SchExpEmpty(t));
-//		exp.prog.exps.put("s2", new SchExpEmpty(t));
+//    exp.prog.exps.put("s2", new SchExpEmpty(t));
 
 		InstExp i = new InstExpVar("i");
 		exp.defs.insts.put("i", s1);
@@ -1570,8 +1524,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
 	@Override
 	public TyExp visitTyExpAdt(Unit params, AqlTyping r) {
-		return new TyExpAdt(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList());
+		return new TyExpAdt(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 	}
 
 	@Override
@@ -2188,7 +2141,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public <X, Y> PragmaExpJsonInstExport<X, Y> visitPragmaExpJsonInstExport(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) (Object) new InstExpVar("i");
+		InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -2199,7 +2152,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public <X, Y> PragmaExpRdfInstExport<X, Y> visitPragmaExpRdfInstExport(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpVar("t");
-		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) (Object) new InstExpVar("i");
+		InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -2214,7 +2167,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	@Override
 	public InstExpSpanify visitInstExpSpanify(Unit param, AqlTyping exp) {
 		SchExp s = InstExpRdfAll.makeSch();
-		InstExp i = (InstExp) (Object) new InstExpVar("i");
+		InstExp i = new InstExpVar("i");
 		exp.defs.schs.put("s", new TyExpRdf());
 		exp.defs.insts.put("i", s);
 		return new InstExpSpanify(i, Collections.emptyList());
@@ -2225,7 +2178,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 			throws RuntimeException {
 		SchExp s = InstExpRdfAll.makeSch();
 		TyExp t = new TyExpRdf();
-		InstExp<Gen, Sk, X, Y> i = (InstExp<Gen, Sk, X, Y>) (Object) new InstExpVar("i");
+		InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
 		exp.defs.schs.put("s", t);
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
@@ -2233,7 +2186,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public SchExpSpan visitSchExpSpan(Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpSpan visitSchExpSpan(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpRdf();
 		exp.defs.tys.put("t", Unit.unit);
@@ -2242,7 +2195,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public SchExpRdf visitSchExpRdf(Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpRdf visitSchExpRdf(Unit params, AqlTyping exp) {
 		return new SchExpRdf();
 	}
 
@@ -2250,19 +2203,20 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	public SchExpMsCatalog visitSchExpMsCatalog(Unit params, AqlTyping r) {
 		return new SchExpMsCatalog(new TyExpSql(), "Other");
 	}
-	
+
 	@Override
 	public SchExpMsQuery visitSchExpMsQuery(Unit params, AqlTyping r) {
 		return new SchExpMsQuery(new TyExpSql(), "Other");
 	}
 
 	@Override
-	public InstExpJdbcDirect visitInstExpJdbcDirect(Unit param, AqlTyping exp) throws RuntimeException {
-		return new InstExpJdbcDirect(new SchExp.SchExpEmpty(new TyExpEmpty()), Collections.emptyList(), "jdbcString", "ROW_NUMBER() OVER()");
+	public InstExpJdbcDirect visitInstExpJdbcDirect(Unit param, AqlTyping exp) {
+		return new InstExpJdbcDirect(new SchExpEmpty(new TyExpEmpty()), Collections.emptyList(), "jdbcString",
+				"ROW_NUMBER() OVER()");
 	}
 
 	@Override
-	public QueryExpSpanify visitQueryExpSpanify(Unit params, AqlTyping exp) throws RuntimeException {
+	public QueryExpSpanify visitQueryExpSpanify(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpRdf();
 		exp.defs.tys.put("t", Unit.unit);
@@ -2271,18 +2225,19 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public QueryExpMapToSpanQuery visitQueryExpMapToSpanQuery(Unit params, AqlTyping exp) throws RuntimeException {
+	public QueryExpMapToSpanQuery visitQueryExpMapToSpanQuery(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpRdf();
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.schs.put("s", t);
 		SchExp s2 = new SchExpVar("s2");
 		exp.defs.schs.put("s2", t);
-		return new QueryExpMapToSpanQuery(new MapExpRaw(s, s2, Collections.emptyList(),Collections.emptyList(), Collections.emptyList()));
+		return new QueryExpMapToSpanQuery(
+				new MapExpRaw(s, s2, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
 	}
 
 	@Override
-	public SchExpPrefix visitSchExpPrefix(Unit params, AqlTyping exp) throws RuntimeException {
+	public SchExpPrefix visitSchExpPrefix(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpRdf();
 		exp.defs.tys.put("t", Unit.unit);
@@ -2291,7 +2246,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public MapExpToPrefix visitMapExpToPrefix(Unit params, AqlTyping exp) throws RuntimeException {
+	public MapExpToPrefix visitMapExpToPrefix(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpRdf();
 		exp.defs.tys.put("t", Unit.unit);
@@ -2300,12 +2255,117 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 	}
 
 	@Override
-	public MapExpFromPrefix visitMapExpFromPrefix(Unit params, AqlTyping exp) throws RuntimeException {
+	public MapExpFromPrefix visitMapExpFromPrefix(Unit params, AqlTyping exp) {
 		SchExp s = new SchExpVar("s");
 		TyExp t = new TyExpRdf();
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.schs.put("s", t);
 		return new MapExpFromPrefix(s, "prefix");
+	}
+
+	@Override
+	public EdsExpSqlNull visitEdsExpSqlNull(Unit params, AqlTyping exp) {
+		TyExp ty = new TyExpVar("ty");
+		exp.defs.tys.put("ty", Unit.unit);
+		return new EdsExpSqlNull(ty);
+	}
+
+	@Override
+	public EdsExpInclude visitEdsExpInclude(Unit params, AqlTyping exp) {
+		SchExp s = new SchExpVar("s");
+		TyExp t = new TyExpRdf();
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.schs.put("s", t);
+		return new EdsExpInclude(s, "old", "new", Collections.emptyList());
+	}
+
+	@Override
+	public SchExpMsError visitSchExpMsError(Unit params, AqlTyping exp) {
+		return new SchExpMsError("Other", "jdbc_string", new TyExpSql());
+	}
+
+	@Override
+	public InstExpMsError visitInstExpMsError(Unit param, AqlTyping exp) {
+		return new InstExpMsError("Other", "jdbc_string", new TyExpSql());
+	}
+
+	@Override
+	public SchExpMsErrorShallow visitSchExpMsErrorShallow(Unit param, AqlTyping exp) {
+		return new SchExpMsErrorShallow("Other", new TyExpSql());
+	}
+
+	@Override
+	public SchExpFromMsCatalog visitSchExpFromMsCatalog(Unit params, AqlTyping exp) {
+		SchExp s = new SchExpMsQuery(new TyExpSql(), "Other");
+		InstExp i = new InstExpVar("i");
+		exp.defs.insts.put("i", s);
+		return new SchExpFromMsCatalog(i, Collections.emptyList());
+	}
+
+	@Override
+	public QueryExpFront visitQueryExpFront(Unit params, AqlTyping exp) {
+		SchExpVar e = new SchExpVar("s");
+		TyExpVar x = new TyExpVar("t");
+		EdsExpVar eds = new EdsExpVar("eds");
+		exp.defs.eds.put("eds", e);
+		exp.defs.schs.put("s", x);
+		return new QueryExpFront(eds, "0", true, Collections.emptyList());
+	}
+
+	@Override
+	public SchExpFront visitSchExpFront(Unit params, AqlTyping exp) {
+		SchExpVar e = new SchExpVar("s");
+		TyExpVar x = new TyExpVar("t");
+		EdsExpVar eds = new EdsExpVar("eds");
+		exp.defs.eds.put("eds", e);
+		exp.defs.schs.put("s", x);
+		return new SchExpFront(eds, "0");
+	}
+
+	@Override
+	public InstExpTinkerpop visitInstExpTinkerpop(Unit param, AqlTyping exp) {
+		TyExp t = new TyExpSql();
+		exp.defs.schs.put("s", t);
+		return new InstExpTinkerpop(new LinkedList());
+	}
+
+	@Override
+	public SchExpTinkerpop visitSchExpTinkerpop(Unit params, AqlTyping exp) {
+		return new SchExpTinkerpop();
+	}
+
+	@Override
+	public EdsExpTinkerpop visitEdsExpTinkerpop(Unit params, AqlTyping exp) {
+		return new EdsExpTinkerpop();
+	}
+
+	@Override
+	public PragmaExpBitsy visitPragmaExpBitsy(Unit params, AqlTyping exp) {
+		return new PragmaExpBitsy(Collections.emptyList());
+	}
+
+	@Override
+	public PragmaExpTinkerpopInstExport visitPragmaExpTinkerpopInstExport(Unit params, AqlTyping exp) {
+		SchExpVar e = new SchExpVar("s");
+		TyExpVar x = new TyExpVar("t");
+		InstExpVar i = new InstExpVar("i");
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.schs.put("s", x);
+		exp.defs.insts.put("i", e);
+		return new PragmaExpTinkerpopInstExport(i, Collections.emptyList());
+	}
+
+	@Override
+	public PragmaExpTinkerpop visitPragmaExpTinkerpop(Unit params, AqlTyping exp) {
+		return new PragmaExpTinkerpop(Collections.emptyList(), Collections.emptyList());
+	}
+
+	@Override
+	public EdsExpFromMsCatalog visitEdsExpFromMsCatalog(Unit params, AqlTyping exp) {
+		SchExp s = new SchExpMsQuery(new TyExpSql(), "Other");
+		InstExp i = new InstExpVar("i");
+		exp.defs.insts.put("i", s);
+		return new EdsExpFromMsCatalog(i, Collections.emptyList());
 	}
 
 }

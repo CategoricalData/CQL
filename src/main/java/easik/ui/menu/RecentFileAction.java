@@ -23,61 +23,61 @@ import easik.ui.JUtils;
  * @version 2006-08-03 Vera Ranieri
  */
 public class RecentFileAction extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = -3503315249095269643L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = -3503315249095269643L;
 
-	/** String representation of the file */
-	String _file;
+  /** String representation of the file */
+  String _file;
 
-	/** The frame action occurs in */
-	ApplicationFrame _theFrame;
+  /** The frame action occurs in */
+  ApplicationFrame _theFrame;
 
-	/**
-	 * Constructor accepting one file
-	 * 
-	 * @param file    The file to be opened
-	 * @param inFrame
-	 */
-	public RecentFileAction(String file, ApplicationFrame inFrame) {
-		super(file);
+  /**
+   * Constructor accepting one file
+   * 
+   * @param file    The file to be opened
+   * @param inFrame
+   */
+  public RecentFileAction(String file, ApplicationFrame inFrame) {
+    super(file);
 
-		_theFrame = inFrame;
+    _theFrame = inFrame;
 
-		putValue(Action.SHORT_DESCRIPTION, "Open the recent file");
+    putValue(Action.SHORT_DESCRIPTION, "Open the recent file");
 
-		_file = file;
-	}
+    _file = file;
+  }
 
-	/**
-	 * Records if the file has been chosen to be opened
-	 * 
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (_theFrame.getOverview().getDirty()) {
-			if (!JUtils.confirmLoss(_theFrame)) {
-				return;
-			}
-		}
+  /**
+   * Records if the file has been chosen to be opened
+   * 
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    if (_theFrame.getOverview().getDirty()) {
+      if (!JUtils.confirmLoss(_theFrame)) {
+        return;
+      }
+    }
 
-		_theFrame.getOverview().initializeOverview();
-		_theFrame.setTreeName("");
-		_theFrame.getOverview().setDirty(false);
+    _theFrame.getOverview().initializeOverview();
+    _theFrame.setTreeName("");
+    _theFrame.getOverview().setDirty(false);
 
-		File selFile = new File(_file);
+    File selFile = new File(_file);
 
-		if (selFile.exists()) {
-			_theFrame.getOverview().loadFromXML(selFile);
-			_theFrame.getOverview().setFile(selFile);
-			Easik.getInstance().getSettings().setProperty("folder_last", selFile.getAbsolutePath());
-			_theFrame.getOverview().setDirty(false);
-			_theFrame.addRecentFile(selFile);
-		} else {
-			JOptionPane.showMessageDialog(_theFrame, "'" + _file + "' does not exist.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
+    if (selFile.exists()) {
+      _theFrame.getOverview().loadFromXML(selFile);
+      _theFrame.getOverview().setFile(selFile);
+      Easik.getInstance().getSettings().setProperty("folder_last", selFile.getAbsolutePath());
+      _theFrame.getOverview().setDirty(false);
+      _theFrame.addRecentFile(selFile);
+    } else {
+      JOptionPane.showMessageDialog(_theFrame, "'" + _file + "' does not exist.", "Error",
+          JOptionPane.ERROR_MESSAGE);
+    }
+  }
 }

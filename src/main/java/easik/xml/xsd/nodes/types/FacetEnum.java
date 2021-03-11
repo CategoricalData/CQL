@@ -23,133 +23,133 @@ import easik.xml.xsd.XSDGeneralTag;
  * @see easik.database.types.Varchar
  */
 public enum FacetEnum {
-	LENGTH {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "length";
-		}
-	},
-	MINLENGTH {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "minLength";
-		}
-	},
-	MAXLENGTH {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "maxLength";
-		}
-	},
-	TOTALDIGITS {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "totalDigits";
-		}
-	},
-	FRACTIONDIGITS {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "fractionDigits";
-		}
-	},
-	MININCLUSIVE {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "minExclusive";
-		}
-	},
-	MAXINCLUSIVE {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "maxExclusive";
-		}
-	},
-	MINEXCLUSIVE {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "minExclusive";
-		}
-	},
-	MAXEXCLUSIVE {
-		/**
-		 *
-		 *
-		 * @return
-		 */
-		@Override
-		public String toString() {
-			return "maxExclusive";
-		}
-	};
+  LENGTH {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "length";
+    }
+  },
+  MINLENGTH {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "minLength";
+    }
+  },
+  MAXLENGTH {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "maxLength";
+    }
+  },
+  TOTALDIGITS {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "totalDigits";
+    }
+  },
+  FRACTIONDIGITS {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "fractionDigits";
+    }
+  },
+  MININCLUSIVE {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "minExclusive";
+    }
+  },
+  MAXINCLUSIVE {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "maxExclusive";
+    }
+  },
+  MINEXCLUSIVE {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "minExclusive";
+    }
+  },
+  MAXEXCLUSIVE {
+    /**
+     *
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+      return "maxExclusive";
+    }
+  };
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public abstract String toString();
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public abstract String toString();
 
-	/**
-	 *
-	 *
-	 * @param attrValValue
-	 *
-	 * @return
-	 */
-	public XSDGeneralTag getAsTag(final String attrValValue) {
-		return new XSDGeneralTag(this.toString(), "value", attrValValue);
-	}
+  /**
+   *
+   *
+   * @param attrValValue
+   *
+   * @return
+   */
+  public XSDGeneralTag getAsTag(final String attrValValue) {
+    return new XSDGeneralTag(this.toString(), "value", attrValValue);
+  }
 
-	/**
-	 *
-	 *
-	 * @param t
-	 *
-	 * @return
-	 */
-	public boolean isAllowedWithType(final XSDBaseType t) {
-		return t.facetAllowed(this);
-	}
+  /**
+   *
+   *
+   * @param t
+   *
+   * @return
+   */
+  public boolean isAllowedWithType(final XSDBaseType t) {
+    return t.facetAllowed(this);
+  }
 }

@@ -116,28 +116,28 @@ public class IdeOptions {
 
 	private static String toString(IdeOption o, Object obj) {
 		switch (o.type) {
-		case BOOL:
-			return obj.toString();
-		case COLOR:
-			return Integer.toString(((Color) obj).getRGB());
-		case FILE:
-			return ((File) obj).toURI().toString();
-		case FONT:
-			Font f = (Font) obj;
-			String s = "";
-			if (f.isBold()) {
-				s += "BOLD";
-			}
-			if (f.isItalic()) {
-				s += "ITALIC";
-			}
-			return f.getName() + " " + s + " " + f.getSize();
-		case LF:
-			return obj.toString();
-		case NAT:
-			return obj.toString();
-		default:
-			return Util.anomaly();
+			case BOOL:
+				return obj.toString();
+			case COLOR:
+				return Integer.toString(((Color) obj).getRGB());
+			case FILE:
+				return ((File) obj).toURI().toString();
+			case FONT:
+				Font f = (Font) obj;
+				String s = "";
+				if (f.isBold()) {
+					s += "BOLD";
+				}
+				if (f.isItalic()) {
+					s += "ITALIC";
+				}
+				return f.getName() + " " + s + " " + f.getSize();
+			case LF:
+				return obj.toString();
+			case NAT:
+				return obj.toString();
+			default:
+				return Util.anomaly();
 		}
 	}
 
@@ -232,7 +232,7 @@ public class IdeOptions {
 
 	private JComponent onlyColors() {
 		JPanel p1 = new JPanel(new GridLayout(size() - 12, 1));
-		JPanel p2 = new JPanel(new GridLayout(size() - 12 , 1));
+		JPanel p2 = new JPanel(new GridLayout(size() - 12, 1));
 
 		JSplitPane p = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -265,7 +265,7 @@ public class IdeOptions {
 				p2.add(viewerFor(o));
 			}
 		}
-//		p.setPreferredSize(theD);
+//    p.setPreferredSize(theD);
 		return p;
 	}
 
@@ -310,89 +310,90 @@ public class IdeOptions {
 
 	private JComponent viewerFor(IdeOption o) {
 		switch (o.type) {
-		case BOOL:
-			JCheckBox b = new JCheckBox("", getBool(o));
-			b.addActionListener(x -> setBool(o, b.isSelected()));
-			return b;
-		case COLOR:
-			JButton button = new JButton("Set Color");
-			JLabel l = new JLabel("   ");
-			l.setOpaque(true);
-			l.setBackground(getColor(o));
+			case BOOL:
+				JCheckBox b = new JCheckBox("", getBool(o));
+				b.addActionListener(x -> setBool(o, b.isSelected()));
+				return b;
+			case COLOR:
+				JButton button = new JButton("Set Color");
+				JLabel l = new JLabel("   ");
+				l.setOpaque(true);
+				l.setBackground(getColor(o));
 
-			// l.revalidate();
-			button.addActionListener(x -> {
-				Color c = JColorChooser.showDialog(null, "Set " + o.toString(), getColor(o));
-				if (c != null) {
-					setColor(o, c);
-					l.setBackground(getColor(o));
-					l.revalidate();
+				// l.revalidate();
+				button.addActionListener(x -> {
+					Color c = JColorChooser.showDialog(null, "Set " + o.toString(), getColor(o));
+					if (c != null) {
+						setColor(o, c);
+						l.setBackground(getColor(o));
+						l.revalidate();
+					}
+				});
+
+				return pair(l, button);
+			case FILE:
+				button = new JButton("Set Dir");
+				JTextField ll = new JTextField(toString(o, getFile(o)));
+				ll.setEditable(false);
+				button.addActionListener(x -> {
+					JFileChooser jfc = new JFileChooser();
+					jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					jfc.setSelectedFile(getFile(o));
+					jfc.showOpenDialog(null);
+					File f = jfc.getSelectedFile();
+					if (f == null) {
+						return;
+					}
+					setFile(o, f);
+					ll.setText(toString(o, getFile(o)));
+					ll.revalidate();
+				});
+
+				return pair(ll, button);
+			case FONT:
+				button = new JButton("Set Font");
+				l = new JLabel(toString(o, getFont(o)).trim());
+				button.addActionListener(x -> {
+					JFontChooser c = new JFontChooser();
+					c.setSelectedFont(getFont(o));
+					int ret = c.showDialog(null);
+					if (ret == JFontChooser.OK_OPTION) {
+						setFont(o, c.getSelectedFont());
+						l.setText(toString(o, getFont(o)).trim());
+						l.revalidate();
+					}
+				});
+
+				return pair(l, button);
+			case LF:
+				String[] items = new String[UIManager.getInstalledLookAndFeels().length + 1];
+				int i = 0;
+				for (LookAndFeelInfo k : UIManager.getInstalledLookAndFeels()) {
+					items[i++] = k.getClassName();
 				}
-			});
-
-			return pair(l, button);
-		case FILE:
-			button = new JButton("Set Dir");
-			JTextField ll = new JTextField(toString(o, getFile(o)));
-			ll.setEditable(false);
-			button.addActionListener(x -> {
-				JFileChooser jfc = new JFileChooser();
-				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				jfc.setSelectedFile(getFile(o));
-				jfc.showOpenDialog(null);
-				File f = jfc.getSelectedFile();
-				if (f == null) {
-					return;
-				}
-				setFile(o, f);
-				ll.setText(toString(o, getFile(o)));
-				ll.revalidate();
-			});
-
-			return pair(ll, button);
-		case FONT:
-			button = new JButton("Set Font");
-			l = new JLabel(toString(o, getFont(o)).trim());
-			button.addActionListener(x -> {
-				JFontChooser c = new JFontChooser();
-				c.setSelectedFont(getFont(o));
-				int ret = c.showDialog(null);
-				if (ret == JFontChooser.OK_OPTION) {
-					setFont(o, c.getSelectedFont());
-					l.setText(toString(o, getFont(o)).trim());
-					l.revalidate();
-				}
-			});
-
-			return pair(l, button);
-		case LF:
-			String[] items = new String[UIManager.getInstalledLookAndFeels().length];
-			int i = 0;
-			for (LookAndFeelInfo k : UIManager.getInstalledLookAndFeels()) {
-				items[i++] = k.getClassName();
-			}
-			JComboBox<String> lfb = new JComboBox<>(items);
-			lfb.setSelectedItem(getString(o));
-			lfb.addActionListener(x -> {
-				setString(o, (String) lfb.getSelectedItem());
-			});
-			return lfb;
-		case NAT:
-			SpinnerModel model = new SpinnerNumberModel(getNat(o).intValue(), 0, 1000, 1);
-			JSpinner spinner = new JSpinner(model);
-			spinner.addChangeListener(x -> {
-				setNat(o, (Integer) spinner.getValue());
-			});
-			JPanel pan = new JPanel(new GridLayout(1, 6));
-			pan.add(spinner);
-			pan.add(new JLabel());
-			pan.add(new JLabel());
-			pan.add(new JLabel());
-			pan.add(new JLabel());
-			pan.add(new JLabel());
-			return pan;
-		default:
-			return Util.anomaly();
+				items[i] = "com.formdev.flatlaf.FlatLightLaf";
+				JComboBox<String> lfb = new JComboBox<>(items);
+				lfb.setSelectedItem(getString(o));
+				lfb.addActionListener(x -> {
+					setString(o, (String) lfb.getSelectedItem());
+				});
+				return lfb;
+			case NAT:
+				SpinnerModel model = new SpinnerNumberModel(getNat(o).intValue(), 0, 1000, 1);
+				JSpinner spinner = new JSpinner(model);
+				spinner.addChangeListener(x -> {
+					setNat(o, (Integer) spinner.getValue());
+				});
+				JPanel pan = new JPanel(new GridLayout(1, 6));
+				pan.add(spinner);
+				pan.add(new JLabel());
+				pan.add(new JLabel());
+				pan.add(new JLabel());
+				pan.add(new JLabel());
+				pan.add(new JLabel());
+				return pan;
+			default:
+				return Util.anomaly();
 		}
 	}
 
@@ -401,10 +402,11 @@ public class IdeOptions {
 	}
 
 	private static String defaultLF() {
-		return UIManager.getSystemLookAndFeelClassName();
-//	    		   System.getProperty("os.name").toLowerCase().contains("mac") 
-		// ? UIManager.getSystemLookAndFeelClassName() :
-		// "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+		boolean b = System.getProperty("os.name").toLowerCase().contains("mac");
+		if (b) {
+			return UIManager.getSystemLookAndFeelClassName();
+		}
+		return "com.formdev.flatlaf.FlatLightLaf";
 	}
 
 	public void apply(JTextArea a) {
@@ -429,76 +431,78 @@ public class IdeOptions {
 	public void apply(IdeOption o, JTextArea a) {
 
 		switch (o) {
-		case CLEAR_WHITESPACE_LINES:
-			// case TAB_LINE_COLOR:
-		case BOOKMARKING_ENABLED:
-		case NUMBER_COLOR:
-		case OUTLINE_ELONGATED:
-		case FILE_PATH:
-		case BOOKMARK_COLOR:
-		//case OUTLINE_DELAY:
-		case HTML_COLOR:
-		case LINE_NUMBERS:
-		case OUTLINE_FONT:
-		case LOOK_AND_FEEL:
-			// case SPELL_CHECK:
-		case COMMENT_COLOR:
-		case KEYWORD_1_COLOR:
-		case KEYWORD_2_COLOR:
-		case SYMBOL_COLOR:
-		case OUTLINE_TYPES:
-		case QUOTE_COLOR:
-		case BRACKET_MATCH_BG_COLOR:
-		case BRACKET_MATCH_BORDER_COLOR:
-		case CURRENT_LINE_HIGHLIGHT_COLOR:
-		case MARGIN_LINE_COLOR:
-		case MARK_ALL_HIGHLIGHT_COLOR:
-		case AUTO_CLOSE_BRACES:
-		case AUTO_INDENT:
-		case LINE_HIGHLIGHT:
-		case MARK_OCCURANCES:
-		case SHOW_MARGIN:
-		case FADE_CURRENT_LINE:
-		case FOLDING:
-		case MATCH_BRACKET:
-		case ROUNDED_EDGES:
-		case SHOW_MATCHED_POPUP:
-		case TABS_EMULATED:
-		case ANIMATE_MATCH:
-		case MARGIN_COLS:
-		case ENABLE_OUTLINE:
-		case OUTLINE_ON_LEFT:
-		case OUTLINE_PREFIX_KIND:
-		case ANTIALIASING:
-		case TAB_LINES:
+			case CLEAR_WHITESPACE_LINES:
+				// case TAB_LINE_COLOR:
+			case BOOKMARKING_ENABLED:
+			case NUMBER_COLOR:
+			case FUNCTION_COLOR:
+			case SEPARATOR_COLOR:
+			case OPERATOR_COLOR:
+			case OUTLINE_ELONGATED:
+			case FILE_PATH:
+			case BOOKMARK_COLOR:
+				// case OUTLINE_DELAY:
+			case HTML_COLOR:
+			case LINE_NUMBERS:
+			case OUTLINE_FONT:
+			case LOOK_AND_FEEL:
+				// case SPELL_CHECK:
+			case COMMENT_COLOR:
+			case KEYWORD_1_COLOR:
+			case KEYWORD_2_COLOR:
+			case OUTLINE_TYPES:
+			case QUOTE_COLOR:
+			case BRACKET_MATCH_BG_COLOR:
+			case BRACKET_MATCH_BORDER_COLOR:
+			case CURRENT_LINE_HIGHLIGHT_COLOR:
+			case MARGIN_LINE_COLOR:
+			case MARK_ALL_HIGHLIGHT_COLOR:
+			case AUTO_CLOSE_BRACES:
+			case AUTO_INDENT:
+			case LINE_HIGHLIGHT:
+			case MARK_OCCURANCES:
+			case SHOW_MARGIN:
+			case FADE_CURRENT_LINE:
+			case FOLDING:
+			case MATCH_BRACKET:
+			case ROUNDED_EDGES:
+			case SHOW_MATCHED_POPUP:
+			case TABS_EMULATED:
+			case ANIMATE_MATCH:
+			case MARGIN_COLS:
+			case ENABLE_OUTLINE:
+			case OUTLINE_ON_LEFT:
+			case OUTLINE_PREFIX_KIND:
+			case ANTIALIASING:
+			case TAB_LINES:
 
-			return;
+				return;
 
-		case BACKGROUND_COLOR:
-			a.setBackground(getColor(o));
-			return;
+			case BACKGROUND_COLOR:
+				a.setBackground(getColor(o));
+				return;
 
-		case CARET_COLOR:
-			a.setCaretColor(getColor(o));
-			return;
+			case CARET_COLOR:
+				a.setCaretColor(getColor(o));
+				return;
 
-		case FONT:
-			a.setFont(getFont(o));
-			return;
-		case FOREGROUND_COLOR:
-			a.setForeground(getColor(o));
-			return;
-		case LINE_WRAP:
-			return;
-		case SELECTION_COLOR:
-			a.setSelectionColor(getColor(o));
-			return;
-		case TAB_SIZE:
-			a.setTabSize(getNat(o));
-			return;
+			case FONT:
+				a.setFont(getFont(o));
+				return;
+			case FOREGROUND_COLOR:
+				a.setForeground(getColor(o));
+				return;
+			case LINE_WRAP:
+				return;
+			case SELECTION_COLOR:
+				a.setSelectionColor(getColor(o));
+				return;
+			case TAB_SIZE:
+				a.setTabSize(getNat(o));
+				return;
 
-		default:
-			Util.anomaly();
+			default:
+				Util.anomaly();
 		}
 	}
 
@@ -510,169 +514,165 @@ public class IdeOptions {
 		SyntaxScheme scheme = a.topArea.getSyntaxScheme();
 
 		switch (o) {
-		// case TAB_LINE_COLOR:
-		// a.topArea.setTasetTabLineColor(getColor(o));
-		// return;
-		case BOOKMARKING_ENABLED:
-			a.sp.setIconRowHeaderEnabled(getBool(o));
-			a.sp.getGutter().setBookmarkingEnabled(getBool(o));
-			return;
-		case BOOKMARK_COLOR:
-			a.sp.getGutter().setBookmarkIcon(new MissingIcon(getColor(o), 14, 14));
-			return;
-		case CLEAR_WHITESPACE_LINES:
-			a.topArea.setClearWhitespaceLinesEnabled(getBool(o));
-			return;
-		case TAB_LINES:
-			a.topArea.setPaintTabLines(getBool(o));
-			return;
-		case ANTIALIASING:
-			a.topArea.setAntiAliasingEnabled(getBool(o));
-			return;
-		case LINE_NUMBERS:
-			a.sp.setLineNumbersEnabled(getBool(o));
-			return;
-		case OUTLINE_TYPES:
-			a.outline_types(getBool(o));
-			return;
-		case FILE_PATH:
-			return;
-		case LOOK_AND_FEEL:
-			return;
-		// case SPELL_CHECK:
-		// return;
+			// case TAB_LINE_COLOR:
+			// a.topArea.setTasetTabLineColor(getColor(o));
+			// return;
+			case BOOKMARKING_ENABLED:
+				a.sp.setIconRowHeaderEnabled(getBool(o));
+				a.sp.getGutter().setBookmarkingEnabled(getBool(o));
+				return;
+			case BOOKMARK_COLOR:
+				a.sp.getGutter().setBookmarkIcon(new MissingIcon(getColor(o), 14, 14));
+				return;
+			case CLEAR_WHITESPACE_LINES:
+				a.topArea.setClearWhitespaceLinesEnabled(getBool(o));
+				return;
+			case TAB_LINES:
+				a.topArea.setPaintTabLines(getBool(o));
+				return;
+			case ANTIALIASING:
+				a.topArea.setAntiAliasingEnabled(getBool(o));
+				return;
+			case LINE_NUMBERS:
+				a.sp.setLineNumbersEnabled(getBool(o));
+				return;
+			case OUTLINE_TYPES:
+				a.outline_types(getBool(o));
+				return;
+			case FILE_PATH:
+				return;
+			case LOOK_AND_FEEL:
+				return;
+			case COMMENT_COLOR:
+				scheme.getStyle(TokenTypes.COMMENT_EOL).foreground = getColor(o);
+				return;
+			case FUNCTION_COLOR:
+				scheme.getStyle(TokenTypes.FUNCTION).foreground = getColor(o);
+				return;
+			case HTML_COLOR:
+				scheme.getStyle(TokenTypes.COMMENT_DOCUMENTATION).foreground = getColor(o);
+				return;
+			case KEYWORD_1_COLOR:
+				scheme.getStyle(TokenTypes.RESERVED_WORD).foreground = getColor(o);
+				return;
+			case NUMBER_COLOR:
+				scheme.getStyle(TokenTypes.LITERAL_NUMBER_DECIMAL_INT).foreground = getColor(o);
+				return;
+			case OPERATOR_COLOR:
+				scheme.getStyle(TokenTypes.OPERATOR).foreground = getColor(o);
+				return;
+			case SEPARATOR_COLOR:
+				scheme.getStyle(TokenTypes.SEPARATOR).foreground = getColor(o);
+				return;	
+			case KEYWORD_2_COLOR:
+				scheme.getStyle(TokenTypes.RESERVED_WORD_2).foreground = getColor(o);
+				return;
+			case QUOTE_COLOR:
+				scheme.getStyle(TokenTypes.LITERAL_STRING_DOUBLE_QUOTE).foreground = getColor(o);
+				return;
 
-		case COMMENT_COLOR:
-			// new org.fife.ui.rsyntaxtextarea.
-			scheme.getStyle(TokenTypes.COMMENT_EOL).foreground = getColor(o);
-			/*
-			 * scheme.getStyle(TokenTypes.COMMENT_DOCUMENTATION).foreground = getColor(o);
-			 * scheme.getStyle(TokenTypes.COMMENT_MARKUP).foreground = getColor(o);
-			 * scheme.getStyle(TokenTypes.COMMENT_MULTILINE).foreground = getColor(o);
-			 * scheme.getStyle(TokenTypes.COMMENT_KEYWORD).foreground = getColor(o);
-			 */
-			return;
-		case SYMBOL_COLOR:
-			scheme.getStyle(TokenTypes.OPERATOR).foreground = getColor(o);
-			return;
-		case HTML_COLOR:
-			scheme.getStyle(TokenTypes.COMMENT_DOCUMENTATION).foreground = getColor(o);
-			return;
-		case KEYWORD_1_COLOR:
-			scheme.getStyle(TokenTypes.RESERVED_WORD).foreground = getColor(o);
-			return;
-		case NUMBER_COLOR:
-			scheme.getStyle(TokenTypes.LITERAL_NUMBER_DECIMAL_INT).foreground = getColor(o);
-			return;
-		case KEYWORD_2_COLOR:
-			scheme.getStyle(TokenTypes.RESERVED_WORD_2).foreground = getColor(o);
-			return;
-		case QUOTE_COLOR:
-			scheme.getStyle(TokenTypes.LITERAL_STRING_DOUBLE_QUOTE).foreground = getColor(o);
-			return;
-
-		case BACKGROUND_COLOR:
-			a.topArea.setBackground(getColor(o));
-			return;
-		case BRACKET_MATCH_BG_COLOR:
-			a.topArea.setMatchedBracketBGColor(getColor(o));
-			return;
-		case BRACKET_MATCH_BORDER_COLOR:
-			a.topArea.setMatchedBracketBorderColor(getColor(o));
-			return;
-		case CARET_COLOR:
-			a.topArea.setCaretColor(getColor(o));
-			return;
-		case CURRENT_LINE_HIGHLIGHT_COLOR:
-			a.topArea.setCurrentLineHighlightColor(getColor(o));
-			return;
-		case FONT:
-			a.topArea.setFont(getFont(o));
-			a.topArea.requestFocus();
-			return;
-		case FOREGROUND_COLOR:
-			a.topArea.setForeground(getColor(o));
-			return;
-		case LINE_WRAP:
-			a.topArea.setLineWrap(getBool(o));
-			return;
-		case MARGIN_LINE_COLOR:
-			a.topArea.setMarginLineColor(getColor(o));
-			return;
-		case MARK_ALL_HIGHLIGHT_COLOR:
-			a.topArea.setMarkOccurrencesColor(getColor(o));
-			return;
-		case SELECTION_COLOR:
-			a.topArea.setSelectionColor(getColor(o));
-			return;
-		case AUTO_CLOSE_BRACES:
-			a.topArea.setCloseCurlyBraces(getBool(o));
-			return;
-		case AUTO_INDENT:
-			a.topArea.setAutoIndentEnabled(getBool(o));
-			return;
-		case LINE_HIGHLIGHT:
-			a.topArea.setHighlightCurrentLine(getBool(o));
-			return;
-		case MARK_OCCURANCES:
-			a.topArea.setMarkOccurrences(getBool(o));
-			return;
-		case SHOW_MARGIN:
-			a.topArea.setMarginLineEnabled(getBool(o));
-			return;
-		case FADE_CURRENT_LINE:
-			a.topArea.setFadeCurrentLineHighlight(getBool(o));
-			return;
-		case FOLDING:
-			a.topArea.setCodeFoldingEnabled(getBool(o));
-			return;
-		case MATCH_BRACKET:
-			a.topArea.setBracketMatchingEnabled(getBool(o));
-			return;
-		case ROUNDED_EDGES:
-			a.topArea.setRoundedSelectionEdges(getBool(o));
-			return;
-		case SHOW_MATCHED_POPUP:
-			a.topArea.setShowMatchedBracketPopup(getBool(o));
-			return;
-		case TABS_EMULATED:
-			a.topArea.setTabsEmulated(getBool(o));
-			return;
-		case ANIMATE_MATCH:
-			a.topArea.setAnimateBracketMatching(getBool(o));
-			return;
-		case MARGIN_COLS:
-			a.topArea.setMarginLinePosition(getNat(o));
-			return;
-		case TAB_SIZE:
-			a.topArea.setTabSize(getNat(o));
-			return;
-		case ENABLE_OUTLINE:
-			a.enable_outline(getBool(o));
-			return;
-		case OUTLINE_ON_LEFT:
-			a.outline_on_left(getBool(o));
-			return;
-		case OUTLINE_PREFIX_KIND:
-			a.outline_prefix_kind(getBool(o));
-			return;
-		case OUTLINE_ELONGATED:
-			a.outline_elongated(getBool(o));
-			return;
-		//case OUTLINE_DELAY:
-		//	a.set_delay(getNat(o));
-		//	return;
-		case OUTLINE_FONT:
-			a.setOutlineFont(getFont(o));
-			return;
-		default:
-			Util.anomaly();
+			case BACKGROUND_COLOR:
+				a.topArea.setBackground(getColor(o));
+				return;
+			case BRACKET_MATCH_BG_COLOR:
+				a.topArea.setMatchedBracketBGColor(getColor(o));
+				return;
+			case BRACKET_MATCH_BORDER_COLOR:
+				a.topArea.setMatchedBracketBorderColor(getColor(o));
+				return;
+			case CARET_COLOR:
+				a.topArea.setCaretColor(getColor(o));
+				return;
+			case CURRENT_LINE_HIGHLIGHT_COLOR:
+				a.topArea.setCurrentLineHighlightColor(getColor(o));
+				return;
+			case FONT:
+				a.topArea.setFont(getFont(o));
+				a.topArea.requestFocus();
+				return;
+			case FOREGROUND_COLOR:
+				a.topArea.setForeground(getColor(o));
+				return;
+			case LINE_WRAP:
+				a.topArea.setLineWrap(getBool(o));
+				return;
+			case MARGIN_LINE_COLOR:
+				a.topArea.setMarginLineColor(getColor(o));
+				return;
+			case MARK_ALL_HIGHLIGHT_COLOR:
+				a.topArea.setMarkOccurrencesColor(getColor(o));
+				return;
+			case SELECTION_COLOR:
+				a.topArea.setSelectionColor(getColor(o));
+				return;
+			case AUTO_CLOSE_BRACES:
+				a.topArea.setCloseCurlyBraces(getBool(o));
+				return;
+			case AUTO_INDENT:
+				a.topArea.setAutoIndentEnabled(getBool(o));
+				return;
+			case LINE_HIGHLIGHT:
+				a.topArea.setHighlightCurrentLine(getBool(o));
+				return;
+			case MARK_OCCURANCES:
+				a.topArea.setMarkOccurrences(getBool(o));
+				return;
+			case SHOW_MARGIN:
+				a.topArea.setMarginLineEnabled(getBool(o));
+				return;
+			case FADE_CURRENT_LINE:
+				a.topArea.setFadeCurrentLineHighlight(getBool(o));
+				return;
+			case FOLDING:
+				a.topArea.setCodeFoldingEnabled(getBool(o));
+				return;
+			case MATCH_BRACKET:
+				a.topArea.setBracketMatchingEnabled(getBool(o));
+				return;
+			case ROUNDED_EDGES:
+				a.topArea.setRoundedSelectionEdges(getBool(o));
+				return;
+			case SHOW_MATCHED_POPUP:
+				a.topArea.setShowMatchedBracketPopup(getBool(o));
+				return;
+			case TABS_EMULATED:
+				a.topArea.setTabsEmulated(getBool(o));
+				return;
+			case ANIMATE_MATCH:
+				a.topArea.setAnimateBracketMatching(getBool(o));
+				return;
+			case MARGIN_COLS:
+				a.topArea.setMarginLinePosition(getNat(o));
+				return;
+			case TAB_SIZE:
+				a.topArea.setTabSize(getNat(o));
+				return;
+			case ENABLE_OUTLINE:
+				a.enable_outline(getBool(o));
+				return;
+			case OUTLINE_ON_LEFT:
+				a.outline_on_left(getBool(o));
+				return;
+			case OUTLINE_PREFIX_KIND:
+				a.outline_prefix_kind(getBool(o));
+				return;
+			case OUTLINE_ELONGATED:
+				a.outline_elongated(getBool(o));
+				return;
+			// case OUTLINE_DELAY:
+			// a.set_delay(getNat(o));
+			// return;
+			case OUTLINE_FONT:
+				a.setOutlineFont(getFont(o));
+				return;
+			default:
+				Util.anomaly();
 		}
 	}
 
 	public static enum IdeOption {
 
-		//OUTLINE_DELAY(IdeOptionType.NAT, 2),
+		// OUTLINE_DELAY(IdeOptionType.NAT, 2),
 
 		ENABLE_OUTLINE(IdeOptionType.BOOL, true), OUTLINE_ON_LEFT(IdeOptionType.BOOL, false),
 		OUTLINE_PREFIX_KIND(IdeOptionType.BOOL, true), OUTLINE_ELONGATED(IdeOptionType.BOOL, true),
@@ -696,8 +696,9 @@ public class IdeOptions {
 		BACKGROUND_COLOR(IdeOptionType.COLOR, Color.WHITE), FOREGROUND_COLOR(IdeOptionType.COLOR, Color.BLACK),
 		KEYWORD_1_COLOR(IdeOptionType.COLOR, Color.RED), KEYWORD_2_COLOR(IdeOptionType.COLOR, Color.BLUE),
 		COMMENT_COLOR(IdeOptionType.COLOR, new Color(-16744448)), HTML_COLOR(IdeOptionType.COLOR, new Color(-16744448)),
-		QUOTE_COLOR(IdeOptionType.COLOR, Color.gray), SYMBOL_COLOR(IdeOptionType.COLOR, Color.RED),
-		NUMBER_COLOR(IdeOptionType.COLOR, Color.gray),
+		QUOTE_COLOR(IdeOptionType.COLOR, new Color(128, 0, 128)),
+		NUMBER_COLOR(IdeOptionType.COLOR, new Color(128, 0, 128)), FUNCTION_COLOR(IdeOptionType.COLOR, new Color(192, 128, 0)),
+		SEPARATOR_COLOR(IdeOptionType.COLOR, Color.RED), OPERATOR_COLOR(IdeOptionType.COLOR, Color.RED),
 		CURRENT_LINE_HIGHLIGHT_COLOR(IdeOptionType.COLOR, RTextAreaBase.getDefaultCurrentLineHighlightColor()),
 		BOOKMARK_COLOR(IdeOptionType.COLOR, RTextArea.getDefaultMarkAllHighlightColor()),
 		MARK_ALL_HIGHLIGHT_COLOR(IdeOptionType.COLOR, RTextArea.getDefaultMarkAllHighlightColor()),
@@ -721,107 +722,110 @@ public class IdeOptions {
 		@Override
 		public String toString() {
 			switch (this) {
-			// case TAB_LINE_COLOR:
-			// return "Tab line color.";
-			case BOOKMARKING_ENABLED:
-				return "Bookmarking enabled.";
-			case BOOKMARK_COLOR:
-				return "Bookmark color";
-			case CLEAR_WHITESPACE_LINES:
-				return "Clears whitepsace lines";
-			case TAB_LINES:
-				return "Prints lines along tabs";
-			case ANTIALIASING:
-				return "Anti-alias the editor";
-			case FILE_PATH:
-				return "Initial file chooser path";
-			case FONT:
-				return "Font";
-			case LINE_WRAP:
-				return "Line wrap";
-			case LOOK_AND_FEEL:
-				return "Look and feel";
-			// case SPELL_CHECK:
-			// return "Compile time constraint checking.";
-			case BACKGROUND_COLOR:
-				return "Background";
-			case BRACKET_MATCH_BG_COLOR:
-				return "Bracket match background";
-			case BRACKET_MATCH_BORDER_COLOR:
-				return "Bracket match border";
-			case CARET_COLOR:
-				return "Caret";
-			case COMMENT_COLOR:
-				return "Comments";
-			case CURRENT_LINE_HIGHLIGHT_COLOR:
-				return "Current line highlight";
-			case FOREGROUND_COLOR:
-				return "Foreground";
-			case KEYWORD_1_COLOR:
-				return "Keyword 1";
-			case KEYWORD_2_COLOR:
-				return "Keyword 2";
-			case MARGIN_LINE_COLOR:
-				return "Margin line";
-			case MARK_ALL_HIGHLIGHT_COLOR:
-				return "Mark occurrences highlight";
-			case QUOTE_COLOR:
-				return "Quote";
-			case SELECTION_COLOR:
-				return "Selection";
-			case AUTO_CLOSE_BRACES:
-				return "Auto close braces";
-			case AUTO_INDENT:
-				return "Auto indent";
-			case LINE_HIGHLIGHT:
-				return "Highlight current line";
-			case MARK_OCCURANCES:
-				return "Mark occurrences";
-			case SHOW_MARGIN:
-				return "Show Margin";
-			case FADE_CURRENT_LINE:
-				return "Fade line highlight";
-			case FOLDING:
-				return "Code folding";
-			case MATCH_BRACKET:
-				return "Match brackets";
-			case ROUNDED_EDGES:
-				return "Rounded selection edges";
-			case SHOW_MATCHED_POPUP:
-				return "Matched bracket popup";
-			case TABS_EMULATED:
-				return "Tabs emulated";
-			case ANIMATE_MATCH:
-				return "Animate bracket match";
-			case MARGIN_COLS:
-				return "Columns before margin";
-			case TAB_SIZE:
-				return "Spaces per tab";
-			case SYMBOL_COLOR:
-				return "Symbol color";
-			case LINE_NUMBERS:
-				return "Line numbers";
-			case NUMBER_COLOR:
-				return "Number color";
-			case HTML_COLOR:
-				return "HTML color";
-			case ENABLE_OUTLINE:
-				return "Enable outline";
-			case OUTLINE_ON_LEFT:
-				return "Outline on left";
-			case OUTLINE_PREFIX_KIND:
-				return "Show kinds";
-			case OUTLINE_ELONGATED:
-				return "Elongate the outline";
-			//case OUTLINE_DELAY:
-			//	return "Parsing polling delay (s)";
-			case OUTLINE_FONT:
-				return "Outline font";
-			case OUTLINE_TYPES:
-				return "Show type info";
-			default:
-				return Util.anomaly();
+				// case TAB_LINE_COLOR:
+				// return "Tab line color.";
+				case BOOKMARKING_ENABLED:
+					return "Bookmarking enabled.";
+				case BOOKMARK_COLOR:
+					return "Bookmark color";
+				case CLEAR_WHITESPACE_LINES:
+					return "Clears whitepsace lines";
+				case TAB_LINES:
+					return "Prints lines along tabs";
+				case ANTIALIASING:
+					return "Anti-alias the editor";
+				case FILE_PATH:
+					return "Initial file chooser path";
+				case FONT:
+					return "Font";
+				case LINE_WRAP:
+					return "Line wrap";
+				case LOOK_AND_FEEL:
+					return "Look and feel";
+				// case SPELL_CHECK:
+				// return "Compile time constraint checking.";
+				case BACKGROUND_COLOR:
+					return "Background";
+				case BRACKET_MATCH_BG_COLOR:
+					return "Bracket match background";
+				case BRACKET_MATCH_BORDER_COLOR:
+					return "Bracket match border";
+				case CARET_COLOR:
+					return "Caret";
+				case COMMENT_COLOR:
+					return "Comments";
+				case CURRENT_LINE_HIGHLIGHT_COLOR:
+					return "Current line highlight";
+				case FOREGROUND_COLOR:
+					return "Foreground";
+				case KEYWORD_1_COLOR:
+					return "Keyword 1";
+				case KEYWORD_2_COLOR:
+					return "Keyword 2";
+				case MARGIN_LINE_COLOR:
+					return "Margin line";
+				case MARK_ALL_HIGHLIGHT_COLOR:
+					return "Mark occurrences highlight";
+				case QUOTE_COLOR:
+					return "Quote";
+				case SELECTION_COLOR:
+					return "Selection";
+				case AUTO_CLOSE_BRACES:
+					return "Auto close braces";
+				case AUTO_INDENT:
+					return "Auto indent";
+				case LINE_HIGHLIGHT:
+					return "Highlight current line";
+				case MARK_OCCURANCES:
+					return "Mark occurrences";
+				case SHOW_MARGIN:
+					return "Show Margin";
+				case FADE_CURRENT_LINE:
+					return "Fade line highlight";
+				case FOLDING:
+					return "Code folding";
+				case MATCH_BRACKET:
+					return "Match brackets";
+				case ROUNDED_EDGES:
+					return "Rounded selection edges";
+				case SHOW_MATCHED_POPUP:
+					return "Matched bracket popup";
+				case TABS_EMULATED:
+					return "Tabs emulated";
+				case ANIMATE_MATCH:
+					return "Animate bracket match";
+				case MARGIN_COLS:
+					return "Columns before margin";
+				case TAB_SIZE:
+					return "Spaces per tab";
+				case LINE_NUMBERS:
+					return "Line numbers";
+				case NUMBER_COLOR:
+					return "Number color";
+				case HTML_COLOR:
+					return "HTML color";
+				case ENABLE_OUTLINE:
+					return "Enable outline";
+				case OUTLINE_ON_LEFT:
+					return "Outline on left";
+				case OUTLINE_PREFIX_KIND:
+					return "Show kinds";
+				case OUTLINE_ELONGATED:
+					return "Elongate the outline";
+				// case OUTLINE_DELAY:
+				// return "Parsing polling delay (s)";
+				case OUTLINE_FONT:
+					return "Outline font";
+				case OUTLINE_TYPES:
+					return "Show type info";
+				case FUNCTION_COLOR:
+					return "Function color";
+				case SEPARATOR_COLOR:
+					return "Braces color";
+				case OPERATOR_COLOR:
+					return "Operator color";
 			}
+			return Util.anomaly();
 		}
 	}
 
@@ -934,7 +938,7 @@ public class IdeOptions {
 			Desktop.getDesktop().browse(new URI("http://categoricaldata.net"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			//JOptionPane.showMessageDialog(null, ex.getMessage());
+			// JOptionPane.showMessageDialog(null, ex.getMessage());
 		}
 	}
 

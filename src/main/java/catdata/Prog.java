@@ -4,17 +4,17 @@ import java.util.Collection;
 
 public interface Prog {
 
-	int getLine(String s);
+  int getLine(String s);
 
-	Collection<String> keySet();
+  Collection<String> keySet();
 
-	@SuppressWarnings("unused")
-	default String kind(String s) {
-		return "";
-	}
+  @SuppressWarnings("unused")
+  default String kind(String s) {
+    return "";
+  }
 
-	default long timeout() {
-		return 30;
-	}
+  default long timeout() {
+    return 30;
+  }
 
 }

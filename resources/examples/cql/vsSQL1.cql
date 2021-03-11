@@ -1,54 +1,51 @@
-/*
-Problem 1:
+#Problem 1:
+#
+#Find a sub-database (i.e., populate fresh Employee and Department tables,
+#including constraints) where
+#
+# 1) every employee works in the same department as their manager
+# 2) every department's secretary works in that department
+#
+#Schema:
+#
+#DROP TABLE IF EXISTS Employee;
+#DROP TABLE IF EXISTS Department;
+#
+#CREATE TABLE Employee(
+#id INT PRIMARY KEY,
+#name VARCHAR(255),
+#manager INT,
+#worksIn INT
+#);
+#
+#CREATE TABLE Department(
+#id INT PRIMARY KEY,
+#name VARCHAR(255),
+#secretary INT,
+#);
 
-Find a sub-database (i.e., populate fresh Employee and Department tables,
-including constraints) where
+#ALTER TABLE Employee ADD CONSTRAINT e1
+#FOREIGN KEY (manager) REFERENCES Employee (id);
 
- 1) every employee works in the same department as their manager
- 2) every department's secretary works in that department
+#ALTER TABLE Employee ADD CONSTRAINT e2
+#FOREIGN KEY (worksIn) REFERENCES Department (id);
 
-Schema:
+#ALTER TABLE Department ADD CONSTRAINT d1
+#FOREIGN KEY (secretary) REFERENCES Employee (id);
 
-DROP TABLE IF EXISTS Employee;
-DROP TABLE IF EXISTS Department;
+#Example input DB:
 
-CREATE TABLE Employee(
-id INT PRIMARY KEY,
-name VARCHAR(255),
-manager INT,
-worksIn INT
-);
+#INSERT INTO Employee VALUES
+#(101, 'Alan', 103, 10),
+#(102, 'Camille', 102, 2),
+#(103, 'Andrey', 103, 10);
 
-CREATE TABLE Department(
-id INT PRIMARY KEY,
-name VARCHAR(255),
-secretary INT,
-);
+#INSERT INTO Department VALUES
+#(10, 'Applied Math', 101),
+#(2, 'Pure Math', 102);
 
-ALTER TABLE Employee ADD CONSTRAINT e1
-FOREIGN KEY (manager) REFERENCES Employee (id);
-
-ALTER TABLE Employee ADD CONSTRAINT e2
-FOREIGN KEY (worksIn) REFERENCES Department (id);
-
-ALTER TABLE Department ADD CONSTRAINT d1
-FOREIGN KEY (secretary) REFERENCES Employee (id);
-
-Example input DB:
-
-INSERT INTO Employee VALUES
-(101, 'Alan', 103, 10),
-(102, 'Camille', 102, 2),
-(103, 'Andrey', 103, 10);
-
-INSERT INTO Department VALUES
-(10, 'Applied Math', 101),
-(2, 'Pure Math', 102);
-*/
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Example schema and instance about employees
+###################################################################
+#  Example schema and instance about employees
 
 typeside Ty = literal {
 	external_types
@@ -80,27 +77,27 @@ schema T = literal : Ty {
   		Department.secretary.worksIn = Department
 }
 
-/* Error in query bad: Target equation v.manager.worksIn = v.worksIn not respected:
-   transforms to v.manager.worksIn = v.worksIn, which is not provable in the sub-query for Employee
-  *//*
-query bad = literal : S -> T {
-	entity Employee -> {from
-		v : Employee
-	attributes
-		first -> v.first
-	foreign_keys
-		manager -> {v -> v.manager}
-		worksIn -> {v -> v.worksIn}
-	}
-
-	entity Department -> {from
-		v : Department
-	attributes
-		name -> v.name
-	foreign_keys
-		secretary -> {v -> v.secretary}
-	}
-} */
+# Error in query bad: Target equation v.manager.worksIn = v.worksIn not respected:
+#  transforms to v.manager.worksIn = v.worksIn, which is not provable in the sub-query for Employee
+# 
+#query bad = literal : S -> T {
+#	entity Employee -> {from
+#		v : Employee
+#	attributes
+#		first -> v.first
+#	foreign_keys
+#		manager -> {v -> v.manager}
+#		worksIn -> {v -> v.worksIn}
+#	}
+#
+#	entity Department -> {from
+#		v : Department
+#	attributes
+#		name -> v.name
+#	foreign_keys
+#		secretary -> {v -> v.secretary}
+#	}
+#} 
 
 query good1 = literal : S -> T {
 	entity Employee -> {from

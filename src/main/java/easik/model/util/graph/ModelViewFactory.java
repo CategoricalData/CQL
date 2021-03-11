@@ -23,46 +23,46 @@ import easik.model.vertex.ModelVertex;
  * @author Christian Fiddick
  */
 public class ModelViewFactory<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
-		extends DefaultCellViewFactory {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = 2950493625625444566L;
+    extends DefaultCellViewFactory {
+  /**
+   *    
+   */
+  private static final long serialVersionUID = 2950493625625444566L;
 
-	/**
-	 *
-	 */
-	public ModelViewFactory() {
-		super();
-	}
+  /**
+   *
+   */
+  public ModelViewFactory() {
+    super();
+  }
 
-	/**
-	 * Creates an EdgeView that represents the passed-in edge.
-	 *
-	 * @param edge
-	 *
-	 * @return
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	protected EdgeView createEdgeView(Object edge) {
-		if (edge instanceof ModelEdge) {
-			return new ModelEdgeView<>((E) edge);
-		}
+  /**
+   * Creates an EdgeView that represents the passed-in edge.
+   *
+   * @param edge
+   *
+   * @return
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  protected EdgeView createEdgeView(Object edge) {
+    if (edge instanceof ModelEdge) {
+      return new ModelEdgeView<>((E) edge);
+    }
 
-		return super.createEdgeView(edge);
-	}
+    return super.createEdgeView(edge);
+  }
 
-	/**
-	 * Creates a VertexView for viewing the passed-in vertex.
-	 *
-	 * @param vertex
-	 *
-	 * @return
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	protected VertexView createVertexView(Object vertex) {
-		return new ModelVertexView<>((N) vertex);
-	}
+  /**
+   * Creates a VertexView for viewing the passed-in vertex.
+   *
+   * @param vertex
+   *
+   * @return
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  protected VertexView createVertexView(Object vertex) {
+    return new ModelVertexView<>((N) vertex);
+  }
 }

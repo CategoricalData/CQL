@@ -26,129 +26,129 @@ import easik.EasikTools;
  * @version $$Id$$
  */
 public class Prettify {
-	/**  */
-	private StringBuilder prettied;
+  /**  */
+  private StringBuilder prettied;
 
-	/**  */
-	private Stack<String> tags;
+  /**  */
+  private Stack<String> tags;
 
-	/**
-	 *
-	 *
-	 * @param toBePrettied
-	 */
-	public Prettify(final CharSequence toBePrettied) {
-		final String SPACES = "                                                                                        ";
-		final String lineSep = EasikTools.systemLineSeparator();
-		final int len = toBePrettied.length();
+  /**
+   *
+   *
+   * @param toBePrettied
+   */
+  public Prettify(final CharSequence toBePrettied) {
+    final String SPACES = "                                                                                        ";
+    final String lineSep = EasikTools.systemLineSeparator();
+    final int len = toBePrettied.length();
 
-		prettied = new StringBuilder(len + 120);
-		tags = new Stack<>();
+    prettied = new StringBuilder(len + 120);
+    tags = new Stack<>();
 
-		for (int i = 0; i < len; i++) {
-			prettied.append(toBePrettied.charAt(i));
+    for (int i = 0; i < len; i++) {
+      prettied.append(toBePrettied.charAt(i));
 
-			if (i + 2 < len) {
-				if ("/>".equals(toBePrettied.subSequence(i, i + 2))) {
-					if (!tags.isEmpty()) {
-						tags.pop();
-					}
-				}
-			}
+      if (i + 2 < len) {
+        if ("/>".equals(toBePrettied.subSequence(i, i + 2))) {
+          if (!tags.isEmpty()) {
+            tags.pop();
+          }
+        }
+      }
 
-			if (i + lineSep.length() < len) // noinspection
-											// AssignmentToForLoopParameter
-			{
-				if (lineSep.equals(toBePrettied.subSequence(i, i + lineSep.length()))) {
-					prettied.append(toBePrettied.subSequence(i + 1, i + lineSep.length()));
+      if (i + lineSep.length() < len) // noinspection
+                      // AssignmentToForLoopParameter
+      {
+        if (lineSep.equals(toBePrettied.subSequence(i, i + lineSep.length()))) {
+          prettied.append(toBePrettied.subSequence(i + 1, i + lineSep.length()));
 
-					i += lineSep.length() - 1;
+          i += lineSep.length() - 1;
 
-					try {
-						final int closeTagAdd = adjustSpace(toBePrettied, i);
+          try {
+            final int closeTagAdd = adjustSpace(toBePrettied, i);
 
-						prettied.append(SPACES, 0, closeTagAdd + 2 * (tags.size() - 1));
-					} catch (StringIndexOutOfBoundsException e) {
-						// Ignore, don't add space at the end.
-					}
-				}
-			}
-		}
-	}
+            prettied.append(SPACES, 0, closeTagAdd + 2 * (tags.size() - 1));
+          } catch (StringIndexOutOfBoundsException e) {
+            // Ignore, don't add space at the end.
+          }
+        }
+      }
+    }
+  }
 
-	/**
-	 *
-	 *
-	 * @param tbp
-	 * @param i
-	 *
-	 * @return
-	 *
-	 * @throws StringIndexOutOfBoundsException
-	 */
-	private int adjustSpace(final CharSequence tbp, final int i) throws StringIndexOutOfBoundsException {
-		if (tbp.charAt(i + 1) != '<') {
-			return 0; // Skip documentation
-		}
+  /**
+   *
+   *
+   * @param tbp
+   * @param i
+   *
+   * @return
+   *
+   * @throws StringIndexOutOfBoundsException
+   */
+  private int adjustSpace(final CharSequence tbp, final int i) throws StringIndexOutOfBoundsException {
+    if (tbp.charAt(i + 1) != '<') {
+      return 0; // Skip documentation
+    }
 
-		int loc = i + 2; // Past the '<'
+    int loc = i + 2; // Past the '<'
 
-		switch (tbp.charAt(loc)) {
-		case '?':
-			break; // Just process command
+    switch (tbp.charAt(loc)) {
+    case '?':
+      break; // Just process command
 
-		case '-':
-			break; // just process comment
+    case '-':
+      break; // just process comment
 
-		case '/':
-			if (tags.empty()) {
-				return 0; // Nothing to pop
-			}
+    case '/':
+      if (tags.empty()) {
+        return 0; // Nothing to pop
+      }
 
-			final String tos = tags.peek();
-			final CharSequence endTag = tbp.subSequence(loc + 1, loc + 1 + tos.length());
+      final String tos = tags.peek();
+      final CharSequence endTag = tbp.subSequence(loc + 1, loc + 1 + tos.length());
 
-			if (tos.equals(endTag)) {
-				tags.pop();
+      if (tos.equals(endTag)) {
+        tags.pop();
 
-				return 2;
-			}
+        return 2;
+      }
 
-			break;
+      break;
 
-		default:
-			final StringBuilder tag = new StringBuilder(20);
+    default:
+      final StringBuilder tag = new StringBuilder(20);
 
-			while ((tbp.charAt(loc) != ' ') && (tbp.charAt(loc) != '>') && (tbp.charAt(loc) != '/')
-					&& (tbp.charAt(loc) != '\t')) {
-				tag.append(tbp.charAt(loc));
+      while ((tbp.charAt(loc) != ' ') && (tbp.charAt(loc) != '>') && (tbp.charAt(loc) != '/')
+          && (tbp.charAt(loc) != '\t')) {
+        tag.append(tbp.charAt(loc));
 
-				loc++;
-			}
+        loc++;
+      }
 
-			if (tags.empty()) {
-				tags.push(tag.toString());
-			} else {
-				final String stag = tags.peek();
+      if (tags.empty()) {
+        tags.push(tag.toString());
+      } else {
+        final String stag = tags.peek();
 
-				if (!tag.toString().equals(stag)) { // Note negation
-					tags.push(tag.toString());
-				}
-			}
+        if (!tag.toString().equals(stag)) { // Note negation
+          tags.push(tag.toString());
+        }
+      }
 
-			break;
-		}
+      break;
+    }
 
-		return 0;
-	}
+    return 0;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return prettied.toString();
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return prettied.toString();
+  }
 }

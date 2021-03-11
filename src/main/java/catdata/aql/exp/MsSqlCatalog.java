@@ -2,7 +2,7 @@ package catdata.aql.exp;
 
 public class MsSqlCatalog {
 
-	public static String cql_schema = """ 	
+  public static String cql_schema = """   
     entities
         CHECK_CONSTRAINTS COLUMN_DOMAIN_USAGE COLUMN_PRIVILEGES COLUMNS CONSTRAINT_COLUMN_USAGE
         CONSTRAINT_TABLE_USAGE DOMAIN_CONSTRAINTS DOMAINS KEY_COLUMN_USAGE PARAMETERS

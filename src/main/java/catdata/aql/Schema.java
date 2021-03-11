@@ -44,11 +44,11 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
 	public final TypeSide<Ty, Sym> typeSide;
 
-	public final Set<En> ens;
+	public final Collection<En> ens; // needs to be a set, but onerous to enforce
 	public final Map<Att, Pair<En, Ty>> atts;
 	public final Map<Fk, Pair<En, En>> fks;
 
-	public final Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs;
+	public final Collection<Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs;
 
 	public void validate(boolean checkJava) {
 		// check that each att/fk is in tys/ens
@@ -72,7 +72,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 						"On foreign key " + fk + ", the source entity " + ty.first + " is not declared.");
 			}
 		}
-		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : eqs) {
+		for (Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : eqs) {
 			// check that the context is valid for each eq
 			if (!ens.contains(eq.first.second)) {
 				throw new RuntimeException("In schema equation " + toString(eq) + ", context sort " + eq.first.second
@@ -126,11 +126,11 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	}
 
 	private String toString(
-			Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq) {
+			Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq) {
 		return "forall " + eq.first.first + ":" + eq.first.second + ", " + eq.second + " = " + eq.third;
 	}
 
-	public final Chc<Ty, En> type(Pair<Var, En> p, Term<Ty, En, Sym, Fk, Att, ?, ?> term) {
+	public final Chc<Ty, En> type(Pair<String, En> p, Term<Ty, En, Sym, Fk, Att, ?, ?> term) {
 		return term.type(Collections.emptyMap(), Collections.singletonMap(p.first, p.second), typeSide.tys,
 				typeSide.syms, typeSide.js.java_tys, ens, atts, fks, Collections.emptyMap(), Collections.emptyMap());
 	}
@@ -147,15 +147,15 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 				!(boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 	}
 
-	private static <Ty, En, Sym, Fk, Att> Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> conv(
+	private static <Ty, En, Sym, Fk, Att> Collection<Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> conv(
 			Collection<Eq<Ty, En, Sym, Fk, Att, Void, Void>> eqs2) {
-		Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> ret = new ArrayList<>(
+		Collection<Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> ret = new ArrayList<>(
 				eqs2.size());
 		for (Eq<Ty, En, Sym, Fk, Att, Void, Void> s : eqs2) {
 			if (s.ctx.size() != 1) {
 				continue;
 			}
-			Entry<Var, Chc<Ty, En>> yy = Util.get0(s.ctx.entrySet());
+			Entry<String, Chc<Ty, En>> yy = Util.get0(s.ctx.entrySet());
 			if (yy.getValue().left) {
 				continue;
 			}
@@ -164,12 +164,13 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return Collections.synchronizedCollection(ret);
 	}
 
-	private static <Ty, En> Pair<Var, En> conv2(Entry<Var, Chc<Ty, En>> x) {
+	private static <Ty, En> Pair<String, En> conv2(Entry<String, Chc<Ty, En>> x) {
 		return new Pair<>(x.getKey(), x.getValue().r);
 	}
 
-	public Schema(TypeSide<Ty, Sym> typeSide, Set<En> ens, Map<Att, Pair<En, Ty>> atts, Map<Fk, Pair<En, En>> fks,
-			Collection<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs,
+	public Schema(TypeSide<Ty, Sym> typeSide, Collection<En> ens, Map<Att, Pair<En, Ty>> atts,
+			Map<Fk, Pair<En, En>> fks,
+			Collection<Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs,
 			DP<Ty, En, Sym, Fk, Att, Void, Void> semantics, boolean checkJava) {
 		Util.assertNotNull(semantics, typeSide, ens, fks, atts, eqs);
 		this.typeSide = typeSide;
@@ -178,6 +179,22 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		this.eqs = eqs;
 		this.ens = ens;
 		dp = semantics;
+		this.attsFrom = new THashMap<>(ens.size() * 2);
+		this.fksFrom = new THashMap<>(ens.size() * 2);
+		this.fksTo = new THashMap<>(ens.size() * 2);
+		for (En en : ens) {
+			fksTo.put(en, new LinkedList<>());
+			fksFrom.put(en, new LinkedList<>());
+			attsFrom.put(en, new LinkedList<>());
+		}
+		for (Entry<Fk, Pair<En, En>> fk : fks.entrySet()) {
+			fksFrom.get(fk.getValue().first).add(fk.getKey());
+			fksTo.get(fk.getValue().second).add(fk.getKey());
+		}
+		for (Entry<Att, Pair<En, Ty>> att : atts.entrySet()) {
+			attsFrom.get(att.getValue().first).add(att.getKey());
+		}
+
 		validate(checkJava);
 	}
 
@@ -219,7 +236,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			}
 
 			@Override
-			public Set<En> getEns() {
+			public Collection<En> getEns() {
 				return ens;
 			}
 
@@ -325,7 +342,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			return true;
 		}
 		if (actual == null || expected == null) {
-			Util.anomaly();
+			return Util.anomaly();
 		}
 		if (actual.size() != expected.size()) {
 			return false;
@@ -351,8 +368,9 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		}
 		List<En> ens0 = Util.alphabetical(ens);
 
-		List<String> obsEqs = eqs.stream().filter(x -> type(x.first, x.second).left)
-				.map(x -> "forall " + x.first.first + ":" + x.first.second + ". " + x.second + " = " + x.third)
+		List<String> obsEqs = eqs
+				.stream().filter(x -> type(x.first, x.second).left).map(x -> "forall " + x.first.first + ":"
+						+ Util.maybeQuote(x.first.second.toString()) + ". " + x.second + " = " + x.third)
 				.collect(Collectors.toList());
 
 		List<String> pathEqs = eqs.stream().filter(x -> !type(x.first, x.second).left).map(x -> {
@@ -360,22 +378,27 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			x.second.toFkList(l);
 			x.third.toFkList(r);
 
-			return x.first.second + "." + Util.sep(l, ".") + " = " + x.first.second + "." + Util.sep(r, ".");
+			return Util.maybeQuote(x.first.second.toString()) + "."
+					+ Util.sep(l, ".", z -> Util.maybeQuote(z.toString())) + " = "
+					+ Util.maybeQuote(x.first.second.toString()) + "."
+					+ Util.sep(r, ".", z -> Util.maybeQuote(z.toString()));
 		}).collect(Collectors.toList());
 
 		List<String> fks0 = new LinkedList<>();
 		for (Fk fk : fks.keySet()) {
-			fks0.add(fk + " : " + fks.get(fk).first + " -> " + fks.get(fk).second);
+			fks0.add(Util.maybeQuote(fk.toString()) + " : " + Util.maybeQuote(fks.get(fk).first.toString()) + " -> "
+					+ Util.maybeQuote(fks.get(fk).second.toString()));
 		}
 		List<String> atts0 = new LinkedList<>();
 		for (Att att : atts.keySet()) {
-			atts0.add(att + " : " + atts.get(att).first + " -> " + atts.get(att).second);
+			atts0.add(Util.maybeQuote(att.toString()) + " : " + Util.maybeQuote(atts.get(att).first.toString()) + " -> "
+					+ Util.maybeQuote(atts.get(att).second.toString()));
 		}
 		toString = "";
 
 		if (!ens0.isEmpty()) {
 			toString += "entities";
-			toString += "\n\t" + Util.sep(ens0, " ");
+			toString += "\n\t" + Util.sep(ens0, " ", z -> Util.maybeQuote(z.toString()));
 		}
 		if (!fks0.isEmpty()) {
 			toString += "\nforeign_keys";
@@ -396,51 +419,21 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return toString;
 	}
 
-	private Map<En, List<Att>> attsFrom = new LinkedHashMap<>();
+	private Map<En, List<Att>> attsFrom = null;
 
 	public synchronized final Collection<Att> attsFrom(En en) {
-		if (attsFrom.containsKey(en)) {
-			return attsFrom.get(en);
-		}
-		List<Att> l = new ArrayList<>();
-		for (Att att : atts.keySet()) {
-			if (atts.get(att).first.equals(en)) {
-				l.add(att);
-			}
-		}
-		attsFrom.put(en, l);
-		return l;
+		return attsFrom.get(en);
 	}
 
-	private Map<En, List<Fk>> fksFrom = Util.mk();
-	private Map<En, List<Fk>> fksTo = Util.mk();
+	private Map<En, List<Fk>> fksFrom = null;
+	private Map<En, List<Fk>> fksTo = null;
 
 	public synchronized final Collection<Fk> fksFrom(En en) {
-		if (fksFrom.containsKey(en)) {
-			return fksFrom.get(en);
-		}
-		List<Fk> l = new LinkedList<>();
-		for (Fk fk : fks.keySet()) {
-			if (fks.get(fk).first.equals(en)) {
-				l.add(fk);
-			}
-		}
-		fksFrom.put(en, l);
-		return l;
+		return fksFrom.get(en);
 	}
 
 	public synchronized final Collection<Fk> fksTo(En en) {
-		if (fksTo.containsKey(en)) {
-			return fksTo.get(en);
-		}
-		List<Fk> l = new LinkedList<>();
-		for (Fk fk : fks.keySet()) {
-			if (fks.get(fk).second.equals(en)) {
-				l.add(fk);
-			}
-		}
-		fksTo.put(en, l);
-		return l;
+		return fksTo.get(en);
 	}
 
 	public static <Ty, En, Sym, Fk, Att, Gen, Sk> Term<Ty, En, Sym, Fk, Att, Gen, Sk> fold(List<Fk> fks,

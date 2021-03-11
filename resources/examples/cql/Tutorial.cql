@@ -1,22 +1,21 @@
-/**
- * This CQL tutorial is a literate CQL file: by running it and then selecting 'emit HTML'
- * from the CQL menu, the HTML CQL tutorial posted on categorical.info/tutorial.html is obtained.
- */
+# This CQL tutorial is a literate CQL file: by running it and then selecting 'emit HTML'
+# from the CQL menu, the HTML CQL tutorial posted on categorical.info/tutorial.html is obtained.
+ 
 
-//HTML output is indicated by html { (* " <html code> " *) }.
-//Markdown (a less verbose way to write HTML) is indicated by
-//md { (* " markdown code " *) }.
-//The javascript import provides sorting capability for HTML tables.
+#HTML output is indicated by html { (* " <html code> " *) }.
+#Markdown (a less verbose way to write HTML) is indicated by
+#md { (* " markdown code " *) }.
+#The javascript import provides sorting capability for HTML tables.
 
 html { (* "
-<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
- <html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">
+<!DOCTYPE html PUBLIC \"-#W3C#DTD XHTML 1.0 Transitional#EN\" \"http:#www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
+ <html xmlns=\"http:#www.w3.org/1999/xhtml\" xml:lang=\"en\">
 
 	<head>
 		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
 		<title>CQL Tutorial</title>
-		<link rel=\"stylesheet\" type=\"text/css\" href=\"https://categoricaldata.net/css/nstyle.css\" />
-		<script src=\"https://categoricaldata.net/js/simple.js\"></script>
+		<link rel=\"stylesheet\" type=\"text/css\" href=\"https:#categoricaldata.net/css/nstyle.css\" />
+		<script src=\"https:#categoricaldata.net/js/simple.js\"></script>
 	</head>
 	<body>
 		<h1>CQL Tutorial</h1>
@@ -59,7 +58,7 @@ typeside Ty = literal {
 		plus : Integer,Integer -> Integer = "(x, y) => x + y"
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+###################################################
 
 html { (* " <hr/>
 	<div id=\"schemas\">
@@ -108,7 +107,7 @@ schema S = literal : Ty {
      	program_allow_nontermination_unsafe=true
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+##################################################/
 
 html { (* " <hr/> <div id=\"instances\">
 	<h2>Instances</h2>
@@ -130,11 +129,11 @@ html { (* " <hr/> <div id=\"instances\">
 		<p>Tables can be sorted by clicking on their column headers.</p>
 		</div>  " *) }
 
-//Readers are advised that it is easy to create infinite instances on this schema unless
-//care is taken to assign every employee a manager.  Simply adding a new employee d,
-//for example, forces nulls d.manager, d.manager.manager, etc, to exist, creating an
-//infinite instance.  One easy way around this problem is to add the path_equation
-//manager.manager=manager to S.
+#Readers are advised that it is easy to create infinite instances on this schema unless
+#care is taken to assign every employee a manager.  Simply adding a new employee d,
+#for example, forces nulls d.manager, d.manager.manager, etc, to exist, creating an
+#infinite instance.  One easy way around this problem is to add the path_equation
+#manager.manager=manager to S.
 instance I = literal : S {
 	generators
 		a b c : Employee
@@ -157,7 +156,7 @@ instance I = literal : S {
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+##################################################/
 
 html { (* " <hr/> <div id=\"mappings\">
 	<h2>Mappings</h2>
@@ -196,19 +195,19 @@ mapping F = literal : C -> D {
 	foreign_keys
 		f -> identity
 	attributes
-		name -> name //shorter, path-based notation
+		name -> name #shorter, path-based notation
 		salary -> lambda x. salary(x)
 
 	entity
 		N2 -> N
  	attributes
-		age -> lambda x. age(x) //plus(1,age(x)) interesting to try this - sigma no longer inverse to delta, results in non-trivial type algebra
+		age -> lambda x. age(x) #plus(1,age(x)) interesting to try this - sigma no longer inverse to delta, results in non-trivial type algebra
 }
 
 
 html { (* " <p>  We also define an instance on <i>D</i> which will be used later. </p> </div> " *) }
 
-//multi_equations is a convenient shorthand to write lots of equations at once
+#multi_equations is a convenient shorthand to write lots of equations at once
 instance J = literal : D {
 	generators
 		one two three : N
@@ -218,7 +217,7 @@ instance J = literal : D {
 		age -> {one 20, two 20, three 30}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+##################################################/
 
 html { (* " <hr/> <div id=\"fdm\" >
 	<h2>Delta and Sigma</h2>
@@ -239,7 +238,7 @@ html { (* "
 instance sigmaFdeltaFJ = sigma F deltaFJ
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+##################################################/
 
 html { (* " <hr/> <div id=\"uberflowers\">
 	<h2>Uber-flowers (From-Where) queries</h2>
@@ -271,11 +270,11 @@ instance deltaFJ_prime = eval deltaFAsQuery J
 
 html { (* " <br/>Here is a query corresponding to the previous section's sigma: </div>" *) }
 
-//In general, it is not possible to use eval to do a sigma - the
-//dual of eval, "coeval", must be used instead.  A good illustration of this is to
-//change the mapping F to taking age to age + 1 and similarly for the uber flowers.  In this case,
-//sigmaFdeltaFJ_prime is not the same as sigmaFdeltaFJ.  The former does what
-//is natural, and the latter contains labeled nulls and has a non-trivial type algebra.
+#In general, it is not possible to use eval to do a sigma - the
+#dual of eval, "coeval", must be used instead.  A good illustration of this is to
+#change the mapping F to taking age to age + 1 and similarly for the uber flowers.  In this case,
+#sigmaFdeltaFJ_prime is not the same as sigmaFdeltaFJ.  The former does what
+#is natural, and the latter contains labeled nulls and has a non-trivial type algebra.
 query sigmaFAsQuery = literal : C -> D {
 	entity
 		N -> {from n1:N1 attributes name -> name(n1) salary -> salary(n1) age -> age(f(n1))}
@@ -283,20 +282,20 @@ query sigmaFAsQuery = literal : C -> D {
 
 instance sigmaFdeltaFJ_prime = eval sigmaFAsQuery deltaFJ_prime
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+###################################################
 
 html { (* " <hr/> <div id=\"conclusion\">
 	<h2>Conclusion</h2>
 
 	<p> This tutorial has barely scratched the surface of CQL's capabilities.  These capabilities
 		are described in the other examples built-in to the CQL tool, as well as in the examples
-		section of <a href=\"http://categorical.info\">CI's website</a>.
+		section of <a href=\"http:#categorical.info\">CI's website</a>.
 		In addition, CQL comes with a
-		<a href=\"http://categoricaldata.net/help/index.html\">comprehensive manual</a>
+		<a href=\"http:#categoricaldata.net/help/index.html\">comprehensive manual</a>
 		specifying all available operations.
 	</p>
 	<br />
 </div></body></html>" *) }
 
-//it is possible to import mathjax to render math
-//		<script type=\"text/javascript\" async src=\"https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML\"></script>
+#it is possible to import mathjax to render math
+#		<script type=\"text/javascript\" async src=\"https:#cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML\"></script>

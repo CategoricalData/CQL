@@ -66,9 +66,7 @@ instance J = eval Q1 I
 instance K = coeval Q J
 instance L = coeval Q2 K
 
-////////////////////////////
-
-
+#####################################
 
 schema X = literal : rdf {
 	entities

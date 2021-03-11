@@ -18,100 +18,100 @@ import easik.xml.xsd.nodes.types.XSDType;
  * type are expected to provide a valid custom type.
  */
 public class Custom extends EasikType {
-	/**  */
-	private String custom;
+  /**  */
+  private String custom;
 
-	/**
-	 * Recreates the object from the attributes returned by attributes().
-	 *
-	 * @param attr custom attribute
-	 */
-	public Custom(final Map<String, String> attr) {
-		this(attr.get("custom"));
-	}
+  /**
+   * Recreates the object from the attributes returned by attributes().
+   *
+   * @param attr custom attribute
+   */
+  public Custom(final Map<String, String> attr) {
+    this(attr.get("custom"));
+  }
 
-	/**
-	 *
-	 *
-	 * @param type
-	 */
-	public Custom(final String type) {
-		custom = type;
-	}
+  /**
+   *
+   *
+   * @param type
+   */
+  public Custom(final String type) {
+    custom = type;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return custom;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return custom;
+  }
 
-	/**
-	 * Returns the custom SQL type signature this Custom object was created with.
-	 * 
-	 * @return custom string
-	 */
-	public String getCustom() {
-		return custom;
-	}
+  /**
+   * Returns the custom SQL type signature this Custom object was created with.
+   * 
+   * @return custom string
+   */
+  public String getCustom() {
+    return custom;
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		return true;
-	}
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    return true;
+  }
 
-	/**
-	 * Returns the attributes of this object. For a Custom type, this is just the
-	 * entire type signature as a "custom" attribute key.
-	 *
-	 * @return
-	 */
-	@Override
-	public Map<String, String> attributes() {
-		return Collections.singletonMap("custom", custom);
-	}
+  /**
+   * Returns the attributes of this object. For a Custom type, this is just the
+   * entire type signature as a "custom" attribute key.
+   *
+   * @return
+   */
+  @Override
+  public Map<String, String> attributes() {
+    return Collections.singletonMap("custom", custom);
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.OTHER;
-	} // FIXME??
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.OTHER;
+  } // FIXME??
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setString(col, value);
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setString(col, value);
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		return XSDBaseType.xsString; // @todo - perhaps inherit from string???
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    return XSDBaseType.xsString; // @todo - perhaps inherit from string???
+  }
 }

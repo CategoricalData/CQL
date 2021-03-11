@@ -15,62 +15,62 @@ import java.net.URI;
  * @version $$Id$$
  */
 public class XMLNameSpace {
-	/**  */
-	private final String ns;
+  /**  */
+  private final String ns;
 
-	/**  */
-	private final URI nsURI;
+  /**  */
+  private final URI nsURI;
 
-	/**
-	 *
-	 *
-	 * @param ns
-	 * @param nsURI
-	 */
-	public XMLNameSpace(final String ns, final URI nsURI) {
-		this.ns = ns;
-		this.nsURI = nsURI;
-	}
+  /**
+   *
+   *
+   * @param ns
+   * @param nsURI
+   */
+  public XMLNameSpace(final String ns, final URI nsURI) {
+    this.ns = ns;
+    this.nsURI = nsURI;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public String getNs() {
-		return ns;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public String getNs() {
+    return ns;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public URI getNsURI() {
-		return nsURI;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public URI getNsURI() {
+    return nsURI;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return (null == nsURI) ? "" : "xmlns:" + ns + "=\"" + nsURI.toString() + '"';
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return (null == nsURI) ? "" : "xmlns:" + ns + "=\"" + nsURI.toString() + '"';
+  }
 
-	/**
-	 *
-	 *
-	 * @param prepend
-	 * @param append
-	 *
-	 * @return
-	 */
-	public String prettyString(final String prepend, final String append) {
-		final String val = toString();
+  /**
+   *
+   *
+   * @param prepend
+   * @param append
+   *
+   * @return
+   */
+  public String prettyString(final String prepend, final String append) {
+    final String val = toString();
 
-		return (val == null || val.length() == 0) ? "" : prepend + val + append;
-	}
+    return (val == null || val.length() == 0) ? "" : prepend + val + append;
+  }
 }

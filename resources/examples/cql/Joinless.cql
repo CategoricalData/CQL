@@ -42,7 +42,7 @@ schema Person = literal : Ty {
 		schoolName : Person -> String
 }
 
-//Find all the people whose school's biggest department is Mathematics
+#Find all the people whose school's biggest department is Mathematics
 query BiggestDeptIsMathQuery = literal : Schools -> Person {
 	entity
 		Person -> {from   p:Person
@@ -51,7 +51,7 @@ query BiggestDeptIsMathQuery = literal : Schools -> Person {
 			  		   schoolName -> p.instituteOf.schoolName}
 }
 
-//simpler, dynamic version of the above query
+#simpler, dynamic version of the above query
 query BiggestDeptIsMathQuery_simple = simple : Schools  {
 	from   p:Person
 	where  p.instituteOf.biggestDept.deptName = Mathematics

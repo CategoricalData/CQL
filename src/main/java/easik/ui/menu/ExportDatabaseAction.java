@@ -27,133 +27,133 @@ import easik.ui.menu.popup.ExportOptions;
  * @date Summer 2012
  */
 public class ExportDatabaseAction extends AbstractAction {
-	/**  */
-	private static final long serialVersionUID = -6371251432168103506L;
+  /**  */
+  private static final long serialVersionUID = -6371251432168103506L;
 
-	/**  */
-	protected Sketch _theSketch;
+  /**  */
+  protected Sketch _theSketch;
 
-	/**
-	 * Create a new ExportXSDAction. Adds a new menu item to the File menu.
-	 *
-	 * @param inFrame  The Frame
-	 * @param inSketch The Sketch
-	 */
-	public ExportDatabaseAction(final EasikFrame inFrame, final Sketch inSketch) {
-		super(((inFrame instanceof SketchFrame) ? "" : "Export to ") + "DBMS...");
+  /**
+   * Create a new ExportXSDAction. Adds a new menu item to the File menu.
+   *
+   * @param inFrame  The Frame
+   * @param inSketch The Sketch
+   */
+  public ExportDatabaseAction(final EasikFrame inFrame, final Sketch inSketch) {
+    super(((inFrame instanceof SketchFrame) ? "" : "Export to ") + "DBMS...");
 
-		_theSketch = inSketch;
+    _theSketch = inSketch;
 
-		putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_D));
+    putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_D));
 
-		String[] ds = DriverInfo.availableDatabaseDrivers();
-		String available = "";
-		int i = 0;
+    String[] ds = DriverInfo.availableDatabaseDrivers();
+    String available = "";
+    int i = 0;
 
-		for (String d : ds) {
-			if (i == 0) {
-				available += "(";
-			}
+    for (String d : ds) {
+      if (i == 0) {
+        available += "(";
+      }
 
-			available += d;
+      available += d;
 
-			if (i == ds.length - 1) {
-				available += ")";
-			} else if (i == ds.length - 2) {
-				available += ", or ";
-			} else {
-				available += ", ";
-			}
+      if (i == ds.length - 1) {
+        available += ")";
+      } else if (i == ds.length - 2) {
+        available += ", or ";
+      } else {
+        available += ", ";
+      }
 
-			i++;
-		}
+      i++;
+    }
 
-		putValue(Action.SHORT_DESCRIPTION, "Export to a supported database " + available);
-	}
+    putValue(Action.SHORT_DESCRIPTION, "Export to a supported database " + available);
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 *
-	 * @throws CloneNotSupportedException
-	 */
-	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
+  /**
+   *
+   *
+   * @return
+   *
+   * @throws CloneNotSupportedException
+   */
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    return super.clone();
+  }
 
-	/**
-	 * Exports the current sketch as an SQL db. Displays a message if an error
-	 * occurred.
-	 * 
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		try {
-			if (_theSketch.hasDatabase() && _theSketch.getDatabase().hasActiveDriver()) {
-				_theSketch.getDatabase().cleanDatabaseDriver();
-			}
+  /**
+   * Exports the current sketch as an SQL db. Displays a message if an error
+   * occurred.
+   * 
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(final ActionEvent e) {
+    try {
+      if (_theSketch.hasDatabase() && _theSketch.getDatabase().hasActiveDriver()) {
+        _theSketch.getDatabase().cleanDatabaseDriver();
+      }
 
-			String type = _theSketch.getDatabaseType(); // start by getting the
-														// database type
-			String api = DriverInfo.getApi(type); // JDBC or XML:DB?
+      String type = _theSketch.getDatabaseType(); // start by getting the
+                            // database type
+      String api = DriverInfo.getApi(type); // JDBC or XML:DB?
 
-			if (DriverInfo.XMLDB.equals(api)) {
-				throw new PersistenceDriver.LoadException("No XML:DB export capability");
-			} else if (DriverInfo.JDBC.equals(api)) {
-				// load options
-				final ExportOptions expOpts = new ExportOptions(type, _theSketch.getFrame());
+      if (DriverInfo.XMLDB.equals(api)) {
+        throw new PersistenceDriver.LoadException("No XML:DB export capability");
+      } else if (DriverInfo.JDBC.equals(api)) {
+        // load options
+        final ExportOptions expOpts = new ExportOptions(type, _theSketch.getFrame());
 
-				if (!expOpts.isAccepted()) {
-					return;
-				}
+        if (!expOpts.isAccepted()) {
+          return;
+        }
 
-				final DatabaseOptions dbopts = new DatabaseOptions(type, _theSketch.getFrame());
+        final DatabaseOptions dbopts = new DatabaseOptions(type, _theSketch.getFrame());
 
-				if (!dbopts.isAccepted()) {
-					return;
-				}
+        if (!dbopts.isAccepted()) {
+          return;
+        }
 
-				// set the database access object up for database exporting
-				if (!_theSketch.getDatabase().setDatabaseExport(type, dbopts.getParams())) {
-					return;
-				}
+        // set the database access object up for database exporting
+        if (!_theSketch.getDatabase().setDatabaseExport(type, dbopts.getParams())) {
+          return;
+        }
 
-				if (!_theSketch.getDatabase().hasActiveDriver()) { // should
-																	// have been
-																	// loaded by
-																	// now
-					throw new PersistenceDriver.LoadException("Unable to make connection");
-				}
+        if (!_theSketch.getDatabase().hasActiveDriver()) { // should
+                                  // have been
+                                  // loaded by
+                                  // now
+          throw new PersistenceDriver.LoadException("Unable to make connection");
+        }
 
-				if (!_theSketch.getDatabase().exportToNative(expOpts.getParams())) {
-					return;
-				}
+        if (!_theSketch.getDatabase().exportToNative(expOpts.getParams())) {
+          return;
+        }
 
-				JOptionPane.showMessageDialog(null, "SQL exported successfully. Entering data manipulation mode.",
-						"Export successful.", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "SQL exported successfully. Entering data manipulation mode.",
+            "Export successful.", JOptionPane.INFORMATION_MESSAGE);
 
-				// we don't have to worry about enableDataManip() failing... if
-				// we were able to export, we know it will work
-				_theSketch.getFrame().enableDataManip(true);
-			} else {
-			} // won't happen if DriverInfo is configured properly
-		} catch (PersistenceDriver.LoadException le) {
-			_theSketch.getDatabase().cleanDatabaseDriver();
-			JOptionPane.showMessageDialog(null, "An error occurred while exporting to database. " + le.getMessage(),
-					"Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
+        // we don't have to worry about enableDataManip() failing... if
+        // we were able to export, we know it will work
+        _theSketch.getFrame().enableDataManip(true);
+      } else {
+      } // won't happen if DriverInfo is configured properly
+    } catch (PersistenceDriver.LoadException le) {
+      _theSketch.getDatabase().cleanDatabaseDriver();
+      JOptionPane.showMessageDialog(null, "An error occurred while exporting to database. " + le.getMessage(),
+          "Error", JOptionPane.ERROR_MESSAGE);
+    }
+  }
 
-	/**
-	 * At the time this item is added to a menu, the sketch on which it will act may
-	 * not be known. This method sets the sketch to be exported.
-	 *
-	 * @param sketch The sketch that is set to be exported.
-	 */
-	public void setSketch(final Sketch sketch) {
-		_theSketch = sketch;
-	}
+  /**
+   * At the time this item is added to a menu, the sketch on which it will act may
+   * not be known. This method sets the sketch to be exported.
+   *
+   * @param sketch The sketch that is set to be exported.
+   */
+  public void setSketch(final Sketch sketch) {
+    _theSketch = sketch;
+  }
 }

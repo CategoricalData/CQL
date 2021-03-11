@@ -8,19 +8,19 @@ import javax.swing.JSplitPane;
  */
 public class Split extends JSplitPane {
 
-	private final double bias;
+  private final double bias;
 
-	public Split(double bias, int split) {
-		super(split);
-		this.bias = bias;
-		setDividerSize(2);
-	}
+  public Split(double bias, int split) {
+    super(split);
+    this.bias = bias;
+    setDividerSize(2);
+  }
 
-	@Override
-	public void setVisible(boolean b) {
-		super.setVisible(b);
-		setDividerLocation(bias);
-		invalidate();
-	}
+  @Override
+  public void setVisible(boolean b) {
+    super.setVisible(b);
+    setDividerLocation(bias);
+    invalidate();
+  }
 
 }

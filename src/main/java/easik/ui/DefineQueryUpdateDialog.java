@@ -18,52 +18,52 @@ import easik.view.vertex.QueryNode;
  */
 public class DefineQueryUpdateDialog extends OptionsDialog {
 
-	private static final long serialVersionUID = 4044546505124282150L;
+  private static final long serialVersionUID = 4044546505124282150L;
 
-	/** The inputs for our fields */
-	private JScrollPane updateStatement;
+  /** The inputs for our fields */
+  private JScrollPane updateStatement;
 
-	/** The query no which we are editing */
-	private QueryNode ourNode;
+  /** The query no which we are editing */
+  private QueryNode ourNode;
 
-	/**
-	 *
-	 * @param parent
-	 * @param title
-	 * @param inNode
-	 */
-	public DefineQueryUpdateDialog(JFrame parent, String title, QueryNode inNode) {
-		super(parent, title);
+  /**
+   *
+   * @param parent
+   * @param title
+   * @param inNode
+   */
+  public DefineQueryUpdateDialog(JFrame parent, String title, QueryNode inNode) {
+    super(parent, title);
 
-		setSize(300, 200);
+    setSize(300, 200);
 
-		ourNode = inNode;
+    ourNode = inNode;
 
-		showDialog();
-	}
+    showDialog();
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public List<Option> getOptions() {
-		LinkedList<Option> opts = new LinkedList<>();
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public List<Option> getOptions() {
+    LinkedList<Option> opts = new LinkedList<>();
 
-		// Add the name field
-		opts.add(new Option(new JLabel("Update Statement"), updateStatement = JUtils.textArea(ourNode.getUpdate())));
+    // Add the name field
+    opts.add(new Option(new JLabel("Update Statement"), updateStatement = JUtils.textArea(ourNode.getUpdate())));
 
-		return opts;
-	}
+    return opts;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public String getUpdate() {
-		return JUtils.taText(updateStatement);
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public String getUpdate() {
+    return JUtils.taText(updateStatement);
+  }
 
 }

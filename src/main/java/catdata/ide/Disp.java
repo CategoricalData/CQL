@@ -1,12 +1,11 @@
 package catdata.ide;
 
-@FunctionalInterface
 public interface Disp {
 
-	void close();
+  void close();
 
-	default Throwable exn() {
-		return null;
-	}
+  default Throwable exn() {
+    return null;
+  }
 
 }

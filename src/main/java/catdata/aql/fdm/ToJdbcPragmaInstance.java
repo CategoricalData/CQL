@@ -26,7 +26,7 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 	private final String jdbcString;
 	private final String prefix;
 	private final String idCol;
-	//private final int truncate;
+	// private final int truncate;
 	private final String tick;
 
 	private final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
@@ -34,15 +34,16 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 	private final int len;
 	private AqlOptions options;
 
-	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, 
-			String jdbcString, AqlOptions options) {
-		
+	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, String jdbcString,
+			AqlOptions options) {
+
 		this.jdbcString = jdbcString;
 		this.prefix = prefix;
 		this.I = I;
 		idCol = (String) options.getOrDefault(AqlOption.id_column_name);
 		len = (Integer) options.getOrDefault(AqlOption.varchar_length);
-	//	truncate = (Integer) options.getOrDefault(AqlOption.jdbc_export_truncate_after);
+		// truncate = (Integer)
+		// options.getOrDefault(AqlOption.jdbc_export_truncate_after);
 		tick = (String) options.getOrDefault(AqlOption.jdbc_quote_char);
 		this.options = options;
 
@@ -56,9 +57,8 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		for (En en : I.schema().ens) {
 			for (String x : m.get(en).second) {
 				// TODO aql drop foreign keys here first
-				//System.out.println(x);
-				stmt.execute(x); 
-				
+				// System.out.println(x);
+				stmt.execute(x);
 			}
 		}
 		stmt.close();
@@ -74,12 +74,12 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 			deleteThenCreate(conn);
 			Pair<TObjectIntMap<X>, TIntObjectMap<X>> II = I.algebra()
 					.intifyX((int) options.getOrDefault(AqlOption.start_ids_at));
-		
+
 			for (En en : I.schema().ens) {
 				List<Chc<Fk, Att>> header = headerFor(en);
 				List<String> hdrQ = new ArrayList<>(header.size() + 1);
 				List<String> hdr = new ArrayList<>(header.size() + 1);
-				
+
 				hdr.add(tick + idCol + tick);
 				hdrQ.add("?");
 				for (Chc<Fk, Att> aHeader : header) {
@@ -138,13 +138,6 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		}
 	}
 
-	private String enToString(En en) {
-		return en.toString();
-	}
-
-	/*
-	 * private String tyToString(Ty ty) { return (String) ty; }
-	 */
 
 	@Override
 	public String toString() {

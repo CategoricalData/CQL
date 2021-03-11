@@ -25,37 +25,37 @@ import catdata.aql.TypeSide;
 import catdata.graph.DMG;
 
 public final class AqlEnv {
-	
-	
+  
+  
 
 
-	public AqlEnv(Program<Exp<?>> prog) {
-		Util.assertNotNull(prog);
-		this.prog = prog;
-		defaults = prog.options;
-	}
+  public AqlEnv(Program<Exp<?>> prog) {
+    Util.assertNotNull(prog);
+    this.prog = prog;
+    defaults = prog.options;
+  }
 
-	public final Program<Exp<?>> prog;
+  public final Program<Exp<?>> prog;
 
-	@SuppressWarnings("rawtypes")
-	public final KindCtx<String, DMG, TypeSide, Schema, Instance, Transform, Mapping, Query, Pragma, Comment, ColimitSchema, Constraints, ApgTypeside, ApgInstance, ApgTransform, ApgSchema, ApgMapping> defs = new KindCtx<>();
+  @SuppressWarnings("rawtypes")
+  public final KindCtx<String, DMG, TypeSide, Schema, Instance, Transform, Mapping, Query, Pragma, Comment, ColimitSchema, Constraints, ApgTypeside, ApgInstance, ApgTransform, ApgSchema, ApgMapping> defs = new KindCtx<>();
 
-	public RuntimeException exn = null;
+  public RuntimeException exn = null;
 
-	public AqlTyping typing = null;
+  public AqlTyping typing = null;
 
-	public AqlOptions defaults;
+  public AqlOptions defaults;
 
-	public final Map<String, Float> performance = Util.mk();
+  public final Map<String, Float> performance = Util.mk();
 
-	Map<Exp<?>, Object> cache = Util.mk();
+  Map<Exp<?>, Object> cache = Util.mk();
 
-	public long fd = Long.MAX_VALUE, md = Long.MAX_VALUE, ud = Long.MAX_VALUE; //memory deltas
+  public long fd = Long.MAX_VALUE, md = Long.MAX_VALUE, ud = Long.MAX_VALUE; //memory deltas
 
-	public long fl = Long.MAX_VALUE, mh = Long.MIN_VALUE, uh = Long.MIN_VALUE;
-	
-	public Semantics get(Kind k, String s) {
-		return (Semantics) defs.get(s, k);
-	}
+  public long fl = Long.MAX_VALUE, mh = Long.MIN_VALUE, uh = Long.MIN_VALUE;
+  
+  public Semantics get(Kind k, String s) {
+    return (Semantics) defs.get(s, k);
+  }
 
 }

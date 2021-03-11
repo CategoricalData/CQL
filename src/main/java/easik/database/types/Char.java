@@ -25,102 +25,102 @@ import easik.xml.xsd.nodes.types.XSDType;
  * db-dependent; some databases in particular will not allow more than 255.
  */
 public class Char extends EasikType {
-	/**  */
-	private int size;
+  /**  */
+  private int size;
 
-	/**
-	 * Creates a new Char object. The n specifies the required size of this char.
-	 * Where possible, the db should try to use a CHAR(n), but db limitations may
-	 * convert this into other text types.
-	 *
-	 * @param n size
-	 */
-	public Char(final int n) {
-		size = n;
-	}
+  /**
+   * Creates a new Char object. The n specifies the required size of this char.
+   * Where possible, the db should try to use a CHAR(n), but db limitations may
+   * convert this into other text types.
+   *
+   * @param n size
+   */
+  public Char(final int n) {
+    size = n;
+  }
 
-	/**
-	 * Recreates the object from the attributes returned by attributes().
-	 *
-	 * @param attr size attribute
-	 */
-	public Char(final Map<String, String> attr) {
-		this(Integer.parseInt(attr.get("size")));
-	}
+  /**
+   * Recreates the object from the attributes returned by attributes().
+   *
+   * @param attr size attribute
+   */
+  public Char(final Map<String, String> attr) {
+    this(Integer.parseInt(attr.get("size")));
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public int getSize() {
-		return size;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public int getSize() {
+    return size;
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public String toString() {
-		return "CHAR(" + size + ')';
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "CHAR(" + size + ')';
+  }
 
-	/**
-	 *
-	 *
-	 * @param input
-	 *
-	 * @return
-	 */
-	@Override
-	public boolean verifyInput(final String input) {
-		return input.length() <= size;
-	}
+  /**
+   *
+   *
+   * @param input
+   *
+   * @return
+   */
+  @Override
+  public boolean verifyInput(final String input) {
+    return input.length() <= size;
+  }
 
-	/**
-	 * Returns the attributes of this object
-	 *
-	 * @return
-	 */
-	@Override
-	public Map<String, String> attributes() {
-		return Collections.singletonMap("size", String.valueOf(size));
-	}
+  /**
+   * Returns the attributes of this object
+   *
+   * @return
+   */
+  @Override
+  public Map<String, String> attributes() {
+    return Collections.singletonMap("size", String.valueOf(size));
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	@Override
-	public int getSqlType() {
-		return Types.CHAR;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  @Override
+  public int getSqlType() {
+    return Types.CHAR;
+  }
 
-	/**
-	 *
-	 *
-	 * @param ps
-	 * @param col
-	 * @param value
-	 *
-	 * @throws SQLException
-	 */
-	@Override
-	public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
-		ps.setString(col, value);
-	}
+  /**
+   *
+   *
+   * @param ps
+   * @param col
+   * @param value
+   *
+   * @throws SQLException
+   */
+  @Override
+  public void bindValue(final PreparedStatement ps, final int col, final String value) throws SQLException {
+    ps.setString(col, value);
+  }
 
-	/**
-	 * Not just a basic type, requires a restriction.
-	 *
-	 * @return the xml schema type.
-	 */
-	@Override
-	public XSDType getXMLSchemaType() {
-		return new XSDSimpleType(
-				new XSDRestriction("char" + size, XSDBaseType.xsString, FacetEnum.LENGTH, String.valueOf(size)));
-	}
+  /**
+   * Not just a basic type, requires a restriction.
+   *
+   * @return the xml schema type.
+   */
+  @Override
+  public XSDType getXMLSchemaType() {
+    return new XSDSimpleType(
+        new XSDRestriction("char" + size, XSDBaseType.xsString, FacetEnum.LENGTH, String.valueOf(size)));
+  }
 }

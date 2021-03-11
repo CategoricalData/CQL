@@ -15,41 +15,41 @@ import easik.sketch.vertex.EntityNode;
  * @version Christian Fiddick Summer 2012
  */
 public abstract class UpdateMonitor {
-	/**
-	 *
-	 *
-	 * @param table
-	 *
-	 * @return
-	 */
-	public abstract boolean updateRow(final EntityNode table);
+  /**
+   *
+   *
+   * @param table
+   *
+   * @return
+   */
+  public abstract boolean updateRow(final EntityNode table);
 
-	/**
-	 *
-	 *
-	 * @param table
-	 * @param pk
-	 *
-	 * @return
-	 */
-	public abstract boolean updateRow(final EntityNode table, final int pk);
+  /**
+   *
+   *
+   * @param table
+   * @param pk
+   *
+   * @return
+   */
+  public abstract boolean updateRow(final EntityNode table, final int pk);
 
-	/**
-	 *
-	 *
-	 * @param table
-	 *
-	 * @return
-	 */
-	public abstract boolean deleteFrom(final EntityNode table);
+  /**
+   *
+   *
+   * @param table
+   *
+   * @return
+   */
+  public abstract boolean deleteFrom(final EntityNode table);
 
-	/**
-	 *
-	 *
-	 * @param table
-	 *
-	 * @return
-	 */
-	public abstract boolean insert(final EntityNode table);
+  /**
+   *
+   *
+   * @param table
+   *
+   * @return
+   */
+  public abstract boolean insert(final EntityNode table);
 
 }

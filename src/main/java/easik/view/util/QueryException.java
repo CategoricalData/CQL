@@ -8,12 +8,12 @@ package easik.view.util;
  *
  */
 public class QueryException extends Exception {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8882422152504001533L;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -8882422152504001533L;
 
-	public QueryException(String mess) {
-		super(mess);
-	}
+  public QueryException(String mess) {
+    super(mess);
+  }
 }

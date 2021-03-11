@@ -11,101 +11,99 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
 import catdata.aql.exp.Att;
-import catdata.aql.exp.En;
+
 import catdata.aql.exp.Fk;
-import catdata.aql.exp.Gen;
-import catdata.aql.exp.Sk;
 import catdata.aql.exp.Sym;
-import catdata.aql.exp.Ty;
 import gnu.trove.map.hash.THashMap;
 
 public class RdfExporter {
 
-	public static String typeConvert(Ty ty, Map<Ty, String> m) {
+	public static String typeConvert(String ty, Map<String, String> m) {
 		if (m.containsKey(ty)) {
 			return m.get(ty);
 		}
 		return "http://www.w3.org/2001/XMLSchema#String";
 	}
 
-	public static <Y> String valueConvert(Map<Ty, Function<Object, String>> printer,
-			Term<Ty, Void, Sym, Void, Void, Void, Y> term) {
+	public static <Y> String valueConvert(Map<String, Function<Object, String>> printer,
+			Term<String, Void, Sym, Void, Void, Void, Y> term) {
 		try {
 			if (term.obj() != null) {
 				if (printer.containsKey(term.ty())) {
 					return printer.get(term.ty()).apply(term.obj());
-				} else {
-					return term.obj().toString();
 				}
+				return term.obj().toString();
+
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return null;
 	}
-	
-	private static <Y> Resource skToNode(Term<Ty, Void, Sym, Void, Void, Void, Y> t, Map<Y, Resource> blanks) {
+
+	private static <Y> Resource skToNode(Term<String, Void, Sym, Void, Void, Void, Y> t, Map<Y, Resource> blanks) {
 		if (t.sk() != null) {
 			return blanks.get(t.sk());
 		}
-		return ResourceFactory.createResource((String)t.obj());
-	}
-	
-	private static <Y> RDFNode skToNode1(Term<Ty, Void, Sym, Void, Void, Void, Y> t, Map<Y, Resource> blanks) {
-		if (t.sk() != null) {
-			return blanks.get(t.sk());
-		}
-		return ResourceFactory.createPlainLiteral((String)t.obj());
-	}
-	
-	private static <Y> Property skToNode0(Term<Ty, Void, Sym, Void, Void, Void, Y> t, Map<Y, Resource> blanks) {
-		if (t.sk() != null) {
-			throw new RuntimeException("Anonymouse predicates not supported in Jena");
-		}
-		return ResourceFactory.createProperty((String)t.obj());
+		return ResourceFactory.createResource((String) t.obj());
 	}
 
-	public static <X, Y> Model xmlExportRdf(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i) {
+	private static <Y> RDFNode skToNode1(Term<String, Void, Sym, Void, Void, Void, Y> t, Map<Y, Resource> blanks) {
+		if (t.sk() != null) {
+			return blanks.get(t.sk());
+		}
+		return ResourceFactory.createPlainLiteral((String) t.obj());
+	}
+
+	private static <Y> Property skToNode0(Term<String, Void, Sym, Void, Void, Void, Y> t, Map<Y, Resource> blanks) {
+		if (t.sk() != null) {
+			throw new RuntimeException("Anonymous predicates not supported in Jena");
+		}
+		return ResourceFactory.createProperty((String) t.obj());
+	}
+
+	public static <X, Y> Model xmlExportRdf(Instance<String, String, Sym, Fk, Att, String, String, X, Y> i) {
 		Model ret = ModelFactory.createDefaultModel();
-		Att s = Att.Att(En.En("R"), "subject");
-		Att p = Att.Att(En.En("R"), "predicate");
-		Att o = Att.Att(En.En("R"), "object");
+		Att s = Att.Att(("R"), "subject");
+		Att p = Att.Att(("R"), "predicate");
+		Att o = Att.Att(("R"), "object");
 
-		if (!i.schema().ens.contains(En.En("R")) || !i.schema().atts.containsKey(s) || !i.schema().atts.containsKey(p) || !i.schema().atts.containsKey(o)) {
+		if (!i.schema().ens.contains(("R")) || !i.schema().atts.containsKey(s) || !i.schema().atts.containsKey(p)
+				|| !i.schema().atts.containsKey(o)) {
 			throw new RuntimeException("Not on triple schema");
 		}
-		
+
 		Map<Y, Resource> blanks = new THashMap<>(i.algebra().talg().sks.size() * 2);
 		for (Y y : i.algebra().talg().sks.keySet()) {
 			blanks.put(y, ResourceFactory.createResource());
 		}
-		for (X x : i.algebra().en(En.En("R"))) {
+		for (X x : i.algebra().en(("R"))) {
 			Resource sX = skToNode(i.algebra().att(s, x), blanks);
 			Property pX = skToNode0(i.algebra().att(p, x), blanks);
 			RDFNode oX = skToNode1(i.algebra().att(o, x), blanks);
 			System.out.println(sX + " " + pX + " " + oX);
-			ret.add(sX, pX, oX);	
+			ret.add(sX, pX, oX);
 		}
 		return ret;
 	}
-	
-	public static <X, Y> Model xmlExport1(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i, int start,
-			Map<Ty, Function<Object, String>> printer, Map<Ty, String> tym) {
+
+	public static <X, Y> Model xmlExport1(Instance<String, String, Sym, Fk, Att, String, String, X, Y> i, int start,
+			Map<String, Function<Object, String>> printer, Map<String, String> tym) {
 		Model ret = xmlExport1(i.schema(), tym);
 
-		Map<En, Map<X, Resource>> map = new THashMap<>();
-		for (En en : i.schema().ens) {
+		Map<String, Map<X, Resource>> map = new THashMap<>();
+		for (String en : i.schema().ens) {
 			Map<X, Resource> m = new THashMap<>(i.algebra().size(en) * 2);
 			for (X x : i.algebra().en(en)) {
 				var r = ResourceFactory.createResource();
 				var p = ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-				var o = ResourceFactory.createResource("cql://entity/" + en.str);
+				var o = ResourceFactory.createResource("cql://entity/" + en);
 				ret.add(r, p, o);
 				m.put(x, r);
 			}
 			map.put(en, m);
 		}
-		for (En en : i.schema().ens) {
+		for (String en : i.schema().ens) {
 			Map<X, Resource> m = map.get(en);
 			for (Att att : i.schema().attsFrom(en)) {
 				for (X x : i.algebra().en(en)) {
@@ -135,11 +133,11 @@ public class RdfExporter {
 		return ret;
 	}
 
-	public static Model xmlExport1(Schema<Ty, En, Sym, Fk, Att> s, Map<Ty, String> m) {
+	public static Model xmlExport1(Schema<String, String, Sym, Fk, Att> s, Map<String, String> m) {
 		Model ret = ModelFactory.createDefaultModel();
 
-		for (En en : s.ens) {
-			var r = ResourceFactory.createResource("cql://entity/" + en.str);
+		for (String en : s.ens) {
+			var r = ResourceFactory.createResource("cql://entity/" + en);
 			var p = ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 			var o = ResourceFactory.createResource("http://www.w3.org/2000/01/rdf-schema#Class");
 
@@ -152,7 +150,7 @@ public class RdfExporter {
 				ret.add(r, p, o);
 				r = ResourceFactory.createResource("cql://attribute/" + a.str);
 				p = ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#domain");
-				o = ResourceFactory.createResource("cql://entity/" + en.str);
+				o = ResourceFactory.createResource("cql://entity/" + en);
 				ret.add(r, p, o);
 				r = ResourceFactory.createResource("cql://attribute/" + a.str);
 				p = ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#range");
@@ -166,7 +164,7 @@ public class RdfExporter {
 				ret.add(r, p, o);
 				r = ResourceFactory.createResource("cql://foreign_key/" + a.str);
 				p = ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#domain");
-				o = ResourceFactory.createResource("cql://entity/" + en.str);
+				o = ResourceFactory.createResource("cql://entity/" + en);
 				ret.add(r, p, o);
 				r = ResourceFactory.createResource("cql://foreign_key/" + a.str);
 				p = ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#range");

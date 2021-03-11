@@ -16,58 +16,58 @@ import easik.xml.xsd.nodes.types.XSDType;
  * @version $$Id$$
  */
 public abstract class XSDAbstractElement extends XSDBaseNode {
-	/**  */
-	private XSDType elementType;
+  /**  */
+  private XSDType elementType;
 
-	/**
-	 *
-	 *
-	 * @param name
-	 * @param nillable
-	 * @param elementType
-	 */
-	public XSDAbstractElement(final String name, final boolean nillable, final XSDType elementType) {
-		super(name, nillable);
+  /**
+   *
+   *
+   * @param name
+   * @param nillable
+   * @param elementType
+   */
+  public XSDAbstractElement(final String name, final boolean nillable, final XSDType elementType) {
+    super(name, nillable);
 
-		setElementType(elementType);
-	}
+    setElementType(elementType);
+  }
 
-	/**
-	 *
-	 *
-	 * @param name
-	 * @param parent
-	 * @param elementType
-	 */
-	public XSDAbstractElement(final String name, final XSDBaseNode parent, final XSDType elementType) {
-		super(name, parent);
+  /**
+   *
+   *
+   * @param name
+   * @param parent
+   * @param elementType
+   */
+  public XSDAbstractElement(final String name, final XSDBaseNode parent, final XSDType elementType) {
+    super(name, parent);
 
-		setElementType(elementType);
-	}
+    setElementType(elementType);
+  }
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	public XSDType getElementType() {
-		return elementType;
-	}
+  /**
+   *
+   *
+   * @return
+   */
+  public XSDType getElementType() {
+    return elementType;
+  }
 
-	/**
-	 *
-	 *
-	 * @param elementType
-	 */
-	public void setElementType(final XSDType elementType) {
-		this.elementType = elementType;
+  /**
+   *
+   *
+   * @param elementType
+   */
+  public void setElementType(final XSDType elementType) {
+    this.elementType = elementType;
 
-		try {
-			if (elementType.isReferencable()) {
-				addTagAttribute("type", elementType.getQualifiedName());
-			}
-		} catch (NullPointerException e) {
-			// Ignore
-		}
-	}
+    try {
+      if (elementType.isReferencable()) {
+        addTagAttribute("type", elementType.getQualifiedName());
+      }
+    } catch (NullPointerException e) {
+      // Ignore
+    }
+  }
 }

@@ -24,8 +24,8 @@ schema S2 = literal : sql {
 	     att: Type -> String
 }
 
-///////////////////////////////////////////////////////////////////////////
-//compute the canonical schema colimit
+#####################################/
+#compute the canonical schema colimit
 
 schema_colimit ColimAuto = quotient S1 + S2 : sql {
 	entity_equations
@@ -39,16 +39,16 @@ schema_colimit ColimAuto = quotient S1 + S2 : sql {
 		simplify_names = true	
 }
 
-//just for fun
+#just for fun
 schema_colimit Coproduct = coproduct S1 + S2 : sql 
 
-///////////////////////////////////////////////////////////////////////////
-//use a different, less verbose colimit constructed manually
+#####################################/
+#use a different, less verbose colimit constructed manually
 
 schema_colimit Colim = modify ColimAuto {
 	rename entities
 		Observation -> O
-//		Patient__Person -> P  done because of shorted prefix!
+#		Patient__Person -> P  done because of shorted prefix!
 		ObsType__Type -> T
 		Gender -> G
 		Method -> M
@@ -56,18 +56,18 @@ schema_colimit Colim = modify ColimAuto {
 		O.S1_Observation_f -> f
 	rename attributes
 		T.ObsType_att  -> T_att1
-		//G.Gender_att  -> G_att
+		#G.Gender_att  -> G_att
 		P.Person_att -> P_att1
 		T.Type_att  -> T_att2
 		P.Patient_att -> P_att2
 	remove foreign_keys	
 		O.S2_Observation_f  -> f
 		O.g  -> g1.g2 
-	/* e.g. remove attributes
-		B_att -> lambda x. x.T_att1 */
+	# e.g. remove attributes
+	#	B_att -> lambda x. x.T_att1 
 }
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 instance I1 = literal : S1 {
 	generators

@@ -299,16 +299,16 @@ query qPAM_Norm = literal : sPAM_Assembly -> sPAM_Norm {
 				pam.AM_Ptnt_Name = pama.PA_Patient.PA_Patient_Name
 				pam.AM_Med  = pamm.PM_Med.PM_Med_Type
 				pam.AM_PT   = pama.PA_AE.PA_PT
-				pamm.PM_Patient = pama.PA_Patient // What happens if you leave this out?
+				pamm.PM_Patient = pama.PA_Patient # What happens if you leave this out?
 			foreign_keys
-				// PAM_PM : AEMedOverPtnt -> PatientMed
+				# PAM_PM : AEMedOverPtnt -> PatientMed
 				PAM_PM -> {pm -> pamm}
-				// PAM_PA : AEMedOverPtnt -> PatientAE
+				# PAM_PA : AEMedOverPtnt -> PatientAE
 				PAM_PA -> {pa -> pama}
-				// PAM_C : AEMedOverPtnt -> Causality
+				# PAM_C : AEMedOverPtnt -> Causality
 				PAM_C -> {c -> pam.AE_Causality}
 		}
-	// All of the entities below are mapped one to one from the source to the target.
+	# All of the entities below are mapped one to one from the source to the target.
 	entity
 		PatientMed -> {
 			from
@@ -316,9 +316,9 @@ query qPAM_Norm = literal : sPAM_Assembly -> sPAM_Norm {
 			attributes
 				Dosage -> pm.PM_Dosage
 			foreign_keys
-				// PM_Patient : PatientMed -> Patient
+				# PM_Patient : PatientMed -> Patient
 				PM_Patient -> {p -> pm.PM_Patient}
-				// PM_Med : PatientMed -> Medication
+				# PM_Med : PatientMed -> Medication
 				PM_Med -> {m -> pm.PM_Med}
 		}
 	entity
@@ -328,9 +328,9 @@ query qPAM_Norm = literal : sPAM_Assembly -> sPAM_Norm {
 			attributes
 				Date_Reported -> pa.PA_Date_Reported
 			foreign_keys
-				// PA_Patient : PatientAE -> Patient
+				# PA_Patient : PatientAE -> Patient
 				PA_Patient -> {p -> pa.PA_Patient}
-				// PA_AE : PatientAE -> Medication
+				# PA_AE : PatientAE -> Medication
 				PA_AE -> {a -> pa.PA_AE}
 		}
 	entity
@@ -345,8 +345,8 @@ query qPAM_Norm = literal : sPAM_Assembly -> sPAM_Norm {
 			from
 				p : Patient
 			attributes
-				// Since we have forced the two source attributes to be the same using the
-				// quotient query we can pick either one.
+				# Since we have forced the two source attributes to be the same using the
+				# quotient query we can pick either one.
 				Patient_Name -> p.PA_Patient_Name
 		}
 	entity
@@ -405,11 +405,11 @@ schema sPAMDWH = literal : tString {
 		PA_AdverseEvent : F_PatientAE -> D_AdverseEvent
 		PA_Patient : F_PatientAE -> D_Patient
 	attributes
-		// Facts
+		# Facts
 		Causal_Cat : F_PAM -> String
 		Dosage : F_PatientMed -> String
 		Date_Reported : F_PatientAE -> String
-		// Context provided by dimensions
+		# Context provided by dimensions
 		Patient_Name : D_Patient -> String
 		Med_Type : D_Medication -> String
 		Preferred_Term : D_AdverseEvent -> String
@@ -430,15 +430,15 @@ query qPAMDWH = literal : sPAM_Norm -> sPAMDWH {
 			attributes
 				Causal_Cat -> pam.PAM_C.Causal_Cat
 			foreign_keys
-				// PAM_Patient : F_PAM -> D_Patient
-				// Question: What generator should be assign to the foreign key column PAM_Patient?
-				// Answer: The generator p obtained by following the path from AEMedOverPtnt to PatientAE
-				//         to Patient. Due to the commutitive square pam.PAM_PM.PM_Patient would have
-				//				 worked equally well.
+				# PAM_Patient : F_PAM -> D_Patient
+				# Question: What generator should be assign to the foreign key column PAM_Patient?
+				# Answer: The generator p obtained by following the path from AEMedOverPtnt to PatientAE
+				#         to Patient. Due to the commutitive square pam.PAM_PM.PM_Patient would have
+				#				 worked equally well.
 				PAM_Patient -> {p -> pam.PAM_PA.PA_Patient}
-				// PAM_AdverseEvent : F_PAM -> D_AdverseEvent
+				# PAM_AdverseEvent : F_PAM -> D_AdverseEvent
 				PAM_AdverseEvent -> {a -> pam.PAM_PA.PA_AE}
-				// PAM_Medication : F_PAM -> D_Medication
+				# PAM_Medication : F_PAM -> D_Medication
 				PAM_Medication -> {m -> pam.PAM_PM.PM_Med}
 		}
 	entity
@@ -448,9 +448,9 @@ query qPAMDWH = literal : sPAM_Norm -> sPAMDWH {
 			attributes
 				Dosage -> pm.Dosage
 			foreign_keys
-				// PM_Patient : F_PatientMed -> D_Patient
+				# PM_Patient : F_PatientMed -> D_Patient
 				PM_Patient -> {p -> pm.PM_Patient}
-				// PM_Medication : F_PatientMed -> D_Medication
+				# PM_Medication : F_PatientMed -> D_Medication
 				PM_Medication -> {m -> pm.PM_Med}
 		}
 	entity
@@ -460,9 +460,9 @@ query qPAMDWH = literal : sPAM_Norm -> sPAMDWH {
 			attributes
 				Date_Reported -> pa.Date_Reported
 			foreign_keys
-				// PA_Patient : F_PatientAE -> D_Program
+				# PA_Patient : F_PatientAE -> D_Program
 				PA_Patient -> {p -> pa.PA_Patient}
-				// PA_AdverseEvent : F_PatientAE -> D_AdverseEvent
+				# PA_AdverseEvent : F_PatientAE -> D_AdverseEvent
 				PA_AdverseEvent -> {a -> pa.PA_AE}
 		}
 	entity
@@ -488,7 +488,7 @@ query qPAMDWH = literal : sPAM_Norm -> sPAMDWH {
 		}
 }
 
-// Move the instance data.
+# Move the instance data.
 instance iPAM_DWH = eval qPAMDWH iPAM_Norm
 
 
@@ -505,15 +505,15 @@ schema sPAM_Rpt = literal : tString {
 	entities
 		PAM_Rpt PM_Rpt PA_Rpt
 	attributes
-		// PM_Rpt
+		# PM_Rpt
 		Dosage : PM_Rpt -> String
 		Patient_Name : PM_Rpt -> String
 		Medication : PM_Rpt -> String
-		// PA_Rpt
+		# PA_Rpt
 		Date_Reported : PA_Rpt -> String
 		Patient_Name : PA_Rpt -> String
 		AE_Preferred_Term : PA_Rpt -> String
-		// PAM_Rpt
+		# PAM_Rpt
 		Causal_Cat : PAM_Rpt -> String
 		Patient_Name : PAM_Rpt -> String
 		Medication : PAM_Rpt -> String

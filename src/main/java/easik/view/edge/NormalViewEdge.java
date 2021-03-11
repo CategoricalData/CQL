@@ -23,41 +23,41 @@ import easik.view.vertex.QueryNode;
 
 public class NormalViewEdge extends View_Edge implements UniqueIndexable {
 
-	private static final long serialVersionUID = 6454905968154847820L;
+  private static final long serialVersionUID = 6454905968154847820L;
 
-	/**
-	 * Creates a new normal (i.e. non-injective, non-partial) edge between two query
-	 * nodes with the specified name and RESTRICT cascading.
-	 *
-	 *
-	 * @param a
-	 * @param b
-	 * @param name The unique edge identifier
-	 * @see easik.sketch.edge.SketchEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 * @see easik.sketch.edge.PartialEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 */
-	public NormalViewEdge(QueryNode a, QueryNode b, String name) {
-		this(a, b, name, Cascade.RESTRICT);
-	}
+  /**
+   * Creates a new normal (i.e. non-injective, non-partial) edge between two query
+   * nodes with the specified name and RESTRICT cascading.
+   *
+   *
+   * @param a
+   * @param b
+   * @param name The unique edge identifier
+   * @see easik.sketch.edge.SketchEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   * @see easik.sketch.edge.PartialEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   */
+  public NormalViewEdge(QueryNode a, QueryNode b, String name) {
+    this(a, b, name, Cascade.RESTRICT);
+  }
 
-	/**
-	 * Creates a new normal (i.e. non-injective, non-partial) edge between two query
-	 * nodes with the specified name and cascading option.
-	 *
-	 *
-	 * @param a
-	 * @param b
-	 * @param name    The unique edge identifier
-	 * @param cascade The cascade value, such as SketchEdge.Cascade.RESTRICT
-	 * @see easik.sketch.edge.SketchEdge.Cascade
-	 * @see easik.sketch.edge.SketchEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 * @see easik.sketch.edge.PartialEdge( easik.sketch.vertex.EntityNode,
-	 *      easik.sketch.vertex.EntityNode, String)
-	 */
-	public NormalViewEdge(QueryNode a, QueryNode b, String name, Cascade cascade) {
-		super(a, b, name, cascade);
-	}
+  /**
+   * Creates a new normal (i.e. non-injective, non-partial) edge between two query
+   * nodes with the specified name and cascading option.
+   *
+   *
+   * @param a
+   * @param b
+   * @param name    The unique edge identifier
+   * @param cascade The cascade value, such as SketchEdge.Cascade.RESTRICT
+   * @see easik.sketch.edge.SketchEdge.Cascade
+   * @see easik.sketch.edge.SketchEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   * @see easik.sketch.edge.PartialEdge( easik.sketch.vertex.EntityNode,
+   *      easik.sketch.vertex.EntityNode, String)
+   */
+  public NormalViewEdge(QueryNode a, QueryNode b, String name, Cascade cascade) {
+    super(a, b, name, cascade);
+  }
 }

@@ -27,90 +27,90 @@ import easik.model.vertex.ModelVertex;
  * @version 2006-07-26 Kevin Green
  */
 public class EditAttributeAction<F extends ModelFrame<F, GM, M, N, E>, GM extends EasikGraphModel, M extends Model<F, GM, M, N, E>, N extends ModelVertex<F, GM, M, N, E>, E extends ModelEdge<F, GM, M, N, E>>
-		extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = 3410021724162068140L;
+    extends AbstractAction {
+  /**
+   *    
+   */
+  private static final long serialVersionUID = 3410021724162068140L;
 
-	/**  */
-	F _theFrame;
+  /**  */
+  F _theFrame;
 
-	/**
-	 * Set up the edit attribute menu option.
-	 *
-	 * @param _theFrame2
-	 */
-	public EditAttributeAction(F _theFrame2) {
-		super("Edit Attribute");
+  /**
+   * Set up the edit attribute menu option.
+   *
+   * @param _theFrame2
+   */
+  public EditAttributeAction(F _theFrame2) {
+    super("Edit Attribute");
 
-		_theFrame = _theFrame2;
+    _theFrame = _theFrame2;
 
-		putValue(Action.SHORT_DESCRIPTION, "Edits the currently selected attribute.");
-	}
+    putValue(Action.SHORT_DESCRIPTION, "Edits the currently selected attribute.");
+  }
 
-	/**
-	 * Brings up a dialog to edit the currently selected attribute
-	 * 
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// If there is nothing seleceted then just do nothing
-		if (_theFrame.getInfoTreeUI().getInfoTree().isSelectionEmpty()) {
-			return;
-		}
+  /**
+   * Brings up a dialog to edit the currently selected attribute
+   * 
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    // If there is nothing seleceted then just do nothing
+    if (_theFrame.getInfoTreeUI().getInfoTree().isSelectionEmpty()) {
+      return;
+    }
 
-		// If we're currently synced with a db, give the user the chance to
-		// cancel operation
-		if (_theFrame.getMModel().isSynced()) {
-			int choice = JOptionPane.showConfirmDialog(_theFrame,
-					"Warning: this sketch is currently synced with a db; continue and break synchronization?",
-					"Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+    // If we're currently synced with a db, give the user the chance to
+    // cancel operation
+    if (_theFrame.getMModel().isSynced()) {
+      int choice = JOptionPane.showConfirmDialog(_theFrame,
+          "Warning: this sketch is currently synced with a db; continue and break synchronization?",
+          "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
-			if (choice == JOptionPane.CANCEL_OPTION) {
-				return;
-			}
-		}
+      if (choice == JOptionPane.CANCEL_OPTION) {
+        return;
+      }
+    }
 
-		// Get currently selected object
-		DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
-				.getSelectionPath().getLastPathComponent();
+    // Get currently selected object
+    DefaultMutableTreeNode curSelected = (DefaultMutableTreeNode) _theFrame.getInfoTreeUI().getInfoTree()
+        .getSelectionPath().getLastPathComponent();
 
-		// Selection is an attribute
-		if (curSelected instanceof EntityAttribute) {
-			@SuppressWarnings("unchecked")
-			EntityAttribute<F, GM, M, N, E> curAttribute = (EntityAttribute<F, GM, M, N, E>) curSelected;
-			// we can cast it because we will only edit in sketches
-			N parentEntity = curAttribute.getEntity();
-			AttributeUI<F, GM, M, N, E> myUI = new AttributeUI<>(_theFrame, parentEntity, curAttribute);
+    // Selection is an attribute
+    if (curSelected instanceof EntityAttribute) {
+      @SuppressWarnings("unchecked")
+      EntityAttribute<F, GM, M, N, E> curAttribute = (EntityAttribute<F, GM, M, N, E>) curSelected;
+      // we can cast it because we will only edit in sketches
+      N parentEntity = curAttribute.getEntity();
+      AttributeUI<F, GM, M, N, E> myUI = new AttributeUI<>(_theFrame, parentEntity, curAttribute);
 
-			if (myUI.isAccepted()) {
-				// Get values from dialog
-				@SuppressWarnings("unused")
-				String newAttName = myUI.getName();
-				@SuppressWarnings("unused")
-				EasikType newAttType = myUI.getCustomType();
+      if (myUI.isAccepted()) {
+        // Get values from dialog
+        @SuppressWarnings("unused")
+        String newAttName = myUI.getName();
+        @SuppressWarnings("unused")
+        EasikType newAttType = myUI.getCustomType();
 
-				curAttribute.setName(myUI.getName());
-				curAttribute.setType(myUI.getCustomType());
-				_theFrame.getInfoTreeUI().refreshTree(parentEntity);
+        curAttribute.setName(myUI.getName());
+        curAttribute.setType(myUI.getCustomType());
+        _theFrame.getInfoTreeUI().refreshTree(parentEntity);
 
-				Object[] myCell = new Object[] { parentEntity };
+        Object[] myCell = new Object[] { parentEntity };
 
-				_theFrame.getMModel().getGraphLayoutCache().hideCells(myCell, true);
-				_theFrame.getMModel().getGraphLayoutCache().showCells(myCell, true);
-				_theFrame.getMModel().repaint();
-				_theFrame.getMModel().setDirty();
-				_theFrame.getMModel().setSynced(false);
-			}
-		}
+        _theFrame.getMModel().getGraphLayoutCache().hideCells(myCell, true);
+        _theFrame.getMModel().getGraphLayoutCache().showCells(myCell, true);
+        _theFrame.getMModel().repaint();
+        _theFrame.getMModel().setDirty();
+        _theFrame.getMModel().setSynced(false);
+      }
+    }
 
-		// Selection is not an attribute
-		else {
-			JOptionPane.showMessageDialog(_theFrame,
-					"You don't have an attribute selected. \nPlease select an attribute and try again.",
-					"No Attribute Selected", JOptionPane.ERROR_MESSAGE);
-		}
-	}
+    // Selection is not an attribute
+    else {
+      JOptionPane.showMessageDialog(_theFrame,
+          "You don't have an attribute selected. \nPlease select an attribute and try again.",
+          "No Attribute Selected", JOptionPane.ERROR_MESSAGE);
+    }
+  }
 }

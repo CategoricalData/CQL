@@ -1,5 +1,6 @@
 package catdata.aql.exp;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,7 +31,6 @@ import catdata.aql.Kind;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.TypeSide;
-import catdata.aql.Var;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -51,11 +51,9 @@ public final class SchExpRaw extends SchExp implements Raw {
 		return v.visitSchExpRaw(params, r);
 	}
 
-	static Map<String, En> enCache = new THashMap<>();
+	static Map<String, Map<String, Fk>> fkCache = new THashMap<>(64 * 1024 * 4, 1);
 
-	static Map<En, Map<String, Fk>> fkCache = new THashMap<>();
-
-	static Map<En, Map<String, Att>> attCache = new THashMap<>();
+	static Map<String, Map<String, Att>> attCache = new THashMap<>(64 * 1024 * 4, 1);
 
 	public SchExp resolve(AqlTyping G, Program<Exp<?>> prog) {
 		return this;
@@ -77,36 +75,36 @@ public final class SchExpRaw extends SchExp implements Raw {
 	}
 
 	@Override
-	public synchronized Schema<Ty, En, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
-		TypeSide<Ty, Sym> ts = typeSide.eval(env, isC);
-		Collage<Ty, En, Sym, Fk, Att, Void, Void> col = new CCollage<>(ts.collage());
+	public synchronized Schema<String, String, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
+		TypeSide<String, Sym> ts = typeSide.eval(env, isC);
+		Collage<String, String, Sym, Fk, Att, Void, Void> col = new CCollage<>(ts.collage());
 
-		Set<Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>>> eqs0 = (new THashSet<>());
+		List<Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>>> eqs0 = new LinkedList<>();
 
 		for (SchExp k : imports) {
-			Schema<Ty, En, Sym, Fk, Att> v = k.eval(env, isC);
+			Schema<String, String, Sym, Fk, Att> v = k.eval(env, isC);
 			col.addAll(v.collage());
 			eqs0.addAll(v.eqs);
 		}
 
-		col.getEns().addAll(ens.stream().map(x -> En.En(x)).collect(Collectors.toList()));
+		col.getEns().addAll(ens.stream().map(x -> (x)).collect(Collectors.toList()));
 		col.fks().putAll(conv1(fks));
 		col.atts().putAll(conv2(atts));
 
 		for (Quad<String, String, RawTerm, RawTerm> eq : t_eqs) {
 			try {
-				Map<String, Chc<Ty, En>> ctx = Collections.singletonMap(eq.first,
-						eq.second == null ? null : Chc.inRight(En.En(eq.second)));
+				Map<String, Chc<String, String>> ctx = Collections.singletonMap(eq.first,
+						eq.second == null ? null : Chc.inRight((eq.second)));
 
-				Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq0 = RawTerm
+				Triple<Map<String, Chc<String, String>>, Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>> eq0 = RawTerm
 						.infer1x(ctx, eq.third, eq.fourth, null, col.convert(), "", ts.js).first3();
 
-				Var eee = Var.Var(eq.first);
-				Chc<Ty, En> v = eq0.first.get(eee);
+				String eee = (eq.first);
+				Chc<String, String> v = eq0.first.get(eee);
 				if (v.left) {
 					throw new RuntimeException(eq.first + " has type " + v.l + " which is not an entity");
 				}
-				En t = v.r;
+				String t = v.r;
 
 				eqs0.add(new Triple<>(new Pair<>(eee, t), eq0.second.convert(), eq0.third.convert()));
 			} catch (RuntimeException ex) {
@@ -116,37 +114,40 @@ public final class SchExpRaw extends SchExp implements Raw {
 			}
 		}
 		String vv = "v";
-		Var var = Var.Var(vv);
+		String var = (vv);
 		for (Pair<List<String>, List<String>> eq : p_eqs) {
 			List<String> a = eq.first;
 			List<String> b = eq.second;
 			if (!a.get(0).equals(b.get(0))) {
 				throw new RuntimeException("Source entities do not match: " + a.get(0) + " and " + b.get(0));
 			}
-			eqs0.add(new Triple<>(new Pair<>(var, En.En(a.get(0))), toFk(a, col, var).convert(), toFk(b, col, var).convert()));
+			eqs0.add(new Triple<>(new Pair<>(var, (a.get(0))), toFk(a, col, var).convert(),
+					toFk(b, col, var).convert()));
 		}
 
-		for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : eqs0) {
+		for (Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>> eq : eqs0) {
 			col.eqs().add(new Eq<>(Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second)), eq.second,
 					eq.third));
 		}
 
 		// forces type checking before prover construction
-		//col.validate();
+		// col.validate();
 
-		Schema<Ty, En, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, env.defaults));
+		Schema<String, String, Sym, Fk, Att> ret = new Schema<>(ts, col, new AqlOptions(options, env.defaults));
 		return ret;
 
 	}
 
-	private Term<Void, En, Void, Fk, Void, Void, Void> toFk(List<String> a, Collage<Ty, En, Sym, Fk, Att, Void, Void> col, Var var) {
+	private static Term<Void, String, Void, Fk, Void, Void, Void> toFk(List<String> a,
+			Collage<String, String, Sym, Fk, Att, Void, Void> col, String var) {
 		Iterator<String> it = a.iterator();
 		String x = it.next();
-		Term<Void, En, Void, Fk, Void, Void, Void> ret = Term.Var(var);
-		En en = En.En(x);
+		Term<Void, String, Void, Fk, Void, Void, Void> ret = Term.Var(var);
+		String en = (x);
 		while (it.hasNext()) {
 			if (!col.getEns().contains(en)) {
-				throw new RuntimeException("Not an entity: " + en + ".  Paths in path equations must start with entities.");
+				throw new RuntimeException(
+						"Not an entity: " + en + ".  Paths in path equations must start with entities.");
 			}
 			Fk fk = Fk.Fk(en, it.next());
 			if (!col.fks().containsKey(fk)) {
@@ -164,23 +165,22 @@ public final class SchExpRaw extends SchExp implements Raw {
 		set.addAll(AqlOptions.proverOptionNames());
 	}
 
-	private Map<Att, Pair<En, Ty>> conv2(Set<Pair<String, Pair<String, String>>> map) {
-		Map<Att, Pair<En, Ty>> ret = Util.mk();
+	private static Map<Att, Pair<String, String>> conv2(Set<Pair<String, Pair<String, String>>> map) {
+		Map<Att, Pair<String, String>> ret = Util.mk();
 		for (Pair<String, Pair<String, String>> p : map) {
-			ret.put(Att.Att(En.En(p.second.first), p.first),
-					new Pair<>(En.En(p.second.first), Ty.Ty(p.second.second)));
+			ret.put(Att.Att((p.second.first), p.first), new Pair<>((p.second.first), p.second.second));
 		}
 		return ret;
 	}
 
-	private Map<Fk, Pair<En, En>> conv1(Set<Pair<String, Pair<String, String>>> map) {
-		Map<Fk, Pair<En, En>> ret = Util.mk();
+	private static Map<Fk, Pair<String, String>> conv1(Set<Pair<String, Pair<String, String>>> map) {
+		Map<Fk, Pair<String, String>> ret = Util.mk();
 		for (Pair<String, Pair<String, String>> p : map) {
-			Fk z = Fk.Fk(En.En(p.second.first), p.first);
+			Fk z = Fk.Fk((p.second.first), p.first);
 			if (ret.containsKey(z)) {
 				throw new RuntimeException("Duplicate column on same table: " + z + " on " + p.second.first);
 			}
-			ret.put(z, new Pair<>(En.En(p.second.first), En.En(p.second.second)));
+			ret.put(z, new Pair<>(p.second.first, p.second.second));
 		}
 		return ret;
 	}
@@ -202,7 +202,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 	private final Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
 
 	@Override
-	public String makeString() {
+	public String toString() {
 		final StringBuilder sb = new StringBuilder().append("literal : ").append(typeSide).append(" {\n");
 
 		if (!imports.isEmpty()) {
@@ -333,31 +333,44 @@ public final class SchExpRaw extends SchExp implements Raw {
 		return true;
 	}
 
-	public SchExpRaw(TyExp typeSide, List<SchExp> imports, List<LocStr> ens,
+	public SchExpRaw(TyExp typeSide, List<SchExp> imports,
+			List<Pair<LocStr, Pair<List<Pair<LocStr, String>>, List<Pair<LocStr, String>>>>> ensSimpl, List<LocStr> ens,
 			List<Pair<LocStr, Pair<String, String>>> fks, List<Pair<Integer, Pair<List<String>, List<String>>>> list,
 			List<Pair<LocStr, Pair<String, String>>> atts,
 			List<Pair<Integer, Quad<String, String, RawTerm, RawTerm>>> list2, List<Pair<String, String>> options) {
 		this.typeSide = typeSide;
 		this.imports = new THashSet<>(imports);
-		this.ens = LocStr.set1(ens);
-		this.fks = LocStr.set2(fks);
+		this.ens = LocStr.set1(whee(ens, ensSimpl));
+		this.fks = LocStr.set2(whee(fks, ensSimpl, true));
 		this.p_eqs = LocStr.proj2(list);
-		this.atts = LocStr.set2(atts);
+		this.atts = LocStr.set2(whee(atts, ensSimpl, false));
 		this.t_eqs = LocStr.proj2(list2);
 		this.options = Util.toMapSafely(options);
 
-		if (this.fks.size() != fks.size()) {
-			throw new RuntimeException("Error: schema literal contains duplicate foreign keys.");
-		}
-		if (this.atts.size() != atts.size()) {
-			throw new RuntimeException("Error: schema literal contains duplicate attributes.");
-		}
-
-//		Util.toMapSafely(fks); // check no dups here rather than wait until eval
-//		Util.toMapSafely(atts);
-
 		doGuiIndexing(ens, fks, list, atts, list2);
+	}
 
+	private List<Pair<LocStr, Pair<String, String>>> whee(List<Pair<LocStr, Pair<String, String>>> fks2,
+			List<Pair<LocStr, Pair<List<Pair<LocStr, String>>, List<Pair<LocStr, String>>>>> ensSimpl, boolean isFk) {
+		List<Pair<LocStr, Pair<String, String>>> ret = new ArrayList<>(fks2.size() + ensSimpl.size());
+		ret.addAll(fks2);
+		for (Pair<LocStr, Pair<List<Pair<LocStr, String>>, List<Pair<LocStr, String>>>> x : ensSimpl) {
+			var v = isFk ? x.second.first : x.second.second;
+			for (Pair<LocStr, String> y : v) {
+				ret.add(new Pair<>(y.first, new Pair<>(x.first.str, y.second)));
+			}
+		}
+		return ret;
+	}
+
+	private Collection<LocStr> whee(List<LocStr> ens2,
+			List<Pair<LocStr, Pair<List<Pair<LocStr, String>>, List<Pair<LocStr, String>>>>> ensSimpl) {
+		List<LocStr> ret = new ArrayList<>(ens2.size() + ensSimpl.size());
+		ret.addAll(ens2);
+		for (Pair<LocStr, Pair<List<Pair<LocStr, String>>, List<Pair<LocStr, String>>>> x : ensSimpl) {
+			ret.add(x.first);
+		}
+		return ret;
 	}
 
 	public void doGuiIndexing(List<LocStr> ens, List<Pair<LocStr, Pair<String, String>>> fks,
@@ -399,8 +412,9 @@ public final class SchExpRaw extends SchExp implements Raw {
 	// for easik
 	public SchExpRaw(TyExp typeSide, List<SchExp> imports, List<String> ens,
 			List<Pair<String, Pair<String, String>>> fks, List<Pair<List<String>, List<String>>> list,
-			List<Pair<String, Pair<String, Ty>>> atts, List<Quad<String, String, RawTerm, RawTerm>> list2,
-			List<Pair<String, String>> options, @SuppressWarnings("unused") Object o) {
+			List<Pair<String, Pair<String, String>>> atts, List<Quad<String, String, RawTerm, RawTerm>> list2,
+			List<Pair<String, String>> options, @SuppressWarnings("unused") Object o,
+			@SuppressWarnings("unused") Object o2) {
 		this.typeSide = typeSide;
 
 		this.imports = new THashSet<>(imports);
@@ -409,7 +423,7 @@ public final class SchExpRaw extends SchExp implements Raw {
 		if (this.fks.size() != fks.size()) {
 			throw new RuntimeException("Error: schema literal contains duplicate foreign keys.");
 		}
-		this.atts = (atts.stream().map(x -> new Pair<>(x.first, new Pair<>(x.second.first, x.second.second.str)))
+		this.atts = (atts.stream().map(x -> new Pair<>(x.first, new Pair<>(x.second.first, x.second.second)))
 				.collect(Collectors.toSet()));
 		if (this.atts.size() != atts.size()) {
 			throw new RuntimeException("Error: schema literal contains duplicate attributes: " + atts);
@@ -434,10 +448,11 @@ public final class SchExpRaw extends SchExp implements Raw {
 			if (z.kind() != Kind.SCHEMA) {
 				throw new RuntimeException("Import of wrong kind: " + z);
 			}
-			//TyExp u = ((SchExp)z).type(G);
-			//if (!typeSide.equals(u)) {
-			//	throw new RuntimeException("Import schema typeside mismatch on " + z + ", is " + u + " and not " + typeSide + " as expected.");
-			//}
+			// TyExp u = ((SchExp)z).type(G);
+			// if (!typeSide.equals(u)) {
+			// throw new RuntimeException("Import schema typeside mismatch on " + z + ", is
+			// " + u + " and not " + typeSide + " as expected.");
+			// }
 		}
 		return typeSide;
 	}

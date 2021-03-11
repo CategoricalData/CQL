@@ -59,9 +59,9 @@ mapping F2 = literal : S -> S2 {
 		T -> Type
 } 
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
-//Pushout schema, written out explicitly here by hand
+#Pushout schema, written out explicitly here by hand
 schema T = literal : sql {
 	entities
 		O P G T M
@@ -118,7 +118,7 @@ mapping G2 = literal : S2 -> T {
 		att ->  T_att2	
 } 
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 instance I1 = literal : S1 {
 	generators
@@ -171,7 +171,7 @@ transform a2 = literal : sigma F2 I -> I2 {
 		W-> Wt
 } 
 
-///////////////////////////////////////////////////////////////////////////
+#####################################/
 
 transform b1 = sigma G1 a1
 transform b2 = sigma G2 a2

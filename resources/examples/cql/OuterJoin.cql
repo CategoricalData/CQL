@@ -1,9 +1,8 @@
-//Outer joins using java's Optional class
+#Outer joins using java's Optional class
 
-/*
-This is not an outer join per se (it returns A*B rows, rather than A+B rows,
-when A and B don't join at all), but is similar in spirit.  The pedantic version follows.
-*/
+#This is not an outer join per se (it returns A*B rows, rather than A+B rows,
+#when A and B don't join at all), but is similar in spirit.  The pedantic version follows.
+
 
 typeside Ty = literal {
 	external_types
@@ -64,7 +63,7 @@ instance I = literal : S {
 
 instance J = eval OuterJoin I
 
-////////////////////////////////////////////////////////////////////////////////////////
+############################################
 
 schema Sx = literal : sql {
 	entities
@@ -91,11 +90,11 @@ instance Ix = literal : Sx {
 		l4.attL="Dave" l4.f.attM="6"
 }
 
-//Let's do a left outer join
+#Let's do a left outer join
 
-//Step 1: query, remembering the join and the Left
+#Step 1: query, remembering the join and the Left
 
-//Step 1a: make the appropriate schema
+#Step 1a: make the appropriate schema
 
 schema Helper = literal : sql {
 	entities
@@ -108,7 +107,7 @@ schema Helper = literal : sql {
 		attM: Joiner -> Varchar
 }
 
-//Step 1b: query it
+#Step 1b: query it
 
 query findJoin = literal : Sx -> Helper {
  entity
@@ -127,11 +126,11 @@ query findJoin = literal : Sx -> Helper {
 	from l:Left
 	attributes attL->l.attL
   }
-  }
+}
 
-//Step 2: add it all up
+#Step 2: add it all up
 
-//Step 2a: make the landing schema
+#Step 2a: make the landing schema
 
 schema Landing = literal : sql {
 	entities
@@ -142,7 +141,7 @@ schema Landing = literal : sql {
 		attR: Result->Varchar
 }
 
-//Step 2b: make a mapping from helper to landing
+#Step 2b: make a mapping from helper to landing
 
 mapping AddItUp = literal : Helper -> Landing {
 	entity
@@ -159,7 +158,7 @@ mapping AddItUp = literal : Helper -> Landing {
 
 }
 
-//Step 3: run
+#Step 3: run
 
 instance Joined = eval findJoin Ix
 

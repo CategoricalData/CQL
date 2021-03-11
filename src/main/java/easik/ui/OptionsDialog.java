@@ -65,245 +65,245 @@ import javax.swing.border.EmptyBorder;
 // but since,
 // at the time of writing, we don't want to require 1.6, we use this instead.
 public abstract class OptionsDialog extends JDialog {
-	private static final long serialVersionUID = -87860547361090816L;
+  private static final long serialVersionUID = -87860547361090816L;
 
-	/**
-	 * Stores whether "OK" was clicked (if false, the dialog is still open, or
-	 * cancel was clicked, or the dialog was closed without clicking either.
-	 */
-	private boolean _ok = false;
+  /**
+   * Stores whether "OK" was clicked (if false, the dialog is still open, or
+   * cancel was clicked, or the dialog was closed without clicking either.
+   */
+  private boolean _ok = false;
 
-	/**
-	 * Sets up a new OptionsDialog attached to the specified parent dialog, with the
-	 * specified title. The dialog will be a modal dialog. The default dialog box
-	 * size is 300x300; subclasses should call setSize() to set this for themselves.
-	 *
-	 * @param parent the parent dialog of the modal dialog
-	 * @param title  the title of the dialog box
-	 */
-	public OptionsDialog(final JDialog parent, final String title) {
-		super(parent, title, true);
+  /**
+   * Sets up a new OptionsDialog attached to the specified parent dialog, with the
+   * specified title. The dialog will be a modal dialog. The default dialog box
+   * size is 300x300; subclasses should call setSize() to set this for themselves.
+   *
+   * @param parent the parent dialog of the modal dialog
+   * @param title  the title of the dialog box
+   */
+  public OptionsDialog(final JDialog parent, final String title) {
+    super(parent, title, true);
 
-		setSize(300, 300);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-	}
+    setSize(300, 300);
+    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+  }
 
-	/**
-	 * Sets up a new OptionsDialog attached to the specified parent frame, with the
-	 * specified title. The dialog will be a modal dialog. The default dialog box
-	 * size is 300x300; subclasses should call setSize() to set this for themselves.
-	 *
-	 * @param parent the parent frame of the modal dialog
-	 * @param title  the title of the dialog box
-	 */
-	public OptionsDialog(final JFrame parent, final String title) {
-		super(parent, title, true);
+  /**
+   * Sets up a new OptionsDialog attached to the specified parent frame, with the
+   * specified title. The dialog will be a modal dialog. The default dialog box
+   * size is 300x300; subclasses should call setSize() to set this for themselves.
+   *
+   * @param parent the parent frame of the modal dialog
+   * @param title  the title of the dialog box
+   */
+  public OptionsDialog(final JFrame parent, final String title) {
+    super(parent, title, true);
 
-		setSize(300, 300);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-	}
+    setSize(300, 300);
+    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+  }
 
-	/**
-	 * Returns a list of Option label/component pairs to be displayed in the option
-	 * dialog. Must be overridden by sub-classes unless they implement
-	 * TabbedOptionsDialog. For TabbedOptionsDialog objects, if this method returns
-	 * any options, they will be added to the page *before* the tabs returned by
-	 * getTabs().
-	 *
-	 * @return list of Option objects
-	 */
-	@SuppressWarnings("static-method")
-	public List<Option> getOptions() {
-		return Collections.emptyList();
-	}
+  /**
+   * Returns a list of Option label/component pairs to be displayed in the option
+   * dialog. Must be overridden by sub-classes unless they implement
+   * TabbedOptionsDialog. For TabbedOptionsDialog objects, if this method returns
+   * any options, they will be added to the page *before* the tabs returned by
+   * getTabs().
+   *
+   * @return list of Option objects
+   */
+  @SuppressWarnings("static-method")
+  public List<Option> getOptions() {
+    return Collections.emptyList();
+  }
 
-	/**
-	 * Shows the option modal dialog. This method doesn't return until the user
-	 * accepts, cancels, or otherwise dismisses the dialog box. This method returns
-	 * true if the user clicks OK (and, if overridden, verify() succeeds).
-	 *
-	 * @return true if the user clicked OK and the data was acceptable
-	 * @see #verify()
-	 */
-	public boolean showDialog() {
-		setLocationRelativeTo(getParent());
+  /**
+   * Shows the option modal dialog. This method doesn't return until the user
+   * accepts, cancels, or otherwise dismisses the dialog box. This method returns
+   * true if the user clicks OK (and, if overridden, verify() succeeds).
+   *
+   * @return true if the user clicked OK and the data was acceptable
+   * @see #verify()
+   */
+  public boolean showDialog() {
+    setLocationRelativeTo(getParent());
 
-		if (this instanceof TabbedOptionsDialog) {
-			final List<Option> preTabOpts = getOptions();
+    if (this instanceof TabbedOptionsDialog) {
+      final List<Option> preTabOpts = getOptions();
 
-			if (!preTabOpts.isEmpty()) {
-				final JPanel preOpts = optionsPanel(preTabOpts);
+      if (!preTabOpts.isEmpty()) {
+        final JPanel preOpts = optionsPanel(preTabOpts);
 
-				add(new JScrollPane(preOpts), BorderLayout.NORTH);
-			}
+        add(new JScrollPane(preOpts), BorderLayout.NORTH);
+      }
 
-			final JTabbedPane tabs = new JTabbedPane();
-			int selIndex = -1;
+      final JTabbedPane tabs = new JTabbedPane();
+      int selIndex = -1;
 
-			for (final OptionTab tab : ((TabbedOptionsDialog) this).getTabs()) {
-				final JPanel options = optionsPanel(tab.getOptions());
+      for (final OptionTab tab : ((TabbedOptionsDialog) this).getTabs()) {
+        final JPanel options = optionsPanel(tab.getOptions());
 
-				tabs.addTab(tab.getTitle(), tab.getIcon(), new JScrollPane(options), tab.getToolTip());
+        tabs.addTab(tab.getTitle(), tab.getIcon(), new JScrollPane(options), tab.getToolTip());
 
-				if (tab.hasMnemonic()) {
-					tabs.setMnemonicAt(tabs.getTabCount() - 1, tab.getMnemonic());
-				}
+        if (tab.hasMnemonic()) {
+          tabs.setMnemonicAt(tabs.getTabCount() - 1, tab.getMnemonic());
+        }
 
-				if ((selIndex == -1) && tab.isInitial()) {
-					selIndex = tabs.getTabCount() - 1;
-				}
-			}
+        if ((selIndex == -1) && tab.isInitial()) {
+          selIndex = tabs.getTabCount() - 1;
+        }
+      }
 
-			if (selIndex != -1) {
-				tabs.setSelectedIndex(selIndex);
-			}
+      if (selIndex != -1) {
+        tabs.setSelectedIndex(selIndex);
+      }
 
-			add(tabs, BorderLayout.CENTER);
-		} else {
-			final JPanel options = optionsPanel(getOptions());
+      add(tabs, BorderLayout.CENTER);
+    } else {
+      final JPanel options = optionsPanel(getOptions());
 
-			add(new JScrollPane(options), BorderLayout.CENTER);
-		}
+      add(new JScrollPane(options), BorderLayout.CENTER);
+    }
 
-		final JButton ok = new JButton("OK");
-		final JButton cancel = new JButton("Cancel");
+    final JButton ok = new JButton("OK");
+    final JButton cancel = new JButton("Cancel");
 
-		ok.setActionCommand("ok");
-		cancel.setActionCommand("cancel");
+    ok.setActionCommand("ok");
+    cancel.setActionCommand("cancel");
 
-		final ButtonListener bl = new ButtonListener();
+    final ButtonListener bl = new ButtonListener();
 
-		ok.addActionListener(bl);
-		cancel.addActionListener(bl);
+    ok.addActionListener(bl);
+    cancel.addActionListener(bl);
 
-		final JPanel buttons = new JPanel();
+    final JPanel buttons = new JPanel();
 
-		buttons.add(ok);
-		buttons.add(cancel);
-		add(buttons, BorderLayout.SOUTH);
-		getRootPane().setDefaultButton(ok);
+    buttons.add(ok);
+    buttons.add(cancel);
+    add(buttons, BorderLayout.SOUTH);
+    getRootPane().setDefaultButton(ok);
 
-		_ok = false;
+    _ok = false;
 
-		setVisible(true); // blocks until user hits OK (and verify succeeds) or
-							// Cancel
+    setVisible(true); // blocks until user hits OK (and verify succeeds) or
+              // Cancel
 
-		if (this instanceof ContainedOptionsDialog) {
-			((ContainedOptionsDialog) this).accepted(_ok);
-		}
+    if (this instanceof ContainedOptionsDialog) {
+      ((ContainedOptionsDialog) this).accepted(_ok);
+    }
 
-		return _ok;
-	}
+    return _ok;
+  }
 
-	/**
-	 * Creates a JPanel with the specified options. Interal use only.
-	 * 
-	 * @param opts the options
-	 * @return a jpanel
-	 */
-	private static JPanel optionsPanel(final List<Option> opts) {
-		final JPanel options = new JPanel();
-		final GroupLayout gl = new GroupLayout(options);
+  /**
+   * Creates a JPanel with the specified options. Interal use only.
+   * 
+   * @param opts the options
+   * @return a jpanel
+   */
+  private static JPanel optionsPanel(final List<Option> opts) {
+    final JPanel options = new JPanel();
+    final GroupLayout gl = new GroupLayout(options);
 
-		options.setLayout(gl);
-		gl.setAutoCreateGaps(true);
-		gl.setAutoCreateContainerGaps(true);
+    options.setLayout(gl);
+    gl.setAutoCreateGaps(true);
+    gl.setAutoCreateContainerGaps(true);
 
-		final GroupLayout.ParallelGroup labels = gl.createParallelGroup();
-		final GroupLayout.ParallelGroup values = gl.createParallelGroup();
-		final GroupLayout.ParallelGroup titles = gl.createParallelGroup();
-		final GroupLayout.ParallelGroup horiz = gl.createParallelGroup();
-		final GroupLayout.SequentialGroup cols = gl.createSequentialGroup();
-		final GroupLayout.SequentialGroup rows = gl.createSequentialGroup();
+    final GroupLayout.ParallelGroup labels = gl.createParallelGroup();
+    final GroupLayout.ParallelGroup values = gl.createParallelGroup();
+    final GroupLayout.ParallelGroup titles = gl.createParallelGroup();
+    final GroupLayout.ParallelGroup horiz = gl.createParallelGroup();
+    final GroupLayout.SequentialGroup cols = gl.createSequentialGroup();
+    final GroupLayout.SequentialGroup rows = gl.createSequentialGroup();
 
-		cols.addGroup(labels);
-		cols.addGroup(values);
-		horiz.addGroup(cols);
-		horiz.addGroup(titles);
+    cols.addGroup(labels);
+    cols.addGroup(values);
+    horiz.addGroup(cols);
+    horiz.addGroup(titles);
 
-		for (final Option o : opts) {
-			final JLabel l = o.getLabel();
-			final JComponent c = o.getComponent();
+    for (final Option o : opts) {
+      final JLabel l = o.getLabel();
+      final JComponent c = o.getComponent();
 
-			if (c == null) {
-				// This is a label-only row, allowed to take up the whole row
-				titles.addComponent(l);
-				rows.addComponent(l);
-			} else {
-				if (l.getBorder() == null) {
-					l.setBorder(new EmptyBorder(3, 0, 0, 0));
-				}
+      if (c == null) {
+        // This is a label-only row, allowed to take up the whole row
+        titles.addComponent(l);
+        rows.addComponent(l);
+      } else {
+        if (l.getBorder() == null) {
+          l.setBorder(new EmptyBorder(3, 0, 0, 0));
+        }
 
-				if (l.getLabelFor() == null) {
-					l.setLabelFor(c);
-				}
+        if (l.getLabelFor() == null) {
+          l.setLabelFor(c);
+        }
 
-				labels.addComponent(l);
-				values.addComponent(c);
+        labels.addComponent(l);
+        values.addComponent(c);
 
-				final GroupLayout.ParallelGroup row = gl.createParallelGroup(GroupLayout.Alignment.BASELINE);
+        final GroupLayout.ParallelGroup row = gl.createParallelGroup(GroupLayout.Alignment.BASELINE);
 
-				row.addComponent(l);
-				row.addComponent(c);
-				rows.addGroup(row);
-			}
-		}
+        row.addComponent(l);
+        row.addComponent(c);
+        rows.addGroup(row);
+      }
+    }
 
-		gl.setHorizontalGroup(horiz);
-		gl.setVerticalGroup(rows);
+    gl.setHorizontalGroup(horiz);
+    gl.setVerticalGroup(rows);
 
-		return options;
-	}
+    return options;
+  }
 
-	/**
-	 * Called when the user clicks the OK button. This method should be overridden
-	 * by subclasses that wish to perform data checks, prompting the user if data is
-	 * invalid, etc. The default behaviour is to do nothing (i.e. allow anything).
-	 *
-	 * @return true if the window should be allowed to be closed, false if the close
-	 *         should be aborted
-	 */
-	@SuppressWarnings("static-method")
-	public boolean verify() {
-		return true;
-	}
+  /**
+   * Called when the user clicks the OK button. This method should be overridden
+   * by subclasses that wish to perform data checks, prompting the user if data is
+   * invalid, etc. The default behaviour is to do nothing (i.e. allow anything).
+   *
+   * @return true if the window should be allowed to be closed, false if the close
+   *         should be aborted
+   */
+  @SuppressWarnings("static-method")
+  public boolean verify() {
+    return true;
+  }
 
-	/**
-	 * Returns true if the user accepted the options dialog (that is, clicked the OK
-	 * button).
-	 *
-	 * @return true if the user clicked OK (and the fields verified successfully),
-	 *         false if the user cancelled or closed the dialog.
-	 */
-	public boolean isAccepted() {
-		return _ok;
-	}
+  /**
+   * Returns true if the user accepted the options dialog (that is, clicked the OK
+   * button).
+   *
+   * @return true if the user clicked OK (and the fields verified successfully),
+   *         false if the user cancelled or closed the dialog.
+   */
+  public boolean isAccepted() {
+    return _ok;
+  }
 
-	/**
-	 *
-	 *
-	 * @version 12/09/12
-	 * @author Christian Fiddick
-	 */
-	private class ButtonListener implements ActionListener {
-		// Fired when the user clicks OK or Cancel
+  /**
+   *
+   *
+   * @version 12/09/12
+   * @author Christian Fiddick
+   */
+  private class ButtonListener implements ActionListener {
+    // Fired when the user clicks OK or Cancel
 
-		/**
-		 *
-		 *
-		 * @param e
-		 */
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			if ("ok".equals(e.getActionCommand())) {
-				if (OptionsDialog.this.verify()) {
-					_ok = true;
+    /**
+     *
+     *
+     * @param e
+     */
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+      if ("ok".equals(e.getActionCommand())) {
+        if (OptionsDialog.this.verify()) {
+          _ok = true;
 
-					OptionsDialog.this.dispose();
-				}
-			} else if ("cancel".equals(e.getActionCommand())) {
-				OptionsDialog.this.dispose();
-			}
-		}
-	}
+          OptionsDialog.this.dispose();
+        }
+      } else if ("cancel".equals(e.getActionCommand())) {
+        OptionsDialog.this.dispose();
+      }
+    }
+  }
 }

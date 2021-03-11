@@ -12,6 +12,7 @@ import catdata.aql.exp.AqlEnv;
 import catdata.aql.exp.AqlMultiDriver;
 import catdata.aql.exp.AqlParserFactory;
 import catdata.aql.exp.Exp;
+import catdata.aql.fdm.ToJdbcPragmaQuery;
 
 /**
  * Program entry point for Fred.
@@ -20,8 +21,8 @@ public class AqlCmdLineDarpa {
 
 	public static <Ty, En, Sym, Fk, Att> String schemaToSql(Schema<Ty, En, Sym, Fk, Att> S) {
 		// prefix, type of ID, ID col name , truncater, printer, varchar length
-		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> sch_sql = S.toSQL("", "Integer", "ID",
-				false,255, "\"");
+		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> sch_sql = S.toSQL("", "Integer", "ID", false,
+				255, "\"");
 
 		// (k,q,f) where q is a bunch of drops and then adds and f is the adding of
 		// constraints and
@@ -45,7 +46,8 @@ public class AqlCmdLineDarpa {
 	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> String queryToSql(
 			Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
 		// use "char" for mysql, "varchar" for H2
-		Map<En2, String> Q = q.unnest().toSQLViews("", "", "ID", "char", "\"").second; // must unnest
+		Map<En2, String> Q = ToJdbcPragmaQuery.toSQLViews("", "", "ID", "char", "\"", q.unnest(), 255).second; // must
+																												// unnest
 		String ret = "";
 		for (En2 en2 : q.dst.ens) {
 			ret += "INSERT INTO " + en2 + " " + Q.get(en2);

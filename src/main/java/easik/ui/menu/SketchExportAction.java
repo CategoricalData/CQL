@@ -26,58 +26,58 @@ import easik.ui.SketchFrame;
  * @version 2006-07-13 Kevin Green
  */
 public class SketchExportAction extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = 6718927075215733294L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = 6718927075215733294L;
 
-	/**  */
-	EasikFrame _theFrame;
+  /**  */
+  EasikFrame _theFrame;
 
-	/**
-	 * Create a new save as menu action.
-	 * 
-	 * @param inFrame the frame
-	 */
-	public SketchExportAction(final EasikFrame inFrame) {
-		super((inFrame instanceof SketchFrame) ? "Sketch XML..." : "Export sketch to XML...");
+  /**
+   * Create a new save as menu action.
+   * 
+   * @param inFrame the frame
+   */
+  public SketchExportAction(final EasikFrame inFrame) {
+    super((inFrame instanceof SketchFrame) ? "Sketch XML..." : "Export sketch to XML...");
 
-		_theFrame = inFrame;
+    _theFrame = inFrame;
 
-		putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_A));
-		putValue(Action.SHORT_DESCRIPTION, "Export current sketch as XML document");
-	}
+    putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_A));
+    putValue(Action.SHORT_DESCRIPTION, "Export current sketch as XML document");
+  }
 
-	/**
-	 * Display a dialog prompting the user for the name under which to save the
-	 * current sketch.
-	 *
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		final Sketch sketch;
+  /**
+   * Display a dialog prompting the user for the name under which to save the
+   * current sketch.
+   *
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(final ActionEvent e) {
+    final Sketch sketch;
 
-		if (_theFrame instanceof SketchFrame) {
-			sketch = ((SketchFrame) _theFrame).getMModel();
-		} else {
-			final Object[] currentSelection = ((ApplicationFrame) _theFrame).getOverview().getSelectionCells();
+    if (_theFrame instanceof SketchFrame) {
+      sketch = ((SketchFrame) _theFrame).getMModel();
+    } else {
+      final Object[] currentSelection = ((ApplicationFrame) _theFrame).getOverview().getSelectionCells();
 
-			if (!((currentSelection.length == 1) && (currentSelection[0] instanceof SketchNode))) {
-				System.err.println("Sketch export via overview popup should only be enabled when "
-						+ "selection size is 1, and it is a sketch node");
+      if (!((currentSelection.length == 1) && (currentSelection[0] instanceof SketchNode))) {
+        System.err.println("Sketch export via overview popup should only be enabled when "
+            + "selection size is 1, and it is a sketch node");
 
-				return;
-			}
+        return;
+      }
 
-			sketch = ((SketchNode) currentSelection[0]).getFrame().getMModel();
-		}
+      sketch = ((SketchNode) currentSelection[0]).getFrame().getMModel();
+    }
 
-		final File selFile = FileChooser.saveFile("Save EASIK Sketch", FileFilter.EASIK_SKETCH, "sketch");
+    final File selFile = FileChooser.saveFile("Save EASIK Sketch", FileFilter.EASIK_SKETCH, "sketch");
 
-		if (selFile != null) {
-			sketch.getDocInfo().updateModificationDate();
-			sketch.saveToXML(selFile);
-		}
-	}
+    if (selFile != null) {
+      sketch.getDocInfo().updateModificationDate();
+      sketch.saveToXML(selFile);
+    }
+  }
 }

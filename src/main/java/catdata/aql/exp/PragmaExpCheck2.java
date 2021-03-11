@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
+import catdata.Unit;
 import catdata.Util;
 import catdata.aql.AqlOptions.AqlOption;
 import catdata.aql.Constraints;
@@ -22,7 +23,7 @@ import catdata.aql.Pragma;
 import catdata.aql.Query;
 import catdata.aql.Term;
 import catdata.aql.Transform;
-import catdata.aql.Var;
+
 import catdata.aql.fdm.CoEvalTransform;
 import catdata.provers.EProver;
 import catdata.provers.KBTheory;
@@ -32,6 +33,20 @@ public class PragmaExpCheck2 extends PragmaExp {
 	public QueryExp Q;
 	public EdsExp C;
 	public EdsExp D;
+
+	@Override
+	public Unit type(AqlTyping G) {
+		Pair<SchExp, SchExp> x = Q.type(G);
+		SchExp v1 = C.type(G);
+		SchExp v2 = D.type(G);
+		if (!x.first.equals(v1)) {
+			throw new RuntimeException("Source of query: " + x.first + " does not match constraint schema " + v1);
+		}
+		if (!x.second.equals(v2)) {
+			throw new RuntimeException("Target of query: " + x.second + " does not match constraint schema " + v2);
+		}
+		return Unit.unit;
+	}
 
 	public PragmaExpCheck2(QueryExp q, EdsExp c, EdsExp d) {
 		Q = q;
@@ -108,44 +123,46 @@ public class PragmaExpCheck2 extends PragmaExp {
 					return;
 				}
 				Constraints C0 = C.eval(env, isC);
-				for (Triple<Pair<Var, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : C0.schema.eqs) {
+				for (Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>> eq : C0.schema.eqs) {
 
-					Map<Var, Chc<Ty, En>> as = Collections.singletonMap(eq.first.first, Chc.inRight(eq.first.second));
+					Map<String, Chc<String, String>> as = Collections.singletonMap(eq.first.first,
+							Chc.inRight(eq.first.second));
 
-					Pair<Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> ew = new Pair<>(
+					Pair<Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>> ew = new Pair<>(
 							eq.second, eq.third);
 
-					C0.eds.add(new ED(as, new THashMap<>(), Collections.emptySet(), Collections.singleton(ew), false, env.defaults));
+					C0.eds.add(new ED(as, new THashMap<>(), Collections.emptySet(), Collections.singleton(ew), false,
+							env.defaults));
 				}
-				
-				Query<Ty, En, Sym, Fk, Att, En, Fk, Att> Q0 = Q.eval(env, isC);
-				
-				
+
+				Query<String, String, Sym, Fk, Att, String, Fk, Att> Q0 = Q.eval(env, isC);
+
 				List<ED> set = new LinkedList<>();
 				for (Transform<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> h : D0.asTransforms(Q0.dst)) {
 					ED ed = new ED(env.defaults, new CoEvalTransform(Q0, h, env.defaults, env.defaults));
 					set.add(ed);
 				}
 				Constraints C1 = new Constraints(Q0.src, set, env.defaults);
-				int[] i = new int[] { 0 };
+				// int[] i = new int[] { 0 };
 				Long timeout = (long) env.defaults.getOrDefault(AqlOption.timeout);
 				String exePath = (String) env.defaults.getOrDefault(AqlOption.e_path);
 
-				KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Object, Object>, Var> kb = C0.schema.collage().toKB();
+				KBTheory<Chc<String, String>, Head<String, String, Sym, Fk, Att, Object, Object>, String> kb = C0.schema
+						.collage().toKB();
 
 				String s1 = C0.tptp("axiom", true, kb);
-				
+
 				for (ED ed : C1.eds) {
 					String s2 = ed.tptp("conjecture", false, kb);
 					Pair<Optional<Boolean>, String> b = EProver.check(exePath, timeout, s1 + "\n" + s2);
 					if (b.first.isEmpty()) {
-						throw new RuntimeException("Out of resources");					
+						throw new RuntimeException("Out of resources");
 					}
 					if (!b.first.get()) {
 						throw new RuntimeException("Failed: " + C1);
-					}				
+					}
 				}
-				
+
 				ret = "Success\n\n" + C0.toString() + "\n\n\n==>\n\n\n" + C1.toString();
 			}
 

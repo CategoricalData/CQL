@@ -8,26 +8,26 @@ import catdata.aql.gui.AqlCodeEditor;
 
 public class Extensions {
 
-	public void visualEdit(AqlCodeEditor editor) {
-		JOptionPane.showMessageDialog(null, "Upgrade to Conexus CQL for visual editing.");
-	}
+  public void visualEdit(AqlCodeEditor editor) {
+    JOptionPane.showMessageDialog(null, "Upgrade to Conexus CQL for visual editing.");
+  }
 
-	public void deploy(AqlCodeEditor editor) {
-		JOptionPane.showMessageDialog(null, "Upgrade to Conexus CQL to deploy to SQL, Hadoop, Java, Spark, and more.");
-	}
+  public void deploy(AqlCodeEditor editor) {
+    JOptionPane.showMessageDialog(null, "Upgrade to Conexus CQL to deploy to SQL, Hadoop, Java, Spark, and more.");
+  }
 
-	public static Extensions extensions;
+  public static Extensions extensions;
 
-	public synchronized static Extensions getExtensions() {
-		if (extensions != null) {
-			return extensions;
-		}
-		try {
-			Class<?> c = Class.forName("ai.conexus.ConexusExtensions");
-			extensions = (Extensions) c.getConstructors()[0].newInstance();
-		} catch (Exception ex) {
-			extensions = new Extensions();
-		}
-		return extensions;
-	}
+  public synchronized static Extensions getExtensions() {
+    if (extensions != null) {
+      return extensions;
+    }
+    try {
+      Class<?> c = Class.forName("ai.conexus.ConexusExtensions");
+      extensions = (Extensions) c.getConstructors()[0].newInstance();
+    } catch (Exception ex) {
+      extensions = new Extensions();
+    }
+    return extensions;
+  }
 }

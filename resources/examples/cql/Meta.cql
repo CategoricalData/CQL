@@ -19,22 +19,22 @@ schema cat = literal : empty {
 }
 
 constraints theEDs = literal : cat {
-//every composable pair gives a Pair
+#every composable pair gives a Pair
 	forall f g:Mor
 	where f.cod=g.dom ->
  	exists unique fg:Pair
  	where fg.Fst=f fg.Snd=g
-//left unitality
+#left unitality
 	forall fid:Pair
 	where fid.Fst.cod.id = fid.Snd
 	->
 	where fid.comp = fid.Fst
-//right unitality
+#right unitality
 	forall idf:Pair
 	where idf.Snd.dom.id = idf.Fst
 	->
 	where idf.comp = idf.Snd
-//associativity
+#associativity
  	forall fg gh fgThenh fThengh: Pair
  	where
  		fg.Snd = gh.Fst
@@ -46,7 +46,7 @@ constraints theEDs = literal : cat {
  	where fgThenh.comp = fThengh.comp
 }
 
-// You can make similar constraints on CQLschema.
+# You can make similar constraints on CQLschema.
 schema CQLschema = literal : empty {
 	imports
 		cat
@@ -92,42 +92,42 @@ schema CQLinstance = literal : Ty {
 		row : fkCell -> recordID
 		pointsTo: fkCell -> recordID
 	path_equations
-		//col.on = row.inTable // StringCell
-		//col.on = row.inTable // IntCell
-		fkCell.col.dom = fkCell.row.inTable // fkCell
-		//col.cod = row.pointsTo // fkCell
+		#col.on = row.inTable # StringCell
+		#col.on = row.inTable # IntCell
+		fkCell.col.dom = fkCell.row.inTable # fkCell
+		#col.cod = row.pointsTo # fkCell
 	attributes
 		value : StringCell -> String
 		value : IntCell -> Integer
 
 }
 
-//add all constraints for categories + ...
+#add all constraints for categories + ...
 constraints moreEDs = literal : CQLinstance {
 	imports theEDs
-//string fields are nonempty and atomic (you can get rid of one or the other if you choose)
+#string fields are nonempty and atomic (you can get rid of one or the other if you choose)
 	forall r:recordID sa:StringAtt
 	where r.inTable=sa.on ->
  	exists unique value:StringCell
  	where value.col=sa value.row=r
-//int fields are nonempty and atomic
+#int fields are nonempty and atomic
 	forall r:recordID sa:IntAtt
 	where r.inTable=sa.on ->
  	exists unique value:IntCell
  	where value.col=sa value.row=r
-// fk fields are nonempty and atomic
+# fk fields are nonempty and atomic
 	forall r:recordID m:Mor
 	where r.inTable=m.dom ->
  	exists unique value:fkCell
  	where value.col=m value.row=r
 }
 
-/*
-For given CQL schemas X and Y, there may be no CQL schema MapXY such that MapXY-Inst ~ CQL mappings X -> Y.  Rather, the mappings X -> Y are isomorphic to the transforms X* => Y*, where X* and Y* are the Schema instances associated to X and Y.
 
-But, there is an CQL schema Mapping := CQLSchema * Arrow such that Mapping-Inst ~ all CQL mappings of any type.
+#For given CQL schemas X and Y, there may be no CQL schema MapXY such that MapXY-Inst ~ CQL mappings X -> Y.  Rather, the mappings X -> Y are isomorphic to the transforms X* => Y*, where X* and Y* are the Schema instances associated to X and Y.
 
-Question: are the set of CQL transforms I => J given by the transforms I* => J*, where I* and J* are the Instance instances associated to I and J?
+#But, there is an CQL schema Mapping := CQLSchema * Arrow such that Mapping-Inst ~ all CQL mappings of any type.
 
-Question: Is there an CQL schema Transform := CQLInstance * Arrow such that TransformInst ~ all CQL transforms of any type.  Or should be an instance?  Or nothing at all?
-*/
+#Question: are the set of CQL transforms I => J given by the transforms I* => J*, where I* and J* are the Instance instances associated to I and J?
+
+#Question: Is there an CQL schema Transform := CQLInstance * Arrow such that TransformInst ~ all CQL transforms of any type.  Or should be an instance?  Or nothing at all?
+

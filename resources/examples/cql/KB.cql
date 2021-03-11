@@ -1,4 +1,4 @@
-//one = two should not be provable
+#one = two should not be provable
 typeside EmptySortsCheck = literal {
 	types
  		Void
@@ -9,7 +9,7 @@ typeside EmptySortsCheck = literal {
 	 	 forall x:Void. one = two
 	options
 		prover = completion
-//		completion_precedence = "one two"
+#		completion_precedence = "one two"
 }
 
 typeside Group = literal {
@@ -26,7 +26,7 @@ typeside Group = literal {
  		forall x, y, z. ((x o y) o z) = (x o (y o z))
  	options
 		prover = completion
-//		completion_precedence = "e o I"
+#		completion_precedence = "e o I"
 }
 
 typeside LR = literal {
@@ -43,7 +43,7 @@ typeside LR = literal {
 		forall x y z. o(o(x,y),z)=o(x,o(y,z))
  	options
 		prover = completion
-//		completion_precedence = "e o I"
+#		completion_precedence = "e o I"
 }
 
 typeside RL = literal {
@@ -60,7 +60,7 @@ typeside RL = literal {
 		forall x, y, z. o(o(x,y),z)=o(x,o(y,z))
  	options
 		prover = completion
-//		completion_precedence = "e o I"
+#		completion_precedence = "e o I"
 }
 
 typeside Arith = literal {
@@ -79,11 +79,11 @@ typeside Arith = literal {
 		forall x, y. times(succ(x),y) = plus(y,times(x,y))
 	options
 		prover = completion
-//		completion_precedence = "zero succ plus times"
+#		completion_precedence = "zero succ plus times"
 }
 
-//try ((a o b) o (c o d)) = ((a o c) o (b o d)) and
-//forall p q r s. ((p o q) o (r o s)) = ((p o r) o (q o s))
+#try ((a o b) o (c o d)) = ((a o c) o (b o d)) and
+#forall p q r s. ((p o q) o (r o s)) = ((p o r) o (q o s))
 typeside Entropic = literal {
 	 types
 		S
@@ -111,12 +111,12 @@ typeside ACUIN = literal {
 		forall x, y, z. o(o(x,y),z) = o(x,o(y,z))
 		forall x, y. o(x,y) = o(y,x)
 		forall x. o(x, e) = x
-//		forall x. o(x, x) = x
+#		forall x. o(x, x) = x
 	options
 		prover = completion
 		completion_precedence = "e n o"
-//		completion_syntactic_ac = true
-//		timeout = 10
+#		completion_syntactic_ac = true
+#		timeout = 10
 }
 
 typeside DistributiveLattice = literal {
@@ -136,42 +136,42 @@ typeside DistributiveLattice = literal {
 		 forall x y. (y u x) = (x u y)
 		 forall x y z. (x u (y u z)) = ((x u y) u z)
 		 forall x. (x u t) = t
-		 //forall x y z. (x n (y u z)) = ((x n y) u (x n z))
+		 #forall x y z. (x n (y u z)) = ((x n y) u (x n z))
 	options
 		prover=completion
 		completion_precedence = "t f n u"
 }
 
-// still too hard
-/*
-typeside BooleanRing = literal {
-	types
-		S
-	constants
-		zero one : S
-	functions
-		plus times : S,S -> S
-	equations
-		forall x y z.  plus(plus(x,y),z) = plus(x,plus(y,z))
-		forall x y z.  times(times(x,y),z) = times(x,times(y,z))
-		forall x y. plus(x,y) = plus(y,x)
-		forall x y. times(x,y) = times(y,x)
-		forall x y, z. plus(x,plus(y,z)) = plus(y,plus(x,z))
-		forall x y, z. times(x,times(y,z)) = times(y,times(x,z))
-		forall x y, z. times(x,plus(y,z)) = plus(times(x,y),times(x,z))
-		forall x y, z. times(plus(x,y),z) = plus(times(x,z),times(y,z))
-		forall x. plus(zero,x) = x
-		forall x. plus(x,zero) = x
-		forall x. times(one,x) = x
-		forall x. times(x,one) = x
-		forall x. times(zero,x) = zero
-		forall x. times(x,zero) = zero
-		forall x. plus(x,x) = zero
-		forall x. times(x,x) = x
-		forall x y. plus(x,plus(x,y)) = y
-		forall x y. times(x,times(x,y)) = times(x,y)
-	options
-		prover = completion
-		completion_precedence = "zero one plus times"
-}
-*/
+# still too hard
+#
+#typeside BooleanRing = literal {
+#	types
+#		S
+#	constants
+#		zero one : S
+#	functions
+#		plus times : S,S -> S
+#	equations
+#		forall x y z.  plus(plus(x,y),z) = plus(x,plus(y,z))
+#		forall x y z.  times(times(x,y),z) = times(x,times(y,z))
+#		forall x y. plus(x,y) = plus(y,x)
+#		forall x y. times(x,y) = times(y,x)
+#		forall x y, z. plus(x,plus(y,z)) = plus(y,plus(x,z))
+#		forall x y, z. times(x,times(y,z)) = times(y,times(x,z))
+#		forall x y, z. times(x,plus(y,z)) = plus(times(x,y),times(x,z))
+#		forall x y, z. times(plus(x,y),z) = plus(times(x,z),times(y,z))
+#		forall x. plus(zero,x) = x
+#		forall x. plus(x,zero) = x
+#		forall x. times(one,x) = x
+#		forall x. times(x,one) = x
+#		forall x. times(zero,x) = zero
+#		forall x. times(x,zero) = zero
+#		forall x. plus(x,x) = zero
+#		forall x. times(x,x) = x
+#		forall x y. plus(x,plus(x,y)) = y
+#		forall x y. times(x,times(x,y)) = times(x,y)
+#	options
+#		prover = completion
+#		completion_precedence = "zero one plus times"
+#}
+

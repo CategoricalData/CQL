@@ -6,11 +6,11 @@ package easik.model.keys;
  * objects.
  */
 public interface UniqueIndexable {
-	/**
-	 * Returns a human-readable name of this indexable item. Typically the attribute
-	 * name or edge name.
-	 *
-	 * @return
-	 */
-	public String getName();
+  /**
+   * Returns a human-readable name of this indexable item. Typically the attribute
+   * name or edge name.
+   *
+   * @return
+   */
+  public String getName();
 }

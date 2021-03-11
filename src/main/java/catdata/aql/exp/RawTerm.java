@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ import catdata.aql.AqlJs;
 import catdata.aql.Collage;
 import catdata.aql.Head;
 import catdata.aql.Term;
-import catdata.aql.Var;
+
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -50,7 +51,6 @@ public final class RawTerm {
 			List<Pair<LocStr, Quad<String, String, RawTerm, RawTerm>>> t_eqs) {
 		return t_eqs.stream().map(x -> x.second).collect(Collectors.toUnmodifiableSet());
 	}
-
 
 	/**
 	 * Decend the RawTerms tree so long as args are singular.
@@ -100,114 +100,120 @@ public final class RawTerm {
 		return term.head;
 	}
 
-	private static Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> infer_good(
-			RawTerm e, Chc<Ty, En> expected, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String pre, AqlJs<Ty, Sym> js,
-			Map<Var, Chc<Ty, En>> vars) {
-		if (e.annotation != null && !col.tys().contains(Ty.Ty(e.annotation))) {
+	private static Set<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>> infer_good(
+			RawTerm e, Chc<String, String> expected, Collage<String, String, Sym, Fk, Att, String, String> col,
+			String pre, AqlJs<String, Sym> js, Map<String, Chc<String, String>> vars) {
+		if (e.annotation != null && !col.tys().contains((e.annotation))) {
 			throw new RuntimeException(pre + "Annotation " + e.annotation + " is not a type (" + col.tys() + ").");
 		}
 
-		Var vv = Var.Var(e.head);
-		Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> ret = new THashSet<>();
-		if (vars.keySet().contains(vv) && e.annotation == null) {
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Var(vv);
+		String vv = e.head;
+		Set<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>> ret = new THashSet<>();
+		if (vars.keySet().contains(vv) && e.annotation == null && e.args.size() == 0) {
+			Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Var(vv);
 			if (expected != null) {
-				Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
+				Map<String, Chc<String, String>> ret2 = new THashMap<>();
 				ret2.put(vv, expected);
 				if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 					ret.add(new Triple<>(ret1, ret2, expected));
 				}
 			} else {
-				for (En en : col.getEns()) {
-					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
+				for (String en : col.getEns()) {
+					Map<String, Chc<String, String>> ret2 = new THashMap<>();
 					ret2.put(vv, Chc.inRight(en));
 					if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 						ret.add(new Triple<>(ret1, ret2, Chc.inRight(en)));
 					}
 				}
-				for (Ty ty : col.tys()) {
-					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
+				for (String ty : col.tys()) {
+					Map<String, Chc<String, String>> ret2 = new THashMap<>();
 					if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
 						ret2.put(vv, Chc.inLeft(ty));
 					}
 					ret.add(new Triple<>(ret1, ret2, Chc.inLeft(ty)));
 				}
 			}
-		}
-		Sym ss = Sym.Sym(e.head);
-		if (col.syms().containsKey(ss) && e.annotation == null) {
-
-			List<List<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>>> l = new LinkedList<>();
-			l.add(new LinkedList<>());
-			for (int i = 0; i < e.args.size(); i++) {
-				RawTerm arg = e.args.get(i);
-				//if (col.syms.get(ss).first.size() > e.args.size()) {
-				//	throw new RuntimeException("Arity mismatch on " + e + " and " + ss);
-				//}
-				if (i >= col.syms().get(ss).first.size()) {
-					throw new RuntimeException("Wrong number of arguments to top-level application in " + e + ".  Possible cause: name class with typeside constants.");
+		} else if (e.annotation == null && !(vars.keySet().contains(vv) && e.args.size() == 0)) {
+			for (Entry<Sym, Pair<List<String>, String>> www : col.syms().entrySet()) {
+				Sym ss = www.getKey();
+				if (!ss.str.equals(e.head)) {
+					continue;
 				}
-				Ty ty = col.syms().get(ss).first.get(i);
-				Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> z = infer_good(arg,
-						Chc.inLeft(ty), col, pre, js, vars);
-
-				List<List<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>>> l2 = new LinkedList<>();
-				for (List<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> old : l) {
-					for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> y : z) {
-						if (y.third.equals(Chc.inLeft(ty))) {
-							l2.add(Util.append(old, Collections.singletonList(y)));
-						}
-					}
-				}
-				l = l2;
-			}
-
-			outer: for (List<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> outcome : l) {
-
-				List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> w = outcome.stream().map(x -> x.first)
-						.collect(Collectors.toList());
-				Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Sym(ss, w);
-				Map<Var, Chc<Ty, En>> ret2 = new THashMap<>();
-				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> Map0 : outcome) {
-
-					if (!Util.agreeOnOverlap(Map0.second, ret2)
-							|| !Util.agreeOnOverlap(Map0.second, Util.fromNullable(vars))) {
-						continue outer;
-					}
-					ret2.putAll(Map0.second);
-				}
+				List<List<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>>> l = new LinkedList<>();
+				l.add(new LinkedList<>());
 				for (int i = 0; i < e.args.size(); i++) {
 					RawTerm arg = e.args.get(i);
-					Chc<Ty, En> ty = Chc.inLeft(col.syms().get(ss).first.get(i));
-					Var v = Var.Var(arg.head);
-					if (vars.keySet().contains(v)) {
-						if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
-							continue;
-						} else if (!ret2.containsKey(v)) {
-							ret2.put(Var.Var(e.args.get(i).head), ty);
+					// if (col.syms.get(ss).first.size() > e.args.size()) {
+					// throw new RuntimeException("Arity mismatch on " + e + " and " + ss);
+					// }
+					if (i >= col.syms().get(ss).first.size()) {
+						throw new RuntimeException("Wrong number of arguments to top-level application in " + e
+								+ ".  Possible cause: name clash with typeside constants.");
+					}
+					String ty = col.syms().get(ss).first.get(i);
+					Set<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>> z = infer_good(
+							arg, Chc.inLeft(ty), col, pre, js, vars);
+
+					List<List<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>>> l2 = new LinkedList<>();
+					for (List<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>> old : l) {
+						for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> y : z) {
+							if (y.third.equals(Chc.inLeft(ty))) {
+								l2.add(Util.append(old, Collections.singletonList(y)));
+							}
 						}
 					}
+					l = l2;
 				}
 
-				Chc<Ty, En> ret3 = Chc.inLeft(col.syms().get(ss).second);
-				if (expected != null && !expected.equals(ret3)) {
+				outer: for (List<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>> outcome : l) {
 
-				} else {
-					if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
-						ret.add(new Triple<>(ret1, ret2, ret3));
+					List<Term<String, String, Sym, Fk, Att, String, String>> w = outcome.stream().map(x -> x.first)
+							.collect(Collectors.toList());
+					Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Sym(ss, w);
+					Map<String, Chc<String, String>> ret2 = new THashMap<>();
+					for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> map0 : outcome) {
+
+						if (!Util.agreeOnOverlap(map0.second, ret2)
+								|| !Util.agreeOnOverlap(map0.second, Util.fromNullable(vars))) {
+							continue outer;
+						}
+						ret2.putAll(map0.second);
+					}
+					for (int i = 0; i < e.args.size(); i++) {
+						RawTerm arg = e.args.get(i);
+						Chc<String, String> ty = Chc.inLeft(col.syms().get(ss).first.get(i));
+						String v = arg.head;
+						if (vars.keySet().contains(v)) {
+							if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
+								continue;
+							} else if (!ret2.containsKey(v)) {
+								ret2.put((e.args.get(i).head), ty);
+							}
+						}
+					}
+
+					Chc<String, String> ret3 = Chc.inLeft(col.syms().get(ss).second);
+					if (expected != null && !expected.equals(ret3)) {
+
+					} else {
+						if (Util.agreeOnOverlap(ret2, Util.fromNullable(vars))) {
+							ret.add(new Triple<>(ret1, ret2, ret3));
+						}
 					}
 				}
 			}
 		}
 
-		for (En en : col.getEns()) {
+//   
+
+		for (String en : col.getEns()) {
 			if (col.fks().containsKey(Fk.Fk(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
-				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : infer_good(
+				for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> outcome : infer_good(
 						e.args.get(0), Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first), col, pre, js, vars)) {
-					Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Fk(Fk.Fk(en, e.head), outcome.first);
-					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>(outcome.second);
-					Var v = Var.Var(e.args.get(0).head);
-					Chc<Ty, En> ty = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first);
+					Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Fk(Fk.Fk(en, e.head), outcome.first);
+					Map<String, Chc<String, String>> ret2 = new THashMap<>(outcome.second);
+					String v = (e.args.get(0).head);
+					Chc<String, String> ty = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first);
 					if (vars.keySet().contains(v)) {
 						if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
 							continue;
@@ -215,8 +221,8 @@ public final class RawTerm {
 							ret2.put(v, ty);
 						}
 					}
-					Chc<Ty, En> ret3 = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).second);
-					Chc<Ty, En> argt = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first);
+					Chc<String, String> ret3 = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).second);
+					Chc<String, String> argt = Chc.inRight(col.fks().get(Fk.Fk(en, e.head)).first);
 
 					if (expected != null && !expected.equals(ret3)) {
 					} else {
@@ -234,13 +240,14 @@ public final class RawTerm {
 			}
 
 			if (col.atts().containsKey(Att.Att(en, e.head)) && e.args.size() == 1 && e.annotation == null) {
-				for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : infer_good(
+				for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> outcome : infer_good(
 						e.args.get(0), Chc.inRight(col.atts().get(Att.Att(en, e.head)).first), col, pre, js, vars)) {
 
-					Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Att(Att.Att(en, e.head), outcome.first);
-					Map<Var, Chc<Ty, En>> ret2 = new THashMap<>(outcome.second);
-					Var v = Var.Var(e.args.get(0).head);
-					Chc<Ty, En> ty = Chc.inRight(col.atts().get(Att.Att(en, e.head)).first);
+					Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Att(Att.Att(en, e.head),
+							outcome.first);
+					Map<String, Chc<String, String>> ret2 = new THashMap<>(outcome.second);
+					String v = (e.args.get(0).head);
+					Chc<String, String> ty = Chc.inRight(col.atts().get(Att.Att(en, e.head)).first);
 					if (vars.keySet().contains(v)) {
 						if (ret2.containsKey(v) && !ret2.get(v).equals(ty)) {
 							continue;
@@ -249,8 +256,8 @@ public final class RawTerm {
 						}
 					}
 
-					Chc<Ty, En> ret3 = Chc.inLeft(col.atts().get(Att.Att(en, e.head)).second);
-					Chc<Ty, En> argt = Chc.inRight(col.atts().get(Att.Att(en, e.head)).first);
+					Chc<String, String> ret3 = Chc.inLeft(col.atts().get(Att.Att(en, e.head)).second);
+					Chc<String, String> argt = Chc.inRight(col.atts().get(Att.Att(en, e.head)).first);
 
 					if (expected != null && !expected.equals(ret3)) {
 					} else {
@@ -264,50 +271,49 @@ public final class RawTerm {
 			}
 		}
 
-		if (col.gens().containsKey(Gen.Gen(e.head)) && e.args.isEmpty() && e.annotation == null) {
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Gen(Gen.Gen(e.head));
-			Chc<Ty, En> ret3 = Chc.inRight(col.gens().get(Gen.Gen(e.head)));
+		if (col.gens().containsKey(e.head) && e.args.isEmpty() && e.annotation == null) {
+			Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Gen(e.head);
+			Chc<String, String> ret3 = Chc.inRight(col.gens().get(e.head));
 			if (expected != null && !expected.equals(ret3)) {
 			} else {
 				ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
 			}
 		}
-		if (col.sks().containsKey(Sk.Sk(e.head)) && e.args.isEmpty() && e.annotation == null) {
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Sk(Sk.Sk(e.head));
-			Chc<Ty, En> ret3 = Chc.inLeft(col.sks().get(Sk.Sk(e.head)));
+		if (col.sks().containsKey(e.head) && e.args.isEmpty() && e.annotation == null) {
+			Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Sk(e.head);
+			Chc<String, String> ret3 = Chc.inLeft(col.sks().get(e.head));
 			if (expected != null && !expected.equals(ret3)) {
 			} else {
 				ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
 			}
-		} else 
-		if (e.args.isEmpty() && e.annotation != null) {
-			Ty ty = Ty.Ty(e.annotation);
-			Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Obj(js.parse(ty, e.head), ty);
-			Chc<Ty, En> ret3 = Chc.inLeft(ty);
+		} else if (e.args.isEmpty() && e.annotation != null) {
+			String ty = (e.annotation);
+			Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Obj(js.parse(ty, e.head), ty);
+			Chc<String, String> ret3 = Chc.inLeft(ty);
 			if (expected != null && !expected.equals(ret3)) {
 			} else {
 				ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
 			}
 		} else
-		// as primitive - only if not a variable/generator/etc in scope i.e. none above
-		// fired
-		if (e.args.isEmpty() && e.annotation == null /* && ret.isEmpty() && !vars.containsKey(vv) */) {
-			//System.out.println("examining " + e + " expected " + expected);
-			for (Ty ty : col.tys()) {
-				Chc<Ty, En> ret3 = Chc.inLeft(ty);
+		// as primitive - if none of the above, but not a var
+		if (e.args.isEmpty() && e.annotation == null && ret.isEmpty() && !vars.containsKey(vv) ) {
+			// System.out.println("examining " + e + " expected " + expected);
+			for (String ty : col.tys()) {
+				Chc<String, String> ret3 = Chc.inLeft(ty);
 				if (expected == null || !expected.equals(ret3)) {
 					continue;
 				}
 				try {
 
-			//		if (!expected.equals(ret3)) {
-			//		} else {
-						Term<Ty, En, Sym, Fk, Att, Gen, Sk> ret1 = Term.Obj(js.parse(ty, e.head), ty);
-						ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
-			//		}
+					// if (!expected.equals(ret3)) {
+					// } else {
+					Term<String, String, Sym, Fk, Att, String, String> ret1 = Term.Obj(js.parse(ty, e.head), ty);
+					ret.add(new Triple<>(ret1, new THashMap<>(), ret3));
+					// }
 				} catch (Exception ex) {
-				//	ex.printStackTrace();
-				//	throw new RuntimeException("On " + e + ", expected sort is " + expected + " but an error is thrown when parsing it: " + ex.getLocalizedMessage() );
+					// ex.printStackTrace();
+					// throw new RuntimeException("On " + e + ", expected sort is " + expected + "
+					// but an error is thrown when parsing it: " + ex.getLocalizedMessage() );
 
 				}
 			}
@@ -316,46 +322,47 @@ public final class RawTerm {
 		return ret;
 	}
 
-	private static boolean isSymbolAll(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String s) {
-		return col.syms().containsKey(Sym.Sym(s))
+	private static boolean isSymbolAll(Collage<String, String, Sym, Fk, Att, String, String> col, String s) {
+		return col.syms().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
 				|| col.fks().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
 				|| col.atts().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(s)
-				|| col.gens().containsKey(Gen.Gen(s)) || col.sks().containsKey(Sk.Sk(s));
+				|| col.gens().containsKey(s) || col.sks().containsKey(s);
 	}
 
 	private static String truncateHard(String s) {
-		if (s.length() > 128) {
-			return s.substring(0, 128) + " ... ";
+		if (s.length() > 16*1024) {
+			return s.substring(0, 16*1024) + " ... ";
 		}
 		return s;
 	}
 
-	public synchronized static Quad<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>> infer1x(
-			Map<String, Chc<Ty, En>> Map0, RawTerm e0, RawTerm f, Chc<Ty, En> expected,
-			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, String pre, AqlJs<Ty, Sym> js) {
-		Set<Quad<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Chc<Ty, En>>> ret = new THashSet<>();
+	public synchronized static Quad<Map<String, Chc<String, String>>, Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>, Chc<String, String>> infer1x(
+			Map<String, Chc<String, String>> map0, RawTerm e0, RawTerm f, Chc<String, String> expected,
+			Collage<String, String, Sym, Fk, Att, String, String> col, String pre, AqlJs<String, Sym> js) {
+		Set<Quad<Map<String, Chc<String, String>>, Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>, Chc<String, String>>> ret = new THashSet<>();
 
-		Map<Var, Chc<Ty, En>> vars0 = new THashMap<>(Map0.size());
-		for (String s : Map0.keySet()) {
-			vars0.put(Var.Var(s), Map0.get(s));
+		Map<String, Chc<String, String>> vars0 = new THashMap<>(map0.size());
+		for (String s : map0.keySet()) {
+			vars0.put(s, map0.get(s));
 
 		}
-		Set<Var> vars = Map0.keySet().stream().map(x -> Var.Var(x)).collect(Collectors.toSet());
+		Set<String> vars = new THashSet<>(map0.keySet());
 
-		Map<Var, Chc<Ty, En>> initial = new THashMap<>();
-		for (Var v : vars) {
-			if (Map0.get(v.var) != null) {
-				initial.put(v, Map0.get(v.var));
+		Map<String, Chc<String, String>> initial = new THashMap<>();
+		for (String v : vars) {
+			if (map0.get(v) != null) {
+				initial.put(v, map0.get(v));
 			}
 		}
-		Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> lhs = infer_good(e0,
-				expected, col, pre, js, vars0);
+		Set<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>> lhs = infer_good(
+				e0, expected, col, pre, js, vars0);
 
 		if (lhs.isEmpty()) {
 			String msg = "Cannot infer a well-sorted term for " + e0 + ".\n";
-			if (!vars.contains(Var.Var(e0.head)) && !isSymbolAll(col, e0.head) && e0.annotation == null) {
+			if (!vars.contains(e0.head) && !isSymbolAll(col, e0.head) && e0.annotation == null) {
 				msg += "Undefined (or not java-parseable) symbol: " + e0.head + ".\n";
-				msg += "\nAvailable symbols:\n\t" + truncateHard(Util.sep(Util.closest(e0.head, col.allSymbolsAsStrings()), "\n\t"));
+				msg += "\nAvailable symbols:\n\t"
+						+ truncateHard(Util.sep(Util.closest(e0.head, col.allSymbolsAsStrings()), "\n\t"));
 
 			}
 			if (expected != null) {
@@ -365,10 +372,10 @@ public final class RawTerm {
 
 			throw new RuntimeException(pre + msg);
 		} else if (lhs.size() == 1 && expected == null) {
-			expected = Util.get0(lhs).third; //TODO: also reverse
+			expected = Util.get0(lhs).third; // TODO: also reverse
 		}
 
-		Set<Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>>> rhs;
+		Set<Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>>> rhs;
 		if (f == null) {
 			rhs = lhs;
 		} else {
@@ -376,11 +383,14 @@ public final class RawTerm {
 		}
 
 		if (rhs.isEmpty()) {
-			String msg = "Cannot infer a well-sorted term for " + f + ".\n"; // if f were null, above exn would have
-																				// fired
-			if (!vars.contains(Var.Var(f.head)) && !isSymbolAll(col, f.head) && f.annotation == null) {
+			if (f == null) {
+				return Util.anomaly();
+			}
+			String msg = "Cannot infer a well-sorted term for " + f + ".\n";
+			if (!vars.contains((f.head)) && !isSymbolAll(col, f.head) && f.annotation == null) {
 				msg += "Undefined (or not java-parseable) symbol: " + f.head + "\n";
-				msg += "\nAvailable symbols:\n\t" + truncateHard(Util.sep(Util.closest(f.head, col.allSymbolsAsStrings()), "\n\t"));
+				msg += "\nAvailable symbols:\n\t"
+						+ truncateHard(Util.sep(Util.closest(f.head, col.allSymbolsAsStrings()), "\n\t"));
 				// TODO aql merge this error message with the one above it
 			}
 			if (expected != null) {
@@ -390,20 +400,20 @@ public final class RawTerm {
 			throw new RuntimeException(pre + msg);
 		}
 
-		for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : lhs) {
+		for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> outcome : lhs) {
 			if (!vars.containsAll(outcome.second.keySet())) {
 				Util.anomaly();
 			}
 		}
-		for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> outcome : rhs) {
+		for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> outcome : rhs) {
 			if (!vars.containsAll(outcome.second.keySet())) {
 				Util.anomaly();
 			}
 		}
 
 		List<String> misses = new LinkedList<>();
-		for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> p : lhs) {
-			for (Triple<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Map<Var, Chc<Ty, En>>, Chc<Ty, En>> q : rhs) {
+		for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> p : lhs) {
+			for (Triple<Term<String, String, Sym, Fk, Att, String, String>, Map<String, Chc<String, String>>, Chc<String, String>> q : rhs) {
 				if (!Util.agreeOnOverlap(p.second, (q.second))) {
 					continue;
 				}
@@ -423,7 +433,7 @@ public final class RawTerm {
 				if (expected != null && !q.third.equals(expected)) {
 					continue;
 				}
-				Map<Var, Chc<Ty, En>> u = new THashMap<>(p.second);
+				Map<String, Chc<String, String>> u = new THashMap<>(p.second);
 				u.putAll(q.second);
 				u.putAll(initial);
 
@@ -454,13 +464,14 @@ public final class RawTerm {
 		if (ret.size() > 1) {
 			String e = (f == null) ? (e = e0.toString()) : (e0 + " = " + f);
 
-			String msg = "Cannot infer a unique well-sorted term for " + e + ".\nCandidates: "
+			String msg = "Cannot infer a unique well-sorted term for " + e + "\nCandidates:\n\n"
 					+ Util.sep(ret.stream()
 							.map(x -> f == null ? x.second.toStringUnambig()
 									: x.second.toStringUnambig() + " = " + x.third.toStringUnambig())
-							.collect(Collectors.toList()), "\n");
+							.collect(Collectors.toSet()), "\n");
 			if (expected != null) {
-				msg += "Expected sort: " + expected.toStringMash() + " (isType=" + expected.left + ")";
+				msg += "\n\nExpected sort: " + expected.toStringMash() + " (which should be a type:" + expected.left
+						+ ")";
 			}
 			throw new RuntimeException(pre + msg);
 		}
@@ -469,14 +480,14 @@ public final class RawTerm {
 
 	}
 
-	public static void assertUnambig(String head, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
+	public static void assertUnambig(String head, Collage<String, String, Sym, Fk, Att, String, String> col) {
 		if (col == null) {
 			throw new RuntimeException("No collage within which to interpret a precedence.");
 		}
-		int n = boolToInt(col.syms().containsKey(Sym.Sym(head)))
+		int n = boolToInt(col.syms().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
 				+ boolToInt(col.atts().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
 				+ boolToInt(col.fks().keySet().stream().map(x -> x.str).collect(Collectors.toSet()).contains(head))
-				+ boolToInt(col.gens().containsKey(Gen.Gen(head))) + boolToInt(col.sks().containsKey(Sk.Sk(head)));
+				+ boolToInt(col.gens().containsKey(head)) + boolToInt(col.sks().containsKey(head));
 		if (n == 0) {
 			Util.anomaly();
 			throw new RuntimeException(head + " is not a symbol (in the simplified theory) " + col);
@@ -487,18 +498,21 @@ public final class RawTerm {
 	}
 
 	// only used for precedences with aql options
-	public static Head<Ty, En, Sym, Fk, Att, Gen, Sk> toHeadNoPrim(String head,
-			Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
+	public static Head<String, String, Sym, Fk, Att, String, String> toHeadNoPrim(String head,
+			Collage<String, String, Sym, Fk, Att, String, String> col) {
 		assertUnambig(head, col);
 
-		if (col.syms().containsKey(Sym.Sym(head))) {
-			return Head.SymHead(Sym.Sym(head));
-		} else if (col.gens().containsKey(Gen.Gen(head))) {
-			return Head.GenHead(Gen.Gen(head));
-		} else if (col.sks().containsKey(Sk.Sk(head))) {
-			return Head.SkHead(Sk.Sk(head));
+		for (Entry<Sym, Pair<List<String>, String>> k : col.syms().entrySet()) {
+			if (k.getKey().str.equals(head)) {
+				return Head.SymHead(k.getKey());
+			}
 		}
-		for (En en : col.getEns()) { // TODO aql won't work with ambig
+		if (col.gens().containsKey(head)) {
+			return Head.GenHead(head);
+		} else if (col.sks().containsKey(head)) {
+			return Head.SkHead(head);
+		}
+		for (String en : col.getEns()) { // TODO aql won't work with ambig
 			if (col.fks().containsKey(Fk.Fk(en, head))) {
 				return Head.FkHead(Fk.Fk(en, head));
 			}
@@ -506,7 +520,7 @@ public final class RawTerm {
 				return Head.AttHead(Att.Att(en, head));
 			}
 		}
-		throw new RuntimeException("Anomaly: please report");
+		return Util.anomaly();
 	}
 
 	private static int boolToInt(boolean b) {
@@ -575,13 +589,11 @@ public final class RawTerm {
 		this(head, Collections.emptyList(), null);
 	}
 
-	/*public RawTerm clone() {
-		final List<RawTerm> args = new LinkedList<>();
-		for (final RawTerm term : this.args) {
-			args.add(term.clone());
-		}
-		return new RawTerm(this.head, args);
-	}*/
+	/*
+	 * public RawTerm clone() { final List<RawTerm> args = new LinkedList<>(); for
+	 * (final RawTerm term : this.args) { args.add(term.clone()); } return new
+	 * RawTerm(this.head, args); }
+	 */
 
 	/**
 	 * Make a clone (deep-copy) first.
@@ -602,9 +614,9 @@ public final class RawTerm {
 	}
 
 	// TODO: aql use of toString here is ugly
-	public static RawTerm fold(Set<En> entities, List<String> l, String v) {
+	public static RawTerm fold(Set<String> entities, List<String> l, String v) {
 		String head = l.get(0);
-		if (!entities.contains(En.En(head))) {
+		if (!entities.contains((head))) {
 			throw new RuntimeException("Not an entity: " + head + ".  Paths must start with entities.");
 		}
 		l = l.subList(1, l.size());
@@ -624,23 +636,23 @@ public final class RawTerm {
 		return ret;
 	}
 
-	public static Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> infer2(
-			List<Pair<String, String>> l, RawTerm a, RawTerm b, Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col,
-			AqlJs<Ty, Sym> js) {
-		Map<String, Chc<Ty, En>> Map = new THashMap<>();
+	public static Triple<Map<String, Chc<String, String>>, Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>> infer2(
+			List<Pair<String, String>> l, RawTerm a, RawTerm b,
+			Collage<String, String, Sym, Fk, Att, String, String> col, AqlJs<String, Sym> js) {
+		Map<String, Chc<String, String>> Map = new THashMap<>();
 		for (Pair<String, String> p : l) {
 			if (Map.containsKey(p.first)) {
 				throw new RuntimeException("Duplicate variable " + p.first + " in context " + Util.sep(l, ", "));
 			}
 			if (p.second != null) {
-				Ty tt = Ty.Ty(p.second);
-				if (col.tys().contains(tt) && col.getEns().contains(En.En(p.second))) {
+				String tt = (p.second);
+				if (col.tys().contains(tt) && col.getEns().contains((p.second))) {
 					throw new RuntimeException("Ambiguous: " + p.second + " is an entity and a type");
 				} else if (col.tys().contains(tt)) {
 					// Ty tt = new Ty(p.second);
 					Map.put(p.first, Chc.inLeft(tt));
-				} else if (col.getEns().contains(En.En(p.second))) {
-					En tt0 = En.En(p.second);
+				} else if (col.getEns().contains((p.second))) {
+					String tt0 = (p.second);
 					Map.put(p.first, Chc.inRight(tt0));
 				} else {
 					throw new RuntimeException(p.second + " is neither a type nor entity");
@@ -649,19 +661,19 @@ public final class RawTerm {
 				Map.put(p.first, null);
 			}
 		}
-		Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> eq0 = infer1x(
+		Triple<Map<String, Chc<String, String>>, Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>> eq0 = infer1x(
 				Map, a, b, null, col, "", js).first3();
 
-		Map<Var, Chc<Ty, En>> map = new THashMap<>(Map.size());
+		Map<String, Chc<String, String>> map = new THashMap<>(Map.size());
 		for (String k : Map.keySet()) {
-			Var vv = Var.Var(k);
-			Chc<Ty, En> v = eq0.first.get(vv);
+			String vv = (k);
+			Chc<String, String> v = eq0.first.get(vv);
 			map.put(vv, v);
 		}
 
-		Map<Var, Chc<Ty, En>> Map2 = new THashMap<>(map);
+		Map<String, Chc<String, String>> Map2 = new THashMap<>(map);
 
-		Triple<Map<Var, Chc<Ty, En>>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> tr = new Triple<>(
+		Triple<Map<String, Chc<String, String>>, Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>> tr = new Triple<>(
 				Map2, eq0.second, eq0.third);
 		return tr;
 	}

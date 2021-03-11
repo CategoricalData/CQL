@@ -49,456 +49,456 @@ import easik.ui.SketchFrame;
  * @version 2006-07-14 Vera Ranieri
  */
 public class SketchFileIO {
-	/**
-	 * Converts a sketch to XML and sends to file.
-	 *
-	 * @param outputFile The target file for the sketch to be saved in
-	 * @param inSketch   The sketch to be saved
-	 * @return the success of the save
-	 */
-	public static boolean sketchToXML(File outputFile, Sketch inSketch) {
-		Document sketchAsXML;
-		Element sketchAsElement;
-		@SuppressWarnings("unused")
-		Element rootElement;
+  /**
+   * Converts a sketch to XML and sends to file.
+   *
+   * @param outputFile The target file for the sketch to be saved in
+   * @param inSketch   The sketch to be saved
+   * @return the success of the save
+   */
+  public static boolean sketchToXML(File outputFile, Sketch inSketch) {
+    Document sketchAsXML;
+    Element sketchAsElement;
+    @SuppressWarnings("unused")
+    Element rootElement;
 
-		try {
-			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = docBuilderFactory.newDocumentBuilder();
+    try {
+      DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder db = docBuilderFactory.newDocumentBuilder();
 
-			sketchAsXML = db.newDocument();
-			sketchAsElement = sketchToElement(sketchAsXML, inSketch);
+      sketchAsXML = db.newDocument();
+      sketchAsElement = sketchToElement(sketchAsXML, inSketch);
 
-			sketchAsXML.appendChild(sketchAsElement);
-		} catch (Exception e) {
-			e.printStackTrace();
+      sketchAsXML.appendChild(sketchAsElement);
+    } catch (Exception e) {
+      e.printStackTrace();
 
-			return false;
-		}
+      return false;
+    }
 
-		outputXMLtoFile(outputFile, sketchAsXML);
+    outputXMLtoFile(outputFile, sketchAsXML);
 
-		return true;
-	}
+    return true;
+  }
 
-	/**
-	 * Converts a sketch to an Element.
-	 *
-	 * @param document The Document in which our information is being placed.
-	 * @param sketch
-	 * @return All of the information needed to rebuild our sketch containted in an
-	 *         Element. Returns null in the event that the element could not be
-	 *         created.
-	 */
-	public static Element sketchToElement(Document document, Sketch sketch) {
-		try {
-			Element rootElement = document.createElement("easketch");
-			Element header = document.createElement("header");
+  /**
+   * Converts a sketch to an Element.
+   *
+   * @param document The Document in which our information is being placed.
+   * @param sketch
+   * @return All of the information needed to rebuild our sketch containted in an
+   *         Element. Returns null in the event that the element could not be
+   *         created.
+   */
+  public static Element sketchToElement(Document document, Sketch sketch) {
+    try {
+      Element rootElement = document.createElement("easketch");
+      Element header = document.createElement("header");
 
-			// Add Header info to document
-			DocumentInfo d = sketch.getDocInfo();
-			Element name = document.createElement("title");
+      // Add Header info to document
+      DocumentInfo d = sketch.getDocInfo();
+      Element name = document.createElement("title");
 
-			name.appendChild(document.createTextNode(d.getName()));
-			header.appendChild(name);
+      name.appendChild(document.createTextNode(d.getName()));
+      header.appendChild(name);
 
-			for (String aut : d.getAuthors()) {
-				Element author = document.createElement("author");
+      for (String aut : d.getAuthors()) {
+        Element author = document.createElement("author");
 
-				author.appendChild(document.createTextNode(aut));
-				header.appendChild(author);
-			}
+        author.appendChild(document.createTextNode(aut));
+        header.appendChild(author);
+      }
 
-			Element desc = document.createElement("description");
+      Element desc = document.createElement("description");
 
-			desc.appendChild(document.createTextNode(d.getDesc()));
-			header.appendChild(desc);
+      desc.appendChild(document.createTextNode(d.getDesc()));
+      header.appendChild(desc);
 
-			Element creationDate = document.createElement("creationDate");
+      Element creationDate = document.createElement("creationDate");
 
-			creationDate.appendChild(document.createTextNode(EasikConstants.XML_DATETIME.format(d.getCreationDate())));
-			header.appendChild(creationDate);
+      creationDate.appendChild(document.createTextNode(EasikConstants.XML_DATETIME.format(d.getCreationDate())));
+      header.appendChild(creationDate);
 
-			Element modDate = document.createElement("lastModificationDate");
+      Element modDate = document.createElement("lastModificationDate");
 
-			modDate.appendChild(document.createTextNode(EasikConstants.XML_DATETIME.format(d.getModificationDate())));
-			header.appendChild(modDate);
+      modDate.appendChild(document.createTextNode(EasikConstants.XML_DATETIME.format(d.getModificationDate())));
+      header.appendChild(modDate);
 
-			Map<String, String> connParams = sketch.getConnectionParams();
+      Map<String, String> connParams = sketch.getConnectionParams();
 
-			for (String key : connParams.keySet()) {
-				Element connParam = document.createElement("connectionParam");
+      for (String key : connParams.keySet()) {
+        Element connParam = document.createElement("connectionParam");
 
-				connParam.setAttribute("name", key);
-				connParam.setAttribute("value", connParams.get(key));
-				header.appendChild(connParam);
-			}
+        connParam.setAttribute("name", key);
+        connParam.setAttribute("value", connParams.get(key));
+        header.appendChild(connParam);
+      }
 
-			if (sketch.isSynced()) {
-				header.appendChild(document.createElement("synchronized"));
-			}
+      if (sketch.isSynced()) {
+        header.appendChild(document.createElement("synchronized"));
+      }
 
-			rootElement.appendChild(header);
+      rootElement.appendChild(header);
 
-			Element entities = document.createElement("entities");
+      Element entities = document.createElement("entities");
 
-			// Loop through entities, add them to the document
-			for (EntityNode currentEntity : sketch.getEntities()) {
-				if (currentEntity == null) {
-					continue;
-				}
+      // Loop through entities, add them to the document
+      for (EntityNode currentEntity : sketch.getEntities()) {
+        if (currentEntity == null) {
+          continue;
+        }
 
-				Element thisEntity = document.createElement("entity");
+        Element thisEntity = document.createElement("entity");
 
-				thisEntity.setAttribute("name", currentEntity.toString());
-				thisEntity.setAttribute("x", currentEntity.getX() + "");
-				thisEntity.setAttribute("y", currentEntity.getY() + "");
-				entities.appendChild(thisEntity);
+        thisEntity.setAttribute("name", currentEntity.toString());
+        thisEntity.setAttribute("x", currentEntity.getX() + "");
+        thisEntity.setAttribute("y", currentEntity.getY() + "");
+        entities.appendChild(thisEntity);
 
-				// Loop through attributes, add them to the document
-				for (EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curAttribute : currentEntity
-						.getEntityAttributes()) {
-					Element attributeElmt = document.createElement("attribute");
+        // Loop through attributes, add them to the document
+        for (EntityAttribute<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curAttribute : currentEntity
+            .getEntityAttributes()) {
+          Element attributeElmt = document.createElement("attribute");
 
-					attributeElmt.setAttribute("name", curAttribute.getName());
+          attributeElmt.setAttribute("name", curAttribute.getName());
 
-					EasikType attType = curAttribute.getType();
+          EasikType attType = curAttribute.getType();
 
-					attributeElmt.setAttribute("attributeTypeClass", attType.getClass().getName());
+          attributeElmt.setAttribute("attributeTypeClass", attType.getClass().getName());
 
-					Map<String, String> typeAttribs = attType.attributes();
+          Map<String, String> typeAttribs = attType.attributes();
 
-					for (String key : typeAttribs.keySet()) {
-						attributeElmt.setAttribute(key, typeAttribs.get(key));
-					}
+          for (String key : typeAttribs.keySet()) {
+            attributeElmt.setAttribute(key, typeAttribs.get(key));
+          }
 
-					thisEntity.appendChild(attributeElmt);
-				}
+          thisEntity.appendChild(attributeElmt);
+        }
 
-				// We can't go through unique keys yet: they have to come
-				// *after* edges
-			}
+        // We can't go through unique keys yet: they have to come
+        // *after* edges
+      }
 
-			rootElement.appendChild(entities);
+      rootElement.appendChild(entities);
 
-			Element edges = document.createElement("edges");
+      Element edges = document.createElement("edges");
 
-			for (SketchEdge currentEdge : sketch.getEdges().values()) {
-				Element thisEdge = document.createElement("edge");
+      for (SketchEdge currentEdge : sketch.getEdges().values()) {
+        Element thisEdge = document.createElement("edge");
 
-				thisEdge.setAttribute("id", currentEdge.getName());
-				thisEdge.setAttribute("source", currentEdge.getSourceEntity().getName());
-				thisEdge.setAttribute("target", currentEdge.getTargetEntity().getName());
-				thisEdge.setAttribute("type", (currentEdge instanceof PartialEdge) ? "partial"
-						: (currentEdge instanceof InjectiveEdge) ? "injective" : "normal");
-				thisEdge.setAttribute("cascade",
-						(currentEdge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "set_null"
-								: (currentEdge.getCascading() == SketchEdge.Cascade.CASCADE) ? "cascade" : "restrict");
-				edges.appendChild(thisEdge);
-			}
+        thisEdge.setAttribute("id", currentEdge.getName());
+        thisEdge.setAttribute("source", currentEdge.getSourceEntity().getName());
+        thisEdge.setAttribute("target", currentEdge.getTargetEntity().getName());
+        thisEdge.setAttribute("type", (currentEdge instanceof PartialEdge) ? "partial"
+            : (currentEdge instanceof InjectiveEdge) ? "injective" : "normal");
+        thisEdge.setAttribute("cascade",
+            (currentEdge.getCascading() == SketchEdge.Cascade.SET_NULL) ? "set_null"
+                : (currentEdge.getCascading() == SketchEdge.Cascade.CASCADE) ? "cascade" : "restrict");
+        edges.appendChild(thisEdge);
+      }
 
-			rootElement.appendChild(edges);
+      rootElement.appendChild(edges);
 
-			Element keys = document.createElement("keys");
+      Element keys = document.createElement("keys");
 
-			// Loop through unique keys for every node, add them to the document
-			for (EntityNode currentEntity : sketch.getEntities()) {
-				for (UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curKey : currentEntity
-						.getUniqueKeys()) {
-					Element uniqueKeyElmt = document.createElement("uniqueKey");
+      // Loop through unique keys for every node, add them to the document
+      for (EntityNode currentEntity : sketch.getEntities()) {
+        for (UniqueKey<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curKey : currentEntity
+            .getUniqueKeys()) {
+          Element uniqueKeyElmt = document.createElement("uniqueKey");
 
-					uniqueKeyElmt.setAttribute("name", curKey.getKeyName());
-					uniqueKeyElmt.setAttribute("noderef", currentEntity.toString());
-					keys.appendChild(uniqueKeyElmt);
+          uniqueKeyElmt.setAttribute("name", curKey.getKeyName());
+          uniqueKeyElmt.setAttribute("noderef", currentEntity.toString());
+          keys.appendChild(uniqueKeyElmt);
 
-					for (UniqueIndexable curElem : curKey.getElements()) {
-						if (curElem instanceof EntityAttribute) {
-							Element attributeElmt = document.createElement("attref");
+          for (UniqueIndexable curElem : curKey.getElements()) {
+            if (curElem instanceof EntityAttribute) {
+              Element attributeElmt = document.createElement("attref");
 
-							attributeElmt.setAttribute("name", curElem.getName());
-							uniqueKeyElmt.appendChild(attributeElmt);
-						} else if (curElem instanceof SketchEdge) {
-							Element edgeElmt = document.createElement("edgekeyref");
+              attributeElmt.setAttribute("name", curElem.getName());
+              uniqueKeyElmt.appendChild(attributeElmt);
+            } else if (curElem instanceof SketchEdge) {
+              Element edgeElmt = document.createElement("edgekeyref");
 
-							edgeElmt.setAttribute("id", curElem.getName());
-							uniqueKeyElmt.appendChild(edgeElmt);
-						} else {
-							System.err.println("Unknown unique key item encountered: element '" + curElem.getName()
-									+ "' is neither EntityAttribute nor SketchEdge");
-						}
-					}
-				}
-			}
+              edgeElmt.setAttribute("id", curElem.getName());
+              uniqueKeyElmt.appendChild(edgeElmt);
+            } else {
+              System.err.println("Unknown unique key item encountered: element '" + curElem.getName()
+                  + "' is neither EntityAttribute nor SketchEdge");
+            }
+          }
+        }
+      }
 
-			rootElement.appendChild(keys);
+      rootElement.appendChild(keys);
 
-			Element constraints = document.createElement("constraints");
+      Element constraints = document.createElement("constraints");
 
-			// Now add the constraints
-			for (ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curConstraint : sketch
-					.getConstraints().values()) {
-				Element thisConstraint = document.createElement(curConstraint.getType());
+      // Now add the constraints
+      for (ModelConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> curConstraint : sketch
+          .getConstraints().values()) {
+        Element thisConstraint = document.createElement(curConstraint.getType());
 
-				thisConstraint.setAttribute("x", curConstraint.getX() + "");
-				thisConstraint.setAttribute("y", curConstraint.getY() + "");
-				thisConstraint.setAttribute("isVisible", curConstraint.isVisible() ? "true" : "false");
+        thisConstraint.setAttribute("x", curConstraint.getX() + "");
+        thisConstraint.setAttribute("y", curConstraint.getY() + "");
+        thisConstraint.setAttribute("isVisible", curConstraint.isVisible() ? "true" : "false");
 
-				if (curConstraint instanceof LimitConstraint) {
-					LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> lc = (LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) curConstraint;
+        if (curConstraint instanceof LimitConstraint) {
+          LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> lc = (LimitConstraint<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge>) curConstraint;
 
-					// TODO A better way? really long
-					// cone - AB
-					Element pathElem = document.createElement("path");
+          // TODO A better way? really long
+          // cone - AB
+          Element pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getCone().AB.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getCone().AB.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getCone().AB.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getCone().AB.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getCone().AB.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getCone().AB.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// cone - BC
-					pathElem = document.createElement("path");
+          // cone - BC
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getCone().BC.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getCone().BC.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getCone().BC.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getCone().BC.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getCone().BC.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getCone().BC.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// cone - AC
-					pathElem = document.createElement("path");
+          // cone - AC
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getCone().AC.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getCone().AC.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getCone().AC.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getCone().AC.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getCone().AC.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getCone().AC.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// limit cone 1 - AB
-					pathElem = document.createElement("path");
+          // limit cone 1 - AB
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getLimitCone1().AB.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getLimitCone1().AB.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getLimitCone1().AB.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getLimitCone1().AB.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getLimitCone1().AB.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getLimitCone1().AB.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// limit cone 1 - BC
-					pathElem = document.createElement("path");
+          // limit cone 1 - BC
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getLimitCone1().BC.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getLimitCone1().BC.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getLimitCone1().BC.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getLimitCone1().BC.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getLimitCone1().BC.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getLimitCone1().BC.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// limit cone 1 - AC
-					pathElem = document.createElement("path");
+          // limit cone 1 - AC
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getLimitCone1().AC.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getLimitCone1().AC.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getLimitCone1().AC.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getLimitCone1().AC.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getLimitCone1().AC.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getLimitCone1().AC.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// limit cone 2 - AB
-					pathElem = document.createElement("path");
+          // limit cone 2 - AB
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getLimitCone2().AB.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getLimitCone2().AB.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getLimitCone2().AB.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getLimitCone2().AB.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getLimitCone2().AB.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getLimitCone2().AB.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// limit cone 2 - BC
-					pathElem = document.createElement("path");
+          // limit cone 2 - BC
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getLimitCone2().BC.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getLimitCone2().BC.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getLimitCone2().BC.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getLimitCone2().BC.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getLimitCone2().BC.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getLimitCone2().BC.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// limit cone 2 - AC
-					pathElem = document.createElement("path");
+          // limit cone 2 - AC
+          pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", lc.getLimitCone2().AC.getDomain().getName());
-					pathElem.setAttribute("codomain", lc.getLimitCone2().AC.getCoDomain().getName());
+          pathElem.setAttribute("domain", lc.getLimitCone2().AC.getDomain().getName());
+          pathElem.setAttribute("codomain", lc.getLimitCone2().AC.getCoDomain().getName());
 
-					for (SketchEdge edge : lc.getLimitCone2().AC.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : lc.getLimitCone2().AC.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
+          thisConstraint.appendChild(pathElem);
 
-					// Add constraint to constraints
-					constraints.appendChild(thisConstraint);
+          // Add constraint to constraints
+          constraints.appendChild(thisConstraint);
 
-					continue;
-				}
+          continue;
+        }
 
-				for (ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path : curConstraint
-						.getPaths()) {
-					// Add pathref to constraint
-					Element pathElem = document.createElement("path");
+        for (ModelPath<SketchFrame, SketchGraphModel, Sketch, EntityNode, SketchEdge> path : curConstraint
+            .getPaths()) {
+          // Add pathref to constraint
+          Element pathElem = document.createElement("path");
 
-					pathElem.setAttribute("domain", path.getDomain().getName());
-					pathElem.setAttribute("codomain", path.getCoDomain().getName());
+          pathElem.setAttribute("domain", path.getDomain().getName());
+          pathElem.setAttribute("codomain", path.getCoDomain().getName());
 
-					for (SketchEdge edge : path.getEdges()) {
-						Element edgeElem = document.createElement("edgeref");
+          for (SketchEdge edge : path.getEdges()) {
+            Element edgeElem = document.createElement("edgeref");
 
-						edgeElem.setAttribute("id", edge.getName());
-						pathElem.appendChild(edgeElem);
-					}
+            edgeElem.setAttribute("id", edge.getName());
+            pathElem.appendChild(edgeElem);
+          }
 
-					thisConstraint.appendChild(pathElem);
-				}
+          thisConstraint.appendChild(pathElem);
+        }
 
-				// Add constraint to constraints
-				constraints.appendChild(thisConstraint);
-			}
+        // Add constraint to constraints
+        constraints.appendChild(thisConstraint);
+      }
 
-			rootElement.appendChild(constraints);
+      rootElement.appendChild(constraints);
 
-			return rootElement;
-		} catch (Exception e) {
-			return null;
-		}
-	}
+      return rootElement;
+    } catch (Exception e) {
+      return null;
+    }
+  }
 
-	/**
-	 * Output the document as XML
-	 *
-	 * @param outputFile output file
-	 * @param xml        output XML
-	 */
-	private static void outputXMLtoFile(File outputFile, Document xml) {
-		try {
-			TransformerFactory tFactory = TransformerFactory.newInstance();
-			Transformer transformer = tFactory.newTransformer();
+  /**
+   * Output the document as XML
+   *
+   * @param outputFile output file
+   * @param xml        output XML
+   */
+  private static void outputXMLtoFile(File outputFile, Document xml) {
+    try {
+      TransformerFactory tFactory = TransformerFactory.newInstance();
+      Transformer transformer = tFactory.newTransformer();
 
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.transform(new DOMSource(xml), new StreamResult(outputFile));
-		} catch (Exception e) {
-			System.err.println("Error exporting data.");
-		}
-	}
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.transform(new DOMSource(xml), new StreamResult(outputFile));
+    } catch (Exception e) {
+      System.err.println("Error exporting data.");
+    }
+  }
 
-	/**
-	 *
-	 *
-	 * @param inOverview
-	 *
-	 * @return
-	 */
-	public static SketchHandler getNewSketchHandler(Overview inOverview) {
-		SketchFrame newFrame = new SketchFrame(inOverview);
+  /**
+   *
+   *
+   * @param inOverview
+   *
+   * @return
+   */
+  public static SketchHandler getNewSketchHandler(Overview inOverview) {
+    SketchFrame newFrame = new SketchFrame(inOverview);
 
-		return new SketchHandler(newFrame);
-	}
+    return new SketchHandler(newFrame);
+  }
 
-	/**
-	 * Load a sketch from XML.
-	 *
-	 * @param inputFile    the file from which the XML will be read
-	 * @param outputSketch The sketch which will be getting the new values
-	 * @return Returns the success or failure of the reading.
-	 */
-	public static boolean graphicalSketchFromXML(File inputFile, Sketch outputSketch) {
-		SketchHandler sketchHandler = new SketchHandler(outputSketch.getFrame());
+  /**
+   * Load a sketch from XML.
+   *
+   * @param inputFile    the file from which the XML will be read
+   * @param outputSketch The sketch which will be getting the new values
+   * @return Returns the success or failure of the reading.
+   */
+  public static boolean graphicalSketchFromXML(File inputFile, Sketch outputSketch) {
+    SketchHandler sketchHandler = new SketchHandler(outputSketch.getFrame());
 
-		if (!initializeSketchHandlerFromXML(inputFile, sketchHandler)) {
-			return false;
-		}
+    if (!initializeSketchHandlerFromXML(inputFile, sketchHandler)) {
+      return false;
+    }
 
-		// TODO: fix new header part when ready.
-		outputSketch.initializeFromData(sketchHandler.getSyncLock(), sketchHandler.getEntities(),
-				sketchHandler.getEdges(), sketchHandler.getConstraints(), sketchHandler.getDocumentInfo(),
-				sketchHandler.getConnParams());
+    // TODO: fix new header part when ready.
+    outputSketch.initializeFromData(sketchHandler.getSyncLock(), sketchHandler.getEntities(),
+        sketchHandler.getEdges(), sketchHandler.getConstraints(), sketchHandler.getDocumentInfo(),
+        sketchHandler.getConnParams());
 
-		return true;
-	}
+    return true;
+  }
 
-	/**
-	 * Method to initialize a SketchHandler for a supplied XML file
-	 *
-	 * @param inputFile     The XML file containing the sketch information
-	 * @param sketchHandler An instance of a sketchHandler.
-	 * @return true if SketchHandler was initialized, false if an exception
-	 *         occurred.
-	 *
-	 * @since 2006-05-17 Vera Ranieri
-	 */
-	public static boolean initializeSketchHandlerFromXML(File inputFile, SketchHandler sketchHandler) {
-		SAXParser parser;
-		SAXParserFactory parseFactory = SAXParserFactory.newInstance();
+  /**
+   * Method to initialize a SketchHandler for a supplied XML file
+   *
+   * @param inputFile     The XML file containing the sketch information
+   * @param sketchHandler An instance of a sketchHandler.
+   * @return true if SketchHandler was initialized, false if an exception
+   *         occurred.
+   *
+   * @since 2006-05-17 Vera Ranieri
+   */
+  public static boolean initializeSketchHandlerFromXML(File inputFile, SketchHandler sketchHandler) {
+    SAXParser parser;
+    SAXParserFactory parseFactory = SAXParserFactory.newInstance();
 
-		try {
-			parser = parseFactory.newSAXParser();
+    try {
+      parser = parseFactory.newSAXParser();
 
-			parser.parse(inputFile, sketchHandler);
-		} catch (Exception e) {
-			System.err.println("Could not open XML file for loading: " + e.getMessage());
+      parser.parse(inputFile, sketchHandler);
+    } catch (Exception e) {
+      System.err.println("Could not open XML file for loading: " + e.getMessage());
 
-			// sketchHandler.getFrame().setVisible(false); This was here before,
-			// changed to dispose the right thing to do?
-			sketchHandler.getFrame().dispose();
+      // sketchHandler.getFrame().setVisible(false); This was here before,
+      // changed to dispose the right thing to do?
+      sketchHandler.getFrame().dispose();
 
-			return false;
-		}
+      return false;
+    }
 
-		return true;
-	}
+    return true;
+  }
 }

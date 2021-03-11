@@ -15,19 +15,19 @@ import java.util.List;
  * @version $$Id$$
  */
 public class XSDSequenceCompositor extends XSDAbstractCompositor {
-	/**
-	 *
-	 */
-	public XSDSequenceCompositor() {
-		super("sequence", new ArrayList<XSDAbstractElement>(1));
-	}
+  /**
+   *
+   */
+  public XSDSequenceCompositor() {
+    super("sequence", new ArrayList<XSDAbstractElement>(1));
+  }
 
-	/**
-	 *
-	 *
-	 * @param elements
-	 */
-	public XSDSequenceCompositor(final List<XSDAbstractElement> elements) {
-		super("sequence", elements);
-	}
+  /**
+   *
+   *
+   * @param elements
+   */
+  public XSDSequenceCompositor(final List<XSDAbstractElement> elements) {
+    super("sequence", elements);
+  }
 }

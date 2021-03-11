@@ -17,38 +17,38 @@ import easik.view.vertex.QueryNode;
  * selected entity node.
  */
 public class ViewQueryAction extends AbstractAction {
-	/**
-	 *    
-	 */
-	private static final long serialVersionUID = -7358840132662817458L;
+  /**
+   *    
+   */
+  private static final long serialVersionUID = -7358840132662817458L;
 
-	/** The view in which we are working */
-	private View _ourView;
+  /** The view in which we are working */
+  private View _ourView;
 
-	/**
-	 * Prepare the menu option.
-	 *
-	 * @param inView
-	 */
-	public ViewQueryAction(View inView) {
-		super("View table contents");
+  /**
+   * Prepare the menu option.
+   *
+   * @param inView
+   */
+  public ViewQueryAction(View inView) {
+    super("View table contents");
 
-		_ourView = inView;
+    _ourView = inView;
 
-		putValue(Action.SHORT_DESCRIPTION, "Display the result of the query represented by this node.");
-	}
+    putValue(Action.SHORT_DESCRIPTION, "Display the result of the query represented by this node.");
+  }
 
-	/**
-	 * @param e The action event
-	 */
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object[] currentSelection = _ourView.getSelectionCells();
+  /**
+   * @param e The action event
+   */
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    Object[] currentSelection = _ourView.getSelectionCells();
 
-		if (currentSelection.length != 1) {
-			return;
-		}
+    if (currentSelection.length != 1) {
+      return;
+    }
 
-		DatabaseUtil.displayQueryNode((QueryNode) currentSelection[0], _ourView.getFrame());
-	}
+    DatabaseUtil.displayQueryNode((QueryNode) currentSelection[0], _ourView.getFrame());
+  }
 }

@@ -40,6 +40,6 @@ command exportRdfData = export_rdf_instance_xml I "file.xml" {
 		Integer -> "http://www.w3.org/2001/XMLSchema#Integer" "x => x.toString()"
 }
 
-instance J = import_rdf_all "file.xml" //can import from .ttl too
+instance J = import_rdf_all "file.xml" #can import from .ttl too
 
 instance K = spanify J
