@@ -79,50 +79,29 @@ public class Examples {
       return examples2;
     }
     try {
-      URL url = ClassLoader.getSystemResource("help.txt");
-      if (url == null) {
-        URL l = ClassLoader.getSystemResource("examples");
-        if (l == null) {
-          final String classpath = System.getProperty("java.class.path");
-          // final String[] classpathEntries = classpath.split(File.pathSeparator);
-          new RuntimeException("Cannot locate 'examples' from : " + classpath).printStackTrace();
-          Map<Language, List<Example>> ret = new THashMap<>();
-          for (Language ll : Language.values()) {
-            ret.put(ll, new LinkedList<>());
-          }
-          examples2 = ret;
-          return examples2;
-        }
-        File f = new File(l.toURI());
-        examples2 = getExamples(f);
-        return examples2;
-      }
-      URI uri = url.toURI();
-      if (uri.getScheme().equals("jar")) {
-        examples2 = getExamplesFromJar(uri);
-        return examples2;
-      } // TODO CQL this is really messed up what's going on with Eclipse
       URL l = ClassLoader.getSystemResource("examples");
-      if (l == null) {
-        // new RuntimeException("Cannot locate built-in examples").printStackTrace();
+      if (l != null) {
+        URI uri = l.toURI();
+        if (uri.getScheme().equals("jar")) {
+          examples2 = getExamplesFromJar(uri);
+        } else {
+          File f = new File(uri);
+          examples2 = getExamples(f);
+        }
+      } else {
+        final String classpath = System.getProperty("java.class.path");
+        new RuntimeException("Cannot locate 'examples' from : " + classpath).printStackTrace();
         Map<Language, List<Example>> ret = new THashMap<>();
         for (Language ll : Language.values()) {
           ret.put(ll, new LinkedList<>());
         }
         examples2 = ret;
-        return examples2;
       }
-      File f = new File(l.toURI());
-      examples2 = getExamples(f);
       return examples2;
-
-      //
-
     } catch (Exception e) {
       e.printStackTrace();
       return Collections.emptyMap();
     }
-
   }
 
   private static Map<Language, List<Example>> getExamplesFromJar(URI uri) throws IOException {

@@ -30,48 +30,58 @@ public class AqlTester {
   static String message = "This self-test will run all the built-in CQL examples and check for exceptions.  This test cannot be interupted.  This window will disappear for a while. Continue?";
 
   public static void doSelfTestGui() {
-    int c = JOptionPane.showConfirmDialog(null, message, "Run Self-Test?", JOptionPane.YES_NO_OPTION);
-    if (c != JOptionPane.YES_OPTION) {
-      return;
-    }
-    Map<String, Throwable> result = getTestResult();
-    if (result.isEmpty()) {
-      JOptionPane.showMessageDialog(null, "OK: Tests Passed");
-      return;
-    }
-    JTabbedPane t = new JTabbedPane();
-    for (String k : result.keySet()) {
-      t.addTab(k, new CodeTextPanel("Error", result.get(k).getMessage()));
-    }
-    JOptionPane.showMessageDialog(null, t);
+    deleteFilesCreatedDuring(() -> {
+      int c = JOptionPane.showConfirmDialog(null, message, "Run Self-Test?", JOptionPane.YES_NO_OPTION);
+      if (c != JOptionPane.YES_OPTION) {
+        return null;
+      }
+      Map<String, Throwable> result = getTestResult();
+      if (result.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "OK: Tests Passed");
+        return null;
+      }
+      JTabbedPane t = new JTabbedPane();
+      for (String k : result.keySet()) {
+        t.addTab(k, new CodeTextPanel("Error", result.get(k).getMessage()));
+      }
+      JOptionPane.showMessageDialog(null, t);
+      return null; // ignored
+    });
   }
 
   /**
    * Return a map of test name to error on that test, empty if all tests are successful.
    */
-  public static Map<String, Throwable> doSelfTestSilent() throws IOException {
-    // record current files, to later delete created ones
-    Set<Path> files = walkPwd();
+  public static Map<String, Throwable> doSelfTestSilent() {
+    return deleteFilesCreatedDuring(() -> {
+      // silence output
+      PrintStream out = System.out, err = System.err;
+      PrintStream nul = new PrintStream(new OutputStream() {
+        @Override
+        public void write(int arg0) throws IOException {
+        }
+      });
+      try {
+        System.setOut(nul);
+        System.setErr(nul);
 
-    // silence output
-    PrintStream out = System.out, err = System.err;
-    PrintStream nul = new PrintStream(new OutputStream() {
-      @Override
-      public void write(int arg0) throws IOException {
+        // run tests
+        return getTestResult();
+      } finally {
+        // restore output
+        System.setOut(out);
+        System.setErr(nul);
       }
     });
+  }
+
+  private static <A> A deleteFilesCreatedDuring(java.util.function.Supplier<A> closure) {
     try {
-      System.setOut(nul);
-      System.setErr(nul);
+      // record current files, to later delete created ones
+      Set<Path> files = walkPwd();
 
-      // run tests
-      return getTestResult();
-    } finally {
-      // restore output
-      System.setOut(out);
-      System.setErr(nul);
+      A ret = closure.get();
 
-      // delete created files
       Set<Path> createdDirs = new java.util.HashSet<>();
       // delete created non-directory files
       for (Path f : Util.diff(walkPwd(), files)) {
@@ -85,6 +95,10 @@ public class AqlTester {
       for (Path f : createdDirs) {
         Files.delete(f);
       }
+
+      return ret;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
