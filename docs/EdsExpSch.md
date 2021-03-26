@@ -1,0 +1,1 @@
+Turns path / observation equations intro constraints.

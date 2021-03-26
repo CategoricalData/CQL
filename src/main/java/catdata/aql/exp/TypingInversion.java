@@ -498,7 +498,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		exp.defs.tys.put("t", Unit.unit);
 		exp.defs.insts.put("i", s);
 		EdsExp c = new EdsExpVar("c");
-		exp.defs.schs.put("c", t);
+		exp.defs.eds.put("c", s);
 		return new PragmaExpCheck(i, c, Collections.emptyList());
 	}
 

@@ -275,8 +275,21 @@ public class AqlHelp {
     return "<pre>Default: " + o + "</pre>" + s;
   }
 
-  public static void main(String[] args) {
-    help(new File("help"), true);
+  public static void main(String[] args) throws java.io.IOException {
+    File tmp = java.nio.file.Files.createTempDirectory("aqlhelp").toFile();
+    catdata.aql.AqlTester.deleteFilesCreatedDuring(() -> {
+      help(tmp, true);
+      return null; // not used
+    });
+    File help = new File("help");
+    if (help.exists()) {
+      for (File f : help.listFiles()) {
+        f.delete();
+      }
+      help.delete();
+    }
+    tmp.renameTo(help);
+    System.exit(0); // slay daemons
   }
 
   @SuppressWarnings("unchecked")
@@ -435,7 +448,14 @@ public class AqlHelp {
           AqlTyping g = pair.first;
           Exp<?> e = pair.second;
 
-          String desc = Util.readFile(new FileReader(new File("docs/" + pair.second.getSyntax() + ".md")));
+          String docFile = "docs/" + pair.second.getSyntax() + ".md";
+          String desc;
+          try {
+            desc = Util.readFile(new FileReader(new File(docFile)));
+          } catch (java.io.FileNotFoundException fnfe) {
+            System.out.println("Missing doc: " + docFile);
+            desc = "TODO";
+          }
           // Util.writeFile(desc, "docs/" + pair.second.getSyntax() + ".md");
 
           // String desc = e.accept0(Unit.unit, new AqlHelp());

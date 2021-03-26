@@ -75,7 +75,7 @@ public class AqlTester {
     });
   }
 
-  private static <A> A deleteFilesCreatedDuring(java.util.function.Supplier<A> closure) {
+  public static <A> A deleteFilesCreatedDuring(java.util.function.Supplier<A> closure) {
     try {
       // record current files, to later delete created ones
       Set<Path> files = walkPwd();

@@ -177,3 +177,8 @@ shadowJar {
 }
 
 assemble.dependsOn shadowJar
+
+task generateManual (type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'catdata.aql.exp.AqlHelp'
+}

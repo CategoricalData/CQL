@@ -1,7 +1,7 @@
 package catdata.aql;
 
 public enum AqlSyntax {
-  
+
   ApgSchExpInitial,
   ApgSchExpTerminal,
   ApgSchExpPlus,
@@ -9,7 +9,7 @@ public enum AqlSyntax {
   ApgSchExpVar,
   ApgSchExpRaw,
   //ApgSchExpCsv,
-  
+
   //ApgMapExpId,
   //ApgMapExpCompose,
   ApgMapExpRaw,
@@ -22,7 +22,7 @@ public enum AqlSyntax {
   ApgInstExpTimes,
   ApgInstExpEqualize,
   ApgInstExpCoEqualize,
-  
+
   ApgTransExpId,
   ApgTransExpDelta,
   ApgTransExpCompose,
@@ -38,16 +38,17 @@ public enum AqlSyntax {
   ApgTransExpEqualizeU,
   ApgTransExpCoEqualize,
   ApgTransExpCoEqualizeU,
-   
+
   CommentExp, ColimSchExpQuotient, ColimSchExpRaw, ColimSchExpVar, ColimSchExpWrap, ColimSchExpModify, EdsExpVar, SchExpFront, SchExpTinkerpop, EdsExpTinkerpop,
-  EdsExpRaw, EdsExpSch, GraphExpRaw, GraphExpVar, InstExpAnonymize, InstExpCascadeDelete, InstExpChase, InstExpFrozen, PragmaExpTinkerpop, PragmaExpBitsy,
+  EdsExpRaw, EdsExpSch, GraphExpRaw, GraphExpVar, InstExpAnonymize, InstExpCascadeDelete, InstExpChase, InstExpFrozen,
+  PragmaExpTinkerpop, PragmaExpBitsy, PragmaExpTinkerpopInstExport, InstExpTinkerpop,
   InstExpCoEq, InstExpCoEval, InstExpCoProdFull, InstExpMarkdown, TyExpRdf, InstExpSpanify, SchExpSpan
   , QueryExpSpanify, QueryExpMapToSpanQuery, InstExpCod, InstExpColim, InstExpDelta, InstExpDiff, InstExpDistinct, InstExpDom, InstExpEmpty, InstExpEval,
   InstExpPi, InstExpPivot, InstExpSigma, InstExpSigmaChase, InstExpVar, InstExpCsv, EdsExpInclude, QueryExpFront
-  , InstExpJdbc, InstExpJdbcAll, InstExpRdfAll, PragmaExpRdfDirectExport, PragmaExpRdfInstExport, InstExpJsonAll, InstExpXmlAll
+  , InstExpJdbc, InstExpRdfAll, PragmaExpRdfDirectExport, PragmaExpRdfInstExport, InstExpJsonAll, InstExpXmlAll
   , InstExpQueryQuotient, /*PragmaExpCheckSql,*/ PragmaExpJsonInstExport, InstExpJdbcDirect, MapExpFromPrefix, MapExpToPrefix,
   InstExpRandom, InstExpRaw, MapExpComp, MapExpId, MapExpPivot, MapExpVar, MapExpColim, MapExpRaw, PragmaExpCheck,
-  PragmaExpConsistent, PragmaExpJs, PragmaExpMatch, PragmaExpProc, PragmaExpSql, PragmaExpToCsvInst, 
+  PragmaExpConsistent, PragmaExpJs, PragmaExpMatch, PragmaExpProc, PragmaExpSql, PragmaExpToCsvInst,
   PragmaExpToCsvTrans, PragmaExpToJdbcInst, PragmaExpToJdbcQuery, PragmaExpToJdbcTrans, PragmaExpVar, PragmaExpCheck2,
   QueryExpFromEds, QueryExpCompose, QueryExpDeltaCoEval, QueryExpDeltaEval, QueryExpId, QueryExpVar, QueryExpRaw, InstExpMsError,
   QueryExpRawSimple, QueryExpFromCoSpan, SchExpCod, SchExpMsQuery, SchExpMsCatalog, EdsExpFromMsCatalog, SchExpRdf, SchExpDom, SchExpSrc, SchExpDst, SchExpEmpty, SchExpInst, SchExpMsError,
