@@ -8,3 +8,4 @@ libz3*
 lib/com.microsoft.z3.jar
 .classpath
 .project
+help/
