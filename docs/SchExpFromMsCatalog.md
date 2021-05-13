@@ -1,0 +1,1 @@
+Creates the CQL schema corresponding to a CQL instances on the ms_catalog schema.

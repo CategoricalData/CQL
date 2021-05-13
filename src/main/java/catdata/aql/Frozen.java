@@ -3,6 +3,7 @@ package catdata.aql;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,27 +45,27 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
     this.eqs = eqs;
     this.schema = schema;
     this.options = options;
-
     validateNoTalg();
   }
 
   public Frozen(Map<String, Ty> params, Map<String, Chc<En1, Ty>> gens,
       Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>> eqs, Schema<Ty, En1, Sym, Fk1, Att1> schema,
-      AqlOptions options) {
+      AqlOptions options, List<String> order) {
     Util.assertNotNull(options);
-    this.gens = new THashMap<>();
-    this.sks = new THashMap<>(params);
+    this.gens = new LinkedHashMap<>();
+    this.sks = new LinkedHashMap<>(params);
     this.sks.putAll(params);
-    this.order = (new LinkedList<>());
+    this.order = order; //new ArrayList<>(order);
+    //Collections.reverse(this.order); //TODO sigh  
     for (String v : gens.keySet()) {
       Chc<En1, Ty> t = gens.get(v);
-      order.add(v);
       if (t.left) {
         this.gens.put(v, t.l);
       } else {
         this.sks.put(v, t.r);
       }
     }
+    //System.out.println("BBB " + order);
     this.eqs = new THashSet<>(eqs.size());
     for (Eq<Ty, En1, Sym, Fk1, Att1, String, String> x : eqs) {
       this.eqs.add(new Pair<>(x.lhs, x.rhs));
@@ -210,7 +211,8 @@ public class Frozen<Ty, En1, Sym, Fk1, Att1>
 
     if (!(Boolean) options.getOrDefault(AqlOption.eval_reorder_joins)
         || gens().size() > (Integer) options.getOrDefault(AqlOption.eval_max_plan_depth)) {
-      return new ArrayList<>(Util.union(gens.keySet(), sks.keySet()));
+  return order;  	
+//      return new ArrayList<>(Util.union(gens.keySet(), sks.keySet()));
     }
     Map<Pair<String, String>, Float> selectivities = estimateSelectivities();
     if (gens().isEmpty() && sks().isEmpty()) {

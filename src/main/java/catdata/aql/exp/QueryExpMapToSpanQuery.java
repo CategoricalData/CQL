@@ -2,6 +2,7 @@ package catdata.aql.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class QueryExpMapToSpanQuery extends QueryExp {
     Schema<String, String, Sym, Fk, Att> src = new SchExpSpan(new SchExpSrc(map)).eval(env, isCompileTime);
     Schema<String, String, Sym, Fk, Att> dst = new SchExpSpan(new SchExpDst(map)).eval(env, isCompileTime);
 
-    Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
+    Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
     Map<Att, Chc<Term<String, String, Sym, Fk, Att, String, String>, Agg<String, String, Sym, Fk, Att>>> atts = new THashMap<>();
     Map<Fk, Pair<Map<String, Term<Void, String, Void, Fk, Void, String, Void>>, AqlOptions>> fks = new THashMap<>();
     Map<Fk, Map<String, Term<String, String, Sym, Fk, Att, String, String>>> fks2 = new THashMap<>();
@@ -79,13 +80,14 @@ public class QueryExpMapToSpanQuery extends QueryExp {
       Att subatt = Att.Att(en, "subject");
 
       List<Eq<String, String, Sym, Fk, Att, String, String>> eqs = new LinkedList<>();
-
-      ens.put(en, new Triple<>(Collections.singletonMap(("c"), Chc.inLeft(relMap.ens.get(en))), eqs, ops));
+      LinkedHashMap<String, Chc<String, String>> xxx = new LinkedHashMap<String, Chc<String, String>>();
+      xxx.put("c", Chc.inLeft(relMap.ens.get(en)));
+      ens.put(en, new Triple<>(xxx , eqs, ops));
       atts.put(subatt, Chc.inLeft(Term.Att(Att.Att(relMap.ens.get(en), "subject"), Term.Gen(("c")))));
     }
     for (Entry<Fk, Pair<String, String>> fk : srcR.fks.entrySet()) {
       String enX = (fk.getKey().str + "_" + fk.getValue().first + "_" + fk.getValue().second);
-      Map<String, Chc<String, String>> ctx = new THashMap<>();
+      LinkedHashMap<String, Chc<String, String>> ctx = new LinkedHashMap<>();
 
       ctx.put(("rs"), Chc.inLeft(relMap.ens.get(fk.getValue().first)));
       ctx.put(("rt"), Chc.inLeft(relMap.ens.get(fk.getValue().second)));
@@ -138,7 +140,7 @@ public class QueryExpMapToSpanQuery extends QueryExp {
     }
     for (Entry<Att, Pair<String, String>> att : srcR.atts.entrySet()) {
       String enX = (att.getKey().str + "_" + att.getValue().first);
-      Map<String, Chc<String, String>> ctx = new THashMap<>();
+      LinkedHashMap<String, Chc<String, String>> ctx = new LinkedHashMap<>();
 
       ctx.put(("rs"), Chc.inLeft(relMap.ens.get(att.getValue().first)));
       List<Eq<String, String, Sym, Fk, Att, String, String>> eqs = new LinkedList<>();

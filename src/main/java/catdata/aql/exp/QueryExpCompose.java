@@ -3,6 +3,7 @@ package catdata.aql.exp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ import catdata.aql.Query;
 import catdata.aql.Query.Agg;
 import catdata.aql.Term;
 import catdata.aql.Transform;
-
 import gnu.trove.map.hash.THashMap;
 
 public final class QueryExpCompose extends QueryExp {
@@ -128,7 +128,7 @@ public final class QueryExpCompose extends QueryExp {
 
   public static <Ty, En, Sym, Fk, Att> Query<Ty, En, Sym, Fk, Att, En, Fk, Att> doCompose(AqlOptions ops,
       Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q1, Query<Ty, En, Sym, Fk, Att, En, Fk, Att> q2) {
-    Map<En, Triple<Map<String, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
+    Map<En, Triple<LinkedHashMap<String, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
     Map<Att, Chc<Term<Ty, En, Sym, Fk, Att, String, String>,Agg<Ty, En, Sym, Fk, Att>>> atts = new THashMap<>();
     Map<Fk, Pair<Map<String, Term<Void, En, Void, Fk, Void, String, Void>>, AqlOptions>> fks = new THashMap<>();
     Map<Fk, Map<String, Term<Ty, En, Sym, Fk, Att, String, String>>> sks = new THashMap<>();
@@ -140,7 +140,7 @@ public final class QueryExpCompose extends QueryExp {
       Pair<Map<String, Pair<String, String>>, Map<Pair<String, String>, String>> iso = new Pair<>(new THashMap<>(),
           new THashMap<>());
 
-      Map<String, Chc<En, Ty>> fr = new THashMap<>();
+      LinkedHashMap<String, Chc<En, Ty>> fr = new LinkedHashMap<>();
       Collection<Eq<Ty, En, Sym, Fk, Att, String, String>> wh = new LinkedList<>();
       for (Entry<String, En> v : Util.alphabetical(q2.ens.get(En).gens.entrySet())) {
         Frozen<Ty, En, Sym, Fk, Att> I = q1.ens.get(v.getValue());

@@ -71,6 +71,9 @@ public class Row<En2, X, T> {
     this.tail = tail;
     this.en2 = en2;
     this.t = t;
+    if (v == null) {
+    	Util.anomaly();
+    }
   }
 
   public static <X, En2, T> Row<En2, X, T> mkRow(List<String> order, Map<String, X> ctx, En2 en2, Map<String, T> ctx2,

@@ -3,6 +3,7 @@ package catdata.aql.exp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,6 @@ import catdata.aql.Query.Agg;
 import catdata.aql.Schema;
 import catdata.aql.Term;
 import catdata.aql.Transform;
-
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -383,7 +383,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
     public final Set<Pair<Att, Chc<RawTerm, PreAgg>>> atts;
     public final Set<Pair<Fk, Trans>> fks;
     public String en;
-    public final Set<Pair<String, String>> gens;
+    public final List<Pair<String, String>> gens;
     // public final Set<Pair<Var, Ty>> sks;
     public final Set<Pair<RawTerm, RawTerm>> eqs;
     public final Map<String, String> options;
@@ -393,7 +393,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
       this.en = (en.str);
       this.enLoc = en.loc;
       this.star = star;
-      this.gens = new THashSet<>();
+      this.gens = new LinkedList<>();
       this.atts = LocStr.set2(b.atts).stream().map(x -> new Pair<>(Att.Att(this.en, x.first), x.second))
           .collect(Collectors.toSet());
       this.fks = LocStr.set2(b.fks).stream().map(x -> new Pair<>(Fk.Fk(this.en, x.first), x.second))
@@ -735,7 +735,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
     Schema<String, String, Sym, Fk, Att> src0 = src.eval(env, isC);
     Schema<String, String, Sym, Fk, Att> dst0 = dst.eval(env, isC);
 
-    Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens0 = new THashMap<>();
+    Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens0 = new THashMap<>();
     Map<Att, Chc<Term<String, String, Sym, Fk, Att, String, String>,Agg<String, String, Sym, Fk, Att>>> atts0 = new THashMap<>();
     Map<Fk, Pair<Map<String, Term<Void, String, Void, Fk, Void, String, Void>>, AqlOptions>> fks0 = new THashMap<>();
     Map<Fk, Map<String, Term<String, String, Sym, Fk, Att, String, String>>> sks0 = new THashMap<>();
@@ -759,7 +759,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
         for (Pair<Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>> a : x) {
           z.add(new Eq<>(null, a.first, a.second));
         }
-        ens0.put(En, new Triple<>(new THashMap<>(Util.inLeft(v.ens.get(En).gens)), z, v.ens.get(En).options));
+        ens0.put(En, new Triple<>(Util.inLeftOrder(v.ens.get(En).gens, v.ens.get(En).order), z, v.ens.get(En).options));
       }
       for (Att Att : v.atts.keySet()) {
         if (!v.atts.get(Att).left) {
@@ -861,7 +861,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
     }
 
     for (String s : params.keySet()) {
-      xxx.put((s), (params.get(s)));
+      xxx.put(s, params.get(s));
     }
     for (String s : consts.keySet()) {
       Chc<String, String> required = Chc.inLeft(xxx.get((s)));
@@ -871,21 +871,21 @@ public class QueryExpRaw extends QueryExp implements Raw {
 
       yyy.put((s), term.convert());
     }
-    // System.out.println("---------" + doNotCheckEqs);
+     System.out.println("---------" + ens0);
     return Query.makeQuery2(xxx, yyy, ens0, atts0, fks0, sks0, src0, dst0,
 
         new AqlOptions(options, env.defaults));
   }
 
   public static synchronized void processAtt(Schema<String, String, Sym, Fk, Att> src0, Schema<String, String, Sym, Fk, Att> dst0,
-      Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens0,
+      Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens0,
       Map<Att, Chc<Term<String, String, Sym, Fk, Att, String, String>, Agg<String, String, Sym, Fk, Att>>> atts0, Map<String, Collage<String, String, Sym, Fk, Att, String, String>> cols,
       Pair<Att, Chc<RawTerm, PreAgg>> pp, Map<String, String> params, Set<String> set) {
     Pair<String, String> z = dst0.atts.get(pp.first);
     if (z == null) {
       throw new RuntimeException("Not a target attribute: " + pp.first);
     }
-    Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions> www = ens0.get(z.first); {
+    Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions> www = ens0.get(z.first); {
       if (www == null) {
         throw new RuntimeException("Not an entity: " + dst0.atts.get(pp.first));
       }
@@ -974,10 +974,10 @@ public class QueryExpRaw extends QueryExp implements Raw {
 
   public static synchronized void processBlock(Map<String, String> options, AqlEnv env,
       Schema<String, String, Sym, Fk, Att> src0,
-      Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens,
+      Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens,
       Map<String, Collage<String, String, Sym, Fk, Att, String, String>> cols, Block p, Map<String, String> params) {
     Map<String, String> xx = Util.toMapSafely(p.gens);
-    Map<String, Chc<String, String>> Map = Util.mk();
+    LinkedHashMap<String, Chc<String, String>> Map = new LinkedHashMap<>();
     Collage<String, String, Sym, Fk, Att, String, String> col = new CCollage<>(src0.collage());
     Set<String> set = new THashSet<>(p.gens.size());
     for (Pair<String, String> z : p.gens) {
@@ -1021,7 +1021,7 @@ public class QueryExpRaw extends QueryExp implements Raw {
     Map<String, String> uu = new THashMap<>(options);
     uu.putAll(p.options);
     AqlOptions theops = new AqlOptions(uu, env.defaults);
-    Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions> b = new Triple<>(Map,
+    Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions> b = new Triple<>(Map,
         eqs, theops);
     ens.put(p.en, b);
   }

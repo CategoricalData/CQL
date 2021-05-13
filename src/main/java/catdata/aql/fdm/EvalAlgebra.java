@@ -227,6 +227,8 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
         ret.add(row);
         done.addAll(this.Q.ens.get(en2).gens.keySet());
         for (String v : plan) {
+       // 	System.out.println("On v have " + ret.size() + " to start");
+
           Chc<En1, Ty> x = Chc.inLeft(agg.lgens.get(v));
           ret = EvalAlgebra.extend(ret, v, ddd, I, useIndices, x, done);
           done.add(v);
@@ -330,7 +332,10 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
       } else {
         x = Chc.inRight(q.sks.get(v));
       }
+
       ret = EvalAlgebra.extend(ret, v, q, I, useIndices, x, done);
+      //System.out.println("XXOn " + v + " have " + ret.size() + " to start");
+
       done.add(v);
     }
     // System.out.println("plan " + plan);
@@ -377,20 +382,21 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
       throw new RuntimeException(ex);
     }
 
-  }
+  } 
 
   static <Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y, En2> List<Pair<Fk1, X>> getAccessPath(String v,
       Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
       Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Collection<Object> done) {
     List<Pair<Fk1, X>> ret = new LinkedList<>();
+    var xxx = Term.Gen(v);
     q2.eqs((a, b) -> {
-      if (a.fk() != null && a.arg.equals(Term.Gen(v))) {
+      if (a.fk() != null && a.arg.equals(xxx)) {
         Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = trans1(tuple, a, i2, q2, done);
         if (rhs.isPresent()) {
           X x = i2.algebra().nf(rhs.get().convert());
           ret.add(new Pair<>(a.fk(), x));
         }
-      } else if (b.fk() != null && b.arg.equals(Term.Gen(v))) {
+      } else if (b.fk() != null && b.arg.equals(xxx)) {
         Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = trans1(tuple, b, i2, q2, done);
         if (lhs.isPresent()) {
           X x = i2.algebra().nf(lhs.get().convert());
@@ -405,8 +411,9 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
       Row<En2, Chc<X, Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>>,Chc<En1, Ty>> tuple, Frozen<Ty, En1, Sym, Fk1, Att1> q2,
       Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> i2, Collection<Object> done) {
     List<Pair<Att1, Object>> ret = new LinkedList<>();
+    var xxx = Term.Gen(v);
     q2.eqs((a, b) -> {
-      if (a.att() != null && a.arg.equals(Term.Gen(v))) {
+      if (a.att() != null && a.arg.equals(xxx)) {
         Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> rhs = trans1(tuple, b, i2, q2, done);
         if (rhs.isPresent()) {
           Term<Ty, Void, Sym, Void, Void, Void, Y> x = i2.algebra().intoY(rhs.get().convert());
@@ -414,7 +421,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
             ret.add(new Pair<>(a.att(), x.obj()));
           }
         }
-      } else if (b.att() != null && b.arg.equals(Term.Gen(v))) {
+      } else if (b.att() != null && b.arg.equals(xxx)) {
         Optional<Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk>> lhs = trans1(tuple, a, i2, q2, done);
         if (lhs.isPresent()) {
 
@@ -587,7 +594,7 @@ public class EvalAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
     }
 
     return ret;
-  }
+  } 
 
   public String talgToString() {
     return I.algebra().talgToString();

@@ -158,9 +158,9 @@ public class InstExpCsv extends
 
   @Override
   protected Map<String, List<String[]>> start(Schema<String, String, Sym, Fk, Att> sch) throws Exception {
-    if (!sch.typeSide.syms.keySet().containsAll(SqlTypeSide.syms().keySet())) {
-      throw new RuntimeException("CSV import must be onto sql typeside.");
-    }
+  //  if (!sch.typeSide.syms.keySet().containsAll(SqlTypeSide.syms().keySet())) {
+    //  throw new RuntimeException("CSV import must be onto sql typeside.");
+   // }
 
     Map<String, Reader> m = new THashMap<>();
     // Boolean b = (Boolean) op.getOrDefault(AqlOption.csv_prepend_entity);

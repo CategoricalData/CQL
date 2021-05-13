@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -269,9 +270,9 @@ public class ED {
     if (!cache.containsKey(schema)) {
       Schema<String, String, Sym, Fk, Att> zzz = getEDSchema(schema.typeSide, options);
 
-      Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> is2 = Util
+      Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> is2 = Util
           .map(is, (k, x) -> new Pair<>(k, new Triple<>(
-              Util.map(x.first, (kk, z) -> new Pair<>(kk, z.reverse())), x.second, x.third)));
+              Util.mapL(x.first, (kk, z) -> new Pair<>(kk, z.reverse())), x.second, x.third)));
 
       cache.put(schema, Query.makeQuery(is2, new THashMap<>(), fks, sks, schema, zzz, options));
     }

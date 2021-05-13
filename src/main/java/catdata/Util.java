@@ -437,6 +437,20 @@ public class Util {
     return ret;
   }
 
+  public static <K, X, V> LinkedHashMap<K, Chc<V, X>> inLeftOrder(Map<K, V> map, List<K> order) {
+	    if (map.isEmpty()) {
+	      return new LinkedHashMap<>();
+	    }
+	    LinkedHashMap<K, Chc<V, X>> ret = new LinkedHashMap<>(map.size());
+	    for (K k : order) {
+	      ret.put(k, Chc.inLeft(map.get(k)));
+	    }
+	    if (map.size() != order.size()) {
+	    	Util.anomaly();
+	    }
+	    return ret;
+	  }
+  
   public static <K, X, V> Map<K, Chc<V, X>> inLeft(Map<K, V> map) {
     if (map.isEmpty()) {
       return Collections.emptyMap();
@@ -706,7 +720,7 @@ public class Util {
   }
 
   public static <X, Y> Map<X, Y> toMapSafely(Collection<Pair<X, Y>> t) {
-    Map<X, Y> ret = new THashMap<>(t.size());
+    Map<X, Y> ret = new LinkedHashMap<>(t.size());
 
     for (Pair<X, Y> p : t) {
       putSafely(ret, p.first, p.second);
@@ -1242,6 +1256,14 @@ public class Util {
     }
     return ret;
   }
+  public static <K1, V1, K2, V2> LinkedHashMap<K2, V2> mapL(Map<K1, V1> m, BiFunction<K1, V1, Pair<K2, V2>> f) {
+	  LinkedHashMap<K2, V2> ret = new LinkedHashMap<>(m.size());
+	    for (K1 k1 : m.keySet()) {
+	      Pair<K2, V2> p = f.apply(k1, m.get(k1));
+	      ret.put(p.first, p.second);
+	    }
+	    return ret;
+	  }
 
   public static String longestCommonPrefix(List<String> strings) {
     if (strings.size() == 0) {

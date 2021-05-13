@@ -2,6 +2,7 @@ package catdata.aql.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import catdata.aql.Mapping;
 import catdata.aql.Query;
 import catdata.aql.Schema;
 import catdata.aql.Term;
-
 import catdata.aql.exp.QueryExpRaw.Block;
 import catdata.aql.exp.QueryExpRaw.PreBlock;
 import catdata.aql.fdm.EvalInstance;
@@ -127,7 +127,7 @@ public class InstExpQueryQuotient<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Intege
       ensX.add(b.en);
     }
     Schema<String, String, Sym, Void, Void> dst = sss.discretize(ensX);
-    Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
+    Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
     Map<String, Collage<String, String, Sym, Fk, Att, String, String>> cols = new THashMap<>();
 
     for (Block b : queries) {

@@ -2,6 +2,7 @@ package catdata.aql.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class QueryExpSpanify extends QueryExp {
       throw new RuntimeException("RelOlog equations not supported yet");
     }
 
-    Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
+    Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
     Map<Att, Chc<Term<String, String, Sym, Fk, Att, String, String>, Agg<String, String, Sym, Fk, Att>>> atts = new THashMap<>();
     Map<Fk, Pair<Map<String, Term<Void, String, Void, Fk, Void, String, Void>>, AqlOptions>> fks = new THashMap<>();
     Map<Fk, Map<String, Term<String, String, Sym, Fk, Att, String, String>>> fks2 = new THashMap<>();
@@ -88,8 +89,9 @@ public class QueryExpSpanify extends QueryExp {
       eqs.add(new Eq<>(null, Term.Att(predatt, Term.Gen(("c"))),
           Term.Obj("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", ("Dom"))));
       eqs.add(new Eq<>(null, Term.Att(obatt, Term.Gen(("c"))), Term.Obj(en, ("Dom"))));
-
-      ens.put(en, new Triple<>(Collections.singletonMap(("c"), Chc.inLeft(("R"))), eqs, ops));
+      LinkedHashMap<String, Chc<String, String>> xxx = new LinkedHashMap<String, Chc<String, String>>();
+      xxx.put("c", Chc.inLeft(("R")));
+      ens.put(en, new Triple<>(xxx, eqs, ops));
       atts.put(Att.Att(en, "subject"), Chc.inLeft(Term.Att(subatt, Term.Gen(("c")))));
       col.atts().put(Att.Att(en, "subject"), new Pair<>(en, ("Dom")));
     }
@@ -99,7 +101,7 @@ public class QueryExpSpanify extends QueryExp {
       col.fks().put(Fk.Fk(en, "subject"), new Pair<>(en, fk.getValue().first));
       col.fks().put(Fk.Fk(en, "object"), new Pair<>(en, fk.getValue().second));
 
-      Map<String, Chc<String, String>> ctx = new THashMap<>();
+      LinkedHashMap<String, Chc<String, String>> ctx = new LinkedHashMap<>();
       ctx.put(("r"), Chc.inLeft(("R")));
       ctx.put(("rs"), Chc.inLeft(("R")));
       ctx.put(("rt"), Chc.inLeft(("R")));
@@ -132,7 +134,7 @@ public class QueryExpSpanify extends QueryExp {
       col.fks().put(Fk.Fk(en, "subject"), new Pair<>(en, att.getValue().first));
       col.atts().put(Att.Att(en, "object"), new Pair<>(en, att.getValue().second));
 
-      Map<String, Chc<String, String>> ctx = new THashMap<>();
+      LinkedHashMap<String, Chc<String, String>> ctx = new LinkedHashMap<>();
       ctx.put(("r"), Chc.inLeft(("R")));
       ctx.put(("rs"), Chc.inLeft(("R")));
       List<Eq<String, String, Sym, Fk, Att, String, String>> eqs = new LinkedList<>();

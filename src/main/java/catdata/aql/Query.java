@@ -3,6 +3,7 @@ package catdata.aql;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -155,11 +156,11 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	public final Schema<Ty, En1, Sym, Fk1, Att1> src;
 	public final Schema<Ty, En2, Sym, Fk2, Att2> dst;
 
-	public Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> conv1(
+	public Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> conv1(
 			Map<En2, Frozen<Ty, En1, Sym, Fk1, Att1>> ens) {
-		Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ret = new THashMap<>();
+		Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ret = new THashMap<>();
 		for (En2 en2 : ens.keySet()) {
-			Map<String, Chc<En1, Ty>> ctx = new THashMap<>();
+			LinkedHashMap<String, Chc<En1, Ty>> ctx = new LinkedHashMap<>();
 			ens.get(en2).sks().entrySet((z, t) -> {
 				ctx.put(z, Chc.inRight(t));
 			});
@@ -221,7 +222,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	}
 
 	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> makeQuery(
-			Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens2,
+			Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens2,
 			Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Agg<Ty, En1, Sym, Fk1, Att1>>> atts2,
 			Map<Fk2, Pair<Map<String, Term<Void, En1, Void, Fk1, Void, String, Void>>, AqlOptions>> map,
 			Map<Fk2, Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> map2,
@@ -231,7 +232,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> makeQuery2(
 			Map<String, Ty> tHashMap, Map<String, Term<Ty, Void, Sym, Void, Void, Void, Void>> tHashMap2,
-			Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens2,
+			Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens2,
 			Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Agg<Ty, En1, Sym, Fk1, Att1>>> atts2,
 			Map<Fk2, Pair<Map<String, Term<Void, En1, Void, Fk1, Void, String, Void>>, AqlOptions>> map,
 			Map<Fk2, Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> map2,
@@ -305,7 +306,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			String v, En2 second, Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b,
 			Term<Ty, En1, Sym, Fk1, Att1, String, String> third, Head<Ty, En1, Sym, Fk1, Att1, String, String> head) {
 
-		Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> xens = new THashMap<>();
+		Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> xens = new THashMap<>();
 		Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Agg<Ty, En1, Sym, Fk1, Att1>>> xatts = new THashMap<>();
 		Map<Fk2, Pair<Map<String, Term<Void, En1, Void, Fk1, Void, String, Void>>, AqlOptions>> xfks = new THashMap<>();
 
@@ -357,7 +358,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 		for (En2 en : b.ens.keySet()) {
 			if (en.equals(second)) {
-				Map<String, Chc<En1, Ty>> ctx = new THashMap<>(b.ens.get(en).first);
+				LinkedHashMap<String, Chc<En1, Ty>> ctx = new LinkedHashMap<>(b.ens.get(en).first);
 				ctx.put(v, Chc.inLeft(srcEn));
 				Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>> eqs = (new ArrayList<>(
 						b.ens.get(en).second.size()));
@@ -382,7 +383,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			String v, En2 en2, Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b,
 			Term<Void, En1, Void, Fk1, Void, String, Void> term) {
 
-		Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> xens = new THashMap<>();
+		Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> xens = new THashMap<>();
 		Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Agg<Ty, En1, Sym, Fk1, Att1>>> xatts = new THashMap<>();
 		Map<Fk2, Pair<Map<String, Term<Void, En1, Void, Fk1, Void, String, Void>>, AqlOptions>> xfks = new THashMap<>();
 		Map<Fk2, Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> xsks = new THashMap<>();
@@ -432,7 +433,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 		for (En2 en : b.ens.keySet()) {
 			if (en.equals(en2)) {
-				Map<String, Chc<En1, Ty>> ctx = new THashMap<>(b.ens.get(en).first);
+				LinkedHashMap<String, Chc<En1, Ty>> ctx = new LinkedHashMap<>(b.ens.get(en).first);
 				ctx.remove(v);
 				Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>> eqs = (new LinkedList<>());
 				for (Eq<Ty, En1, Sym, Fk1, Att1, String, String> eq : b.ens.get(en).second) {
@@ -535,7 +536,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	}
 
 	private static class Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> {
-		public final Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens;
+		public final Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens;
 		public final Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Agg<Ty, En1, Sym, Fk1, Att1>>> atts;
 		public final Map<Fk2, Pair<Map<String, Term<Void, En1, Void, Fk1, Void, String, Void>>, AqlOptions>> fks;
 		public final Map<Fk2, Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> sks;
@@ -604,7 +605,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		}
 
 		public Blob(
-				Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens,
+				Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens,
 				Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Agg<Ty, En1, Sym, Fk1, Att1>>> atts,
 				Map<Fk2, Pair<Map<String, Term<Void, En1, Void, Fk1, Void, String, Void>>, AqlOptions>> fks,
 				Map<Fk2, Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> sks,
@@ -626,7 +627,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 	// doNotCheckPathEqs will stop construction of dps
 	public Query(Map<String, Ty> params, Map<String, Term<Ty, Void, Sym, Void, Void, Void, Void>> consts,
-			Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens,
+			Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens,
 			Map<Att2, Chc<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Agg<Ty, En1, Sym, Fk1, Att1>>> atts,
 			Map<Fk2, Pair<Map<String, Term<Void, En1, Void, Fk1, Void, String, Void>>, AqlOptions>> fks,
 			Map<Fk2, Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> sks,
@@ -640,7 +641,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		Map<String, Ty> pp = (params);
 		for (En2 en2 : ens.keySet()) {
 			try {
-				this.ens.put(en2, new Frozen<>(pp, (ens.get(en2).first), ens.get(en2).second, src, ens.get(en2).third));
+				System.out.println("order " + ens.get(en2).first.keySet());
+				List<String> order = new LinkedList<>(ens.get(en2).first.keySet());
+				this.ens.put(en2, new Frozen<>(pp, (ens.get(en2).first), ens.get(en2).second, src, ens.get(en2).third, order));
 			} catch (Throwable thr) {
 				thr.printStackTrace();
 				throw new RuntimeException("In block for entity " + en2 + ", " + thr.getMessage());
@@ -649,7 +652,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 		for (Ty ty : src.typeSide.tys) {
 			this.tys.put(ty, new Frozen<>(pp, Collections.singletonMap(("_y_"), Chc.inRight(ty)),
-					Collections.emptyList(), src, doNotCheckPathEqs));
+					Collections.emptyList(), src, doNotCheckPathEqs,  Collections.singletonList("_y_")));
 		}
 
 		for (Fk2 fk2 : fks.keySet()) {
@@ -956,15 +959,15 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			Schema<Ty, En, Sym, Fk, Att> S, Schema<Ty, En, Sym, Fk, Att> T) {
 		String v = ("v");
 
-		Map<En, Triple<Map<String, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, String, String>>, AqlOptions>> ens0 = new THashMap<>();
+		Map<En, Triple<LinkedHashMap<String, Chc<En, Ty>>, Collection<Eq<Ty, En, Sym, Fk, Att, String, String>>, AqlOptions>> ens0 = new THashMap<>();
 		Map<Att, Chc<Term<Ty, En, Sym, Fk, Att, String, String>, Agg<Ty, En, Sym, Fk, Att>>> atts0 = new THashMap<>();
 		Map<Fk, Pair<Map<String, Term<Void, En, Void, Fk, Void, String, Void>>, AqlOptions>> fks0 = new THashMap<>();
 		Map<Fk, Map<String, Term<Ty, En, Sym, Fk, Att, String, String>>> sks0 = new THashMap<>();
 
 		for (En en : S.ens) {
-			Map<String, Chc<En, Ty>> from = new THashMap<>();
+			LinkedHashMap<String, Chc<En, Ty>> from = new LinkedHashMap<>();
 			from.put(v, Chc.inLeft(en));
-			ens0.put(en, new Triple<>(from, (Collections.emptyList()), options));
+			ens0.put(en, new Triple<>(from, Collections.emptyList(), options));
 			for (Att att : S.attsFrom(en)) {
 				atts0.put(att, Chc.inLeft(Term.Att(att, Term.Gen(v))));
 			}
@@ -1002,9 +1005,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			atts2.put(att2, Chc.inLeft(f.apply(atts.get(att2).l)));
 		}
 
-		Map<En2, Triple<Map<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens2 = new THashMap<>();
+		Map<En2, Triple<LinkedHashMap<String, Chc<En1, Ty>>, Collection<Eq<Ty, En1, Sym, Fk1, Att1, String, String>>, AqlOptions>> ens2 = new THashMap<>();
 		for (En2 en2 : ens.keySet()) {
-			Map<String, Chc<En1, Ty>> ctx = new THashMap<>();
+			LinkedHashMap<String, Chc<En1, Ty>> ctx = new LinkedHashMap<>();
 			ens.get(en2).sks().entrySet((k, v) -> {
 				ctx.put(k, Chc.inRight(v));
 			});

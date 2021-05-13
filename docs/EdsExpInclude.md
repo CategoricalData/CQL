@@ -1,0 +1,1 @@
+Creates CQL constraints that copy a schema X into schema X + Y.

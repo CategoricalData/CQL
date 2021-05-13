@@ -1,6 +1,7 @@
 package catdata.aql;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.apache.jena.rdf.model.Model;
@@ -10,6 +11,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
+import catdata.Util;
 import catdata.aql.exp.Att;
 
 import catdata.aql.exp.Fk;
@@ -52,7 +54,17 @@ public class RdfExporter {
 		if (t.sk() != null) {
 			return blanks.get(t.sk());
 		}
-		return ResourceFactory.createPlainLiteral((String) t.obj());
+		if (t.obj() instanceof String) {
+			return ResourceFactory.createPlainLiteral((String) t.obj());		
+		}
+		if (t.obj() instanceof Optional<?>) {
+			Optional<?> o = (Optional<?>) t.obj();
+			if (o.isEmpty()) {
+				return ResourceFactory.createResource();
+			}
+			return ResourceFactory.createPlainLiteral((String) o.get());		
+		}
+		return Util.anomaly();
 	}
 
 	private static <Y> Property skToNode0(Term<String, Void, Sym, Void, Void, Void, Y> t, Map<Y, Resource> blanks) {
@@ -81,7 +93,7 @@ public class RdfExporter {
 			Resource sX = skToNode(i.algebra().att(s, x), blanks);
 			Property pX = skToNode0(i.algebra().att(p, x), blanks);
 			RDFNode oX = skToNode1(i.algebra().att(o, x), blanks);
-			System.out.println(sX + " " + pX + " " + oX);
+//			System.out.println(sX + " " + pX + " " + oX);
 			ret.add(sX, pX, oX);
 		}
 		return ret;

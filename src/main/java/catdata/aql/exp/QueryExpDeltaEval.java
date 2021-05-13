@@ -2,6 +2,7 @@ package catdata.aql.exp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,6 @@ import catdata.aql.Mapping;
 import catdata.aql.Query;
 import catdata.aql.Query.Agg;
 import catdata.aql.Term;
-
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -115,7 +115,7 @@ public final class QueryExpDeltaEval extends QueryExp {
       throw new IgnoreException();
     }
 
-    Map<String, Triple<Map<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
+    Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new THashMap<>();
     Map<Att, Chc<Term<String, String, Sym, Fk, Att, String, String>, Agg<String, String, Sym, Fk, Att>>> atts = new THashMap<>();
     Map<Fk, Pair<Map<String, Term<Void, String, Void, Fk, Void, String, Void>>, AqlOptions>> fks = new THashMap<>();
     Map<Fk, Map<String, Term<String, String, Sym, Fk, Att, String, String>>> sks = new THashMap<>();
@@ -124,7 +124,7 @@ public final class QueryExpDeltaEval extends QueryExp {
 
     String v = ("v");
     for (String en : F0.src.ens) {
-      Map<String, Chc<String, String>> fr = new THashMap<>();
+    	LinkedHashMap<String, Chc<String, String>> fr = new LinkedHashMap<>();
       fr.put(v, Chc.inLeft(F0.ens.get(en)));
       ens.put(en, new Triple<>(fr, new THashSet<>(), ops));
     }

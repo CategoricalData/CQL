@@ -1,0 +1,1 @@
+Imports SQL constraints from an MS Catalog instance as CQL EDs on the equivalent CQL schema.
