@@ -9,14 +9,7 @@ Build and installation
 
 ### Pre-built Binary
 
-[Java 11 Jar File (14MB)](http://categoricaldata.net/cql.jar)
-
-### Gradle
-
-The recommended build method is [Gradle](https://gradle.org), invoked with the `gradlew` script. Useful tasks include:
-- `run`: run the CQL IDE
-- `shadowJar`: build the CQL IDE as a JAR in `build/libs`
-- `tasks`: show all available tasks
+https://www.categoricaldata.net/download.php
 
 ### Eclipse
 
@@ -28,8 +21,6 @@ Quick build guide:
 - run catdata.ide.IDE as the main class
 
 [Detailed Build Guide](https://github.com/CategoricalData/CQL/wiki/detailed-Eclipse-build-instructions)
-
-A gradle file is provided, but is not maintained.
 
 Related projects:
 --------------
