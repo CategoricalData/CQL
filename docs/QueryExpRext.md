@@ -1,0 +1,1 @@
+Right Kan extensions of queries.

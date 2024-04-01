@@ -1,0 +1,1 @@
+The unit (singleton) schema consisting of a single entity, the empty string.

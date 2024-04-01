@@ -1,0 +1,1 @@
+Construct a pseduo colimit, which is like a colimit except that tables are not merged, they have isomorphisms between them added.  This precludes having to choose which tables persist; they all persist.  

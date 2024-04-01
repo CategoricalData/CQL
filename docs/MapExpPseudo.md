@@ -1,0 +1,1 @@
+Get the mapping from a pseudo colimit to an actual colimit; to be used with sigma.

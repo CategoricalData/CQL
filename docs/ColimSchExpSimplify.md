@@ -1,0 +1,1 @@
+Simplifies a colimit (up to isomorphism) by removing redundancy.
