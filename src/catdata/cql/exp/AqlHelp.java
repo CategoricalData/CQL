@@ -419,7 +419,7 @@ public class AqlHelp {
 
 			StringBuffer logo = new StringBuffer("");
 			logo.append("<html><head>" + css + "</head><body>");
-			logo.append("\n<a href=\"http://categoricaldata.github.io/CQL/\" target=\"primary\">Help</a><br />");
+			logo.append("\n<a href=\"https://categoricaldata.github.io/CQL/\" target=\"primary\">Help</a><br />");
 			logo.append("\n<br />");
 			logo.append("\n<a href=\"syntax.html\" target=\"tree\">Syntax</a><br />");
 			logo.append("\n<a href=\"options.html\" target=\"tree\">Options</a><br />");
@@ -447,7 +447,7 @@ public class AqlHelp {
 			main.append("\n      <FRAME src=\"logo.html\" name=\"logo\">");
 			main.append("\n      <FRAME src=\"syntax.html\" name=\"tree\">");
 			main.append("\n  </FRAMESET>");
-			main.append("\n  <FRAME src=\"http://categoricaldata.github.io/CQL\" name=\"primary\">");
+			main.append("\n  <FRAME src=\"https://categoricaldata.github.io/CQL\" name=\"primary\">");
 			main.append("\n</FRAMESET>");
 			main.append("\n</HTML>");
 
