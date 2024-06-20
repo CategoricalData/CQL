@@ -29,7 +29,7 @@ public final class PragmaExpToCsvTrans<Gen1, Sk1, X1, Y1, Gen2, Sk2, X2, Y2> ext
 		set.add(AqlOption.csv_quote_char);
 		set.add(AqlOption.csv_file_extension);
 		set.add(AqlOption.csv_generate_ids);
-		set.add(AqlOption.csv_emit_ids);
+		set.add(AqlOption.emit_ids);
 		set.add(AqlOption.csv_prepend_entity);
 		set.add(AqlOption.prepend_entity_on_ids);
 	}

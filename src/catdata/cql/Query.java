@@ -718,7 +718,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	//			System.out.println("|||");
 			} catch (Throwable thr) {
 				 thr.printStackTrace();
-				throw new RuntimeException("In transform for foreign key " + fk2 + ", " + thr.getMessage() + "\n\n" + this);
+				throw new RuntimeException("In transform for foreign key " + fk2 + ", " + thr.getMessage() + "\n\n");
 			}
 		}
 		this.atts = atts;
@@ -826,11 +826,15 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			Map<Fk2, String> m2 = new THashMap<>();
 
 			for (Att2 att : dst.attsFrom(en2)) {
-				m3.put(att.toString(), atts.get(att).toStringMash());
+				if (atts != null && atts.containsKey(att)) {
+					m3.put(att.toString(), atts.get(att).toStringMash());
+				} else {
+					m3.put(att.toString(), "{ } # MISSING");
+				}
 			}
 			// Map<String, String> m4 = new HashMap<>();
 			for (Fk2 fk : dst.fksFrom(en2)) {
-				if (fks.containsKey(fk)) {
+				if (fks != null && fks.containsKey(fk)) {
 					m2.put(fk, "{" + fks.get(fk).toString("", "") + "}");
 				} else {
 			//		System.out.println(Util.sep(dst.fks.entrySet(), ",", g->g + " " + g.getKey().getClass().toString()));

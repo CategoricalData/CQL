@@ -10,9 +10,9 @@ import catdata.Pair;
 import catdata.Unit;
 import catdata.Util;
 import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Kind;
 import catdata.cql.Pragma;
-import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.fdm.ToJdbcPragmaInstance;
 
 @SuppressWarnings("hiding")
@@ -27,6 +27,7 @@ public class PragmaExpToJdbcInst<X, Y> extends PragmaExp {
 		set.add(AqlOption.jdbc_default_string);
 		set.add(AqlOption.start_ids_at);
 		set.add(AqlOption.is_oracle);
+		set.add(AqlOption.emit_ids);
 		set.add(AqlOption.id_column_name);
 		set.add(AqlOption.varchar_length);
 		set.add(AqlOption.jdbc_export_truncate_after);

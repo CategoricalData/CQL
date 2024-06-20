@@ -42,7 +42,7 @@ public class TransExpCsv<X1, Y1, X2, Y2>
     set.add(AqlOption.csv_quote_char);
     set.add(AqlOption.csv_file_extension);
     set.add(AqlOption.csv_generate_ids);
-    set.add(AqlOption.csv_emit_ids);
+    set.add(AqlOption.emit_ids);
     set.add(AqlOption.import_col_seperator);
     set.add(AqlOption.csv_import_prefix);
     set.add(AqlOption.csv_prepend_entity);

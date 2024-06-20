@@ -117,7 +117,7 @@ public class ToCsvPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Pr
 
 			String idCol = (String) op.getOrDefault(AqlOption.id_column_name);
 			int startId = (int) op.getOrDefault(AqlOption.start_ids_at);
-			boolean csv_emit_ids = (boolean) op.getOrDefault(AqlOption.csv_emit_ids);
+			boolean csv_emit_ids = (boolean) op.getOrDefault(AqlOption.emit_ids);
 			String order = (String) op.getOrDefault(AqlOption.csv_row_sort_order);
 			
 			for (En en : I.schema().ens) {

@@ -312,76 +312,76 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 		m.put(t, "x => java.util.Optional.of(true)");
 		m.put(f, "x => java.util.Optional.of(false)");
 		m.put(Sym.Sym("not", new Pair<>(Collections.singletonList("Boolean"), "Boolean")),
-				"Java.type('catdata.aql.SqlTypeSide').not");
+				"Java.type('catdata.cql.SqlTypeSide').not");
 		m.put(Sym.Sym("and", new Pair<>(Util.list("Boolean", "Boolean"), "Boolean")),
-				"Java.type('catdata.aql.SqlTypeSide').and");
-		m.put(Sym.Sym("or", new Pair<>(Util.list("Boolean", "Boolean"), "Boolean")), "Java.type('catdata.aql.SqlTypeSide').or");
+				"Java.type('catdata.cql.SqlTypeSide').and");
+		m.put(Sym.Sym("or", new Pair<>(Util.list("Boolean", "Boolean"), "Boolean")), "Java.type('catdata.cql.SqlTypeSide').or");
 		m.put(Sym.Sym("isFalse", new Pair<>(Collections.singletonList("Boolean"), "Boolean")),
-				"Java.type('catdata.aql.SqlTypeSide').isFalse");
+				"Java.type('catdata.cql.SqlTypeSide').isFalse");
 		
 		for (String k : jps().keySet()) {
 			m.put(Sym.Sym("null", new Pair<>(Collections.emptyList(), k)), "Java.type('java.util.Optional').empty");
-			m.put(Sym.Sym("eq", new Pair<>(Util.list(k, k), "Boolean")), "Java.type('catdata.aql.SqlTypeSide').eq");
+			m.put(Sym.Sym("eq", new Pair<>(Util.list(k, k), "Boolean")), "Java.type('catdata.cql.SqlTypeSide').eq");
 			m.put(Sym.Sym("isNull", new Pair<>(Collections.singletonList(k), "Boolean")),
-					"Java.type('catdata.aql.SqlTypeSide').isNull");
+					"Java.type('catdata.cql.SqlTypeSide').isNull");
 		}
 		List<String> l = new LinkedList<>();
 		l.add("Float");
 		l.add("Float");
 		
 		m.put(Sym.Sym("+", new Pair<>(l, "Float")),
-				"Java.type('catdata.aql.SqlTypeSide').plusDouble");
+				"Java.type('catdata.cql.SqlTypeSide').plusDouble");
 		
 		List<String> l2 = new LinkedList<>();
 		l2.add("Real");
 		l2.add("Real");
 		
 		m.put(Sym.Sym("+", new Pair<>(l2, "Real")),
-				"Java.type('catdata.aql.SqlTypeSide').plusDouble");
+				"Java.type('catdata.cql.SqlTypeSide').plusDouble");
 		
 		List<String> l3 = new LinkedList<>();
 		l3.add("Double");
 		l3.add("Double");
 		
 		m.put(Sym.Sym("+", new Pair<>(l3, "Double")),
-				"Java.type('catdata.aql.SqlTypeSide').plusDouble");
+				"Java.type('catdata.cql.SqlTypeSide').plusDouble");
 		
 		
 		List<String> l4 = new LinkedList<>();
 		l4.add("Double precision");
 		l4.add("Double precision");
 		m.put(Sym.Sym("+", new Pair<>(l4, "Double precision")),
-				"Java.type('catdata.aql.SqlTypeSide').plusDouble");
+				"Java.type('catdata.cql.SqlTypeSide').plusDouble");
 
 		List<String> l5 = new LinkedList<>();
 		l5.add("Numeric");
 		l5.add("Numeric");
 		m.put(Sym.Sym("+", new Pair<>(l5, "Numeric")),
-				"Java.type('catdata.aql.SqlTypeSide').plusBigDecimal");
+				"Java.type('catdata.cql.SqlTypeSide').plusBigDecimal");
 
 		List<String> l6 = new LinkedList<>();
 		l6.add("Numeric");
 		l6.add("Numeric");
 		m.put(Sym.Sym("+", new Pair<>(l6, "Decimal")),
-				"Java.type('catdata.aql.SqlTypeSide').plusBigDecimal");
+				"Java.type('catdata.cql.SqlTypeSide').plusBigDecimal");
 		
 		List<String> l7 = new LinkedList<>();
 		l7.add("Integer");
 		l7.add("Integer");
 		m.put(Sym.Sym("+", new Pair<>(l7, "Integer")),
-				"Java.type('catdata.aql.SqlTypeSide').plusInteger");
+				"Java.type('catdata.cql.SqlTypeSide').plusInteger");
 		
 		List<String> l8 = new LinkedList<>();
 		l8.add("Tinyint");
 		l8.add("Tinyint");
 		m.put(Sym.Sym("+", new Pair<>(l8, "Tinyint")),
-				"Java.type('catdata.aql.SqlTypeSide').plusInteger");
+				"Java.type('catdata.cql.SqlTypeSide').plusInteger");
 		
 		List<String> l9 = new LinkedList<>();
 		l9.add("Smallint");
 		l9.add("Smallint");
 		m.put(Sym.Sym("+", new Pair<>(l9, "Smallint")),
-				"Java.type('catdata.aql.SqlTypeSide').plusInteger");
+				"Java.type('catdata.cql.SqlTypeSide').plusInteger");
 
 		
 //		m.put(("Integer"), "x => java.util.Optional.of(new java.lang.Integer(x))");

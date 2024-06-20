@@ -42,7 +42,7 @@ public final class PragmaExpToCsvInst<X, Y> extends PragmaExp {
 		set.add(AqlOption.csv_quote_char);
 		set.add(AqlOption.csv_file_extension);
 		set.add(AqlOption.csv_generate_ids);
-		set.add(AqlOption.csv_emit_ids);
+		set.add(AqlOption.emit_ids);
 		set.add(AqlOption.csv_prepend_entity);
 		set.add(AqlOption.prepend_entity_on_ids);
 		set.add(AqlOption.id_column_name);

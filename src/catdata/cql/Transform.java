@@ -117,7 +117,7 @@ public abstract class Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, 
 					throw new RuntimeException("Source instance equation " + a + " = " + b + " translates to " + lhs + " = "
 							+ rhs + xxx
 							+ ", which is not provable in the target instance, displayed below.  To proceed, consider removing it or adding more equations to the target instance.\n\n"
-							+ dst().toString().substring(0,Math.min(1024*8,dst().size())));
+					 	+ dst().toString().substring(0,Math.min(1024*8,dst().size())));
 				}
 			});
 		}

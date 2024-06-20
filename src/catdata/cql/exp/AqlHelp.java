@@ -125,7 +125,7 @@ public class AqlHelp {
 			return "The generators and labelled nulls of instances participating in a coproduct are required to be unique.  This option disables the uniqueness check.  It is marked unsafe because it can result in an instance that is not a coproduct, but is rather a coproduct followed by a quotient.";
 		case coproduct_allow_type_collisions_unsafe:
 			return "The generators and labelled nulls of instances participating in a coproduct are required to be unique.  This option disables the uniqueness check.  It is marked unsafe because it can result in an instance that is not a coproduct, but is rather a coproduct followed by a quotient.";
-		case csv_emit_ids:
+		case emit_ids:
 			return "When true, emits an ID column.";
 		case csv_escape_char:
 			return "Sets the escape character for use in CSV import/export.";

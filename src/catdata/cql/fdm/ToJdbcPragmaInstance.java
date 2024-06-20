@@ -33,6 +33,7 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 
 	private final int len;
 	private AqlOptions options;
+	private final boolean emitIds;
 
 	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, String jdbcString,
 			AqlOptions options) {
@@ -42,6 +43,7 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 		this.I = I;
 		idCol = (String) options.getOrDefault(AqlOption.id_column_name);
 		len = (Integer) options.getOrDefault(AqlOption.varchar_length);
+		emitIds = (boolean) options.getOrDefault(AqlOption.emit_ids);
 		// truncate = (Integer)
 		// options.getOrDefault(AqlOption.jdbc_export_truncate_after);
 		tick = (String) options.getOrDefault(AqlOption.jdbc_quote_char);
@@ -51,13 +53,13 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 	}
 
 	private void deleteThenCreate(Connection conn) throws SQLException {
-		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> m = I.schema().toSQL(prefix, "integer", idCol,
-				false, len, tick, (boolean)options.getOrDefault(AqlOption.is_oracle));
+		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> m = I.schema().toSQL(prefix, "integer", emitIds ? idCol : null,
+				false, len, tick, (boolean) options.getOrDefault(AqlOption.is_oracle));
 		Statement stmt = conn.createStatement();
 		for (En en : I.schema().ens) {
 			for (String x : m.get(en).second) {
 				// TODO aql drop foreign keys here first
-			//	 System.out.println(x);
+				// System.out.println(x);
 				stmt.execute(x);
 			}
 		}
@@ -67,8 +69,9 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 	@Override
 	public void execute() {
 		try {
-		//	Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> zzz = I.schema().toSQL(prefix, "integer",
-		//			idCol, false, len, tick);
+			// Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> zzz =
+			// I.schema().toSQL(prefix, "integer",
+			// idCol, false, len, tick);
 			// System.out.println(zzz);
 			Connection conn = DriverManager.getConnection(jdbcString);
 			deleteThenCreate(conn);
@@ -77,11 +80,13 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 
 			for (En en : I.schema().ens) {
 				List<Chc<Fk, Att>> header = headerFor(en);
-				List<String> hdrQ = new ArrayList<>(header.size() + 1);
-				List<String> hdr = new ArrayList<>(header.size() + 1);
-
-				hdr.add(tick + idCol + tick);
-				hdrQ.add("?");
+				List<String> hdrQ = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
+				List<String> hdr = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
+				System.out.println("Emit ids " + emitIds);
+				if (emitIds) {
+					hdr.add(tick + idCol + tick);
+					hdrQ.add("?");
+				}
 				for (Chc<Fk, Att> aHeader : header) {
 					hdrQ.add("?");
 					Chc<Fk, Att> chc = aHeader;
@@ -92,16 +97,19 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 					}
 				}
 				for (X x : I.algebra().en(en)) {
-					I.algebra().storeMyRecord(hdrQ, hdr, II, conn, x, header, en, prefix, tick, false);
+					System.out.println("store ");
+					I.algebra().storeMyRecord(emitIds, hdrQ, hdr, II, conn, x, header, en, prefix, tick, false);
 				}
+				System.out.println("--");
+
 			}
-		//	Statement stmt = conn.createStatement();
-		//	for (En en : I.schema().ens) {
-		//		for (String x : zzz.get(en).third) {
-		//			stmt.execute(x);
-		//		}
-		//	}
-		//	stmt.close();
+			// Statement stmt = conn.createStatement();
+			// for (En en : I.schema().ens) {
+			// for (String x : zzz.get(en).third) {
+			// stmt.execute(x);
+			// }
+			// }
+			// stmt.close();
 			conn.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -137,7 +145,6 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 			throw new RuntimeException("Cannot JDBC export: id column (" + idCol + ") is also a foreign key");
 		}
 	}
-
 
 	@Override
 	public String toString() {

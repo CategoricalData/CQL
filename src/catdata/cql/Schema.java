@@ -545,13 +545,16 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	public synchronized Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> toSQL(String prefix,
 			String idTy, String idCol, boolean truncate, int vlen, String tick, boolean isOracle) {
 		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> sqlSrcSchs = new LinkedHashMap<>();
-
+		
 		for (En en1 : Util.alphabetical(ens)) {
 			List<String> l = new LinkedList<>();
 			List<Chc<Fk, Att>> k = new LinkedList<>();
-			l.add(tick + idCol + tick + " " + idTy  + " primary key" );
+			if (idCol != null) {
+				l.add(tick + idCol + tick + " " + idTy  + " primary key" );
+			}
 			List<String> f = new LinkedList<>();
 			for (Fk fk1 : fksFrom(en1)) {
+			
 				l.add(tick + truncate(Chc.inLeft(fk1), truncate) + tick + " " + idTy + " not null ");
 				k.add(Chc.inLeft(fk1));
 			//	f.add("alter table " + tick + prefix + truncate(en1, truncate) + tick + " add constraint " + tick
@@ -570,7 +573,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 			// System.out.println(str);
 			// System.out.println(isoC1);
 			List<String> q = new LinkedList<>();
-			// q.add("drop table if exists " + prefix + en1 + ";");
+			q.add("drop table if exists " + prefix + en1 + ";");
 			q.add(str);
 			sqlSrcSchs.put(en1, new Triple<>(k, q, f));
 		}

@@ -65,7 +65,7 @@ public final class AqlOptions {
     sql_constraints_simple, e_use_auto, is_oracle,
     quotient_use_chase, chase_style, allow_empty_sorts_unsafe, program_allow_nonconfluence_unsafe, active_domain,
     gui_sample, gui_sample_size, import_dont_check_closure_unsafe, js_env_name, interpret_as_algebra,
-    csv_field_delim_char, csv_escape_char, csv_quote_char, csv_file_extension, csv_generate_ids, csv_emit_ids,
+    csv_field_delim_char, csv_escape_char, csv_quote_char, csv_file_extension, csv_generate_ids, emit_ids,
     id_column_name, always_reload, varchar_length, gui_max_table_size, gui_max_graph_size, gui_max_string_size,
     gui_rows_to_display, gui_show_atts, random_seed, num_threads, eval_max_temp_size, eval_reorder_joins,
     eval_max_plan_depth, eval_join_selectivity, eval_use_indices, eval_use_sql_above, eval_approx_sql_unsafe,
@@ -269,7 +269,7 @@ public final class AqlOptions {
     /* END CLOSED SOURCE */
     case allow_empty_sorts_unsafe -> false;
     case chase_style -> "parallel";
-    case csv_emit_ids -> true;
+    case emit_ids -> true;
     case e_path -> "/usr/local/bin/eprover";
     case vampire_path -> "/usr/local/bin/vampire";
     case completion_unfailing -> true;
@@ -400,7 +400,7 @@ public final class AqlOptions {
     /* END CLOSED SOURCE */
     case allow_empty_sorts_unsafe -> op.getBoolean(map);
     case chase_style -> op.getString(map);
-    case csv_emit_ids -> op.getBoolean(map);
+    case emit_ids -> op.getBoolean(map);
     case e_path -> op.getString(map);
     case vampire_path -> op.getString(map);
     case completion_unfailing -> op.getBoolean(map);
