@@ -694,11 +694,13 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		}
 
 	//	System.out.println("!!!");
-	//	System.out.println(fks);
-	//	System.out.println("@@@");
 		
 		for (Fk2 fk2 : fks.keySet()) {
-			Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>> www = new THashMap<>(sks.get(fk2));
+			
+			Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>> www = new THashMap<>();
+			if (sks.containsKey(fk2)) { www.putAll(sks.get(fk2)); }
+		
+			
 			for (String v : params.keySet()) {
 				www.put(v, Term.Sk(v));
 			}

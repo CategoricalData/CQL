@@ -25,7 +25,7 @@ public final class Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements S
 		if (s.equals("*")) return "times";
 		if (s.equals("-")) return "minus";
 		if (s.equals("/")) return "divide";		
-		
+		if (s.length()==0) return "";
 		s = s.replaceAll("[^a-zA-Z0-9]", "");
 		if (!Character.isAlphabetic(s.charAt(0)))
 			s = ("cql" + s);
