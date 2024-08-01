@@ -82,7 +82,7 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 				List<Chc<Fk, Att>> header = headerFor(en);
 				List<String> hdrQ = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
 				List<String> hdr = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
-				System.out.println("Emit ids " + emitIds);
+		//		System.out.println("Emit ids " + emitIds);
 				if (emitIds) {
 					hdr.add(tick + idCol + tick);
 					hdrQ.add("?");
@@ -97,10 +97,10 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 					}
 				}
 				for (X x : I.algebra().en(en)) {
-					System.out.println("store ");
+				//	System.out.println("store ");
 					I.algebra().storeMyRecord(emitIds, hdrQ, hdr, II, conn, x, header, en, prefix, tick, false);
 				}
-				System.out.println("--");
+			//	System.out.println("--");
 
 			}
 			// Statement stmt = conn.createStatement();

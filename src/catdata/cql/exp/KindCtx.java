@@ -298,6 +298,15 @@ public class KindCtx<V, G, T, S, I, H, F, Q, P, C, SC, ED, AT, AI, AM, ASch, AMa
       return false;
     return true;
   }
+
+@Override
+public String toString() {
+	return "KindCtx [gs=" + gs + ", tys=" + tys + ", schs=" + schs + ", insts=" + insts + ", trans=" + trans + ", maps="
+			+ maps + ", qs=" + qs + ", ps=" + ps + ", cs=" + cs + ", scs=" + scs + ", eds=" + eds + ", tms=" + tms
+			+ ", apgts=" + apgts + ", apgis=" + apgis + ", apgms=" + apgms + ", apgschemas=" + apgschemas
+			+ ", apgmappings=" + apgmappings + "]";
+}
+  
   
   
 }

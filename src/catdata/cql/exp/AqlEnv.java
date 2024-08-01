@@ -58,4 +58,9 @@ public final class AqlEnv {
     return (Semantics) defs.get(s, k);
   }
 
+  @Override
+  public String toString() {
+	return defs.toString();  
+  }
+  
 }

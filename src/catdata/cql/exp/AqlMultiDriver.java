@@ -251,6 +251,8 @@ public final class AqlMultiDriver implements Callable<Unit> {
 		env.fd = (f2 - f);
 		env.md = (m2 - m);
 		env.ud = (u2 - u);
+
+///	  System.out.println(env);
 	}
 
 	private boolean isEnded() {

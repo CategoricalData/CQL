@@ -688,7 +688,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 		}
 		sb.append(")");
 		String insertSQL = sb.toString();
-		System.out.println(insertSQL);
+	//	System.out.println(insertSQL);
 		PreparedStatement ps = conn2.prepareStatement(insertSQL);
 
 		if (emitIds) {

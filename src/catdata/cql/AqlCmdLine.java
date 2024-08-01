@@ -28,16 +28,26 @@ class AqlCmdLine {
       AqlEnv env = new AqlEnv(program);
       env.typing = new AqlTyping(program, false);
       AqlMultiDriver d = new AqlMultiDriver(program, env);
+      
+      
       d.start();
+      
+      if (env.exn != null)	{
+    	  env.exn.printStackTrace();
+    	  return env.exn.getMessage();
+      }
+      
+      env = d.env;
+
       
       String html = "";
       for (String n : program.order) {
         Exp<?> exp = program.exps.get(n);
         Object val = env.get(exp.kind(), n);
         if (val == null) {
-          html += exp.kind() + " " + n + " = no result for " + n;
+          html += exp.kind() + " " + n + " = no result for " + n + "\n\n";
         } else {
-          html += exp.kind() + " " + n + " = " + val + "\n\n";
+          html += exp.kind() + " " + n + " ok\n";
         }
       }
       return html.trim();
