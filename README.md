@@ -32,11 +32,10 @@ License
 
 ### Categorical Data IDE
 
-AGPL 3 license for non-commercial use; contact us for commercial licenses.
-
 Copyright (c) 2015+ Conexus AI, Inc.  All rights reserved.
 
-https://www.gnu.org/licenses/agpl-3.0.en.html
+BSD 3 license for non-commercial use and exploratory/evaluative commercial use; contact us for other licenses.
+https://opensource.org/license/bsd-3-clause
 
 Contains binary distributions of
 
