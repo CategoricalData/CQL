@@ -222,7 +222,10 @@ public class ToJdbcPragmaQuery<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> extends 
 			} else {
 				newRhs = eq.second.toStringSql(Q.src, tick, truncate);
 			}
-		
+			
+			if (!newLhs.equals(newRhs)) {
+				temp.add(newLhs + " = " + newRhs);
+			}
 		}
 		toString2 += Util.sep(temp, " and ");
 		return temp.isEmpty() ? "" : toString2;

@@ -21,6 +21,7 @@ import catdata.cql.AqlOptions;
 import catdata.cql.Eq;
 import catdata.cql.Frozen;
 import catdata.cql.Instance;
+import catdata.cql.It.ID;
 import catdata.cql.Kind;
 import catdata.cql.Query;
 import catdata.cql.Term;
@@ -133,6 +134,8 @@ public final class QueryExpRext extends QueryExp {
 
 	}
 
+	static int iii = 100;
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Query<String, String, Sym, Fk, Att, String, Fk, Att> doRext(AqlOptions ops,
 			Query<String, String, Sym, Fk, Att, String, Fk, Att> qAB,
@@ -146,18 +149,23 @@ public final class QueryExpRext extends QueryExp {
 		Map<String, TObjectIntMap> j = new HashMap<>();
 		Map<String, TObjectIntMap> j2 = new HashMap<>();
 
-		int i = 100;
+		int i = iii;
 		for (String cen : qAC.dst.ens) {
 			Frozen aInst = qAC.ens.get(cen);
+			// System.out.println(aInst);
+			// aInst.validateMore();
+			// System.out.println(" - ");
+//			System.out.println(qAB);
 			EvalInstance bInst = new EvalInstance(qAB, aInst, ops);
+
 			LinkedHashMap<String, Chc<String, String>> m = new LinkedHashMap<>();
 
 			var p = bInst.algebra().intifyX(i);
-			i += bInst.size(); //move to guids
+			i += bInst.size(); // move to guids
 			var q = bInst.algebra().intifyY(i);
 			i += bInst.algebra().talg().sks.size();
+			iii = i + 1;
 
-			
 			bInst.gens().forEach((g, t) -> {
 				m.put("gen" + Integer.toString(((TObjectIntMap) p.first).get(g)), inLeft((String) t));
 			});
@@ -181,21 +189,32 @@ public final class QueryExpRext extends QueryExp {
 			j.put(cen, (TObjectIntMap) p.first);
 			j2.put(cen, (TObjectIntMap) q.first);
 
+			// System.out.println(bInst);
+
 			for (Att batt : qAC.dst.attsFrom(cen)) {
-				 
-				 Transform t = qAC.att(batt);
-				 Term v = t.trans(Term.Sk("_y_"));
-				
+
+				var t = qAC.att(batt);
+
+				EvalTransform<String, String, Sym, Fk, Att, String, String, String, Fk, Att, String, String, ID, Chc<String, Pair<ID, Att>>, ID, Chc<String, Pair<ID, Att>>> tX = new EvalTransform<>(
+						qAB, t, ops);
+
+				Term v = tX.trans(Term.Sk(Chc.inLeft(("_y_"))));
+
+				// tX.trans(v)
+
 				// System.out.println("^^ " + v);
 				// h.dst().algebra().intoY(h.reprT(sk1)).convert();
-				// Term t2 = cInst.algebra().intoY(t).convert();
+				// Term t2 = bInst.reprT(v);
+				// System.out.println("^^t2 " + t2);
+				// System.out.println("^^x " + p.first);
+				// System.out.println("^^y " + q.first);
 
-				 Term t3 = v.mapGenSk(k -> "gen" + Integer.toString(((TObjectIntMap)
-				 p.first).get(k)), k -> "sk" + Integer.toString(((TObjectIntMap) q.first).get(k)));
-			
-				 //System.out.println("^x^ " + t3);
-					
-				 atts.put(batt, Chc.inLeft(t3));
+				Term t3 = v.mapGenSk(k -> "gen" + Integer.toString(((TObjectIntMap) p.first).get(k)),
+						k -> "sk" + Integer.toString(((TObjectIntMap) q.first).get(k)));
+
+				// System.out.println("^x^ " + t3);
+
+				atts.put(batt, Chc.inLeft(t3));
 			}
 
 		}
@@ -213,11 +232,11 @@ public final class QueryExpRext extends QueryExp {
 				m.put(xxx, Term.Gen(yyy));
 			});
 			h.src().sks().forEach((g, e) -> {
-				//chc vs string
+				// chc vs string
 				Integer jjj = (Integer) j2.get(bfk.getValue().second).get(g);
 				Term jhj = h.reprT(g);
-				Term hh =  jhj.mapGenSk(k -> "gen" +  
-						Integer.toString(j.get(bfk.getValue().first).get(k)), k -> "sk" + Integer.toString(j2.get(bfk.getValue().first).get(k)));
+				Term hh = jhj.mapGenSk(k -> "gen" + Integer.toString(j.get(bfk.getValue().first).get(k)),
+						k -> "sk" + Integer.toString(j2.get(bfk.getValue().first).get(k)));
 				n.put("sk" + Integer.toString(jjj), hh);
 			});
 
@@ -227,14 +246,14 @@ public final class QueryExpRext extends QueryExp {
 			// new LiteralTransform((g,e)->m.get(g),(s,t)->n.get(s),
 			// ens.get(bfk.getValue().second), ens.get(bfk.getValue().second), false);
 		}
-		
-	//	System.out.println("AA" + ens);
+
+//		System.out.println("AA" + ens);
 //		System.out.println(atts);
 //		System.out.println("XX" + fks);
 //		System.out.println("YY" + sks);
+
+//		System.out.println("j" + j);
 //		System.out.println("j2" + j2);
-		
-		
 
 		return Query.makeQuery(ens, atts, fks, sks, qAB.dst, qAC.dst, ops);
 	}

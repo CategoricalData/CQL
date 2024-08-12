@@ -158,28 +158,28 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 	private static Map<String, String> jps() {
 		Map<String, String> m = (new THashMap<>(32));
 
-		final String ID = "x => java.util.Optional.of(x)";
+		final String ID = "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(x) } else { return java.util.Optional.none() } }";
 
 		m.put(("Longvarbinary"), ID); // TODO CQL
 		m.put(("Varbinary"), ID); // TODO CQL
 		m.put(("Binary"), ID); // TODO CQL
 		m.put(("Clob"), ID);
 		m.put(("Date"), ID); // java.sql.Date.valueOf(input[0])");
-		m.put(("Time"), "x => java.util.Optional.of(java.sql.Time.valueOf(x))");
-		m.put(("Timestamp"), "x => java.util.Optional.of(java.sql.Timestamp.valueOf(x))");
-		m.put(("Bigint"), "x => java.util.Optional.of(new java.lang.Long(x))");
-		m.put(("Boolean"), "x => java.util.Optional.of(new java.lang.Boolean(x))");
+		m.put(("Time"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(java.sql.Time.valueOf(x)) } else { java.util.Optional.none() } ");
+		m.put(("Timestamp"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(java.sql.Timestamp.valueOf(x)) } else { java.util.Optional.none() } ");
+		m.put(("Bigint"), " x => { if (!(x.toLowerCase() === \"null\" )) { return java.util.Optional.of(new java.lang.Long(x)) } else { return java.util.Optional.none() } ");
+		m.put(("Boolean"), "x => { if (!(x.toLowerCase() === \"null\" )) { return java.util.Optional.of(new java.lang.Boolean(x.toLowerCase())) } else { return java.util.Optional.none() } } ");
 		m.put(("Char"), ID); // TODO aql
-		m.put(("Bit"), "x => java.util.Optional.of(new java.lang.Boolean(x))");
-		m.put(("Double"), "x => java.util.Optional.of(new java.lang.Double(x))");
-		m.put(("Double precision"), "x => java.util.Optional.of(new java.lang.Double(x))");
-		m.put(("Numeric"), "x => java.util.Optional.of(new java.math.BigDecimal(x))");
-		m.put(("Decimal"), "x => java.util.Optional.of(new java.math.BigDecimal(x))");
-		m.put(("Real"), "x => java.util.Optional.of(new java.lang.Double(x))");
-		m.put(("Float"), "x => java.util.Optional.of(new java.lang.Double(x))");
-		m.put(("Integer"), "x => java.util.Optional.of(new java.lang.Integer(x))");
-		m.put(("Tinyint"), "x => java.util.Optional.of(new java.lang.Integer(x))");
-		m.put(("Smallint"), "x => java.util.Optional.of(new java.lang.Integer(x))");
+		m.put(("Bit"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Boolean(x)) } else { return java.util.Optional.none() } ");
+		m.put(("Double"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Double(x)) } else { java.util.Optional.none() } ");
+		m.put(("Double precision"), " x => { if ( (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Double(x)) } else { return java.util.Optional.none() } ");
+		m.put(("Numeric"), "x => { if (!(x.toLowerCase() === \"null\") { return java.util.Optional.of(new java.math.BigDecimal(x))} else { java.util.Optional.none() }");
+		m.put(("Decimal"), "x => { if (!(x.toLowerCase() === \"null\") { return java.util.Optional.of(new java.math.BigDecimal(x))} else { java.util.Optional.none() }");
+		m.put(("Real"), "x => { if (!(x.toLowerCase() === \"null\") { return java.util.Optional.of(new java.lang.Double(x))} else { java.util.Optional.none() }");
+		m.put(("Float"), "x => { if (!(x.toLowerCase() === \"null\") { return  java.util.Optional.of(new java.lang.Double(x))} else { java.util.Optional.none()}");
+		m.put(("Integer"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Integer(x)) } else { return java.util.Optional.none() } }");
+		m.put(("Tinyint"), "x => { if (!(x.toLowerCase( )=== \"null\") { return java.util.Optional.of(new java.lang.Integer(x))} else { java.util.Optional.none() }");
+		m.put(("Smallint"), "x => { if (!(x.toLowerCase() ===\"null\") { return java.util.Optional.of(new java.lang.Integer(x))} else { java.util.Optional.none() }");
 		m.put(("Text"), ID);
 		m.put(("String"), ID);
 		m.put(("Nvarchar"), ID);
@@ -309,8 +309,8 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 		Map<Sym, String> m = Util.mk();
 
 		// makes it easier than writing true@bool everywhere
-		m.put(t, "x => java.util.Optional.of(true)");
-		m.put(f, "x => java.util.Optional.of(false)");
+	//	m.put(t, "x => java.util.Optional.of(true)");
+//		m.put(f, "x => java.util.Optional.of(false)");
 		m.put(Sym.Sym("not", new Pair<>(Collections.singletonList("Boolean"), "Boolean")),
 				"Java.type('catdata.cql.SqlTypeSide').not");
 		m.put(Sym.Sym("and", new Pair<>(Util.list("Boolean", "Boolean"), "Boolean")),
@@ -320,7 +320,7 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 				"Java.type('catdata.cql.SqlTypeSide').isFalse");
 		
 		for (String k : jps().keySet()) {
-			m.put(Sym.Sym("null", new Pair<>(Collections.emptyList(), k)), "Java.type('java.util.Optional').empty");
+		//	m.put(Sym.Sym("null", new Pair<>(Collections.emptyList(), k)), "Java.type('java.util.Optional').empty");
 			m.put(Sym.Sym("eq", new Pair<>(Util.list(k, k), "Boolean")), "Java.type('catdata.cql.SqlTypeSide').eq");
 			m.put(Sym.Sym("isNull", new Pair<>(Collections.singletonList(k), "Boolean")),
 					"Java.type('catdata.cql.SqlTypeSide').isNull");
@@ -394,8 +394,8 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 
 	public static Map<Sym, Pair<List<String>, String>> syms() {
 		Map<Sym, Pair<List<String>, String>> m = Util.mk();
-		m.put(t, boolSort);
-		m.put(f, boolSort);
+	//	m.put(t, boolSort);
+//		m.put(f, boolSort);
 		m.put(Sym.Sym("not", new Pair<>(Collections.singletonList("Boolean"), "Boolean")),
 				new Pair<>(Collections.singletonList("Boolean"), "Boolean"));
 		m.put(Sym.Sym("and", new Pair<>(Util.list("Boolean", "Boolean"), "Boolean")),
@@ -407,7 +407,7 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 
 		for (String k : jps().keySet()) {
 			Pair<List<String>, String> x = new Pair<>(Collections.emptyList(), k);
-			m.put(Sym.Sym("null", x), x);
+		//	m.put(Sym.Sym("null", x), x);
 			m.put(Sym.Sym("eq", new Pair<>(Util.list(k, k), "Boolean")), new Pair<>(Util.list(k, k), "Boolean"));
 			m.put(Sym.Sym("isNull", new Pair<>(Collections.singletonList(k), "Boolean")),
 					new Pair<>(Collections.singletonList(k), "Boolean"));

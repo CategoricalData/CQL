@@ -478,6 +478,13 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk> implements KBExp<Head<Ty,
 		} else if (sk() != null) {
 			return sk().toString();
 		} else if (obj() != null) {
+			if (obj() instanceof Optional) {
+				Optional<?> o = (Optional<?>) obj();
+				if (o.isPresent()) {
+					return "'" + o.get().toString() + "'";
+				}
+				return ""; // TODO mark
+			}
 			return obj().toString(); // + "@" + ty;
 		}
 		throw new RuntimeException("Anomaly: please report " + this);

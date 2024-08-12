@@ -553,16 +553,16 @@ public class TypeSide<Ty, Sym> implements Semantics {
     }
 
     if (!js.java_tys.isEmpty()) {
-      toString += "\njava_types";
+      toString += "\nexternal_types";
       toString += "\n\t" + Util.sep(tys0, js.java_tys, " = ", "\n\t", true, Object::toString, Object::toString);
     }
 
     if (!js.java_parsers.isEmpty()) {
-      toString += "\njava_constants";
+      toString += "\nexternal_constants";
       toString += "\n\t" + Util.sep(tys0, js.java_parsers, " = ", "\n\t", true, Object::toString, Object::toString);
     }
     if (!js.java_fns.isEmpty()) {
-      toString += "\njava_functions";
+      toString += "\nexternal_functions";
       toString += "\n\t" + Util.sep(syms0, js.java_fns, " = ", "\n\t", true, Object::toString, Object::toString);
     }
 
