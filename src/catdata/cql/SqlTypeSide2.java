@@ -29,7 +29,6 @@ public class SqlTypeSide2<Ty> {
   public static final SqlTypeSide2<String> FOR_TY = new SqlTypeSide2<>(ty -> ty, ("boolean"));
 
   /* START CLOSED SOURCE */
- // public static final SqlTypeSide2<SqlType> FOR_SQL_TYPE = new SqlTypeSide2<>(SqlType::toCql, SqlType.BOOLEAN);
   /* END CLOSED SOURCE */
 
   public synchronized TypeSide<Ty, Sym> make(TypeSide<Ty, Sym> parent, AqlOptions ops) {

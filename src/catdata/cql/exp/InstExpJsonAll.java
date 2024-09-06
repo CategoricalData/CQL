@@ -98,7 +98,7 @@ public class InstExpJsonAll extends InstExp<String, Null<?>, String, Null<?>> {
 
   @Override
   public SchExp type(AqlTyping G) {
-    return InstExpRdfAll.makeSch();
+    return new SchExpRdf(); //InstExpRdfAll.makeSch();
   }
 
   @Override

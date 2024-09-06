@@ -97,7 +97,7 @@ public class InstExpXmlAll extends InstExp<String, Null<?>, String, Null<?>> {
 
   @Override
   public SchExp type(AqlTyping G) {
-    return new SchExpInst<>(this);
+    return new SchExpRdf(); //new SchExpInst<>(this);
   }
 
   @Override

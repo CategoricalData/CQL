@@ -169,7 +169,7 @@ public class TypeSide<Ty, Sym> implements Semantics {
     return col;
   }
 */
-  final AqlOptions strat;
+  public final AqlOptions strat;
 
   public TypeSide(Set<Ty> tys, Map<Sym, Pair<List<Ty>, Ty>> syms,
       Set<Triple<Map<String, Ty>, Term<Ty, Void, Sym, Void, Void, Void, Void>, Term<Ty, Void, Sym, Void, Void, Void, Void>>> eqs,
