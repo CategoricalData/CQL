@@ -60,15 +60,17 @@ public class QueryExpFromInst extends QueryExp {
 	@Override
 	protected Query<String, String, Sym, Fk, Att, String, Fk, Att> eval0(AqlEnv env, boolean isCompileTime) {
 		Instance i = (Instance) I.eval(env, isCompileTime);
+		
+//		Pair p = i.algebra().intifyX(0);
 
 		Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> m
 		 = new HashMap<>();
 		LinkedHashMap<String, Chc<String, String>> gens = new LinkedHashMap<>();
 		List<Eq<String, String, Sym, Fk, Att, String, String>> eqs = new LinkedList<>();
 		
-		i.gens().forEach((g,t)->{gens.put((String)g, Chc.inLeft((String)t));});
-		i.sks().forEach((g,t)->{gens.put((String)g, Chc.inRight((String)t));});
-		i.eqs((l,r)->{eqs.add(new Eq(Collections.emptyMap(),(Term)l,(Term)r));});
+		i.gens().forEach((g,t)->{gens.put(g.toString(), Chc.inLeft(t.toString()));});
+		i.sks().forEach((g,t)->{gens.put(g.toString(), Chc.inRight(t.toString()));});
+		i.eqs((l,r)->{eqs.add(new Eq(Collections.emptyMap(),((Term)l).mapGenSk(e->e.toString(),e->e.toString()),((Term)r).mapGenSk(e->e.toString(),e->e.toString())));});
 		
 		m.put("", new Triple<>(gens, eqs, env.defaults));
 		

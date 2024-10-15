@@ -34,5 +34,7 @@ public interface QueryExpCoVisitor<R, P, E extends Exception> {
   public QueryExpRext visitQueryExpRext(P params, R exp) throws E;
   
   public QueryExpFromInst visitQueryExpFromInst(P params, R exp) throws E;
+  
+  public QueryExpChase visitQueryExpChase(P params, R exp) throws E;
 
 }

@@ -642,10 +642,12 @@ public class CombinatorParser implements IAqlParser {
 
 
 				comp = Parsers.tuple(token("["), trans_ref.lazy(), token(";"), trans_ref.lazy(), token("]"))
-						.map(x -> new TransExpCompose(x.b, x.d));
+						.map(x -> new TransExpCompose(x.b, x.d)),
+		
+				subseteq = Parsers.tuple(token("subseteq"), query_ref.lazy(), query_ref.lazy()).map(x -> new TransExpSubseteq(x.b, x.c));
 
 		Parser ret = Parsers.or(id, id1, transExpRaw(), var, sigma, skolem, delta, unit, counit, distinct, eval, coeval,
-				transExpCsv(), pi, distinct_return, frozen, except2, unitq, except, counitq, transExpJdbc(), comp,
+				transExpCsv(), pi, distinct_return, frozen, except2, unitq, except, counitq, transExpJdbc(), comp, subseteq,
 				chase_return, parens(trans_ref));
 
 		trans_ref.set(ret);
@@ -1499,9 +1501,15 @@ public class CombinatorParser implements IAqlParser {
 						.map(x -> new QueryExpId(x.b, x.c)),
 				fromConstraints = Parsers.tuple(token("fromConstraints"), ident, eds_ref.lazy())
 						.map(x -> new QueryExpFromEds(x.c, Integer.parseInt(x.b))),
+						
+				chase = Parsers.tuple(token("chase"), eds_ref.lazy(), query_ref.lazy())
+				.map(x -> new QueryExpChase(x.c,x.b)),
+				
+				refl = Parsers.tuple(token("reformulate"), eds_ref.lazy(), query_ref.lazy(), sch_ref.lazy(), ident)
+				.map(x -> new QueryExpReformulate(x.c,x.b,x.d, x.e)),
 
 				ret = Parsers.or(id, fi, id2, rext, sm, fromCoSpan, spanify, front, back, fromConstraints, queryExpRaw(),
-						queryExpRawSimple(), var, deltaQueryEval, delta, deltaQueryCoEval, comp, parens(query_ref));
+						queryExpRawSimple(), var, deltaQueryEval, delta, deltaQueryCoEval, comp, chase, refl, parens(query_ref));
 
 		query_ref.set(ret);
 	}

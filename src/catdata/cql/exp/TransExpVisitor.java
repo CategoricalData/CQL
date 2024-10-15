@@ -59,4 +59,6 @@ public interface TransExpVisitor<R, P, E extends Exception> {
 
 	public <Gen, Sk, X, Y> R visit(P params, TransExpSkolem<Gen, Sk, X, Y> transExpSkolem);
 
+	public R visit(P params, TransExpSubseteq transExpSubseteq);
+
 }

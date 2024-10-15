@@ -60,6 +60,10 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
 	public R visit(P params, QueryExpFromInst queryExpFromInst) throws E;
 
 	public R visit(P params, QueryExpRext queryExpRext) throws E;
+
+	public R visit(P params, QueryExpChase queryExpChase)throws E;
+
+	public R visit(P params, QueryExpReformulate queryExpReFormulate) throws E; 
 	
   }
 

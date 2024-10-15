@@ -2485,4 +2485,23 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 		
 		return new EdsExpLearn(i, j);
 	}
+
+	@Override
+	public QueryExpChase visitQueryExpChase(Unit params, AqlTyping exp) throws RuntimeException {
+		SchExp s1 = new SchExpVar("s1");
+		SchExp s2 = new SchExpVar("s2");
+		TyExp t = new TyExpVar("t");
+		QueryExp q = new QueryExpVar("q");
+		exp.defs.schs.put("s1", t);
+		exp.defs.schs.put("s2", t);
+		
+		exp.defs.tys.put("t", Unit.unit);
+		exp.defs.qs.put("q", new Pair<>(s1,s2));
+		exp.defs.eds.put("c", s1);
+		exp.prog.exps.put("s1", new SchExpEmpty(t));
+		exp.prog.exps.put("s2", new SchExpEmpty(t));
+		exp.prog.exps.put("t", new TyExpEmpty());
+		EdsExpVar c = new EdsExpVar("c");
+		return new QueryExpChase(q, c);
+	}
 }

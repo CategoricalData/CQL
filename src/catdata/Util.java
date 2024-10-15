@@ -41,6 +41,7 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import com.google.common.collect.Iterators;
 
+
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -871,6 +872,7 @@ public class Util {
 		return new Pair<>(x -> x, o);
 	}
 
+
 	public static <X> List<List<X>> prod(List<Set<X>> in1) {
 		List<List<X>> y = new TreeList<>();
 		y.add(new LinkedList<>());
@@ -889,6 +891,8 @@ public class Util {
 
 		return y;
 	}
+	
+	
 
 	public static <X> List<X> reverse(List<X> l) {
 		List<X> ret = new ArrayList<>(l);
@@ -1495,6 +1499,16 @@ public class Util {
 		boolean b = pre.get().indexOf(s.get()) != -1 || s.get().indexOf(pre.get()) != -1;
 		//System.out.println("On " + pre + " and " + s + " is " + b);
 		return Optional.of(b);
+	}
+
+	public static <X,Y> Pair<List<X>,List<Y>> unzip(List<Pair<X,Y>> l) {
+		List<X> x = new LinkedList<>();
+		List<Y> y = new LinkedList<>();
+		for (Pair<X,Y> p : l) {
+			x.add(p.first);
+			y.add(p.second);
+		}
+		return new Pair<>(x,y);
 	}
 
 }

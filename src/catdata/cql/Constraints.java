@@ -11,9 +11,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Program;
@@ -24,11 +21,11 @@ import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
 import catdata.cql.fdm.ColimitInstance;
+import catdata.cql.fdm.ComposeTransform;
 import catdata.cql.fdm.EvalInstance;
 import catdata.cql.fdm.IdentityTransform;
 import catdata.cql.fdm.LiteralTransform;
 import catdata.cql.fdm.Row;
-import catdata.cql.gui.CqlViewer;
 import catdata.graph.DMG;
 import catdata.provers.KBTheory;
 import gnu.trove.map.hash.THashMap;
@@ -180,7 +177,9 @@ public class Constraints implements Semantics {
 		//	ret2.validateMore();
 
 			ret = ret2;
-			t = x.second;
+			t = new ComposeTransform<>(t, x.second);
+			
+			t.validate(false);
 		}
 		
 		
@@ -202,8 +201,10 @@ public class Constraints implements Semantics {
 		};
 		int i = 0;
 		for (ED ed : eds) {
+		//	System.out.println("On " + ed);
 			i++;
 			if (frontIsEmpty(ed, I)) {
+	//			System.out.println("front is empty");
 				continue;
 			}
 			Query<String, String, Sym, Fk, Att, String, Fk, Att> Q = ed.getQ(schema);
@@ -216,10 +217,12 @@ public class Constraints implements Semantics {
 
 					Row<String, Chc<X, Term<String, String, Sym, Fk, Att, Gen, Sk>>, Chc<String, String>> aa = QI.algebra()
 							.fk(ED.UNIT, a);
+//					System.out.println("consider " + aa);
 					if (aa.rowEquals(fn, e)) {
 						continue outer;
 					}
 				}
+		//		System.out.println("add");
 				T.add(new Pair<>(i - 1, e));
 			}
 		}
@@ -230,6 +233,7 @@ public class Constraints implements Semantics {
 		for (Chc<String, String> x : ed.As.values()) {
 			if (!x.left) {
 				if (I.algebra().size(x.r) == 0) {
+				//	System.out.println("Size of " + x.r + " in " + I.size() + " total");
 					return true;
 				}
 			}
