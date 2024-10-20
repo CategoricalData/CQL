@@ -298,8 +298,10 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 	}
 
 	public static Pair<List<String>, String> boolSort = new Pair<>(Collections.emptyList(), "Boolean");
-	public static Sym t = Sym.Sym("true", boolSort);
-	public static Sym f = Sym.Sym("false", boolSort);
+	
+	//todo: change to obj
+	public static Term<String, Void, Sym, Void, Void, Void, Void> t = Term.Obj(Optional.of(true), "Boolean"); 
+	public static Term<String, Void, Sym, Void, Void, Void, Void> f = Term.Obj(Optional.of(false), "Boolean");
 	public static Sym n = Sym.Sym("null", boolSort);
 
 	public static Pair<List<String>, String> boolSort1 = new Pair<>(Collections.singletonList("Boolean"), "Boolean");
@@ -490,8 +492,8 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 		String x = ("x");
 		String y = ("y");
 		String z = ("z");
-		Term<String, String, Sym, Fk, Att, Void, Void> t = Term.Sym(SqlTypeSide.t, Collections.emptyList());
-		Term<String, String, Sym, Fk, Att, Void, Void> f = Term.Sym(SqlTypeSide.f, Collections.emptyList());
+		Term<String, String, Sym, Fk, Att, Void, Void> t = SqlTypeSide.t.convert();
+		Term<String, String, Sym, Fk, Att, Void, Void> f = SqlTypeSide.f.convert();
 
 		List<Term<String, String, Sym, Fk, Att, Void, Void>> lxx = new ArrayList<>(2);
 		lxx.add(Term.Var(x));

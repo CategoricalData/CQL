@@ -193,9 +193,9 @@ public class SkolemInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 					}
 					Optional<Object> o = (Optional<Object>) ret.obj();
 					if (o.isPresent()) {
-						return Term.Sym(SqlTypeSide.f, Collections.EMPTY_LIST);
+						return SqlTypeSide.f.convert();
 					} else {
-						return Term.Sym(SqlTypeSide.t, Collections.EMPTY_LIST);
+						return SqlTypeSide.t.convert();
 					}
 				} else if (l.get(0).att() != null) {
 					X x = algebra().intoX(l.get(0).arg); 
@@ -207,9 +207,9 @@ public class SkolemInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 					}
 					Optional<Object> o = (Optional<Object>) ret.obj();
 					if (o.isPresent()) {
-						return Term.Sym(SqlTypeSide.f, Collections.EMPTY_LIST);
+						return SqlTypeSide.f.convert();
 					} else {
-						return Term.Sym(SqlTypeSide.t, Collections.EMPTY_LIST);
+						return SqlTypeSide.t.convert();
 					}					
 				}
 			} else {
@@ -237,10 +237,10 @@ public class SkolemInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
 					if (o.isPresent()) {
 						eqs.add(new Pair<>(lhs, Term.Obj(v.obj(),v.ty())));						
-						eqs.add(new Pair(Term.Sym((Sym)lhs2, Collections.singletonList(lhs)), Term.Sym(SqlTypeSide.f, Collections.EMPTY_LIST)));
+						eqs.add(new Pair(Term.Sym((Sym)lhs2, Collections.singletonList(lhs)), SqlTypeSide.f));
 						//TODO: add isNull action
 					} else {
-						eqs.add(new Pair(Term.Sym((Sym)lhs2, Collections.singletonList(lhs)), Term.Sym(SqlTypeSide.t, Collections.EMPTY_LIST)));
+						eqs.add(new Pair(Term.Sym((Sym)lhs2, Collections.singletonList(lhs)), SqlTypeSide.t));
 					}
 				}
 			}

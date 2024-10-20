@@ -155,17 +155,19 @@ public class SchExpJdbcAll extends SchExp {
 			SqlSchema info = new SqlSchema(conn.getMetaData(), tick);
 			for (SqlTable table : info.tables) {
 				if (table.name.first != null && (table.name.first.toLowerCase().equals("system") || table.name.first.toLowerCase().equals("sys")
-						|| table.name.first.toLowerCase().equals("ctxsys")
+						|| table.name.first.toLowerCase().equals("ctxsys") || table.name.first.toLowerCase().equals("mdsys")
 						|| table.name.first.toLowerCase().equals("xdb"))) {
 					continue; // ignore system tables
 				}
 				String x = (table.name.second);
-				if (table.name.first != null) {
-					x = (table.name.first + "." + table.name.second);
-				}
-				if (table.name.first != null && table.name.first.toLowerCase().equals("dbo")) {
-					x = table.name.second;
-				}
+					if (oracleSchMode) {
+						x = table.name.second;
+					} else if  (table.name.first != null && table.name.first.toLowerCase().equals("dbo")) {
+						x = table.name.second;
+					} else if (table.name.first != null) {
+						x = (table.name.first + "." + table.name.second);
+				} 
+				
 			//	if (oracleSchMode) {
 			//		x = x.toLowerCase();
 			//	}

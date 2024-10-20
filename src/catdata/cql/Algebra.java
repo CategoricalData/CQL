@@ -712,7 +712,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 	}
 
 	
-	private Map<Y, Integer> forSql = new HashMap<>();
+	//private Map<Y, Integer> forSql = new HashMap<>();
 	private Object fromTerm(int sqlty, Term<Ty, Void, Sym, Void, Void, Void, Y> term) {
 		if (term.obj() != null) {
 			Optional<?> o = (Optional<?>) term.obj();
@@ -720,7 +720,8 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 				return o.get();
 			}
 		}
-		if (sqlty == Types.VARCHAR || sqlty == Types.LONGVARCHAR || sqlty == Types.NVARCHAR) {
+	//	System.out.println("ret null");
+		/*	if (sqlty == Types.VARCHAR || sqlty == Types.LONGVARCHAR || sqlty == Types.NVARCHAR) {
 			if (term.sk() != null) {
 				if (forSql.containsKey(term.sk())) {
 					return "?" + forSql.get(term.sk());
@@ -729,7 +730,7 @@ public abstract class Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> /* implements
 					return "?" + forSql.get(term.sk());
 				}
 			}
-		}
+		} */
 		return null;
 	}
 

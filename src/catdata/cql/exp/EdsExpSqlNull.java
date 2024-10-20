@@ -66,8 +66,8 @@ public final class EdsExpSqlNull extends EdsExp {
       String x = ("x");
       String y = ("y");
       String z = ("z");
-      Term<String, String, Sym, Fk, Att, Void, Void> t = Term.Sym(SqlTypeSide.t, Collections.emptyList());
-      Term<String, String, Sym, Fk, Att, Void, Void> f = Term.Sym(SqlTypeSide.f, Collections.emptyList());
+      Term<String, String, Sym, Fk, Att, Void, Void> t = SqlTypeSide.t.convert();
+      Term<String, String, Sym, Fk, Att, Void, Void> f = SqlTypeSide.f.convert();
 
       // Term<Ty, En, Sym, Fk, Att, Void, Void> u = Term.Sym(Sym.Sym("null_Boolean"),
       // Collections.emptyList());

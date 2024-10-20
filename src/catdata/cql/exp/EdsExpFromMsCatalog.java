@@ -384,7 +384,7 @@ public final class EdsExpFromMsCatalog extends EdsExp {
 					Term<String, String, Sym, Fk, Att, Void, Void> j = Term.Sym(Sym.Sym("eq",
 							new Pair<>(Util.list(atts.get(p.first).second, atts.get(p.first).second), SqlTypeSide.boolSort.second)),
 							Util.list(l, r));
-					ewh.add(new Pair<>(j, Term.Sym(SqlTypeSide.t, Collections.emptyList())));
+					ewh.add(new Pair<>(j, SqlTypeSide.t.convert()));
 				} else {
 					ewh.add(new Pair<>(l, r));			
 				}
@@ -413,7 +413,7 @@ public final class EdsExpFromMsCatalog extends EdsExp {
 		Term<String, String, Sym, Fk, Att, Void, Void> lhs = Term.Sym(
 				Sym.Sym("isNull", new Pair<>(Collections.singletonList(ty), "Boolean")),
 				Collections.singletonList(Term.Att(theAtt, Term.Var("v"))));
-		Term<String, String, Sym, Fk, Att, Void, Void> rhs = Term.Sym(SqlTypeSide.f, Collections.emptyList());
+		Term<String, String, Sym, Fk, Att, Void, Void> rhs = SqlTypeSide.f.convert();
 
 		var ed = new ED(Collections.singletonMap("v", Chc.inRight(theAtt.en)), Collections.emptyMap(), Collections.emptySet(),
 				Collections.singleton(new Pair<>(lhs, rhs)), false, env.defaults);
@@ -445,7 +445,7 @@ public final class EdsExpFromMsCatalog extends EdsExp {
 						Sym.Sym("eq",
 								new Pair<>(Util.list(atts.get(att).second, atts.get(att).second), SqlTypeSide.boolSort.second)),
 						Util.list(l, r));
-				awh.add(new Pair<>(j, Term.Sym(SqlTypeSide.t, Collections.emptyList())));
+				awh.add(new Pair<>(j, SqlTypeSide.t.convert()));
 			} else {
 				awh.add(new Pair<>(l, r));				
 			}

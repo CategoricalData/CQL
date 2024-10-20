@@ -39,7 +39,7 @@ public class SqlTypeSide2<Ty> {
         Collections.emptyMap(), ops);
   }
 
-  public static final Sym TRUE_SYM = SqlTypeSide.t, FALSE_SYM = SqlTypeSide.f,
+  public static final Sym /*TRUE_SYM = null , FALSE_SYM = null/*SqlTypeSide.f, */
       NOT_SYM = Sym.Sym("not", SqlTypeSide.boolSort1), IS_TRUE_SYM = Sym.Sym("isTrue", SqlTypeSide.boolSort1),
       IS_FALSE_SYM = Sym.Sym("isFalse", SqlTypeSide.boolSort1), AND_SYM = Sym.Sym("and", SqlTypeSide.boolSort2),
       OR_SYM = Sym.Sym("or", SqlTypeSide.boolSort2);
@@ -102,8 +102,8 @@ public class SqlTypeSide2<Ty> {
   private synchronized Map<Sym, Pair<List<Ty>, Ty>> syms(TypeSide<Ty, Sym> parent) {
     Map<Sym, Pair<List<Ty>, Ty>> m = Util.mk();
     m.putAll(parent.syms);
-    m.put(TRUE_SYM, new Pair<>(Collections.emptyList(), boolTy));
-    m.put(FALSE_SYM, new Pair<>(Collections.emptyList(), boolTy));
+  //  m.put(TRUE_SYM, new Pair<>(Collections.emptyList(), boolTy));
+  //  m.put(FALSE_SYM, new Pair<>(Collections.emptyList(), boolTy));
 
     List<Ty> x = Collections.synchronizedList(new ArrayList<>(1));
     x.add(boolTy);
@@ -137,8 +137,8 @@ public class SqlTypeSide2<Ty> {
     // null propagation
     // congruence for each symbol (EDs)
 
-    Term<Ty, Void, Sym, Void, Void, Void, Void> t = Term.Sym(TRUE_SYM, Collections.emptyList());
-    Term<Ty, Void, Sym, Void, Void, Void, Void> f = Term.Sym(FALSE_SYM, Collections.emptyList());
+    Term<Ty, Void, Sym, Void, Void, Void, Void> t =SqlTypeSide.t.convert(); // Term.Sym(TRUE_SYM, Collections.emptyList());
+    Term<Ty, Void, Sym, Void, Void, Void, Void> f = SqlTypeSide.f.convert(); //.Sym(FALSE_SYM, Collections.emptyList());
     Term<Ty, Void, Sym, Void, Void, Void, Void> u = Term.Sym(typedNull(boolTy), Collections.emptyList());
 
     ret.add(new Triple<>(Collections.emptyMap(), Term.Sym(NOT_SYM, Collections.singletonList(t)), f));

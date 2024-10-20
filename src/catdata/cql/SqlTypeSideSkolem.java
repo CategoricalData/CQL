@@ -478,8 +478,8 @@ public class SqlTypeSideSkolem extends TypeSide<String, Sym> {
 		String x = ("x");
 		String y = ("y");
 		String z = ("z");
-		Term<String, String, Sym, Fk, Att, Void, Void> t = Term.Sym(SqlTypeSide.t, Collections.emptyList());
-		Term<String, String, Sym, Fk, Att, Void, Void> f = Term.Sym(SqlTypeSide.f, Collections.emptyList());
+		Term<String, String, Sym, Fk, Att, Void, Void> t = SqlTypeSide.t.convert();
+		Term<String, String, Sym, Fk, Att, Void, Void> f = SqlTypeSide.f.convert();
 
 		List<Term<String, String, Sym, Fk, Att, Void, Void>> lxx = new ArrayList<>(2);
 		lxx.add(Term.Var(x));

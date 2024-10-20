@@ -97,7 +97,7 @@ public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends P
 					}
 				}
 				for (X x : I.algebra().en(en)) {
-				//	System.out.println("store ");
+					//System.out.println("store ");
 					I.algebra().storeMyRecord(emitIds, hdrQ, hdr, II, conn, x, header, en, prefix, tick, false);
 				}
 			//	System.out.println("--");
