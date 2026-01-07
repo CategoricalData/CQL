@@ -17,7 +17,7 @@ public class AqlJs<Ty, Sym> {
 	private final Map<Ty, String> iso1;
 	private final Map<Sym, String> iso2;
 
-	private final Map<Sym, Pair<List<Ty>, Ty>> syms;
+	public final Map<Sym, Pair<List<Ty>, Ty>> syms;
 	public final Map<Ty, String> java_tys;
 	public final Map<Ty, String> java_parsers;
 	public final Map<Sym, String> java_fns;

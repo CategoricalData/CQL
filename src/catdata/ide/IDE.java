@@ -137,7 +137,7 @@ public class IDE {
 //        JOptionPane.showMessageDialog(null, "Unrecoverable error, restart IDE: " + e.getMessage());
 			}
 		});
-
+/*
 		new Thread(() -> {
 			try {
 				URL u = new URL("https://www.categoricaldata.net/version.php");
@@ -147,6 +147,8 @@ public class IDE {
 				long newest = Long.parseLong(l.trim());
 
 				File jf = new File("cql.jar");
+				
+				/* 
 				if (jf.exists()) {
 					long current = jf.lastModified();
 					// System.out.println("cql.jar file modification date: " + new
@@ -168,7 +170,7 @@ public class IDE {
 				ex.printStackTrace();
 			}
 
-		}).start();
+		}).start(); */
 	}
 
 	{

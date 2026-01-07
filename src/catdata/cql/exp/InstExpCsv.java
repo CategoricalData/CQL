@@ -2,7 +2,6 @@ package catdata.cql.exp;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -36,8 +35,8 @@ import catdata.cql.AqlJs;
 import catdata.cql.AqlOptions;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Collage;
-import catdata.cql.Schema;
 import catdata.cql.SqlTypeSide;
+//import catdata.cql.SqlTypeSide;
 import catdata.cql.Term;
 import gnu.trove.map.hash.THashMap;
 
@@ -152,11 +151,11 @@ public class InstExpCsv extends
 	}
 
 	@Override
-	protected Map<String, List<String[]>> start(Collage<String, String, Sym, Fk, Att, Void, Void> sch)
+	protected Map<String, List<String[]>> start(AqlJs<String, Sym> js, Collage<String, String, Sym, Fk, Att, Void, Void> sch)
 			throws Exception {
-		// if (!sch.typeSide.syms.keySet().containsAll(SqlTypeSide.syms().keySet())) {
-		// throw new RuntimeException("CSV import must be onto sql typeside.");
-		// }
+		 if (!js.syms.keySet().containsAll(SqlTypeSide.syms().keySet())) {
+		 throw new RuntimeException("CSV import must be onto sql typeside.");
+		 }
 
 		Map<String, Reader> m = new THashMap<>();
 		// Boolean b = (Boolean) op.getOrDefault(AqlOption.csv_prepend_entity);
@@ -173,7 +172,7 @@ public class InstExpCsv extends
 			try {
 				InputStream is = makeURL(en.getAbsolutePath());
 				Reader r = new InputStreamReader(is);
-				m.put(en.getName().substring(0, en.getName().length() - ext.length()), r);
+				m.put(en.getName().substring(0, (en.getName().length() - ext.length()) - 1), r);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				throw new RuntimeException(ex);
@@ -208,7 +207,7 @@ public class InstExpCsv extends
 	}
 
 	@Override
-	protected void joinedEn(Map<String, List<String[]>> rows, String en0,
+	protected void joinedEn(AqlJs<String, Sym> js, Map<String, List<String[]>> rows, String en0,
 			Pair<List<Pair<String, String>>, List<Pair<String, String>>> s,
 			Collage<String, String, Sym, Fk, Att, Void, Void> sch) {
 
@@ -219,7 +218,7 @@ public class InstExpCsv extends
 		} else {
 			inner = Util.toMapSafely(s.second);
 		}
-		boolean autoGenIds = (Boolean) op.getOrDefault(inner, AqlOption.csv_generate_ids);
+		//boolean autoGenIds = (Boolean) op.getOrDefault(inner, AqlOption.csv_generate_ids);
 		if (rows.get(en0).size() == 0) {
 			throw new RuntimeException("No header in CSV file for " + en0);
 		}
@@ -248,31 +247,9 @@ public class InstExpCsv extends
 		for (String[] row : rows.get(en0).subList(1, rows.get(en0).size())) {
 			String l0;
 
-//			String idCol = map.containsKey(en) ? map.get(en)
-			// : (String) op.getOrDefault(inner, AqlOption.id_column_name);
-
-			/* if (autoGenIds && !m.containsKey(idCol)) { */
 			l0 = toGen(en0, "" + startId++);
-			/*
-			 * } else if (!autoGenIds && !m.containsKey(idCol)) { throw new
-			 * RuntimeException("On " + en + ", ID column " + idCol +
-			 * " not found in headers " + m.keySet() +
-			 * ". \n\nPossible solution: provide a mapping.\n\nPossible solution: set csv_generate_ids=true to auto-generate IDs.\n\nPossible solution: rename the headers in the CSV file.\n\nPossible solution: add an ID column to the CSV file."
-			 * ); } else {
-			 */
-			// l0 = toGen(en0, row[m.get(idCol)]);
-//			}
 
 			data.get(en0).put(l0, new Pair<>(new THashMap<>(0, 2), new THashMap<>(row.length, 2)));
-
-			/*
-			 * for (Fk fk : sch.fksFrom(en0)) { String zz = row[m.get(mediate(en, prepend,
-			 * sep, pre, map, fk.convert()))]; if (zz == null) { throw new
-			 * RuntimeException("FK has null value, " + fk + " on " + Arrays.toString(row));
-			 * } String g = toGen(sch.fks.get(fk).second, zz); //
-			 * ens0.get(sch.fks.get(fk).second).add(g); data.get(en0).get(l0).first.put(fk,
-			 * g); }
-			 */
 
 			for (String att : cols) {
 				String zz = mediate(en, prepend, sep, pre, map, att);
@@ -285,7 +262,7 @@ public class InstExpCsv extends
 					throw new RuntimeException("Cannot get index " + z + " from " + Arrays.toString(row));
 				}
 				String o = row[z];
-				var js = SqlTypeSide.SqlTypeSide(op).js;
+				//var js = SqlTypeSide.SqlTypeSide(op).js;
 				var attt = Att.Att(en, att);
 				Term<String, Void, Sym, Void, Void, Void, String> r = skol
 						? objectToSk2(sch, o, l0, attt, tys0, nullOnErr, js)

@@ -20,12 +20,11 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import catdata.LocStr;
 import catdata.Pair;
 import catdata.Util;
+import catdata.cql.AqlJs;
 import catdata.cql.AqlOptions;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Collage;
-import catdata.cql.Schema;
 import catdata.cql.Term;
-import catdata.cql.TypeSide;
 import gnu.trove.map.hash.THashMap;
 
 public class InstExpJdbc extends InstExpImport<Connection, String> {
@@ -53,7 +52,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 	}
 
 	@Override
-	protected synchronized Connection start(Collage<String, String, Sym, Fk, Att, Void, Void> sch) throws SQLException {
+	protected synchronized Connection start(AqlJs<String, Sym> js, Collage<String, String, Sym, Fk, Att, Void, Void> sch) throws SQLException {
 		for (String s : map.keySet()) {
 			sch.getEns().add(s);
 		}
@@ -120,7 +119,7 @@ public class InstExpJdbc extends InstExpImport<Connection, String> {
 	
 	static int fresh=0;
 	@Override
-	protected synchronized void joinedEn(Connection conn, String en, String s,
+	protected synchronized void joinedEn(AqlJs<String, Sym> js, Connection conn, String en, String s,
 			Collage<String, String, Sym, Fk, Att, Void, Void> sch) {
 		
 

@@ -13,6 +13,7 @@ import catdata.LocStr;
 import catdata.Pair;
 import catdata.Raw;
 import catdata.Util;
+import catdata.cql.AqlJs;
 import catdata.cql.AqlOptions;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Collage;
@@ -126,12 +127,12 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<String, String, S
 		String last = null;
 
 		try {
-			Handle h = start(sch);
+			Handle h = start(xx.js, sch);
 			for (String en : map.keySet()) {
 			//	System.out.println("doing " + en);
 				last = en;
 				Q z = map.get(en);
-				joinedEn(h, en, z, sch);
+				joinedEn(xx.js, h, en, z, sch);
 			}
 			end(h);
 			
@@ -144,7 +145,8 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<String, String, S
 			}
 			throw new RuntimeException(pre + exn.getMessage() + "\n\n" + getHelpStr());
 		}
-		var sch2 = new Schema<String, String, Sym, Fk, Att>(SqlTypeSide.SqlTypeSide(op), sch , op);
+		var sch2 = new Schema<String, String, Sym, Fk, Att>(xx, sch , op);
+		
 		ImportAlgebra<String, String, Sym, Fk, Att, String, String> alg = new ImportAlgebra<String, String, Sym, Fk, Att, String, String>(
 				sch2, en -> data.get(en).keySet(), tys0, (en, x) -> data.get(en).get(x).first,
 				(en, x) -> data.get(en).get(x).second, (x, y) -> y, (x, y) -> y, dont_check_closure,
@@ -160,11 +162,11 @@ public abstract class InstExpImport<Handle, Q> extends InstExp<String, String, S
 
 	protected abstract String getHelpStr();
 
-	protected abstract Handle start(Collage<String, String, Sym, Fk, Att, Void, Void> sch) throws Exception;
+	protected abstract Handle start(AqlJs<String, Sym> js, Collage<String, String, Sym, Fk, Att, Void, Void> sch) throws Exception;
 
 	protected abstract void end(Handle h) throws Exception;
 
-	protected abstract void joinedEn(Handle h, String en, Q s, Collage<String, String, Sym, Fk, Att, Void, Void> sch)
+	protected abstract void joinedEn(AqlJs<String, Sym> js, Handle h, String en, Q s, Collage<String, String, Sym, Fk, Att, Void, Void> sch)
 			throws Exception;
 
 	@SuppressWarnings("unused")
