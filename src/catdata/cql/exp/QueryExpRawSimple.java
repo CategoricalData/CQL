@@ -82,7 +82,7 @@ public class QueryExpRawSimple extends QueryExp implements Raw {
 
 	public QueryExpRawSimple(SchExp src, Integer i, PreBlock block) {
 		this.src = src;
-		this.block = Optional.of(new Block(block, new LocStr(i, ""), block.star));
+		this.block = Optional.of(new Block(block, new LocStr(i, "Q"), block.star));
 	}
 
 	public QueryExpRawSimple(SchExp src) {
