@@ -1,0 +1,137 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '6.1.2'
+    id 'com.diffplug.spotless' version '7.0.2'
+}
+
+group = 'org.categoricaldata'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+            exclude 'test/**'
+            // OilExample.java has a text block exceeding JVM's 65535-byte constant pool limit.
+            // It compiles under Eclipse's ecj but not javac. Exclude until the string is split.
+            exclude '**/OilExample.java'
+        }
+        resources {
+            srcDirs = ['resources/open']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+    }
+}
+
+dependencies {
+    // All existing JARs from lib/
+    implementation fileTree(dir: 'lib', include: ['*.jar'])
+
+    // Test dependencies
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:none']
+}
+
+// --- Testing ---
+test {
+    useJUnitPlatform()
+    jvmArgs += ['--add-opens', 'java.base/java.lang=ALL-UNNAMED']
+
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = false
+    }
+
+    // Timeout for the full test suite (CQL examples can be slow)
+    timeout = java.time.Duration.ofMinutes(15)
+}
+
+// --- JaCoCo (Coverage) ---
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+// --- Spotless (formatting) ---
+spotless {
+    // Only check files that changed vs HEAD — won't flag existing unformatted code
+    ratchetFrom 'HEAD'
+    java {
+        target 'src/**/*.java'
+        targetExclude 'src/test/**', '**/easik/**', '**/com/**', '**/OilExample.java'
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+// Git pre-commit hook: runs spotlessCheck before each commit
+tasks.register('installGitHook', Copy) {
+    from 'config/hooks/pre-commit'
+    into '.git/hooks'
+    filePermissions {
+        unix('rwxr-xr-x')
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn 'installGitHook'
+}
+
+// --- Checkstyle ---
+checkstyle {
+    toolVersion = '10.21.1'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    // Don't fail the build initially — just report
+    ignoreFailures = true
+    // Only check main sources, not tests
+    sourceSets = [project.sourceSets.main]
+}
+
+tasks.withType(Checkstyle).configureEach {
+    maxHeapSize = '1g'
+}
+
+// --- SpotBugs ---
+spotbugs {
+    ignoreFailures = true
+    effort = com.github.spotbugs.snom.Effort.valueOf('MIN')
+    reportLevel = com.github.spotbugs.snom.Confidence.valueOf('HIGH')
+    excludeFilter = file('config/spotbugs/exclude.xml')
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}

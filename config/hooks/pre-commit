@@ -1,0 +1,13 @@
+#!/bin/sh
+# Pre-commit hook: check formatting with Spotless (ratchet mode)
+# Only checks files changed vs HEAD, so existing code won't block commits.
+# Installed automatically by Gradle (installGitHook task)
+
+echo "Running Spotless format check..."
+./gradlew spotlessCheck -q
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "Formatting issues found. Run './gradlew spotlessApply' to fix them."
+    exit 1
+fi
