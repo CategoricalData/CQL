@@ -5,7 +5,7 @@
 
 <!--
     Lenient Checkstyle configuration for CQL.
-    Starts with minimal rules to avoid overwhelming output on 667 existing files.
+    Starts with minimal rules to avoid overwhelming output on existing files.
     Tighten gradually over time.
 -->
 <module name="Checker">
