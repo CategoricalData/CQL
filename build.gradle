@@ -78,7 +78,20 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
-        csv.required = false
+        csv.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.27
+            }
+        }
     }
 }
 
