@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+        SpotBugs exclusion filter for CQL.
+        Excludes common low-value findings in the existing codebase.
+        Tighten over time as code quality improves.
+    -->
+
+    <!-- Exclude GUI code from analysis (Swing code triggers many false positives) -->
+    <Match>
+        <Package name="~catdata\.ide\..*"/>
+        <Bug category="MT_CORRECTNESS"/>
+    </Match>
+    <Match>
+        <Package name="~easik\.ui\..*"/>
+        <Bug category="MT_CORRECTNESS"/>
+    </Match>
+
+    <!-- Exclude serialization warnings (not relevant for this project) -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+
+    <!-- Exclude test code -->
+    <Match>
+        <Source name="~.*Test\.java"/>
+    </Match>
+</FindBugsFilter>
