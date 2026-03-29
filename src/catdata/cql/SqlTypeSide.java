@@ -165,21 +165,21 @@ public class SqlTypeSide extends TypeSide<String, Sym> {
 		m.put(("Binary"), ID); // TODO CQL
 		m.put(("Clob"), ID);
 		m.put(("Date"), ID); // java.sql.Date.valueOf(input[0])");
-		m.put(("Time"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(java.sql.Time.valueOf(x)) } else { java.util.Optional.empty() } }");
-		m.put(("Timestamp"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(java.sql.Timestamp.valueOf(x)) } else { java.util.Optional.empty() } } ");
+		m.put(("Time"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(java.sql.Time.valueOf(x)) } else { return java.util.Optional.empty() } }");
+		m.put(("Timestamp"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(java.sql.Timestamp.valueOf(x)) } else { return java.util.Optional.empty() } } ");
 		m.put(("Bigint"), " x => { if (!(x.toLowerCase() === \"null\" )) { return java.util.Optional.of(new java.lang.Long(x)) } else { return java.util.Optional.empty() } } ");
 		m.put(("Boolean"), "x => { if (!(x.toLowerCase() === \"null\" )) { return java.util.Optional.of(new java.lang.Boolean(x.toLowerCase())) } else { return java.util.Optional.empty() } } ");
 		m.put(("Char"), ID); // TODO aql
 		m.put(("Bit"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Boolean(x)) } else { return java.util.Optional.empty() } }");
-		m.put(("Double"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Double(x)) } else { java.util.Optional.empty() } }");
+		m.put(("Double"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Double(x)) } else { return java.util.Optional.empty() } }");
 		m.put(("Double precision"), " x => { if ( (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Double(x)) } else { return java.util.Optional.empty() } } ");
 		m.put(("Numeric"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.math.BigDecimal(x))} else { java.util.Optional.empty() } }");
 		m.put(("Decimal"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.math.BigDecimal(x))} else { java.util.Optional.empty() } }");
-		m.put(("Real"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Double(x))} else { java.util.Optional.empty() } }");
-		m.put(("Float"), "x => { if (!(x.toLowerCase() === \"null\")) { return  java.util.Optional.of(new java.lang.Double(x))} else { java.util.Optional.empty() } }");
+		m.put(("Real"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Double(x))} else { return java.util.Optional.empty() } }");
+		m.put(("Float"), "x => { if (!(x.toLowerCase() === \"null\")) { return  java.util.Optional.of(new java.lang.Double(x))} else { return java.util.Optional.empty() } }");
 		m.put(("Integer"), "x => { if (!(x.toLowerCase() === \"null\")) { return java.util.Optional.of(new java.lang.Integer(x)) } else { return java.util.Optional.empty() } }");
-		m.put(("Tinyint"), "x => { if (!(x.toLowerCase( )=== \"null\")) { return java.util.Optional.of(new java.lang.Integer(x)) } else { java.util.Optional.empty() } } ");
-		m.put(("Smallint"), "x => { if (!(x.toLowerCase() ===\"null\")) { return java.util.Optional.of(new java.lang.Integer(x)) } else { java.util.Optional.empty() } }");
+		m.put(("Tinyint"), "x => { if (!(x.toLowerCase( )=== \"null\")) { return java.util.Optional.of(new java.lang.Integer(x)) } else { return java.util.Optional.empty() } } ");
+		m.put(("Smallint"), "x => { if (!(x.toLowerCase() ===\"null\")) { return java.util.Optional.of(new java.lang.Integer(x)) } else { return ava.util.Optional.empty() } }");
 		m.put(("Text"), ID);
 		m.put(("String"), ID);
 		m.put(("Nvarchar"), ID);

@@ -83,6 +83,7 @@ public class AqlJs<Ty, Sym> {
 			// TODO aql check inputs and outputs here?
 			return invoke(syms.get(name).second, iso2.get(name), args.toArray());
 		} catch (Throwable e) {
+			e.printStackTrace();
 			throw new RuntimeException("In " + languageName + " execution of " + name + " on arguments " + args + ", "
 					+ Util.sep(args.stream().map(x -> x.getClass()).collect(Collectors.toList()), ",") + " , "
 					+ e.getClass() + " error: " + e.getMessage() + postfix, e);
@@ -98,6 +99,7 @@ public class AqlJs<Ty, Sym> {
 		try {
 			return invoke(ty, parser, toParse);
 		} catch (Throwable e) {
+			e.printStackTrace();
 			throw new RuntimeException("In " + languageName + " execution of " + toParse + " cannot convert to " + ty
 					+ " error: " + e.getMessage() + postfix
 					+ "\n\nPossible fix: check the external_parsers of the typeside for type conversion errors.");
