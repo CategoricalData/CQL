@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew compileJava compileTestJava
 
       - name: Run tests + coverage
-        run: ./gradlew test jacocoTestReport
+        run: ./gradlew test jacocoTestReport jacocoTestCoverageVerification
 
       - name: Upload test results
         if: always()
@@ -34,6 +34,39 @@ jobs:
           name: test-results
           path: build/reports/tests/
           retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: build/reports/jacoco/
+          retention-days: 14
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          awk -F',' '
+            NR > 1 {
+              instructions += $4 + $5
+              covered     += $5
+              branches    += $6 + $7
+              bcovered    += $7
+              lines       += $8 + $9
+              lcovered    += $9
+            }
+            END {
+              printf "## Coverage Summary\n\n"
+              printf "| Metric       | Covered | Total   | Percentage |\n"
+              printf "|--------------|---------|---------|------------|\n"
+              if (lines > 0)
+                printf "| Lines        | %d  | %d | %.2f%%     |\n", lcovered, lines, 100*lcovered/lines
+              if (branches > 0)
+                printf "| Branches     | %d  | %d | %.2f%%     |\n", bcovered, branches, 100*bcovered/branches
+              if (instructions > 0)
+                printf "| Instructions | %d  | %d | %.2f%%     |\n", covered, instructions, 100*covered/instructions
+            }
+          ' build/reports/jacoco/test/jacocoTestReport.csv >> "$GITHUB_STEP_SUMMARY"
 
   checkstyle:
     name: Checkstyle
