@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
@@ -92,7 +93,7 @@ class SqlViewer extends JPanel {
       }
 
       JPanel panel = GuiUtil.makeTable(BorderFactory.createEmptyBorder(),
-          table.name + " (" + inst.get(table).size() + ")", rowData, colNames.toArray());
+          table.name + " (" + inst.get(table).size() + ")", rowData, JLabel.CENTER, colNames.toArray());
       bottom.add(panel, table.name);
     }
 

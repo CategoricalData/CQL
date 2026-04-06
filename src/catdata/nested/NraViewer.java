@@ -175,7 +175,7 @@ public class NraViewer {
     return new Triple<>("OK", conv(p.first, p.second), disp(shred(p.first, (Set<Map>) p.second)));
   }
 
-  private static Component disp(Map<NRel, Set<Map>> O) {
+  private  Component disp(Map<NRel, Set<Map>> O) {
     int n = (int) Math.ceil(Math.sqrt(O.size()));
 
     JPanel ret = new JPanel(new GridLayout(n, n));
@@ -204,7 +204,7 @@ public class NraViewer {
         r++;
       }
       JPanel tbl = GuiUtil.makeTable(BorderFactory.createEtchedBorder(), e.getKey().toString(), rowData,
-          colNames);
+          JLabel.CENTER, colNames);
       ret.add(tbl);
     }
 

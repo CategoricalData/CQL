@@ -28,6 +28,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -239,6 +240,7 @@ public final class CqlDisplay implements Disp {
 
 	private JComponent report(Program<Exp<?>> prog, AqlEnv env, List<String> order, float c1, float c2, String pre) {
 		DecimalFormat df = new DecimalFormat("#.#");
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		df.setRoundingMode(RoundingMode.CEILING);
 		List<String> l = new LinkedList<>();
 		Object[][] rowData = new Object[env.defs.insts.size()][3];
@@ -258,7 +260,7 @@ public final class CqlDisplay implements Disp {
 			}
 		}
 
-		JPanel t = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "", rowData, "instance", "rows", "seconds");
+		JPanel t = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "", rowData, align, "instance", "rows", "seconds");
 		JPanel pan = new JPanel(new GridLayout(1, 1));
 		pan.add(new JScrollPane(t));
 		String tsv = "instance\trows\tseconds\n" + Util.sep(l, "\n");

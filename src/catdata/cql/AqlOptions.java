@@ -83,7 +83,7 @@ public final class AqlOptions {
 		csv_row_sort_order, prepend_entity_on_ids, jdbc_export_truncate_after, import_missing_is_empty, csv_import_skolem_nulls,
 		jdbc_query_export_convert_type, e_path, vampire_path, completion_unfailing, graal_language,
 		triviality_check_best_effort, use_egglog_for_chase, check_command_export_file, jdbc_zero, oracle_schema_mode,
-		csv_utf8_bom, egglog_path, egglog_bound, emit_nulls, jdbc_is_hive;
+		csv_utf8_bom, egglog_path, egglog_bound, emit_nulls, jdbc_is_hive, center_gui_cells;
 
 		private String getString(Map<String, String> map) {
 			String n = map.get(toString());
@@ -176,6 +176,7 @@ public final class AqlOptions {
 	// @SuppressWarnings("static-method")
 	private static Object getDefault(AqlOption option) {
 		return switch (option) {
+		case center_gui_cells->true;
 		case jdbc_is_hive->false;
 		case emit_nulls -> false;
 		case csv_import_skolem_nulls -> false;
@@ -318,6 +319,7 @@ public final class AqlOptions {
 	private static Object getFromMap(Map<String, String> map, /* Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col, */
 			AqlOption op) {
 		return switch (op) {
+		case center_gui_cells->op.getBoolean(map);
 		case jdbc_is_hive -> op.getBoolean(map);
 		case emit_nulls -> op.getBoolean(map);
 		case csv_import_skolem_nulls -> op.getBoolean(map);

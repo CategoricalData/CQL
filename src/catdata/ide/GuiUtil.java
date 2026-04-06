@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -44,6 +43,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -161,19 +161,68 @@ public class GuiUtil {
 	}
 
 	@SuppressWarnings("serial")
-	public static JPanel makeTable(Border b, String border, Object[][] rowData, Object... colNames) {
-		return makeTable2(b, border, rowData, colNames).first;
+	public static JPanel makeTable(Border b, String border, Object[][] rowData, int align, Object... colNames) {
+		return makeTable2(b, border, rowData, align, colNames).first;
 
 	}
+	
+	 public static void setCellsAlignment(JTable table, int alignment)
+	    {
+	        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+	        rightRenderer.setHorizontalAlignment(alignment);
 
-	public static Pair<JPanel, JTable> makeTable2(Border b, String border, Object[][] rowData, Object... colNames) {
+	        TableModel tableModel = table.getModel();
+
+	        for (int columnIndex = 0; columnIndex < tableModel.getColumnCount(); columnIndex++)
+	        {
+	            table.getColumnModel().getColumn(columnIndex).setCellRenderer(rightRenderer);
+	        }
+	    }
+
+	public static Pair<JPanel, JTable> makeTable2(Border b, String border, Object[][] rowData, int align, Object... colNames) {
 		JTable t = new JTable(new DefaultTableModel(rowData, colNames)) {
 			@Override
 			public Dimension getPreferredScrollableViewportSize() {
 				Dimension d = getPreferredSize();
 				return new Dimension(Integer.max(640, d.width), (d.height));
 			}
+			@Override
+			public TableCellRenderer getCellRenderer(int row, int col) {
+				TableCellRenderer l = super.getCellRenderer(row, col);
+
+				if (col >= 0 && col < getColumnCount()) {
+					return new DefaultTableCellRenderer() {
+						@Override
+						public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+								boolean hasFocus, int row, int col) {
+							JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+									row, col);
+							l.setHorizontalAlignment(align); //JLabel.CENTER);
+
+							if (value.toString().startsWith("?")) {
+								l.setForeground(Color.RED);
+								l.setFont(l.getFont().deriveFont(Font.BOLD));
+							}
+
+							/*
+							 * l.setFont(l.getFont().deriveFont(Font.BOLD)); int row0 =
+							 * convertRowIndexToModel(row); int col0 = convertColumnIndexToModel(col); if
+							 * (nulls != null && nulls.contains(new Pair<>(row0, col0))) {
+							 * l.setForeground(Color.RED); }
+							 */
+							return l;
+						}
+
+					};
+				}
+				return l;
+			}
 		};
+	//	DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+//		centerRenderer.setHorizontalAlignment( SwingConstants.CENTER );
+//		t.setDefaultRenderer(Object.class, centerRenderer);
+		JLabel headerLabel = (JLabel) t.getTableHeader().getDefaultRenderer();
+		headerLabel.setHorizontalAlignment(align);
 
 		JPanel p = new JPanel(new GridLayout(1, 1));
 		TableRowSorter<?> sorter = new MyTableRowSorter(t.getModel());
@@ -211,7 +260,7 @@ public class GuiUtil {
 
 	@SuppressWarnings("serial")
 
-	public static JComponent makeBoldHeaderTable(Collection<String> atts, Border b, String border, Object[][] rowData,
+	public static JComponent makeBoldHeaderTable(Collection<String> atts, Border b, String border, Object[][] rowData,int align,
 			String... colNames) {
 		JTable t = new JTable(rowData, colNames) {
 			@Override
@@ -226,13 +275,14 @@ public class GuiUtil {
 			public TableCellRenderer getCellRenderer(int row, int col) {
 				TableCellRenderer l = super.getCellRenderer(row, col);
 
-				if (col > 0 && col < atts.size() + 1) {
+				if (col > 0 && col < getColumnCount()) {
 					return new DefaultTableCellRenderer() {
 						@Override
 						public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 								boolean hasFocus, int row, int col) {
 							JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
 									row, col);
+							l.setHorizontalAlignment(align); //JLabel.CENTER);
 
 							if (value.toString().startsWith("?")) {
 								l.setForeground(Color.RED);
@@ -253,7 +303,10 @@ public class GuiUtil {
 				return l;
 			}
 		};
-
+		//t.getColumnModel().getColumn(0).setHeaderRenderer(new DefaultTableCellRenderer());
+		JLabel headerLabel = (JLabel) t.getTableHeader().getDefaultRenderer();
+		headerLabel.setHorizontalAlignment(align);
+		
 		JPanel tt = new JPanel(new GridLayout(1, 1));
 		tt.add(new PDControlScrollPane(t));
 		TableRowSorter<?> sorter = new MyTableRowSorter(t.getModel());

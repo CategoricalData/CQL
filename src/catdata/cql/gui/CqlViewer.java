@@ -55,6 +55,7 @@ import catdata.apg.ApgTy;
 import catdata.apg.ApgTypeside;
 import catdata.cql.Algebra;
 import catdata.cql.AqlJs;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.ColimitSchema;
 import catdata.cql.Collage;
 import catdata.cql.Comment;
@@ -841,10 +842,10 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return main;
 	}
 
-	private static <Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> JComponent viewTransform(
+	private  <Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> JComponent viewTransform(
 			Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t) {
 		List<JComponent> list = new LinkedList<>();
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		List<En> ens = Util.alphabetical(t.src().schema().ens);
 		List<Ty> tys = Util.alphabetical(t.src().schema().typeSide.tys);
 
@@ -864,15 +865,19 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			for (X1 x1 : t.src().algebra().en(en)) {
 				Object[] row = new Object[header.size()];
 				row[0] = t.src().algebra().printX(en, x1);
-				X2 x2 = t.repr(en, x1);
+				X2 x2 = t.repr(en, x1); 
 				row[1] = t.dst().algebra().printX(en, x2);
 				for (int j = 2; j < header.size(); j++) {
-					row[j] = t.src().algebra().att((Att) header.get(j), x1);
+					var www = (Att) header.get(j);
+					Term<Ty, Void, Sym, Void, Void, Void, Y1> aa = t.src().algebra().att(www, x1);
+					//Term<Ty, Void, Sym, Void, Void, Void, Y1> a = t.src().algebra().intoY(aa);
+					row[j] = aa.toString(g->t.src().algebra().printY(t.src().schema().atts.get(www).second, g).toString(), Util.voidFn(), false);
+					//row[j] = xxx;
 				}
 				data[i] = row;
 				i++;
 			}
-			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), en + " (" + n + ")", data, header.toArray()));
+			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), en + " (" + n + ")", data, align, header.toArray()));
 		}
 		Map<Ty, List<Sk1>> z = Util.newListsFor(t.src().schema().typeSide.tys);
 		t.src().sks().entrySet((sk, ty) -> {
@@ -893,14 +898,18 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			int i = 0;
 			for (Sk1 y1 : z.get(ty)) {
 				Object[] row = new Object[2];
-				Term<Ty, En, Sym, Fk, Att, Gen1, Sk1> a = Term.Sk(y1);
-				row[0] = a.toString(); // a.toString(t.src().algebra().p, gen_printer)
-				Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> y0 = t.trans(a);
-				row[1] = y0.toString();
+				Term<Ty, En, Sym, Fk, Att, Gen1, Sk1> aa = Term.Sk(y1);
+				Term<Ty, Void, Sym, Void, Void, Void, Y1> a = t.src().algebra().intoY(aa);
+				row[0] = a.toString(g->t.src().algebra().printY(ty, g).toString(), Util.voidFn(), false);
+			//	row[0] =  a.toString(); // a.toString(t.src().algebra().p, gen_printer)
+				Term<Ty, En, Sym, Fk, Att, Gen2, Sk2> y0 = t.trans(aa);
+				Term<Ty, Void, Sym, Void, Void, Void, Y2> y00 = t.dst().algebra().intoY(y0);
+				row[1] = y00.toString(g->t.dst().algebra().printY(ty, g).toString(), Util.voidFn(), false);
+				//row[1] = y0.toString();
 				data[i] = row;
 				i++;
 			}
-			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), ty + " (" + n + ")", data, header.toArray()));
+			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), ty + " (" + n + ")", data, align, header.toArray()));
 		}
 
 		return GuiUtil.makeGrid(list);
@@ -983,7 +992,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			List<String> fks0x = fks0.stream().map(Object::toString).collect(Collectors.toList());
 			List<String> header = Util.<String>append(atts0x, fks0x);
 
-			header.add(0, "Row");
+			header.add(0, " ");
 
 			int n = Integer.min(limit, alg.size(en));
 			Object[][] data = new Object[n][];
@@ -1102,7 +1111,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	}
 
 	private <X, Y> JComponent viewAlgebra(float z,
-			Algebra<String, String, catdata.cql.exp.Sym, catdata.cql.exp.Fk, catdata.cql.exp.Att, String, String, X, Y> algebra) {
+			Algebra<String, String, catdata.cql.exp.Sym, catdata.cql.exp.Fk, catdata.cql.exp.Att, String, String, X, Y> algebra, int align) {
 
 		JPanel top = new JPanel(new GridBagLayout());
 		top.setBorder(BorderFactory.createEmptyBorder());
@@ -1138,13 +1147,13 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		out.setBorder(BorderFactory.createEtchedBorder());
 
 		Map<Pair<Boolean, Integer>, JScrollPane> cache = new THashMap<>();
-		viewAlgebraHelper(top, algebra, out, simp, sl, cache);
+		viewAlgebraHelper(top, algebra, out, simp, sl, cache, align);
 
 		sl.addChangeListener((x) -> {
-			viewAlgebraHelper(top, algebra, out, simp, sl, cache);
+			viewAlgebraHelper(top, algebra, out, simp, sl, cache, align);
 		});
 		simp.addChangeListener((x) -> {
-			viewAlgebraHelper(top, algebra, out, simp, sl, cache);
+			viewAlgebraHelper(top, algebra, out, simp, sl, cache, align);
 		});
 
 		return out;
@@ -1152,13 +1161,13 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 	private <X, Y> void viewAlgebraHelper(JComponent top,
 			Algebra<String, String, Sym, Fk, Att, String, String, X, Y> algebra, JPanel out, JCheckBox simp, JSlider sl,
-			Map<Pair<Boolean, Integer>, JScrollPane> cache) {
+			Map<Pair<Boolean, Integer>, JScrollPane> cache, int align) {
 		boolean b = simp.isSelected();
 		int l = sl.getValue();
 		Pair<Boolean, Integer> p = new Pair<>(b, l);
 		JScrollPane jsp = cache.get(p);
 		if (jsp == null) {
-			jsp = makeList2(algebra, b, l);
+			jsp = makeList2(algebra, b, l, align);
 			cache.put(p, jsp);
 		}
 		out.removeAll();
@@ -1178,8 +1187,8 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 	private <X, Y> JScrollPane makeList2(
 			Algebra<String, String, catdata.cql.exp.Sym, catdata.cql.exp.Fk, catdata.cql.exp.Att, String, String, X, Y> algebra,
-			boolean b, int l) {
-		List<JComponent> list = makeList(algebra, b, l);
+			boolean b, int l, int align) {
+		List<JComponent> list = makeList(algebra, b, l, align);
 
 		JPanel c = new JPanel();
 		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
@@ -1201,8 +1210,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	}
 
 	private <X, Y> List<JComponent> makeList(Algebra<String, String, Sym, Fk, Att, String, String, X, Y> algebra,
-			boolean simplify, int limit) {
-
+			boolean simplify, int limit, int align) {
 		List<JComponent> list = new LinkedList<>();
 
 		Map<String, Set<Pair<Integer, Integer>>> nulls = new THashMap<>();
@@ -1218,12 +1226,12 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			}
 			if (x.second.length > 0) {
 				JComponent p = GuiUtil.makeBoldHeaderTable(toString(algebra.schema().attsFrom(en)),
-						BorderFactory.createEmptyBorder(), str, x.second, x.first.toArray(new String[x.first.size()]));
+						BorderFactory.createEmptyBorder(), str, x.second, align, x.first.toArray(new String[x.first.size()]));
 				list.add(p);
 			}
 		}
 
-		List<String> header = Collections.singletonList("Row");
+		List<String> header = Collections.singletonList(" ");
 
 		if (simplify) {
 			Map<String, Set<Y>> m = Util.revS(algebra.talg().sks);
@@ -1241,7 +1249,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 				} else {
 					str = ty + " (" + arr.length + ")";
 				}
-				JPanel z = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), str, arr, header.toArray());
+				JPanel z = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), str, arr, align, header.toArray());
 				list.add(z);
 			}
 		}
@@ -1586,16 +1594,17 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	public <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> Unit visit(String k, JTabbedPane ret,
 			Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I) {
 		final float perf = env.performance.containsKey(k) ? env.performance.get(k) : 1;
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
+		
 		if (I.algebra().talg().sks.size() < (1024 * 8)) {
 			ret.addTab("Tables", viewAlgebra(perf,
 					(Algebra<String, String, catdata.cql.exp.Sym, catdata.cql.exp.Fk, catdata.cql.exp.Att, String, String, X, Y>) I
-							.algebra()));
+							.algebra(), align));
 		} else {
 			JButton b = new JButton("Show tables");
 			ProgressPanel pp = new ProgressPanel(b, b, x -> viewAlgebra(perf,
 					(Algebra<String, String, catdata.cql.exp.Sym, catdata.cql.exp.Fk, catdata.cql.exp.Att, String, String, X, Y>) I
-							.algebra()));
+							.algebra(), align));
 			ret.addTab("Tables", pp);
 		}
 		if (I.algebra().size() < (1024 * 8)) {
@@ -1619,7 +1628,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	private <Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> JComponent injSurjBijHelper(
 			Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t) {
 		List<JComponent> list = new LinkedList<>();
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		List<En> ens = Util.alphabetical(t.src().schema().ens);
 
 		for (En en : ens) {
@@ -1660,7 +1669,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			}
 			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(),
 					en + " (pre-im size: " + n + ", injective: " + isInj + ", surjective: " + isSurj + ")", data,
-					header.toArray()));
+					align, header.toArray()));
 		}
 
 		return GuiUtil.makeGrid(list);
@@ -1795,7 +1804,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 	@Override
 	public Unit visit(String k, JTabbedPane pane, ApgTypeside t) {
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		Object[][] rowData = new Object[t.Bs.size()][3];
 		Object[] colNames = new Object[2];
 		colNames[0] = "Base Type";
@@ -1806,7 +1815,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			rowData[j][1] = lt.getValue().first.getName();
 			j++;
 		}
-		JPanel x = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), null, rowData, colNames);
+		JPanel x = GuiUtil.makeTable(BorderFactory.createEmptyBorder(), null, rowData, align, colNames);
 
 		JPanel c = new JPanel();
 		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
@@ -1910,9 +1919,9 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return Unit.unit;
 	}
 
-	private static <e, L> void apgInst0(JTabbedPane pane, ApgInstance<L, e> G) {
+	private  <e, L> void apgInst0(JTabbedPane pane, ApgInstance<L, e> G) {
 		List<JComponent> list = new LinkedList<>();
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		Object[][] rowData;
 		Object[] colNames;
 
@@ -1928,7 +1937,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			rowData[j][2] = lt.getValue().second;
 			j++;
 		}
-		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Data", rowData, colNames));
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Data", rowData, align, colNames));
 
 		JPanel c = new JPanel();
 		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
@@ -1949,11 +1958,11 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		pane.addTab("Tables", p);
 	}
 
-	private static <e, L> void apgInst1(JTabbedPane pane, ApgInstance<L, e> G) {
+	private  <e, L> void apgInst1(JTabbedPane pane, ApgInstance<L, e> G) {
 		List<JComponent> list = new LinkedList<>();
 
 		Map<L, Set<e>> map = Util.revS(Util.map(G.Es, (w, v) -> new Pair<>(w, v.first)));
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		for (Entry<L, ApgTy<L>> lt : G.Ls.entrySet()) {
 			ApgTy<L> t = lt.getValue();
 			L l = lt.getKey();
@@ -1996,7 +2005,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 					j++;
 				}
 			}
-			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), null, rowData, colNames));
+			list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), null, rowData, align, colNames));
 
 		}
 
@@ -2021,9 +2030,9 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 
 	@Override
 	public <l1, e1, l2, e2> Unit visit(String k, JTabbedPane pane, ApgTransform<l1, e1, l2, e2> t)
-			throws RuntimeException {
+			 {
 		List<JComponent> list = new LinkedList<>();
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		Object[][] rowData = new Object[t.lMap.size()][2];
 		Object[] colNames = new Object[2];
 		colNames[0] = "Input Label";
@@ -2034,7 +2043,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			rowData[j][1] = lt.getValue();
 			j++;
 		}
-		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, colNames));
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, align, colNames));
 
 		rowData = new Object[t.eMap.size()][2];
 		colNames = new Object[2];
@@ -2046,7 +2055,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			rowData[j][1] = lt.getValue();
 			j++;
 		}
-		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Data", rowData, colNames));
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Data", rowData, align, colNames));
 
 		JPanel c = new JPanel();
 		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
@@ -2068,9 +2077,9 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 		return Unit.unit;
 	}
 
-	private static <L> void apgSch0(JTabbedPane pane, ApgSchema<L> Ls) {
+	private <L> void apgSch0(JTabbedPane pane, ApgSchema<L> Ls) {
 		List<JComponent> list = new LinkedList<>();
-
+		var align = (int) ((boolean)env.defaults.getOrDefault(AqlOption.center_gui_cells) ? JLabel.CENTER : JLabel.LEFT);
 		Object[][] rowData = new Object[Ls.size()][2];
 		Object[] colNames = new Object[2];
 		colNames[0] = "Label";
@@ -2081,7 +2090,7 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 			rowData[j][1] = lt.getValue();
 			j++;
 		}
-		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, colNames));
+		list.add(GuiUtil.makeTable(BorderFactory.createEmptyBorder(), "Schema", rowData, align, colNames));
 
 		JPanel c = new JPanel();
 		c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
