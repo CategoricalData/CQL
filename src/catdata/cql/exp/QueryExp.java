@@ -65,6 +65,7 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
 
 	public R visit(P params, QueryExpReformulate queryExpReFormulate) throws E; 
 	
+	public R visit(P params, QueryExpSelectStar q) throws E; 
   }
 
   public abstract <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E;

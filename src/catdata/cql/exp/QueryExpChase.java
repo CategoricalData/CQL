@@ -42,7 +42,7 @@ public class QueryExpChase extends QueryExp {
 		if (!p.first.equals(q)) {
 			throw new RuntimeException("Source of query,\n" + p.first + "\nis not that of constraints,\n" + q + "\n");
 		}
-		return p;
+		return p; // if chase_select_star is true, this return value is a lie
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class QueryExpChase extends QueryExp {
 
 	@Override
 	protected void allowedOptions(Set<AqlOption> set) {
-
+		
 	}
 
 	@Override
@@ -75,16 +75,16 @@ public class QueryExpChase extends QueryExp {
 			throw new RuntimeException("Fks not supported");
 		}
 
-		return chase(q, c);
+
+		return chase(q, c, false);
 
 	}
 
 	static int[] i = { 0 };
 
 	static Query<String, String, Sym, Fk, Att, String, Fk, Att> chase(
-			Query<String, String, Sym, Fk, Att, String, Fk, Att> q, Constraints c) {
+			Query<String, String, Sym, Fk, Att, String, Fk, Att> q, Constraints c, boolean star) {
 		Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens = new HashMap<>();
-		Map<Fk, Map<String, Term<String, String, Sym, Fk, Att, String, String>>> sks = new HashMap<>();
 
 		Map<Object, String> m1 = new HashMap<>();
 		Map<Object, String> m2 = new HashMap<>();

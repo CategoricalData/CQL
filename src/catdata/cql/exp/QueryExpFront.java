@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -15,7 +16,6 @@ import catdata.Pair;
 import catdata.Util;
 import catdata.cql.AqlOptions;
 import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.ED;
 import catdata.cql.Kind;
 import catdata.cql.Query;
 import catdata.cql.Schema;
@@ -162,6 +162,14 @@ public final class QueryExpFront extends QueryExp {
 		} else if (t.att() != null) {
 			return new RawTerm(t.att().str, Collections.singletonList(conv(t.arg)));
 		} else if (t.obj() != null) {
+			if (t.obj() instanceof Optional) {
+				Optional o = (Optional) t.obj();
+				if (o.isEmpty())  {
+					return new RawTerm("null", t.ty());
+				} else {
+					return new RawTerm(o.get().toString(), t.ty());
+				}
+			}
 			return new RawTerm(t.obj().toString(), t.ty());
 		}
 		return Util.anomaly();

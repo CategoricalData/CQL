@@ -100,7 +100,7 @@ public class EdsExpInfer extends EdsExp {
 			var q = new QueryExpRawSimple(ST, 0, new PreBlock(gens, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), true));
 			var p = q.eval(env, isC);
 			
-			var r = QueryExpChase.chase(p, s);
+			var r = QueryExpChase.chase(p, s, false);
 			
 			srcQs.add(r);
 		}
@@ -111,7 +111,7 @@ public class EdsExpInfer extends EdsExp {
 			var q = new QueryExpRawSimple(ST, 0, new PreBlock(gens, new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), true));
 			var p = q.eval(env, isC);
 			
-			var r = QueryExpChase.chase(p, t);
+			var r = QueryExpChase.chase(p, t, false);
 			
 			dstQs.add(r);
 		}

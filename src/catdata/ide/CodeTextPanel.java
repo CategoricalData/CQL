@@ -42,10 +42,18 @@ public class CodeTextPanel extends JPanel {
 	public CodeTextPanel(String title, String text) {
 		this(BorderFactory.createEtchedBorder(), title, text);
 	}
+	
+	public CodeTextPanel(String title, String text, Font f, boolean b) {
+		this(BorderFactory.createEtchedBorder(), title, text, f, b);
+	}
 
 	JScrollPane p;
-
+	
 	public CodeTextPanel(Border bb, String title, String text) {
+		this(bb, title, text, new Font("Courier", Font.PLAIN, 13), true);
+	}
+
+	public CodeTextPanel(Border bb, String title, String text, Font f, boolean bx) {
 		super(new GridLayout(1, 1));
 		if (bb != null) {
 			Border b = BorderFactory.createTitledBorder(bb, title);
@@ -59,10 +67,10 @@ public class CodeTextPanel extends JPanel {
 		if (text.length() > 1024*256) {
 			text = text.substring(0, 1024*256) + " TRUNCATED";
 		}
-		
+		area.setFont(f);
 		setText(text);
 
-		area.setFont(new Font("Courier", Font.PLAIN, 13));
+		
 		// area.setEditable(false);
 
 		UndoManager m = new UndoManager();
@@ -103,8 +111,9 @@ public class CodeTextPanel extends JPanel {
 		});
 
 		setWordWrap(true);
-
-		IdeOptions.theCurrentOptions.apply(this.area);
+		if (bx) {
+			IdeOptions.theCurrentOptions.apply(this.area);
+		}
 	}
 
 	private void setWordWrap(boolean b) {

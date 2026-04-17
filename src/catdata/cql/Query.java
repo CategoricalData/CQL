@@ -3,6 +3,7 @@ package catdata.cql;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +19,11 @@ import catdata.Pair;
 import catdata.Triple;
 import catdata.Util;
 import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Collage.CCollage;
 import catdata.cql.It.ID;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import catdata.cql.fdm.ComposeTransform;
 import catdata.cql.fdm.IdentityTransform;
 import catdata.cql.fdm.LiteralTransform;
@@ -210,6 +215,40 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		return ret;
 	}
 
+	public static Query<String, String, catdata.cql.exp.Sym, Fk, Att, String, Fk, Att> makeSelect(AqlOptions ops,
+			Query<String, String, catdata.cql.exp.Sym, Fk, Att, String, Fk, Att> q) {
+		Collage<String, String, catdata.cql.exp.Sym, Fk, Att, Void, Void> col = new CCollage<>(
+				q.dst.typeSide.collage());
+
+		Map<Att, Chc<Term<String, String, catdata.cql.exp.Sym, Fk, Att, String, String>, Agg<String, String, catdata.cql.exp.Sym, Fk, Att>>> atts0 = new HashMap<>();
+
+		for (var v : q.ens.entrySet()) {
+			String en2 = v.getKey();
+			col.getEns().add(en2);
+			for (var x : v.getValue().gens.entrySet()) {
+				String en1 = x.getValue();
+				String s = x.getKey();
+				for (Att att1 : q.src.attsFrom(en1)) {
+					String ty = q.src.atts.get(att1).second;
+					Att att2 = Att.Att(en2, s + "_" + att1.str);
+					Term<String, String, catdata.cql.exp.Sym, Fk, Att, String, String> term = Term.Att(att1,
+							Term.Gen(s));
+					atts0.put(att2, Chc.inLeft(term));
+					col.atts().put(att2, new Pair<>(en2, ty));
+				}
+			}
+		}
+
+		var dst = new Schema<String, String, catdata.cql.exp.Sym, Fk, Att>(q.dst.typeSide, col, ops);
+
+		Blob<String, String, catdata.cql.exp.Sym, Fk, Att, String, Fk, Att> b = new Blob<>(q.conv1(q.ens), atts0,
+				Collections.emptyMap(), Collections.emptyMap(), q.src, dst);
+
+		Query<String, String, catdata.cql.exp.Sym, Fk, Att, String, Fk, Att> p = new Query<>(q.params, q.consts, b.ens,
+				b.atts, b.fks, b.sks, b.src, b.dst, ops);
+		return p;
+	}
+
 	public synchronized Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> unnest() {
 
 		Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b = new Blob<>(conv1(ens), atts, conv2(this), conv3(this), src,
@@ -218,7 +257,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 		// System.out.println(b);
 		Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> p = new Query<>(params, consts, b.ens, b.atts, b.fks, b.sks,
 				b.src, dst, doNotCheckPathEqs);
+
 		return p;
+
 	}
 
 	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> makeQuery(
@@ -297,25 +338,25 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 				for (;;) {
 					p = findRedundantT(b);
-				//	System.out.println("found1 " + p);
+					// System.out.println("found1 " + p);
 					if (p == null) {
 						return b;
 					}
-		//			try {
+					// try {
 //						Thread.sleep(1000);
-		//			} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-				//		e.printStackTrace();
-		//			}
-					
+					// } catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					// e.printStackTrace();
+					// }
+
 					b = elimRedundant(p.first, p.second, b, p.third);
-					//System.out.println("now1 " + b);
+					// System.out.println("now1 " + b);
 				}
 
 			}
-			//System.out.println("found2 " + p);
+			// System.out.println("found2 " + p);
 			b = elimRedundant(p.first, p.second, b, p.third);
-		//	System.out.println("now2 " + b);
+			// System.out.println("now2 " + b);
 
 		}
 
@@ -413,8 +454,10 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				throw new RuntimeException("Elim Redundant");
 			}
 			if (en2.equals(atts_en2)) {
-				xatts.put(att2, Chc.inLeft(
-						b.atts.get(att2).l.replaceHead(Head.GenHead(v), Collections.emptyList(), term.convert()).replaceHead(Head.SkHead(v), Collections.emptyList(), term.convert())));
+				xatts.put(att2,
+						Chc.inLeft(
+								b.atts.get(att2).l.replaceHead(Head.GenHead(v), Collections.emptyList(), term.convert())
+										.replaceHead(Head.SkHead(v), Collections.emptyList(), term.convert())));
 			} else {
 				xatts.put(att2, Chc.inLeft(b.atts.get(att2).l));
 			}
@@ -460,10 +503,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 					Term<Ty, En1, Sym, Fk1, Att1, String, String> l = eq.lhs.replaceHead(Head.GenHead(v),
 							(Collections.emptyList()), term.convert()),
 							r = eq.rhs.replaceHead(Head.GenHead(v), (Collections.emptyList()), term.convert());
-					l = l.replaceHead(Head.SkHead(v),
-							(Collections.emptyList()), term.convert());
+					l = l.replaceHead(Head.SkHead(v), (Collections.emptyList()), term.convert());
 					r = r.replaceHead(Head.SkHead(v), (Collections.emptyList()), term.convert());
-					
+
 					if (!l.equals(r)) {
 						eqs.add(new Eq<>(null, l, r));
 					}
@@ -693,33 +735,34 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 					Collections.emptyList(), src, doNotCheckPathEqs, Collections.singletonList("_y_")));
 		}
 
-	//	System.out.println("!!!");
-		
+		// System.out.println("!!!");
+
 		for (Fk2 fk2 : fks.keySet()) {
-			
+
 			Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>> www = new THashMap<>();
-			if (sks.containsKey(fk2)) { www.putAll(sks.get(fk2)); }
-		
-			
+			if (sks.containsKey(fk2)) {
+				www.putAll(sks.get(fk2));
+			}
+
 			for (String v : params.keySet()) {
 				www.put(v, Term.Sk(v));
 			}
 			try {
 				AqlOptions b = fks.get(fk2).second;
 				doNotValidate.put(fk2, b);
-			//	System.out.println("*** " + fks.get(fk2).first.size());
-			//	System.out.println(fks.get(fk2).first);
-		//		System.out.println("+++ " + this.ens.get(dst.fks.get(fk2).second));
-	//			System.out.println(this.ens.get(dst.fks.get(fk2).second));
-		//		this.ens.get(dst.fks.get(fk2).second).gens().forEach((x,y)->{System.out.println(fks.get(fk2).first.get(x));});
-	//			System.out.println("&&&");
+				// System.out.println("*** " + fks.get(fk2).first.size());
+				// System.out.println(fks.get(fk2).first);
+				// System.out.println("+++ " + this.ens.get(dst.fks.get(fk2).second));
+				// System.out.println(this.ens.get(dst.fks.get(fk2).second));
+				// this.ens.get(dst.fks.get(fk2).second).gens().forEach((x,y)->{System.out.println(fks.get(fk2).first.get(x));});
+				// System.out.println("&&&");
 				this.fks.put(fk2,
 						new LiteralTransform<>((x, t) -> fks.get(fk2).first.get(x), (x, t) -> www.get(x),
-								this.ens.get(dst.fks.get(fk2).second), this.ens.get(dst.fks.get(fk2).first), 
+								this.ens.get(dst.fks.get(fk2).second), this.ens.get(dst.fks.get(fk2).first),
 								(boolean) b.getOrDefault(AqlOption.dont_validate_unsafe)));
-	//			System.out.println("|||");
+				// System.out.println("|||");
 			} catch (Throwable thr) {
-				 thr.printStackTrace();
+				thr.printStackTrace();
 				throw new RuntimeException("In transform for foreign key " + fk2 + ", " + thr.getMessage() + "\n\n");
 			}
 		}
@@ -839,8 +882,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 				if (fks != null && fks.containsKey(fk)) {
 					m2.put(fk, "{" + fks.get(fk).toString("", "") + "}");
 				} else {
-			//		System.out.println(Util.sep(dst.fks.entrySet(), ",", g->g + " " + g.getKey().getClass().toString()));
-			//		System.out.println("cannot find " + fk  + " " + fk.getClass());
+					// System.out.println(Util.sep(dst.fks.entrySet(), ",", g->g + " " +
+					// g.getKey().getClass().toString()));
+					// System.out.println("cannot find " + fk + " " + fk.getClass());
 					m2.put(fk, "{ } # MISSING");
 				}
 			}
@@ -1015,7 +1059,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 		return ret;
 	}
-	
+
 	public synchronized Map<En2, String> toSQL2() {
 		var tick = "";
 		var truncate = false;
@@ -1038,13 +1082,12 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 			for (String v : gens.keySet()) {
 				temp.add(tick + src.truncate(gens.get(v), truncate) + tick + " as " + v);
-				//tempL.add(v.toString() + "." + tick + idCol + tick + " as " + v);
+				// tempL.add(v.toString() + "." + tick + idCol + tick + " as " + v);
 			}
-			
+
 			for (Att2 att2 : Util.alphabetical(dst.attsFrom(en2))) {
 				tempL.add(tick + atts.get(att2).l + tick + " as " + att2);
 			}
-			
 
 			toString2 += Util.sep(temp, ",\n\t");
 
@@ -1062,7 +1105,6 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
 		return ret;
 	}
-
 
 	public static <Ty, En, Sym, Fk, Att> Query<Ty, En, Sym, Fk, Att, En, Fk, Att> id(AqlOptions options,
 			Schema<Ty, En, Sym, Fk, Att> S, Schema<Ty, En, Sym, Fk, Att> T) {

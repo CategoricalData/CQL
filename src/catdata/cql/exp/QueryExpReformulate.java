@@ -272,11 +272,11 @@ public class QueryExpReformulate extends QueryExp {
 			Query<String, String, Sym, Fk, Att, String, Fk, Att> sc = Query.makeQuery(ens, atts, Collections.emptyMap(),
 					Collections.emptyMap(), q.src, q.dst, AqlOptions.initialOptions);
 
-			if (null == hom(sc, QueryExpChase.chase(q, c))) {
+			if (null == hom(sc, QueryExpChase.chase(q, c, false))) {
 				Util.anomaly(); // subsquery should be syntactically part of universal plan
 			}
 
-			if (null == hom(q, QueryExpChase.chase(sc, c))) {
+			if (null == hom(q, QueryExpChase.chase(sc, c, false))) {
 
 			} else {
 				ret.add(sc);
@@ -296,7 +296,7 @@ public class QueryExpReformulate extends QueryExp {
 
 	public static boolean subseteq(Query<String, String, Sym, Fk, Att, String, Fk, Att> sq,
 			Query<String, String, Sym, Fk, Att, String, Fk, Att> q, Constraints c) {
-		return hom(q, QueryExpChase.chase(sq, c)) != null;
+		return hom(q, QueryExpChase.chase(sq, c, false)) != null;
 	}
 
 	private static <X, Y> List<Map<X, Y>> extend(List<Map<X, Y>> ms, X x, Y y) {
