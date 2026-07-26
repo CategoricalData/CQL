@@ -46,8 +46,12 @@ sourceSets {
 }
 
 dependencies {
-    // All existing JARs from lib/
-    implementation fileTree(dir: 'lib', include: ['*.jar'])
+    // All existing JARs from lib/. Test framework jars are excluded so Gradle uses the
+    // managed testImplementation versions below; they stay in lib/ for Eclipse to compile against.
+    implementation fileTree(dir: 'lib', include: ['*.jar'],
+        exclude: ['junit-*.jar', 'jupiter-*.jar', 'mockito-*.jar',
+                  'opentest4j-*.jar', 'apiguardian-*.jar',
+                  'byte-buddy-*.jar', 'objenesis-*.jar'])
 
     // Test dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
