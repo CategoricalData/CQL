@@ -104,13 +104,15 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 				if (Collage.defn(eq.ctx, eq.lhs, eq.rhs) || Collage.defn(eq.ctx, eq.rhs, eq.lhs)) {
 					continue;
 				}
-			//	if (lhs.left && typeSide.js.java_tys.containsKey(lhs.l)) {
-				//	throw new RuntimeException("In schema equation " + eq.lhs + " = " + eq.rhs + ", the return type is "
-					//		+ lhs.l
-					//		+ " which is a java type.  \n\nPossible solution: add options allow_java_eqs_unsafe=true ");
-			//	}
-		//		typeSide.assertNoJava(eq.lhs);
-		//		typeSide.assertNoJava(eq.rhs);
+				// if (lhs.left && typeSide.js.java_tys.containsKey(lhs.l)) {
+				// throw new RuntimeException("In schema equation " + eq.lhs + " = " + eq.rhs +
+				// ", the return type is "
+				// + lhs.l
+				// + " which is a java type. \n\nPossible solution: add options
+				// allow_java_eqs_unsafe=true ");
+				// }
+				// typeSide.assertNoJava(eq.lhs);
+				// typeSide.assertNoJava(eq.rhs);
 			}
 		}
 
@@ -137,13 +139,11 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 				typeSide.syms, typeSide.js.java_tys, ens, atts, fks, Collections.emptyMap(), Collections.emptyMap());
 	}
 
-	public static <Ty, Sym, Fk, Att> Schema<Ty, String, Sym, Fk, Att> unit(
-			TypeSide<Ty, Sym> t) {
+	public static <Ty, Sym, Fk, Att> Schema<Ty, String, Sym, Fk, Att> unit(TypeSide<Ty, Sym> t) {
 		return new Schema<>(t, Collections.singleton(""), Collections.emptyMap(), Collections.emptyMap(),
 				Collections.emptySet(), (DP) t.semantics(), false);
 	}
 
-	
 	@SuppressWarnings("unchecked")
 	public static <Ty, En, Sym, Fk, Att> Schema<Ty, En, Sym, Fk, Att> terminal(TypeSide<Ty, Sym> t) {
 		return new Schema<>(t, Collections.emptySet(), Collections.emptyMap(), Collections.emptyMap(),
@@ -205,7 +205,7 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		}
 
 		validate(checkJava);
-		//if (toString().contains("literal")) Util.anomaly();
+		// if (toString().contains("literal")) Util.anomaly();
 	}
 
 	public final DP<Ty, En, Sym, Fk, Att, Void, Void> dp;
@@ -216,52 +216,56 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	public <Gen, Sk> DP<Ty, En, Sym, Fk, Att, Gen, Sk> dp() {
 		return (DP<Ty, En, Sym, Fk, Att, Gen, Sk>) dp;
 	}
-	
+
 	public String toCoq() {
 		StringBuffer sb = new StringBuffer();
-		
+
 		for (var x : typeSide.tys) {
 			sb.append("Parameter " + Mapping.coq(x.toString()) + " : Type.\n");
 		}
 		for (var x : typeSide.syms.entrySet()) {
-			sb.append("Parameter " + Mapping.coq(x.getKey().toString()) + " : " + (Util.sep(x.getValue().first.stream().map((y)->Mapping.coq(y.toString())).collect(Collectors.toList()), " * ")) + (x.getValue().first.isEmpty() ? " " : " -> ") + Mapping.coq(x.getValue().second.toString()) + ".\n");			
+			sb.append("Parameter " + Mapping.coq(x.getKey().toString()) + " : "
+					+ (Util.sep(x.getValue().first.stream().map((y) -> Mapping.coq(y.toString()))
+							.collect(Collectors.toList()), " * "))
+					+ (x.getValue().first.isEmpty() ? " " : " -> ") + Mapping.coq(x.getValue().second.toString())
+					+ ".\n");
 		}
 		int i = 0;
 		StringBuffer sb2 = new StringBuffer();
 		Set<String> sb3 = new HashSet<String>();
-		
-		Function<Att, En> fk1 = (k)->atts.get(k).first;
-		Function<Fk, En> fk2 = (k)->fks.get(k).first;
+
+		Function<Att, En> fk1 = (k) -> atts.get(k).first;
+		Function<Fk, En> fk2 = (k) -> fks.get(k).first;
 
 		for (var x : typeSide.eqs) {
-			sb.append("Axiom ax" + (i++) + " : " + Mapping.toCoq(x.first) + " " + Mapping.coq(x.second.convert(), sb3, fk1, fk2, "") + " = " + Mapping.coq(x.third.convert(), sb3, fk1, fk2, "") + ".\n");			
+			sb.append("Axiom ax" + (i++) + " : " + Mapping.toCoq(x.first) + " "
+					+ Mapping.coq(x.second.convert(), sb3, fk1, fk2, "") + " = "
+					+ Mapping.coq(x.third.convert(), sb3, fk1, fk2, "") + ".\n");
 		}
 		for (var en : ens) {
-			sb2.append("Parameter " + Mapping.coq(en.toString()) + " : Set.\n");	
+			sb2.append("Parameter " + Mapping.coq(en.toString()) + " : Set.\n");
 		}
 
 		for (var en : ens) {
 			for (var fk : fksFrom(en)) {
 				Term tt = Term.Var("x");
-				sb2.append("Parameter " + Mapping.coq(en.toString()) + "_" + Mapping.coq(fk.toString()) 
-				+ " : " + Mapping.coq(en.toString()) + " -> " + Mapping.coq(fks.get(fk).second.toString()) + ".\n");
+				sb2.append("Parameter " + Mapping.coq(en.toString()) + "_" + Mapping.coq(fk.toString()) + " : "
+						+ Mapping.coq(en.toString()) + " -> " + Mapping.coq(fks.get(fk).second.toString()) + ".\n");
 			}
 			for (var att : attsFrom(en)) {
 				Term tt = Term.Var("x");
-				sb2.append("Parameter " + Mapping.coq(en.toString()) + "_" + Mapping.coq(att.toString()) 
-				+ " : " + Mapping.coq(en.toString()) + " -> " + Mapping.coq(atts.get(att).second.toString()) + ".\n");
+				sb2.append("Parameter " + Mapping.coq(en.toString()) + "_" + Mapping.coq(att.toString()) + " : "
+						+ Mapping.coq(en.toString()) + " -> " + Mapping.coq(atts.get(att).second.toString()) + ".\n");
 			}
 		}
-		Function<Att, En> fk1x = (k)->atts.get(k).first;
-		Function<Fk, En> fk2x = (k)->fks.get(k).first;
+		Function<Att, En> fk1x = (k) -> atts.get(k).first;
+		Function<Fk, En> fk2x = (k) -> fks.get(k).first;
 
 		for (var x : eqs) {
-			sb2.append("Axiom ax" + (i++) 
-					+ " : " + Mapping.toCoq(x.first.first, x.first.second)
-					+ " " + Mapping.coq(x.second, sb3, fk1x, fk2x, "") + " = " +
-					Mapping.coq(x.third, sb3, fk1x, fk2x, "") + ".\n");			
+			sb2.append("Axiom ax" + (i++) + " : " + Mapping.toCoq(x.first.first, x.first.second) + " "
+					+ Mapping.coq(x.second, sb3, fk1x, fk2x, "") + " = " + Mapping.coq(x.third, sb3, fk1x, fk2x, "")
+					+ ".\n");
 		}
-
 
 		return sb.toString() + Util.sep(sb3, "\n") + "\n" + sb2.toString();
 	}
@@ -484,6 +488,71 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		return attsFrom.get(en);
 	}
 
+	private static <X> boolean isProperSublist(List<X> a, List<X> b) {
+		if (a.size() >= b.size()) {
+			return false;
+		}
+		return a.equals(b.subList(0, a.size()));
+	}
+
+	public Set<List<Fk>> elimMax(List<Fk> path, Set<List<Fk>> paths) {
+		Set<List<Fk>> ret = new HashSet<>(paths);
+		ret.removeIf((x) -> isProperSublist(x, path));
+		return ret;
+	}
+
+	public Set<List<Fk>> maxPathsFrom(Set<List<Fk>> x) {
+
+		Set<List<Fk>> in = new HashSet<>(x);
+		Set<List<Fk>> ret = new HashSet<>(in);
+
+		while (true) {
+			for (var path : in) {
+				ret = elimMax(path, ret);
+			}
+			if (in.size() == ret.size()) {
+				return ret;
+			}
+			in = ret;
+		}
+
+	}
+
+	public Set<List<Fk>> pathsFrom(En en) {
+		Set<List<Fk>> ret = new HashSet<>();
+		ret.add(new LinkedList<>());
+
+		while (true) {
+			Set<List<Fk>> ret2 = new HashSet<>(ret);
+
+			for (var path : ret) {
+				var exts = prod(en, path);
+				ret2.addAll(exts);
+			}
+			if (ret.size() == ret2.size()) {
+				return ret;
+			}
+			ret = ret2;
+		}
+
+	}
+
+	public List<List<Fk>> prod(En en, List<Fk> path) {
+		List<List<Fk>> ret = new LinkedList<>();
+
+		for (Fk fk : path) {
+			en = fks.get(fk).second;
+		}
+
+		for (Fk fk : fksFrom(en)) {
+			List<Fk> n = new LinkedList<>(path);
+			n.add(fk);
+			ret.add(n);
+		}
+
+		return ret;
+	}
+
 	private Map<En, List<Fk>> fksFrom = null;
 	private Map<En, List<Fk>> fksTo = null;
 
@@ -538,29 +607,30 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 
 	static int constraint_static = 0;
 
-	
-	
 	// (k,q,f) where q is a bunch of drops and then adds and f is the adding of
 	// constraints and
 	public synchronized Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> toSQL(String prefix,
 			String idTy, String idCol, boolean truncate, int vlen, String tick, boolean isOracle, boolean isHive) {
 		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> sqlSrcSchs = new LinkedHashMap<>();
-		
+
 		for (En en1 : Util.alphabetical(ens)) {
 			List<String> l = new LinkedList<>();
 			List<Chc<Fk, Att>> k = new LinkedList<>();
 			if (idCol != null && !isHive) {
-				l.add((tick + idCol + tick + " " + idTy)  + (" primary key") );
+				l.add((tick + idCol + tick + " " + idTy) + (" primary key"));
 			}
 			List<String> f = new LinkedList<>();
 			for (Fk fk1 : fksFrom(en1)) {
-			
+
 				l.add(tick + truncate(Chc.inLeft(fk1), truncate) + tick + " " + idTy + (isHive ? "" : " not null "));
 				k.add(Chc.inLeft(fk1));
-			//	f.add("alter table " + tick + prefix + truncate(en1, truncate) + tick + " add constraint " + tick
-			//			+ prefix + constraint_static++ + tick + " foreign key (" + tick
-			//			+ truncate(Chc.inLeft(fk1), truncate) + tick + ") references " + tick + prefix
-			//			+ truncate(fks.get(fk1).second, truncate) + tick + "(" + tick + idCol + tick + ");");
+				// f.add("alter table " + tick + prefix + truncate(en1, truncate) + tick + " add
+				// constraint " + tick
+				// + prefix + constraint_static++ + tick + " foreign key (" + tick
+				// + truncate(Chc.inLeft(fk1), truncate) + tick + ") references " + tick +
+				// prefix
+				// + truncate(fks.get(fk1).second, truncate) + tick + "(" + tick + idCol + tick
+				// + ");");
 			}
 			for (Att att1 : Util.alphabetical(attsFrom(en1))) {
 				l.add(tick + truncate(Chc.inRight(att1), truncate) + tick + " "
@@ -655,12 +725,11 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	public String toSqlQuick() {
 		String s = "";
 		for (var en : Util.alphabetical(ens)) {
-			List<String> l = attsFrom(en).stream().map(x->"[" + x + "]").collect(Collectors.toList());
-			
-			s += "CREATE TABLE " + en + "(" + Util.sep(Util.alphabetical(l), ",\n", k->k + " Varchar") + ");\n";
+			List<String> l = attsFrom(en).stream().map(x -> "[" + x + "]").collect(Collectors.toList());
+
+			s += "CREATE TABLE " + en + "(" + Util.sep(Util.alphabetical(l), ",\n", k -> k + " Varchar") + ");\n";
 		}
-		return s;		
+		return s;
 	}
 
-	
 }
