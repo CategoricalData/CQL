@@ -4,10 +4,12 @@ plugins {
     id 'jacoco'
     id 'com.github.spotbugs' version '6.1.2'
     id 'com.diffplug.spotless' version '7.0.2'
+    id 'com.gradleup.shadow' version '9.6.1'
 }
 
 group = 'org.categoricaldata'
-version = '1.0.0'
+// Set by the release workflow (see release.config.mjs).
+version = providers.gradleProperty('releaseVersion').getOrElse('0.0.0-SNAPSHOT')
 
 java {
     toolchain {
@@ -63,6 +65,23 @@ dependencies {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.compilerArgs += ['-Xlint:none']
+}
+
+// --- Release jar (published as cql.jar) ---
+shadowJar {
+    manifest {
+        attributes(
+            'Main-Class': 'catdata.ide.IDE',
+            'Implementation-Title': 'CQL',
+            'Implementation-Version': project.version,
+            'Class-Path': '.'
+        )
+    }
+    // Several lib/ jars register the same services; INCLUDE lets the transformer merge them.
+    mergeServiceFiles()
+    filesMatching('META-INF/services/**') {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
 
 // --- Testing ---

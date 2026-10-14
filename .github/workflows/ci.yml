@@ -192,3 +192,37 @@ jobs:
           name: cql-examples
           path: examples/
           retention-days: 14
+
+  # Releases cql.jar for every green push to master. See release.config.mjs.
+  release:
+    name: Release
+    if: github.event_name == 'push' && github.repository == 'CategoricalData/CQL'
+    needs: [test, checkstyle, javac, spotbugs, spotless, docs]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Version, build and publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          npx --yes
+          --package=semantic-release@25.0.9
+          --package=@semantic-release/exec@7.1.0
+          --package=conventional-changelog-conventionalcommits@9.3.1
+          semantic-release
