@@ -76,7 +76,7 @@ public class SchExpSpan extends SchExp {
   @Override
   protected Schema<String, String, Sym, Fk, Att> eval0(AqlEnv env, boolean isCompileTime) {
     AqlOptions ops = env.defaults;
-    Schema<String, String, Sym, Fk, Att> src = InstExpRdfAll.makeSch().eval(env, isCompileTime);
+    Schema<String, String, Sym, Fk, Att> src = InstExpRdfAll.makeSch(new TyExpSch(rel)).eval(env, isCompileTime);
     Schema<String, String, Sym, Fk, Att> relOlog = rel.eval(env, isCompileTime);
     Collage<String, String, Sym, Fk, Att, Void, Void> col = new CCollage<>(src.typeSide.collage());
     if (!relOlog.eqs.isEmpty()) {

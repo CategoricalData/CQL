@@ -3,6 +3,7 @@ package catdata.cql.exp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -14,9 +15,11 @@ import catdata.cql.AqlOptions.AqlOption;
 
 public final class SchExpRdf extends SchExp {
 
+private final	TyExp ty;
+	
   @Override
   public Collection<Pair<String, Kind>> deps() {
-    return Collections.emptyList();
+    return ty.deps();
   }
 
   public <R, P, E extends Exception> R accept(P param, SchExpVisitor<R, P, E> v) throws E {
@@ -33,33 +36,19 @@ public final class SchExpRdf extends SchExp {
     return Collections.emptyMap();
   }
 
-  public SchExpRdf() {
+  public SchExpRdf(TyExp ty) {
+	  this.ty = ty;
   }
 
   @Override
   public Schema<String, String, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
-    return InstExpRdfAll.makeSch().eval(env, isC);
+    return InstExpRdfAll.makeSch(ty).eval(env, isC);
   }
 
-  @Override
-  public int hashCode() {
-    return 0;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    return true;
-  }
-
+ 
   @Override
   public String toString() {
-    return "rdf";
+    return "rdf : " + ty;
   }
 
   @Override
@@ -69,7 +58,8 @@ public final class SchExpRdf extends SchExp {
 
   @Override
   public TyExp type(AqlTyping G) {
-    return new TyExpRdf();
+	  ty.type(G);
+	  return ty;
   }
 
   @Override
@@ -78,6 +68,25 @@ public final class SchExpRdf extends SchExp {
 
   @Override
   public void mapSubExps(Consumer<Exp<?>> f) {
-
+	  ty.mapSubExps(f);
   }
+
+  @Override
+  public int hashCode() {
+	return Objects.hash(ty);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	SchExpRdf other = (SchExpRdf) obj;
+	return Objects.equals(ty, other.ty);
+  }
+  
+  
 }

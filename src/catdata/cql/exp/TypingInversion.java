@@ -2246,17 +2246,17 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
   @Override
   public InstExpRdfAll visitInstExpRdfAll(Unit param, AqlTyping exp) {
-    return new InstExpRdfAll("rdf_uri", Collections.emptyList());
+    return new InstExpRdfAll("rdf_uri", Collections.emptyList(), new TyExpRdf());
   }
 
   @Override
   public InstExpJsonAll visitInstExpJsonAll(Unit param, AqlTyping exp) {
-    return new InstExpJsonAll("json_uri", Collections.emptyList());
+    return new InstExpJsonAll("json_uri", Collections.emptyList(), new TyExpRdf());
   }
 
   @Override
   public InstExpXmlAll visitInstExpXmlAll(Unit param, AqlTyping exp) {
-    return new InstExpXmlAll("xml_uri", Collections.emptyList());
+    return new InstExpXmlAll("xml_uri", Collections.emptyList(), new TyExpRdf());
   }
 
   @Override
@@ -2285,12 +2285,12 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
   @Override
   public InstExpXmlAll visitInstExpMarkdown(Unit param, AqlTyping exp) {
-    return new InstExpXmlAll("md_uri", Collections.emptyList());
+    return new InstExpXmlAll("md_uri", Collections.emptyList(), new TyExpRdf());
   }
 
   @Override
   public InstExpSpanify visitInstExpSpanify(Unit param, AqlTyping exp) {
-    SchExp s = InstExpRdfAll.makeSch();
+    SchExp s = InstExpRdfAll.makeSch(new TyExpRdf());
     InstExp i = new InstExpVar("i");
     exp.defs.schs.put("s", new TyExpRdf());
     exp.defs.insts.put("i", s);
@@ -2300,8 +2300,8 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
   @Override
   public <X, Y> PragmaExpRdfDirectExport<X, Y> visitPragmaExpRdfDirectExport(
       Unit params, AqlTyping exp) {
-    SchExp s = InstExpRdfAll.makeSch();
-    TyExp t = new TyExpRdf();
+    TyExp t = new TyExpVar("t");
+    SchExp s = InstExpRdfAll.makeSch(t);
     InstExp<String, String, X, Y> i = (InstExp<String, String, X, Y>) (Object) new InstExpVar("i");
     exp.defs.schs.put("s", t);
     exp.defs.tys.put("t", Unit.unit);
@@ -2320,7 +2320,7 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
 
   @Override
   public SchExpRdf visitSchExpRdf(Unit params, AqlTyping exp) {
-    return new SchExpRdf();
+    return new SchExpRdf(new TyExpRdf());
   }
 
   @Override

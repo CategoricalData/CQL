@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -26,9 +27,12 @@ public class InstExpXmlAll extends InstExp<String, Null<?>, String, Null<?>> {
 	private final Map<String, String> options;
 
 	private final String jdbcString;
+	
+	private TyExp ty;
 
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
+		ty.mapSubExps(f);
 	}
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
@@ -45,10 +49,11 @@ public class InstExpXmlAll extends InstExp<String, Null<?>, String, Null<?>> {
 		return options;
 	}
 
-	public InstExpXmlAll(String jdbcString, List<Pair<String, String>> options) {
+	public InstExpXmlAll(String jdbcString, List<Pair<String, String>> options, TyExp ty) {
 		this.jdbcString = jdbcString;
 		this.options = Util.toMapSafely(options);
 		this.o2 = options;
+		this.ty = ty;
 	}
 
 	private List<Pair<String, String>> o2;
@@ -74,7 +79,7 @@ public class InstExpXmlAll extends InstExp<String, Null<?>, String, Null<?>> {
 			FileWriter w = new FileWriter(f);
 			w.write(s);
 			w.close();
-			return new InstExpJsonAll(f.getAbsolutePath(), o2).eval(env, isC);
+			return new InstExpJsonAll(f.getAbsolutePath(), o2, ty).eval(env, isC);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -93,21 +98,18 @@ public class InstExpXmlAll extends InstExp<String, Null<?>, String, Null<?>> {
 
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
-		return Collections.emptySet();
+		return ty.deps();
 	}
 
 	@Override
 	public SchExp type(AqlTyping G) {
-		return new SchExpRdf(); // new SchExpInst<>(this);
+		ty.type(G);
+		return new SchExpRdf(ty); // new SchExpInst<>(this);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
-		result = prime * result + ((options == null) ? 0 : options.hashCode());
-		return result;
+		return Objects.hash(jdbcString, options, ty);
 	}
 
 	@Override
@@ -119,17 +121,10 @@ public class InstExpXmlAll extends InstExp<String, Null<?>, String, Null<?>> {
 		if (getClass() != obj.getClass())
 			return false;
 		InstExpXmlAll other = (InstExpXmlAll) obj;
-		if (jdbcString == null) {
-			if (other.jdbcString != null)
-				return false;
-		} else if (!jdbcString.equals(other.jdbcString))
-			return false;
-		if (options == null) {
-			if (other.options != null)
-				return false;
-		} else if (!options.equals(other.options))
-			return false;
-		return true;
+		return Objects.equals(jdbcString, other.jdbcString) && Objects.equals(options, other.options)
+				&& Objects.equals(ty, other.ty);
 	}
+
+	
 
 }

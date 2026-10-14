@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -26,6 +27,8 @@ public class InstExpJsonAll extends InstExp<String, Null<?>, String, Null<?>> {
   private final Map<String, String> options;
 
   private final String jdbcString;
+  
+  private final TyExp ty;
 
   @Override
   public void mapSubExps(Consumer<Exp<?>> f) {
@@ -45,9 +48,10 @@ public class InstExpJsonAll extends InstExp<String, Null<?>, String, Null<?>> {
     return options;
   }
 
-  public InstExpJsonAll(String jdbcString, List<Pair<String, String>> options) {
+  public InstExpJsonAll(String jdbcString, List<Pair<String, String>> options, TyExp ty) {
     this.jdbcString = jdbcString;
     this.options = Util.toMapSafely(options);
+    this.ty = ty;
   }
 
   @Override
@@ -75,7 +79,7 @@ public class InstExpJsonAll extends InstExp<String, Null<?>, String, Null<?>> {
         json2rdf.convert();
       }
       outs.close();
-      return new InstExpRdfAll(out.getAbsolutePath(), Collections.emptyList()).eval(env, isC);
+      return new InstExpRdfAll(out.getAbsolutePath(), Collections.emptyList(), ty).eval(env, isC);
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e.getMessage());
@@ -84,7 +88,7 @@ public class InstExpJsonAll extends InstExp<String, Null<?>, String, Null<?>> {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder().append("import_json_ld_all ").append(Util.quote(jdbcString));
+    final StringBuilder sb = new StringBuilder().append("import_json_ld_all : " + ty + " ").append(Util.quote(jdbcString));
     if (!options.isEmpty()) {
       sb.append(" {\n\t").append("\n\toptions\n\t\t").append(Util.sep(options, " = ", "\n\t\t")).append("}");
     }
@@ -93,43 +97,33 @@ public class InstExpJsonAll extends InstExp<String, Null<?>, String, Null<?>> {
 
   @Override
   public Collection<Pair<String, Kind>> deps() {
-    return Collections.emptySet();
+    return ty.deps();
   }
 
   @Override
   public SchExp type(AqlTyping G) {
-    return new SchExpRdf(); //InstExpRdfAll.makeSch();
+	  ty.type(G);
+    return new SchExpRdf(ty); //InstExpRdfAll.makeSch();
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
-    result = prime * result + ((options == null) ? 0 : options.hashCode());
-    return result;
+	return Objects.hash(jdbcString, options, ty);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    InstExpJsonAll other = (InstExpJsonAll) obj;
-    if (jdbcString == null) {
-      if (other.jdbcString != null)
-        return false;
-    } else if (!jdbcString.equals(other.jdbcString))
-      return false;
-    if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
-    return true;
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	InstExpJsonAll other = (InstExpJsonAll) obj;
+	return Objects.equals(jdbcString, other.jdbcString) && Objects.equals(options, other.options)
+			&& Objects.equals(ty, other.ty);
   }
+
+ 
 
 }

@@ -73,7 +73,7 @@ public class InstExpSpanify<X, Y> extends InstExp<X, Y, X, Y> {
 		AqlOptions ops = new AqlOptions(options, env.defaults);
 		Instance<String, String, Sym, Fk, Att, String, String, X, Y> J = I.eval(env, isC);
 
-		if (!J.schema().typeSide.equals(new TyExpRdf().eval(env, isC))) {
+		if (!J.schema().typeSide.tys.contains("Dom")) {
 			throw new RuntimeException("Not on RDF typeside: " + I);
 		}
 //    if (!J.schema().equals(InstExpRdfAll.makeSch().eval(env, isC))) {

@@ -36,11 +36,9 @@ public class QueryExpSpanify extends QueryExp {
   @Override
   public Pair<SchExp, SchExp> type(AqlTyping G) {
     TyExp u = rel.type(G);
-    TyExp t = InstExpRdfAll.makeSch().type(G);
-    if (!t.equals(u)) {
-      throw new RuntimeException("Typeside mismatch on " + this);
-    }
-    return new Pair<>(new SchExpRdf(), new SchExpSpan(rel));
+    TyExp t = InstExpRdfAll.makeSch(new TyExpSch(rel)).type(G);
+    
+    return new Pair<>(new SchExpRdf(t), new SchExpSpan(rel));
   }
 
   @Override
@@ -68,7 +66,7 @@ public class QueryExpSpanify extends QueryExp {
       throw new IgnoreException();
     }
     AqlOptions ops = env.defaults;
-    Schema<String, String, Sym, Fk, Att> src = InstExpRdfAll.makeSch().eval(env, isCompileTime);
+    Schema<String, String, Sym, Fk, Att> src = InstExpRdfAll.makeSch(new TyExpSch(rel)).eval(env, isCompileTime);
     Schema<String, String, Sym, Fk, Att> relOlog = rel.eval(env, isCompileTime);
     Collage<String, String, Sym, Fk, Att, Void, Void> col = new CCollage<>(src.typeSide.collage());
     if (!relOlog.eqs.isEmpty()) {

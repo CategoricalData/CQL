@@ -33,7 +33,7 @@ mapping M = literal : S -> T {
 		attB -> attZ		
 }
 
-instance I = literal : rdf {
+instance I = literal : rdf : typesideOf S {
 	generators
 		r1 r2 r3 t0 t1 t2 t3 u1 u2 u3 u4: R
 	equations

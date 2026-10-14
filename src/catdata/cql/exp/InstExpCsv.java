@@ -117,7 +117,8 @@ public class InstExpCsv extends
 		Character sepChar = (Character) op.getOrDefault(AqlOption.csv_field_delim_char);
 		Character quoteChar = (Character) op.getOrDefault(AqlOption.csv_quote_char);
 		Character escapeChar = (Character) op.getOrDefault(AqlOption.csv_escape_char);
-
+		boolean skol = (boolean) op.getOrDefault(AqlOption.csv_import_skolem_nulls);
+		
 		final CSVParser parser = new CSVParserBuilder().withSeparator(sepChar).withQuoteChar(quoteChar)
 				.withEscapeChar(escapeChar).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
 
@@ -136,7 +137,7 @@ public class InstExpCsv extends
 				String[] hdrs = rows.get(0);
 				for (int i = 0; i < hdrs.length; i++) {
 					Att att = Att.Att(k, hdrs[i]);
-					sch.atts().put(att, new Pair<>(k, "String"));
+					sch.atts().put(att, new Pair<>(k, skol ? "Dom" : "String"));
 				}
 			}
 			map2.put(k, new Pair<>(new LinkedList<>(), new LinkedList<>()));
@@ -153,9 +154,17 @@ public class InstExpCsv extends
 	@Override
 	protected Map<String, List<String[]>> start(AqlJs<String, Sym> js, Collage<String, String, Sym, Fk, Att, Void, Void> sch)
 			throws Exception {
-		 if (!js.syms.keySet().containsAll(SqlTypeSide.syms().keySet())) {
-		 throw new RuntimeException("CSV import must be onto sql typeside.");
-		 }
+		 
+			boolean skol = (boolean) op.getOrDefault(options, AqlOption.csv_import_skolem_nulls);
+			if (skol) {
+				if (!js.java_tys.containsKey("Dom")) {
+					 throw new RuntimeException("CSV import with skolem must be onto rdf typeside.");
+				 }
+			} else {
+				if (!js.syms.keySet().containsAll(SqlTypeSide.syms().keySet())) {
+					 throw new RuntimeException("CSV import must be onto sql typeside.");
+				 }
+			}
 
 		Map<String, Reader> m = new THashMap<>();
 		// Boolean b = (Boolean) op.getOrDefault(AqlOption.csv_prepend_entity);

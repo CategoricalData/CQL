@@ -301,7 +301,9 @@ public class CombinatorParser implements IAqlParser {
 
 						diff = Parsers.tuple(token("except"), sch_ref.lazy(), sch_ref.lazy()).map(x -> new SchExpDiff(x.b, x.c)),
 				
-				rdf = token("rdf").map(x -> new SchExpRdf()),
+						//rdf = token("rdf").map(x -> new SchExpRdf())
+				rdf = Parsers.tuple(token("rdf").followedBy(token(":")), ty_ref.lazy()).map(x -> new SchExpRdf(x.b)),
+
 				prefix = Parsers.tuple(token("prefix"), sch_ref.lazy(), ident).map(x -> new SchExpPrefix(x.b, x.c)),
 				front = Parsers.tuple(token("front"), eds_ref.lazy(), ident).map(x -> new SchExpFront(x.b, x.c)),
 
@@ -1680,16 +1682,16 @@ public class CombinatorParser implements IAqlParser {
 
 	private static Parser<InstExpRdfAll> instExpRdfAll() {
 		Parser<InstExpRdfAll> ret = Parsers
-				.tuple(token("import_rdf_all"), ident, options.between(token("{"), token("}")).optional())
-				.map(x -> new InstExpRdfAll(x.b, Util.newIfNull(x.c)));
+				.tuple(token("import_rdf_all"), ident.followedBy(token(":")), ty_ref.lazy(), options.between(token("{"), token("}")).optional())
+				.map(x -> new InstExpRdfAll(x.b, Util.newIfNull(x.d), x.c));
 
 		return ret;
 	}
 
 	private static Parser<InstExpXmlAll> instExpXmlAll() {
 		Parser<InstExpXmlAll> ret = Parsers
-				.tuple(token("import_xml_all"), ident, options.between(token("{"), token("}")).optional())
-				.map(x -> new InstExpXmlAll(x.b, Util.newIfNull(x.c)));
+				.tuple(token("import_xml_all"), ident.followedBy(token(":")), ty_ref.lazy(), options.between(token("{"), token("}")).optional())
+				.map(x -> new InstExpXmlAll(x.b, Util.newIfNull(x.d), x.c));
 
 		return ret;
 	}
@@ -1706,8 +1708,8 @@ public class CombinatorParser implements IAqlParser {
 
 	private static Parser<InstExpJsonAll> instExpJsonAll() {
 		Parser<InstExpJsonAll> ret = Parsers
-				.tuple(token("import_json_ld_all"), ident, options.between(token("{"), token("}")).optional())
-				.map(x -> new InstExpJsonAll(x.b, Util.newIfNull(x.c)));
+				.tuple(token("import_json_ld_all"), ident.followedBy(token(":")), ty_ref.lazy(), options.between(token("{"), token("}")).optional())
+				.map(x -> new InstExpJsonAll(x.b, Util.newIfNull(x.d), x.c));
 
 		return ret;
 	}

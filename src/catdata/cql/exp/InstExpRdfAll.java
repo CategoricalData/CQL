@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -43,8 +44,11 @@ public class InstExpRdfAll extends InstExp<String, Null<?>, String, Null<?>> {
 
 	private final String jdbcString;
 
+	private final TyExp ty;
+	
 	@Override
 	public void mapSubExps(Consumer<Exp<?>> f) {
+		ty.mapSubExps(f);
 	}
 
 	public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
@@ -61,9 +65,10 @@ public class InstExpRdfAll extends InstExp<String, Null<?>, String, Null<?>> {
 		return options;
 	}
 
-	public InstExpRdfAll(String jdbcString, List<Pair<String, String>> options) {
+	public InstExpRdfAll(String jdbcString, List<Pair<String, String>> options, TyExp ty) {
 		this.jdbcString = jdbcString;
 		this.options = Util.toMapSafely(options);
+		this.ty = ty;
 	}
 
 	@Override
@@ -72,12 +77,17 @@ public class InstExpRdfAll extends InstExp<String, Null<?>, String, Null<?>> {
 	}
 
 	public Schema<String, String, Sym, Fk, Att> makeSchema(AqlEnv env, AqlOptions ops) {
-		return makeSch().eval(env, false);
+		return makeSch(ty).eval(env, false);
 	}
 
 	@Override
 	public synchronized Instance<String, String, Sym, Fk, Att, String, Null<?>, String, Null<?>> eval0(AqlEnv env,
 			boolean isC) {
+		var tt = ty.eval(env, isC);
+		if (!tt.tys.contains("Dom")) {
+			throw new RuntimeException("Import not onto rdf typeside");
+		}
+		
 		if (isC) {
 			throw new IgnoreException();
 		}
@@ -192,7 +202,7 @@ public class InstExpRdfAll extends InstExp<String, Null<?>, String, Null<?>> {
 		l.add(new Pair<>("object", new Pair<>("R", ("Dom"))));
 		ensX.add("R");
 
-		Schema<String, String, Sym, Fk, Att> sch = new SchExpRaw(new TyExpRdf(), Collections.emptyList(), ensX, fksX,
+		Schema<String, String, Sym, Fk, Att> sch = new SchExpRaw(ty, Collections.emptyList(), ensX, fksX,
 				Collections.emptyList(), l, Collections.emptyList(), Collections.emptyList(), Unit.unit, null).eval(env,
 						isC);
 
@@ -208,7 +218,7 @@ public class InstExpRdfAll extends InstExp<String, Null<?>, String, Null<?>> {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder().append("import_rdf_all ").append(Util.quote(jdbcString));
+		final StringBuilder sb = new StringBuilder().append("import_rdf_all ").append(Util.quote(jdbcString) + " : " + ty + " ");
 		if (!options.isEmpty()) {
 			sb.append(" {\n\t").append("\n\toptions\n\t\t").append(Util.sep(options, " = ", "\n\t\t")).append("}");
 		}
@@ -217,31 +227,28 @@ public class InstExpRdfAll extends InstExp<String, Null<?>, String, Null<?>> {
 
 	@Override
 	public Collection<Pair<String, Kind>> deps() {
-		return Collections.emptySet();
+		return ty.deps();
 	}
 
 	@Override
 	public SchExp type(AqlTyping G) {
-		return makeSch();
+		ty.type(G);
+		return makeSch(ty);
 	}
 
-	public static SchExpRaw makeSch() {
+	public static SchExpRaw makeSch(TyExp ty) {
 		List<Pair<String, Pair<String, String>>> l = new LinkedList<>();
 		l.add(new Pair<>("subject", new Pair<>("R", ("Dom"))));
 		l.add(new Pair<>("predicate", new Pair<>("R", ("Dom"))));
 		l.add(new Pair<>("object", new Pair<>("R", ("Dom"))));
-		return new SchExpRaw(new TyExpRdf(), Collections.emptyList(), Collections.singletonList("R"),
+		return new SchExpRaw(ty, Collections.emptyList(), Collections.singletonList("R"),
 				Collections.emptyList(), Collections.emptyList(), l, Collections.emptyList(), Collections.emptyList(),
 				Unit.unit, null);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((jdbcString == null) ? 0 : jdbcString.hashCode());
-		result = prime * result + ((options == null) ? 0 : options.hashCode());
-		return result;
+		return Objects.hash(jdbcString, options, ty);
 	}
 
 	@Override
@@ -253,17 +260,10 @@ public class InstExpRdfAll extends InstExp<String, Null<?>, String, Null<?>> {
 		if (getClass() != obj.getClass())
 			return false;
 		InstExpRdfAll other = (InstExpRdfAll) obj;
-		if (jdbcString == null) {
-			if (other.jdbcString != null)
-				return false;
-		} else if (!jdbcString.equals(other.jdbcString))
-			return false;
-		if (options == null) {
-			if (other.options != null)
-				return false;
-		} else if (!options.equals(other.options))
-			return false;
-		return true;
+		return Objects.equals(jdbcString, other.jdbcString) && Objects.equals(options, other.options)
+				&& Objects.equals(ty, other.ty);
 	}
+
+	
 
 }
