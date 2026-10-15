@@ -8,8 +8,8 @@ plugins {
 }
 
 group = 'org.categoricaldata'
-// Set by the release workflow (see release.config.mjs).
-version = providers.gradleProperty('releaseVersion').getOrElse('0.0.0-SNAPSHOT')
+// Set by the release job in .github/workflows/ci.yml to the release date (YYYYMMDD).
+version = providers.gradleProperty('releaseVersion').getOrElse('dev')
 
 java {
     toolchain {
