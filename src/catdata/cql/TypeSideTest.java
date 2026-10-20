@@ -1,6 +1,7 @@
 package catdata.cql;
 
 import static catdata.cql.CqlTestHelpers.ops;
+import static catdata.cql.CqlTestHelpers.syntactic;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -68,24 +69,6 @@ class TypeSideTest {
           Term<String, Void, String, Void, Void, Void, Void> l,
           Term<String, Void, String, Void, Void, Void, Void> r) {
     return new Triple<>(ctx, l, r);
-  }
-
-  /** Syntactic equality, which decides the free theory exactly. */
-  private static DP<String, Void, String, Void, Void, Void, Void> syntactic() {
-    return new DP<>() {
-      @Override
-      public String toStringProver() {
-        return "syntactic";
-      }
-
-      @Override
-      public boolean eq(
-          Map<String, Chc<String, Void>> ctx,
-          Term<String, Void, String, Void, Void, Void, Void> lhs,
-          Term<String, Void, String, Void, Void, Void, Void> rhs) {
-        return lhs.equals(rhs);
-      }
-    };
   }
 
   /** The normal form for not(not(x)) = x, not(t) = f and not(f) = t, read as rewrite rules. */

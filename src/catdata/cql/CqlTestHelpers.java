@@ -66,6 +66,24 @@ class CqlTestHelpers {
     return new Schema<>(ts, col, ops());
   }
 
+  /** Decides equations by syntactic equality, which is exact for a free theory. */
+  static <T, E, S, F, A> DP<T, E, S, F, A, Void, Void> syntactic() {
+    return new DP<>() {
+      @Override
+      public String toStringProver() {
+        return "syntactic";
+      }
+
+      @Override
+      public boolean eq(
+          Map<String, Chc<T, E>> ctx,
+          Term<T, E, S, F, A, Void, Void> lhs,
+          Term<T, E, S, F, A, Void, Void> rhs) {
+        return lhs.equals(rhs);
+      }
+    };
+  }
+
   /** A schema equation in a single entity-sorted variable. */
   static Eq<String, String, Sym, Fk, Att, Void, Void> forall(
       String v,
