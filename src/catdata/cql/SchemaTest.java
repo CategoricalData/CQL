@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import catdata.Chc;
@@ -60,10 +59,6 @@ class SchemaTest {
   private static Term<String, String, Sym, Fk, Att, Void, Void> att(
       Att a, Term<String, String, Sym, Fk, Att, Void, Void> t) {
     return Term.Att(a, t);
-  }
-
-  private static Term<String, String, Sym, Fk, Att, Void, Void> str(String s) {
-    return Term.Obj(Optional.of(s), VARCHAR);
   }
 
   private static Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>>
@@ -297,15 +292,21 @@ class SchemaTest {
 
     @Test
     void checkJavaDoesNotCheckSchemaEquations() {
-      // The java checks in validate are commented out, so an equation of java type is accepted
-      // even with checkJava on. TypeSide rejects the same thing (TypeSideTest.JavaValidation).
+      // The java checks in validate are commented out, so an equation of java type between two
+      // composite terms is accepted even with checkJava on. With the checks restored it would be
+      // rejected; an equation that defines an attribute, such as e.name = "k", is exempt either way.
       assertDoesNotThrow(
           () ->
               raw(
                   ens,
                   varchars(ORG_ATTS),
-                  Map.of(),
-                  List.of(eq("e", EMP, att(NAME, v("e")), str("k"))),
+                  ORG_FKS,
+                  List.of(
+                      eq(
+                          "e",
+                          EMP,
+                          att(LABEL, fk(WORKS_IN, v("e"))),
+                          att(LABEL, fk(MANAGES, v("e"))))),
                   true));
     }
   }
