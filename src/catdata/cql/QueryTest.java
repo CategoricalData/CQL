@@ -1,5 +1,7 @@
 package catdata.cql;
 
+import static catdata.cql.CqlTestHelpers.forall;
+import static catdata.cql.CqlTestHelpers.sqlSchema;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -23,7 +25,6 @@ import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
 import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Collage.CCollage;
 import catdata.cql.Query.Agg;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
@@ -74,38 +75,35 @@ class QueryTest {
   }
 
   /**
-   * The schemas, built once and shared: constructing {@link SqlTypeSide} spins up the JS engine
-   * and a prover, which is slow. The source schema is acyclic on purpose; a cyclic one with
-   * generators and no equations trips the divergence check in the initial algebra.
+   * The schemas, built once and shared. The source schema is acyclic on purpose; a cyclic one
+   * with generators and no equations trips the divergence check in the initial algebra.
    */
   private static final class Fixtures {
-    private static final TypeSide<String, Sym> TS = SqlTypeSide.SqlTypeSide(ops());
-
     /** Employee -worksIn-> Department -partOf-> Company, with a Varchar attribute on each. */
     private static final Schema<String, String, Sym, Fk, Att> SRC =
-        schema(
+        sqlSchema(
             List.of(EMP, DEPT, CO),
             Map.of(NAME, EMP, LABEL, DEPT, TITLE, CO),
             Map.of(WORKS_IN, new Pair<>(EMP, DEPT), PART_OF, new Pair<>(DEPT, CO)));
 
     /** A single entity with a single attribute. */
     private static final Schema<String, String, Sym, Fk, Att> ROWS =
-        schema(List.of(ROW), Map.of(OUT, ROW), Map.of());
+        sqlSchema(List.of(ROW), Map.of(OUT, ROW), Map.of());
 
     /** Person -employer-> Unit, with a Varchar attribute on each. */
     private static final Schema<String, String, Sym, Fk, Att> PEOPLE =
-        schema(
+        sqlSchema(
             List.of(PERSON, UNIT),
             Map.of(PNAME, PERSON, UNAME, UNIT),
             Map.of(EMPLOYER, new Pair<>(PERSON, UNIT)));
 
     /** ROWS plus an entity with no attributes, which sorts before Row. */
     private static final Schema<String, String, Sym, Fk, Att> BLANKS =
-        schema(List.of(BLANK, ROW), Map.of(OUT, ROW), Map.of());
+        sqlSchema(List.of(BLANK, ROW), Map.of(OUT, ROW), Map.of());
 
     /** ROWS with the equation forall x:Row. x.out = "k". */
     private static final Schema<String, String, Sym, Fk, Att> CONSTANT_ROWS =
-        schema(
+        sqlSchema(
             List.of(ROW),
             Map.of(OUT, ROW),
             Map.of(),
@@ -113,7 +111,7 @@ class QueryTest {
 
     /** ROWS with the equation forall x:Row. isNull(x.out) = false. */
     private static final Schema<String, String, Sym, Fk, Att> NON_NULL_ROWS =
-        schema(
+        sqlSchema(
             List.of(ROW),
             Map.of(OUT, ROW),
             Map.of(),
@@ -128,7 +126,7 @@ class QueryTest {
 
     /** PEOPLE with a second foreign key and the equation forall p:Person. p.employer = p.backup. */
     private static final Schema<String, String, Sym, Fk, Att> PAIRED =
-        schema(
+        sqlSchema(
             List.of(PERSON, UNIT),
             Map.of(PNAME, PERSON, UNAME, UNIT),
             Map.of(EMPLOYER, new Pair<>(PERSON, UNIT), BACKUP, new Pair<>(PERSON, UNIT)),
@@ -141,41 +139,11 @@ class QueryTest {
 
     /** Node -parent-> Node. */
     private static final Schema<String, String, Sym, Fk, Att> TREE =
-        schema(List.of(NODE), Map.of(), Map.of(PARENT, new Pair<>(NODE, NODE)));
+        sqlSchema(List.of(NODE), Map.of(), Map.of(PARENT, new Pair<>(NODE, NODE)));
 
     /** Step -next-> Step. */
     private static final Schema<String, String, Sym, Fk, Att> LOOP =
-        schema(List.of(STEP), Map.of(), Map.of(NEXT, new Pair<>(STEP, STEP)));
-
-    private static Schema<String, String, Sym, Fk, Att> schema(
-        List<String> ens, Map<Att, String> atts, Map<Fk, Pair<String, String>> fks) {
-      return schema(ens, atts, fks, List.of());
-    }
-
-    private static Schema<String, String, Sym, Fk, Att> schema(
-        List<String> ens,
-        Map<Att, String> atts,
-        Map<Fk, Pair<String, String>> fks,
-        List<Eq<String, String, Sym, Fk, Att, Void, Void>> eqs) {
-      Collage<String, String, Sym, Fk, Att, Void, Void> col = new CCollage<>();
-      col.tys().addAll(TS.tys);
-      col.syms().putAll(TS.syms);
-      col.java_tys().putAll(TS.js.java_tys);
-      col.getEns().addAll(ens);
-      atts.forEach((a, en) -> col.atts().put(a, new Pair<>(en, TY)));
-      col.fks().putAll(fks);
-      col.eqs().addAll(eqs);
-      return new Schema<>(TS, col, ops());
-    }
-
-    /** A schema equation in a single entity-sorted variable. */
-    private static Eq<String, String, Sym, Fk, Att, Void, Void> forall(
-        String v,
-        String en,
-        Term<String, String, Sym, Fk, Att, Void, Void> l,
-        Term<String, String, Sym, Fk, Att, Void, Void> r) {
-      return new Eq<>(Map.of(v, Chc.inRight(en)), l, r);
-    }
+        sqlSchema(List.of(STEP), Map.of(), Map.of(NEXT, new Pair<>(STEP, STEP)));
   }
 
   private static Term<String, String, Sym, Fk, Att, String, String> gen(String v) {
