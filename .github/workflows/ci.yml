@@ -194,8 +194,8 @@ jobs:
           retention-days: 14
 
   # Releases cql.jar for every green push to master. The version is the UTC date (20261015), with
-  # a counter for later releases on the same day (20261015.2). The notes list the commits since
-  # the latest release.
+  # a counter for later releases on the same day (20261015.2). The notes group the commits since
+  # the latest release by conventional commit type, as configured in .github/cliff.toml.
   release:
     name: Release
     if: github.event_name == 'push' && github.repository == 'CategoricalData/CQL'
@@ -247,6 +247,11 @@ jobs:
           ./gradlew shadowJar -PreleaseVersion="$VERSION"
           cp "build/libs/CQL-$VERSION-all.jar" "$RUNNER_TEMP/cql.jar"
 
+      - uses: actions/setup-node@v4
+        if: steps.version.outputs.version
+        with:
+          node-version: "22"
+
       - name: Publish the release
         if: steps.version.outputs.version
         env:
@@ -256,7 +261,7 @@ jobs:
         run: |
           set -euo pipefail
           {
-            git log --no-merges --format="- %s ([%h]($REPO_URL/commit/%H))" "$PREVIOUS..HEAD"
+            npx --yes git-cliff@2.14.2 --config .github/cliff.toml "$PREVIOUS..HEAD"
             echo
             echo "Full changelog: $REPO_URL/compare/$PREVIOUS...$VERSION"
           } > "$RUNNER_TEMP/notes.md"
