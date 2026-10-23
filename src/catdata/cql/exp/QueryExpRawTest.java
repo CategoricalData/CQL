@@ -113,17 +113,19 @@ class QueryExpRawTest {
       assertEquals(Set.of("x"), values(j, "D", "dn"));
     }
 
-    /** Over the sql typeside, a query with params and bindings cannot be evaluated. */
+    /** Over the sql typeside, a bound parameter filters as the value written in would. */
     @Test
-    void cannotEvaluateBoundParameters() throws Exception {
+    void evaluatesBoundParameters() throws Exception {
       String q =
           SCHEMAS
               + "query Q = literal : S -> T {\n params v : Integer bindings v = 2\n"
               + D_BLOCK
               + E_BLOCK.replace("x.salary = 1", "x.salary = v")
-              + "}\ninstance J = eval Q I\n";
-      String msg = ExpTestHelpers.error(q);
-      assertTrue(msg.contains("Cannot enumerate: java.util.Optional."), msg);
+              + "}\n";
+      var j = run(q);
+      assertEquals(1, j.algebra().size("E"));
+      assertEquals(Set.of("b"), values(j, "E", "n"));
+      assertEquals(Set.of("x"), values(j, "D", "dn"));
     }
 
     @Test
