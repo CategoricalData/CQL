@@ -109,8 +109,24 @@ class CqlTestHelpers {
                       Term<String, String, Sym, Fk, Att, String, String>,
                       Term<String, String, Sym, Fk, Att, String, String>>>
               eqs) {
+    return literal(schema, gens, Map.of(), eqs);
+  }
+
+  /** {@link #literal(Schema, Map, List)} with labelled nulls declared as generators of types. */
+  static LiteralInstance<
+          String, String, Sym, Fk, Att, String, String, Integer, Chc<String, Pair<Integer, Att>>>
+      literal(
+          Schema<String, String, Sym, Fk, Att> schema,
+          Map<String, String> gens,
+          Map<String, String> sks,
+          List<
+                  Pair<
+                      Term<String, String, Sym, Fk, Att, String, String>,
+                      Term<String, String, Sym, Fk, Att, String, String>>>
+              eqs) {
     Collage<String, String, Sym, Fk, Att, String, String> col = new CCollage<>(schema.collage());
     col.gens().putAll(gens);
+    col.sks().putAll(sks);
     for (var e : eqs) {
       col.eqs().add(new Eq<>(null, e.first, e.second));
     }
