@@ -1,5 +1,8 @@
 package catdata.cql;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -219,5 +222,31 @@ class CqlTestHelpers {
   /** {@link #skeleton(Term[][])} with a free type algebra. */
   static SkeletonExtensionalInstance<String, String, Sym, Fk, Att> skeleton() {
     return skeleton(arr());
+  }
+
+  /** Runs r with System.out captured, and returns what it printed. */
+  static String stdout(Runnable r) {
+    PrintStream old = System.out;
+    ByteArrayOutputStream buf = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(buf, true, StandardCharsets.UTF_8));
+    try {
+      r.run();
+    } finally {
+      System.setOut(old);
+    }
+    return buf.toString(StandardCharsets.UTF_8);
+  }
+
+  /** Runs r with System.err captured, and returns what it printed. */
+  static String stderr(Runnable r) {
+    PrintStream old = System.err;
+    ByteArrayOutputStream buf = new ByteArrayOutputStream();
+    System.setErr(new PrintStream(buf, true, StandardCharsets.UTF_8));
+    try {
+      r.run();
+    } finally {
+      System.setErr(old);
+    }
+    return buf.toString(StandardCharsets.UTF_8);
   }
 }
