@@ -320,21 +320,20 @@ public class AqlHelp {
     return "<pre>Default: " + o + "</pre>" + s;
   }
 
-  public static void main(String[] args) throws java.io.IOException {
-    File tmp = java.nio.file.Files.createTempDirectory("aqlhelp").toFile();
-    catdata.cql.AqlTester.deleteFilesCreatedDuring(
-        () -> {
-          help(tmp, true);
-          return null; // not used
-        });
-    File help = new File("help");
-    if (help.exists()) {
-      for (File f : help.listFiles()) {
-        f.delete();
-      }
-      help.delete();
+  public static void main(String[] args) {
+    try {
+      File tmp = java.nio.file.Files.createTempDirectory("aqlhelp").toFile();
+      catdata.cql.AqlTester.deleteFilesCreatedDuring(
+          () -> {
+            help(tmp, true);
+            return null; // not used
+          });
+      catdata.cql.AqlTester.replaceDirectory(tmp.toPath(), new File("help").toPath());
+    } catch (java.io.IOException | RuntimeException e) {
+      // exit here too, so the non-daemon threads cannot keep a failed run alive
+      e.printStackTrace();
+      System.exit(1);
     }
-    tmp.renameTo(help);
     System.exit(0); // slay daemons
   }
 

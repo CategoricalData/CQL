@@ -17,8 +17,11 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 
@@ -113,6 +116,38 @@ public class AqlTester {
 
   private static Set<Path> walkPwd() throws IOException {
     return Files.walk(Paths.get("")).collect(java.util.stream.Collectors.toSet());
+  }
+
+  /**
+   * Replaces {@code target} with a copy of the directory {@code source}, then deletes {@code
+   * source}. AqlHelp and AqlExamples generate into a temporary directory, outside the working
+   * directory that deleteFilesCreatedDuring cleans, and that directory can be on another filesystem
+   * (for example when /tmp is a tmpfs). File.renameTo then returns false and moves nothing, so this
+   * copies instead, and every failure is thrown. The source is listed before the target is deleted,
+   * so a missing source leaves the target as it was.
+   */
+  public static void replaceDirectory(Path source, Path target) throws IOException {
+    List<Path> paths;
+    try (Stream<Path> s = Files.walk(source)) {
+      paths = s.toList();
+    }
+    if (Files.exists(target)) {
+      deleteTree(target);
+    }
+    for (Path p : paths) {
+      Files.copy(p, target.resolve(source.relativize(p).toString()));
+    }
+    deleteTree(source);
+  }
+
+  private static void deleteTree(Path root) throws IOException {
+    List<Path> paths;
+    try (Stream<Path> s = Files.walk(root)) {
+      paths = s.sorted(Comparator.reverseOrder()).toList();
+    }
+    for (Path p : paths) {
+      Files.delete(p);
+    }
   }
 
   private static Map<String, Throwable> getTestResult() {

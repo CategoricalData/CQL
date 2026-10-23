@@ -152,27 +152,27 @@ public final class AqlExamples {
 
   /**
    * Generates the manual into a temp dir (wrapped so examples that write files on disk are cleaned
-   * up), then atomically swaps it in as the top-level {@code examples/} directory.
+   * up), then copies it in as the top-level {@code examples/} directory. Exits with status 1 if
+   * either step fails.
    */
-  public static void main(String[] args) throws java.io.IOException {
-    File tmp = java.nio.file.Files.createTempDirectory("aqlexamples").toFile();
-    AqlTester.deleteFilesCreatedDuring(
-        () -> {
-          try {
-            generate(tmp, true);
-          } catch (java.io.IOException e) {
-            throw new RuntimeException(e);
-          }
-          return null; // not used
-        });
-    File examples = new File("examples");
-    if (examples.exists()) {
-      for (File f : examples.listFiles()) {
-        f.delete();
-      }
-      examples.delete();
+  public static void main(String[] args) {
+    try {
+      File tmp = java.nio.file.Files.createTempDirectory("aqlexamples").toFile();
+      AqlTester.deleteFilesCreatedDuring(
+          () -> {
+            try {
+              generate(tmp, true);
+            } catch (java.io.IOException e) {
+              throw new RuntimeException(e);
+            }
+            return null; // not used
+          });
+      AqlTester.replaceDirectory(tmp.toPath(), new File("examples").toPath());
+    } catch (java.io.IOException | RuntimeException e) {
+      // exit here too, so the non-daemon threads cannot keep a failed run alive
+      e.printStackTrace();
+      System.exit(1);
     }
-    tmp.renameTo(examples);
     System.exit(0); // slay daemons (AWT/netty non-daemon threads otherwise hang the JVM)
   }
 }
