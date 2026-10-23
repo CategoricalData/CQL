@@ -9,6 +9,8 @@ import catdata.cql.Collage.CCollage;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
+import catdata.cql.fdm.InitialAlgebra;
+import catdata.cql.fdm.LiteralInstance;
 
 /** Fixtures shared by the tests of the catdata.cql package. */
 class CqlTestHelpers {
@@ -91,5 +93,30 @@ class CqlTestHelpers {
       Term<String, String, Sym, Fk, Att, Void, Void> l,
       Term<String, String, Sym, Fk, Att, Void, Void> r) {
     return new Eq<>(Map.of(v, Chc.inRight(en)), l, r);
+  }
+
+  /**
+   * What {@code instance I = literal : S} evaluates to, as InstExpRaw builds it, with
+   * require_consistency and allow_java_eqs_unsafe true.
+   */
+  static LiteralInstance<
+          String, String, Sym, Fk, Att, String, String, Integer, Chc<String, Pair<Integer, Att>>>
+      literal(
+          Schema<String, String, Sym, Fk, Att> schema,
+          Map<String, String> gens,
+          List<
+                  Pair<
+                      Term<String, String, Sym, Fk, Att, String, String>,
+                      Term<String, String, Sym, Fk, Att, String, String>>>
+              eqs) {
+    Collage<String, String, Sym, Fk, Att, String, String> col = new CCollage<>(schema.collage());
+    col.gens().putAll(gens);
+    for (var e : eqs) {
+      col.eqs().add(new Eq<>(null, e.first, e.second));
+    }
+    InitialAlgebra<String, String, Sym, Fk, Att, String, String> alg =
+        new InitialAlgebra<>(ops(), schema, col, y -> y, (x, y) -> y);
+    return new LiteralInstance<>(
+        schema, col.gens(), col.sks(), eqs, alg.dp(), alg, true, true);
   }
 }
