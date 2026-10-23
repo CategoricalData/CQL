@@ -1,8 +1,12 @@
 package catdata.cql;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiPredicate;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.Collage.CCollage;
@@ -134,5 +138,86 @@ class CqlTestHelpers {
         new InitialAlgebra<>(ops(), schema, col, y -> y, (x, y) -> y);
     return new LiteralInstance<>(
         schema, col.gens(), col.sks(), eqs, alg.dp(), alg, true, true);
+  }
+
+  static final String COLOR = "Color";
+
+  /** red, green : Color. */
+  static final Sym RED = Sym.Sym("red", new Pair<>(List.of(), COLOR));
+
+  static final Sym GREEN = Sym.Sym("green", new Pair<>(List.of(), COLOR));
+
+  /** mix : Color -> Color. */
+  static final Sym MIX = Sym.Sym("mix", new Pair<>(List.of(COLOR), COLOR));
+
+  /** A typeside of one type, Color, without java types; free, so equality is syntactic. */
+  static TypeSide<String, Sym> colors() {
+    Map<Sym, Pair<List<String>, String>> syms = new LinkedHashMap<>();
+    for (Sym s : List.of(RED, GREEN, MIX)) {
+      syms.put(s, s.ty);
+    }
+    return new TypeSide<>(
+        new HashSet<>(Set.of(COLOR)), syms, new HashSet<>(), Map.of(), Map.of(), Map.of(), ops());
+  }
+
+  /** A schema over {@link #colors()}. */
+  static Schema<String, String, Sym, Fk, Att> colorSchema(
+      List<String> ens, Map<Att, Pair<String, String>> atts, Map<Fk, Pair<String, String>> fks) {
+    TypeSide<String, Sym> ts = colors();
+    Collage<String, String, Sym, Fk, Att, Void, Void> col = new CCollage<>();
+    col.tys().addAll(ts.tys);
+    col.syms().putAll(ts.syms);
+    col.getEns().addAll(ens);
+    col.atts().putAll(atts);
+    col.fks().putAll(fks);
+    return new Schema<>(ts, col, ops());
+  }
+
+  @SafeVarargs
+  static <T> T[] arr(T... xs) {
+    return xs;
+  }
+
+  static final Fk SKELETON_F = Fk.Fk("E", "f");
+  static final Att SKELETON_A = Att.Att("E", "a");
+
+  /**
+   * A skeleton over E and D, with f : E -> D and a : E -> Color. E has the rows 0, 1, 2 and D the
+   * rows 3, 4; Color has the labelled nulls 5 and 6, each its own null. f sends 0, 1, 2 to 3, 4, 3,
+   * and a sends them to 5, red and 6. talgEqs are the type algebra's equations, decided
+   * syntactically.
+   */
+  static SkeletonExtensionalInstance<String, String, Sym, Fk, Att> skeleton(
+      Term<String, Void, Sym, Void, Void, Void, Integer>[][] talgEqs) {
+    Map<String, Integer> xs = new LinkedHashMap<>();
+    xs.put("E", 3);
+    xs.put("D", 2);
+    Map<String, Integer> xo = new LinkedHashMap<>();
+    xo.put("E", 0);
+    xo.put("D", 3);
+    BiPredicate<
+            Term<String, Void, Sym, Void, Void, Void, Integer>,
+            Term<String, Void, Sym, Void, Void, Void, Integer>>
+        dp = (l, r) -> l.equals(r);
+    return new SkeletonExtensionalInstance<>(
+        colorSchema(
+            List.of("E", "D"),
+            Map.of(SKELETON_A, new Pair<>("E", COLOR)),
+            Map.of(SKELETON_F, new Pair<>("E", "D"))),
+        xs,
+        Map.of(COLOR, 2),
+        xo,
+        Map.of(COLOR, 5),
+        Map.of(SKELETON_F, new int[] {3, 4, 3}),
+        Map.of(SKELETON_A, arr(Term.Sk(5), Term.Sym(RED, List.of()), Term.Sk(6))),
+        talgEqs,
+        dp,
+        Chc::inLeft,
+        ops());
+  }
+
+  /** {@link #skeleton(Term[][])} with a free type algebra. */
+  static SkeletonExtensionalInstance<String, String, Sym, Fk, Att> skeleton() {
+    return skeleton(arr());
   }
 }
