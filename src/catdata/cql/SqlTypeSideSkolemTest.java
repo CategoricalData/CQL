@@ -1,5 +1,8 @@
 package catdata.cql;
 
+import static catdata.cql.CqlTestHelpers.ops;
+import static catdata.cql.CqlTestHelpers.sqlSchema;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -8,11 +11,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.sql.Types;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import catdata.Chc;
 import catdata.Pair;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -158,6 +167,18 @@ class SqlTypeSideSkolemTest {
     })
     void bindsScalarTypesToTheirJavaClasses(String ty, String java) {
       assertEquals(java, SqlTypeSideSkolem.jts().get(ty));
+    }
+
+    /** Boolean is bound to java.lang.Optional, which does not exist. */
+    @Test
+    void everyBindingButBooleanNamesALoadableClass() {
+      for (Map.Entry<String, String> e : SqlTypeSideSkolem.jts().entrySet()) {
+        if (e.getKey().equals("Boolean")) {
+          assertThrows(ClassNotFoundException.class, () -> Class.forName(e.getValue()));
+        } else {
+          assertDoesNotThrow(() -> Class.forName(e.getValue()), e.getKey());
+        }
+      }
     }
 
     @Test
@@ -399,10 +420,84 @@ class SqlTypeSideSkolemTest {
       }
     }
 
+    /** The eq, isNull, isFalse and null declarations are commented out. */
+    @Test
+    void declaresOnlyTheConstantsTheConnectivesAndPlus() {
+      Map<Sym, Pair<List<String>, String>> syms = SqlTypeSideSkolem.syms();
+      assertEquals(
+          Set.of("true", "false", "not", "and", "or", "+"),
+          syms.keySet().stream().map(x -> x.str).collect(Collectors.toSet()));
+      assertEquals(5 + 9, syms.size());
+    }
+
+    /** Including the Decimal overload declared on Numeric arguments. */
+    @Test
+    void declaresThePlusSortsOfSqlTypeSide() {
+      assertEquals(plusSorts(SqlTypeSide.syms()), plusSorts(SqlTypeSideSkolem.syms()));
+    }
+
+    private Set<Pair<List<String>, String>> plusSorts(Map<Sym, Pair<List<String>, String>> syms) {
+      return syms.keySet().stream()
+          .filter(x -> x.str.equals("+"))
+          .map(x -> x.ty)
+          .collect(Collectors.toSet());
+    }
+
     @Test
     void symKeysAgreeWithTheirDeclaredSignature() {
       for (Map.Entry<Sym, Pair<List<String>, String>> e : SqlTypeSideSkolem.syms().entrySet()) {
         assertEquals(e.getKey().ty, e.getValue(), e.getKey() + " signature disagrees with key");
+      }
+    }
+  }
+
+  @Nested
+  class Construction {
+
+    /**
+     * Every argument of the super call, jfs() included, is evaluated before TypeSide rejects the
+     * first java function without a symbol, so the factory throws and caches nothing.
+     */
+    @Test
+    void failsOnIsFalseEveryTime() {
+      for (int i = 0; i < 2; i++) {
+        RuntimeException e =
+            assertThrows(
+                RuntimeException.class, () -> SqlTypeSideSkolem.SqlTypeSideSkolem(ops()));
+        assertEquals("The java function isFalse is not a declared function", e.getMessage());
+      }
+    }
+  }
+
+  /** makeEds has no callers; it is a copy of SqlTypeSide.makeEds. */
+  @Nested
+  class Eds {
+
+    @Test
+    void areTheEdsOfSqlTypeSide() {
+      Schema<String, String, Sym, Fk, Att> schema = sqlSchema(List.of("E"), Map.of(), Map.of());
+      Constraints c = SqlTypeSideSkolem.makeEds(schema, ops());
+      assertSame(schema, c.schema);
+      assertEquals(3 * SqlTypeSide.tys().size(), c.eds.size());
+      assertEquals(
+          new HashSet<>(SqlTypeSide.makeEds(schema, ops()).eds), new HashSet<>(c.eds));
+    }
+
+    @Test
+    void skipATypeNamedBool() {
+      TypeSide<String, Sym> ts =
+          new TypeSide<>(
+              new HashSet<>(Set.of("Bool", "Int")),
+              new HashMap<>(),
+              new HashSet<>(),
+              Map.of(),
+              Map.of(),
+              Map.of(),
+              ops());
+      Constraints c = SqlTypeSideSkolem.makeEds(Schema.terminal(ts), ops());
+      assertEquals(3, c.eds.size());
+      for (ED ed : c.eds) {
+        assertTrue(ed.As.values().stream().allMatch(Chc.inLeft("Int")::equals));
       }
     }
   }

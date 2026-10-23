@@ -1,0 +1,46 @@
+# Release notes for the release job in .github/workflows/ci.yml, rendered by git-cliff
+# (https://git-cliff.org). Commits are grouped by conventional commit type. Commits that do not
+# follow the convention come first, under "Changes". Merge commits are left out.
+#
+# Preview the notes of the next release:
+#   npx git-cliff@2.14.2 --config .github/cliff.toml "$(gh release view --json tagName --jq .tagName)..HEAD"
+
+[changelog]
+# A group's position comes from the number in its HTML comment, which striptags removes.
+body = """
+{% for group, commits in commits | group_by(attribute="group") -%}
+{% if not loop.first %}{{ "\n" }}{% endif -%}
+### {{ group | striptags | trim }}
+{% for commit in commits %}
+- {% if commit.breaking %}BREAKING: {% endif %}{% if commit.scope %}**{{ commit.scope }}:** {% endif %}\
+{{ commit.message | split(pat="\n") | first | trim }} \
+([{{ commit.id | truncate(length=7, end="") }}]({{ get_env(name="REPO_URL", default="https://github.com/CategoricalData/CQL") }}/commit/{{ commit.id }}))
+{%- endfor %}
+{% endfor %}
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+protect_breaking_commits = true
+filter_commits = false
+sort_commits = "newest"
+# Release tags are UTC dates, with a counter for later releases on the same day.
+tag_pattern = "^[0-9]{8}(\\.[0-9]+)?$"
+commit_parsers = [
+  { message = "^Merge ", skip = true },
+  { message = "^feat(\\(.*\\))?!?:", group = "<!-- 01 -->Features" },
+  { message = "^fix(\\(.*\\))?!?:", group = "<!-- 02 -->Bug fixes" },
+  { message = "^perf(\\(.*\\))?!?:", group = "<!-- 03 -->Performance" },
+  { message = "^refactor(\\(.*\\))?!?:", group = "<!-- 04 -->Refactoring" },
+  { message = "^(revert(\\(.*\\))?!?:|Revert \")", group = "<!-- 05 -->Reverts" },
+  { message = "^docs(\\(.*\\))?!?:", group = "<!-- 06 -->Documentation" },
+  { message = "^test(\\(.*\\))?!?:", group = "<!-- 07 -->Tests" },
+  { message = "^build(\\(.*\\))?!?:", group = "<!-- 08 -->Build" },
+  { message = "^ci(\\(.*\\))?!?:", group = "<!-- 09 -->CI" },
+  { message = "^style(\\(.*\\))?!?:", group = "<!-- 10 -->Style" },
+  { message = "^chore(\\(.*\\))?!?:", group = "<!-- 11 -->Chores" },
+  { message = ".*", group = "<!-- 00 -->Changes" },
+]
