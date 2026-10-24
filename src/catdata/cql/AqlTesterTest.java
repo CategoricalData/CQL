@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Set;
@@ -145,6 +146,63 @@ class AqlTesterTest {
                         return null;
                       }));
       assertInstanceOf(IOException.class, e.getCause());
+    }
+  }
+
+  /**
+   * AqlHelp and AqlExamples used File.renameTo, which returns false when the temporary directory
+   * is on another filesystem, so CI passed without producing help/. replaceDirectory copies, so it
+   * behaves the same on any filesystem, and it throws instead of returning false.
+   */
+  @Nested
+  class ReplaceDirectory {
+
+    private final Path source = base.resolve("source");
+    private final Path target = base.resolve("target");
+
+    @Test
+    void replacesTheTargetWithACopyOfTheSourceAndDeletesTheSource() throws IOException {
+      Files.createDirectories(source.resolve("sub"));
+      Files.writeString(source.resolve("index.html"), "index");
+      Files.writeString(source.resolve("sub").resolve("page.html"), "page");
+      Files.createDirectories(target.resolve("old"));
+      write(target.resolve("stale.html"));
+      write(target.resolve("old").resolve("f.txt"));
+      AqlTester.replaceDirectory(source, target);
+      assertEquals("index", Files.readString(target.resolve("index.html")));
+      assertEquals("page", Files.readString(target.resolve("sub").resolve("page.html")));
+      assertFalse(Files.exists(target.resolve("stale.html")));
+      assertFalse(Files.exists(target.resolve("old")));
+      assertFalse(Files.exists(source));
+    }
+
+    @Test
+    void createsTheTargetWhenItIsMissing() throws IOException {
+      mkdir(source);
+      write(source.resolve("index.html"));
+      AqlTester.replaceDirectory(source, target);
+      assertTrue(Files.exists(target.resolve("index.html")));
+      assertFalse(Files.exists(source));
+    }
+
+    @Test
+    void keepsTheTargetWhenTheSourceIsMissing() {
+      mkdir(target);
+      write(target.resolve("index.html"));
+      assertThrows(NoSuchFileException.class, () -> AqlTester.replaceDirectory(source, target));
+      assertTrue(Files.exists(target.resolve("index.html")));
+    }
+
+    @Test
+    void throwsWhenItCannotDeleteTheTarget() {
+      mkdir(source);
+      write(source.resolve("index.html"));
+      mkdir(target);
+      write(target.resolve("index.html"));
+      target.toFile().setWritable(false);
+      assumeFalse(Files.isWritable(target), "running with rights to ignore it");
+      assertThrows(IOException.class, () -> AqlTester.replaceDirectory(source, target));
+      assertTrue(Files.exists(source.resolve("index.html")));
     }
   }
 }
