@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Paint;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,7 +85,6 @@ import catdata.ide.CodeTextPanel;
 import catdata.ide.GuiUtil;
 import catdata.ide.ProgressPanel;
 import catdata.ide.Split;
-import catdata.provers.EgglogProver;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -1704,22 +1704,62 @@ public final class CqlViewer implements SemanticsVisitor<Unit, JTabbedPane, Runt
 	public <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Unit visit(String k, JTabbedPane ret,
 			Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> Q) {
 		ret.addTab("SQL", makeQueryPanel(Q));
+		ret.addTab("Neo4j", makeQueryPanel2(Q));
 		return Unit.unit;
 	}
 
 	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> JComponent makeQueryPanel(
 			Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
 		try {
-
-			Map<En2, String> l = q.toSQL2();
-			StringBuffer sb = new StringBuffer();
-			for (var x : l.entrySet()) {
-				sb.append("INSERT INTO " + x.getKey() + " " + x.getValue() + ";\n\n");
+			try {
+				JPanel p = new JPanel(new GridLayout(1,1));
+				JPanel k = new JPanel();
+				JButton b = new JButton("Compute");
+				p.add(k);
+				k.add(b);
+				b.addActionListener((ActionEvent e) -> {
+					Map<En2, String> l = q.toSQL2();
+					StringBuffer sb = new StringBuffer();
+					for (var x : l.entrySet()) {
+						sb.append("INSERT INTO " + x.getKey() + " " + x.getValue() + ";\n\n");
+					}
+					var x = new CodeTextPanel("", sb.toString());
+					p.remove(k);
+					p.add(x);
+					p.revalidate();
+				});
+				return p;
+			} catch (Exception ex) {
+				// ex.printStackTrace();
+				return new CodeTextPanel("Exn", ex.getMessage());
 			}
-			return new CodeTextPanel("", sb.toString());
+			
+
+			
 		} catch (Exception ex) {
 			// ex.printStackTrace();
 			return new CodeTextPanel("SQL exn", ex.getMessage());
+		}
+	}
+	
+	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> JComponent makeQueryPanel2(
+			Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> q) {
+		try {
+			JPanel p = new JPanel(new GridLayout(1,1));
+			JPanel k = new JPanel();
+			JButton b = new JButton("Compute");
+			p.add(k);
+			k.add(b);
+			b.addActionListener((ActionEvent e) -> {
+				var x = new CodeTextPanel("", q.toCypher());
+				p.remove(k);
+				p.add(x);
+				p.revalidate();
+			});
+			return p;
+		} catch (Exception ex) {
+			// ex.printStackTrace();
+			return new CodeTextPanel("Exn", ex.getMessage());
 		}
 	}
 

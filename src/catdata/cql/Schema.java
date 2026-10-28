@@ -521,13 +521,23 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 	public Set<List<Fk>> pathsFrom(En en) {
 		Set<List<Fk>> ret = new HashSet<>();
 		ret.add(new LinkedList<>());
-
+		Map<String, Chc<Ty,En>> ctx = Collections.singletonMap("v", Chc.inRight(en));
+		Term<Ty,En,Sym,Fk,Att,Void,Void> v = Term.Var("v");
 		while (true) {
 			Set<List<Fk>> ret2 = new HashSet<>(ret);
 
 			for (var path : ret) {
 				var exts = prod(en, path);
-				ret2.addAll(exts);
+				outer: for (var m : exts) {
+					var mm = Term.Fks(m, v);
+					for (var n : ret2) {
+						var nn = Term.Fks(n, v);
+						if (dp.eq(ctx, nn, mm)) {
+							continue outer;
+						}
+					}
+					ret2.add(m);
+				}
 			}
 			if (ret.size() == ret2.size()) {
 				return ret;
@@ -571,8 +581,6 @@ public final class Schema<Ty, En, Sym, Fk, Att> implements Semantics {
 		}
 		return head;
 	}
-
-	// Chc<Fk, Att>
 
 	private final Map<Object, String> isoC1 = Util.mk();
 	private final Map<String, Object> isoC2 = Util.mk();
