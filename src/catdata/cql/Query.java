@@ -1019,6 +1019,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 	// this is used internally
 	public static final String internal_id_col_name = "rowid";
 
+	
 	public synchronized Map<En2, String> toSQL(String tick, boolean truncate) {
 		if (ret != null) {
 			return ret;
@@ -1280,6 +1281,135 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 			}
 		}
 		return false;
+	}
+	
+	public String toCypher() {
+		StringBuffer sb = new StringBuffer();
+		StringBuffer sb2 = new StringBuffer();
+		StringBuffer sb1 = new StringBuffer();
+		StringBuffer sb3 = new StringBuffer();
+		StringBuffer sb4 = new StringBuffer();
+		StringBuffer dels = new StringBuffer();
+		
+		if (!src.fks.isEmpty()) {
+			throw new RuntimeException("Does not support source side fks");
+		}
+		
+		for (En1 en1 : src.ens) {
+			//add explicit nulls
+			sb1.append("LOAD CSV WITH HEADERS FROM 'file:///" + en1 + ".csv' AS row\n");
+			
+			List<String> temp0 = new LinkedList<>();
+			for (Att1 att1 : src.attsFrom(en1)) {
+				temp0.add(att1 + " : coalesce(row." + att1 + ", '')");
+			}
+//			MERGE (:Artist {name: row[1], year: toInteger(row[2])})
+			sb1.append("MERGE (n:" + en1 + " {" + Util.sep(temp0, ",\n\t") + "});\n\n");
+		//	sb1.append("SET n += row;\n\n");
+			dels.append("MATCH (n: " + en1 + ") DETACH DELETE n;\n\n");
+		}
+		for (En2 en2 : ens.keySet()) {
+			Frozen<Ty, En1, Sym, Fk1, Att1> b = ens.get(en2);
+			Map<String, En1> gens = b.gens;
+			Collection<Pair<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> eqs = b.eqs;
+
+			List<String> temp = new ArrayList<>(gens.size());
+			List<String> temp2 = new LinkedList<>();
+			List<String> temp2x = new LinkedList<>();
+			List<String> temp2y = new LinkedList<>();
+			List<String> temp2z = new LinkedList<>();
+			
+			List<String> temp3 = new LinkedList<>();
+			List<String> temp4 = new LinkedList<>();
+
+			for (String v : gens.keySet()) {
+				temp.add("(" + v + " : " + gens.get(v) + ")");
+				for (Att1 a : src.attsFrom(gens.get(v))) {
+					temp2.add(v + "_" + a + " : " + v + "." + a);
+					temp4.add("ret." + v + "_" + a);
+				}
+
+			}
+			
+			for (Att2 a : dst.attsFrom(en2)) {
+				temp2.add(a + " : " + atts.get(a).l);
+				temp2x.add(a + " : " + "src." + a); //atts todo add
+			}
+			for (Pair<Term<Ty, En1, Sym, Fk1, Att1, String, String>, Term<Ty, En1, Sym, Fk1, Att1, String, String>> eq : eqs) {
+				temp3.add(eq.first + " = " + eq.second);
+			}
+			sb.append("MATCH " + Util.sep(temp, ",\n\t") + "\n");
+			if (!temp3.isEmpty()) {
+				sb.append("WHERE " + Util.sep(temp3, "\n\tAND ") + "\n");
+			}
+			sb.append("MERGE (ret : " + "bag_" + en2 + " {\n\t" + Util.sep(temp2, ",\n\t") + "});\n\n");
+			dels.append("MATCH (n: " + "bag_" + en2 + ") DETACH DELETE n;\n\n");
+			
+			int i = 0;
+			for (var path : dst.maxPathsFrom(dst.pathsFrom(en2))) {
+				String ssrc = "(src:bag_" + en2 + ")";
+				for (var fk : path) {
+					ssrc += "-[:bag_" + fk + "]->(v" + i + ")";
+					for (var a : dst.attsFrom(dst.fks.get(fk).second)) {
+						temp2x.add("v" + i + "_" + a + " : " + "v" + i + "." + a);
+						temp2z.add("src.v" + i + "_" + a);
+					}					
+					i++;
+				}
+				temp2y.add(ssrc);
+			}
+			
+			sb2.append("MATCH " + Util.sep(temp2y, ",\n\t") + "\n");
+			sb2.append("MERGE (dst:" + en2 + " { " + Util.sep(temp2x, ",\n\t") + "})\n");
+			sb2.append("MERGE (src)-[:nat_" + en2 + "]->(dst);\n\n");
+			if (!temp2z.isEmpty()) {
+				sb2.append("MATCH (src:" + en2 + ")\n");
+				sb2.append("REMOVE " + Util.sep(temp2z, ",\n\t") + ";\n\n");
+			}
+			
+			for (Fk2 fk2 : dst.fksFrom(en2)) {
+				var en2x = dst.fks.get(fk2).second;
+				sb4.append("MATCH (srcX:bag_" + en2 + ")-[:nat_" + en2 + "]->(src:" + en2 + "),\n");
+				sb4.append("\t(dstX:bag_" + en2x + ")-[:nat_" + en2x + "]->(dst:" + en2x + "),\n");
+				sb4.append("\t(srcX)-[:bag_" + fk2 + "]->(dstX)\n");
+				sb4.append("MERGE (src)-[:" + fk2 + "]->(dst);\n\n");
+			}
+			
+		}
+		
+		for (Fk2 fk2 : fks.keySet()) {
+			var t = fks.get(fk2);
+			var srcX = dst.fks.get(fk2).first;
+			var dstX = dst.fks.get(fk2).second;
+			sb3.append("MATCH (src : " + "bag_" + srcX + "),(dst : " + "bag_" + dstX + ")\n");
+			List<String> temp3 = new LinkedList<>();
+			Frozen<Ty, En1, Sym, Fk1, Att1> b = ens.get(dstX);
+			Map<String, En1> gens = b.gens;
+			for (var gen : gens.keySet()) {
+				var v = t.trans(Term.Gen(gen));
+				for (Att1 att1 : src.attsFrom(gens.get(gen))) {
+					temp3.add("dst." + gen + "_" + att1 + " = src." + v + "_" + att1);
+				}
+			}
+			if (!temp3.isEmpty()) {
+				sb3.append("WHERE " + Util.sep(temp3, "\n\tAND ") + "\n");
+			}
+			sb3.append("MERGE (src)-[r:" + "bag_" + fk2 + "]->(dst);\n\n");
+			
+			/*List<String> temp = new LinkedList<>();
+			for (Att2 att1 : dst.attsFrom(srcX)) {
+				temp.add("dstX." + att1 + " = dst." + att1);
+			}
+			for (Att2 att2 : dst.attsFrom(dstX)) {
+				temp.add("srcX." + att2 + " = src." + att2);
+			}
+			//need add all fks out for , then for each att, figure out which entity it should come from
+			sb4.append("MATCH (src)-[r:bag_" + fk2 + "]->(dst),(srcX:" + srcX + "),(dstX:" + dstX + ")\n");
+			sb4.append("WHERE " + Util.sep(temp, "\n\tAND ") + "\n");
+			sb4.append("MERGE (srcX)-[r:" + fk2 + "]->(dstX);\n\n"); */
+		} 
+
+		return "/////////////////////////////\n//load csv/////////////////////\n\n" + sb1.toString() + "\n/////////////////////////////\n//create tableau\n/////////////////////////////\n\n" + sb.toString() + "\n/////////////////////////////\n//create edges\n/////////////////////////////\n\n" + sb3.toString() + "\n/////////////////////////////\n//project entities\n/////////////////////////////\n\n" + sb2.toString() + "\n/////////////////////////////\n//project edges/////////////////////////////\n\n" + sb4.toString()  +  "\n/////////////////////////////\n//drop temporary nodes and edges\n/////////////////////////////\n\n" + dels.toString();
 	}
 
 }

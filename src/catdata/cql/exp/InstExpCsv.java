@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +136,13 @@ public class InstExpCsv extends
 
 			if (!rows.isEmpty()) {
 				String[] hdrs = rows.get(0);
+				Set<String> ss = new HashSet<>();
+				for (int i = 0; i < hdrs.length; i++) {
+					ss.add(hdrs[i]);
+				}
+				if (hdrs.length != ss.size()) {
+					throw new RuntimeException("Duplicated field in csv import");
+				}
 				for (int i = 0; i < hdrs.length; i++) {
 					Att att = Att.Att(k, hdrs[i]);
 					sch.atts().put(att, new Pair<>(k, skol ? "Dom" : "String"));
