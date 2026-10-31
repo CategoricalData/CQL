@@ -32,12 +32,12 @@ class AqlCmdLineDarpaTest {
   @Nested
   class Sql {
 
-    /** Issue 21: the drop is unquoted, the create quoted. */
+    /** The drop quotes the table as the create does, which fixed issue 21. */
     @Test
     void schemaToSqlDropsAndCreatesOneTablePerEntity() {
       var s = sqlSchema(List.of("E"), Map.of(Att.Att("E", "a"), "E"), Map.of());
       assertEquals(
-          "drop table if exists E;\n"
+          "drop table if exists \"E\";\n"
               + "create table \"E\"(\"ID\" Integer primary key, \"a\" varchar(255))",
           AqlCmdLineDarpa.schemaToSql(s));
     }

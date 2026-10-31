@@ -14,11 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1068,7 +1070,13 @@ class AlgebraTest {
           "",
           "",
           false,
-          emitNulls);
+          emitNulls,
+          att -> jdbcType(alg, att));
+    }
+
+    /** The JDBC type of an attribute's CQL type, which is what an export binds these types with. */
+    private int jdbcType(TableAlgebra<Sym, Fk, Att> alg, Att att) {
+      return SqlTypeSide.getSqlType(alg.schema().atts.get(att).second);
     }
 
     private TableAlgebra<Sym, Fk, Att> row(
@@ -1166,7 +1174,8 @@ class AlgebraTest {
             "p_",
             "\"",
             false,
-            false);
+            false,
+            att -> jdbcType(alg, att));
         assertEquals(List.of("5|x"), rows(conn, "select \"rowid\", \"a\" from \"p_T\""));
       }
     }
@@ -1296,6 +1305,75 @@ class AlgebraTest {
     void finalizeWithoutAConnectionDoesNothing() {
       TableAlgebra<Sym, Fk, Att> alg = sqlCompany();
       assertDoesNotThrow(alg::finalize);
+    }
+
+    private final Att number = Att.Att(TABLE, "n");
+    private final Att other = Att.Att(TABLE, "o");
+
+    /**
+     * Over SqlTypeSide: the entity T with n : Numeric, o : Other and a : Varchar, where n is 9.99,
+     * 123.4, a labelled null and absent.
+     */
+    private TableAlgebra<Sym, Fk, Att> numbers() {
+      Map<Att, Pair<String, String>> atts = new LinkedHashMap<>();
+      atts.put(number, new Pair<>(TABLE, "Numeric"));
+      atts.put(other, new Pair<>(TABLE, "Other"));
+      atts.put(COL_VARCHAR, new Pair<>(TABLE, VARCHAR));
+      return new TableAlgebra<Sym, Fk, Att>(
+              typedSqlSchema(List.of(TABLE), atts, Map.of(), List.of()))
+          .withRows(TABLE, "r1", "r2", "r3", "r4")
+          .withAtt(number, "r1", Term.Obj(Optional.of(new BigDecimal("9.99")), "Numeric"))
+          .withAtt(number, "r2", Term.Obj(Optional.of(new BigDecimal("123.4")), "Numeric"))
+          .withAtt(number, "r3", sqlSk("y2"))
+          .withAtt(number, "r4", Term.Obj(Optional.empty(), "Numeric"))
+          .withAtt(other, "r1", Term.Obj(Optional.of(42), "Other"))
+          .withAtt(other, "r2", Term.Obj(Optional.empty(), "Other"))
+          .withAtt(other, "r3", Term.Obj(Optional.empty(), "Other"))
+          .withAtt(other, "r4", Term.Obj(Optional.empty(), "Other"))
+          .withAtt(COL_VARCHAR, "r1", str("x"))
+          .withAtt(COL_VARCHAR, "r2", sqlSk("y1"))
+          .withAtt(COL_VARCHAR, "r3", str("z"))
+          .withAtt(COL_VARCHAR, "r4", str("w"))
+          .withTalg(new LinkedHashMap<>(Map.of("y1", VARCHAR, "y2", "Numeric")), List.of());
+    }
+
+    @Test
+    void sqlColumnTypesSizeNumericColumnsFromTheirPresentValues() {
+      Map<Att, Optional<SqlDialect.ColumnType>> types =
+          numbers().sqlColumnTypes(SqlDialect.H2, 32);
+      assertEquals(
+          Optional.of(new SqlDialect.ColumnType("numeric(5,2)", Types.NUMERIC)), types.get(number));
+      assertEquals(
+          Optional.of(new SqlDialect.ColumnType("varchar(32)", Types.VARCHAR)),
+          types.get(COL_VARCHAR));
+      assertEquals(Optional.empty(), types.get(other));
+    }
+
+    @Test
+    void sqlColumnTypesReadValuesOnlyForTypesWhoseColumnsHaveASize() {
+      // a constant that is not an optional fails only where the values are read
+      TableAlgebra<Sym, Fk, Att> alg = numbers().withAtt(COL_VARCHAR, "r1", Term.Obj("x", VARCHAR));
+      assertDoesNotThrow(() -> alg.sqlColumnTypes(SqlDialect.H2, 32));
+      alg.withAtt(number, "r1", Term.Obj(new BigDecimal("1"), "Numeric"));
+      assertThrows(ClassCastException.class, () -> alg.sqlColumnTypes(SqlDialect.H2, 32));
+    }
+
+    @Test
+    void createAndLoadKeepsTheScaleOfNumericValuesAndStoresOtherAsJavaObjects()
+        throws SQLException {
+      TableAlgebra<Sym, Fk, Att> alg = numbers();
+      Connection conn = alg.createAndLoad(Map.of(TABLE, List.of()), alg.intifyX(0), 32);
+      try {
+        Schema<String, String, Sym, Fk, Att> s = alg.schema();
+        String n = s.truncate(Chc.inRight(number), true);
+        String o = s.truncate(Chc.inRight(other), true);
+        // a numeric column without a scale would have rounded 9.99 to 10
+        assertEquals(
+            List.of("9.99|42", "123.40|null", "null|null", "null|null"),
+            rows(conn, "select " + n + ", " + o + " from " + s.truncate(TABLE, true)));
+      } finally {
+        shutdown(conn);
+      }
     }
   }
 }

@@ -434,7 +434,7 @@ class SchemaTest {
       assertEquals(List.of(CO, DEPT, EMP), new ArrayList<>(sql.keySet()));
       assertEquals(
           List.of(
-              "drop table if exists p_Department;",
+              "drop table if exists `p_Department`;",
               "create table `p_Department`(`id` int primary key, `partOf` int not null , `label`"
                   + " varchar(255))"),
           sql.get(DEPT).second);
@@ -479,12 +479,25 @@ class SchemaTest {
     }
 
     @Test
-    void truncatingRenamesTheCreatedTableButNotTheDroppedOne() {
-      // create uses truncate(en1, truncate), drop uses en1 itself.
+    void truncatingRenamesTheCreatedAndTheDroppedTable() {
       Schema<String, String, Sym, Fk, Att> s = plain();
       List<String> q = s.toSQL("", "int", "id", true, 255, "", false, false).get(DEPT).second;
-      assertEquals("drop table if exists Department;", q.get(0));
+      assertEquals("drop table if exists " + s.truncate(DEPT, true) + ";", q.get(0));
       assertTrue(q.get(1).startsWith("create table " + s.truncate(DEPT, true) + "("), q.get(1));
+    }
+
+    @Test
+    void takesEachColumnTypeFromTheGivenFunction() {
+      List<String> q =
+          plain()
+              .toSQL("p_", "int", null, false, "\"", false, att -> "type_of_" + att.str)
+              .get(DEPT)
+              .second;
+      assertEquals(
+          List.of(
+              "drop table if exists \"p_Department\";",
+              "create table \"p_Department\"(\"partOf\" int not null , \"label\" type_of_label)"),
+          q);
     }
 
     @Test

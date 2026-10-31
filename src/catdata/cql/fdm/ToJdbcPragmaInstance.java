@@ -1,5 +1,14 @@
 package catdata.cql.fdm;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.Util;
+import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Instance;
+import catdata.cql.Pragma;
+import catdata.cql.SqlDialect;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -10,151 +19,202 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.Util;
-import catdata.cql.AqlOptions;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Instance;
-import catdata.cql.Pragma;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.TObjectIntMap;
+import java.util.Optional;
 
 public class ToJdbcPragmaInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Pragma {
 
-	private final String jdbcString;
-	private final String prefix;
-	private final String idCol;
-	// private final int truncate;
-	private final String tick;
+  private final String jdbcString;
+  private final String prefix;
+  private final String idCol;
+  // private final int truncate;
+  private final String tick;
 
-	private final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
+  private final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
 
-	private final int len;
-	private AqlOptions options;
-	private final boolean emitIds;
-	private final boolean emitNulls;
+  private final int len;
+  private AqlOptions options;
+  private final boolean emitIds;
+  private final boolean emitNulls;
 
-	public ToJdbcPragmaInstance(String prefix, Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, String jdbcString,
-			AqlOptions options) {
-		
-		this.jdbcString = jdbcString;
-		this.prefix = prefix;
-		this.I = I;
-		idCol = (String) options.getOrDefault(AqlOption.id_column_name);
-		len = (Integer) options.getOrDefault(AqlOption.varchar_length);
-		emitIds = (boolean) options.getOrDefault(AqlOption.emit_ids);
-		// truncate = (Integer)
-		// options.getOrDefault(AqlOption.jdbc_export_truncate_after);
-		tick = (String) options.getOrDefault(AqlOption.jdbc_quote_char);
-		emitNulls = (boolean) options.getOrDefault(AqlOption.emit_nulls);
-		this.options = options;
+  public ToJdbcPragmaInstance(
+      String prefix,
+      Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I,
+      String jdbcString,
+      AqlOptions options) {
 
-		assertDisjoint(idCol);
-	}
+    this.jdbcString = jdbcString;
+    this.prefix = prefix;
+    this.I = I;
+    idCol = (String) options.getOrDefault(AqlOption.id_column_name);
+    len = (Integer) options.getOrDefault(AqlOption.varchar_length);
+    emitIds = (boolean) options.getOrDefault(AqlOption.emit_ids);
+    // truncate = (Integer)
+    // options.getOrDefault(AqlOption.jdbc_export_truncate_after);
+    tick = (String) options.getOrDefault(AqlOption.jdbc_quote_char);
+    emitNulls = (boolean) options.getOrDefault(AqlOption.emit_nulls);
+    this.options = options;
 
-	private void deleteThenCreate(Connection conn) throws SQLException {
-		Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> m = I.schema().toSQL(prefix, "integer",  null,
-				false, len, tick, (boolean) options.getOrDefault(AqlOption.is_oracle), (boolean) options.getOrDefault(AqlOption.jdbc_is_hive));
-		Statement stmt = conn.createStatement();
-		for (En en : I.schema().ens) {
-			for (String x : m.get(en).second) {
-				// TODO aql drop foreign keys here first
-	//			 System.out.println(x);
-				stmt.execute(x);
-			}
-		}
-		stmt.close();
-	}
+    assertDisjoint(idCol);
+  }
 
-	@Override
-	public void execute() {
-		try {
-			if (!I.schema().fks.isEmpty()) {
-				throw new Exception("Cannot export FKs to SQL");
-			}
-			// Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> zzz =
-			// I.schema().toSQL(prefix, "integer",
-			// idCol, false, len, tick);
-			// System.out.println(zzz);
-			Connection conn = DriverManager.getConnection(jdbcString);
-			deleteThenCreate(conn);
-		//	Pair<TObjectIntMap<X>, TIntObjectMap<X>> II = I.algebra()
-		//			.intifyX((int) options.getOrDefault(AqlOption.start_ids_at));
+  /**
+   * The column type of each attribute in the database of {@code conn}, or an exception naming every
+   * attribute the database has no column type for, thrown before any table is dropped or created.
+   */
+  private Map<Att, SqlDialect.ColumnType> columnTypes(Connection conn) throws SQLException {
+    String product = conn.getMetaData().getDatabaseProductName();
+    SqlDialect dialect =
+        (boolean) options.getOrDefault(AqlOption.is_oracle)
+            ? SqlDialect.ORACLE
+            : SqlDialect.of(product);
+    Map<Att, SqlDialect.ColumnType> ret = new HashMap<>();
+    List<String> missing = new LinkedList<>();
+    for (Map.Entry<Att, Optional<SqlDialect.ColumnType>> e :
+        I.algebra().sqlColumnTypes(dialect, len).entrySet()) {
+      if (e.getValue().isPresent()) {
+        ret.put(e.getKey(), e.getValue().get());
+      } else {
+        Pair<En, Ty> t = I.schema().atts.get(e.getKey());
+        missing.add(e.getKey() + " : " + t.first + " -> " + t.second);
+      }
+    }
+    if (!missing.isEmpty()) {
+      throw new RuntimeException(
+          "Cannot JDBC export: "
+              + product
+              + " has no column type for the attributes\n\n\t"
+              + Util.sep(Util.alphabetical(missing), "\n\t")
+              + "\n\nNo table was created. Remove these attributes, for instance with a query, before exporting.");
+    }
+    return ret;
+  }
 
-			for (En en : I.schema().ens) {
-				List<Chc<Fk, Att>> header = headerFor(en);
-				List<String> hdrQ = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
-				List<String> hdr = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
-		//		System.out.println("Emit ids " + emitIds);
-			//	if (emitIds) {
-	//				hdr.add(tick + idCol + tick);
-	//				hdrQ.add("?");
-	//			}
-				for (Chc<Fk, Att> aHeader : header) {
-					hdrQ.add("?");
-					Chc<Fk, Att> chc = aHeader;
-					if (chc.left) {
-						hdr.add(tick + chc.l.toString() + tick); // TODO aql unsafe
-					} else {
-						hdr.add(tick + chc.r.toString() + tick); // TODO aql unsafe
-					}
-				}
-				for (X x : I.algebra().en(en)) {
-					//System.out.println("store ");
-					I.algebra().storeMyRecord(false, hdrQ, hdr, null, conn, x, header, en, prefix, tick, false, emitNulls);
-				}
-			//	System.out.println("--");
+  private void deleteThenCreate(Connection conn, Map<Att, SqlDialect.ColumnType> columnTypes)
+      throws SQLException {
+    Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> m =
+        I.schema()
+            .toSQL(
+                prefix,
+                "integer",
+                null,
+                false,
+                tick,
+                (boolean) options.getOrDefault(AqlOption.jdbc_is_hive),
+                att -> columnTypes.get(att).ddl());
+    Statement stmt = conn.createStatement();
+    for (En en : I.schema().ens) {
+      for (String x : m.get(en).second) {
+        // TODO aql drop foreign keys here first
+        //			 System.out.println(x);
+        stmt.execute(x);
+      }
+    }
+    stmt.close();
+  }
 
-			}
-			// Statement stmt = conn.createStatement();
-			// for (En en : I.schema().ens) {
-			// for (String x : zzz.get(en).third) {
-			// stmt.execute(x);
-			// }
-			// }
-			// stmt.close();
-			conn.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
+  @Override
+  public void execute() {
+    try {
+      if (!I.schema().fks.isEmpty()) {
+        throw new Exception("Cannot export FKs to SQL");
+      }
+      // Map<En, Triple<List<Chc<Fk, Att>>, List<String>, List<String>>> zzz =
+      // I.schema().toSQL(prefix, "integer",
+      // idCol, false, len, tick);
+      // System.out.println(zzz);
+      Connection conn = DriverManager.getConnection(jdbcString);
+      Map<Att, SqlDialect.ColumnType> columnTypes = columnTypes(conn);
+      deleteThenCreate(conn, columnTypes);
+      //	Pair<TObjectIntMap<X>, TIntObjectMap<X>> II = I.algebra()
+      //			.intifyX((int) options.getOrDefault(AqlOption.start_ids_at));
 
-	private List<Chc<Fk, Att>> headerFor(En en) {
-		List<Chc<Fk, Att>> ret = new LinkedList<>();
-		for (Fk fk : I.schema().fksFrom(en)) {
-			ret.add(Chc.inLeft(fk));
-		}
-		for (Att att : I.schema().attsFrom(en)) {
-			ret.add(Chc.inRight(att));
-		}
-		return ret;
-	}
+      for (En en : I.schema().ens) {
+        List<Chc<Fk, Att>> header = headerFor(en);
+        List<String> hdrQ = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
+        List<String> hdr = new ArrayList<>(header.size() + (emitIds ? 1 : 0));
+        //		System.out.println("Emit ids " + emitIds);
+        //	if (emitIds) {
+        //				hdr.add(tick + idCol + tick);
+        //				hdrQ.add("?");
+        //			}
+        for (Chc<Fk, Att> aHeader : header) {
+          hdrQ.add("?");
+          Chc<Fk, Att> chc = aHeader;
+          if (chc.left) {
+            hdr.add(tick + chc.l.toString() + tick); // TODO aql unsafe
+          } else {
+            hdr.add(tick + chc.r.toString() + tick); // TODO aql unsafe
+          }
+        }
+        for (X x : I.algebra().en(en)) {
+          // System.out.println("store ");
+          I.algebra()
+              .storeMyRecord(
+                  false,
+                  hdrQ,
+                  hdr,
+                  null,
+                  conn,
+                  x,
+                  header,
+                  en,
+                  prefix,
+                  tick,
+                  false,
+                  emitNulls,
+                  att -> columnTypes.get(att).jdbcType());
+        }
+        //	System.out.println("--");
 
-	private void assertDisjoint(String idCol) {
-		Collection<Object> entys = Util.isect(I.schema().ens, I.schema().typeSide.tys);
-		if (!entys.isEmpty()) {
-			throw new RuntimeException("Cannot JDBC export: entities and types share names: " + Util.sep(entys, ","));
-		}
-		Collection<Object> attfks = Util.isect(I.schema().atts.keySet(), I.schema().fks.keySet());
-		if (!attfks.isEmpty()) {
-			throw new RuntimeException(
-					"Cannot JDBC export: attributes and foreign keys share names: " + Util.sep(attfks, ","));
-		}
-		if (I.schema().atts.keySet().contains(idCol)) {
-			throw new RuntimeException("Cannot JDBC export: id column (" + idCol + ") is also an attribute");
-		}
-		if (I.schema().fks.keySet().contains(idCol)) {
-			throw new RuntimeException("Cannot JDBC export: id column (" + idCol + ") is also a foreign key");
-		}
-	}
+      }
+      // Statement stmt = conn.createStatement();
+      // for (En en : I.schema().ens) {
+      // for (String x : zzz.get(en).third) {
+      // stmt.execute(x);
+      // }
+      // }
+      // stmt.close();
+      conn.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
 
-	@Override
-	public String toString() {
-		return "Exported " + I.algebra().size() + " rows.";
-	}
+  private List<Chc<Fk, Att>> headerFor(En en) {
+    List<Chc<Fk, Att>> ret = new LinkedList<>();
+    for (Fk fk : I.schema().fksFrom(en)) {
+      ret.add(Chc.inLeft(fk));
+    }
+    for (Att att : I.schema().attsFrom(en)) {
+      ret.add(Chc.inRight(att));
+    }
+    return ret;
+  }
 
+  private void assertDisjoint(String idCol) {
+    Collection<Object> entys = Util.isect(I.schema().ens, I.schema().typeSide.tys);
+    if (!entys.isEmpty()) {
+      throw new RuntimeException(
+          "Cannot JDBC export: entities and types share names: " + Util.sep(entys, ","));
+    }
+    Collection<Object> attfks = Util.isect(I.schema().atts.keySet(), I.schema().fks.keySet());
+    if (!attfks.isEmpty()) {
+      throw new RuntimeException(
+          "Cannot JDBC export: attributes and foreign keys share names: " + Util.sep(attfks, ","));
+    }
+    if (I.schema().atts.keySet().contains(idCol)) {
+      throw new RuntimeException(
+          "Cannot JDBC export: id column (" + idCol + ") is also an attribute");
+    }
+    if (I.schema().fks.keySet().contains(idCol)) {
+      throw new RuntimeException(
+          "Cannot JDBC export: id column (" + idCol + ") is also a foreign key");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "Exported " + I.algebra().size() + " rows.";
+  }
 }
