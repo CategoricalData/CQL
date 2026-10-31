@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,13 +47,29 @@ class SqlTypeSideTest {
           "Longvarbinary", "Varbinary", "Binary", "Bigint", "Boolean", "Bit", "Char", "Double",
           "Double precision", "Decimal", "Numeric", "Float", "Real", "Integer", "Smallint",
           "Tinyint", "Text", "Nvarchar", "Varchar", "Longvarchar", "String", "Custom", "Blob",
-          "Clob", "Other", "Date", "Time", "Timestamp");
+          "Clob", "Other", "Date", "Time", "Timestamp", "Array", "Datalink", "Distinct",
+          "Java_object", "Longnvarchar", "Nchar", "Nclob", "Null", "Ref", "Ref_cursor", "Rowid",
+          "Sqlxml", "Struct", "Time_with_timezone", "Timestamp_with_timezone");
 
   /** The types whose parser keeps its input as a string. */
   private static final Set<String> STRING_TYPES =
       Set.of(
           "Longvarbinary", "Varbinary", "Binary", "Char", "Text", "Nvarchar", "Varchar",
-          "Longvarchar", "String", "Custom", "Blob", "Clob", "Other", "Date");
+          "Longvarchar", "String", "Custom", "Blob", "Clob", "Other", "Date", "Array", "Datalink",
+          "Distinct", "Java_object", "Longnvarchar", "Nchar", "Nclob", "Null", "Ref", "Ref_cursor",
+          "Rowid", "Sqlxml", "Struct");
+
+  /** The JDBC types of Java 17, each of which has a type of its own. */
+  private static final List<Integer> JDBC_TYPES =
+      List.of(
+          Types.ARRAY, Types.BIGINT, Types.BINARY, Types.BIT, Types.BLOB, Types.BOOLEAN,
+          Types.CHAR, Types.CLOB, Types.DATALINK, Types.DATE, Types.DECIMAL, Types.DISTINCT,
+          Types.DOUBLE, Types.FLOAT, Types.INTEGER, Types.JAVA_OBJECT, Types.LONGNVARCHAR,
+          Types.LONGVARBINARY, Types.LONGVARCHAR, Types.NCHAR, Types.NCLOB, Types.NULL,
+          Types.NUMERIC, Types.NVARCHAR, Types.OTHER, Types.REAL, Types.REF, Types.REF_CURSOR,
+          Types.ROWID, Types.SMALLINT, Types.SQLXML, Types.STRUCT, Types.TIME,
+          Types.TIME_WITH_TIMEZONE, Types.TIMESTAMP, Types.TIMESTAMP_WITH_TIMEZONE,
+          Types.TINYINT, Types.VARBINARY, Types.VARCHAR);
 
   private static final Optional<Boolean> T = Optional.of(true);
   private static final Optional<Boolean> F = Optional.of(false);
@@ -192,7 +210,8 @@ class SqlTypeSideTest {
         strings = {
           "Longvarbinary", "Varbinary", "Binary", "Bigint", "Boolean", "Bit", "Char", "Double",
           "Float", "Real", "Integer", "Tinyint", "Text", "Nvarchar", "Varchar", "Longvarchar",
-          "String", "Custom", "Blob", "Clob", "Other", "Date", "Time", "Timestamp"
+          "String", "Custom", "Blob", "Clob", "Other", "Date", "Time", "Timestamp", "Array",
+          "Nchar", "Time_with_timezone", "Timestamp_with_timezone"
         })
     void readNullInAnyCaseAsEmpty(String ty) {
       assertEquals(Optional.empty(), parse(ty, "null"));
@@ -238,6 +257,16 @@ class SqlTypeSideTest {
       Object ts = parse("Timestamp", "2020-01-01 12:00:00");
       assertEquals(Optional.of(Timestamp.valueOf("2020-01-01 12:00:00")), ts);
       assertEquals("Optional[2020-01-01 12:00:00.0]", ts.toString());
+    }
+
+    @Test
+    void readTimesAndTimestampsWithTimeZonesAsOffsetTimes() {
+      assertEquals(
+          Optional.of(OffsetTime.parse("10:11:12+02:00")),
+          parse("Time_with_timezone", "10:11:12+02:00"));
+      assertEquals(
+          Optional.of(OffsetDateTime.parse("2026-01-01T10:11:12+02:00")),
+          parse("Timestamp_with_timezone", "2026-01-01T10:11:12+02:00"));
     }
 
     @Test
@@ -451,6 +480,21 @@ class SqlTypeSideTest {
       expected.put("Blob", Types.BLOB);
       expected.put("Other", Types.OTHER);
       expected.put("Clob", Types.CLOB);
+      expected.put("Array", Types.ARRAY);
+      expected.put("Datalink", Types.DATALINK);
+      expected.put("Distinct", Types.DISTINCT);
+      expected.put("Java_object", Types.JAVA_OBJECT);
+      expected.put("Longnvarchar", Types.LONGNVARCHAR);
+      expected.put("Nchar", Types.NCHAR);
+      expected.put("Nclob", Types.NCLOB);
+      expected.put("Null", Types.NULL);
+      expected.put("Ref", Types.REF);
+      expected.put("Ref_cursor", Types.REF_CURSOR);
+      expected.put("Rowid", Types.ROWID);
+      expected.put("Sqlxml", Types.SQLXML);
+      expected.put("Struct", Types.STRUCT);
+      expected.put("Time_with_timezone", Types.TIME_WITH_TIMEZONE);
+      expected.put("Timestamp_with_timezone", Types.TIMESTAMP_WITH_TIMEZONE);
       Map<String, Integer> actual = new HashMap<>();
       for (String ty : TYPES) {
         if (!ty.equals("Custom")) {
@@ -463,6 +507,33 @@ class SqlTypeSideTest {
     @Test
     void ignoresCase() {
       assertEquals(Types.VARCHAR, SqlTypeSide.getSqlType("VARCHAR"));
+    }
+
+    @Test
+    void givesEveryJdbcTypeTheTypeThatMapsBackToIt() {
+      Set<String> types = new HashSet<>();
+      for (int jdbcType : JDBC_TYPES) {
+        String ty = SqlTypeSide.typeOfJdbcType(jdbcType);
+        assertTrue(TYPES.contains(ty), ty);
+        assertEquals(jdbcType, SqlTypeSide.getSqlType(ty), ty);
+        types.add(ty);
+      }
+      assertEquals(JDBC_TYPES.size(), types.size(), "no two JDBC types share a type");
+    }
+
+    @Test
+    void namesEachTypeAfterItsJdbcType() {
+      assertEquals("Integer", SqlTypeSide.typeOfJdbcType(Types.INTEGER));
+      assertEquals("Bit", SqlTypeSide.typeOfJdbcType(Types.BIT));
+      assertEquals("Time_with_timezone", SqlTypeSide.typeOfJdbcType(Types.TIME_WITH_TIMEZONE));
+    }
+
+    @Test
+    void givesACodeThatIsNoJdbcTypeOfJava17TheTypeOther() {
+      // -155 is SQL Server's datetimeoffset, 2016 is the JSON type of later JDBC versions
+      for (int code : List.of(-155, 2016)) {
+        assertEquals("Other", SqlTypeSide.typeOfJdbcType(code), String.valueOf(code));
+      }
     }
 
     @Test
