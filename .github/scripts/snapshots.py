@@ -1,20 +1,7 @@
-"""Read the pages AqlExamples writes, and compare them with expected output.
+"""Parse AqlExamples pages into canonical results and compare them.
 
-An example page holds the example's source, then one section per definition
-the example computed: ``<h3>instance I</h3>`` followed by one table per
-entity, ``<h3>command c</h3>`` followed by the command's output, or a single
-``<h3>error</h3>`` when the program failed. Only those sections are kept, as
-a ``Result``: the source is in the repository already.
-
-CQL prints rows, columns and labelled nulls in an order that changes from
-run to run. A ``Result`` is therefore canonical: the columns after the row
-ID are sorted by name, the rows are sorted, and every labelled null ``?<n>``
-is written ``?N``. CQL also numbers the rows of some tables, such as the RDF
-triples of the JSON and XML examples, in an order that changes; when no cell
-of an instance refers to a table's row IDs, the ID column is dropped.
-
-The expected output is one JSON file per page, written by ``to_json`` with
-one row per line, so that it can be read and reviewed in a diff.
+CQL's row order, column order and labelled-null numbers change from run to
+run, so ``parse`` sorts rows and columns and writes nulls as ``?N``.
 """
 
 import json
@@ -247,7 +234,7 @@ def _row_report(where: str, expected: Table, actual: Table) -> list[str]:
             f"{where}: columns {_json(actual['columns'])}, "
             f"expected {_json(expected['columns'])}"
         ]
-    report = []
+    report: list[str] = []
     missing = [row for row in expected["rows"] if row not in actual["rows"]]
     unexpected = [row for row in actual["rows"] if row not in expected["rows"]]
     for label, rows in (("missing", missing), ("unexpected", unexpected)):

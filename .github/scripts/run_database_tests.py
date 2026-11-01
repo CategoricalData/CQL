@@ -1,30 +1,7 @@
 #!/usr/bin/env python3
-"""Run the built-in JDBCSQL example against a database and compare the page.
+"""Run the JDBCSQL example on one database and compare its page.
 
-JDBCSQL, the one built-in example that uses a database, is written for H2.
-Its comments say how to run it on another database: set
-``jdbc_default_string`` and replace the URL of its ``load`` command. This
-script makes exactly those two edits to a copy of the example, puts the copy
-first on the classpath and renders it with ``catdata.cql.exp.AqlExamples``,
-as the examples site does. The instances, commands and error of the page,
-made canonical by ``snapshots.parse`` once the numbers that change from run
-to run are replaced, are compared with
-``.github/databases/expected/<database>/JDBCSQL.json``. The expected results
-record what CQL does today on each database, failures included, so a
-difference means that a change altered CQL's behavior there.
-
-The servers run in Docker on ports that differ from their defaults, and the
-JDBC drivers come from Maven Central, checked against the SHA-256 recorded
-below. Run ``./gradlew classes`` first: CQL runs on
-``build/classes/java/main``, ``build/resources/main`` and ``lib/``.
-
-Usage:
-    python3 -B .github/scripts/run_database_tests.py DATABASE [--update]
-        [--keep-database]
-
-DATABASE is one of h2, sqlite, postgresql, mysql, mariadb, sqlserver. With
-``--update`` the expected page is rewritten instead of compared, and with
-``--keep-database`` the database container is left running.
+Requires ``./gradlew classes`` and, except for h2 and sqlite, Docker.
 """
 
 import argparse
@@ -91,7 +68,9 @@ class Server:
     container_port: int
     environment: dict[str, str]
     ready: list[str]
-    prepare: list[list[str]] = dataclasses.field(default_factory=list)
+    prepare: list[list[str]] = dataclasses.field(
+        default_factory=list[list[str]]
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -479,7 +458,7 @@ def run(
 
 def main() -> int:
     """Compare or update the expected page, and return the exit status."""
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("database", choices=sorted(databases(WORK)))
     parser.add_argument(
         "--update", action="store_true", help="rewrite the expected page"

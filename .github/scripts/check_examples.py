@@ -1,16 +1,7 @@
 #!/usr/bin/env python3
-"""Compare the pages AqlExamples generates with the output expected of them.
+"""Compare the generated example pages with their expected output.
 
-AqlExamples (``./gradlew generateExamples``) writes one HTML page per
-runnable built-in example. The instances, commands and error of each page,
-made canonical by ``snapshots.parse``, are compared with
-``.github/examples/expected/<example>.json``, which records what CQL
-computes today.
-
-Usage:
-    python3 -B .github/scripts/check_examples.py GENERATED EXPECTED [--update]
-
-With ``--update`` the expected output is rewritten from the generated pages.
+Run after ``./gradlew generateExamples``.
 """
 
 import argparse
@@ -31,7 +22,7 @@ def generated_results(directory: Path) -> dict[str, snapshots.Result]:
 
 def main() -> int:
     """Compare or update the expected output, and return the exit status."""
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("generated_dir", type=Path)
     parser.add_argument("expected_dir", type=Path)
     parser.add_argument(
