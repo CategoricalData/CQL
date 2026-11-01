@@ -1,0 +1,182 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Department": {
+        "columns": ["name", "secretary"],
+        "rows": [
+          ["Applied Math", "101"],
+          ["Pure Math", "102"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "manager", "name", "worksIn"],
+        "rows": [
+          ["2", "103", "Alan", "10"],
+          ["3", "102", "Camille", "2"],
+          ["4", "103", "Andrey", "10"]
+        ]
+      }
+    },
+    "J": {
+      "Department": {
+        "columns": ["id", "name", "secretary"],
+        "rows": [
+          ["10", "Applied Math", "101"],
+          ["2", "Pure Math", "102"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "id", "last", "manager", "name", "worksIn"],
+        "rows": [
+          ["2", "101", "lname", "103", "Alan", "10"],
+          ["3", "102", "lname", "102", "Camille", "2"],
+          ["4", "103", "lname", "103", "Andrey", "10"]
+        ]
+      }
+    },
+    "J2": {
+      "Department": {
+        "columns": ["id", "name", "secretary"],
+        "rows": [
+          ["10", "Applied Math", "101"],
+          ["2", "Pure Math", "102"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "id", "manager", "name", "worksIn"],
+        "rows": [
+          ["2", "101", "103", "Alan", "10"],
+          ["3", "102", "102", "Camille", "2"],
+          ["4", "103", "103", "Andrey", "10"]
+        ]
+      },
+      "ExportedDepartment": {
+        "columns": ["id", "name", "secretary"],
+        "rows": [
+          ["10", "Applied Math", "101"],
+          ["2", "Pure Math", "102"]
+        ]
+      },
+      "ExportedEmployee": {
+        "columns": ["id", "last", "manager", "name", "worksIn"],
+        "rows": [
+          ["101", "lname", "103", "Alan", "10"],
+          ["102", "lname", "102", "Camille", "2"],
+          ["103", "lname", "103", "Andrey", "10"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "load": [
+      "START",
+      "DROP TABLE IF EXISTS Employee CASCADE;",
+      " DROP TABLE IF EXISTS Department CASCADE;",
+      " DROP TABLE IF EXISTS ExportedEmployee CASCADE;",
+      " DROP TABLE IF EXISTS ExportedDepartment CASCADE;",
+      " DROP TABLE IF EXISTS ExportedTransEmployee CASCADE;",
+      " DROP TABLE IF EXISTS ExportedTransDepartment CASCADE;",
+      "",
+      "Updated 0 rows.",
+      "Updated 0 rows.",
+      "Updated 0 rows.",
+      "Updated 0 rows.",
+      "Updated 0 rows.",
+      "Updated 0 rows.",
+      "END",
+      "",
+      "START",
+      "CREATE TABLE Employee(",
+      " id INT PRIMARY KEY,",
+      " name VARCHAR(255),",
+      " manager INT,",
+      " worksIn INT)",
+      "",
+      "Updated 0 rows.",
+      "END",
+      "",
+      "START",
+      "CREATE TABLE Department(",
+      " id INT PRIMARY KEY,",
+      " name VARCHAR(255),",
+      " secretary INT)",
+      "",
+      "Updated 0 rows.",
+      "END",
+      "",
+      "START",
+      "INSERT INTO Employee VALUES",
+      " (101, 'Alan', 103, 10),",
+      " (102, 'Camille', 102, 2),",
+      " (103, 'Andrey', 103, 10)",
+      "",
+      "Updated 3 rows.",
+      "END",
+      "",
+      "START",
+      "INSERT INTO Department VALUES",
+      " (10, 'Applied Math', 101),",
+      " (2, 'Pure Math', 102)",
+      "",
+      "Updated 2 rows.",
+      "END",
+      "",
+      "START",
+      "ALTER TABLE Employee ADD CONSTRAINT e1",
+      " FOREIGN KEY (manager) REFERENCES Employee (id)",
+      "",
+      "Updated 3 rows.",
+      "END",
+      "",
+      "START",
+      "ALTER TABLE Employee ADD CONSTRAINT e2",
+      " FOREIGN KEY (worksIn) REFERENCES Department (id)",
+      "",
+      "Updated 3 rows.",
+      "END",
+      "",
+      "START",
+      "ALTER TABLE Department ADD CONSTRAINT d1",
+      " FOREIGN KEY (secretary) REFERENCES Employee (id)",
+      "",
+      "Updated 2 rows.",
+      "END"
+    ],
+    "store1": [
+      "Exported 5 rows."
+    ],
+    "view0": [
+      "START",
+      "SELECT * FROM Department",
+      "",
+      "id 2,  name Pure Math,  secretary 102",
+      "id 10,  name Applied Math,  secretary 101",
+      "END",
+      "",
+      "START",
+      "SELECT * FROM Employee",
+      "",
+      "id 101,  name Alan,  manager 103,  worksIn 10",
+      "id 102,  name Camille,  manager 102,  worksIn 2",
+      "id 103,  name Andrey,  manager 103,  worksIn 10",
+      "END"
+    ],
+    "view1": [
+      "START",
+      "SELECT * FROM ExportedEmployee",
+      "",
+      "id 103,  last lname,  manager 103,  name Andrey,  worksIn 10",
+      "id 102,  last lname,  manager 102,  name Camille,  worksIn 2",
+      "id 101,  last lname,  manager 103,  name Alan,  worksIn 10",
+      "END",
+      "",
+      "START",
+      "SELECT * FROM ExportedDepartment",
+      "",
+      "id 10,  name Applied Math,  secretary 101",
+      "id 2,  name Pure Math,  secretary 102",
+      "END"
+    ]
+  }
+}

@@ -1,0 +1,585 @@
+{
+  "error": null,
+  "instances": {
+    "iCausality": {
+      "Causality": {
+        "columns": ["ID", "Causal_Cat"],
+        "rows": [
+          ["0", "Possible"],
+          ["1", "Probable_Likely"],
+          ["2", "Unlikely"],
+          ["3", "Certain"],
+          ["4", "Conditional_Unclassified"],
+          ["5", "Unassessable_Unclassifiable"]
+        ]
+      },
+      "PAM": {
+        "columns": ["AE_Causality", "AM_Med", "AM_PT", "AM_Ptnt_Name"],
+        "rows": [
+          ["0", "Asprin", "cramping", "John"],
+          ["0", "Asprin", "rash", "John"],
+          ["0", "Atorvastatin", "dizziness", "Jane"],
+          ["1", "Asprin", "gi_ulceration", "John"],
+          ["1", "Atorvastatin", "fatigue", "Jane"],
+          ["1", "Atorvastatin", "joint_pain", "Jane"],
+          ["2", "Lisinopril", "cramping", "John"],
+          ["2", "Lisinopril", "gi_ulceration", "John"],
+          ["2", "Lisinopril", "rash", "John"]
+        ]
+      }
+    },
+    "iCinPAM_Asmbly": {
+      "sCausality_Causality": {
+        "columns": ["ID", "Causal_Cat"],
+        "rows": [
+          ["0", "Possible"],
+          ["1", "Probable_Likely"],
+          ["2", "Unlikely"],
+          ["3", "Certain"],
+          ["4", "Conditional_Unclassified"],
+          ["5", "Unassessable_Unclassifiable"]
+        ]
+      },
+      "sCausality_PAM": {
+        "columns": ["AE_Causality", "AM_Med", "AM_PT", "AM_Ptnt_Name"],
+        "rows": [
+          ["0", "Asprin", "cramping", "John"],
+          ["0", "Asprin", "rash", "John"],
+          ["0", "Atorvastatin", "dizziness", "Jane"],
+          ["1", "Asprin", "gi_ulceration", "John"],
+          ["1", "Atorvastatin", "fatigue", "Jane"],
+          ["1", "Atorvastatin", "joint_pain", "Jane"],
+          ["2", "Lisinopril", "cramping", "John"],
+          ["2", "Lisinopril", "gi_ulceration", "John"],
+          ["2", "Lisinopril", "rash", "John"]
+        ]
+      },
+      "sPatientAE_AdvrsEvnt": {
+        "columns": ["ID", "PA_PT"],
+        "rows": []
+      },
+      "sPatientAE_PatientAE": {
+        "columns": ["ID", "PA_AE", "PA_Date_Reported", "PA_Patient"],
+        "rows": []
+      },
+      "sPatientMed_Medication": {
+        "columns": ["ID", "PM_Med_Type"],
+        "rows": []
+      },
+      "sPatientMed_Patient": {
+        "columns": ["ID", "PA_Patient_Name", "PM_Patient_Name"],
+        "rows": []
+      },
+      "sPatientMed_PatientMed": {
+        "columns": ["ID", "PM_Dosage", "PM_Med", "PM_Patient"],
+        "rows": []
+      }
+    },
+    "iPAM_Asmbly": {
+      "sCausality_Causality": {
+        "columns": ["ID", "Causal_Cat"],
+        "rows": [
+          ["0", "Possible"],
+          ["1", "Probable_Likely"],
+          ["2", "Unlikely"],
+          ["3", "Certain"],
+          ["4", "Conditional_Unclassified"],
+          ["5", "Unassessable_Unclassifiable"]
+        ]
+      },
+      "sCausality_PAM": {
+        "columns": ["AE_Causality", "AM_Med", "AM_PT", "AM_Ptnt_Name"],
+        "rows": [
+          ["0", "Asprin", "cramping", "John"],
+          ["0", "Asprin", "rash", "John"],
+          ["0", "Atorvastatin", "dizziness", "Jane"],
+          ["1", "Asprin", "gi_ulceration", "John"],
+          ["1", "Atorvastatin", "fatigue", "Jane"],
+          ["1", "Atorvastatin", "joint_pain", "Jane"],
+          ["2", "Lisinopril", "cramping", "John"],
+          ["2", "Lisinopril", "gi_ulceration", "John"],
+          ["2", "Lisinopril", "rash", "John"]
+        ]
+      },
+      "sPatientAE_AdvrsEvnt": {
+        "columns": ["ID", "PA_PT"],
+        "rows": [
+          ["15", "rash"],
+          ["16", "gi_ulceration"],
+          ["17", "cramping"],
+          ["18", "dizziness"],
+          ["19", "cough"],
+          ["20", "fatigue"],
+          ["21", "joint_pain"],
+          ["22", "nausea"]
+        ]
+      },
+      "sPatientAE_PatientAE": {
+        "columns": ["PA_AE", "PA_Date_Reported", "PA_Patient"],
+        "rows": [
+          ["15", "01/20/2018", "32"],
+          ["16", "01/20/2018", "32"],
+          ["17", "01/20/2018", "32"],
+          ["18", "01/10/2018", "33"],
+          ["20", "01/10/2018", "33"],
+          ["21", "01/10/2018", "33"]
+        ]
+      },
+      "sPatientMed_Medication": {
+        "columns": ["ID", "PM_Med_Type"],
+        "rows": [
+          ["29", "Asprin"],
+          ["30", "Lisinopril"],
+          ["31", "Atorvastatin"]
+        ]
+      },
+      "sPatientMed_Patient": {
+        "columns": ["ID", "PA_Patient_Name", "PM_Patient_Name"],
+        "rows": [
+          ["32", "John", "John"],
+          ["33", "Jane", "Jane"]
+        ]
+      },
+      "sPatientMed_PatientMed": {
+        "columns": ["PM_Dosage", "PM_Med", "PM_Patient"],
+        "rows": [
+          ["10mg", "31", "33"],
+          ["20mg", "30", "32"],
+          ["300mg", "29", "32"]
+        ]
+      }
+    },
+    "iPAM_Asmbly_Sum": {
+      "sCausality_Causality": {
+        "columns": ["ID", "Causal_Cat"],
+        "rows": [
+          ["0", "Possible"],
+          ["1", "Probable_Likely"],
+          ["2", "Unlikely"],
+          ["3", "Certain"],
+          ["4", "Conditional_Unclassified"],
+          ["5", "Unassessable_Unclassifiable"]
+        ]
+      },
+      "sCausality_PAM": {
+        "columns": ["AE_Causality", "AM_Med", "AM_PT", "AM_Ptnt_Name"],
+        "rows": [
+          ["0", "Asprin", "cramping", "John"],
+          ["0", "Asprin", "rash", "John"],
+          ["0", "Atorvastatin", "dizziness", "Jane"],
+          ["1", "Asprin", "gi_ulceration", "John"],
+          ["1", "Atorvastatin", "fatigue", "Jane"],
+          ["1", "Atorvastatin", "joint_pain", "Jane"],
+          ["2", "Lisinopril", "cramping", "John"],
+          ["2", "Lisinopril", "gi_ulceration", "John"],
+          ["2", "Lisinopril", "rash", "John"]
+        ]
+      },
+      "sPatientAE_AdvrsEvnt": {
+        "columns": ["ID", "PA_PT"],
+        "rows": [
+          ["15", "rash"],
+          ["16", "gi_ulceration"],
+          ["17", "cramping"],
+          ["18", "dizziness"],
+          ["19", "cough"],
+          ["20", "fatigue"],
+          ["21", "joint_pain"],
+          ["22", "nausea"]
+        ]
+      },
+      "sPatientAE_PatientAE": {
+        "columns": ["PA_AE", "PA_Date_Reported", "PA_Patient"],
+        "rows": [
+          ["15", "01/20/2018", "32"],
+          ["16", "01/20/2018", "32"],
+          ["17", "01/20/2018", "32"],
+          ["18", "01/10/2018", "33"],
+          ["20", "01/10/2018", "33"],
+          ["21", "01/10/2018", "33"]
+        ]
+      },
+      "sPatientMed_Medication": {
+        "columns": ["ID", "PM_Med_Type"],
+        "rows": [
+          ["29", "Asprin"],
+          ["30", "Lisinopril"],
+          ["31", "Atorvastatin"]
+        ]
+      },
+      "sPatientMed_Patient": {
+        "columns": ["ID", "PA_Patient_Name", "PM_Patient_Name"],
+        "rows": [
+          ["32", "John", "?N"],
+          ["33", "Jane", "?N"],
+          ["34", "?N", "John"],
+          ["35", "?N", "Jane"]
+        ]
+      },
+      "sPatientMed_PatientMed": {
+        "columns": ["PM_Dosage", "PM_Med", "PM_Patient"],
+        "rows": [
+          ["10mg", "31", "35"],
+          ["20mg", "30", "34"],
+          ["300mg", "29", "34"]
+        ]
+      }
+    },
+    "iPAM_DWH": {
+      "D_AdverseEvent": {
+        "columns": ["ID", "Preferred_Term"],
+        "rows": [
+          ["0", "rash"],
+          ["1", "gi_ulceration"],
+          ["2", "cramping"],
+          ["3", "dizziness"],
+          ["4", "cough"],
+          ["5", "fatigue"],
+          ["6", "joint_pain"],
+          ["7", "nausea"]
+        ]
+      },
+      "D_Medication": {
+        "columns": ["ID", "Med_Type"],
+        "rows": [
+          ["10", "Atorvastatin"],
+          ["8", "Asprin"],
+          ["9", "Lisinopril"]
+        ]
+      },
+      "D_Patient": {
+        "columns": ["ID", "Patient_Name"],
+        "rows": [
+          ["11", "John"],
+          ["12", "Jane"]
+        ]
+      },
+      "F_PAM": {
+        "columns": ["Causal_Cat", "PAM_AdverseEvent", "PAM_Medication", "PAM_Patient"],
+        "rows": [
+          ["Possible", "0", "8", "11"],
+          ["Possible", "2", "8", "11"],
+          ["Possible", "3", "10", "12"],
+          ["Probable_Likely", "1", "8", "11"],
+          ["Probable_Likely", "5", "10", "12"],
+          ["Probable_Likely", "6", "10", "12"],
+          ["Unlikely", "0", "9", "11"],
+          ["Unlikely", "1", "9", "11"],
+          ["Unlikely", "2", "9", "11"]
+        ]
+      },
+      "F_PatientAE": {
+        "columns": ["Date_Reported", "PA_AdverseEvent", "PA_Patient"],
+        "rows": [
+          ["01/10/2018", "3", "12"],
+          ["01/10/2018", "5", "12"],
+          ["01/10/2018", "6", "12"],
+          ["01/20/2018", "0", "11"],
+          ["01/20/2018", "1", "11"],
+          ["01/20/2018", "2", "11"]
+        ]
+      },
+      "F_PatientMed": {
+        "columns": ["Dosage", "PM_Medication", "PM_Patient"],
+        "rows": [
+          ["10mg", "10", "12"],
+          ["20mg", "9", "11"],
+          ["300mg", "8", "11"]
+        ]
+      }
+    },
+    "iPAM_Norm": {
+      "AdverseEvent": {
+        "columns": ["ID", "Preferred_Term"],
+        "rows": [
+          ["0", "rash"],
+          ["1", "gi_ulceration"],
+          ["2", "cramping"],
+          ["3", "dizziness"],
+          ["4", "cough"],
+          ["5", "fatigue"],
+          ["6", "joint_pain"],
+          ["7", "nausea"]
+        ]
+      },
+      "Causality": {
+        "columns": ["ID", "Causal_Cat"],
+        "rows": [
+          ["10", "Unlikely"],
+          ["11", "Certain"],
+          ["12", "Conditional_Unclassified"],
+          ["13", "Unassessable_Unclassifiable"],
+          ["8", "Possible"],
+          ["9", "Probable_Likely"]
+        ]
+      },
+      "Medication": {
+        "columns": ["ID", "Med_Type"],
+        "rows": [
+          ["14", "Asprin"],
+          ["15", "Lisinopril"],
+          ["16", "Atorvastatin"]
+        ]
+      },
+      "PAM": {
+        "columns": ["PAM_C", "PAM_PA", "PAM_PM"],
+        "rows": [
+          ["10", "28", "35"],
+          ["10", "29", "35"],
+          ["10", "30", "35"],
+          ["8", "28", "34"],
+          ["8", "30", "34"],
+          ["8", "31", "36"],
+          ["9", "29", "34"],
+          ["9", "32", "36"],
+          ["9", "33", "36"]
+        ]
+      },
+      "Patient": {
+        "columns": ["ID", "Patient_Name"],
+        "rows": [
+          ["26", "John"],
+          ["27", "Jane"]
+        ]
+      },
+      "PatientAE": {
+        "columns": ["ID", "Date_Reported", "PA_AE", "PA_Patient"],
+        "rows": [
+          ["28", "01/20/2018", "0", "26"],
+          ["29", "01/20/2018", "1", "26"],
+          ["30", "01/20/2018", "2", "26"],
+          ["31", "01/10/2018", "3", "27"],
+          ["32", "01/10/2018", "5", "27"],
+          ["33", "01/10/2018", "6", "27"]
+        ]
+      },
+      "PatientMed": {
+        "columns": ["ID", "Dosage", "PM_Med", "PM_Patient"],
+        "rows": [
+          ["34", "300mg", "14", "26"],
+          ["35", "20mg", "15", "26"],
+          ["36", "10mg", "16", "27"]
+        ]
+      }
+    },
+    "iPAM_Rpt_1": {
+      "PAM_Rpt": {
+        "columns": ["AE_Preferred_Term", "Causal_Cat", "Medication", "Patient_Name"],
+        "rows": [
+          ["cramping", "Possible", "Asprin", "John"],
+          ["cramping", "Unlikely", "Lisinopril", "John"],
+          ["dizziness", "Possible", "Atorvastatin", "Jane"],
+          ["fatigue", "Probable_Likely", "Atorvastatin", "Jane"],
+          ["gi_ulceration", "Probable_Likely", "Asprin", "John"],
+          ["gi_ulceration", "Unlikely", "Lisinopril", "John"],
+          ["joint_pain", "Probable_Likely", "Atorvastatin", "Jane"],
+          ["rash", "Possible", "Asprin", "John"],
+          ["rash", "Unlikely", "Lisinopril", "John"]
+        ]
+      },
+      "PA_Rpt": {
+        "columns": ["AE_Preferred_Term", "Date_Reported", "Patient_Name"],
+        "rows": [
+          ["cramping", "01/20/2018", "John"],
+          ["dizziness", "01/10/2018", "Jane"],
+          ["fatigue", "01/10/2018", "Jane"],
+          ["gi_ulceration", "01/20/2018", "John"],
+          ["joint_pain", "01/10/2018", "Jane"],
+          ["rash", "01/20/2018", "John"]
+        ]
+      },
+      "PM_Rpt": {
+        "columns": ["Dosage", "Medication", "Patient_Name"],
+        "rows": [
+          ["10mg", "Atorvastatin", "Jane"],
+          ["20mg", "Lisinopril", "John"],
+          ["300mg", "Asprin", "John"]
+        ]
+      }
+    },
+    "iPAM_Rpt_2": {
+      "PAM_Rpt": {
+        "columns": ["AE_Preferred_Term", "Causal_Cat", "Medication", "Patient_Name"],
+        "rows": [
+          ["cramping", "Possible", "Asprin", "John"],
+          ["cramping", "Unlikely", "Lisinopril", "John"],
+          ["dizziness", "Possible", "Atorvastatin", "Jane"],
+          ["fatigue", "Probable_Likely", "Atorvastatin", "Jane"],
+          ["gi_ulceration", "Probable_Likely", "Asprin", "John"],
+          ["gi_ulceration", "Unlikely", "Lisinopril", "John"],
+          ["joint_pain", "Probable_Likely", "Atorvastatin", "Jane"],
+          ["rash", "Possible", "Asprin", "John"],
+          ["rash", "Unlikely", "Lisinopril", "John"]
+        ]
+      },
+      "PA_Rpt": {
+        "columns": ["AE_Preferred_Term", "Date_Reported", "Patient_Name"],
+        "rows": [
+          ["cramping", "01/20/2018", "John"],
+          ["dizziness", "01/10/2018", "Jane"],
+          ["fatigue", "01/10/2018", "Jane"],
+          ["gi_ulceration", "01/20/2018", "John"],
+          ["joint_pain", "01/10/2018", "Jane"],
+          ["rash", "01/20/2018", "John"]
+        ]
+      },
+      "PM_Rpt": {
+        "columns": ["Dosage", "Medication", "Patient_Name"],
+        "rows": [
+          ["10mg", "Atorvastatin", "Jane"],
+          ["20mg", "Lisinopril", "John"],
+          ["300mg", "Asprin", "John"]
+        ]
+      }
+    },
+    "iPAinPAM_Asmbly": {
+      "sCausality_Causality": {
+        "columns": ["ID", "Causal_Cat"],
+        "rows": []
+      },
+      "sCausality_PAM": {
+        "columns": ["ID", "AE_Causality", "AM_Med", "AM_PT", "AM_Ptnt_Name"],
+        "rows": []
+      },
+      "sPatientAE_AdvrsEvnt": {
+        "columns": ["ID", "PA_PT"],
+        "rows": [
+          ["0", "rash"],
+          ["1", "gi_ulceration"],
+          ["2", "cramping"],
+          ["3", "dizziness"],
+          ["4", "cough"],
+          ["5", "fatigue"],
+          ["6", "joint_pain"],
+          ["7", "nausea"]
+        ]
+      },
+      "sPatientAE_PatientAE": {
+        "columns": ["PA_AE", "PA_Date_Reported", "PA_Patient"],
+        "rows": [
+          ["0", "01/20/2018", "14"],
+          ["1", "01/20/2018", "14"],
+          ["2", "01/20/2018", "14"],
+          ["3", "01/10/2018", "15"],
+          ["5", "01/10/2018", "15"],
+          ["6", "01/10/2018", "15"]
+        ]
+      },
+      "sPatientMed_Medication": {
+        "columns": ["ID", "PM_Med_Type"],
+        "rows": []
+      },
+      "sPatientMed_Patient": {
+        "columns": ["ID", "PA_Patient_Name", "PM_Patient_Name"],
+        "rows": [
+          ["14", "John", "?N"],
+          ["15", "Jane", "?N"]
+        ]
+      },
+      "sPatientMed_PatientMed": {
+        "columns": ["ID", "PM_Dosage", "PM_Med", "PM_Patient"],
+        "rows": []
+      }
+    },
+    "iPMinPAM_Asmbly": {
+      "sCausality_Causality": {
+        "columns": ["ID", "Causal_Cat"],
+        "rows": []
+      },
+      "sCausality_PAM": {
+        "columns": ["ID", "AE_Causality", "AM_Med", "AM_PT", "AM_Ptnt_Name"],
+        "rows": []
+      },
+      "sPatientAE_AdvrsEvnt": {
+        "columns": ["ID", "PA_PT"],
+        "rows": []
+      },
+      "sPatientAE_PatientAE": {
+        "columns": ["ID", "PA_AE", "PA_Date_Reported", "PA_Patient"],
+        "rows": []
+      },
+      "sPatientMed_Medication": {
+        "columns": ["ID", "PM_Med_Type"],
+        "rows": [
+          ["0", "Asprin"],
+          ["1", "Lisinopril"],
+          ["2", "Atorvastatin"]
+        ]
+      },
+      "sPatientMed_Patient": {
+        "columns": ["ID", "PA_Patient_Name", "PM_Patient_Name"],
+        "rows": [
+          ["3", "?N", "John"],
+          ["4", "?N", "Jane"]
+        ]
+      },
+      "sPatientMed_PatientMed": {
+        "columns": ["PM_Dosage", "PM_Med", "PM_Patient"],
+        "rows": [
+          ["10mg", "2", "4"],
+          ["20mg", "1", "3"],
+          ["300mg", "0", "3"]
+        ]
+      }
+    },
+    "iPatientAE": {
+      "AdvrsEvnt": {
+        "columns": ["ID", "PA_PT"],
+        "rows": [
+          ["0", "rash"],
+          ["1", "gi_ulceration"],
+          ["2", "cramping"],
+          ["3", "dizziness"],
+          ["4", "cough"],
+          ["5", "fatigue"],
+          ["6", "joint_pain"],
+          ["7", "nausea"]
+        ]
+      },
+      "Patient": {
+        "columns": ["ID", "PA_Patient_Name"],
+        "rows": [
+          ["8", "John"],
+          ["9", "Jane"]
+        ]
+      },
+      "PatientAE": {
+        "columns": ["PA_AE", "PA_Date_Reported", "PA_Patient"],
+        "rows": [
+          ["0", "01/20/2018", "8"],
+          ["1", "01/20/2018", "8"],
+          ["2", "01/20/2018", "8"],
+          ["3", "01/10/2018", "9"],
+          ["5", "01/10/2018", "9"],
+          ["6", "01/10/2018", "9"]
+        ]
+      }
+    },
+    "iPatientMed": {
+      "Medication": {
+        "columns": ["ID", "PM_Med_Type"],
+        "rows": [
+          ["0", "Asprin"],
+          ["1", "Lisinopril"],
+          ["2", "Atorvastatin"]
+        ]
+      },
+      "Patient": {
+        "columns": ["ID", "PM_Patient_Name"],
+        "rows": [
+          ["3", "John"],
+          ["4", "Jane"]
+        ]
+      },
+      "PatientMed": {
+        "columns": ["PM_Dosage", "PM_Med", "PM_Patient"],
+        "rows": [
+          ["10mg", "2", "4"],
+          ["20mg", "1", "3"],
+          ["300mg", "0", "3"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

@@ -1,0 +1,74 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Amphibian": {
+        "columns": ["IsAL", "IsAW", "attA"],
+        "rows": [
+          ["2", "7", "gecko"],
+          ["3", "8", "frog"]
+        ]
+      },
+      "LandAnimal": {
+        "columns": ["ID", "attL"],
+        "rows": [
+          ["2", "gecko"],
+          ["3", "frog"],
+          ["4", "human"],
+          ["5", "cow"],
+          ["6", "horse"]
+        ]
+      },
+      "WaterAnimal": {
+        "columns": ["ID", "attW"],
+        "rows": [
+          ["10", "dolphin"],
+          ["7", "gecko"],
+          ["8", "frog"],
+          ["9", "fish"]
+        ]
+      }
+    },
+    "J": {
+      "yAmphibian": {
+        "columns": ["yIsAL", "yIsAW", "yattA"],
+        "rows": [
+          ["10", "15", "frog"],
+          ["9", "14", "gecko"]
+        ]
+      },
+      "yAnimal": {
+        "columns": ["ID"],
+        "rows": [
+          ["2"],
+          ["3"],
+          ["4"],
+          ["5"],
+          ["6"],
+          ["7"],
+          ["8"]
+        ]
+      },
+      "yLandAnimal": {
+        "columns": ["ID", "yIsALL", "yattL"],
+        "rows": [
+          ["10", "3", "frog"],
+          ["11", "4", "human"],
+          ["12", "5", "cow"],
+          ["13", "6", "horse"],
+          ["9", "2", "gecko"]
+        ]
+      },
+      "yWaterAnimal": {
+        "columns": ["ID", "yIsAWW", "yattW"],
+        "rows": [
+          ["14", "2", "gecko"],
+          ["15", "3", "frog"],
+          ["16", "7", "fish"],
+          ["17", "8", "dolphin"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

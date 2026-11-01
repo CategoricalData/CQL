@@ -1,0 +1,57 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Department": {
+        "columns": ["ID", "name", "secretary"],
+        "rows": [
+          ["0", "Math", "3"],
+          ["1", "CS", "4"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "age", "cummulative_age", "first", "last", "manager", "worksIn"],
+        "rows": [
+          ["2", "succ(succ(zero))", "(succ(succ(zero)) plus succ(zero))", "Al", "?N", "3", "0"],
+          ["3", "succ(zero)", "(succ(zero) plus succ(zero))", "Bob", "Bo", "3", "0"],
+          ["4", "succ(succ(zero))", "(succ(succ(zero)) plus succ(succ(zero)))", "Carl", "?N", "4", "1"]
+        ]
+      }
+    },
+    "I1": {
+      "Person": {
+        "columns": ["ID", "father", "mother"],
+        "rows": [
+          ["0", "1", "1"],
+          ["1", "1", "1"]
+        ]
+      }
+    },
+    "IJava": {
+      "Department": {
+        "columns": ["ID", "name", "secretary"],
+        "rows": [
+          ["0", "Math", "3"],
+          ["1", "CS", "4"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "age", "cummulative_age", "first", "last", "manager", "worksIn"],
+        "rows": [
+          ["2", "2", "3", "Al", "?N", "3", "0"],
+          ["3", "1", "2", "Bob", "Bo", "3", "0"],
+          ["4", "2", "4", "Carl", "?N", "4", "1"]
+        ]
+      }
+    },
+    "J": {
+      "Z": {
+        "columns": ["deptName"],
+        "rows": [
+          ["Math"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

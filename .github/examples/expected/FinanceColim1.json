@@ -1,0 +1,707 @@
+{
+  "error": null,
+  "instances": {
+    "ClientFwd": {
+      "Client_client": {
+        "columns": ["ID", "Client_client_description", "Client_client_id", "Client_client_name", "HoldPos_client_desc", "HoldPos_client_nm", "HoldPos_client_no"],
+        "rows": [
+          ["0", "Tom Client", "1", "Tom", "Tom Client", "Tom", "1"],
+          ["1", "Dick Client", "2", "Dick", "Dick Client", "Dick", "2"],
+          ["2", "Harry Client", "3", "Harry", "Harry Client", "Harry", "3"]
+        ]
+      },
+      "HoldPos_holding": {
+        "columns": ["ID", "HoldPos_holding_asset_id", "HoldPos_holding_begin_date", "HoldPos_holding_client", "HoldPos_holding_client_no", "HoldPos_holding_currency_code", "HoldPos_holding_end_date", "HoldPos_holding_id", "HoldPos_holding_portfolio_id", "HoldPos_holding_purchase_date", "HoldPos_holding_purchase_price", "HoldPos_holding_quantity"],
+        "rows": []
+      },
+      "HoldPos_position": {
+        "columns": ["ID", "HoldPos_position_asset_id", "HoldPos_position_client", "HoldPos_position_client_no", "HoldPos_position_cost_basis", "HoldPos_position_cost_basis_currency_code", "HoldPos_position_current_value", "HoldPos_position_current_value_currency_code", "HoldPos_position_id", "HoldPos_position_quantity"],
+        "rows": []
+      },
+      "Portfolio_portfolio": {
+        "columns": ["ID", "Portfolio_portfolio_client_id", "Portfolio_portfolio_description", "Portfolio_portfolio_id", "Portfolio_portfolio_name", "Portfolio_portfolio_parent", "Portfolio_portfolio_parent_id", "Portfolio_portfolio_strategy", "Portfolio_portfolio_strategy_id"],
+        "rows": []
+      },
+      "Ref_asset": {
+        "columns": ["ID", "Ref_asset_description", "Ref_asset_id", "Ref_asset_name", "Ref_asset_strategy", "Ref_asset_strategy_id", "Trans_asset_description", "Trans_asset_id", "Trans_asset_name"],
+        "rows": []
+      },
+      "Ref_country": {
+        "columns": ["ID", "Ref_country_code", "Ref_country_id", "Ref_country_name"],
+        "rows": []
+      },
+      "Ref_currency": {
+        "columns": ["ID", "Ref_currency_code", "Ref_currency_country", "Ref_currency_country_id", "Ref_currency_id", "Ref_currency_name", "Trans_currency_code", "Trans_currency_id", "Trans_currency_name"],
+        "rows": []
+      },
+      "Ref_strategy": {
+        "columns": ["ID", "Portfolio_strategy_description", "Portfolio_strategy_id", "Portfolio_strategy_name", "Ref_strategy_description", "Ref_strategy_id", "Ref_strategy_name"],
+        "rows": []
+      },
+      "Trans_transaction": {
+        "columns": ["ID", "Trans_transaction_asset", "Trans_transaction_asset_id", "Trans_transaction_buy_sell_ind", "Trans_transaction_currency", "Trans_transaction_currency_id", "Trans_transaction_date", "Trans_transaction_id", "Trans_transaction_portfolio_id", "Trans_transaction_price", "Trans_transaction_quantity"],
+        "rows": []
+      }
+    },
+    "ClientInstance": {
+      "client": {
+        "columns": ["ID", "description", "id", "name"],
+        "rows": [
+          ["0", "Tom Client", "1", "Tom"],
+          ["1", "Dick Client", "2", "Dick"],
+          ["2", "Harry Client", "3", "Harry"]
+        ]
+      }
+    },
+    "CoProd": {
+      "Client_client": {
+        "columns": ["ID", "Client_client_description", "Client_client_id", "Client_client_name", "HoldPos_client_desc", "HoldPos_client_nm", "HoldPos_client_no"],
+        "rows": [
+          ["0", "Tom Client", "1", "Tom", "Tom Client", "Tom", "1"],
+          ["1", "Dick Client", "2", "Dick", "Dick Client", "Dick", "2"],
+          ["2", "Harry Client", "3", "Harry", "Harry Client", "Harry", "3"],
+          ["3", "Tom Client", "1", "Tom", "Tom Client", "Tom", "1"],
+          ["4", "Dick Client", "2", "Dick", "Dick Client", "Dick", "2"]
+        ]
+      },
+      "HoldPos_holding": {
+        "columns": ["ID", "HoldPos_holding_asset_id", "HoldPos_holding_begin_date", "HoldPos_holding_client", "HoldPos_holding_client_no", "HoldPos_holding_currency_code", "HoldPos_holding_end_date", "HoldPos_holding_id", "HoldPos_holding_portfolio_id", "HoldPos_holding_purchase_date", "HoldPos_holding_purchase_price", "HoldPos_holding_quantity"],
+        "rows": [
+          ["5", "1", "1/1/2011", "3", "1", "EUR", "6/1/2011", "1", "1", "1/1/2011", "5.51", "200"],
+          ["6", "1", "6/1/2011", "3", "1", "EUR", "?N", "2", "1", "1/1/2011", "5.1", "100"],
+          ["7", "3", "9/1/2013", "4", "2", "JPY", "3/1/2014", "3", "3", "9/1/2013", "2.5", "150"],
+          ["8", "5", "2/1/2013", "4", "2", "USD", "7/1/2013", "4", "3", "2/1/2013", "1.6", "200"],
+          ["9", "5", "7/1/2013", "4", "2", "USD", "?N", "5", "3", "2/1/2013", "1.6", "100"]
+        ]
+      },
+      "HoldPos_position": {
+        "columns": ["ID", "HoldPos_position_asset_id", "HoldPos_position_client", "HoldPos_position_client_no", "HoldPos_position_cost_basis", "HoldPos_position_cost_basis_currency_code", "HoldPos_position_current_value", "HoldPos_position_current_value_currency_code", "HoldPos_position_id", "HoldPos_position_quantity"],
+        "rows": [
+          ["10", "1", "3", "1", "551", "EUR", "550", "EUR", "1", "100"],
+          ["11", "5", "4", "2", "160", "JPY", "170", "JPY", "2", "100"]
+        ]
+      },
+      "Portfolio_portfolio": {
+        "columns": ["ID", "Portfolio_portfolio_client_id", "Portfolio_portfolio_description", "Portfolio_portfolio_id", "Portfolio_portfolio_name", "Portfolio_portfolio_parent", "Portfolio_portfolio_parent_id", "Portfolio_portfolio_strategy", "Portfolio_portfolio_strategy_id"],
+        "rows": [
+          ["12", "1", "Portfolio1", "1", "Port1", "12", "1", "46", "2"],
+          ["13", "2", "Portfolio2", "2", "Port2", "13", "2", "46", "2"],
+          ["14", "2", "Portfolio3", "3", "Port3", "13", "2", "45", "1"]
+        ]
+      },
+      "Ref_asset": {
+        "columns": ["ID", "Ref_asset_description", "Ref_asset_id", "Ref_asset_name", "Ref_asset_strategy", "Ref_asset_strategy_id", "Trans_asset_description", "Trans_asset_id", "Trans_asset_name"],
+        "rows": [
+          ["15", "Asset1", "1", "A1", "48", "1", "Asset1", "1", "A1"],
+          ["16", "Asset2", "2", "A2", "49", "3", "Asset2", "2", "A2"],
+          ["17", "Asset3", "3", "A3", "50", "2", "Asset3", "3", "A3"],
+          ["18", "Asset4", "4", "A4", "51", "4", "Asset4", "4", "A4"],
+          ["19", "Asset5", "5", "A5", "52", "5", "Asset5", "5", "A5"],
+          ["20", "Asset6", "6", "A6", "51", "4", "Asset6", "6", "A6"],
+          ["21", "Asset7", "7", "A7", "51", "4", "Asset7", "7", "A7"],
+          ["22", "Asset8", "8", "A8", "52", "5", "Asset8", "8", "A8"],
+          ["23", "Asset9", "9", "A9", "49", "3", "Asset9", "9", "A9"],
+          ["24", "Asset10", "10", "A10", "48", "1", "Asset10", "10", "A10"],
+          ["25", "Asset1", "1", "A1", "53", "?N", "Asset1", "1", "A1"],
+          ["26", "Asset3", "3", "A3", "54", "?N", "Asset3", "3", "A3"],
+          ["27", "Asset5", "5", "A5", "55", "?N", "Asset5", "5", "A5"],
+          ["28", "Asset7", "7", "A7", "56", "?N", "Asset7", "7", "A7"],
+          ["29", "Asset9", "9", "A9", "57", "?N", "Asset9", "9", "A9"]
+        ]
+      },
+      "Ref_country": {
+        "columns": ["ID", "Ref_country_code", "Ref_country_id", "Ref_country_name"],
+        "rows": [
+          ["30", "AU", "1", "Australia"],
+          ["31", "CH", "2", "Switzerland"],
+          ["32", "CN", "3", "China"],
+          ["33", "EU", "4", "European Union"],
+          ["34", "JP", "5", "Japan"],
+          ["35", "US", "6", "United States of America"],
+          ["36", "?N", "?N", "?N"],
+          ["37", "?N", "?N", "?N"],
+          ["38", "?N", "?N", "?N"]
+        ]
+      },
+      "Ref_currency": {
+        "columns": ["ID", "Ref_currency_code", "Ref_currency_country", "Ref_currency_country_id", "Ref_currency_id", "Ref_currency_name", "Trans_currency_code", "Trans_currency_id", "Trans_currency_name"],
+        "rows": [
+          ["39", "USD", "35", "6", "1", "US Dollar", "USD", "1", "US Dollar"],
+          ["40", "EUR", "33", "4", "2", "Euro", "EUR", "2", "Euro"],
+          ["41", "JPY", "34", "5", "3", "Japanese Yen", "JPY", "3", "Japanese Yen"],
+          ["42", "USD", "36", "?N", "1", "US Dollar", "USD", "1", "US Dollar"],
+          ["43", "EUR", "37", "?N", "2", "Euro", "EUR", "2", "Euro"],
+          ["44", "JPY", "38", "?N", "3", "Japanese Yen", "JPY", "3", "Japanese Yen"]
+        ]
+      },
+      "Ref_strategy": {
+        "columns": ["ID", "Portfolio_strategy_description", "Portfolio_strategy_id", "Portfolio_strategy_name", "Ref_strategy_description", "Ref_strategy_id", "Ref_strategy_name"],
+        "rows": [
+          ["45", "Strategy1", "1", "Strat1", "Strategy1", "1", "Strat1"],
+          ["46", "Strategy2", "2", "Strat2", "Strategy2", "2", "Strat2"],
+          ["47", "Strategy3", "3", "Strat3", "Strategy3", "3", "Strat3"],
+          ["48", "Strategy1", "1", "Strat1", "Strategy1", "1", "Strat1"],
+          ["49", "Strategy3", "3", "Strat3", "Strategy3", "3", "Strat3"],
+          ["50", "Strategy2", "2", "Strat2", "Strategy2", "2", "Strat2"],
+          ["51", "Strategy4", "4", "Strat4", "Strategy4", "4", "Strat4"],
+          ["52", "Strategy5", "5", "Strat5", "Strategy5", "5", "Strat5"],
+          ["53", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["54", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["55", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["56", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["57", "?N", "?N", "?N", "?N", "?N", "?N"]
+        ]
+      },
+      "Trans_transaction": {
+        "columns": ["Trans_transaction_asset", "Trans_transaction_asset_id", "Trans_transaction_buy_sell_ind", "Trans_transaction_currency", "Trans_transaction_currency_id", "Trans_transaction_date", "Trans_transaction_id", "Trans_transaction_portfolio_id", "Trans_transaction_price", "Trans_transaction_quantity"],
+        "rows": [
+          ["25", "1", "buy", "43", "2", "1/1/2011", "1", "1", "5.51", "200"],
+          ["25", "1", "sell", "43", "2", "6/1/2011", "2", "1", "5.5", "100"],
+          ["26", "3", "buy", "42", "1", "9/1/2013", "3", "2", "2.5", "150"],
+          ["26", "3", "sell", "42", "1", "3/1/2014", "4", "2", "3.5", "150"],
+          ["27", "5", "buy", "44", "3", "2/1/2013", "5", "3", "1.6", "200"],
+          ["27", "5", "sell", "44", "3", "7/1/2013", "6", "3", "1.5", "100"]
+        ]
+      }
+    },
+    "E": {
+      "Client_client": {
+        "columns": ["ID", "Client_client_description", "Client_client_id", "Client_client_name", "HoldPos_client_desc", "HoldPos_client_nm", "HoldPos_client_no"],
+        "rows": [
+          ["0", "Tom Client", "1", "Tom", "Tom Client", "Tom", "1"],
+          ["1", "Dick Client", "2", "Dick", "Dick Client", "Dick", "2"],
+          ["2", "Harry Client", "3", "Harry", "Harry Client", "Harry", "3"]
+        ]
+      },
+      "HoldPos_holding": {
+        "columns": ["ID", "HoldPos_holding_asset_id", "HoldPos_holding_begin_date", "HoldPos_holding_client", "HoldPos_holding_client_no", "HoldPos_holding_currency_code", "HoldPos_holding_end_date", "HoldPos_holding_id", "HoldPos_holding_portfolio_id", "HoldPos_holding_purchase_date", "HoldPos_holding_purchase_price", "HoldPos_holding_quantity"],
+        "rows": [
+          ["3", "1", "1/1/2011", "0", "1", "EUR", "6/1/2011", "1", "1", "1/1/2011", "5.51", "200"],
+          ["4", "1", "6/1/2011", "0", "1", "EUR", "?N", "2", "1", "1/1/2011", "5.1", "100"],
+          ["5", "3", "9/1/2013", "1", "2", "JPY", "3/1/2014", "3", "3", "9/1/2013", "2.5", "150"],
+          ["6", "5", "2/1/2013", "1", "2", "USD", "7/1/2013", "4", "3", "2/1/2013", "1.6", "200"],
+          ["7", "5", "7/1/2013", "1", "2", "USD", "?N", "5", "3", "2/1/2013", "1.6", "100"]
+        ]
+      },
+      "HoldPos_position": {
+        "columns": ["ID", "HoldPos_position_asset_id", "HoldPos_position_client", "HoldPos_position_client_no", "HoldPos_position_cost_basis", "HoldPos_position_cost_basis_currency_code", "HoldPos_position_current_value", "HoldPos_position_current_value_currency_code", "HoldPos_position_id", "HoldPos_position_quantity"],
+        "rows": [
+          ["8", "1", "0", "1", "551", "EUR", "550", "EUR", "1", "100"],
+          ["9", "5", "1", "2", "160", "JPY", "170", "JPY", "2", "100"]
+        ]
+      },
+      "Portfolio_portfolio": {
+        "columns": ["ID", "Portfolio_portfolio_client_id", "Portfolio_portfolio_description", "Portfolio_portfolio_id", "Portfolio_portfolio_name", "Portfolio_portfolio_parent", "Portfolio_portfolio_parent_id", "Portfolio_portfolio_strategy", "Portfolio_portfolio_strategy_id"],
+        "rows": [
+          ["10", "1", "Portfolio1", "1", "Port1", "10", "1", "33", "2"],
+          ["11", "2", "Portfolio2", "2", "Port2", "11", "2", "33", "2"],
+          ["12", "2", "Portfolio3", "3", "Port3", "11", "2", "32", "1"]
+        ]
+      },
+      "Ref_asset": {
+        "columns": ["ID", "Ref_asset_description", "Ref_asset_id", "Ref_asset_name", "Ref_asset_strategy", "Ref_asset_strategy_id", "Trans_asset_description", "Trans_asset_id", "Trans_asset_name"],
+        "rows": [
+          ["13", "Asset1", "1", "A1", "32", "1", "Asset1", "1", "A1"],
+          ["14", "Asset3", "3", "A3", "33", "2", "Asset3", "3", "A3"],
+          ["15", "Asset5", "5", "A5", "35", "5", "Asset5", "5", "A5"],
+          ["16", "Asset7", "7", "A7", "36", "4", "Asset7", "7", "A7"],
+          ["17", "Asset9", "9", "A9", "34", "3", "Asset9", "9", "A9"],
+          ["18", "Asset2", "2", "A2", "34", "3", "Asset2", "2", "A2"],
+          ["19", "Asset4", "4", "A4", "36", "4", "Asset4", "4", "A4"],
+          ["20", "Asset6", "6", "A6", "36", "4", "Asset6", "6", "A6"],
+          ["21", "Asset8", "8", "A8", "35", "5", "Asset8", "8", "A8"],
+          ["22", "Asset10", "10", "A10", "32", "1", "Asset10", "10", "A10"]
+        ]
+      },
+      "Ref_country": {
+        "columns": ["ID", "Ref_country_code", "Ref_country_id", "Ref_country_name"],
+        "rows": [
+          ["23", "US", "6", "United States of America"],
+          ["24", "EU", "4", "European Union"],
+          ["25", "JP", "5", "Japan"],
+          ["26", "AU", "1", "Australia"],
+          ["27", "CH", "2", "Switzerland"],
+          ["28", "CN", "3", "China"]
+        ]
+      },
+      "Ref_currency": {
+        "columns": ["ID", "Ref_currency_code", "Ref_currency_country", "Ref_currency_country_id", "Ref_currency_id", "Ref_currency_name", "Trans_currency_code", "Trans_currency_id", "Trans_currency_name"],
+        "rows": [
+          ["29", "USD", "23", "6", "1", "US Dollar", "USD", "1", "US Dollar"],
+          ["30", "EUR", "24", "4", "2", "Euro", "EUR", "2", "Euro"],
+          ["31", "JPY", "25", "5", "3", "Japanese Yen", "JPY", "3", "Japanese Yen"]
+        ]
+      },
+      "Ref_strategy": {
+        "columns": ["ID", "Portfolio_strategy_description", "Portfolio_strategy_id", "Portfolio_strategy_name", "Ref_strategy_description", "Ref_strategy_id", "Ref_strategy_name"],
+        "rows": [
+          ["32", "Strategy1", "1", "Strat1", "Strategy1", "1", "Strat1"],
+          ["33", "Strategy2", "2", "Strat2", "Strategy2", "2", "Strat2"],
+          ["34", "Strategy3", "3", "Strat3", "Strategy3", "3", "Strat3"],
+          ["35", "Strategy5", "5", "Strat5", "Strategy5", "5", "Strat5"],
+          ["36", "Strategy4", "4", "Strat4", "Strategy4", "4", "Strat4"]
+        ]
+      },
+      "Trans_transaction": {
+        "columns": ["Trans_transaction_asset", "Trans_transaction_asset_id", "Trans_transaction_buy_sell_ind", "Trans_transaction_currency", "Trans_transaction_currency_id", "Trans_transaction_date", "Trans_transaction_id", "Trans_transaction_portfolio_id", "Trans_transaction_price", "Trans_transaction_quantity"],
+        "rows": [
+          ["13", "1", "buy", "30", "2", "1/1/2011", "1", "1", "5.51", "200"],
+          ["13", "1", "sell", "30", "2", "6/1/2011", "2", "1", "5.5", "100"],
+          ["14", "3", "buy", "29", "1", "9/1/2013", "3", "2", "2.5", "150"],
+          ["14", "3", "sell", "29", "1", "3/1/2014", "4", "2", "3.5", "150"],
+          ["15", "5", "buy", "31", "3", "2/1/2013", "5", "3", "1.6", "200"],
+          ["15", "5", "sell", "31", "3", "7/1/2013", "6", "3", "1.5", "100"]
+        ]
+      }
+    },
+    "HoldPosFwd": {
+      "Client_client": {
+        "columns": ["ID", "Client_client_description", "Client_client_id", "Client_client_name", "HoldPos_client_desc", "HoldPos_client_nm", "HoldPos_client_no"],
+        "rows": [
+          ["0", "Tom Client", "1", "Tom", "Tom Client", "Tom", "1"],
+          ["1", "Dick Client", "2", "Dick", "Dick Client", "Dick", "2"]
+        ]
+      },
+      "HoldPos_holding": {
+        "columns": ["ID", "HoldPos_holding_asset_id", "HoldPos_holding_begin_date", "HoldPos_holding_client", "HoldPos_holding_client_no", "HoldPos_holding_currency_code", "HoldPos_holding_end_date", "HoldPos_holding_id", "HoldPos_holding_portfolio_id", "HoldPos_holding_purchase_date", "HoldPos_holding_purchase_price", "HoldPos_holding_quantity"],
+        "rows": [
+          ["2", "1", "1/1/2011", "0", "1", "EUR", "6/1/2011", "1", "1", "1/1/2011", "5.51", "200"],
+          ["3", "1", "6/1/2011", "0", "1", "EUR", "?N", "2", "1", "1/1/2011", "5.1", "100"],
+          ["4", "3", "9/1/2013", "1", "2", "JPY", "3/1/2014", "3", "3", "9/1/2013", "2.5", "150"],
+          ["5", "5", "2/1/2013", "1", "2", "USD", "7/1/2013", "4", "3", "2/1/2013", "1.6", "200"],
+          ["6", "5", "7/1/2013", "1", "2", "USD", "?N", "5", "3", "2/1/2013", "1.6", "100"]
+        ]
+      },
+      "HoldPos_position": {
+        "columns": ["HoldPos_position_asset_id", "HoldPos_position_client", "HoldPos_position_client_no", "HoldPos_position_cost_basis", "HoldPos_position_cost_basis_currency_code", "HoldPos_position_current_value", "HoldPos_position_current_value_currency_code", "HoldPos_position_id", "HoldPos_position_quantity"],
+        "rows": [
+          ["1", "0", "1", "551", "EUR", "550", "EUR", "1", "100"],
+          ["5", "1", "2", "160", "JPY", "170", "JPY", "2", "100"]
+        ]
+      },
+      "Portfolio_portfolio": {
+        "columns": ["ID", "Portfolio_portfolio_client_id", "Portfolio_portfolio_description", "Portfolio_portfolio_id", "Portfolio_portfolio_name", "Portfolio_portfolio_parent", "Portfolio_portfolio_parent_id", "Portfolio_portfolio_strategy", "Portfolio_portfolio_strategy_id"],
+        "rows": []
+      },
+      "Ref_asset": {
+        "columns": ["ID", "Ref_asset_description", "Ref_asset_id", "Ref_asset_name", "Ref_asset_strategy", "Ref_asset_strategy_id", "Trans_asset_description", "Trans_asset_id", "Trans_asset_name"],
+        "rows": []
+      },
+      "Ref_country": {
+        "columns": ["ID", "Ref_country_code", "Ref_country_id", "Ref_country_name"],
+        "rows": []
+      },
+      "Ref_currency": {
+        "columns": ["ID", "Ref_currency_code", "Ref_currency_country", "Ref_currency_country_id", "Ref_currency_id", "Ref_currency_name", "Trans_currency_code", "Trans_currency_id", "Trans_currency_name"],
+        "rows": []
+      },
+      "Ref_strategy": {
+        "columns": ["ID", "Portfolio_strategy_description", "Portfolio_strategy_id", "Portfolio_strategy_name", "Ref_strategy_description", "Ref_strategy_id", "Ref_strategy_name"],
+        "rows": []
+      },
+      "Trans_transaction": {
+        "columns": ["ID", "Trans_transaction_asset", "Trans_transaction_asset_id", "Trans_transaction_buy_sell_ind", "Trans_transaction_currency", "Trans_transaction_currency_id", "Trans_transaction_date", "Trans_transaction_id", "Trans_transaction_portfolio_id", "Trans_transaction_price", "Trans_transaction_quantity"],
+        "rows": []
+      }
+    },
+    "HoldPosInstance": {
+      "client": {
+        "columns": ["ID", "desc", "nm", "no"],
+        "rows": [
+          ["0", "Tom Client", "Tom", "1"],
+          ["1", "Dick Client", "Dick", "2"]
+        ]
+      },
+      "holding": {
+        "columns": ["ID", "asset_id", "begin_date", "client", "client_no", "currency_code", "end_date", "id", "portfolio_id", "purchase_date", "purchase_price", "quantity"],
+        "rows": [
+          ["2", "1", "1/1/2011", "0", "1", "EUR", "6/1/2011", "1", "1", "1/1/2011", "5.51", "200"],
+          ["3", "1", "6/1/2011", "0", "1", "EUR", "?N", "2", "1", "1/1/2011", "5.1", "100"],
+          ["4", "3", "9/1/2013", "1", "2", "JPY", "3/1/2014", "3", "3", "9/1/2013", "2.5", "150"],
+          ["5", "5", "2/1/2013", "1", "2", "USD", "7/1/2013", "4", "3", "2/1/2013", "1.6", "200"],
+          ["6", "5", "7/1/2013", "1", "2", "USD", "?N", "5", "3", "2/1/2013", "1.6", "100"]
+        ]
+      },
+      "position": {
+        "columns": ["asset_id", "client", "client_no", "cost_basis", "cost_basis_currency_code", "current_value", "current_value_currency_code", "id", "quantity"],
+        "rows": [
+          ["1", "0", "1", "551", "EUR", "550", "EUR", "1", "100"],
+          ["5", "1", "2", "160", "JPY", "170", "JPY", "2", "100"]
+        ]
+      }
+    },
+    "Output": {
+      "asset": {
+        "columns": ["ID", "asset_strategy", "description", "id", "name", "strategy_id"],
+        "rows": [
+          ["0", "37", "Asset1", "1", "A1", "1"],
+          ["1", "38", "Asset3", "3", "A3", "2"],
+          ["2", "40", "Asset5", "5", "A5", "5"],
+          ["3", "41", "Asset7", "7", "A7", "4"],
+          ["4", "39", "Asset9", "9", "A9", "3"],
+          ["5", "39", "Asset2", "2", "A2", "3"],
+          ["6", "41", "Asset4", "4", "A4", "4"],
+          ["7", "41", "Asset6", "6", "A6", "4"],
+          ["8", "40", "Asset8", "8", "A8", "5"],
+          ["9", "37", "Asset10", "10", "A10", "1"]
+        ]
+      },
+      "client": {
+        "columns": ["ID", "description", "id", "name"],
+        "rows": [
+          ["10", "Tom Client", "1", "Tom"],
+          ["11", "Dick Client", "2", "Dick"],
+          ["12", "Harry Client", "3", "Harry"]
+        ]
+      },
+      "country": {
+        "columns": ["ID", "code", "id", "name"],
+        "rows": [
+          ["13", "US", "6", "United States of America"],
+          ["14", "EU", "4", "European Union"],
+          ["15", "JP", "5", "Japan"],
+          ["16", "AU", "1", "Australia"],
+          ["17", "CH", "2", "Switzerland"],
+          ["18", "CN", "3", "China"]
+        ]
+      },
+      "currency": {
+        "columns": ["ID", "code", "country_id", "currency_country", "id", "name"],
+        "rows": [
+          ["19", "USD", "6", "13", "1", "US Dollar"],
+          ["20", "EUR", "4", "14", "2", "Euro"],
+          ["21", "JPY", "5", "15", "3", "Japanese Yen"]
+        ]
+      },
+      "holding": {
+        "columns": ["ID", "asset_id", "begin_date", "currency_id", "end_date", "holding_asset", "holding_currency", "id", "purchase_date", "purchase_price", "quantity"],
+        "rows": [
+          ["22", "1", "1/1/2011", "2", "6/1/2011", "0", "20", "1", "1/1/2011", "5.51", "200"],
+          ["23", "1", "6/1/2011", "2", "?N", "0", "20", "2", "1/1/2011", "5.1", "100"],
+          ["24", "3", "9/1/2013", "3", "3/1/2014", "1", "21", "3", "9/1/2013", "2.5", "150"],
+          ["25", "5", "2/1/2013", "1", "7/1/2013", "2", "19", "4", "2/1/2013", "1.6", "200"],
+          ["26", "5", "7/1/2013", "1", "?N", "2", "19", "5", "2/1/2013", "1.6", "100"]
+        ]
+      },
+      "portfolio": {
+        "columns": ["ID", "description", "id", "name", "parent", "parent_portfolio_id", "portfolio_strategy", "strategy_id"],
+        "rows": [
+          ["27", "Portfolio1", "1", "Port1", "27", "1", "38", "2"],
+          ["28", "Portfolio2", "2", "Port2", "28", "2", "38", "2"],
+          ["29", "Portfolio3", "3", "Port3", "28", "2", "37", "1"]
+        ]
+      },
+      "portfolioholding": {
+        "columns": ["client_id", "holding_id", "id", "portfolio_id", "portfolioholding_client", "portfolioholding_holding", "portfolioholding_portfolio"],
+        "rows": [
+          ["1", "1", "5", "1", "10", "22", "27"],
+          ["1", "2", "0", "1", "10", "23", "27"],
+          ["2", "3", "2", "3", "11", "24", "29"],
+          ["2", "4", "7", "3", "11", "25", "29"],
+          ["2", "5", "4", "3", "11", "26", "29"]
+        ]
+      },
+      "position": {
+        "columns": ["asset_id", "client_id", "cost_basis", "cost_basis_currency_id", "current_value", "current_value_currency_id", "id", "position_asset", "position_client", "position_cost_basis_currency", "position_current_value_currency", "quantity"],
+        "rows": [
+          ["1", "1", "551", "2", "550", "2", "1", "0", "10", "20", "20", "100"],
+          ["5", "2", "160", "3", "170", "3", "2", "2", "11", "21", "21", "100"]
+        ]
+      },
+      "strategy": {
+        "columns": ["ID", "description", "id", "name"],
+        "rows": [
+          ["37", "Strategy1", "1", "Strat1"],
+          ["38", "Strategy2", "2", "Strat2"],
+          ["39", "Strategy3", "3", "Strat3"],
+          ["40", "Strategy5", "5", "Strat5"],
+          ["41", "Strategy4", "4", "Strat4"]
+        ]
+      },
+      "transaction": {
+        "columns": ["asset_id", "buy_sell_ind", "currency_id", "date", "id", "portfolio_id", "price", "quantity", "transaction_asset", "transaction_currency", "transaction_portfolio"],
+        "rows": [
+          ["1", "buy", "2", "1/1/2011", "1", "1", "5.51", "200", "0", "20", "27"],
+          ["1", "sell", "2", "6/1/2011", "2", "1", "5.5", "100", "0", "20", "27"],
+          ["3", "buy", "1", "9/1/2013", "3", "2", "2.5", "150", "1", "19", "28"],
+          ["3", "sell", "1", "3/1/2014", "4", "2", "3.5", "150", "1", "19", "28"],
+          ["5", "buy", "3", "2/1/2013", "5", "3", "1.6", "200", "2", "21", "29"],
+          ["5", "sell", "3", "7/1/2013", "6", "3", "1.5", "100", "2", "21", "29"]
+        ]
+      }
+    },
+    "PortfolioFwd": {
+      "Client_client": {
+        "columns": ["ID", "Client_client_description", "Client_client_id", "Client_client_name", "HoldPos_client_desc", "HoldPos_client_nm", "HoldPos_client_no"],
+        "rows": []
+      },
+      "HoldPos_holding": {
+        "columns": ["ID", "HoldPos_holding_asset_id", "HoldPos_holding_begin_date", "HoldPos_holding_client", "HoldPos_holding_client_no", "HoldPos_holding_currency_code", "HoldPos_holding_end_date", "HoldPos_holding_id", "HoldPos_holding_portfolio_id", "HoldPos_holding_purchase_date", "HoldPos_holding_purchase_price", "HoldPos_holding_quantity"],
+        "rows": []
+      },
+      "HoldPos_position": {
+        "columns": ["ID", "HoldPos_position_asset_id", "HoldPos_position_client", "HoldPos_position_client_no", "HoldPos_position_cost_basis", "HoldPos_position_cost_basis_currency_code", "HoldPos_position_current_value", "HoldPos_position_current_value_currency_code", "HoldPos_position_id", "HoldPos_position_quantity"],
+        "rows": []
+      },
+      "Portfolio_portfolio": {
+        "columns": ["ID", "Portfolio_portfolio_client_id", "Portfolio_portfolio_description", "Portfolio_portfolio_id", "Portfolio_portfolio_name", "Portfolio_portfolio_parent", "Portfolio_portfolio_parent_id", "Portfolio_portfolio_strategy", "Portfolio_portfolio_strategy_id"],
+        "rows": [
+          ["0", "1", "Portfolio1", "1", "Port1", "0", "1", "4", "2"],
+          ["1", "2", "Portfolio2", "2", "Port2", "1", "2", "4", "2"],
+          ["2", "2", "Portfolio3", "3", "Port3", "1", "2", "3", "1"]
+        ]
+      },
+      "Ref_asset": {
+        "columns": ["ID", "Ref_asset_description", "Ref_asset_id", "Ref_asset_name", "Ref_asset_strategy", "Ref_asset_strategy_id", "Trans_asset_description", "Trans_asset_id", "Trans_asset_name"],
+        "rows": []
+      },
+      "Ref_country": {
+        "columns": ["ID", "Ref_country_code", "Ref_country_id", "Ref_country_name"],
+        "rows": []
+      },
+      "Ref_currency": {
+        "columns": ["ID", "Ref_currency_code", "Ref_currency_country", "Ref_currency_country_id", "Ref_currency_id", "Ref_currency_name", "Trans_currency_code", "Trans_currency_id", "Trans_currency_name"],
+        "rows": []
+      },
+      "Ref_strategy": {
+        "columns": ["ID", "Portfolio_strategy_description", "Portfolio_strategy_id", "Portfolio_strategy_name", "Ref_strategy_description", "Ref_strategy_id", "Ref_strategy_name"],
+        "rows": [
+          ["3", "Strategy1", "1", "Strat1", "Strategy1", "1", "Strat1"],
+          ["4", "Strategy2", "2", "Strat2", "Strategy2", "2", "Strat2"],
+          ["5", "Strategy3", "3", "Strat3", "Strategy3", "3", "Strat3"]
+        ]
+      },
+      "Trans_transaction": {
+        "columns": ["ID", "Trans_transaction_asset", "Trans_transaction_asset_id", "Trans_transaction_buy_sell_ind", "Trans_transaction_currency", "Trans_transaction_currency_id", "Trans_transaction_date", "Trans_transaction_id", "Trans_transaction_portfolio_id", "Trans_transaction_price", "Trans_transaction_quantity"],
+        "rows": []
+      }
+    },
+    "PortfolioInstance": {
+      "portfolio": {
+        "columns": ["ID", "client_id", "description", "id", "name", "parent", "parent_id", "strategy", "strategy_id"],
+        "rows": [
+          ["0", "1", "Portfolio1", "1", "Port1", "0", "1", "4", "2"],
+          ["1", "2", "Portfolio2", "2", "Port2", "1", "2", "4", "2"],
+          ["2", "2", "Portfolio3", "3", "Port3", "1", "2", "3", "1"]
+        ]
+      },
+      "strategy": {
+        "columns": ["ID", "description", "id", "name"],
+        "rows": [
+          ["3", "Strategy1", "1", "Strat1"],
+          ["4", "Strategy2", "2", "Strat2"],
+          ["5", "Strategy3", "3", "Strat3"]
+        ]
+      }
+    },
+    "RefFwd": {
+      "Client_client": {
+        "columns": ["ID", "Client_client_description", "Client_client_id", "Client_client_name", "HoldPos_client_desc", "HoldPos_client_nm", "HoldPos_client_no"],
+        "rows": []
+      },
+      "HoldPos_holding": {
+        "columns": ["ID", "HoldPos_holding_asset_id", "HoldPos_holding_begin_date", "HoldPos_holding_client", "HoldPos_holding_client_no", "HoldPos_holding_currency_code", "HoldPos_holding_end_date", "HoldPos_holding_id", "HoldPos_holding_portfolio_id", "HoldPos_holding_purchase_date", "HoldPos_holding_purchase_price", "HoldPos_holding_quantity"],
+        "rows": []
+      },
+      "HoldPos_position": {
+        "columns": ["ID", "HoldPos_position_asset_id", "HoldPos_position_client", "HoldPos_position_client_no", "HoldPos_position_cost_basis", "HoldPos_position_cost_basis_currency_code", "HoldPos_position_current_value", "HoldPos_position_current_value_currency_code", "HoldPos_position_id", "HoldPos_position_quantity"],
+        "rows": []
+      },
+      "Portfolio_portfolio": {
+        "columns": ["ID", "Portfolio_portfolio_client_id", "Portfolio_portfolio_description", "Portfolio_portfolio_id", "Portfolio_portfolio_name", "Portfolio_portfolio_parent", "Portfolio_portfolio_parent_id", "Portfolio_portfolio_strategy", "Portfolio_portfolio_strategy_id"],
+        "rows": []
+      },
+      "Ref_asset": {
+        "columns": ["ID", "Ref_asset_description", "Ref_asset_id", "Ref_asset_name", "Ref_asset_strategy", "Ref_asset_strategy_id", "Trans_asset_description", "Trans_asset_id", "Trans_asset_name"],
+        "rows": [
+          ["0", "Asset1", "1", "A1", "19", "1", "Asset1", "1", "A1"],
+          ["1", "Asset2", "2", "A2", "20", "3", "Asset2", "2", "A2"],
+          ["2", "Asset3", "3", "A3", "21", "2", "Asset3", "3", "A3"],
+          ["3", "Asset4", "4", "A4", "22", "4", "Asset4", "4", "A4"],
+          ["4", "Asset5", "5", "A5", "23", "5", "Asset5", "5", "A5"],
+          ["5", "Asset6", "6", "A6", "22", "4", "Asset6", "6", "A6"],
+          ["6", "Asset7", "7", "A7", "22", "4", "Asset7", "7", "A7"],
+          ["7", "Asset8", "8", "A8", "23", "5", "Asset8", "8", "A8"],
+          ["8", "Asset9", "9", "A9", "20", "3", "Asset9", "9", "A9"],
+          ["9", "Asset10", "10", "A10", "19", "1", "Asset10", "10", "A10"]
+        ]
+      },
+      "Ref_country": {
+        "columns": ["ID", "Ref_country_code", "Ref_country_id", "Ref_country_name"],
+        "rows": [
+          ["10", "AU", "1", "Australia"],
+          ["11", "CH", "2", "Switzerland"],
+          ["12", "CN", "3", "China"],
+          ["13", "EU", "4", "European Union"],
+          ["14", "JP", "5", "Japan"],
+          ["15", "US", "6", "United States of America"]
+        ]
+      },
+      "Ref_currency": {
+        "columns": ["Ref_currency_code", "Ref_currency_country", "Ref_currency_country_id", "Ref_currency_id", "Ref_currency_name", "Trans_currency_code", "Trans_currency_id", "Trans_currency_name"],
+        "rows": [
+          ["EUR", "13", "4", "2", "Euro", "EUR", "2", "Euro"],
+          ["JPY", "14", "5", "3", "Japanese Yen", "JPY", "3", "Japanese Yen"],
+          ["USD", "15", "6", "1", "US Dollar", "USD", "1", "US Dollar"]
+        ]
+      },
+      "Ref_strategy": {
+        "columns": ["ID", "Portfolio_strategy_description", "Portfolio_strategy_id", "Portfolio_strategy_name", "Ref_strategy_description", "Ref_strategy_id", "Ref_strategy_name"],
+        "rows": [
+          ["19", "Strategy1", "1", "Strat1", "Strategy1", "1", "Strat1"],
+          ["20", "Strategy3", "3", "Strat3", "Strategy3", "3", "Strat3"],
+          ["21", "Strategy2", "2", "Strat2", "Strategy2", "2", "Strat2"],
+          ["22", "Strategy4", "4", "Strat4", "Strategy4", "4", "Strat4"],
+          ["23", "Strategy5", "5", "Strat5", "Strategy5", "5", "Strat5"]
+        ]
+      },
+      "Trans_transaction": {
+        "columns": ["ID", "Trans_transaction_asset", "Trans_transaction_asset_id", "Trans_transaction_buy_sell_ind", "Trans_transaction_currency", "Trans_transaction_currency_id", "Trans_transaction_date", "Trans_transaction_id", "Trans_transaction_portfolio_id", "Trans_transaction_price", "Trans_transaction_quantity"],
+        "rows": []
+      }
+    },
+    "RefInstance": {
+      "asset": {
+        "columns": ["ID", "description", "id", "name", "strategy", "strategy_id"],
+        "rows": [
+          ["0", "Asset1", "1", "A1", "19", "1"],
+          ["1", "Asset2", "2", "A2", "20", "3"],
+          ["2", "Asset3", "3", "A3", "21", "2"],
+          ["3", "Asset4", "4", "A4", "22", "4"],
+          ["4", "Asset5", "5", "A5", "23", "5"],
+          ["5", "Asset6", "6", "A6", "22", "4"],
+          ["6", "Asset7", "7", "A7", "22", "4"],
+          ["7", "Asset8", "8", "A8", "23", "5"],
+          ["8", "Asset9", "9", "A9", "20", "3"],
+          ["9", "Asset10", "10", "A10", "19", "1"]
+        ]
+      },
+      "country": {
+        "columns": ["ID", "code", "id", "name"],
+        "rows": [
+          ["10", "AU", "1", "Australia"],
+          ["11", "CH", "2", "Switzerland"],
+          ["12", "CN", "3", "China"],
+          ["13", "EU", "4", "European Union"],
+          ["14", "JP", "5", "Japan"],
+          ["15", "US", "6", "United States of America"]
+        ]
+      },
+      "currency": {
+        "columns": ["code", "country", "country_id", "id", "name"],
+        "rows": [
+          ["EUR", "13", "4", "2", "Euro"],
+          ["JPY", "14", "5", "3", "Japanese Yen"],
+          ["USD", "15", "6", "1", "US Dollar"]
+        ]
+      },
+      "strategy": {
+        "columns": ["ID", "description", "id", "name"],
+        "rows": [
+          ["19", "Strategy1", "1", "Strat1"],
+          ["20", "Strategy3", "3", "Strat3"],
+          ["21", "Strategy2", "2", "Strat2"],
+          ["22", "Strategy4", "4", "Strat4"],
+          ["23", "Strategy5", "5", "Strat5"]
+        ]
+      }
+    },
+    "TransFwd": {
+      "Client_client": {
+        "columns": ["ID", "Client_client_description", "Client_client_id", "Client_client_name", "HoldPos_client_desc", "HoldPos_client_nm", "HoldPos_client_no"],
+        "rows": []
+      },
+      "HoldPos_holding": {
+        "columns": ["ID", "HoldPos_holding_asset_id", "HoldPos_holding_begin_date", "HoldPos_holding_client", "HoldPos_holding_client_no", "HoldPos_holding_currency_code", "HoldPos_holding_end_date", "HoldPos_holding_id", "HoldPos_holding_portfolio_id", "HoldPos_holding_purchase_date", "HoldPos_holding_purchase_price", "HoldPos_holding_quantity"],
+        "rows": []
+      },
+      "HoldPos_position": {
+        "columns": ["ID", "HoldPos_position_asset_id", "HoldPos_position_client", "HoldPos_position_client_no", "HoldPos_position_cost_basis", "HoldPos_position_cost_basis_currency_code", "HoldPos_position_current_value", "HoldPos_position_current_value_currency_code", "HoldPos_position_id", "HoldPos_position_quantity"],
+        "rows": []
+      },
+      "Portfolio_portfolio": {
+        "columns": ["ID", "Portfolio_portfolio_client_id", "Portfolio_portfolio_description", "Portfolio_portfolio_id", "Portfolio_portfolio_name", "Portfolio_portfolio_parent", "Portfolio_portfolio_parent_id", "Portfolio_portfolio_strategy", "Portfolio_portfolio_strategy_id"],
+        "rows": []
+      },
+      "Ref_asset": {
+        "columns": ["ID", "Ref_asset_description", "Ref_asset_id", "Ref_asset_name", "Ref_asset_strategy", "Ref_asset_strategy_id", "Trans_asset_description", "Trans_asset_id", "Trans_asset_name"],
+        "rows": [
+          ["0", "Asset1", "1", "A1", "11", "?N", "Asset1", "1", "A1"],
+          ["1", "Asset3", "3", "A3", "12", "?N", "Asset3", "3", "A3"],
+          ["2", "Asset5", "5", "A5", "13", "?N", "Asset5", "5", "A5"],
+          ["3", "Asset7", "7", "A7", "14", "?N", "Asset7", "7", "A7"],
+          ["4", "Asset9", "9", "A9", "15", "?N", "Asset9", "9", "A9"]
+        ]
+      },
+      "Ref_country": {
+        "columns": ["ID", "Ref_country_code", "Ref_country_id", "Ref_country_name"],
+        "rows": [
+          ["5", "?N", "?N", "?N"],
+          ["6", "?N", "?N", "?N"],
+          ["7", "?N", "?N", "?N"]
+        ]
+      },
+      "Ref_currency": {
+        "columns": ["ID", "Ref_currency_code", "Ref_currency_country", "Ref_currency_country_id", "Ref_currency_id", "Ref_currency_name", "Trans_currency_code", "Trans_currency_id", "Trans_currency_name"],
+        "rows": [
+          ["10", "JPY", "7", "?N", "3", "Japanese Yen", "JPY", "3", "Japanese Yen"],
+          ["8", "USD", "5", "?N", "1", "US Dollar", "USD", "1", "US Dollar"],
+          ["9", "EUR", "6", "?N", "2", "Euro", "EUR", "2", "Euro"]
+        ]
+      },
+      "Ref_strategy": {
+        "columns": ["ID", "Portfolio_strategy_description", "Portfolio_strategy_id", "Portfolio_strategy_name", "Ref_strategy_description", "Ref_strategy_id", "Ref_strategy_name"],
+        "rows": [
+          ["11", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["12", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["13", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["14", "?N", "?N", "?N", "?N", "?N", "?N"],
+          ["15", "?N", "?N", "?N", "?N", "?N", "?N"]
+        ]
+      },
+      "Trans_transaction": {
+        "columns": ["Trans_transaction_asset", "Trans_transaction_asset_id", "Trans_transaction_buy_sell_ind", "Trans_transaction_currency", "Trans_transaction_currency_id", "Trans_transaction_date", "Trans_transaction_id", "Trans_transaction_portfolio_id", "Trans_transaction_price", "Trans_transaction_quantity"],
+        "rows": [
+          ["0", "1", "buy", "9", "2", "1/1/2011", "1", "1", "5.51", "200"],
+          ["0", "1", "sell", "9", "2", "6/1/2011", "2", "1", "5.5", "100"],
+          ["1", "3", "buy", "8", "1", "9/1/2013", "3", "2", "2.5", "150"],
+          ["1", "3", "sell", "8", "1", "3/1/2014", "4", "2", "3.5", "150"],
+          ["2", "5", "buy", "10", "3", "2/1/2013", "5", "3", "1.6", "200"],
+          ["2", "5", "sell", "10", "3", "7/1/2013", "6", "3", "1.5", "100"]
+        ]
+      }
+    },
+    "TransInstance": {
+      "asset": {
+        "columns": ["ID", "description", "id", "name"],
+        "rows": [
+          ["0", "Asset1", "1", "A1"],
+          ["1", "Asset3", "3", "A3"],
+          ["2", "Asset5", "5", "A5"],
+          ["3", "Asset7", "7", "A7"],
+          ["4", "Asset9", "9", "A9"]
+        ]
+      },
+      "currency": {
+        "columns": ["ID", "code", "id", "name"],
+        "rows": [
+          ["5", "USD", "1", "US Dollar"],
+          ["6", "EUR", "2", "Euro"],
+          ["7", "JPY", "3", "Japanese Yen"]
+        ]
+      },
+      "transaction": {
+        "columns": ["ID", "asset", "asset_id", "buy_sell_ind", "currency", "currency_id", "date", "id", "portfolio_id", "price", "quantity"],
+        "rows": [
+          ["10", "1", "3", "buy", "5", "1", "9/1/2013", "3", "2", "2.5", "150"],
+          ["11", "1", "3", "sell", "5", "1", "3/1/2014", "4", "2", "3.5", "150"],
+          ["12", "2", "5", "buy", "7", "3", "2/1/2013", "5", "3", "1.6", "200"],
+          ["13", "2", "5", "sell", "7", "3", "7/1/2013", "6", "3", "1.5", "100"],
+          ["8", "0", "1", "buy", "6", "2", "1/1/2011", "1", "1", "5.51", "200"],
+          ["9", "0", "1", "sell", "6", "2", "6/1/2011", "2", "1", "5.5", "100"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

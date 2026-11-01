@@ -1,0 +1,35 @@
+{
+  "error": null,
+  "instances": {
+    "FreePartialOrderOnTwoGenerators": {
+      "Dom": {
+        "columns": ["ID"],
+        "rows": [
+          ["0"],
+          ["1"]
+        ]
+      },
+      "Row": {
+        "columns": ["p1", "p2"],
+        "rows": [
+          ["0", "0"],
+          ["1", "1"]
+        ]
+      }
+    },
+    "TwoGenerators": {
+      "Dom": {
+        "columns": [],
+        "rows": [
+          [],
+          []
+        ]
+      },
+      "Row": {
+        "columns": ["ID", "p1", "p2"],
+        "rows": []
+      }
+    }
+  },
+  "commands": {}
+}
