@@ -1,0 +1,114 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "i1": {
+        "columns": ["ID", "place", "trans"],
+        "rows": []
+      },
+      "i2": {
+        "columns": ["ID", "place", "trans"],
+        "rows": []
+      },
+      "o1": {
+        "columns": ["ID", "place", "trans"],
+        "rows": []
+      },
+      "o2": {
+        "columns": ["ID", "place", "trans"],
+        "rows": []
+      },
+      "p1": {
+        "columns": [],
+        "rows": [
+          []
+        ]
+      },
+      "p2": {
+        "columns": [],
+        "rows": [
+          []
+        ]
+      },
+      "p3": {
+        "columns": [],
+        "rows": [
+          []
+        ]
+      },
+      "t1": {
+        "columns": [],
+        "rows": [
+          []
+        ]
+      },
+      "t2": {
+        "columns": [],
+        "rows": [
+          []
+        ]
+      }
+    },
+    "J": {
+      "Input": {
+        "columns": ["ID", "place", "trans"],
+        "rows": []
+      },
+      "Output": {
+        "columns": ["ID", "place", "trans"],
+        "rows": []
+      },
+      "Place": {
+        "columns": [],
+        "rows": [
+          [],
+          [],
+          []
+        ]
+      },
+      "Trans": {
+        "columns": [],
+        "rows": [
+          [],
+          []
+        ]
+      }
+    },
+    "N": {
+      "Input": {
+        "columns": ["place", "trans"],
+        "rows": [
+          ["4", "7"],
+          ["5", "8"]
+        ]
+      },
+      "Output": {
+        "columns": ["place", "trans"],
+        "rows": [
+          ["5", "7"],
+          ["6", "8"]
+        ]
+      },
+      "Place": {
+        "columns": ["ID"],
+        "rows": [
+          ["4"],
+          ["5"],
+          ["6"]
+        ]
+      },
+      "Trans": {
+        "columns": ["ID"],
+        "rows": [
+          ["7"],
+          ["8"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "validate1": [
+      "Satisfied"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Dept": {
+        "columns": ["ID"],
+        "rows": [
+          ["0"],
+          ["1"]
+        ]
+      },
+      "Emp": {
+        "columns": ["salary", "worksIn"],
+        "rows": [
+          ["10.0", "0"],
+          ["50.0", "1"],
+          ["?N", "0"],
+          ["?N", "1"]
+        ]
+      }
+    },
+    "J": {
+      "Dept": {
+        "columns": ["totalCost"],
+        "rows": [
+          ["(10.0 plus ?N)"],
+          ["(50.0 plus ?N)"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

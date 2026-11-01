@@ -1,0 +1,120 @@
+{
+  "error": null,
+  "instances": {
+    "EmpInstance": {
+      "Department": {
+        "columns": ["ID", "name", "secretary"],
+        "rows": [
+          ["0", "Math", "2"],
+          ["1", "CS", "4"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "first", "last", "manager", "worksIn"],
+        "rows": [
+          ["2", "Al", "Akin", "3", "0"],
+          ["3", "Carl", "Cork", "3", "0"],
+          ["4", "Bob", "Bo", "4", "1"]
+        ]
+      }
+    },
+    "I": {
+      "N1": {
+        "columns": ["f", "name", "salary"],
+        "rows": [
+          ["3", "Alice", "100"],
+          ["4", "Bob", "250"],
+          ["5", "Sue", "300"]
+        ]
+      },
+      "N2": {
+        "columns": ["ID", "age"],
+        "rows": [
+          ["3", "20"],
+          ["4", "20"],
+          ["5", "30"]
+        ]
+      }
+    },
+    "QueryResult": {
+      "Manager": {
+        "columns": ["deptName"],
+        "rows": [
+          ["CS"],
+          ["Math"],
+          ["Math"]
+        ]
+      }
+    },
+    "QueryResultDistinct": {
+      "Manager": {
+        "columns": ["deptName"],
+        "rows": [
+          ["CS"],
+          ["Math"]
+        ]
+      }
+    },
+    "coevalQI": {
+      "N": {
+        "columns": ["age", "name", "salary"],
+        "rows": [
+          ["20", "Alice", "100"],
+          ["20", "Bob", "250"],
+          ["30", "Sue", "300"]
+        ]
+      }
+    },
+    "deltaFsigmaFI": {
+      "N1": {
+        "columns": ["f", "name", "salary"],
+        "rows": [
+          ["3", "Alice", "100"],
+          ["4", "Bob", "250"],
+          ["5", "Sue", "300"]
+        ]
+      },
+      "N2": {
+        "columns": ["ID", "age"],
+        "rows": [
+          ["3", "20"],
+          ["4", "20"],
+          ["5", "30"]
+        ]
+      }
+    },
+    "evalcoevalQI": {
+      "N1": {
+        "columns": ["f", "name", "salary"],
+        "rows": [
+          ["3", "Sue", "300"],
+          ["4", "Bob", "250"],
+          ["5", "Alice", "100"]
+        ]
+      },
+      "N2": {
+        "columns": ["ID", "age"],
+        "rows": [
+          ["3", "30"],
+          ["4", "20"],
+          ["5", "20"]
+        ]
+      }
+    },
+    "sigmaFI": {
+      "N": {
+        "columns": ["age", "name", "salary"],
+        "rows": [
+          ["20", "Alice", "100"],
+          ["20", "Bob", "250"],
+          ["30", "Sue", "300"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "CheckNameIsDeptKey": [
+      "Satisfied"
+    ]
+  }
+}

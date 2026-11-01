@@ -1,0 +1,176 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Department": {
+        "columns": ["ID", "name", "secretary"],
+        "rows": [
+          ["0", "Math", "3"],
+          ["1", "CS", "4"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "age", "first", "last", "manager", "worksIn"],
+        "rows": [
+          ["2", "2", "Al", "?N", "3", "0"],
+          ["3", "1", "Bob", "Bo", "3", "0"],
+          ["4", "2", "Carl", "?N", "4", "1"]
+        ]
+      }
+    },
+    "J": {
+      "R": {
+        "columns": ["ID", "object", "predicate", "subject"],
+        "rows": [
+          ["0", "http://www.w3.org/2000/01/rdf-schema#Class", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://entity/Employee"],
+          ["1", "cql://entity/Employee", "http://www.w3.org/2000/01/rdf-schema#domain", "cql://foreign_key/Employee/worksIn"],
+          ["10", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://foreign_key/Department/secretary"],
+          ["11", "cql://entity/Employee", "http://www.w3.org/2000/01/rdf-schema#domain", "cql://attribute/Employee/age"],
+          ["12", "http://www.w3.org/2001/XMLSchema#Integer", "http://www.w3.org/2000/01/rdf-schema#range", "cql://attribute/Employee/age"],
+          ["13", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://attribute/Employee/age"],
+          ["14", "Bob", "cql://attribute/Employee/first", "cql://entity/Employee/1"],
+          ["15", "Bo", "cql://attribute/Employee/last", "cql://entity/Employee/1"],
+          ["16", "1", "cql://attribute/Employee/age", "cql://entity/Employee/1"],
+          ["17", "cql://entity/Employee/1", "cql://foreign_key/Employee/manager", "cql://entity/Employee/1"],
+          ["18", "cql://entity/Department/1", "cql://foreign_key/Employee/worksIn", "cql://entity/Employee/1"],
+          ["19", "cql://entity/Employee", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://entity/Employee/1"],
+          ["2", "cql://entity/Department", "http://www.w3.org/2000/01/rdf-schema#range", "cql://foreign_key/Employee/worksIn"],
+          ["20", "CS", "cql://attribute/Department/name", "cql://entity/Department/0"],
+          ["21", "cql://entity/Employee/0", "cql://foreign_key/Department/secretary", "cql://entity/Department/0"],
+          ["22", "cql://entity/Department", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://entity/Department/0"],
+          ["23", "cql://entity/Department", "http://www.w3.org/2000/01/rdf-schema#domain", "cql://attribute/Department/name"],
+          ["24", "http://www.w3.org/2001/XMLSchema#String", "http://www.w3.org/2000/01/rdf-schema#range", "cql://attribute/Department/name"],
+          ["25", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://attribute/Department/name"],
+          ["26", "cql://entity/Employee", "http://www.w3.org/2000/01/rdf-schema#domain", "cql://attribute/Employee/first"],
+          ["27", "http://www.w3.org/2001/XMLSchema#String", "http://www.w3.org/2000/01/rdf-schema#range", "cql://attribute/Employee/first"],
+          ["28", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://attribute/Employee/first"],
+          ["29", "cql://entity/Employee", "http://www.w3.org/2000/01/rdf-schema#domain", "cql://attribute/Employee/last"],
+          ["3", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://foreign_key/Employee/worksIn"],
+          ["30", "http://www.w3.org/2001/XMLSchema#String", "http://www.w3.org/2000/01/rdf-schema#range", "cql://attribute/Employee/last"],
+          ["31", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://attribute/Employee/last"],
+          ["32", "Carl", "cql://attribute/Employee/first", "cql://entity/Employee/0"],
+          ["33", "2", "cql://attribute/Employee/age", "cql://entity/Employee/0"],
+          ["34", "cql://entity/Employee/0", "cql://foreign_key/Employee/manager", "cql://entity/Employee/0"],
+          ["35", "cql://entity/Department/0", "cql://foreign_key/Employee/worksIn", "cql://entity/Employee/0"],
+          ["36", "cql://entity/Employee", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://entity/Employee/0"],
+          ["37", "cql://entity/Employee", "http://www.w3.org/2000/01/rdf-schema#domain", "cql://foreign_key/Employee/manager"],
+          ["38", "cql://entity/Employee", "http://www.w3.org/2000/01/rdf-schema#range", "cql://foreign_key/Employee/manager"],
+          ["39", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://foreign_key/Employee/manager"],
+          ["4", "Math", "cql://attribute/Department/name", "cql://entity/Department/1"],
+          ["40", "Al", "cql://attribute/Employee/first", "cql://entity/Employee/2"],
+          ["41", "2", "cql://attribute/Employee/age", "cql://entity/Employee/2"],
+          ["42", "cql://entity/Employee/1", "cql://foreign_key/Employee/manager", "cql://entity/Employee/2"],
+          ["43", "cql://entity/Department/1", "cql://foreign_key/Employee/worksIn", "cql://entity/Employee/2"],
+          ["44", "cql://entity/Employee", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://entity/Employee/2"],
+          ["5", "cql://entity/Employee/1", "cql://foreign_key/Department/secretary", "cql://entity/Department/1"],
+          ["6", "cql://entity/Department", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://entity/Department/1"],
+          ["7", "http://www.w3.org/2000/01/rdf-schema#Class", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "cql://entity/Department"],
+          ["8", "cql://entity/Department", "http://www.w3.org/2000/01/rdf-schema#domain", "cql://foreign_key/Department/secretary"],
+          ["9", "cql://entity/Employee", "http://www.w3.org/2000/01/rdf-schema#range", "cql://foreign_key/Department/secretary"]
+        ]
+      }
+    },
+    "K": {
+      "cql://attribute/Department/name": {
+        "columns": ["ID", "object", "subject"],
+        "rows": [
+          ["0", "Math", "cql://entity/Department/1"],
+          ["1", "CS", "cql://entity/Department/0"]
+        ]
+      },
+      "cql://attribute/Employee/age": {
+        "columns": ["ID", "object", "subject"],
+        "rows": [
+          ["2", "1", "cql://entity/Employee/1"],
+          ["3", "2", "cql://entity/Employee/0"],
+          ["4", "2", "cql://entity/Employee/2"]
+        ]
+      },
+      "cql://attribute/Employee/first": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Al", "cql://entity/Employee/2"],
+          ["Bob", "cql://entity/Employee/1"],
+          ["Carl", "cql://entity/Employee/0"]
+        ]
+      },
+      "cql://attribute/Employee/last": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Bo", "cql://entity/Employee/1"]
+        ]
+      },
+      "cql://foreign_key/Department/secretary": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["cql://entity/Employee/0", "cql://entity/Department/0"],
+          ["cql://entity/Employee/1", "cql://entity/Department/1"]
+        ]
+      },
+      "cql://foreign_key/Employee/manager": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["cql://entity/Employee/0", "cql://entity/Employee/0"],
+          ["cql://entity/Employee/1", "cql://entity/Employee/1"],
+          ["cql://entity/Employee/1", "cql://entity/Employee/2"]
+        ]
+      },
+      "cql://foreign_key/Employee/worksIn": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["cql://entity/Department/0", "cql://entity/Employee/0"],
+          ["cql://entity/Department/1", "cql://entity/Employee/1"],
+          ["cql://entity/Department/1", "cql://entity/Employee/2"]
+        ]
+      },
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["cql://entity/Department", "cql://entity/Department/0"],
+          ["cql://entity/Department", "cql://entity/Department/1"],
+          ["cql://entity/Employee", "cql://entity/Employee/0"],
+          ["cql://entity/Employee", "cql://entity/Employee/1"],
+          ["cql://entity/Employee", "cql://entity/Employee/2"],
+          ["http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "cql://attribute/Department/name"],
+          ["http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "cql://attribute/Employee/age"],
+          ["http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "cql://attribute/Employee/first"],
+          ["http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "cql://attribute/Employee/last"],
+          ["http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "cql://foreign_key/Department/secretary"],
+          ["http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "cql://foreign_key/Employee/manager"],
+          ["http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", "cql://foreign_key/Employee/worksIn"],
+          ["http://www.w3.org/2000/01/rdf-schema#Class", "cql://entity/Department"],
+          ["http://www.w3.org/2000/01/rdf-schema#Class", "cql://entity/Employee"]
+        ]
+      },
+      "http://www.w3.org/2000/01/rdf-schema#domain": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["cql://entity/Department", "cql://attribute/Department/name"],
+          ["cql://entity/Department", "cql://foreign_key/Department/secretary"],
+          ["cql://entity/Employee", "cql://attribute/Employee/age"],
+          ["cql://entity/Employee", "cql://attribute/Employee/first"],
+          ["cql://entity/Employee", "cql://attribute/Employee/last"],
+          ["cql://entity/Employee", "cql://foreign_key/Employee/manager"],
+          ["cql://entity/Employee", "cql://foreign_key/Employee/worksIn"]
+        ]
+      },
+      "http://www.w3.org/2000/01/rdf-schema#range": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["cql://entity/Department", "cql://foreign_key/Employee/worksIn"],
+          ["cql://entity/Employee", "cql://foreign_key/Department/secretary"],
+          ["cql://entity/Employee", "cql://foreign_key/Employee/manager"],
+          ["http://www.w3.org/2001/XMLSchema#Integer", "cql://attribute/Employee/age"],
+          ["http://www.w3.org/2001/XMLSchema#String", "cql://attribute/Department/name"],
+          ["http://www.w3.org/2001/XMLSchema#String", "cql://attribute/Employee/first"],
+          ["http://www.w3.org/2001/XMLSchema#String", "cql://attribute/Employee/last"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "exportRdfData": [
+      "Size 45"
+    ]
+  }
+}

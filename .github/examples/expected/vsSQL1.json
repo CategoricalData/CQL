@@ -1,0 +1,37 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Department": {
+        "columns": ["ID", "name", "secretary"],
+        "rows": [
+          ["0", "Applied Math", "2"],
+          ["1", "Pure Math", "4"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "first", "manager", "worksIn"],
+        "rows": [
+          ["2", "Alan", "3", "0"],
+          ["3", "Audrey", "3", "0"],
+          ["4", "Camille", "4", "1"]
+        ]
+      }
+    },
+    "J": {
+      "Department": {
+        "columns": ["ID", "name", "secretary"],
+        "rows": [
+          ["0", "Pure Math", "1"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "first", "manager", "worksIn"],
+        "rows": [
+          ["1", "Camille", "1", "0"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

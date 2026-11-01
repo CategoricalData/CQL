@@ -1,0 +1,118 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "CUST": {
+        "columns": ["ID", "CNATION", "CUST_ID"],
+        "rows": [
+          ["0", "jpy", "3"],
+          ["1", "uk", "2"],
+          ["2", "usa", "1"]
+        ]
+      },
+      "SUPPCATALOG": {
+        "columns": ["ID", "SADDR", "SNATION", "SUPP_ID"],
+        "rows": [
+          ["3", "s4addr", "mexico", "54"],
+          ["4", "s3addr", "cn", "53"],
+          ["5", "s2addr", "india", "52"],
+          ["6", "s1addr", "usa", "51"]
+        ]
+      },
+      "WEBORDER": {
+        "columns": ["CUST_ID", "ORDERKEY", "SUPP_ID"],
+        "rows": [
+          ["1", "order1", "51"],
+          ["1", "order2", "52"]
+        ]
+      }
+    },
+    "IJ": {
+      "CUST": {
+        "columns": ["ID", "CNATION", "CUST_ID"],
+        "rows": [
+          ["0", "jpy", "3"],
+          ["1", "uk", "2"],
+          ["2", "usa", "1"]
+        ]
+      },
+      "SUPPCATALOG": {
+        "columns": ["ID", "SADDR", "SNATION", "SUPP_ID"],
+        "rows": [
+          ["3", "s4addr", "mexico", "54"],
+          ["4", "s3addr", "cn", "53"],
+          ["5", "s2addr", "india", "52"],
+          ["6", "s1addr", "usa", "51"]
+        ]
+      },
+      "WEBORDER": {
+        "columns": ["CUST_ID", "ORDERKEY", "SUPP_ID"],
+        "rows": [
+          ["1", "order1", "51"],
+          ["1", "order2", "52"]
+        ]
+      },
+      "mastercust": {
+        "columns": ["cnation", "cust_id"],
+        "rows": [
+          ["usa", "1"]
+        ]
+      },
+      "mastersupp": {
+        "columns": ["saddr", "snation", "supp_id"],
+        "rows": [
+          ["s1addr", "usa", "51"],
+          ["s2addr", "india", "52"]
+        ]
+      },
+      "supp2cust": {
+        "columns": ["cust_id", "orderkey", "supp_id"],
+        "rows": [
+          ["1", "order1", "51"],
+          ["1", "order2", "52"]
+        ]
+      }
+    },
+    "J": {
+      "mastercust": {
+        "columns": ["cnation", "cust_id"],
+        "rows": [
+          ["usa", "1"]
+        ]
+      },
+      "mastersupp": {
+        "columns": ["ID", "saddr", "snation", "supp_id"],
+        "rows": [
+          ["1", "s2addr", "india", "52"],
+          ["2", "s1addr", "usa", "51"]
+        ]
+      },
+      "supp2cust": {
+        "columns": ["cust_id", "orderkey", "supp_id"],
+        "rows": [
+          ["1", "order1", "51"],
+          ["1", "order2", "52"]
+        ]
+      }
+    },
+    "QnewResult": {
+      "Q": {
+        "columns": ["ID", "CUST_ID", "SADDR", "SNATION", "SUPP_ID"],
+        "rows": [
+          ["0", "1", "s2addr", "india", "52"],
+          ["1", "1", "s1addr", "usa", "51"]
+        ]
+      }
+    },
+    "QoldResult": {
+      "Q": {
+        "columns": ["ID", "CUST_ID", "SADDR", "SNATION", "SUPP_ID"],
+        "rows": [
+          ["0", "1", "s2addr", "india", "52"],
+          ["1", "1", "s1addr", "usa", "51"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

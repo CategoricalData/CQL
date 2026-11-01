@@ -1,0 +1,30 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "T_E": {
+        "columns": ["T_att_int"],
+        "rows": [
+          ["50"]
+        ]
+      }
+    },
+    "J": {
+      "S_E": {
+        "columns": ["S_att_str"],
+        "rows": [
+          ["int_to_str(50)"]
+        ]
+      }
+    },
+    "K": {
+      "T_E": {
+        "columns": ["T_att_int"],
+        "rows": [
+          ["?N"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

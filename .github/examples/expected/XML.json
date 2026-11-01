@@ -1,0 +1,26 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "R": {
+        "columns": ["object", "predicate", "subject"],
+        "rows": [
+          ["?N", "cql://json#data", "?N"],
+          ["?N", "cql://json#item", "?N"],
+          ["?N", "cql://json#item", "?N"],
+          ["Hello", "cql://json#name", "?N"],
+          ["Hello", "cql://json#name", "?N"],
+          ["http://example.org", "cql://json#xmlns", "?N"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "createXmlData": [
+      "Java.type(\"catdata.Util\").writeFile(\" <data xmlns=\\\"http://example.org\\\">\\n    <item>\\n        <name>Hello</name>\\n    </item>\\n    <item>\\n        <name>Hello</name>\\n    </item>\\n</data> \", \"tempX.xml\")"
+    ],
+    "exportXmlData": [
+      "Size 25"
+    ]
+  }
+}
