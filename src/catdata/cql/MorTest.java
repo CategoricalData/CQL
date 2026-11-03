@@ -5,10 +5,10 @@ import static catdata.cql.CqlTestHelpers.ops;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import java.util.List;
-import java.util.Map;
 import catdata.Pair;
 import catdata.cql.exp.Sym;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /** A theory morphism. MorExpRaw returns null instead of one, so no CQL program makes a Mor. */

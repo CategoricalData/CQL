@@ -3,6 +3,8 @@ package catdata.cql.fdm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.cql.exp.AqlMultiDriver;
+import catdata.cql.exp.AqlParserFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -10,8 +12,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import catdata.cql.exp.AqlMultiDriver;
-import catdata.cql.exp.AqlParserFactory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,10 @@ class ToJdbcPragmaInstanceTest {
   private static int databases = 0;
 
   private static synchronized String database(String options) {
-    return "jdbc:h2:mem:to_jdbc_pragma_instance_test_" + databases++ + options + ";DB_CLOSE_DELAY=-1";
+    return "jdbc:h2:mem:to_jdbc_pragma_instance_test_"
+        + databases++
+        + options
+        + ";DB_CLOSE_DELAY=-1";
   }
 
   /** Runs a program as the IDE does. */
@@ -86,14 +89,11 @@ class ToJdbcPragmaInstanceTest {
       run(PROGRAM + "command x = export_jdbc_instance I \"" + url + "\" \"X\"");
       // n is numeric(5,2), so 9.99 is not rounded as in an unsized numeric column
       assertEquals(
-          List.of(
-              "b|BOOLEAN|null|null",
-              "c|CHARACTER|3|null",
-              "n|NUMERIC|5|2",
-              "t|TINYINT|8|0"),
+          List.of("b|BOOLEAN|null|null", "c|CHARACTER|3|null", "n|NUMERIC|5|2", "t|TINYINT|8|0"),
           columns(url, "XE"));
       assertEquals(
-          List.of("9.99|abc", "123.40|a  "), rows(url, "select \"n\", \"c\" from \"XE\" order by \"n\""));
+          List.of("9.99|abc", "123.40|a  "),
+          rows(url, "select \"n\", \"c\" from \"XE\" order by \"n\""));
     }
 
     @Test
@@ -106,11 +106,7 @@ class ToJdbcPragmaInstanceTest {
               + "\" \"X\" { options is_oracle = true }");
       // the Oracle dialect has no tinyint, and spells numeric as number
       assertEquals(
-          List.of(
-              "b|BOOLEAN|null|null",
-              "c|CHARACTER|3|null",
-              "n|NUMERIC|5|2",
-              "t|SMALLINT|16|0"),
+          List.of("b|BOOLEAN|null|null", "c|CHARACTER|3|null", "n|NUMERIC|5|2", "t|SMALLINT|16|0"),
           columns(url, "XE"));
     }
 

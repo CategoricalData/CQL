@@ -1,20 +1,5 @@
 package catdata.cql.fdm;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.BiConsumer;
-
-import org.apache.commons.collections4.ListUtils;
-
-import com.google.common.collect.Iterables;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.RuntimeInterruptedException;
@@ -27,7 +12,19 @@ import catdata.cql.Instance;
 import catdata.cql.Schema;
 import catdata.cql.Term;
 import catdata.graph.UnionFind;
+import com.google.common.collect.Iterables;
 import gnu.trove.map.hash.THashMap;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
+import org.apache.commons.collections4.ListUtils;
 
 public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
     extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
@@ -87,7 +84,8 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
     return true;
   }
 
-  public DistinctInstanceParallel(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0, AqlOptions ops) {
+  public DistinctInstanceParallel(
+      Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I0, AqlOptions ops) {
     I = I0;
     Map<En, List<List<Fk>>> paths = new THashMap<>();
 
@@ -100,7 +98,7 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
     }
     ExecutorService exec = Executors.newFixedThreadPool(1); // Executors.newCachedThreadPool();
 
-    for (;;) {
+    for (; ; ) {
 
       // System.out.println("paths: " + paths);
       List<Boolean> l = new LinkedList<>();
@@ -112,27 +110,28 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
       for (En en : I.schema().ens) {
         for (List<Fk> path : paths.get(en)) {
           En en2 = path.isEmpty() ? en : schema().fks.get(path.get(0)).first;
-    
-          Callable<Unit> c = new Callable<>() {
-            @Override
-            public Unit call() {
-              boolean[][] d = distinguished.get(en2);
-              for (int x = 0; x < d.length; x++) {
-                for (int y = 0; y < d.length; y++) {
-                  if (undistinguished(en2, x, y, path)) {
-                    // System.out.println("unmerge " + x + " " + y);
-                    synchronized (d) {
-                      if (d[x][y]) {
-                        d[x][y] = false;
-                        changed.set(0, true);
+
+          Callable<Unit> c =
+              new Callable<>() {
+                @Override
+                public Unit call() {
+                  boolean[][] d = distinguished.get(en2);
+                  for (int x = 0; x < d.length; x++) {
+                    for (int y = 0; y < d.length; y++) {
+                      if (undistinguished(en2, x, y, path)) {
+                        // System.out.println("unmerge " + x + " " + y);
+                        synchronized (d) {
+                          if (d[x][y]) {
+                            d[x][y] = false;
+                            changed.set(0, true);
+                          }
+                        }
                       }
                     }
                   }
+                  return Unit.unit;
                 }
-              }
-              return Unit.unit;
-            }
-          };
+              };
           results.add(exec.submit(c));
         }
       }
@@ -187,24 +186,27 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
       }
     }
 
-//    this.validateMore();
-//    algebra().validateMore();
+    //    this.validateMore();
+    //    algebra().validateMore();
     // System.out.println(algebra());
     // System.out.println(this);
 
     algebra = new InnerAlgebra();
 
     validate();
-    I.eqs((l, r) -> {
-      if (!dp().eq(null, l, r)) {
-        throw new RuntimeException("Equation " + l + " = " + r + " not preserved in quotient (anomaly).");
-      }
-    });
+    I.eqs(
+        (l, r) -> {
+          if (!dp().eq(null, l, r)) {
+            throw new RuntimeException(
+                "Equation " + l + " = " + r + " not preserved in quotient (anomaly).");
+          }
+        });
   }
 
   // private TalgSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> talg;
   public Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col;
-  //private DP<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> dp_ty;
+
+  // private DP<Ty, Void, Sym, Void, Void, Void, Chc<Sk, Pair<X, Att>>> dp_ty;
 
   @Override
   public Schema<Ty, En, Sym, Fk, Att> schema() {
@@ -216,7 +218,8 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
     return I.gens();
   }
 
-  private List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs = new LinkedList<>();
+  private List<Pair<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> eqs =
+      new LinkedList<>();
 
   public synchronized void eqs(
       BiConsumer<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> f) {
@@ -241,7 +244,9 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
       }
 
       @Override
-      public boolean eq(Map<String, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
+      public boolean eq(
+          Map<String, Chc<Ty, En>> ctx,
+          Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
           Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
         if (ctx != null && !ctx.isEmpty()) {
           throw new RuntimeException("Cannot answer a non-ground equation");
@@ -266,9 +271,7 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
 
   private final class InnerAlgebra extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
-    private InnerAlgebra() {
-
-    }
+    private InnerAlgebra() {}
 
     @Override
     public Schema<Ty, En, Sym, Fk, Att> schema() {
@@ -368,5 +371,4 @@ public class DistinctInstanceParallel<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
   public boolean allowUnsafeJava() {
     return I.allowUnsafeJava();
   }
-
 }

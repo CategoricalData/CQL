@@ -7,6 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.cql.Collage.CCollage;
+import catdata.provers.DPKB;
+import catdata.provers.KBExp;
+import catdata.provers.KBTheory;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,19 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.cql.Collage.CCollage;
-import catdata.provers.DPKB;
-import catdata.provers.KBExp;
-import catdata.provers.KBTheory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
  * The wrapper that turns a prover into a decision procedure: reflexivity, simplification, java
- * reduction and fresh java constants, over a type Str of java.lang.String and a prover that
- * records what it is asked.
+ * reduction and fresh java constants, over a type Str of java.lang.String and a prover that records
+ * what it is asked.
  */
 class KBtoDPTest {
 
@@ -81,8 +81,8 @@ class KBtoDPTest {
   }
 
   /**
-   * Answers from a queue, false once it is empty, and records the questions, their contexts and
-   * the constants it is told about. Like the real provers, it adds those to its theory.
+   * Answers from a queue, false once it is empty, and records the questions, their contexts and the
+   * constants it is told about. Like the real provers, it adds those to its theory.
    */
   private static final class Recording
       extends DPKB<

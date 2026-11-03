@@ -9,6 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Pair;
+import catdata.Util;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.AqlProver.ProverName;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,10 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import catdata.Pair;
-import catdata.Util;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.AqlProver.ProverName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -93,7 +93,9 @@ class AqlOptionsTest {
     @Test
     void completionPrecedenceIsTheOnlyNullDefault() {
       Set<AqlOption> nulls =
-          Arrays.stream(AqlOption.values()).filter(op -> dflt(op) == null).collect(Collectors.toSet());
+          Arrays.stream(AqlOption.values())
+              .filter(op -> dflt(op) == null)
+              .collect(Collectors.toSet());
       assertEquals(Set.of(AqlOption.completion_precedence), nulls);
     }
 
@@ -104,7 +106,8 @@ class AqlOptionsTest {
           Arrays.stream(AqlOption.values())
               .filter(op -> op.toString().contains("unsafe") && Boolean.TRUE.equals(dflt(op)))
               .collect(Collectors.toSet());
-      assertEquals(Set.of(AqlOption.allow_sql_import_all_unsafe, AqlOption.allow_java_eqs_unsafe), on);
+      assertEquals(
+          Set.of(AqlOption.allow_sql_import_all_unsafe, AqlOption.allow_java_eqs_unsafe), on);
     }
   }
 
@@ -209,7 +212,8 @@ class AqlOptionsTest {
     void readEachTypeFromAMapOfStrings() {
       assertEquals(true, AqlOption.emit_ids.getBoolean(Map.of("emit_ids", "true")));
       assertEquals('x', AqlOption.csv_quote_char.getChar(Map.of("csv_quote_char", "x")));
-      assertEquals(0.25f, AqlOption.eval_join_selectivity.getFloat(Map.of("eval_join_selectivity", "0.25")));
+      assertEquals(
+          0.25f, AqlOption.eval_join_selectivity.getFloat(Map.of("eval_join_selectivity", "0.25")));
       assertEquals(7, AqlOption.start_ids_at.getInteger(Map.of("start_ids_at", "7")));
       assertEquals(7L, AqlOption.timeout.getLong(Map.of("timeout", "7")));
       assertEquals(ProverName.e, AqlOption.prover.getDPName(Map.of("prover", "e")));
@@ -261,7 +265,8 @@ class AqlOptionsTest {
     void getRequiresAnExplicitOption() {
       assertEquals(5L, ops.get(AqlOption.timeout));
       assertEquals(
-          "Missing required option static_timeout", message(() -> ops.get(AqlOption.static_timeout)));
+          "Missing required option static_timeout",
+          message(() -> ops.get(AqlOption.static_timeout)));
     }
 
     @Test

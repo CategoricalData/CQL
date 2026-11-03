@@ -1,10 +1,9 @@
 package catdata.cql.fdm;
 
+import catdata.Unit;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Function;
-
-import catdata.Unit;
 
 public class LazySet<E> implements Collection<E> {
 
@@ -100,5 +99,4 @@ public class LazySet<E> implements Collection<E> {
     init();
     s.clear();
   }
-
 }

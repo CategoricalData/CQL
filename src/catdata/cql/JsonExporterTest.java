@@ -6,14 +6,6 @@ import static catdata.cql.CqlTestHelpers.sqlSchema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.exp.Att;
@@ -25,6 +17,14 @@ import gnu.trove.map.TObjectIntMap;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -83,8 +83,7 @@ class JsonExporterTest {
 
     @Test
     void valueConvertUsesThePrinterOfTheType() {
-      Term<String, Void, Sym, Void, Void, Void, String> ann =
-          Term.Obj(Optional.of("ann"), VARCHAR);
+      Term<String, Void, Sym, Void, Void, Void, String> ann = Term.Obj(Optional.of("ann"), VARCHAR);
       assertEquals("ann", JsonExporter.valueConvert(PRINTER, ann));
       assertEquals("Optional[ann]", JsonExporter.valueConvert(Map.of(), ann));
     }

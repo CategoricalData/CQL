@@ -4,17 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import catdata.cql.AqlTester;
 import catdata.ide.Example;
 import catdata.ide.Examples;
 import catdata.ide.Language;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for the standalone examples-site generator {@link AqlExamples}. */
 class AqlExamplesTest {

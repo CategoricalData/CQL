@@ -1,11 +1,5 @@
 package catdata.cql.fdm;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.Algebra;
@@ -14,6 +8,11 @@ import catdata.cql.Mapping;
 import catdata.cql.Schema;
 import catdata.cql.Term;
 import gnu.trove.map.hash.THashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
     extends Algebra<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> {
@@ -26,7 +25,8 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
     return J.algebra().toStringProver();
   }
 
-  public DeltaAlgebra(Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F,
+  public DeltaAlgebra(
+      Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F,
       Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> alg) {
     this.F = F;
     this.J = alg;
@@ -37,7 +37,8 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
     return F.src;
   }
 
-  public Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> translate(Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y> e) {
+  public Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> translate(
+      Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y> e) {
     if (e.var != null) {
       return e.convert();
     } else if (e.obj() != null) {
@@ -109,8 +110,8 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
     return J.algebra().intoY(J.reprT(ret));
   }
 
-  private Term<Ty, Void, Sym, Void, Void, Void, Y> attY(Term<Ty, En2, Sym, Fk2, Att2, Void, Void> term,
-      Pair<En1, X> x) {
+  private Term<Ty, Void, Sym, Void, Void, Void, Y> attY(
+      Term<Ty, En2, Sym, Fk2, Att2, Void, Void> term, Pair<En1, X> x) {
     if (term.obj() != null) {
       return term.convert();
     } else if (term.att() != null) {
@@ -179,5 +180,4 @@ public class DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y
   public boolean hasNulls() {
     return J.algebra().hasNulls();
   }
-
 }

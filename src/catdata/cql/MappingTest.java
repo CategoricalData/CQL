@@ -14,6 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.cql.Collage.CCollage;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,13 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.cql.Collage.CCollage;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +59,7 @@ class MappingTest {
 
   private static final String LONELY = "Lonely";
 
-  private static final Sym IS_NULL =Sym.Sym("isNull", new Pair<>(List.of(VARCHAR), BOOLEAN));
+  private static final Sym IS_NULL = Sym.Sym("isNull", new Pair<>(List.of(VARCHAR), BOOLEAN));
 
   /** The schemas, built once and shared. */
   private static final class Fixtures {
@@ -77,7 +77,9 @@ class MappingTest {
             List.of(EMP, DEPT),
             Map.of(NAME, EMP, LABEL, DEPT),
             Map.of(WORKS_IN, new Pair<>(EMP, DEPT), MANAGES, new Pair<>(EMP, DEPT)),
-            List.of(forall("e", EMP, Term.Fk(WORKS_IN, Term.Var("e")), Term.Fk(MANAGES, Term.Var("e")))));
+            List.of(
+                forall(
+                    "e", EMP, Term.Fk(WORKS_IN, Term.Var("e")), Term.Fk(MANAGES, Term.Var("e")))));
 
     /** A single Employee with a Boolean and a Varchar attribute. */
     private static final Schema<String, String, Sym, Fk, Att> FLAGS =
@@ -143,8 +145,8 @@ class MappingTest {
   /** Assembles the maps the {@link Mapping} constructor takes. */
   private static final class Builder {
     private final Map<String, String> ens = new HashMap<>();
-    private final Map<Att, Triple<String, String, Term<String, String, Sym, Fk, Att, Void, Void>>> atts =
-        new HashMap<>();
+    private final Map<Att, Triple<String, String, Term<String, String, Sym, Fk, Att, Void, Void>>>
+        atts = new HashMap<>();
     private final Map<Fk, Pair<String, List<Fk>>> fks = new HashMap<>();
 
     Builder entity(String from, String to) {
@@ -417,7 +419,8 @@ class MappingTest {
               RuntimeException.class, () -> withManages().build(Fixtures.SRC_EQ, Fixtures.MID));
       String msg = e.getMessage();
       assertTrue(msg.startsWith("Source schema equation e.worksIn = e.manages translates to"), msg);
-      assertTrue(msg.contains("translates to e.memberOf.partOf = e.leads, which is not provable"), msg);
+      assertTrue(
+          msg.contains("translates to e.memberOf.partOf = e.leads, which is not provable"), msg);
     }
 
     @Test
@@ -470,8 +473,7 @@ class MappingTest {
       Term<String, String, Sym, Fk, Att, String, String> s = Term.Sk("s");
       assertEquals(g, f().trans(g));
       assertEquals(s, f().trans(s));
-      assertEquals(
-          Term.Fk(PART_OF, Term.Fk(MEMBER_OF, g)), f().trans(Term.Fk(WORKS_IN, g)));
+      assertEquals(Term.Fk(PART_OF, Term.Fk(MEMBER_OF, g)), f().trans(Term.Fk(WORKS_IN, g)));
     }
 
     @Test
@@ -482,9 +484,11 @@ class MappingTest {
 
     @Test
     void mapsEntitySortedVariablesAndKeepsTypeSortedOnes() {
-      Map<String, Chc<String, String>> ctx = Map.of("e", Chc.inRight(EMP), "x", Chc.inLeft(VARCHAR));
+      Map<String, Chc<String, String>> ctx =
+          Map.of("e", Chc.inRight(EMP), "x", Chc.inLeft(VARCHAR));
       assertEquals(
-          Map.of("e", Chc.inRight(PERSON), "x", Chc.inLeft(VARCHAR)), new HashMap<>(f().trans(ctx)));
+          Map.of("e", Chc.inRight(PERSON), "x", Chc.inLeft(VARCHAR)),
+          new HashMap<>(f().trans(ctx)));
     }
 
     @Test
@@ -515,9 +519,11 @@ class MappingTest {
 
     @Test
     void translatesAContextAndATermTogether() {
-      Map<String, Chc<String, String>> ctx = Map.of("e", Chc.inRight(EMP), "x", Chc.inLeft(VARCHAR));
+      Map<String, Chc<String, String>> ctx =
+          Map.of("e", Chc.inRight(EMP), "x", Chc.inLeft(VARCHAR));
       var p = f().semantics().translate(ctx, fk(WORKS_IN, v("e")));
-      assertEquals(Map.of("e", Chc.inRight(PERSON), "x", Chc.inLeft(VARCHAR)), new HashMap<>(p.first));
+      assertEquals(
+          Map.of("e", Chc.inRight(PERSON), "x", Chc.inLeft(VARCHAR)), new HashMap<>(p.first));
       assertEquals(fk(PART_OF, fk(MEMBER_OF, v("e"))), p.second);
     }
   }
@@ -565,7 +571,8 @@ class MappingTest {
               .build(Fixtures.FLAGS, Fixtures.MID);
       Mapping<String, String, Sym, Fk, Att, String, Fk, Att> c = Mapping.compose(flags, g());
       assertEquals(
-          new Triple<>("v", ROW, Term.Sym(IS_NULL, List.of(att(FIRST, v("v"))))), c.atts.get(ACTIVE));
+          new Triple<>("v", ROW, Term.Sym(IS_NULL, List.of(att(FIRST, v("v"))))),
+          c.atts.get(ACTIVE));
       assertEquals(new Triple<>("v", ROW, str("k")), c.atts.get(CODE));
     }
 
@@ -586,8 +593,8 @@ class MappingTest {
 
   /**
    * The collage of F : S -> T is the schema S + T with one extra foreign key m_e : e -> F(e) per
-   * source entity e, and equations making m a natural transformation: x.f.m_w = x.m_v.F(f) for
-   * f : v -> w, and x.a = F(a)[x.m_v] for every source attribute a on v.
+   * source entity e, and equations making m a natural transformation: x.f.m_w = x.m_v.F(f) for f :
+   * v -> w, and x.a = F(a)[x.m_v] for every source attribute a on v.
    */
   @Nested
   class Collages {
@@ -613,8 +620,9 @@ class MappingTest {
       return Chc.inRight(en);
     }
 
-    private Term<String, Chc<String, String>, Sym, Chc<Chc<Fk, Fk>, String>, Chc<Att, Att>, Void, Void> x(
-        String name) {
+    private Term<
+            String, Chc<String, String>, Sym, Chc<Chc<Fk, Fk>, String>, Chc<Att, Att>, Void, Void>
+        x(String name) {
       return Term.Var(name);
     }
 
@@ -914,7 +922,8 @@ class MappingTest {
       Term<String, Void, String, Void, Void, Void, Void> x = Term.Var("x");
       Term<String, Void, String, Void, Void, Void, Void> empty = Term.Sym("empty", List.of());
       AqlJs<String, String> js =
-          new AqlJs<>(ops(), syms, Map.of(STR, "java.lang.String"), Map.of(STR, "x => x"), Map.of());
+          new AqlJs<>(
+              ops(), syms, Map.of(STR, "java.lang.String"), Map.of(STR, "x => x"), Map.of());
       return new TypeSide<>(
           Set.of(STR),
           syms,
@@ -1006,7 +1015,9 @@ class MappingTest {
       // SqlTypeSide overloads + across its numeric types; Coq names drop the argument types, so
       // the same Parameter is declared several times, which Coq rejects.
       long plus =
-          Arrays.stream(f().toCoq().split("\n")).filter(l -> l.startsWith("Parameter plus :")).count();
+          Arrays.stream(f().toCoq().split("\n"))
+              .filter(l -> l.startsWith("Parameter plus :"))
+              .count();
       assertEquals(9, plus, "one Parameter plus per numeric type that SqlTypeSide.syms() declares");
     }
   }

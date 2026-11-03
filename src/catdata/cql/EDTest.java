@@ -7,17 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.Collage.CCollage;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -32,9 +32,9 @@ class EDTest {
   }
 
   /**
-   * A two-entity acyclic schema over {@link SqlTypeSide}: Employee.worksIn : Employee -> Department,
-   * with a Varchar attribute on each. Built once and shared; constructing a typeside spins up the
-   * JS engine and a prover, which is slow.
+   * A two-entity acyclic schema over {@link SqlTypeSide}: Employee.worksIn : Employee ->
+   * Department, with a Varchar attribute on each. Built once and shared; constructing a typeside
+   * spins up the JS engine and a prover, which is slow.
    */
   private static Schema<String, String, Sym, Fk, Att> schema() {
     return SchemaHolder.INSTANCE;
@@ -83,17 +83,19 @@ class EDTest {
   }
 
   @SafeVarargs
-  private static Set<Pair<
-          Term<String, String, Sym, Fk, Att, Void, Void>,
-          Term<String, String, Sym, Fk, Att, Void, Void>>>
+  private static Set<
+          Pair<
+              Term<String, String, Sym, Fk, Att, Void, Void>,
+              Term<String, String, Sym, Fk, Att, Void, Void>>>
       eqs(
           Pair<
                   Term<String, String, Sym, Fk, Att, Void, Void>,
                   Term<String, String, Sym, Fk, Att, Void, Void>>...
               ps) {
-    Set<Pair<
-            Term<String, String, Sym, Fk, Att, Void, Void>,
-            Term<String, String, Sym, Fk, Att, Void, Void>>>
+    Set<
+            Pair<
+                Term<String, String, Sym, Fk, Att, Void, Void>,
+                Term<String, String, Sym, Fk, Att, Void, Void>>>
         s = new HashSet<>();
     Collections.addAll(s, ps);
     return s;
@@ -122,13 +124,15 @@ class EDTest {
     void copiesItsInputsDefensively() {
       Map<String, Chc<String, String>> as = ctx("a", en());
       Map<String, Chc<String, String>> es = ctx("e", en());
-      Set<Pair<
-              Term<String, String, Sym, Fk, Att, Void, Void>,
-              Term<String, String, Sym, Fk, Att, Void, Void>>>
+      Set<
+              Pair<
+                  Term<String, String, Sym, Fk, Att, Void, Void>,
+                  Term<String, String, Sym, Fk, Att, Void, Void>>>
           awh = eqs(new Pair<>(v("a"), v("a")));
-      Set<Pair<
-              Term<String, String, Sym, Fk, Att, Void, Void>,
-              Term<String, String, Sym, Fk, Att, Void, Void>>>
+      Set<
+              Pair<
+                  Term<String, String, Sym, Fk, Att, Void, Void>,
+                  Term<String, String, Sym, Fk, Att, Void, Void>>>
           ewh = eqs(new Pair<>(v("e"), v("e")));
 
       ED ed = new ED(as, es, awh, ewh, false, ops());
@@ -378,7 +382,8 @@ class EDTest {
     @Test
     void recursesThroughNestedForeignKeys() {
       Fk fk = Fk.Fk(EN, "manager");
-      Term<String, String, Sym, Fk, Att, String, String> t = Term.Fk(fk, Term.Fk(fk, Term.Gen("g")));
+      Term<String, String, Sym, Fk, Att, String, String> t =
+          Term.Fk(fk, Term.Fk(fk, Term.Gen("g")));
       assertEquals(Term.Fk(fk, Term.Fk(fk, v("Ag"))), ed.unfreeze("A", t));
     }
 
@@ -411,8 +416,8 @@ class EDTest {
 
   /**
    * Tests for the methods that need a real schema to interpret the ED against. The schema is
-   * deliberately acyclic: a cyclic one with generators and no equations trips the divergence
-   * check in {@link catdata.cql.fdm.InitialAlgebra}.
+   * deliberately acyclic: a cyclic one with generators and no equations trips the divergence check
+   * in {@link catdata.cql.fdm.InitialAlgebra}.
    */
   @Nested
   class WithSchema {
@@ -524,7 +529,8 @@ class EDTest {
     @Test
     void toSqlFillsUnconstrainedAttributesWithNull() {
       String sql = simple().toSql(sch);
-      assertTrue(sql.contains("NULL AS [label]"), "label is unconstrained, so it inserts NULL: " + sql);
+      assertTrue(
+          sql.contains("NULL AS [label]"), "label is unconstrained, so it inserts NULL: " + sql);
     }
 
     @Test

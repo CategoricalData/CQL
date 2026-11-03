@@ -6,8 +6,7 @@ public class VarIt implements Iterator<String> {
 
   private static int index = 0;
 
-  private VarIt() {
-  }
+  private VarIt() {}
 
   public static Iterator<String> it() {
     return new VarIt();
@@ -26,5 +25,4 @@ public class VarIt implements Iterator<String> {
   public String next() {
     return fresh();
   }
-
 }

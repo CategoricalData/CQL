@@ -9,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import catdata.LocStr;
+import catdata.Pair;
+import catdata.cql.Instance;
+import catdata.cql.Kind;
+import catdata.cql.Schema;
+import catdata.cql.exp.SchExp.SchExpVar;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -22,12 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import catdata.LocStr;
-import catdata.Pair;
-import catdata.cql.Instance;
-import catdata.cql.Kind;
-import catdata.cql.Schema;
-import catdata.cql.exp.SchExp.SchExpVar;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -176,7 +176,8 @@ class InstExpJdbcTest {
     @Test
     void rejectsAColumnThatIsNoAttributeOfTheTargetSchema() throws Exception {
       String url = database("create table T(id int)", "insert into T values (1)");
-      AqlMultiDriver d = run("schema S = literal : sql { entities T attributes id : T -> Integer }");
+      AqlMultiDriver d =
+          run("schema S = literal : sql { entities T attributes id : T -> Integer }");
       @SuppressWarnings("unchecked")
       Schema<String, String, Sym, Fk, Att> s =
           (Schema<String, String, Sym, Fk, Att>) d.env.defs.get("S", Kind.SCHEMA);
@@ -188,7 +189,8 @@ class InstExpJdbcTest {
               List.of(new Pair<>(new LocStr(0, "T"), "select id, 2 as other from T")),
               s);
       RuntimeException ex = assertThrows(RuntimeException.class, () -> e.eval(d.env, false));
-      assertTrue(ex.getMessage().contains("Column OTHER is not an attribute of T"), ex.getMessage());
+      assertTrue(
+          ex.getMessage().contains("Column OTHER is not an attribute of T"), ex.getMessage());
     }
 
     @Test

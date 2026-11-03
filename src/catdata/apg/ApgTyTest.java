@@ -142,7 +142,8 @@ class ApgTyTest {
       assertTrue(str.startsWith("("), "product toString should start with '(' but was: " + str);
       assertTrue(str.endsWith(")"), "product toString should end with ')' but was: " + str);
       assertTrue(str.contains("x"), "product toString should contain field 'x' but was: " + str);
-      assertTrue(str.contains("*"), "product toString should contain '*' separator but was: " + str);
+      assertTrue(
+          str.contains("*"), "product toString should contain '*' separator but was: " + str);
     }
 
     @Test

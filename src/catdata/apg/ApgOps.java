@@ -1,31 +1,35 @@
 package catdata.apg;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Unit;
+import catdata.Util;
+import catdata.graph.UnionFind;
+import gnu.trove.map.hash.THashMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Unit;
-import catdata.Util;
-
-import catdata.graph.UnionFind;
-import gnu.trove.map.hash.THashMap;
-
 public class ApgOps {
 
   public static <L, E> ApgTransform<L, E, L, E> id(ApgInstance<L, E> G) {
-    return new ApgTransform<>(G, G, Util.map(G.Ls, (k, v) -> new Pair<>(k, k)),
+    return new ApgTransform<>(
+        G,
+        G,
+        Util.map(G.Ls, (k, v) -> new Pair<>(k, k)),
         Util.map(G.Es, (k, v) -> new Pair<>(k, k)));
   }
 
-  public static <L1, E1, L2, E2, L3, E3> ApgTransform<L1, E1, L3, E3> compose(ApgTransform<L1, E1, L2, E2> h,
-      ApgTransform<L2, E2, L3, E3> j) {
+  public static <L1, E1, L2, E2, L3, E3> ApgTransform<L1, E1, L3, E3> compose(
+      ApgTransform<L1, E1, L2, E2> h, ApgTransform<L2, E2, L3, E3> j) {
     if (!h.dst.equals(j.src)) {
       Util.anomaly();
     }
-    return new ApgTransform<>(h.src, j.dst, Util.map(h.lMap, (k, v) -> new Pair<>(k, j.lMap.get(v))),
+    return new ApgTransform<>(
+        h.src,
+        j.dst,
+        Util.map(h.lMap, (k, v) -> new Pair<>(k, j.lMap.get(v))),
         Util.map(h.eMap, (k, v) -> new Pair<>(k, j.eMap.get(v))));
   }
 
@@ -40,8 +44,9 @@ public class ApgOps {
   }
 
   public static ApgInstance<Unit, Unit> terminal(ApgTypeside ts) {
-    Map<Unit, Pair<Unit, ApgTerm<Unit, Unit>>> es = Collections.singletonMap(Unit.unit,
-        new Pair<>(Unit.unit, ApgTerm.ApgTermTuple(Collections.emptyMap())));
+    Map<Unit, Pair<Unit, ApgTerm<Unit, Unit>>> es =
+        Collections.singletonMap(
+            Unit.unit, new Pair<>(Unit.unit, ApgTerm.ApgTermTuple(Collections.emptyMap())));
     ;
 
     return new ApgInstance<>(terminalSchema(ts), es);
@@ -85,7 +90,7 @@ public class ApgOps {
     return Util.anomaly();
   }
 
-  private static <L1, L2, E1, E2> ApgTerm<Chc<L1,L2>, Chc<E1, E2>> inlX(ApgTerm<L1, E1> t1) {
+  private static <L1, L2, E1, E2> ApgTerm<Chc<L1, L2>, Chc<E1, E2>> inlX(ApgTerm<L1, E1> t1) {
     if (t1.value != null) {
       return t1.convert();
     }
@@ -95,19 +100,19 @@ public class ApgOps {
     }
 
     if (t1.fields != null) {
-      Map<String, ApgTerm<Chc<L1,L2>, Chc<E1, E2>>> m = Util.map(t1.fields, (k, v) -> new Pair<>(k, inlX(v)));
+      Map<String, ApgTerm<Chc<L1, L2>, Chc<E1, E2>>> m =
+          Util.map(t1.fields, (k, v) -> new Pair<>(k, inlX(v)));
       return ApgTerm.ApgTermTuple(m);
     }
-    
-    if(t1.inj!=null){
-      return ApgTerm.ApgTermInj(t1.inj,inlX(t1.a),inl(t1.cases_t));
-    }
 
+    if (t1.inj != null) {
+      return ApgTerm.ApgTermInj(t1.inj, inlX(t1.a), inl(t1.cases_t));
+    }
 
     return Util.anomaly();
   }
 
-  private static <L1, L2, E1, E2> ApgTerm<Chc<L1,L2>, Chc<E1, E2>> inrX(ApgTerm<L2, E2> t2) {
+  private static <L1, L2, E1, E2> ApgTerm<Chc<L1, L2>, Chc<E1, E2>> inrX(ApgTerm<L2, E2> t2) {
     if (t2.value != null) {
       return t2.convert();
     }
@@ -117,56 +122,67 @@ public class ApgOps {
     }
 
     if (t2.fields != null) {
-      Map<String, ApgTerm<Chc<L1,L2>, Chc<E1, E2>>> m = Util.map(t2.fields, (k, v) -> new Pair<>(k, inrX(v)));
+      Map<String, ApgTerm<Chc<L1, L2>, Chc<E1, E2>>> m =
+          Util.map(t2.fields, (k, v) -> new Pair<>(k, inrX(v)));
       return ApgTerm.ApgTermTuple(m);
     }
 
-    if(t2.inj!=null){
-      return ApgTerm.ApgTermInj(t2.inj,inrX(t2.a),inr(t2.cases_t));
+    if (t2.inj != null) {
+      return ApgTerm.ApgTermInj(t2.inj, inrX(t2.a), inr(t2.cases_t));
     }
-    
+
     return Util.anomaly();
   }
 
-  public static <L1, E1, L2, E2> ApgInstance<Chc<L1, L2>, Chc<E1, E2>> coproduct(ApgInstance<L1, E1> G1,
-      ApgInstance<L2, E2> G2) {
+  public static <L1, E1, L2, E2> ApgInstance<Chc<L1, L2>, Chc<E1, E2>> coproduct(
+      ApgInstance<L1, E1> G1, ApgInstance<L2, E2> G2) {
     if (!G1.Ls.typeside.equals(G2.Ls.typeside)) {
       return Util.anomaly();
     }
 
     Map<Chc<E1, E2>, Pair<Chc<L1, L2>, ApgTerm<Chc<L1, L2>, Chc<E1, E2>>>> es = new THashMap<>();
     for (Entry<E1, Pair<L1, ApgTerm<L1, E1>>> e1 : G1.Es.entrySet()) {
-      es.put(Chc.inLeft(e1.getKey()), new Pair<>(Chc.inLeft(e1.getValue().first), inlX(e1.getValue().second)));
+      es.put(
+          Chc.inLeft(e1.getKey()),
+          new Pair<>(Chc.inLeft(e1.getValue().first), inlX(e1.getValue().second)));
     }
     for (Entry<E2, Pair<L2, ApgTerm<L2, E2>>> e2 : G2.Es.entrySet()) {
-      es.put(Chc.inRight(e2.getKey()), new Pair<>(Chc.inRight(e2.getValue().first), inrX(e2.getValue().second)));
+      es.put(
+          Chc.inRight(e2.getKey()),
+          new Pair<>(Chc.inRight(e2.getValue().first), inrX(e2.getValue().second)));
     }
 
     return new ApgInstance<>(coproductSchema(G1.Ls, G2.Ls), es);
   }
 
-  public static <L1, E1, L2, E2> ApgTransform<L1, E1, Chc<L1, L2>, Chc<E1, E2>> inl(ApgInstance<L1, E1> G1,
-      ApgInstance<L2, E2> G2) {
+  public static <L1, E1, L2, E2> ApgTransform<L1, E1, Chc<L1, L2>, Chc<E1, E2>> inl(
+      ApgInstance<L1, E1> G1, ApgInstance<L2, E2> G2) {
     if (!G1.Ls.typeside.equals(G2.Ls.typeside)) {
       return Util.anomaly();
     }
     ApgInstance<Chc<L1, L2>, Chc<E1, E2>> G = coproduct(G1, G2);
-    return new ApgTransform<>(G1, G, Util.map(G1.Ls, (k, v) -> new Pair<>(k, Chc.inLeft(k))),
+    return new ApgTransform<>(
+        G1,
+        G,
+        Util.map(G1.Ls, (k, v) -> new Pair<>(k, Chc.inLeft(k))),
         Util.map(G1.Es, (k, v) -> new Pair<>(k, Chc.inLeft(k))));
   }
 
-  public static <L1, E1, L2, E2> ApgTransform<L2, E2, Chc<L1, L2>, Chc<E1, E2>> inr(ApgInstance<L1, E1> G1,
-      ApgInstance<L2, E2> G2) {
+  public static <L1, E1, L2, E2> ApgTransform<L2, E2, Chc<L1, L2>, Chc<E1, E2>> inr(
+      ApgInstance<L1, E1> G1, ApgInstance<L2, E2> G2) {
     if (!G1.Ls.typeside.equals(G2.Ls.typeside)) {
       return Util.anomaly();
     }
     ApgInstance<Chc<L1, L2>, Chc<E1, E2>> G = coproduct(G1, G2);
-    return new ApgTransform<>(G2, G, Util.map(G2.Ls, (k, v) -> new Pair<>(k, Chc.inRight(k))),
+    return new ApgTransform<>(
+        G2,
+        G,
+        Util.map(G2.Ls, (k, v) -> new Pair<>(k, Chc.inRight(k))),
         Util.map(G2.Es, (k, v) -> new Pair<>(k, Chc.inRight(k))));
   }
 
-  public static <L, E, L1, E1, L2, E2> ApgTransform<Chc<L1, L2>, Chc<E1, E2>, L, E> Case(ApgTransform<L1, E1, L, E> h,
-      ApgTransform<L2, E2, L, E> j) {
+  public static <L, E, L1, E1, L2, E2> ApgTransform<Chc<L1, L2>, Chc<E1, E2>, L, E> Case(
+      ApgTransform<L1, E1, L, E> h, ApgTransform<L2, E2, L, E> j) {
     if (!h.dst.equals(j.dst)) {
       return Util.anomaly();
     }
@@ -174,27 +190,31 @@ public class ApgOps {
     ApgInstance<L1, E1> G1 = h.src;
     ApgInstance<L2, E2> G2 = j.src;
     ApgInstance<Chc<L1, L2>, Chc<E1, E2>> X = coproduct(G1, G2);
-    return new ApgTransform<>(X, G,
+    return new ApgTransform<>(
+        X,
+        G,
         Util.map(X.Ls, (k, v) -> new Pair<>(k, k.left ? h.lMap.get(k.l) : j.lMap.get(k.r))),
         Util.map(X.Es, (k, v) -> new Pair<>(k, k.left ? h.eMap.get(k.l) : j.eMap.get(k.r))));
   }
 
   ///////////////////////////////////////////////////////////////////////////
 
-  public static <L1, E1, L2, E2> ApgInstance<Pair<L1, L2>, Pair<E1, E2>> product(ApgInstance<L1, E1> G1,
-      ApgInstance<L2, E2> G2) {
+  public static <L1, E1, L2, E2> ApgInstance<Pair<L1, L2>, Pair<E1, E2>> product(
+      ApgInstance<L1, E1> G1, ApgInstance<L2, E2> G2) {
     if (!G1.Ls.typeside.equals(G2.Ls.typeside)) {
       Util.anomaly();
     }
-    Map<Pair<E1, E2>, Pair<Pair<L1, L2>, ApgTerm<Pair<L1, L2>, Pair<E1, E2>>>> es = new THashMap<>();
+    Map<Pair<E1, E2>, Pair<Pair<L1, L2>, ApgTerm<Pair<L1, L2>, Pair<E1, E2>>>> es =
+        new THashMap<>();
 
     for (Entry<E1, Pair<L1, ApgTerm<L1, E1>>> l1 : G1.Es.entrySet()) {
       for (Entry<E2, Pair<L2, ApgTerm<L2, E2>>> l2 : G2.Es.entrySet()) {
         Map<String, ApgTerm<Pair<L1, L2>, Pair<E1, E2>>> m = new THashMap<>(4);
         m.put("left", l_tensor(l1.getValue().second, l2.getKey(), l2.getValue().first).convert());
         m.put("right", r_tensor(l2.getValue().second, l1.getKey(), l1.getValue().first).convert());
-        Pair<Pair<L1, L2>, ApgTerm<Pair<L1, L2>, Pair<E1, E2>>> p = new Pair<>(
-            new Pair<>(l1.getValue().first, l2.getValue().first), ApgTerm.ApgTermTuple(m));
+        Pair<Pair<L1, L2>, ApgTerm<Pair<L1, L2>, Pair<E1, E2>>> p =
+            new Pair<>(
+                new Pair<>(l1.getValue().first, l2.getValue().first), ApgTerm.ApgTermTuple(m));
         es.put(new Pair<>(l1.getKey(), l2.getKey()), p);
       }
     }
@@ -202,23 +222,29 @@ public class ApgOps {
     return new ApgInstance<>(productSchema(G1.Ls, G2.Ls), es);
   }
 
-  public static <L1, E1, L2, E2> ApgTransform<Pair<L1, L2>, Pair<E1, E2>, L1, E1> fst(ApgInstance<L1, E1> G1,
-      ApgInstance<L2, E2> G2) {
+  public static <L1, E1, L2, E2> ApgTransform<Pair<L1, L2>, Pair<E1, E2>, L1, E1> fst(
+      ApgInstance<L1, E1> G1, ApgInstance<L2, E2> G2) {
     if (!G1.Ls.typeside.equals(G2.Ls.typeside)) {
       return Util.anomaly();
     }
     ApgInstance<Pair<L1, L2>, Pair<E1, E2>> G = product(G1, G2);
-    return new ApgTransform<>(G, G1, Util.map(G.Ls, (k, v) -> new Pair<>(k, k.first)),
+    return new ApgTransform<>(
+        G,
+        G1,
+        Util.map(G.Ls, (k, v) -> new Pair<>(k, k.first)),
         Util.map(G.Es, (k, v) -> new Pair<>(k, k.first)));
   }
 
-  public static <L1, E1, L2, E2> ApgTransform<Pair<L1, L2>, Pair<E1, E2>, L2, E2> snd(ApgInstance<L1, E1> G1,
-      ApgInstance<L2, E2> G2) {
+  public static <L1, E1, L2, E2> ApgTransform<Pair<L1, L2>, Pair<E1, E2>, L2, E2> snd(
+      ApgInstance<L1, E1> G1, ApgInstance<L2, E2> G2) {
     if (!G1.Ls.typeside.equals(G2.Ls.typeside)) {
       return Util.anomaly();
     }
     ApgInstance<Pair<L1, L2>, Pair<E1, E2>> G = product(G1, G2);
-    return new ApgTransform<>(G, G2, Util.map(G.Ls, (k, v) -> new Pair<>(k, k.second)),
+    return new ApgTransform<>(
+        G,
+        G2,
+        Util.map(G.Ls, (k, v) -> new Pair<>(k, k.second)),
         Util.map(G.Es, (k, v) -> new Pair<>(k, k.second)));
   }
 
@@ -231,7 +257,9 @@ public class ApgOps {
     ApgInstance<L1, E1> G1 = h.dst;
     ApgInstance<L2, E2> G2 = j.dst;
     ApgInstance<Pair<L1, L2>, Pair<E1, E2>> X = product(G1, G2);
-    return new ApgTransform<>(G, X,
+    return new ApgTransform<>(
+        G,
+        X,
         Util.map(G.Ls, (k, v) -> new Pair<>(k, new Pair<>(h.lMap.get(k), j.lMap.get(k)))),
         Util.map(G.Es, (k, v) -> new Pair<>(k, new Pair<>(h.eMap.get(k), j.eMap.get(k)))));
   }
@@ -247,7 +275,8 @@ public class ApgOps {
     return Util.anomaly();
   }
 
-  private static <L1, L2, E1, E2> ApgTerm<Pair<L1, L2>, Pair<E1, E2>> l_tensor(ApgTerm<L1, E1> t1, E2 e2, L2 l2) {
+  private static <L1, L2, E1, E2> ApgTerm<Pair<L1, L2>, Pair<E1, E2>> l_tensor(
+      ApgTerm<L1, E1> t1, E2 e2, L2 l2) {
     if (t1.value != null) {
       return t1.convert();
     } else if (t1.e != null) {
@@ -273,7 +302,8 @@ public class ApgOps {
     return Util.anomaly();
   }
 
-  private static <L1, L2, E1, E2> ApgTerm<Pair<L1, L2>, Pair<E1, E2>> r_tensor(ApgTerm<L2, E2> t2, E1 e1, L1 l1) {
+  private static <L1, L2, E1, E2> ApgTerm<Pair<L1, L2>, Pair<E1, E2>> r_tensor(
+      ApgTerm<L2, E2> t2, E1 e1, L1 l1) {
     if (t2.value != null) {
       return t2.convert();
     } else if (t2.e != null) {
@@ -291,8 +321,8 @@ public class ApgOps {
 
   ///////////////////////////////////////////////////////////////////////////
 
-  private static <L1, L2, E1, E2> ApgTy<L1> filter(ApgTy<L1> t1, ApgTransform<L1, E1, L2, E2> h,
-      ApgTransform<L1, E1, L2, E2> k) {
+  private static <L1, L2, E1, E2> ApgTy<L1> filter(
+      ApgTy<L1> t1, ApgTransform<L1, E1, L2, E2> h, ApgTransform<L1, E1, L2, E2> k) {
     if (t1.b != null) {
       return t1.convert();
     } else if (t1.l != null) {
@@ -309,8 +339,8 @@ public class ApgOps {
     return Util.anomaly();
   }
 
-  private static <L1, L2, E1, E2> ApgTerm<L1, E1> filterX(ApgTerm<L1, E1> t1, ApgTransform<L1, E1, L2, E2> h,
-      ApgTransform<L1, E1, L2, E2> k) {
+  private static <L1, L2, E1, E2> ApgTerm<L1, E1> filterX(
+      ApgTerm<L1, E1> t1, ApgTransform<L1, E1, L2, E2> h, ApgTransform<L1, E1, L2, E2> k) {
     if (t1.value != null) {
       return t1.convert();
     } else if (t1.e != null) {
@@ -319,7 +349,9 @@ public class ApgOps {
         if (h.eMap.get(t1.e).equals(k.eMap.get(t1.e))) {
           return ApgTerm.ApgTermInj("element", t1, t1.cases_t);
         }
-        return ApgTerm.ApgTermInj("unit", ApgTerm.ApgTermTuple(Collections.emptyMap()),
+        return ApgTerm.ApgTermInj(
+            "unit",
+            ApgTerm.ApgTermTuple(Collections.emptyMap()),
             ApgTy.ApgTyP(true, Collections.emptyMap()));
       }
       return ApgTerm.ApgTermTuple(Collections.emptyMap());
@@ -331,8 +363,8 @@ public class ApgOps {
     return Util.anomaly();
   }
 
-  public static <E1, E2, L1, L2> ApgInstance<L1, E1> equalize(ApgTransform<L1, E1, L2, E2> h,
-      ApgTransform<L1, E1, L2, E2> k) {
+  public static <E1, E2, L1, L2> ApgInstance<L1, E1> equalize(
+      ApgTransform<L1, E1, L2, E2> h, ApgTransform<L1, E1, L2, E2> k) {
     if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
       Util.anomaly();
     }
@@ -358,19 +390,20 @@ public class ApgOps {
     return new ApgInstance<>(new ApgSchema<>(h.src.Ls.typeside, Ls), Es);
   }
 
-  public static <E1, E2, L1, L2> ApgTransform<L1, E1, L1, E1> equalizeT(ApgTransform<L1, E1, L2, E2> h,
-      ApgTransform<L1, E1, L2, E2> k) {
+  public static <E1, E2, L1, L2> ApgTransform<L1, E1, L1, E1> equalizeT(
+      ApgTransform<L1, E1, L2, E2> h, ApgTransform<L1, E1, L2, E2> k) {
     if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
       Util.anomaly();
     }
     ApgInstance<L1, E1> X = equalize(h, k);
 
     return new ApgTransform<>(X, h.src, Util.id(X.Ls.keySet()), Util.id(X.Es.keySet()));
-
   }
 
-  public static <E, L, E1, E2, L1, L2> ApgTransform<L, E, L1, E1> equalizeU(ApgTransform<L, E, L1, E1> w,
-      ApgTransform<L1, E1, L2, E2> h, ApgTransform<L1, E1, L2, E2> k) {
+  public static <E, L, E1, E2, L1, L2> ApgTransform<L, E, L1, E1> equalizeU(
+      ApgTransform<L, E, L1, E1> w,
+      ApgTransform<L1, E1, L2, E2> h,
+      ApgTransform<L1, E1, L2, E2> k) {
     if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
       Util.anomaly();
     } else if (!compose(w, h).equals(compose(w, k))) {
@@ -381,8 +414,8 @@ public class ApgOps {
 
   //////////////////////////////////////////////////////////
 
-  public static <E1, E2, L> ApgInstance<L, Set<E2>> coequalize(ApgTransform<L, E1, L, E2> h,
-      ApgTransform<L, E1, L, E2> k) {
+  public static <E1, E2, L> ApgInstance<L, Set<E2>> coequalize(
+      ApgTransform<L, E1, L, E2> h, ApgTransform<L, E1, L, E2> k) {
     if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
       Util.anomaly();
     }
@@ -404,8 +437,17 @@ public class ApgOps {
       L lh = h.dst.Es.get(e2h).first;
       L lk = k.dst.Es.get(e2k).first;
       if (!lh.equals(lk)) {
-        throw new RuntimeException("Cannot co-equalize: " + e1 + " sent to " + e2h + " and " + e2k
-            + " of non-equal labels " + lh + " and " + lk);
+        throw new RuntimeException(
+            "Cannot co-equalize: "
+                + e1
+                + " sent to "
+                + e2h
+                + " and "
+                + e2k
+                + " of non-equal labels "
+                + lh
+                + " and "
+                + lk);
       }
       uf.union(e2h, e2k);
     }
@@ -432,7 +474,7 @@ public class ApgOps {
     return new ApgInstance<>(new ApgSchema<>(h.src.Ls.typeside, k.dst.Ls), Es);
   }
 
-  private static <L,E2> ApgTerm<L, Set<E2>> eqc(Map<E2, Set<E2>> w, ApgTerm<L, E2> t1) {
+  private static <L, E2> ApgTerm<L, Set<E2>> eqc(Map<E2, Set<E2>> w, ApgTerm<L, E2> t1) {
     if (t1.value != null) {
       return t1.convert();
     } else if (t1.e != null) {
@@ -446,8 +488,8 @@ public class ApgOps {
     return Util.anomaly();
   }
 
-  public static <E1, E2, L> ApgTransform<L, E2, L, Set<E2>> coequalizeT(ApgTransform<L, E1, L, E2> h,
-      ApgTransform<L, E1, L, E2> k) {
+  public static <E1, E2, L> ApgTransform<L, E2, L, Set<E2>> coequalizeT(
+      ApgTransform<L, E1, L, E2> h, ApgTransform<L, E1, L, E2> k) {
     if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
       Util.anomaly();
     }
@@ -464,8 +506,8 @@ public class ApgOps {
     return new ApgTransform<>(h.dst, X, Util.id(X.Ls.keySet()), eMap);
   }
 
-  public static <E, E1, E2, L> ApgTransform<L, Set<E2>, L, E> coequalizeU(ApgTransform<L, E2, L, E> w,
-      ApgTransform<L, E1, L, E2> h, ApgTransform<L, E1, L, E2> k) {
+  public static <E, E1, E2, L> ApgTransform<L, Set<E2>, L, E> coequalizeU(
+      ApgTransform<L, E2, L, E> w, ApgTransform<L, E1, L, E2> h, ApgTransform<L, E1, L, E2> k) {
     if (!h.src.equals(k.src) || !h.dst.equals(k.dst)) {
       Util.anomaly();
     } else if (!compose(h, w).equals(compose(k, w))) {
@@ -517,21 +559,23 @@ public class ApgOps {
   }
 
   public static ApgSchema<Unit> terminalSchema(ApgTypeside ts) {
-    Map<Unit, ApgTy<Unit>> ls = Collections.singletonMap(Unit.unit, ApgTy.ApgTyP(true, Collections.emptyMap()));
+    Map<Unit, ApgTy<Unit>> ls =
+        Collections.singletonMap(Unit.unit, ApgTy.ApgTyP(true, Collections.emptyMap()));
 
     return new ApgSchema<>(ts, ls);
   }
 
-  public static <L1, L2, L3> ApgMapping<L1, L3> composeMapping(ApgMapping<L1, L2> F, ApgMapping<L2, L3> G) {
+  public static <L1, L2, L3> ApgMapping<L1, L3> composeMapping(
+      ApgMapping<L1, L2> F, ApgMapping<L2, L3> G) {
     if (!F.dst.equals(G.src)) {
       return Util.anomaly();
     }
-  //  Map<L1, Triple<String, ApgTy<L3>, ApgTerm<L3, Void>>> m = new THashMap<>();
-    //for (Entry<L2, Triple<String, ApgTy<L3>, ApgTerm<L3, Void>>> e : G.mapping.entrySet()) {
-      // ApgTerm<L3, Void> x = e.getValue().third.subst(e.getValue().first,
-      // F.mapping.get.third));
-      // m.put(e.getKey(), new Triple<>(e.getValue().first, null, x));
-    //}
+    //  Map<L1, Triple<String, ApgTy<L3>, ApgTerm<L3, Void>>> m = new THashMap<>();
+    // for (Entry<L2, Triple<String, ApgTy<L3>, ApgTerm<L3, Void>>> e : G.mapping.entrySet()) {
+    // ApgTerm<L3, Void> x = e.getValue().third.subst(e.getValue().first,
+    // F.mapping.get.third));
+    // m.put(e.getKey(), new Triple<>(e.getValue().first, null, x));
+    // }
     // return new ApgMapping<L1, L3>(F.src, G.dst, m );
 
     return Util.anomaly();

@@ -16,6 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,12 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -61,7 +61,10 @@ class SchemaTest {
     return Term.Att(a, t);
   }
 
-  private static Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>>
+  private static Triple<
+          Pair<String, String>,
+          Term<String, String, Sym, Fk, Att, Void, Void>,
+          Term<String, String, Sym, Fk, Att, Void, Void>>
       eq(
           String var,
           String en,
@@ -71,12 +74,18 @@ class SchemaTest {
   }
 
   /** forall e:Employee. e.worksIn.partOf = e.manages.partOf */
-  private static final Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>>
+  private static final Triple<
+          Pair<String, String>,
+          Term<String, String, Sym, Fk, Att, Void, Void>,
+          Term<String, String, Sym, Fk, Att, Void, Void>>
       SAME_COMPANY =
           eq("e", EMP, fk(PART_OF, fk(WORKS_IN, v("e"))), fk(PART_OF, fk(MANAGES, v("e"))));
 
   /** forall e:Employee. e.name = e.worksIn.label */
-  private static final Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>>
+  private static final Triple<
+          Pair<String, String>,
+          Term<String, String, Sym, Fk, Att, Void, Void>,
+          Term<String, String, Sym, Fk, Att, Void, Void>>
       NAMED_AFTER_DEPT = eq("e", EMP, att(NAME, v("e")), att(LABEL, fk(WORKS_IN, v("e"))));
 
   private static final Map<Att, String> ORG_ATTS = Map.of(NAME, EMP, LABEL, DEPT);
@@ -122,7 +131,11 @@ class SchemaTest {
       Collection<String> ens,
       Map<Att, Pair<String, String>> atts,
       Map<Fk, Pair<String, String>> fks,
-      Collection<Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>>>
+      Collection<
+              Triple<
+                  Pair<String, String>,
+                  Term<String, String, Sym, Fk, Att, Void, Void>,
+                  Term<String, String, Sym, Fk, Att, Void, Void>>>
           eqs,
       boolean checkJava) {
     return new Schema<>(sqlTypeSide(), ens, atts, fks, eqs, syntactic(), checkJava);
@@ -294,7 +307,8 @@ class SchemaTest {
     void checkJavaDoesNotCheckSchemaEquations() {
       // The java checks in validate are commented out, so an equation of java type between two
       // composite terms is accepted even with checkJava on. With the checks restored it would be
-      // rejected; an equation that defines an attribute, such as e.name = "k", is exempt either way.
+      // rejected; an equation that defines an attribute, such as e.name = "k", is exempt either
+      // way.
       assertDoesNotThrow(
           () ->
               raw(
@@ -384,8 +398,7 @@ class SchemaTest {
     @Test
     void pathsFromListsEveryPathIncludingTheEmptyOne() {
       Schema<String, String, Sym, Fk, Att> s = plain();
-      assertEquals(
-          Set.of(empty, worksIn, manages, worksInPartOf, managesPartOf), s.pathsFrom(EMP));
+      assertEquals(Set.of(empty, worksIn, manages, worksInPartOf, managesPartOf), s.pathsFrom(EMP));
       assertEquals(Set.of(empty), s.pathsFrom(CO));
     }
 
@@ -444,7 +457,8 @@ class SchemaTest {
 
     @Test
     void listsEveryForeignKeyAndAttributeOfAnEntity() {
-      String create = plain().toSQL("", "int", "id", false, 255, "", false, false).get(EMP).second.get(1);
+      String create =
+          plain().toSQL("", "int", "id", false, 255, "", false, false).get(EMP).second.get(1);
       assertTrue(create.startsWith("create table Employee(id int primary key, "), create);
       assertTrue(create.contains("worksIn int not null "), create);
       assertTrue(create.contains("manages int not null "), create);
@@ -469,7 +483,8 @@ class SchemaTest {
     void oracleMapsNumericToNumber() {
       Att budget = Att.Att(DEPT, "budget");
       Schema<String, String, Sym, Fk, Att> s =
-          typedSqlSchema(List.of(DEPT), Map.of(budget, new Pair<>(DEPT, "Numeric")), Map.of(), List.of());
+          typedSqlSchema(
+              List.of(DEPT), Map.of(budget, new Pair<>(DEPT, "Numeric")), Map.of(), List.of());
       assertEquals(
           "create table Department(budget Number)",
           s.toSQL("", "int", null, false, 255, "", true, false).get(DEPT).second.get(1));
@@ -541,8 +556,7 @@ class SchemaTest {
 
     @Test
     void declaresEachEntityAsATypeAndAPredicateOfTheSameName() {
-      Schema<String, String, Sym, Fk, Att> s =
-          sqlSchema(List.of(EMP), Map.of(NAME, EMP), Map.of());
+      Schema<String, String, Sym, Fk, Att> s = sqlSchema(List.of(EMP), Map.of(NAME, EMP), Map.of());
       String e = Schema.conv(EMP);
       String a = Schema.conv0(NAME);
       assertEquals(
@@ -632,7 +646,8 @@ class SchemaTest {
               Set.of(STR),
               syms,
               Set.of(new Triple<>(Map.of("x", STR), concat, x)),
-              new AqlJs<>(ops(), syms, Map.of(STR, "java.lang.String"), Map.of(STR, "x => x"), Map.of()),
+              new AqlJs<>(
+                  ops(), syms, Map.of(STR, "java.lang.String"), Map.of(STR, "x => x"), Map.of()),
               syntactic(),
               ops());
       Term<String, String, String, String, String, Void, Void> y = Term.Var("y");
@@ -688,7 +703,9 @@ class SchemaTest {
     @Test
     void exportsToCoq() {
       List<String> lines =
-          Arrays.stream(small().toCoq().split("\n")).filter(l -> !l.isEmpty()).collect(Collectors.toList());
+          Arrays.stream(small().toCoq().split("\n"))
+              .filter(l -> !l.isEmpty())
+              .collect(Collectors.toList());
       assertEquals(
           Set.of(
               "Parameter Str : Type.",
@@ -708,7 +725,9 @@ class SchemaTest {
     void exportsAnOverloadedSymbolOncePerOverload() {
       // Issue 12 of the open-issues log applies to Schema.toCoq as well.
       long plus =
-          Arrays.stream(plain().toCoq().split("\n")).filter(l -> l.startsWith("Parameter plus :")).count();
+          Arrays.stream(plain().toCoq().split("\n"))
+              .filter(l -> l.startsWith("Parameter plus :"))
+              .count();
       assertEquals(9, plus);
     }
   }
@@ -780,7 +799,12 @@ class SchemaTest {
       List<Schema<String, String, Sym, Fk, Att>> others =
           List.of(
               raw(List.of(EMP, DEPT, CO, "Extra"), varchars(ORG_ATTS), ORG_FKS, Set.of(), false),
-              raw(ens, varchars(ORG_ATTS), Map.of(WORKS_IN, new Pair<>(EMP, DEPT)), Set.of(), false),
+              raw(
+                  ens,
+                  varchars(ORG_ATTS),
+                  Map.of(WORKS_IN, new Pair<>(EMP, DEPT)),
+                  Set.of(),
+                  false),
               raw(ens, varchars(Map.of(NAME, EMP)), ORG_FKS, Set.of(), false),
               raw(ens, varchars(ORG_ATTS), ORG_FKS, Set.of(SAME_COMPANY), false));
       for (Schema<String, String, Sym, Fk, Att> other : others) {
@@ -791,7 +815,8 @@ class SchemaTest {
     @Test
     void distinguishesOnTheTypeSide() {
       TypeSide<String, Sym> initial = TypeSide.initial(ops());
-      Schema<String, String, Sym, Fk, Att> overSql = raw(List.of(EMP), Map.of(), Map.of(), Set.of(), false);
+      Schema<String, String, Sym, Fk, Att> overSql =
+          raw(List.of(EMP), Map.of(), Map.of(), Set.of(), false);
       Schema<String, String, Sym, Fk, Att> overInitial =
           new Schema<>(initial, List.of(EMP), Map.of(), Map.of(), Set.of(), syntactic(), false);
       assertNotEquals(overSql, overInitial);

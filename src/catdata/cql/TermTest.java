@@ -9,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Unit;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -17,12 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Unit;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +39,10 @@ class TermTest {
 
   private static final Map<String, String> JAVA_TYS = Map.of(STR, "java.lang.String");
 
-  /** zero : Int, plus : Int, Int -> Int, len : Str -> Int, and real : Real, whose type is undeclared. */
+  /**
+   * zero : Int, plus : Int, Int -> Int, len : Str -> Int, and real : Real, whose type is
+   * undeclared.
+   */
   private static final Map<String, Pair<List<String>, String>> SYMS = new LinkedHashMap<>();
 
   private static final List<String> ENS = List.of(EMP, DEPT);
@@ -396,7 +399,8 @@ class TermTest {
     @Test
     void reportsTheArityOfASymbolWithoutASpace() {
       assertEquals(
-          "In plus(zero), plus given 1arguments but requires 2", typeError(sym("plus", sym("zero"))));
+          "In plus(zero), plus given 1arguments but requires 2",
+          typeError(sym("plus", sym("zero"))));
     }
 
     @Test
@@ -422,8 +426,7 @@ class TermTest {
     @Test
     void rejectsAForeignKeyOnATypedTerm() {
       assertEquals(
-          "In y.worksIn, y has type Int which is not an entity",
-          typeError(fk("worksIn", sk("y"))));
+          "In y.worksIn, y has type Int which is not an entity", typeError(fk("worksIn", sk("y"))));
     }
 
     @Test
@@ -614,7 +617,9 @@ class TermTest {
       Set<String> decls = new LinkedHashSet<>();
       Term<String, String, String, String, String, String, String> t =
           sym("plus", att("age", gen("e")), obj(5, INT));
-      assertEquals("c_plus(p_c_Emp_c_age(c_e), c_5)", t.toCoq(s -> "c_" + s, decls, a -> EMP, f -> EMP, "p_"));
+      assertEquals(
+          "c_plus(p_c_Emp_c_age(c_e), c_5)",
+          t.toCoq(s -> "c_" + s, decls, a -> EMP, f -> EMP, "p_"));
       assertEquals(Set.of("Parameter c_5 : c_Int."), decls);
     }
 
@@ -663,8 +668,7 @@ class TermTest {
     void writesPathsWithTheQuote() {
       Schema<String, String, Sym, Fk, Att> s = schema();
       assertEquals(
-          "x.\"worksIn\".\"name\"",
-          att("name", fk("worksIn", v("x"))).toStringSql(s, "\"", false));
+          "x.\"worksIn\".\"name\"", att("name", fk("worksIn", v("x"))).toStringSql(s, "\"", false));
     }
 
     @Test
@@ -693,8 +697,7 @@ class TermTest {
 
     @Test
     void doesNotParenthesizeAConjunction() {
-      assertEquals(
-          "x and y = z", sql(sym("eq_Boolean", sym("and", v("x"), v("y")), v("z"))));
+      assertEquals("x and y = z", sql(sym("eq_Boolean", sym("and", v("x"), v("y")), v("z"))));
     }
 
     @Test
@@ -765,8 +768,7 @@ class TermTest {
       assertSame(sym("f", att("N", fk("worksIn", gen("e"))), sk("y")), t.mapAtt(a -> "N"));
       assertSame(sym("f", att("name", fk("worksIn", gen("E"))), sk("y")), t.mapGen(g -> "E"));
       assertSame(
-          sym("f", att("name", fk("worksIn", gen("E"))), sk("Y")),
-          t.mapGenSk(g -> "E", y -> "Y"));
+          sym("f", att("name", fk("worksIn", gen("E"))), sk("Y")), t.mapGenSk(g -> "E", y -> "Y"));
     }
 
     @Test
@@ -949,7 +951,9 @@ class TermTest {
 
     @Test
     void replaceLeavesLeavesAlone() {
-      Map<Term<String, String, String, String, String, String, String>, Term<String, String, String, String, String, String, String>>
+      Map<
+              Term<String, String, String, String, String, String, String>,
+              Term<String, String, String, String, String, String, String>>
           g = Map.of(gen("e"), gen("d"));
       assertSame(sym("zero"), sym("zero").replace(g));
       assertSame(obj(5, INT), obj(5, INT).replace(g));
@@ -976,7 +980,8 @@ class TermTest {
     void replaceHeadWithoutVariablesReplacesLeaves() {
       assertSame(
           sym("plus", obj(5, INT), sym("zero")),
-          sym("plus", sk("y"), sym("zero")).replaceHead(Map.of(Head.SkHead("y"), obj(5, INT)), null));
+          sym("plus", sk("y"), sym("zero"))
+              .replaceHead(Map.of(Head.SkHead("y"), obj(5, INT)), null));
     }
 
     @Test
@@ -1017,10 +1022,12 @@ class TermTest {
           sym("plus", sym("len", v("x")), v("b"));
       assertSame(
           sym("plus", sym("len", v("y")), v("b")), Term.fromKB(t.replace(List.of(0, 0), v("y"))));
-      assertSame(sym("plus", sym("len", v("x")), gen("e")), Term.fromKB(t.replace(List.of(1), gen("e"))));
+      assertSame(
+          sym("plus", sym("len", v("x")), gen("e")), Term.fromKB(t.replace(List.of(1), gen("e"))));
       assertSame(gen("e"), Term.fromKB(t.replace(List.of(), gen("e"))));
       assertSame(
-          fk("worksIn", gen("d")), Term.fromKB(fk("worksIn", gen("e")).replace(List.of(0), gen("d"))));
+          fk("worksIn", gen("d")),
+          Term.fromKB(fk("worksIn", gen("e")).replace(List.of(0), gen("d"))));
     }
 
     @Test

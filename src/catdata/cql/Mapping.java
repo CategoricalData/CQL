@@ -1,5 +1,11 @@
 package catdata.cql;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.Util;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,616 +17,776 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.Util;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
 public final class Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Semantics {
-	
-	public static String coq(String s) {
-		if (s.equals("+")) return "plus";
-		if (s.equals("*")) return "times";
-		if (s.equals("-")) return "minus";
-		if (s.equals("/")) return "divide";		
-		if (s.length()==0) return "";
-		s = s.replaceAll("[^a-zA-Z0-9]", "");
-		if (!Character.isAlphabetic(s.charAt(0)))
-			s = ("cql" + s);
-		return s;
-	}
-	
-	public static <Ty,En,Sym,Fk,Att> String coq(Term<Ty,En,Sym,Fk,Att,Void,Void> s, Set<String> sb, Function<Att,En> fk1, Function<Fk,En> fk2, String pre) {
-		Function<String,String> fn = (y)->coq(y);
-		return s.toCoq(fn, sb, fk1, fk2, pre);
-	}
-	public static <Ty> String  toCoq(Map<String, Ty> m) {
-		String ret = "";
-		 for (var x : m.entrySet()) {
-			 ret += "(" + (coq(x.getKey()) + " : " + coq(x.getValue().toString())) + ")";
-		 }
-		 if (!ret.isEmpty())
-			 ret = "forall " + ret + ", ";
-		 return ret;
-	}
-	public static <Ty> String  toCoq(String s, Ty m) {
-		String ret = "";
-			 ret += "(" + (coq(s) + " : " + coq(m.toString())) + ")";
-			 if (!ret.isEmpty())
-				 ret = "forall " + ret + ", ";
-		 return ret;
-	}
-	
-	public String toCoq() {
-		StringBuffer sb = new StringBuffer();
-		
-		for (var x : src.typeSide.tys) {
-			sb.append("Parameter " + coq(x.toString()) + " : Type.\n");
-		}
-		for (var x : src.typeSide.syms.entrySet()) {
-			sb.append("Parameter " + coq(x.getKey().toString()) + " : " + (Util.sep(x.getValue().first.stream().map((y)->coq(y.toString())).collect(Collectors.toList()), " * ")) + (x.getValue().first.isEmpty() ? " " : " -> ") + coq(x.getValue().second.toString()) + ".\n");			
-		}
-		int i = 0;
-		StringBuffer sb2 = new StringBuffer();
-		Set<String> sb3 = new HashSet<String>();
-		
-		Function<Att2, En2> fk1 = (k)->dst.atts.get(k).first;
-		Function<Fk2, En2> fk2 = (k)->dst.fks.get(k).first;
 
-		for (var x : src.typeSide.eqs) {
-			sb.append("Axiom ax" + (i++) + " : " + toCoq(x.first) + " " + coq(x.second.convert(), sb3, fk1, fk2, "") + " = " + coq(x.third.convert(), sb3, fk1, fk2, "") + ".\n");			
-		}
-		for (var en : dst.ens) {
-			sb2.append("Parameter " + coq(en.toString()) + " : Set.\n");	
-		}
+  public static String coq(String s) {
+    if (s.equals("+")) return "plus";
+    if (s.equals("*")) return "times";
+    if (s.equals("-")) return "minus";
+    if (s.equals("/")) return "divide";
+    if (s.length() == 0) return "";
+    s = s.replaceAll("[^a-zA-Z0-9]", "");
+    if (!Character.isAlphabetic(s.charAt(0))) s = ("cql" + s);
+    return s;
+  }
 
-		
-		for (var en : dst.ens) {
-			for (var fk : dst.fksFrom(en)) {
-				sb2.append("Parameter " + coq(en.toString()) + "_" + coq(fk.toString()) + " : " + coq(en.toString()) + " -> " + coq(dst.fks.get(fk).second.toString()) + ".\n");					
-			}
-			for (var att : dst.attsFrom(en)) {
-				sb2.append("Parameter " + coq(en.toString()) + "_" + coq(att.toString()) + " : " + coq(en.toString()) + " -> " + coq(dst.atts.get(att).second.toString()) + ".\n");									
-			}
-		}
-		for (var x : dst.eqs) {
-			sb2.append("Axiom ax" + (i++) + " : " + toCoq(x.first.first, x.first.second) + " " + coq(x.second, sb3, fk1, fk2, "") + " = " + coq(x.third, sb3, fk1, fk2, "") + ".\n");			
-		}
+  public static <Ty, En, Sym, Fk, Att> String coq(
+      Term<Ty, En, Sym, Fk, Att, Void, Void> s,
+      Set<String> sb,
+      Function<Att, En> fk1,
+      Function<Fk, En> fk2,
+      String pre) {
+    Function<String, String> fn = (y) -> coq(y);
+    return s.toCoq(fn, sb, fk1, fk2, pre);
+  }
 
-		for (var en : src.ens) {
-			for (var fk : src.fksFrom(en)) {
-				Term tt = Term.Var("x");
-				var p = Term.Fks(fks.get(fk).second, tt); //.stream().map((k)->coq(k.toString())).collect(Collectors.toList());
-				var q = coq(p, sb3, fk1, fk2, "");
-				sb2.append("Definition t_" + coq(en.toString()) + "_" + coq(fk.toString()) 
-				+ " : " + coq(ens.get(en).toString()) + " -> " + coq(ens.get(src.fks.get(fk).second).toString())
-				+ " := fun x => " + q + ".\n");						
-			}
+  public static <Ty> String toCoq(Map<String, Ty> m) {
+    String ret = "";
+    for (var x : m.entrySet()) {
+      ret += "(" + (coq(x.getKey()) + " : " + coq(x.getValue().toString())) + ")";
+    }
+    if (!ret.isEmpty()) ret = "forall " + ret + ", ";
+    return ret;
+  }
 
-			for (var att : src.attsFrom(en)) {
-				var p = atts.get(att).third; //, tt); //.stream().map((k)->coq(k.toString())).collect(Collectors.toList());
-				var q = coq(p, sb3, fk1, fk2, "");
-			
-				sb2.append("Definition t_" + coq(en.toString()) + "_" + coq(att.toString()) 
-				+ " : " + coq(ens.get(en).toString()) + " -> " + coq(src.atts.get(att).second.toString())
-				+ " := fun " + coq(atts.get(att).first) + " => " + q + ".\n");									
-			}
-		}
-		Function<Att1, En1> fk1x = (k)->src.atts.get(k).first;
-		Function<Fk1, En1> fk2x = (k)->src.fks.get(k).first;
+  public static <Ty> String toCoq(String s, Ty m) {
+    String ret = "";
+    ret += "(" + (coq(s) + " : " + coq(m.toString())) + ")";
+    if (!ret.isEmpty()) ret = "forall " + ret + ", ";
+    return ret;
+  }
 
-		for (var x : src.eqs) {
-			sb2.append("Conjecture conj" + (i++) 
-					+ " : " + toCoq(x.first.first, ens.get(x.first.second))
-					+ " " + coq(x.second, sb3, fk1x, fk2x, "t_") + " = " +
-					coq(x.third, sb3, fk1x, fk2x, "t_") + ".\n");			
-		}
+  public String toCoq() {
+    StringBuffer sb = new StringBuffer();
 
+    for (var x : src.typeSide.tys) {
+      sb.append("Parameter " + coq(x.toString()) + " : Type.\n");
+    }
+    for (var x : src.typeSide.syms.entrySet()) {
+      sb.append(
+          "Parameter "
+              + coq(x.getKey().toString())
+              + " : "
+              + (Util.sep(
+                  x.getValue().first.stream()
+                      .map((y) -> coq(y.toString()))
+                      .collect(Collectors.toList()),
+                  " * "))
+              + (x.getValue().first.isEmpty() ? " " : " -> ")
+              + coq(x.getValue().second.toString())
+              + ".\n");
+    }
+    int i = 0;
+    StringBuffer sb2 = new StringBuffer();
+    Set<String> sb3 = new HashSet<String>();
 
-		return sb.toString() + Util.sep(sb3, "\n") + "\n" + sb2.toString();
-	}
-	
-	
+    Function<Att2, En2> fk1 = (k) -> dst.atts.get(k).first;
+    Function<Fk2, En2> fk2 = (k) -> dst.fks.get(k).first;
 
-	private Schema<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>> collage;
+    for (var x : src.typeSide.eqs) {
+      sb.append(
+          "Axiom ax"
+              + (i++)
+              + " : "
+              + toCoq(x.first)
+              + " "
+              + coq(x.second.convert(), sb3, fk1, fk2, "")
+              + " = "
+              + coq(x.third.convert(), sb3, fk1, fk2, "")
+              + ".\n");
+    }
+    for (var en : dst.ens) {
+      sb2.append("Parameter " + coq(en.toString()) + " : Set.\n");
+    }
 
-	public synchronized Schema<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>> collage() {
-		if (collage != null) {
-			return collage;
-		}
-		DP<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> dp = new DP<>() {
-			@Override
-			public String toStringProver() {
-				return Util.anomaly();
-			}
+    for (var en : dst.ens) {
+      for (var fk : dst.fksFrom(en)) {
+        sb2.append(
+            "Parameter "
+                + coq(en.toString())
+                + "_"
+                + coq(fk.toString())
+                + " : "
+                + coq(en.toString())
+                + " -> "
+                + coq(dst.fks.get(fk).second.toString())
+                + ".\n");
+      }
+      for (var att : dst.attsFrom(en)) {
+        sb2.append(
+            "Parameter "
+                + coq(en.toString())
+                + "_"
+                + coq(att.toString())
+                + " : "
+                + coq(en.toString())
+                + " -> "
+                + coq(dst.atts.get(att).second.toString())
+                + ".\n");
+      }
+    }
+    for (var x : dst.eqs) {
+      sb2.append(
+          "Axiom ax"
+              + (i++)
+              + " : "
+              + toCoq(x.first.first, x.first.second)
+              + " "
+              + coq(x.second, sb3, fk1, fk2, "")
+              + " = "
+              + coq(x.third, sb3, fk1, fk2, "")
+              + ".\n");
+    }
 
-			@Override
-			public boolean eq(Map<String, Chc<Ty, Chc<En1, En2>>> ctx,
-					Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> lhs,
-					Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> rhs) {
-				return Util.anomaly();
-			}
+    for (var en : src.ens) {
+      for (var fk : src.fksFrom(en)) {
+        Term tt = Term.Var("x");
+        var p =
+            Term.Fks(
+                fks.get(fk).second,
+                tt); // .stream().map((k)->coq(k.toString())).collect(Collectors.toList());
+        var q = coq(p, sb3, fk1, fk2, "");
+        sb2.append(
+            "Definition t_"
+                + coq(en.toString())
+                + "_"
+                + coq(fk.toString())
+                + " : "
+                + coq(ens.get(en).toString())
+                + " -> "
+                + coq(ens.get(src.fks.get(fk).second).toString())
+                + " := fun x => "
+                + q
+                + ".\n");
+      }
 
-			@Override
-			public boolean supportsTrivialityCheck() {
-				return false;
-			}
+      for (var att : src.attsFrom(en)) {
+        var p = atts.get(att).third; // , tt);
+        // //.stream().map((k)->coq(k.toString())).collect(Collectors.toList());
+        var q = coq(p, sb3, fk1, fk2, "");
 
-		};
+        sb2.append(
+            "Definition t_"
+                + coq(en.toString())
+                + "_"
+                + coq(att.toString())
+                + " : "
+                + coq(ens.get(en).toString())
+                + " -> "
+                + coq(src.atts.get(att).second.toString())
+                + " := fun "
+                + coq(atts.get(att).first)
+                + " => "
+                + q
+                + ".\n");
+      }
+    }
+    Function<Att1, En1> fk1x = (k) -> src.atts.get(k).first;
+    Function<Fk1, En1> fk2x = (k) -> src.fks.get(k).first;
 
-		Set<Chc<En1, En2>> ens2 = Chc.or(src.ens, dst.ens);
-		Map<Chc<Att1, Att2>, Pair<Chc<En1, En2>, Ty>> atts2 = or(src.atts, dst.atts); // TODO aql these don't need to be
-		// passed as params
-		Map<Chc<Chc<Fk1, Fk2>, En1>, Pair<Chc<En1, En2>, Chc<En1, En2>>> fks2 = or2(src.fks, dst.fks);
-		Set<Triple<Pair<String, Chc<En1, En2>>, Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void>, Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void>>> eqs2 = new THashSet<>();
-		for (Triple<Pair<String, En1>, Term<Ty, En1, Sym, Fk1, Att1, Void, Void>, Term<Ty, En1, Sym, Fk1, Att1, Void, Void>> eq : src.eqs) {
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t1 = eq.second
-					.<Chc<En1, En2>>mapEn().mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inLeft(x)))
-					.mapAtt(x -> Chc.inLeft(x));
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t2 = eq.third
-					.<Chc<En1, En2>>mapEn().mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inLeft(x)))
-					.mapAtt(x -> Chc.inLeft(x));
-			eqs2.add(new Triple<>(new Pair<>(eq.first.first, Chc.inLeft(eq.first.second)), t1, t2));
-		}
-		for (Triple<Pair<String, En2>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> eq : dst.eqs) {
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t1 = eq.second
-					.<Chc<En1, En2>>mapEn().mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inRight(x)))
-					.mapAtt(x -> Chc.inRight(x));
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t2 = eq.third
-					.<Chc<En1, En2>>mapEn().mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inRight(x)))
-					.mapAtt(x -> Chc.inRight(x));
+    for (var x : src.eqs) {
+      sb2.append(
+          "Conjecture conj"
+              + (i++)
+              + " : "
+              + toCoq(x.first.first, ens.get(x.first.second))
+              + " "
+              + coq(x.second, sb3, fk1x, fk2x, "t_")
+              + " = "
+              + coq(x.third, sb3, fk1x, fk2x, "t_")
+              + ".\n");
+    }
 
-			eqs2.add(new Triple<>(new Pair<>(eq.first.first, Chc.inRight(eq.first.second)), t1, t2));
-		}
-		String xxx = ("x");
-		for (Fk1 a : src.fks.keySet()) {
-			En1 v = src.fks.get(a).first;
-			En1 w = src.fks.get(a).second;
-			// a.m_w = m_v.F(a)
+    return sb.toString() + Util.sep(sb3, "\n") + "\n" + sb2.toString();
+  }
 
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> lhs = Term
-					.Fk(Chc.inRight(w), Term.Fk(Chc.inLeft(Chc.inLeft(a)), Term.Var(xxx)));
+  private Schema<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>> collage;
 
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> rhs = Term
-					.Fks(Chc.inLeft(Chc.inRight(fks.get(a).second)), Term.Fk(Chc.inRight(v), Term.Var(xxx)));
+  public synchronized Schema<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>>
+      collage() {
+    if (collage != null) {
+      return collage;
+    }
+    DP<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> dp =
+        new DP<>() {
+          @Override
+          public String toStringProver() {
+            return Util.anomaly();
+          }
 
-			eqs2.add(new Triple<>(new Pair<>(xxx, Chc.inLeft(v)), lhs, rhs));
-		}
-		for (Att1 a : src.atts.keySet()) {
-			En1 v = src.atts.get(a).first;
-			@SuppressWarnings("unused")
-			Ty w = src.atts.get(a).second;
-			// a = m_v.F(a)
-			String x = atts.get(a).first;
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> lhs = Term
-					.Att(Chc.inLeft(a), Term.Var(x));
+          @Override
+          public boolean eq(
+              Map<String, Chc<Ty, Chc<En1, En2>>> ctx,
+              Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void>
+                  lhs,
+              Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void>
+                  rhs) {
+            return Util.anomaly();
+          }
 
-			@SuppressWarnings("unused")
-			En2 en2 = atts.get(a).second;
-			Term<Ty, Chc<En1, En2>, Sym, Fk2, Att2, Void, Void> l = atts.get(a).third.mapEn();
-			Function<Fk2, Chc<Chc<Fk1, Fk2>, En1>> f = xx -> Chc.inLeft(Chc.inRight(xx));
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> term = l.mapFk(f)
-					.mapAtt(xx -> Chc.inRight(xx));
+          @Override
+          public boolean supportsTrivialityCheck() {
+            return false;
+          }
+        };
 
-			Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> rhs = term
-					.subst(Collections.singletonMap(x, Term.Fk(Chc.inRight(v), Term.Var(x))));
+    Set<Chc<En1, En2>> ens2 = Chc.or(src.ens, dst.ens);
+    Map<Chc<Att1, Att2>, Pair<Chc<En1, En2>, Ty>> atts2 =
+        or(src.atts, dst.atts); // TODO aql these don't need to be
+    // passed as params
+    Map<Chc<Chc<Fk1, Fk2>, En1>, Pair<Chc<En1, En2>, Chc<En1, En2>>> fks2 = or2(src.fks, dst.fks);
+    Set<
+            Triple<
+                Pair<String, Chc<En1, En2>>,
+                Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void>,
+                Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void>>>
+        eqs2 = new THashSet<>();
+    for (Triple<
+            Pair<String, En1>,
+            Term<Ty, En1, Sym, Fk1, Att1, Void, Void>,
+            Term<Ty, En1, Sym, Fk1, Att1, Void, Void>>
+        eq : src.eqs) {
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t1 =
+          eq.second
+              .<Chc<En1, En2>>mapEn()
+              .mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inLeft(x)))
+              .mapAtt(x -> Chc.inLeft(x));
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t2 =
+          eq.third
+              .<Chc<En1, En2>>mapEn()
+              .mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inLeft(x)))
+              .mapAtt(x -> Chc.inLeft(x));
+      eqs2.add(new Triple<>(new Pair<>(eq.first.first, Chc.inLeft(eq.first.second)), t1, t2));
+    }
+    for (Triple<
+            Pair<String, En2>,
+            Term<Ty, En2, Sym, Fk2, Att2, Void, Void>,
+            Term<Ty, En2, Sym, Fk2, Att2, Void, Void>>
+        eq : dst.eqs) {
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t1 =
+          eq.second
+              .<Chc<En1, En2>>mapEn()
+              .mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inRight(x)))
+              .mapAtt(x -> Chc.inRight(x));
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> t2 =
+          eq.third
+              .<Chc<En1, En2>>mapEn()
+              .mapFk(x -> Chc.<Chc<Fk1, Fk2>, En1>inLeft(Chc.inRight(x)))
+              .mapAtt(x -> Chc.inRight(x));
 
-			eqs2.add(new Triple<>(new Pair<>(x, Chc.inLeft(v)), lhs, rhs));
-		}
+      eqs2.add(new Triple<>(new Pair<>(eq.first.first, Chc.inRight(eq.first.second)), t1, t2));
+    }
+    String xxx = ("x");
+    for (Fk1 a : src.fks.keySet()) {
+      En1 v = src.fks.get(a).first;
+      En1 w = src.fks.get(a).second;
+      // a.m_w = m_v.F(a)
 
-		collage = new Schema<>(src.typeSide, ens2, atts2, fks2, eqs2, dp, false);
-		return collage;
-	}
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> lhs =
+          Term.Fk(Chc.inRight(w), Term.Fk(Chc.inLeft(Chc.inLeft(a)), Term.Var(xxx)));
 
-	private Map<Chc<Att1, Att2>, Pair<Chc<En1, En2>, Ty>> or(Map<Att1, Pair<En1, Ty>> xs, Map<Att2, Pair<En2, Ty>> ys) {
-		Map<Chc<Att1, Att2>, Pair<Chc<En1, En2>, Ty>> ret = new THashMap<>(xs.size() + ys.size());
-		for (Att1 att : xs.keySet()) {
-			ret.put(Chc.inLeft(att), new Pair<>(Chc.inLeft(xs.get(att).first), xs.get(att).second));
-		}
-		for (Att2 att : ys.keySet()) {
-			ret.put(Chc.inRight(att), new Pair<>(Chc.inRight(ys.get(att).first), ys.get(att).second));
-		}
-		return ret;
-	}
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> rhs =
+          Term.Fks(
+              Chc.inLeft(Chc.inRight(fks.get(a).second)), Term.Fk(Chc.inRight(v), Term.Var(xxx)));
 
-	@SuppressWarnings("hiding")
-	private <Att1, Att2> Map<Chc<Chc<Att1, Att2>, En1>, Pair<Chc<En1, En2>, Chc<En1, En2>>> or2(
-			Map<Att1, Pair<En1, En1>> xs, Map<Att2, Pair<En2, En2>> ys) {
-		Map<Chc<Chc<Att1, Att2>, En1>, Pair<Chc<En1, En2>, Chc<En1, En2>>> ret = new THashMap<>(
-				xs.size() + ys.size() + src.ens.size());
-		for (Att1 att : xs.keySet()) {
-			ret.put(Chc.inLeft(Chc.inLeft(att)),
-					new Pair<>(Chc.inLeft(xs.get(att).first), Chc.inLeft(xs.get(att).second)));
-		}
-		for (Att2 att : ys.keySet()) {
-			ret.put(Chc.inLeft(Chc.inRight(att)),
-					new Pair<>(Chc.inRight(ys.get(att).first), Chc.inRight(ys.get(att).second)));
-		}
-		for (En1 en1 : src.ens) {
-			ret.put(Chc.inRight(en1), new Pair<>(Chc.inLeft(en1), Chc.inRight(ens.get(en1))));
-		}
-		return ret;
-	}
+      eqs2.add(new Triple<>(new Pair<>(xxx, Chc.inLeft(v)), lhs, rhs));
+    }
+    for (Att1 a : src.atts.keySet()) {
+      En1 v = src.atts.get(a).first;
+      @SuppressWarnings("unused")
+      Ty w = src.atts.get(a).second;
+      // a = m_v.F(a)
+      String x = atts.get(a).first;
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> lhs =
+          Term.Att(Chc.inLeft(a), Term.Var(x));
 
-	@Override
-	public int size() {
-		return src.size();
-	}
+      @SuppressWarnings("unused")
+      En2 en2 = atts.get(a).second;
+      Term<Ty, Chc<En1, En2>, Sym, Fk2, Att2, Void, Void> l = atts.get(a).third.mapEn();
+      Function<Fk2, Chc<Chc<Fk1, Fk2>, En1>> f = xx -> Chc.inLeft(Chc.inRight(xx));
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> term =
+          l.mapFk(f).mapAtt(xx -> Chc.inRight(xx));
 
-	public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, En3, Fk3, Att3> Mapping<Ty, En1, Sym, Fk1, Att1, En3, Fk3, Att3> compose(
-			Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> m1, Mapping<Ty, En2, Sym, Fk2, Att2, En3, Fk3, Att3> m2) {
-		if (!m1.dst.equals(m2.src)) {
-			throw new RuntimeException("Anomaly, please report.\n\n" + m1.dst + "\n\n" + m2.src);
-		}
-		Map<En1, En3> ens0 = new THashMap<>(m1.ens.size());
-		for (En1 en1 : m1.ens.keySet()) {
-			ens0.put(en1, m2.ens.get(m1.ens.get(en1)));
-		}
-		Map<Fk1, Pair<En3, List<Fk3>>> fks0 = new THashMap<>(m1.fks.size());
-		for (Fk1 fk1 : m1.fks.keySet()) {
-			En3 en3 = m2.ens.get(m1.fks.get(fk1).first);
-			List<Fk3> l = new LinkedList<>();
-			for (Fk2 fk2 : m1.fks.get(fk1).second) {
-				l.addAll(m2.fks.get(fk2).second);
-			}
-			fks0.put(fk1, new Pair<>(en3, l));
-		}
-		Map<Att1, Triple<String, En3, Term<Ty, En3, Sym, Fk3, Att3, Void, Void>>> atts0 = new THashMap<>(
-				m1.atts.size());
-		for (Att1 att1 : m1.atts.keySet()) {
-			En3 en3 = m2.ens.get(m1.atts.get(att1).second);
-			String v = m1.atts.get(att1).first;
-			Term<Ty, En3, Sym, Fk3, Att3, Void, Void> t = subst(m1.atts.get(att1).third, m2);
-			atts0.put(att1, new Triple<>(v, en3, t));
-		}
+      Term<Ty, Chc<En1, En2>, Sym, Chc<Chc<Fk1, Fk2>, En1>, Chc<Att1, Att2>, Void, Void> rhs =
+          term.subst(Collections.singletonMap(x, Term.Fk(Chc.inRight(v), Term.Var(x))));
 
-		return new Mapping<>(ens0, atts0, fks0, m1.src, m2.dst, true);
-	}
+      eqs2.add(new Triple<>(new Pair<>(x, Chc.inLeft(v)), lhs, rhs));
+    }
 
-	private static <Ty, En2, Sym, Fk2, Att2, En3, Fk3, Att3> Term<Ty, En3, Sym, Fk3, Att3, Void, Void> subst(
-			Term<Ty, En2, Sym, Fk2, Att2, Void, Void> t, Mapping<Ty, En2, Sym, Fk2, Att2, En3, Fk3, Att3> m2) {
-		if (t.var != null) {
-			return Term.Var(t.var);
-		} else if (t.gen() != null) {
-			return Util.abort(t.gen());
-		} else if (t.sk() != null) {
-			return Util.abort(t.sk());
-		} else if (t.obj() != null) {
-			return Term.Obj(t.obj(), t.ty());
-		} else if (t.sym() != null) {
-			List<Term<Ty, En3, Sym, Fk3, Att3, Void, Void>> l = new ArrayList<>(t.args.size());
-			for (Term<Ty, En2, Sym, Fk2, Att2, Void, Void> x : t.args) {
-				l.add(subst(x, m2));
-			}
-			return Term.Sym(t.sym(), l);
-		} else if (t.fk() != null) {
-			return Term.Fks(m2.fks.get(t.fk()).second, subst(t.arg, m2));
-		} else if (t.att() != null) {
-			Triple<String, En3, Term<Ty, En3, Sym, Fk3, Att3, Void, Void>> x = m2.atts.get(t.att());
-			return x.third.subst(Collections.singletonMap(x.first, subst(t.arg, m2)));
-		}
-		return Util.anomaly();
-	}
+    collage = new Schema<>(src.typeSide, ens2, atts2, fks2, eqs2, dp, false);
+    return collage;
+  }
 
-	@Override
-	public Kind kind() {
-		return Kind.MAPPING;
-	}
+  private Map<Chc<Att1, Att2>, Pair<Chc<En1, En2>, Ty>> or(
+      Map<Att1, Pair<En1, Ty>> xs, Map<Att2, Pair<En2, Ty>> ys) {
+    Map<Chc<Att1, Att2>, Pair<Chc<En1, En2>, Ty>> ret = new THashMap<>(xs.size() + ys.size());
+    for (Att1 att : xs.keySet()) {
+      ret.put(Chc.inLeft(att), new Pair<>(Chc.inLeft(xs.get(att).first), xs.get(att).second));
+    }
+    for (Att2 att : ys.keySet()) {
+      ret.put(Chc.inRight(att), new Pair<>(Chc.inRight(ys.get(att).first), ys.get(att).second));
+    }
+    return ret;
+  }
 
-	private Morphism<Ty, En1, Sym, Fk1, Att1, Void, Void, En2, Sym, Fk2, Att2, Void, Void> semantics;
+  @SuppressWarnings("hiding")
+  private <Att1, Att2> Map<Chc<Chc<Att1, Att2>, En1>, Pair<Chc<En1, En2>, Chc<En1, En2>>> or2(
+      Map<Att1, Pair<En1, En1>> xs, Map<Att2, Pair<En2, En2>> ys) {
+    Map<Chc<Chc<Att1, Att2>, En1>, Pair<Chc<En1, En2>, Chc<En1, En2>>> ret =
+        new THashMap<>(xs.size() + ys.size() + src.ens.size());
+    for (Att1 att : xs.keySet()) {
+      ret.put(
+          Chc.inLeft(Chc.inLeft(att)),
+          new Pair<>(Chc.inLeft(xs.get(att).first), Chc.inLeft(xs.get(att).second)));
+    }
+    for (Att2 att : ys.keySet()) {
+      ret.put(
+          Chc.inLeft(Chc.inRight(att)),
+          new Pair<>(Chc.inRight(ys.get(att).first), Chc.inRight(ys.get(att).second)));
+    }
+    for (En1 en1 : src.ens) {
+      ret.put(Chc.inRight(en1), new Pair<>(Chc.inLeft(en1), Chc.inRight(ens.get(en1))));
+    }
+    return ret;
+  }
 
-	public Morphism<Ty, En1, Sym, Fk1, Att1, Void, Void, En2, Sym, Fk2, Att2, Void, Void> semantics() {
-		if (semantics != null) {
-			return semantics;
-		}
+  @Override
+  public int size() {
+    return src.size();
+  }
 
-		semantics = new Morphism<>() {
+  public static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, En3, Fk3, Att3>
+      Mapping<Ty, En1, Sym, Fk1, Att1, En3, Fk3, Att3> compose(
+          Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> m1,
+          Mapping<Ty, En2, Sym, Fk2, Att2, En3, Fk3, Att3> m2) {
+    if (!m1.dst.equals(m2.src)) {
+      throw new RuntimeException("Anomaly, please report.\n\n" + m1.dst + "\n\n" + m2.src);
+    }
+    Map<En1, En3> ens0 = new THashMap<>(m1.ens.size());
+    for (En1 en1 : m1.ens.keySet()) {
+      ens0.put(en1, m2.ens.get(m1.ens.get(en1)));
+    }
+    Map<Fk1, Pair<En3, List<Fk3>>> fks0 = new THashMap<>(m1.fks.size());
+    for (Fk1 fk1 : m1.fks.keySet()) {
+      En3 en3 = m2.ens.get(m1.fks.get(fk1).first);
+      List<Fk3> l = new LinkedList<>();
+      for (Fk2 fk2 : m1.fks.get(fk1).second) {
+        l.addAll(m2.fks.get(fk2).second);
+      }
+      fks0.put(fk1, new Pair<>(en3, l));
+    }
+    Map<Att1, Triple<String, En3, Term<Ty, En3, Sym, Fk3, Att3, Void, Void>>> atts0 =
+        new THashMap<>(m1.atts.size());
+    for (Att1 att1 : m1.atts.keySet()) {
+      En3 en3 = m2.ens.get(m1.atts.get(att1).second);
+      String v = m1.atts.get(att1).first;
+      Term<Ty, En3, Sym, Fk3, Att3, Void, Void> t = subst(m1.atts.get(att1).third, m2);
+      atts0.put(att1, new Triple<>(v, en3, t));
+    }
 
-			@Override
-			public Collage<Ty, En1, Sym, Fk1, Att1, Void, Void> src() {
-				return src.collage();
-			}
+    return new Mapping<>(ens0, atts0, fks0, m1.src, m2.dst, true);
+  }
 
-			@Override
-			public Collage<Ty, En2, Sym, Fk2, Att2, Void, Void> dst() {
-				return dst.collage();
-			}
+  private static <Ty, En2, Sym, Fk2, Att2, En3, Fk3, Att3>
+      Term<Ty, En3, Sym, Fk3, Att3, Void, Void> subst(
+          Term<Ty, En2, Sym, Fk2, Att2, Void, Void> t,
+          Mapping<Ty, En2, Sym, Fk2, Att2, En3, Fk3, Att3> m2) {
+    if (t.var != null) {
+      return Term.Var(t.var);
+    } else if (t.gen() != null) {
+      return Util.abort(t.gen());
+    } else if (t.sk() != null) {
+      return Util.abort(t.sk());
+    } else if (t.obj() != null) {
+      return Term.Obj(t.obj(), t.ty());
+    } else if (t.sym() != null) {
+      List<Term<Ty, En3, Sym, Fk3, Att3, Void, Void>> l = new ArrayList<>(t.args.size());
+      for (Term<Ty, En2, Sym, Fk2, Att2, Void, Void> x : t.args) {
+        l.add(subst(x, m2));
+      }
+      return Term.Sym(t.sym(), l);
+    } else if (t.fk() != null) {
+      return Term.Fks(m2.fks.get(t.fk()).second, subst(t.arg, m2));
+    } else if (t.att() != null) {
+      Triple<String, En3, Term<Ty, En3, Sym, Fk3, Att3, Void, Void>> x = m2.atts.get(t.att());
+      return x.third.subst(Collections.singletonMap(x.first, subst(t.arg, m2)));
+    }
+    return Util.anomaly();
+  }
 
-			@Override
-			public Pair<Map<String, Chc<Ty, En2>>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> translate(
-					Map<String, Chc<Ty, En1>> ctx, Term<Ty, En1, Sym, Fk1, Att1, Void, Void> term) {
-				Map<String, Chc<Ty, En2>> map = new THashMap<>(ctx.size());
-				for (String var : ctx.keySet()) {
-					if (ctx.get(var).left) {
-						map.put(var, Chc.inLeft(ctx.get(var).l));
-					} else {
-						map.put(var, Chc.inRight(ens.get(ctx.get(var).r)));
-					}
-				}
-				Map<String, Chc<Ty, En2>> ret = map;
-				return new Pair<>(ret, trans(term));
-			}
+  @Override
+  public Kind kind() {
+    return Kind.MAPPING;
+  }
 
-		};
-		return semantics;
-	}
+  private Morphism<Ty, En1, Sym, Fk1, Att1, Void, Void, En2, Sym, Fk2, Att2, Void, Void> semantics;
 
-	public Map<String, Chc<Ty, En2>> trans(Map<String, Chc<Ty, En1>> ctx) {
-		Map<String, Chc<Ty, En2>> ret = new THashMap<>(ctx.size());
-		for (String v : ctx.keySet()) {
-			Chc<Ty, En1> c = ctx.get(v);
-			if (c.left) {
-				ret.put(v, Chc.inLeft(c.l));
-			} else {
-				ret.put(v, Chc.inRight(ens.get(c.r)));
-			}
-		}
-		return ret;
-	}
+  public Morphism<Ty, En1, Sym, Fk1, Att1, Void, Void, En2, Sym, Fk2, Att2, Void, Void>
+      semantics() {
+    if (semantics != null) {
+      return semantics;
+    }
 
-	public List<Fk2> trans(List<Fk1> fks1) {
-		List<Fk2> ret = new LinkedList<>();
-		for (Fk1 fk1 : fks1) {
-			ret.addAll(fks.get(fk1).second);
-		}
-		return ret;
-	}
+    semantics =
+        new Morphism<>() {
 
-	public synchronized <Gen, Sk> Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> trans(
-			Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> term) {
-		if (term.var != null) {
-			return term.convert();
-		} else if (term.obj() != null) {
-			return term.convert();
-		} else if (term.gen() != null) {
-			return Term.Gen(term.gen());
-		} else if (term.sk() != null) {
-			return Term.Sk(term.sk());
-		} else if (term.fk() != null) {
-			Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> ret = trans(term.arg);
-			for (Fk2 fk : fks.get(term.fk()).second) {
-				ret = Term.Fk(fk, ret);
-			}
-			return ret;
-		} else if (term.att() != null) {
-			Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> ret = trans(term.arg);
-			Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> conv = atts.get(term.att()).third.convert();
-			return conv.subst(Collections.singletonMap(atts.get(term.att()).first, ret));
-		} else if (term.sym() != null) {
-			List<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> l = new ArrayList<>(term.args.size());
-			for (Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> x : term.args) {
-				l.add(trans(x));
-			}
-			return Term.Sym(term.sym(), l);
-		}
-		return Util.anomaly();
-	}
+          @Override
+          public Collage<Ty, En1, Sym, Fk1, Att1, Void, Void> src() {
+            return src.collage();
+          }
 
-	public final Map<En1, En2> ens;
-	public final Map<Att1, Triple<String, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>>> atts;
+          @Override
+          public Collage<Ty, En2, Sym, Fk2, Att2, Void, Void> dst() {
+            return dst.collage();
+          }
 
-	public final Map<Fk1, Pair<En2, List<Fk2>>> fks;
+          @Override
+          public Pair<Map<String, Chc<Ty, En2>>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>>
+              translate(
+                  Map<String, Chc<Ty, En1>> ctx, Term<Ty, En1, Sym, Fk1, Att1, Void, Void> term) {
+            Map<String, Chc<Ty, En2>> map = new THashMap<>(ctx.size());
+            for (String var : ctx.keySet()) {
+              if (ctx.get(var).left) {
+                map.put(var, Chc.inLeft(ctx.get(var).l));
+              } else {
+                map.put(var, Chc.inRight(ens.get(ctx.get(var).r)));
+              }
+            }
+            Map<String, Chc<Ty, En2>> ret = map;
+            return new Pair<>(ret, trans(term));
+          }
+        };
+    return semantics;
+  }
 
-	public final Schema<Ty, En1, Sym, Fk1, Att1> src;
-	public final Schema<Ty, En2, Sym, Fk2, Att2> dst;
+  public Map<String, Chc<Ty, En2>> trans(Map<String, Chc<Ty, En1>> ctx) {
+    Map<String, Chc<Ty, En2>> ret = new THashMap<>(ctx.size());
+    for (String v : ctx.keySet()) {
+      Chc<Ty, En1> c = ctx.get(v);
+      if (c.left) {
+        ret.put(v, Chc.inLeft(c.l));
+      } else {
+        ret.put(v, Chc.inRight(ens.get(c.r)));
+      }
+    }
+    return ret;
+  }
 
-	public static <Ty, En, Sym, Fk, Att> Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> id(Schema<Ty, En, Sym, Fk, Att> s) {
-		return id(s, Optional.of(s));
-	}
+  public List<Fk2> trans(List<Fk1> fks1) {
+    List<Fk2> ret = new LinkedList<>();
+    for (Fk1 fk1 : fks1) {
+      ret.addAll(fks.get(fk1).second);
+    }
+    return ret;
+  }
 
-	public static <Ty, En, Sym, Fk, Att> Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> id(Schema<Ty, En, Sym, Fk, Att> s,
-			Optional<Schema<Ty, En, Sym, Fk, Att>> t) {
-		Map<En, En> ens = Util.id(s.ens);
-		Map<Fk, Pair<En, List<Fk>>> fks = Util.mk();
-		for (Fk fk : s.fks.keySet()) {
-			fks.put(fk, new Pair<>(s.fks.get(fk).first, Collections.singletonList(fk)));
-		}
-		Map<Att, Triple<String, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts = Util.mk();
-		String v = ("v");
-		for (Att att : s.atts.keySet()) {
-			atts.put(att, new Triple<>(v, s.atts.get(att).first, Term.Att(att, Term.Var(v))));
-		}
-		if (t.isEmpty()) {
-			t = Optional.of(s);
-		}
-		return new Mapping<>(ens, atts, fks, s, t.get(), true);
-	}
+  public synchronized <Gen, Sk> Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> trans(
+      Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> term) {
+    if (term.var != null) {
+      return term.convert();
+    } else if (term.obj() != null) {
+      return term.convert();
+    } else if (term.gen() != null) {
+      return Term.Gen(term.gen());
+    } else if (term.sk() != null) {
+      return Term.Sk(term.sk());
+    } else if (term.fk() != null) {
+      Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> ret = trans(term.arg);
+      for (Fk2 fk : fks.get(term.fk()).second) {
+        ret = Term.Fk(fk, ret);
+      }
+      return ret;
+    } else if (term.att() != null) {
+      Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> ret = trans(term.arg);
+      Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk> conv = atts.get(term.att()).third.convert();
+      return conv.subst(Collections.singletonMap(atts.get(term.att()).first, ret));
+    } else if (term.sym() != null) {
+      List<Term<Ty, En2, Sym, Fk2, Att2, Gen, Sk>> l = new ArrayList<>(term.args.size());
+      for (Term<Ty, En1, Sym, Fk1, Att1, Gen, Sk> x : term.args) {
+        l.add(trans(x));
+      }
+      return Term.Sym(term.sym(), l);
+    }
+    return Util.anomaly();
+  }
 
-	public Mapping(Map<En1, En2> ens, Map<Att1, Triple<String, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>>> atts,
-			Map<Fk1, Pair<En2, List<Fk2>>> fks, Schema<Ty, En1, Sym, Fk1, Att1> src,
-			Schema<Ty, En2, Sym, Fk2, Att2> dst, boolean doNotCheckEquations) {
-		this.ens = ens;
-		this.atts = atts;
-		this.fks = fks;
-		this.src = src;
-		this.dst = dst;
-		validate(doNotCheckEquations);
-		// semantics();
-		// collage();
-	}
+  public final Map<En1, En2> ens;
+  public final Map<Att1, Triple<String, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>>> atts;
 
-	public void validate(boolean doNotCheckEquations) {
-		// for each (k,v) in ens/atts/fks, k must be in src and dst must be in target
-		for (En1 en1 : src.ens) {
-			En2 en2 = ens.get(en1);
-			if (en2 == null) {
-				throw new RuntimeException("source entity " + en1 + " has no mapping");
-			}
-			if (!dst.ens.contains(en2)) {
-				throw new RuntimeException("source entity " + en1 + " maps to " + en2 + ", which is not in target");
-			}
-		}
-		for (Att1 att1 : src.atts.keySet()) {
-			Triple<String, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> att2 = atts.get(att1);
-			if (att2 == null) {
-				throw new RuntimeException("source attribute " + att1 + " has no mapping");
-			}
-			String v = att2.first;
-			En2 proposed_en = att2.second;
-			if (proposed_en == null) {
-				throw new RuntimeException("in mapping for attribute " + att1 + ", not given a sort for " + v);
-			}
-			Term<Ty, En2, Sym, Fk2, Att2, ?, ?> term = att2.third;
+  public final Map<Fk1, Pair<En2, List<Fk2>>> fks;
 
-			En1 en1 = src.atts.get(att1).first;
-			Ty ty1 = src.atts.get(att1).second;
-			En2 en2 = ens.get(en1);
-			if (!proposed_en.equals(en2)) {
-				throw new RuntimeException("in mapping for attribute " + att1 + " the given sort for " + v + " is "
-						+ proposed_en + " but it is expected to be " + en2);
-			}
-			Chc<Ty, En2> ty2 = dst.type(new Pair<>(v, en2), term);
-			if (!ty2.equals(Chc.inLeft(ty1))) {
-				throw new RuntimeException("source attribute " + att1 + " goes to target observation " + att2
-						+ ", which has type " + ty2.toStringMash() + ", not " + ty1 + " as expected");
-			}
-		}
-		String v = ("v");
+  public final Schema<Ty, En1, Sym, Fk1, Att1> src;
+  public final Schema<Ty, En2, Sym, Fk2, Att2> dst;
 
-		for (Fk1 fk1 : src.fks.keySet()) {
-			Pair<En2, List<Fk2>> p = fks.get(fk1);
-			if (p == null) {
-				throw new RuntimeException("source foreign key " + fk1 + " : " + src.fks.get(fk1).first + " -> "
-						+ src.fks.get(fk1).second + " has no mapping");
-			}
-			En1 en1_s = src.fks.get(fk1).first;
-			En1 en1_t = src.fks.get(fk1).second;
-			En2 en2_s = ens.get(en1_s);
-			En2 en2_t = ens.get(en1_t);
-			if (!p.first.equals(en2_s)) {
-				throw new RuntimeException("proposed source of foreign key mapping for " + fk1 + " is " + p.first
-						+ " and not " + en2_s + " as expected");
-			}
-			Term<Ty, En2, Sym, Fk2, Att2, ?, ?> fk2 = Term.Fks(p.second, Term.Var(v));
-			Chc<Ty, En2> en2_t_actual = dst.type(new Pair<>(v, en2_s), fk2);
-			if (!en2_t_actual.equals(Chc.inRight(en2_t))) {
-				// System.out.println(this);
-				throw new RuntimeException("source foreign key " + fk1 + " maps to target path "
-						+ Util.sep(p.second, ".") + ", which has target entity " + en2_t_actual.toStringMash()
-						+ ", not " + en2_t + " as expected");
-			}
-		}
-		for (En1 en1 : ens.keySet()) {
-			if (!src.ens.contains(en1)) {
-				throw new RuntimeException("there is a mapping for " + en1 + " which is not a source entity");
-			}
-		}
-		for (Att1 att1 : atts.keySet()) {
-			if (!src.atts.containsKey(att1)) {
-				throw new RuntimeException("there is a mapping for " + att1 + " which is not a source attribute");
-			}
-		}
-		for (Fk1 fk1 : fks.keySet()) {
-			if (!src.fks.containsKey(fk1)) {
-				throw new RuntimeException("there is a mapping for " + fk1 + " which is not a source foreign key");
-			}
-		}
+  public static <Ty, En, Sym, Fk, Att> Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> id(
+      Schema<Ty, En, Sym, Fk, Att> s) {
+    return id(s, Optional.of(s));
+  }
 
-		if (!doNotCheckEquations) {
-			for (Triple<Pair<String, En1>, Term<Ty, En1, Sym, Fk1, Att1, Void, Void>, Term<Ty, En1, Sym, Fk1, Att1, Void, Void>> eq : src.eqs) {
-				Term<Ty, En2, Sym, Fk2, Att2, Void, Void> lhs = trans(eq.second), rhs = trans(eq.third);
-				boolean ok = dst.dp.eq(Collections.singletonMap(eq.first.first, Chc.inRight(ens.get(eq.first.second))),
-						lhs, rhs);
-				if (!ok) {
-					throw new RuntimeException("Source schema equation " + eq.second + " = " + eq.third
-							+ " translates to " + lhs + " = " + rhs
-							+ ", which is not provable in the target schema.  To proceed, consider removing it from the source or adding more equations to the target.");
-				}
-			}
-		}
+  public static <Ty, En, Sym, Fk, Att> Mapping<Ty, En, Sym, Fk, Att, En, Fk, Att> id(
+      Schema<Ty, En, Sym, Fk, Att> s, Optional<Schema<Ty, En, Sym, Fk, Att>> t) {
+    Map<En, En> ens = Util.id(s.ens);
+    Map<Fk, Pair<En, List<Fk>>> fks = Util.mk();
+    for (Fk fk : s.fks.keySet()) {
+      fks.put(fk, new Pair<>(s.fks.get(fk).first, Collections.singletonList(fk)));
+    }
+    Map<Att, Triple<String, En, Term<Ty, En, Sym, Fk, Att, Void, Void>>> atts = Util.mk();
+    String v = ("v");
+    for (Att att : s.atts.keySet()) {
+      atts.put(att, new Triple<>(v, s.atts.get(att).first, Term.Att(att, Term.Var(v))));
+    }
+    if (t.isEmpty()) {
+      t = Optional.of(s);
+    }
+    return new Mapping<>(ens, atts, fks, s, t.get(), true);
+  }
 
-	}
+  public Mapping(
+      Map<En1, En2> ens,
+      Map<Att1, Triple<String, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>>> atts,
+      Map<Fk1, Pair<En2, List<Fk2>>> fks,
+      Schema<Ty, En1, Sym, Fk1, Att1> src,
+      Schema<Ty, En2, Sym, Fk2, Att2> dst,
+      boolean doNotCheckEquations) {
+    this.ens = ens;
+    this.atts = atts;
+    this.fks = fks;
+    this.src = src;
+    this.dst = dst;
+    validate(doNotCheckEquations);
+    // semantics();
+    // collage();
+  }
 
-	@Override
-	public int hashCode() {
-		int prime = 31;
-		int result = 1;
-		result = prime * result + ((atts == null) ? 0 : atts.hashCode());
-		result = prime * result + ((dst == null) ? 0 : dst.hashCode());
-		result = prime * result + ((ens == null) ? 0 : ens.hashCode());
-		result = prime * result + ((fks == null) ? 0 : fks.hashCode());
-		result = prime * result + ((src == null) ? 0 : src.hashCode());
-		return result;
-	}
+  public void validate(boolean doNotCheckEquations) {
+    // for each (k,v) in ens/atts/fks, k must be in src and dst must be in target
+    for (En1 en1 : src.ens) {
+      En2 en2 = ens.get(en1);
+      if (en2 == null) {
+        throw new RuntimeException("source entity " + en1 + " has no mapping");
+      }
+      if (!dst.ens.contains(en2)) {
+        throw new RuntimeException(
+            "source entity " + en1 + " maps to " + en2 + ", which is not in target");
+      }
+    }
+    for (Att1 att1 : src.atts.keySet()) {
+      Triple<String, En2, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> att2 = atts.get(att1);
+      if (att2 == null) {
+        throw new RuntimeException("source attribute " + att1 + " has no mapping");
+      }
+      String v = att2.first;
+      En2 proposed_en = att2.second;
+      if (proposed_en == null) {
+        throw new RuntimeException(
+            "in mapping for attribute " + att1 + ", not given a sort for " + v);
+      }
+      Term<Ty, En2, Sym, Fk2, Att2, ?, ?> term = att2.third;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Mapping<?, ?, ?, ?, ?, ?, ?, ?> other = (Mapping<?, ?, ?, ?, ?, ?, ?, ?>) obj;
-		if (atts == null) {
-			if (other.atts != null)
-				return false;
-		} else if (!atts.equals(other.atts))
-			return false;
-		if (dst == null) {
-			if (other.dst != null)
-				return false;
-		} else if (!dst.equals(other.dst))
-			return false;
-		if (ens == null) {
-			if (other.ens != null)
-				return false;
-		} else if (!ens.equals(other.ens))
-			return false;
-		if (fks == null) {
-			if (other.fks != null)
-				return false;
-		} else if (!fks.equals(other.fks))
-			return false;
-		if (src == null) {
-			if (other.src != null)
-				return false;
-		} else if (!src.equals(other.src))
-			return false;
-		return true;
-	}
+      En1 en1 = src.atts.get(att1).first;
+      Ty ty1 = src.atts.get(att1).second;
+      En2 en2 = ens.get(en1);
+      if (!proposed_en.equals(en2)) {
+        throw new RuntimeException(
+            "in mapping for attribute "
+                + att1
+                + " the given sort for "
+                + v
+                + " is "
+                + proposed_en
+                + " but it is expected to be "
+                + en2);
+      }
+      Chc<Ty, En2> ty2 = dst.type(new Pair<>(v, en2), term);
+      if (!ty2.equals(Chc.inLeft(ty1))) {
+        throw new RuntimeException(
+            "source attribute "
+                + att1
+                + " goes to target observation "
+                + att2
+                + ", which has type "
+                + ty2.toStringMash()
+                + ", not "
+                + ty1
+                + " as expected");
+      }
+    }
+    String v = ("v");
 
-	private String toString = null;
+    for (Fk1 fk1 : src.fks.keySet()) {
+      Pair<En2, List<Fk2>> p = fks.get(fk1);
+      if (p == null) {
+        throw new RuntimeException(
+            "source foreign key "
+                + fk1
+                + " : "
+                + src.fks.get(fk1).first
+                + " -> "
+                + src.fks.get(fk1).second
+                + " has no mapping");
+      }
+      En1 en1_s = src.fks.get(fk1).first;
+      En1 en1_t = src.fks.get(fk1).second;
+      En2 en2_s = ens.get(en1_s);
+      En2 en2_t = ens.get(en1_t);
+      if (!p.first.equals(en2_s)) {
+        throw new RuntimeException(
+            "proposed source of foreign key mapping for "
+                + fk1
+                + " is "
+                + p.first
+                + " and not "
+                + en2_s
+                + " as expected");
+      }
+      Term<Ty, En2, Sym, Fk2, Att2, ?, ?> fk2 = Term.Fks(p.second, Term.Var(v));
+      Chc<Ty, En2> en2_t_actual = dst.type(new Pair<>(v, en2_s), fk2);
+      if (!en2_t_actual.equals(Chc.inRight(en2_t))) {
+        // System.out.println(this);
+        throw new RuntimeException(
+            "source foreign key "
+                + fk1
+                + " maps to target path "
+                + Util.sep(p.second, ".")
+                + ", which has target entity "
+                + en2_t_actual.toStringMash()
+                + ", not "
+                + en2_t
+                + " as expected");
+      }
+    }
+    for (En1 en1 : ens.keySet()) {
+      if (!src.ens.contains(en1)) {
+        throw new RuntimeException(
+            "there is a mapping for " + en1 + " which is not a source entity");
+      }
+    }
+    for (Att1 att1 : atts.keySet()) {
+      if (!src.atts.containsKey(att1)) {
+        throw new RuntimeException(
+            "there is a mapping for " + att1 + " which is not a source attribute");
+      }
+    }
+    for (Fk1 fk1 : fks.keySet()) {
+      if (!src.fks.containsKey(fk1)) {
+        throw new RuntimeException(
+            "there is a mapping for " + fk1 + " which is not a source foreign key");
+      }
+    }
 
-	@Override
-	public synchronized String toString() {
-		if (toString != null) {
-			return toString;
-		}
+    if (!doNotCheckEquations) {
+      for (Triple<
+              Pair<String, En1>,
+              Term<Ty, En1, Sym, Fk1, Att1, Void, Void>,
+              Term<Ty, En1, Sym, Fk1, Att1, Void, Void>>
+          eq : src.eqs) {
+        Term<Ty, En2, Sym, Fk2, Att2, Void, Void> lhs = trans(eq.second), rhs = trans(eq.third);
+        boolean ok =
+            dst.dp.eq(
+                Collections.singletonMap(eq.first.first, Chc.inRight(ens.get(eq.first.second))),
+                lhs,
+                rhs);
+        if (!ok) {
+          throw new RuntimeException(
+              "Source schema equation "
+                  + eq.second
+                  + " = "
+                  + eq.third
+                  + " translates to "
+                  + lhs
+                  + " = "
+                  + rhs
+                  + ", which is not provable in the target schema.  To proceed, consider removing it from the source or adding more equations to the target.");
+        }
+      }
+    }
+  }
 
-		toString = "";
-		for (En1 en : src.ens) {
-			toString += "\n\nentity";
-			toString += "\n\t" + en + " -> " + ens.get(en);
+  @Override
+  public int hashCode() {
+    int prime = 31;
+    int result = 1;
+    result = prime * result + ((atts == null) ? 0 : atts.hashCode());
+    result = prime * result + ((dst == null) ? 0 : dst.hashCode());
+    result = prime * result + ((ens == null) ? 0 : ens.hashCode());
+    result = prime * result + ((fks == null) ? 0 : fks.hashCode());
+    result = prime * result + ((src == null) ? 0 : src.hashCode());
+    return result;
+  }
 
-			List<String> fks0 = new LinkedList<>();
-			for (Fk1 fk : src.fksFrom(en)) {
-				fks0.add(fk + " -> " + (fks.get(fk).second.isEmpty() ? "identity " + fks.get(fk).first
-						: Util.sep(fks.get(fk).second, ".")));
-			}
-			List<String> atts0 = new LinkedList<>();
-			for (Att1 att : src.attsFrom(en)) {
-				atts0.add(att + " -> lambda " + atts.get(att).first + ":" + atts.get(att).second + ". "
-						+ atts.get(att).third);
-			}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    Mapping<?, ?, ?, ?, ?, ?, ?, ?> other = (Mapping<?, ?, ?, ?, ?, ?, ?, ?>) obj;
+    if (atts == null) {
+      if (other.atts != null) return false;
+    } else if (!atts.equals(other.atts)) return false;
+    if (dst == null) {
+      if (other.dst != null) return false;
+    } else if (!dst.equals(other.dst)) return false;
+    if (ens == null) {
+      if (other.ens != null) return false;
+    } else if (!ens.equals(other.ens)) return false;
+    if (fks == null) {
+      if (other.fks != null) return false;
+    } else if (!fks.equals(other.fks)) return false;
+    if (src == null) {
+      if (other.src != null) return false;
+    } else if (!src.equals(other.src)) return false;
+    return true;
+  }
 
-			if (!fks0.isEmpty()) {
-				toString += "\nforeign_keys";
-				toString += "\n\t" + Util.sep(fks0, "\n\t");
-			}
-			if (!atts0.isEmpty()) {
-				toString += "\nattributes";
-				toString += "\n\t" + Util.sep(atts0, "\n\t");
-			}
-		}
+  private String toString = null;
 
-		toString = toString.trim();
-		return toString;
-	}
-	public String toTptp() {
-		return dst.collage().tptp();
-	}
+  @Override
+  public synchronized String toString() {
+    if (toString != null) {
+      return toString;
+    }
 
+    toString = "";
+    for (En1 en : src.ens) {
+      toString += "\n\nentity";
+      toString += "\n\t" + en + " -> " + ens.get(en);
+
+      List<String> fks0 = new LinkedList<>();
+      for (Fk1 fk : src.fksFrom(en)) {
+        fks0.add(
+            fk
+                + " -> "
+                + (fks.get(fk).second.isEmpty()
+                    ? "identity " + fks.get(fk).first
+                    : Util.sep(fks.get(fk).second, ".")));
+      }
+      List<String> atts0 = new LinkedList<>();
+      for (Att1 att : src.attsFrom(en)) {
+        atts0.add(
+            att
+                + " -> lambda "
+                + atts.get(att).first
+                + ":"
+                + atts.get(att).second
+                + ". "
+                + atts.get(att).third);
+      }
+
+      if (!fks0.isEmpty()) {
+        toString += "\nforeign_keys";
+        toString += "\n\t" + Util.sep(fks0, "\n\t");
+      }
+      if (!atts0.isEmpty()) {
+        toString += "\nattributes";
+        toString += "\n\t" + Util.sep(atts0, "\n\t");
+      }
+    }
+
+    toString = toString.trim();
+    return toString;
+  }
+
+  public String toTptp() {
+    return dst.collage().tptp();
+  }
 }

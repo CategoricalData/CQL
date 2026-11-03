@@ -108,7 +108,8 @@ class ApgInstanceTest {
     void typeChecksValueAgainstBaseType() {
       ApgSchema<String> schema = personSchema();
       ApgInstance<String, String> inst =
-          new ApgInstance<>(schema, Map.of("e1", new Pair<>("person", ApgTerm.ApgTermV(42, "Int"))));
+          new ApgInstance<>(
+              schema, Map.of("e1", new Pair<>("person", ApgTerm.ApgTermV(42, "Int"))));
       assertDoesNotThrow(() -> inst.type(ApgTerm.ApgTermV(99, "Int"), ApgTy.ApgTyB("Int")));
     }
 
@@ -118,8 +119,7 @@ class ApgInstanceTest {
       Map<String, Pair<String, ApgTerm<String, String>>> es =
           Map.of("e1", new Pair<>("person", ApgTerm.ApgTermV(42, "Int")));
       ApgInstance<String, String> inst = new ApgInstance<>(schema, es);
-      assertDoesNotThrow(
-          () -> inst.type(ApgTerm.ApgTermE("e1"), ApgTy.ApgTyL("person")));
+      assertDoesNotThrow(() -> inst.type(ApgTerm.ApgTermE("e1"), ApgTy.ApgTyL("person")));
     }
 
     @Test
@@ -127,16 +127,14 @@ class ApgInstanceTest {
       ApgSchema<String> schema =
           new ApgSchema<>(
               intTypeside(),
-              new HashMap<>(
-                  Map.of("rec", ApgTy.ApgTyP(true, Map.of("age", ApgTy.ApgTyB("Int"))))));
+              new HashMap<>(Map.of("rec", ApgTy.ApgTyP(true, Map.of("age", ApgTy.ApgTyB("Int"))))));
       Map<String, Pair<String, ApgTerm<String, String>>> es =
           Map.of(
               "e1",
-              new Pair<>(
-                  "rec",
-                  ApgTerm.ApgTermTuple(Map.of("age", ApgTerm.ApgTermV(30, "Int")))));
+              new Pair<>("rec", ApgTerm.ApgTermTuple(Map.of("age", ApgTerm.ApgTermV(30, "Int")))));
       ApgInstance<String, String> inst = new ApgInstance<>(schema, es);
-      ApgTerm<String, String> tuple = ApgTerm.ApgTermTuple(Map.of("age", ApgTerm.ApgTermV(25, "Int")));
+      ApgTerm<String, String> tuple =
+          ApgTerm.ApgTermTuple(Map.of("age", ApgTerm.ApgTermV(25, "Int")));
       assertDoesNotThrow(
           () -> inst.type(tuple, ApgTy.ApgTyP(true, Map.of("age", ApgTy.ApgTyB("Int")))));
     }
@@ -161,9 +159,7 @@ class ApgInstanceTest {
       ApgSchema<String> schema = personSchema();
       ApgInstance<String, String> inst = new ApgInstance<>(schema, Collections.emptyMap());
       ApgTerm<String, String> varTerm = ApgTerm.ApgTermVar("x");
-      assertThrows(
-          RuntimeException.class,
-          () -> inst.type(varTerm, ApgTy.ApgTyB("Int")));
+      assertThrows(RuntimeException.class, () -> inst.type(varTerm, ApgTy.ApgTyB("Int")));
     }
 
     @Test
@@ -172,9 +168,7 @@ class ApgInstanceTest {
       ApgInstance<String, String> inst = new ApgInstance<>(schema, Collections.emptyMap());
       ApgTerm<String, String> projTerm =
           ApgTerm.ApgTermProj("f", ApgTerm.ApgTermTuple(Collections.emptyMap()));
-      assertThrows(
-          RuntimeException.class,
-          () -> inst.type(projTerm, ApgTy.ApgTyB("Int")));
+      assertThrows(RuntimeException.class, () -> inst.type(projTerm, ApgTy.ApgTyB("Int")));
     }
   }
 
@@ -225,9 +219,11 @@ class ApgInstanceTest {
     void notEqualsDifferent() {
       ApgSchema<String> schema = personSchema();
       ApgInstance<String, String> i1 =
-          new ApgInstance<>(schema, Map.of("e1", new Pair<>("person", ApgTerm.ApgTermV(42, "Int"))));
+          new ApgInstance<>(
+              schema, Map.of("e1", new Pair<>("person", ApgTerm.ApgTermV(42, "Int"))));
       ApgInstance<String, String> i2 =
-          new ApgInstance<>(schema, Map.of("e1", new Pair<>("person", ApgTerm.ApgTermV(99, "Int"))));
+          new ApgInstance<>(
+              schema, Map.of("e1", new Pair<>("person", ApgTerm.ApgTermV(99, "Int"))));
       assertNotEquals(i1, i2);
     }
 

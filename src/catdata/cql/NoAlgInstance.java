@@ -1,14 +1,14 @@
 package catdata.cql;
 
-import java.util.function.BiConsumer;
-
 import catdata.Util;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
+import java.util.function.BiConsumer;
 
-public class NoAlgInstance extends Instance<String, String, Sym, Fk, Att, String, String, Void, Void> {
+public class NoAlgInstance
+    extends Instance<String, String, Sym, Fk, Att, String, String, Void, Void> {
 
   public final Schema<String, String, Sym, Fk, Att> schema;
 
@@ -18,7 +18,9 @@ public class NoAlgInstance extends Instance<String, String, Sym, Fk, Att, String
 
   private final Collage<String, String, Sym, Fk, Att, String, String> col;
 
-  public NoAlgInstance(Collage<String, String, Sym, Fk, Att, String, String> col, Schema<String, String, Sym, Fk, Att> schema,
+  public NoAlgInstance(
+      Collage<String, String, Sym, Fk, Att, String, String> col,
+      Schema<String, String, Sym, Fk, Att> schema,
       AqlOptions options) {
     Util.assertNotNull(options);
     this.schema = schema;
@@ -43,11 +45,13 @@ public class NoAlgInstance extends Instance<String, String, Sym, Fk, Att, String
   }
 
   public synchronized void eqs(
-      BiConsumer<Term<String, String, Sym, Fk, Att, String, String>, Term<String, String, Sym, Fk, Att, String, String>> f) {
-    col.eqs().forEach(x->f.accept(x.lhs, x.rhs));
+      BiConsumer<
+              Term<String, String, Sym, Fk, Att, String, String>,
+              Term<String, String, Sym, Fk, Att, String, String>>
+          f) {
+    col.eqs().forEach(x -> f.accept(x.lhs, x.rhs));
   }
-  
-  
+
   @Override
   public synchronized DP<String, String, Sym, Fk, Att, String, String> dp() {
     if (dp == null) {
@@ -71,7 +75,4 @@ public class NoAlgInstance extends Instance<String, String, Sym, Fk, Att, String
   public boolean allowUnsafeJava() {
     return (boolean) options.getOrDefault(AqlOption.allow_java_eqs_unsafe);
   }
-
-  
-
 }

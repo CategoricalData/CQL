@@ -3,14 +3,14 @@ package catdata.cql.exp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.cql.Kind;
+import catdata.cql.Schema;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import catdata.cql.Kind;
-import catdata.cql.Schema;
 import org.junit.jupiter.api.Test;
 
 class SchExpJdbcAllTest {
@@ -62,8 +62,7 @@ class SchExpJdbcAllTest {
   @Test
   void prefixesTheColumnsWithTheTableForHive() throws Exception {
     assertEquals(
-        Map.of(
-            "T.I", "Integer", "T.B", "Boolean", "T.D", "Decimal", "T.C", "Clob", "T.J", "Other"),
+        Map.of("T.I", "Integer", "T.B", "Boolean", "T.D", "Decimal", "T.C", "Clob", "T.J", "Other"),
         types(importAll("options jdbc_is_hive = true\n")));
   }
 }

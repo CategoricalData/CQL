@@ -150,8 +150,8 @@ class AqlTesterTest {
   }
 
   /**
-   * AqlHelp and AqlExamples used File.renameTo, which returns false when the temporary directory
-   * is on another filesystem, so CI passed without producing help/. replaceDirectory copies, so it
+   * AqlHelp and AqlExamples used File.renameTo, which returns false when the temporary directory is
+   * on another filesystem, so CI passed without producing help/. replaceDirectory copies, so it
    * behaves the same on any filesystem, and it throws instead of returning false.
    */
   @Nested

@@ -4,15 +4,16 @@ public interface Semantics {
 
   public default String sample(@SuppressWarnings("unused") int size) {
     return null;
-  };
+  }
+  ;
 
   public Kind kind();
 
   public int size();
 
-//  public long time();
+  //  public long time();
 
-//  public void time(long time);
+  //  public void time(long time);
 
   /* public default TypeSide<?, ?> asTypeSide() {
     return (TypeSide<?, ?>) this;

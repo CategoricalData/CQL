@@ -11,6 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.Unit;
+import catdata.cql.AqlOptions.AqlOption;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -19,11 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.Unit;
-import catdata.cql.AqlOptions.AqlOption;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +63,10 @@ class TypeSideTest {
     return new Pair<>(List.of(args), result);
   }
 
-  private static Triple<Map<String, String>, Term<String, Void, String, Void, Void, Void, Void>, Term<String, Void, String, Void, Void, Void, Void>>
+  private static Triple<
+          Map<String, String>,
+          Term<String, Void, String, Void, Void, Void, Void>,
+          Term<String, Void, String, Void, Void, Void, Void>>
       eq(
           Map<String, String> ctx,
           Term<String, Void, String, Void, Void, Void, Void> l,
@@ -127,7 +130,11 @@ class TypeSideTest {
     syms.put("t", sort(B));
     syms.put("f", sort(B));
     syms.put("not", sort(B, B));
-    Set<Triple<Map<String, String>, Term<String, Void, String, Void, Void, Void, Void>, Term<String, Void, String, Void, Void, Void, Void>>>
+    Set<
+            Triple<
+                Map<String, String>,
+                Term<String, Void, String, Void, Void, Void, Void>,
+                Term<String, Void, String, Void, Void, Void, Void>>>
         eqs = new LinkedHashSet<>();
     eqs.add(eq(Map.of("x", B), app("not", app("not", v("x"))), v("x")));
     eqs.add(eq(Map.of(), app("not", c("t")), c("f")));
@@ -220,7 +227,8 @@ class TypeSideTest {
           syms,
           new LinkedHashSet<>(
               List.of(
-                  eq(Map.of(), app("not", c("t")), c("f")), eq(Map.of(), app("not", c("f")), c("t")))),
+                  eq(Map.of(), app("not", c("t")), c("f")),
+                  eq(Map.of(), app("not", c("f")), c("t")))),
           Map.of(),
           Map.of(),
           Map.of(),
@@ -269,7 +277,11 @@ class TypeSideTest {
     private String failure(
         Set<String> tys,
         Map<String, Pair<List<String>, String>> syms,
-        Set<Triple<Map<String, String>, Term<String, Void, String, Void, Void, Void, Void>, Term<String, Void, String, Void, Void, Void, Void>>>
+        Set<
+                Triple<
+                    Map<String, String>,
+                    Term<String, Void, String, Void, Void, Void, Void>,
+                    Term<String, Void, String, Void, Void, Void, Void>>>
             eqs,
         AqlJs<String, String> js) {
       return assertThrows(
@@ -296,7 +308,11 @@ class TypeSideTest {
     @Test
     void rejectsAnEquationOverAnUndeclaredType() {
       String msg =
-          failure(Set.of(N), Map.of(), Set.of(eq(Map.of("x", "Ghost"), v("x"), v("x"))), noJava(Map.of()));
+          failure(
+              Set.of(N),
+              Map.of(),
+              Set.of(eq(Map.of("x", "Ghost"), v("x"), v("x"))),
+              noJava(Map.of()));
       assertEquals(
           "In typeside equation forall {x=Ghost}. x = x, context uses types {Ghost} that are not"
               + " declared.",
@@ -308,7 +324,8 @@ class TypeSideTest {
       Map<String, Pair<List<String>, String>> syms = Map.of("t", sort(B));
       String msg =
           failure(Set.of(B, N), syms, Set.of(eq(Map.of("x", N), v("x"), c("t"))), noJava(syms));
-      assertEquals("In typeside equation forall {x=N}. x = t, lhs type is N but rhs type is B", msg);
+      assertEquals(
+          "In typeside equation forall {x=N}. x = t, lhs type is N but rhs type is B", msg);
     }
 
     @Test
@@ -324,14 +341,22 @@ class TypeSideTest {
     void rejectsAParserForATypeThatIsNotJava() {
       assertEquals(
           "There is a java parser for N but it is not declared as a java type",
-          failure(Set.of(N), Map.of(), Set.of(), js(Map.of(), Map.of(), Map.of(N, "x => x"), Map.of())));
+          failure(
+              Set.of(N),
+              Map.of(),
+              Set.of(),
+              js(Map.of(), Map.of(), Map.of(N, "x => x"), Map.of())));
     }
 
     @Test
     void rejectsAJavaFunctionThatIsNotASymbol() {
       assertEquals(
           "The java function ghost is not a declared function",
-          failure(Set.of(N), Map.of(), Set.of(), js(Map.of(), Map.of(), Map.of(), Map.of("ghost", "x => x"))));
+          failure(
+              Set.of(N),
+              Map.of(),
+              Set.of(),
+              js(Map.of(), Map.of(), Map.of(), Map.of("ghost", "x => x"))));
     }
 
     @Test
@@ -339,7 +364,10 @@ class TypeSideTest {
       assertEquals(
           "No constant parser for Bool",
           failure(
-              Set.of(BOOL), Map.of(), Set.of(), js(Map.of(), Map.of(BOOL, BOOLEAN_CLASS), Map.of(), Map.of())));
+              Set.of(BOOL),
+              Map.of(),
+              Set.of(),
+              js(Map.of(), Map.of(BOOL, BOOLEAN_CLASS), Map.of(), Map.of())));
     }
 
     @Test
@@ -485,7 +513,14 @@ class TypeSideTest {
         javaBools(
             Set.of(N, BOOL),
             Map.of(
-                "zero", sort(N), "succ", sort(N, N), "isZero", sort(BOOL, N), "pick", sort(N, BOOL)),
+                "zero",
+                sort(N),
+                "succ",
+                sort(N, N),
+                "isZero",
+                sort(BOOL, N),
+                "pick",
+                sort(N, BOOL)),
             Map.of(),
             ops());
 
@@ -720,7 +755,11 @@ class TypeSideTest {
     void presentsEachEquationWithItsVariablesTypeSorted() {
       Collage<String, Void, String, Void, Void, Void, Void> col = bools().collage();
       assertEquals(3, col.eqs().size());
-      Set<Triple<Map<String, Chc<String, Void>>, Term<String, Void, String, Void, Void, Void, Void>, Term<String, Void, String, Void, Void, Void, Void>>>
+      Set<
+              Triple<
+                  Map<String, Chc<String, Void>>,
+                  Term<String, Void, String, Void, Void, Void, Void>,
+                  Term<String, Void, String, Void, Void, Void, Void>>>
           eqs = col.eqs().stream().map(Eq::toTriple).collect(Collectors.toSet());
       assertTrue(
           eqs.contains(
@@ -784,7 +823,8 @@ class TypeSideTest {
 
     @Test
     void closesUnderTheFunctionsUpToProvableEquality() {
-      Set<Term<String, Void, String, Void, Void, Void, Void>> closed = bools().makeModel(Map.of(), 64).get(B);
+      Set<Term<String, Void, String, Void, Void, Void, Void>> closed =
+          bools().makeModel(Map.of(), 64).get(B);
       assertEquals(2, closed.size(), closed.toString());
       assertEquals(Set.of(c("t"), c("f")), normals(closed));
     }
@@ -861,7 +901,12 @@ class TypeSideTest {
       syms.put("not", sort(B, B));
       syms.put("and", sort(B, B, B));
       return new TypeSide<>(
-          Set.of(B), syms, Set.of(eq(Map.of(), app("not", c(t)), c("f"))), noJava(syms), syntactic(), ops());
+          Set.of(B),
+          syms,
+          Set.of(eq(Map.of(), app("not", c(t)), c("f"))),
+          noJava(syms),
+          syntactic(),
+          ops());
     }
 
     private Set<String> lines(String s) {

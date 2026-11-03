@@ -8,6 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.AqlProver.ProverName;
+import catdata.cql.exp.Sym;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -20,12 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.AqlProver.ProverName;
-import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -88,8 +88,9 @@ class SqlTypeSide2Test {
   }
 
   /**
-   * FOR_TY's construction with true and false replaced by the declared constants tt and ff. This
-   * is the only way to get a typeside out of make: see {@link Make#rejectsEveryTypesideWithoutJavaTypes}.
+   * FOR_TY's construction with true and false replaced by the declared constants tt and ff. This is
+   * the only way to get a typeside out of make: see {@link
+   * Make#rejectsEveryTypesideWithoutJavaTypes}.
    */
   private static SqlTypeSide2<String> withConstants() {
     SqlTypeSide2<String> s = new SqlTypeSide2<>(ty -> ty, BOOLEAN);
@@ -322,9 +323,11 @@ class SqlTypeSide2Test {
               .unary(SqlTypeSide2.IS_TRUE_SYM, List.of(t, f, f))
               .unary(SqlTypeSide2.IS_FALSE_SYM, List.of(f, t, f))
               .binary(
-                  SqlTypeSide2.AND_SYM, List.of(List.of(t, f, u), List.of(f, f, f), List.of(u, f, u)))
+                  SqlTypeSide2.AND_SYM,
+                  List.of(List.of(t, f, u), List.of(f, f, f), List.of(u, f, u)))
               .binary(
-                  SqlTypeSide2.OR_SYM, List.of(List.of(t, t, t), List.of(t, f, u), List.of(t, u, u)))
+                  SqlTypeSide2.OR_SYM,
+                  List.of(List.of(t, t, t), List.of(t, f, u), List.of(t, u, u)))
               .binary(
                   FOR_TY.typedEq(BOOLEAN),
                   List.of(List.of(t, f, u), List.of(f, t, u), List.of(u, u, u)))

@@ -39,8 +39,8 @@ class ApgOpsTest {
     return new ApgInstance<>(schema, Collections.emptyMap());
   }
 
-  private ApgInstance<String, String> singleElementInstance(String label, String elemKey,
-      int value) {
+  private ApgInstance<String, String> singleElementInstance(
+      String label, String elemKey, int value) {
     ApgSchema<String> schema = singleLabelSchema(label);
     Map<String, Pair<String, ApgTerm<String, String>>> es = new HashMap<>();
     es.put(elemKey, new Pair<>(label, ApgTerm.ApgTermV(value, "Int")));
@@ -188,8 +188,7 @@ class ApgOpsTest {
     void coproductCombinesElements() {
       ApgInstance<String, String> inst1 = singleElementInstance("person", "e1", 1);
       ApgInstance<String, String> inst2 = singleElementInstance("person", "e2", 2);
-      ApgInstance<Chc<String, String>, Chc<String, String>> coprod =
-          ApgOps.coproduct(inst1, inst2);
+      ApgInstance<Chc<String, String>, Chc<String, String>> coprod = ApgOps.coproduct(inst1, inst2);
       assertEquals(2, coprod.Es.size());
       assertTrue(coprod.Es.containsKey(Chc.inLeft("e1")));
       assertTrue(coprod.Es.containsKey(Chc.inRight("e2")));
@@ -224,8 +223,7 @@ class ApgOpsTest {
       ApgSchema<String> schema = singleLabelSchema("person");
       ApgInstance<String, String> empty1 = emptyInstance(schema);
       ApgInstance<String, String> empty2 = emptyInstance(schema);
-      ApgInstance<Pair<String, String>, Pair<String, String>> prod =
-          ApgOps.product(empty1, empty2);
+      ApgInstance<Pair<String, String>, Pair<String, String>> prod = ApgOps.product(empty1, empty2);
       assertNotNull(prod);
       assertTrue(prod.Es.isEmpty());
     }
@@ -234,8 +232,7 @@ class ApgOpsTest {
     void productCombinesElements() {
       ApgInstance<String, String> inst1 = singleElementInstance("person", "e1", 1);
       ApgInstance<String, String> inst2 = singleElementInstance("person", "e2", 2);
-      ApgInstance<Pair<String, String>, Pair<String, String>> prod =
-          ApgOps.product(inst1, inst2);
+      ApgInstance<Pair<String, String>, Pair<String, String>> prod = ApgOps.product(inst1, inst2);
       assertEquals(1, prod.Es.size());
       assertTrue(prod.Es.containsKey(new Pair<>("e1", "e2")));
     }

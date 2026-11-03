@@ -1,16 +1,14 @@
 package catdata.cql;
 
+import catdata.Util;
+import catdata.Util.UpToF;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
-
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.collections4.iterators.IteratorIterable;
-
-import catdata.Util;
-import catdata.Util.UpToF;
 
 public abstract class SkeletonSaturatedInstance<Ty, En, Sym, Fk, Att>
     extends SkeletonInstance<Ty, En, Sym, Fk, Att, Integer, Integer> {
@@ -49,7 +47,8 @@ public abstract class SkeletonSaturatedInstance<Ty, En, Sym, Fk, Att>
   }
 
   @Override
-  public boolean eq(Term<Void, En, Void, Fk, Void, Integer, Void> lhs,
+  public boolean eq(
+      Term<Void, En, Void, Fk, Void, Integer, Void> lhs,
       Term<Void, En, Void, Fk, Void, Integer, Void> rhs) {
     return eval(lhs) == eval(rhs);
   }
@@ -63,7 +62,8 @@ public abstract class SkeletonSaturatedInstance<Ty, En, Sym, Fk, Att>
   }
 
   @Override
-  public Term<Ty, Void, Sym, Void, Void, Void, Integer> evalT(Term<Ty, En, Sym, Fk, Att, Integer, Integer> t) {
+  public Term<Ty, Void, Sym, Void, Void, Void, Integer> evalT(
+      Term<Ty, En, Sym, Fk, Att, Integer, Integer> t) {
     if (t.obj() != null) {
       return t.convert();
     } else if (t.sym() != null) {
@@ -92,7 +92,10 @@ public abstract class SkeletonSaturatedInstance<Ty, En, Sym, Fk, Att>
 
   @Override
   public void eqs(
-      BiConsumer<Term<Ty, En, Sym, Fk, Att, Integer, Integer>, Term<Ty, En, Sym, Fk, Att, Integer, Integer>> f) {
+      BiConsumer<
+              Term<Ty, En, Sym, Fk, Att, Integer, Integer>,
+              Term<Ty, En, Sym, Fk, Att, Integer, Integer>>
+          f) {
     for (Entry<Integer, En> x : gens()) {
       En en = x.getValue();
       Integer i = x.getKey();

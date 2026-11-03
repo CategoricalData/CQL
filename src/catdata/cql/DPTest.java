@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
 import java.util.List;
 import java.util.Map;
-import catdata.Chc;
 import org.junit.jupiter.api.Test;
 
 /** The defaults of a decision procedure, and the one for the empty theory. */

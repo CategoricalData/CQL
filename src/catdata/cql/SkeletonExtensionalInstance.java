@@ -1,14 +1,14 @@
 package catdata.cql;
 
+import catdata.Chc;
+import catdata.Pair;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
-import catdata.Chc;
-import catdata.Pair;
-
-public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonSaturatedInstance<Ty, En, Sym, Fk, Att> {
+public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att>
+    extends SkeletonSaturatedInstance<Ty, En, Sym, Fk, Att> {
 
   private final Schema<Ty, En, Sym, Fk, Att> schema;
   private final int ens;
@@ -23,19 +23,31 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
   private final Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Integer>[]> atts;
 
   private final Term<Ty, Void, Sym, Void, Void, Void, Integer>[][] talg_eqs;
-  private final BiPredicate<Term<Ty, Void, Sym, Void, Void, Void, Integer>, Term<Ty, Void, Sym, Void, Void, Void, Integer>> talg_dp;
+  private final BiPredicate<
+          Term<Ty, Void, Sym, Void, Void, Void, Integer>,
+          Term<Ty, Void, Sym, Void, Void, Void, Integer>>
+      talg_dp;
 
   private final Function<Integer, Chc<Integer, Pair<Integer, Att>>> sks;
 
   private final AqlOptions ops;
 
   // check if empty atts and if so don't store
-  public SkeletonExtensionalInstance(Schema<Ty, En, Sym, Fk, Att> schema, Map<En, Integer> en, Map<Ty, Integer> ty,
-      Map<En, Integer> m, Map<Ty, Integer> n, Map<Fk, int[]> fks,
+  public SkeletonExtensionalInstance(
+      Schema<Ty, En, Sym, Fk, Att> schema,
+      Map<En, Integer> en,
+      Map<Ty, Integer> ty,
+      Map<En, Integer> m,
+      Map<Ty, Integer> n,
+      Map<Fk, int[]> fks,
       Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Integer>[]> atts,
       Term<Ty, Void, Sym, Void, Void, Void, Integer>[][] talg_eqs,
-      BiPredicate<Term<Ty, Void, Sym, Void, Void, Void, Integer>, Term<Ty, Void, Sym, Void, Void, Void, Integer>> talg_dp,
-      Function<Integer, Chc<Integer, Pair<Integer, Att>>> sks, AqlOptions ops) {
+      BiPredicate<
+              Term<Ty, Void, Sym, Void, Void, Void, Integer>,
+              Term<Ty, Void, Sym, Void, Void, Void, Integer>>
+          talg_dp,
+      Function<Integer, Chc<Integer, Pair<Integer, Att>>> sks,
+      AqlOptions ops) {
     this.schema = schema;
     this.xs = en;
     this.ys = ty;
@@ -119,14 +131,18 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
   }
 
   @Override
-  public boolean eqT(Term<Ty, Void, Sym, Void, Void, Void, Integer> lhs,
+  public boolean eqT(
+      Term<Ty, Void, Sym, Void, Void, Void, Integer> lhs,
       Term<Ty, Void, Sym, Void, Void, Void, Integer> rhs) {
     return talg_dp.test(lhs, rhs);
   }
 
   @Override
   public void eqsT(
-      BiConsumer<Term<Ty, Void, Sym, Void, Void, Void, Integer>, Term<Ty, Void, Sym, Void, Void, Void, Integer>> f) {
+      BiConsumer<
+              Term<Ty, Void, Sym, Void, Void, Void, Integer>,
+              Term<Ty, Void, Sym, Void, Void, Void, Integer>>
+          f) {
     for (Term<Ty, Void, Sym, Void, Void, Void, Integer>[] x : talg_eqs) {
       f.accept(x[0], x[1]);
     }
@@ -151,7 +167,7 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
   public Chc<Integer, Pair<Integer, Att>> reprT_prot(int y) {
     return sks.apply(y);
   }
-  
+
   @Override
   public boolean hasNulls() {
     for (Integer x : ys.values()) {
@@ -161,5 +177,4 @@ public class SkeletonExtensionalInstance<Ty, En, Sym, Fk, Att> extends SkeletonS
     }
     return false;
   }
-
 }

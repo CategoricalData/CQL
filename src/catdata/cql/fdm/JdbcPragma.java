@@ -1,5 +1,7 @@
 package catdata.cql.fdm;
 
+import catdata.Util;
+import catdata.cql.Pragma;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,9 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
-
-import catdata.Util;
-import catdata.cql.Pragma;
 
 public class JdbcPragma extends Pragma {
 
@@ -23,7 +22,6 @@ public class JdbcPragma extends Pragma {
   public JdbcPragma(String jdbcString, List<String> sqls) {
     this.sqls = sqls;
     this.jdbcString = jdbcString;
-
   }
 
   @Override
@@ -62,7 +60,6 @@ public class JdbcPragma extends Pragma {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
-
   }
 
   private static String print(ResultSet rs) throws SQLException {
@@ -87,5 +84,4 @@ public class JdbcPragma extends Pragma {
   public String toString() {
     return Util.sep(responses, "\n\n--------------\n\n");
   }
-
 }

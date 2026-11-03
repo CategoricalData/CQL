@@ -3,11 +3,10 @@ package catdata.cql.fdm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
 import catdata.cql.AqlOptions;
 import catdata.cql.Query;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 class EvalInstanceTest {
 

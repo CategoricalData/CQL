@@ -1,16 +1,5 @@
 package catdata.apg.exp;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import catdata.InteriorLabel;
 import catdata.LocStr;
 import catdata.Pair;
@@ -24,13 +13,23 @@ import catdata.apg.ApgSchema;
 import catdata.apg.ApgTerm;
 import catdata.apg.ApgTy;
 import catdata.apg.ApgTypeside;
-import catdata.cql.Kind;
 import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
 import catdata.cql.exp.AqlEnv;
 import catdata.cql.exp.AqlTyping;
 import catdata.cql.exp.Exp;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
 
@@ -81,9 +80,7 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public abstract Pair<ApgSchExp, ApgSchExp> type(AqlTyping G);
@@ -103,7 +100,7 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
     return new ApgMapExpVar(v);
   }
 
-////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
 
   public static final class ApgMapExpVar extends ApgMapExp {
     public final String var;
@@ -146,12 +143,9 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgMapExpVar other = (ApgMapExpVar) obj;
       return var.equals(other.var);
     }
@@ -162,28 +156,34 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
     @Override
     public boolean isVar() {
       return true;
     }
-
   }
 
   public static final class ApgMapExpRaw extends ApgMapExp implements Raw {
 
     @Override
     public String toString() {
-      String s = "literal : " + src + " -> " + dst + " {\n"
-          + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " "))) + "\nlabels\n\t"
-          + Util.sep(Ls, " -> ", "\n\t", x->" lambda " + x.first + " : " +x.second + " . " + x.third);
+      String s =
+          "literal : "
+              + src
+              + " -> "
+              + dst
+              + " {\n"
+              + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " ")))
+              + "\nlabels\n\t"
+              + Util.sep(
+                  Ls,
+                  " -> ",
+                  "\n\t",
+                  x -> " lambda " + x.first + " : " + x.second + " . " + x.third);
       String x = "";
 
       return s + x + "\n}";
-
     }
 
     public final ApgSchExp src;
@@ -192,7 +192,10 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
     public final Set<ApgMapExp> imports;
     public final Map<String, Triple<String, ApgTy, ApgPreTerm>> Ls;
 
-    public ApgMapExpRaw(ApgSchExp src, ApgSchExp dst, List<ApgMapExp> imports0,
+    public ApgMapExpRaw(
+        ApgSchExp src,
+        ApgSchExp dst,
+        List<ApgMapExp> imports0,
         List<Pair<LocStr, Triple<String, ApgTy, ApgPreTerm>>> b) {
       Util.assertNotNull(src, dst, imports0, b);
       this.src = src;
@@ -207,11 +210,22 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
 
       List<InteriorLabel<Object>> f = new LinkedList<>();
       for (Pair<LocStr, Triple<String, ApgTy, ApgPreTerm>> p : ls0) {
-        f.add(new InteriorLabel<>("labels", new Pair<>(p.first.str, p.second), p.first.loc,
-            x -> x.first + " -> \\" + x.second.first + ":" + x.second.second + "." + x.second.third).conv());
+        f.add(
+            new InteriorLabel<>(
+                    "labels",
+                    new Pair<>(p.first.str, p.second),
+                    p.first.loc,
+                    x ->
+                        x.first
+                            + " -> \\"
+                            + x.second.first
+                            + ":"
+                            + x.second.second
+                            + "."
+                            + x.second.third)
+                .conv());
       }
       raw.put("labels", f);
-
     }
 
     private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
@@ -243,10 +257,9 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected synchronized ApgMapping eval0(AqlEnv env, boolean isCompileTime) {
       ApgSchema<Object> s = src.eval(env, isCompileTime);
@@ -269,8 +282,11 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
       return new ApgMapping<>(s, t, Ls0);
     }
 
-    private Pair<ApgTy<Object>, ApgTerm<Object, Void>> infer(ApgTypeside ts, Map<String, ApgTy<Object>> ctx,
-        ApgPreTerm term, Map<Object, ApgTy<Object>> atts) {
+    private Pair<ApgTy<Object>, ApgTerm<Object, Void>> infer(
+        ApgTypeside ts,
+        Map<String, ApgTy<Object>> ctx,
+        ApgPreTerm term,
+        Map<Object, ApgTy<Object>> atts) {
       if (term.fields != null) {
         Set<String> seen = new THashSet<>();
         Map<String, ApgTy<Object>> m = new THashMap<>();
@@ -300,19 +316,35 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
         Pair<Class<?>, Function<String, Object>> m = ts.Bs.get(term.ty.b);
         Object o = m.second.apply(term.str);
         if (!m.first.isInstance(o)) {
-          throw new RuntimeException("In " + term.str + ", value is " + o + " of class "
-              + o.getClass().getSimpleName() + ", not " + m.first.getSimpleName() + " as expected.");
+          throw new RuntimeException(
+              "In "
+                  + term.str
+                  + ", value is "
+                  + o
+                  + " of class "
+                  + o.getClass().getSimpleName()
+                  + ", not "
+                  + m.first.getSimpleName()
+                  + " as expected.");
         }
         return new Pair<>(term.ty, ApgTerm.ApgTermV(o, term.ty.b));
       }
       if (term.inj != null) {
-        if (term.ty == null || term.ty.m == null || term.ty.all || !term.ty.m.containsKey(term.inj)) {
+        if (term.ty == null
+            || term.ty.m == null
+            || term.ty.all
+            || !term.ty.m.containsKey(term.inj)) {
           throw new RuntimeException("Not a variant type containing " + term.inj + ": " + term.ty);
         }
         Pair<ApgTy<Object>, ApgTerm<Object, Void>> x = infer(ts, ctx, term.arg, atts);
         if (!x.first.equals(term.ty.m.get(term.inj))) {
           throw new RuntimeException(
-              x.second + "has type " + x.first + " and not " + term.ty.m.get(term.inj) + " as expected.");
+              x.second
+                  + "has type "
+                  + x.first
+                  + " and not "
+                  + term.ty.m.get(term.inj)
+                  + " as expected.");
         }
         return new Pair<>(term.ty, ApgTerm.ApgTermInj(term.inj, x.second, term.ty));
       }
@@ -339,8 +371,12 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
         }
         Map<String, Pair<String, ApgPreTerm>> l = Util.toMapSafely(term.cases);
         if (!l.keySet().equals(x.first.m.keySet())) {
-          throw new RuntimeException("Branches are " + l.keySet() + ", not " + x.first.m.keySet()
-              + " as expected from argument.");
+          throw new RuntimeException(
+              "Branches are "
+                  + l.keySet()
+                  + ", not "
+                  + x.first.m.keySet()
+                  + " as expected from argument.");
         }
         Map<String, Pair<String, ApgTerm<Object, Void>>> map = new THashMap<>();
 
@@ -360,7 +396,7 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
                 "Branch return type " + w.first + " is not " + term.ty + " as expected.");
           }
           map.put(z.getKey(), new Pair<>((z.getValue().first), w.second));
-        } 
+        }
 
         return new Pair<>(term.ty, ApgTerm.ApgTermCase(x.second, map, term.ty));
       } else if (term.head != null) {
@@ -368,9 +404,17 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
         if (t == null) {
           throw new RuntimeException("Not a UDF: " + term.head);
         }
-        List<Pair<ApgTy<Object>, ApgTerm<Object, Void>>> l = Util.map(term.args, x->infer(ts, ctx, x, atts));
+        List<Pair<ApgTy<Object>, ApgTerm<Object, Void>>> l =
+            Util.map(term.args, x -> infer(ts, ctx, x, atts));
         if (l.size() != t.first.size()) {
-          throw new RuntimeException("In " + term + ", given " + l.size() + " arguments, not " + t.first.size() + " as expected.");
+          throw new RuntimeException(
+              "In "
+                  + term
+                  + ", given "
+                  + l.size()
+                  + " arguments, not "
+                  + t.first.size()
+                  + " as expected.");
         }
         Iterator<Pair<ApgTy<Object>, ApgTerm<Object, Void>>> it = l.iterator();
         Iterator<String> jt = t.first.iterator();
@@ -379,8 +423,19 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
           Pair<ApgTy<Object>, ApgTerm<Object, Void>> x = it.next();
           String y = jt.next();
           if (x.first.b == null || !x.first.b.equals(y)) {
-            throw new RuntimeException("In " + term + ", argument " + i + " (" + term.args.get(i) + ") has type " + x + " not " + y + " as expected.");
-          }        
+            throw new RuntimeException(
+                "In "
+                    + term
+                    + ", argument "
+                    + i
+                    + " ("
+                    + term.args.get(i)
+                    + ") has type "
+                    + x
+                    + " not "
+                    + y
+                    + " as expected.");
+          }
           ll.add(x.second);
         }
         return new Pair<>(ApgTy.ApgTyB(t.second), ApgTerm.ApgTermApp(term.head, ll));
@@ -411,31 +466,21 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgMapExpRaw other = (ApgMapExpRaw) obj;
       if (src == null) {
-        if (other.src != null)
-          return false;
-      } else if (!src.equals(other.src))
-        return false;
+        if (other.src != null) return false;
+      } else if (!src.equals(other.src)) return false;
       if (dst == null) {
-        if (other.dst != null)
-          return false;
-      } else if (!dst.equals(other.dst))
-        return false;
+        if (other.dst != null) return false;
+      } else if (!dst.equals(other.dst)) return false;
       if (Ls == null) {
-        if (other.Ls != null)
-          return false;
-      } else if (!Ls.equals(other.Ls))
-        return false;
+        if (other.Ls != null) return false;
+      } else if (!Ls.equals(other.Ls)) return false;
       return true;
     }
-
   }
 
   public static final class ApgMapExpCompose extends ApgMapExp {
@@ -457,23 +502,16 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgMapExpCompose other = (ApgMapExpCompose) obj;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -497,7 +535,8 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
       Pair<ApgSchExp, ApgSchExp> a = h1.type(G);
       Pair<ApgSchExp, ApgSchExp> b = h2.type(G);
       if (!a.second.equals(b.first)) {
-        throw new RuntimeException("Intermediate schemas do not match: " + a.second + " and " + b.first);
+        throw new RuntimeException(
+            "Intermediate schemas do not match: " + a.second + " and " + b.first);
       }
       return new Pair<>(a.first, b.second);
     }
@@ -517,6 +556,5 @@ public abstract class ApgMapExp extends Exp<ApgMapping<Object, Object>> {
     public Collection<Pair<String, Kind>> deps() {
       return Util.union(h1.deps(), h2.deps());
     }
-
   }
 }

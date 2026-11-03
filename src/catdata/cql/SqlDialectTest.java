@@ -3,12 +3,12 @@ package catdata.cql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import catdata.cql.SqlDialect.ColumnType;
+import catdata.cql.SqlDialect.Size;
 import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
-import catdata.cql.SqlDialect.ColumnType;
-import catdata.cql.SqlDialect.Size;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -165,7 +165,8 @@ class SqlDialectTest {
     @Test
     void sizesNumericFixedLengthAndVariableLengthTypes() {
       Optional<Size> five2 = Optional.of(new Size(5, 2));
-      assertEquals("numeric(5,2)", SqlDialect.POSTGRESQL.columnType("Numeric", 8, five2).get().ddl());
+      assertEquals(
+          "numeric(5,2)", SqlDialect.POSTGRESQL.columnType("Numeric", 8, five2).get().ddl());
       assertEquals("decimal(5,2)", SqlDialect.MYSQL.columnType("Decimal", 8, five2).get().ddl());
       assertEquals("number(5,2)", SqlDialect.ORACLE.columnType("Numeric", 8, five2).get().ddl());
       Optional<Size> three = Optional.of(new Size(3, 0));
@@ -273,8 +274,7 @@ class SqlDialectTest {
 
     @Test
     void rejectANumericValueThatIsNoNumber() {
-      assertThrows(
-          NumberFormatException.class, () -> SqlDialect.sizeOf("Numeric", List.of("abc")));
+      assertThrows(NumberFormatException.class, () -> SqlDialect.sizeOf("Numeric", List.of("abc")));
     }
   }
 }

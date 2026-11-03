@@ -14,16 +14,16 @@ import static catdata.cql.CqlTestHelpers.sqlTypeSide;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -35,8 +35,8 @@ class SkeletonInstanceTest {
   }
 
   /**
-   * One row 0 of E with a : E -> Color, whose value is the labelled null 1; reprT_prot decides
-   * what 1 stands for.
+   * One row 0 of E with a : E -> Color, whose value is the labelled null 1; reprT_prot decides what
+   * 1 stands for.
    */
   private static SkeletonExtensionalInstance<String, String, Sym, Fk, Att> oneRow(
       Function<Integer, Chc<Integer, Pair<Integer, Att>>> sks) {

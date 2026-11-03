@@ -5,15 +5,26 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Pair;
+import catdata.cql.Term;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import catdata.Pair;
-import catdata.cql.Term;
-
 class DeltaAlgebraTest {
 
-  private DeltaAlgebra<String, String, String, String, String, String, String, String, String, String, String, String>
+  private DeltaAlgebra<
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String>
       createDeltaAlgebra() {
     var schema = FdmTestHelpers.singleEntitySchema();
     var mapping = FdmTestHelpers.identityMapping(schema);

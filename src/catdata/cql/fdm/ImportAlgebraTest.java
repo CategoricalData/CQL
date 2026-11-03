@@ -5,15 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.cql.Term;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.cql.Term;
 
 class ImportAlgebraTest {
 
@@ -22,25 +20,34 @@ class ImportAlgebraTest {
     Map<String, Collection<String>> ensMap = new HashMap<>();
     ensMap.put("E", Collections.emptyList());
     Map<String, Collection<String>> tysMap = new HashMap<>();
-    return new ImportAlgebra<>(schema,
-        en -> ensMap.get(en), tysMap,
+    return new ImportAlgebra<>(
+        schema,
+        en -> ensMap.get(en),
+        tysMap,
         (en, x) -> Collections.emptyMap(),
         (en, x) -> Collections.emptyMap(),
-        (en, x) -> x, (ty, y) -> y,
-        true, Collections.emptyList());
+        (en, x) -> x,
+        (ty, y) -> y,
+        true,
+        Collections.emptyList());
   }
 
-  private ImportAlgebra<String, String, String, String, String, String, String> singleElementAlgebra() {
+  private ImportAlgebra<String, String, String, String, String, String, String>
+      singleElementAlgebra() {
     var schema = FdmTestHelpers.singleEntitySchema();
     Map<String, Collection<String>> ensMap = new HashMap<>();
     ensMap.put("E", Collections.singletonList("e1"));
     Map<String, Collection<String>> tysMap = new HashMap<>();
-    return new ImportAlgebra<>(schema,
-        en -> ensMap.get(en), tysMap,
+    return new ImportAlgebra<>(
+        schema,
+        en -> ensMap.get(en),
+        tysMap,
         (en, x) -> Collections.emptyMap(),
         (en, x) -> Collections.emptyMap(),
-        (en, x) -> x, (ty, y) -> y,
-        true, Collections.emptyList());
+        (en, x) -> x,
+        (ty, y) -> y,
+        true,
+        Collections.emptyList());
   }
 
   @Nested
@@ -51,12 +58,17 @@ class ImportAlgebraTest {
       var schema = FdmTestHelpers.singleEntitySchema();
       Map<String, Collection<String>> ensMap = new HashMap<>();
       ensMap.put("E", Collections.emptyList());
-      var alg = new ImportAlgebra<>(schema,
-          en -> ensMap.get(en), new HashMap<>(),
-          (en, x) -> Collections.emptyMap(),
-          (en, x) -> Collections.emptyMap(),
-          (en, x) -> x, (ty, y) -> y,
-          true, Collections.emptyList());
+      var alg =
+          new ImportAlgebra<>(
+              schema,
+              en -> ensMap.get(en),
+              new HashMap<>(),
+              (en, x) -> Collections.emptyMap(),
+              (en, x) -> Collections.emptyMap(),
+              (en, x) -> x,
+              (ty, y) -> y,
+              true,
+              Collections.emptyList());
       assertSame(schema, alg.schema());
     }
   }
@@ -164,13 +176,19 @@ class ImportAlgebraTest {
 
     @Test
     void constructorRejectsNullSchema() {
-      assertThrows(RuntimeException.class, () ->
-          new ImportAlgebra<>(null,
-              en -> Collections.emptyList(), new HashMap<>(),
-              (en, x) -> Collections.emptyMap(),
-              (en, x) -> Collections.emptyMap(),
-              (en, x) -> x, (ty, y) -> y,
-              true, Collections.emptyList()));
+      assertThrows(
+          RuntimeException.class,
+          () ->
+              new ImportAlgebra<>(
+                  null,
+                  en -> Collections.emptyList(),
+                  new HashMap<>(),
+                  (en, x) -> Collections.emptyMap(),
+                  (en, x) -> Collections.emptyMap(),
+                  (en, x) -> x,
+                  (ty, y) -> y,
+                  true,
+                  Collections.emptyList()));
     }
   }
 }

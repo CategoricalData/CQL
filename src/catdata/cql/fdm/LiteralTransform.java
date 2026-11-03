@@ -1,10 +1,9 @@
 package catdata.cql.fdm;
 
-import java.util.function.BiFunction;
-
 import catdata.cql.Instance;
 import catdata.cql.Term;
 import catdata.cql.Transform;
+import java.util.function.BiFunction;
 
 public class LiteralTransform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
     extends Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> {
@@ -15,9 +14,12 @@ public class LiteralTransform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1
   private final Instance<Ty, En, Sym, Fk, Att, Gen1, Sk1, X1, Y1> src;
   private final Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst;
 
-  public LiteralTransform(BiFunction<Gen1, En, Term<Void, En, Void, Fk, Void, Gen2, Void>> gens,
-      BiFunction<Sk1, Ty, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> sks, Instance<Ty, En, Sym, Fk, Att, Gen1, Sk1, X1, Y1> src,
-      Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst, boolean dontValidateEqs) {
+  public LiteralTransform(
+      BiFunction<Gen1, En, Term<Void, En, Void, Fk, Void, Gen2, Void>> gens,
+      BiFunction<Sk1, Ty, Term<Ty, En, Sym, Fk, Att, Gen2, Sk2>> sks,
+      Instance<Ty, En, Sym, Fk, Att, Gen1, Sk1, X1, Y1> src,
+      Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst,
+      boolean dontValidateEqs) {
     this.gens = gens;
     this.sks = sks;
     this.src = src;

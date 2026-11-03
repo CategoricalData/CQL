@@ -12,6 +12,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Util;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -25,13 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Util;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,32 +44,123 @@ class SqlTypeSideTest {
   /** Every type of the sql typeside. */
   private static final Set<String> TYPES =
       Set.of(
-          "Longvarbinary", "Varbinary", "Binary", "Bigint", "Boolean", "Bit", "Char", "Double",
-          "Double precision", "Decimal", "Numeric", "Float", "Real", "Integer", "Smallint",
-          "Tinyint", "Text", "Nvarchar", "Varchar", "Longvarchar", "String", "Custom", "Blob",
-          "Clob", "Other", "Date", "Time", "Timestamp", "Array", "Datalink", "Distinct",
-          "Java_object", "Longnvarchar", "Nchar", "Nclob", "Null", "Ref", "Ref_cursor", "Rowid",
-          "Sqlxml", "Struct", "Time_with_timezone", "Timestamp_with_timezone");
+          "Longvarbinary",
+          "Varbinary",
+          "Binary",
+          "Bigint",
+          "Boolean",
+          "Bit",
+          "Char",
+          "Double",
+          "Double precision",
+          "Decimal",
+          "Numeric",
+          "Float",
+          "Real",
+          "Integer",
+          "Smallint",
+          "Tinyint",
+          "Text",
+          "Nvarchar",
+          "Varchar",
+          "Longvarchar",
+          "String",
+          "Custom",
+          "Blob",
+          "Clob",
+          "Other",
+          "Date",
+          "Time",
+          "Timestamp",
+          "Array",
+          "Datalink",
+          "Distinct",
+          "Java_object",
+          "Longnvarchar",
+          "Nchar",
+          "Nclob",
+          "Null",
+          "Ref",
+          "Ref_cursor",
+          "Rowid",
+          "Sqlxml",
+          "Struct",
+          "Time_with_timezone",
+          "Timestamp_with_timezone");
 
   /** The types whose parser keeps its input as a string. */
   private static final Set<String> STRING_TYPES =
       Set.of(
-          "Longvarbinary", "Varbinary", "Binary", "Char", "Text", "Nvarchar", "Varchar",
-          "Longvarchar", "String", "Custom", "Blob", "Clob", "Other", "Date", "Array", "Datalink",
-          "Distinct", "Java_object", "Longnvarchar", "Nchar", "Nclob", "Null", "Ref", "Ref_cursor",
-          "Rowid", "Sqlxml", "Struct");
+          "Longvarbinary",
+          "Varbinary",
+          "Binary",
+          "Char",
+          "Text",
+          "Nvarchar",
+          "Varchar",
+          "Longvarchar",
+          "String",
+          "Custom",
+          "Blob",
+          "Clob",
+          "Other",
+          "Date",
+          "Array",
+          "Datalink",
+          "Distinct",
+          "Java_object",
+          "Longnvarchar",
+          "Nchar",
+          "Nclob",
+          "Null",
+          "Ref",
+          "Ref_cursor",
+          "Rowid",
+          "Sqlxml",
+          "Struct");
 
   /** The JDBC types of Java 17, each of which has a type of its own. */
   private static final List<Integer> JDBC_TYPES =
       List.of(
-          Types.ARRAY, Types.BIGINT, Types.BINARY, Types.BIT, Types.BLOB, Types.BOOLEAN,
-          Types.CHAR, Types.CLOB, Types.DATALINK, Types.DATE, Types.DECIMAL, Types.DISTINCT,
-          Types.DOUBLE, Types.FLOAT, Types.INTEGER, Types.JAVA_OBJECT, Types.LONGNVARCHAR,
-          Types.LONGVARBINARY, Types.LONGVARCHAR, Types.NCHAR, Types.NCLOB, Types.NULL,
-          Types.NUMERIC, Types.NVARCHAR, Types.OTHER, Types.REAL, Types.REF, Types.REF_CURSOR,
-          Types.ROWID, Types.SMALLINT, Types.SQLXML, Types.STRUCT, Types.TIME,
-          Types.TIME_WITH_TIMEZONE, Types.TIMESTAMP, Types.TIMESTAMP_WITH_TIMEZONE,
-          Types.TINYINT, Types.VARBINARY, Types.VARCHAR);
+          Types.ARRAY,
+          Types.BIGINT,
+          Types.BINARY,
+          Types.BIT,
+          Types.BLOB,
+          Types.BOOLEAN,
+          Types.CHAR,
+          Types.CLOB,
+          Types.DATALINK,
+          Types.DATE,
+          Types.DECIMAL,
+          Types.DISTINCT,
+          Types.DOUBLE,
+          Types.FLOAT,
+          Types.INTEGER,
+          Types.JAVA_OBJECT,
+          Types.LONGNVARCHAR,
+          Types.LONGVARBINARY,
+          Types.LONGVARCHAR,
+          Types.NCHAR,
+          Types.NCLOB,
+          Types.NULL,
+          Types.NUMERIC,
+          Types.NVARCHAR,
+          Types.OTHER,
+          Types.REAL,
+          Types.REF,
+          Types.REF_CURSOR,
+          Types.ROWID,
+          Types.SMALLINT,
+          Types.SQLXML,
+          Types.STRUCT,
+          Types.TIME,
+          Types.TIME_WITH_TIMEZONE,
+          Types.TIMESTAMP,
+          Types.TIMESTAMP_WITH_TIMEZONE,
+          Types.TINYINT,
+          Types.VARBINARY,
+          Types.VARCHAR);
 
   private static final Optional<Boolean> T = Optional.of(true);
   private static final Optional<Boolean> F = Optional.of(false);
@@ -165,7 +256,14 @@ class SqlTypeSideTest {
               .collect(Collectors.toSet());
       Set<Pair<List<String>, String>> expected = new HashSet<>();
       for (String ty :
-          List.of("Float", "Real", "Double", "Double precision", "Numeric", "Integer", "Tinyint",
+          List.of(
+              "Float",
+              "Real",
+              "Double",
+              "Double precision",
+              "Numeric",
+              "Integer",
+              "Tinyint",
               "Smallint")) {
         expected.add(new Pair<>(List.of(ty, ty), ty));
       }
@@ -208,10 +306,34 @@ class SqlTypeSideTest {
     @ParameterizedTest
     @ValueSource(
         strings = {
-          "Longvarbinary", "Varbinary", "Binary", "Bigint", "Boolean", "Bit", "Char", "Double",
-          "Float", "Real", "Integer", "Tinyint", "Text", "Nvarchar", "Varchar", "Longvarchar",
-          "String", "Custom", "Blob", "Clob", "Other", "Date", "Time", "Timestamp", "Array",
-          "Nchar", "Time_with_timezone", "Timestamp_with_timezone"
+          "Longvarbinary",
+          "Varbinary",
+          "Binary",
+          "Bigint",
+          "Boolean",
+          "Bit",
+          "Char",
+          "Double",
+          "Float",
+          "Real",
+          "Integer",
+          "Tinyint",
+          "Text",
+          "Nvarchar",
+          "Varchar",
+          "Longvarchar",
+          "String",
+          "Custom",
+          "Blob",
+          "Clob",
+          "Other",
+          "Date",
+          "Time",
+          "Timestamp",
+          "Array",
+          "Nchar",
+          "Time_with_timezone",
+          "Timestamp_with_timezone"
         })
     void readNullInAnyCaseAsEmpty(String ty) {
       assertEquals(Optional.empty(), parse(ty, "null"));

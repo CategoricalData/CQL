@@ -1,14 +1,12 @@
 package catdata.cql.fdm;
 
+import catdata.Util;
+import gnu.trove.map.hash.THashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-
-import catdata.Util;
-
-import gnu.trove.map.hash.THashMap;
 
 // these have to be tagged with the entity to be unique across entities
 public class Row<En2, X, T> {
@@ -34,7 +32,7 @@ public class Row<En2, X, T> {
     }
     Row<En2, X, T> r = this;
     map = new THashMap<>();
-    for (;;) {
+    for (; ; ) {
       if (r.tail == null) {
         return map;
       }
@@ -72,12 +70,12 @@ public class Row<En2, X, T> {
     this.en2 = en2;
     this.t = t;
     if (v == null) {
-    	Util.anomaly();
+      Util.anomaly();
     }
   }
 
-  public static <X, En2, T> Row<En2, X, T> mkRow(List<String> order, Map<String, X> ctx, En2 en2, Map<String, T> ctx2,
-      Map<String, T> ctx3) {
+  public static <X, En2, T> Row<En2, X, T> mkRow(
+      List<String> order, Map<String, X> ctx, En2 en2, Map<String, T> ctx2, Map<String, T> ctx3) {
     Row<En2, X, T> r = new Row<>(en2);
     for (String v : order) {
       T t1 = ctx2.get(v);
@@ -114,33 +112,22 @@ public class Row<En2, X, T> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Row<?, ?, ?> other = (Row<?, ?, ?>) obj;
     if (en2 == null) {
-      if (other.en2 != null)
-        return false;
-    } else if (!en2.equals(other.en2))
-      return false;
+      if (other.en2 != null) return false;
+    } else if (!en2.equals(other.en2)) return false;
     if (v == null) {
-      if (other.v != null)
-        return false;
-    } else if (!v.equals(other.v))
-      return false;
+      if (other.v != null) return false;
+    } else if (!v.equals(other.v)) return false;
     if (x == null) {
-      if (other.x != null)
-        return false;
-    } else if (!x.equals(other.x))
-      return false;
+      if (other.x != null) return false;
+    } else if (!x.equals(other.x)) return false;
     if (tail == null) {
-      if (other.tail != null)
-        return false;
-    } else if (!tail.equals(other.tail))
-      return false;
+      if (other.tail != null) return false;
+    } else if (!tail.equals(other.tail)) return false;
     return true;
   }
 

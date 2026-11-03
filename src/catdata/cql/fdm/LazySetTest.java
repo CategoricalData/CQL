@@ -31,10 +31,12 @@ class LazySetTest {
     @Test
     void constructorDoesNotEvaluateSupplier() {
       AtomicInteger callCount = new AtomicInteger(0);
-      new LazySet<String>(u -> {
-        callCount.incrementAndGet();
-        return List.of();
-      }, 0);
+      new LazySet<String>(
+          u -> {
+            callCount.incrementAndGet();
+            return List.of();
+          },
+          0);
       assertEquals(0, callCount.get());
     }
   }
@@ -61,10 +63,13 @@ class LazySetTest {
     @Test
     void sizeDoesNotTriggerInit() {
       AtomicInteger callCount = new AtomicInteger(0);
-      LazySet<String> set = new LazySet<>(u -> {
-        callCount.incrementAndGet();
-        return List.of();
-      }, 5);
+      LazySet<String> set =
+          new LazySet<>(
+              u -> {
+                callCount.incrementAndGet();
+                return List.of();
+              },
+              5);
       set.size();
       set.isEmpty();
       assertEquals(0, callCount.get());
@@ -77,10 +82,13 @@ class LazySetTest {
     @Test
     void initTriggeredByContains() {
       AtomicInteger callCount = new AtomicInteger(0);
-      LazySet<String> set = new LazySet<>(u -> {
-        callCount.incrementAndGet();
-        return List.of("a");
-      }, 1);
+      LazySet<String> set =
+          new LazySet<>(
+              u -> {
+                callCount.incrementAndGet();
+                return List.of("a");
+              },
+              1);
       set.contains("a");
       assertEquals(1, callCount.get());
     }
@@ -88,10 +96,13 @@ class LazySetTest {
     @Test
     void initOnlyCalledOnce() {
       AtomicInteger callCount = new AtomicInteger(0);
-      LazySet<String> set = new LazySet<>(u -> {
-        callCount.incrementAndGet();
-        return List.of("a");
-      }, 1);
+      LazySet<String> set =
+          new LazySet<>(
+              u -> {
+                callCount.incrementAndGet();
+                return List.of("a");
+              },
+              1);
       set.contains("a");
       set.contains("b");
       set.iterator();

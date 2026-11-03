@@ -9,17 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
@@ -31,6 +20,17 @@ import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
 import catdata.cql.fdm.InitialAlgebra;
 import catdata.cql.fdm.LiteralInstance;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -169,8 +169,8 @@ class InstanceTest {
 
   /**
    * An instance with the schema, algebra and decision procedure of base, but with the given
-   * generators, labelled nulls and equations, and no validation on construction. With eqs null,
-   * the equations are the ones Instance derives from the algebra.
+   * generators, labelled nulls and equations, and no validation on construction. With eqs null, the
+   * equations are the ones Instance derives from the algebra.
    */
   private static final class Given
       extends Instance<
@@ -631,9 +631,7 @@ class InstanceTest {
               Map.of("e1", E),
               Map.of(),
               List.of(
-                  eq(
-                      att(name, gen("e1")),
-                      Term.Obj(Optional.of("Bob"), CqlTestHelpers.VARCHAR))),
+                  eq(att(name, gen("e1")), Term.Obj(Optional.of("Bob"), CqlTestHelpers.VARCHAR))),
               true);
       i.validateMore();
     }
@@ -846,8 +844,7 @@ class InstanceTest {
       assertEquals(2, all.size());
       assertFalse(all.isEmpty());
       IMap<String, Integer> some =
-          Instance.transformValues(
-              Instance.mapToIMap(m), (k, v) -> v * 10, k -> k.equals("b"), 1);
+          Instance.transformValues(Instance.mapToIMap(m), (k, v) -> v * 10, k -> k.equals("b"), 1);
       List<String> seen = new ArrayList<>();
       some.entrySet((k, v) -> seen.add(k + v));
       assertEquals(List.of("b20"), seen);

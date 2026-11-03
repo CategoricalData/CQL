@@ -1,5 +1,13 @@
 package catdata.cql;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.cql.Collage.CCollage;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
+import catdata.cql.fdm.InitialAlgebra;
+import catdata.cql.fdm.LiteralInstance;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -10,14 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.cql.Collage.CCollage;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
-import catdata.cql.fdm.InitialAlgebra;
-import catdata.cql.fdm.LiteralInstance;
 
 /** Fixtures shared by the tests of the catdata.cql package. */
 class CqlTestHelpers {
@@ -41,7 +41,9 @@ class CqlTestHelpers {
     private static final TypeSide<String, Sym> INSTANCE = SqlTypeSide.SqlTypeSide(ops());
   }
 
-  /** A schema over {@link #sqlTypeSide()} whose attributes are all Varchar, keyed to their entity. */
+  /**
+   * A schema over {@link #sqlTypeSide()} whose attributes are all Varchar, keyed to their entity.
+   */
   static Schema<String, String, Sym, Fk, Att> sqlSchema(
       List<String> ens, Map<Att, String> atts, Map<Fk, Pair<String, String>> fks) {
     return sqlSchema(ens, atts, fks, List.of());
@@ -139,8 +141,7 @@ class CqlTestHelpers {
     }
     InitialAlgebra<String, String, Sym, Fk, Att, String, String> alg =
         new InitialAlgebra<>(ops(), schema, col, y -> y, (x, y) -> y);
-    return new LiteralInstance<>(
-        schema, col.gens(), col.sks(), eqs, alg.dp(), alg, true, true);
+    return new LiteralInstance<>(schema, col.gens(), col.sks(), eqs, alg.dp(), alg, true, true);
   }
 
   static final String COLOR = "Color";

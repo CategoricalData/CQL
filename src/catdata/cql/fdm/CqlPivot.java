@@ -1,5 +1,24 @@
 package catdata.cql.fdm;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.Util;
+import catdata.cql.Algebra;
+import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Collage;
+import catdata.cql.Collage.CCollage;
+import catdata.cql.DP;
+import catdata.cql.Eq;
+import catdata.cql.Instance;
+import catdata.cql.Mapping;
+import catdata.cql.Schema;
+import catdata.cql.Term;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -7,26 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.Util;
-import catdata.cql.Algebra;
-import catdata.cql.AqlOptions;
-import catdata.cql.Collage;
-import catdata.cql.DP;
-import catdata.cql.Eq;
-import catdata.cql.Instance;
-import catdata.cql.Mapping;
-import catdata.cql.Schema;
-import catdata.cql.Term;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Collage.CCollage;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
 
 public class CqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
 
@@ -46,14 +45,16 @@ public class CqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
     Map<Fk, Pair<String, String>> fks = new THashMap<>();
 
     Map<String, En0> ens0 = new THashMap<>();
-    Map<Att, Triple<String, En0, Term<Ty, En0, Sym, Fk0, Att0, Void, Void>>> atts0 = new THashMap<>();
+    Map<Att, Triple<String, En0, Term<Ty, En0, Sym, Fk0, Att0, Void, Void>>> atts0 =
+        new THashMap<>();
     Map<Fk, Pair<En0, List<Fk0>>> fks0 = new THashMap<>();
 
-    List<Pair<Term<Ty, String, Sym, Fk, Att, X, Y>, Term<Ty, String, Sym, Fk, Att, X, Y>>> eqs0 = new LinkedList<>();
+    List<Pair<Term<Ty, String, Sym, Fk, Att, X, Y>, Term<Ty, String, Sym, Fk, Att, X, Y>>> eqs0 =
+        new LinkedList<>();
     Collage<Ty, String, Sym, Fk, Att, X, Y> col = new CCollage<>();
 
-    for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> x : I.algebra()
-        .talg().allEqs()) {
+    for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>
+        x : I.algebra().talg().allEqs()) {
       col.eqs().add(new Eq<>(null, x.first.convert(), x.second.convert()));
     }
     col.sks().putAll(I.algebra().talg().sks);
@@ -62,16 +63,16 @@ public class CqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
     Map<Ty, Collection<Y>> tysX = new THashMap<>(I.algebra().talg().sks.size() * 2);
     Map<String, Map<X, Map<Fk, X>>> fksX0 = new THashMap<>(I.algebra().size() * 2);
     List<Eq<Ty, Void, Sym, Void, Void, Void, Y>> eqsX = new LinkedList<>();
-    Map<String, Map<X, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Y>>>> attsX0 = new THashMap<>(
-        I.algebra().size() * 2);
+    Map<String, Map<X, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Y>>>> attsX0 =
+        new THashMap<>(I.algebra().size() * 2);
     String vx = ("x");
     for (En0 en : I.schema().ens) {
       for (X x0 : I.algebra().en(en)) {
         String x = (x0.toString());
         ens.add(x);
         Map<X, Map<Fk, X>> fksX = new THashMap<>(I.schema().fksFrom(en).size() * 2);
-        Map<X, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Y>>> attsX = new THashMap<>(
-            I.schema().attsFrom(en).size() * 2);
+        Map<X, Map<Att, Term<Ty, Void, Sym, Void, Void, Void, Y>>> attsX =
+            new THashMap<>(I.schema().attsFrom(en).size() * 2);
         fksX0.put(x, fksX);
         attsX0.put(x, attsX);
 
@@ -127,71 +128,92 @@ public class CqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
       ctx0.add(y);
       tysX.put(ty, ctx0);
     }
-    for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>> x : I.algebra()
-        .talg().allEqs()) {
+    for (Pair<Term<Ty, Void, Sym, Void, Void, Void, Y>, Term<Ty, Void, Sym, Void, Void, Void, Y>>
+        x : I.algebra().talg().allEqs()) {
       eqsX.add(new Eq<>(null, x.first, x.second));
     }
-    DP<Ty, String, Sym, Fk, Att, Void, Void> dp1 = new DP<>() {
+    DP<Ty, String, Sym, Fk, Att, Void, Void> dp1 =
+        new DP<>() {
 
-      @Override
-      public String toStringProver() {
-        return "Pivot prover (sch)";
-      }
+          @Override
+          public String toStringProver() {
+            return "Pivot prover (sch)";
+          }
 
-      @Override
-      public boolean eq(Map<String, Chc<Ty, String>> ctx, Term<Ty, String, Sym, Fk, Att, Void, Void> lhs,
-          Term<Ty, String, Sym, Fk, Att, Void, Void> rhs) {
-        String v = Util.get0(ctx.keySet());
-        String en = ctx.get(v).r;
+          @Override
+          public boolean eq(
+              Map<String, Chc<Ty, String>> ctx,
+              Term<Ty, String, Sym, Fk, Att, Void, Void> lhs,
+              Term<Ty, String, Sym, Fk, Att, Void, Void> rhs) {
+            String v = Util.get0(ctx.keySet());
+            String en = ctx.get(v).r;
 
-        return I.dp().eq(null, trans(en, lhs), trans(en, rhs));
-      }
+            return I.dp().eq(null, trans(en, lhs), trans(en, rhs));
+          }
+        };
 
-    };
-
-    intI = new Schema<>(I.schema().typeSide, ens, atts, fks, Collections.emptySet(), dp1, I.allowUnsafeJava());
+    intI =
+        new Schema<>(
+            I.schema().typeSide, ens, atts, fks, Collections.emptySet(), dp1, I.allowUnsafeJava());
 
     F = new Mapping<>(ens0, atts0, fks0, intI, I.schema(), false);
 
     col.addAll(intI.collage());
 
-    Algebra<Ty, String, Sym, Fk, Att, X, Y, X, Y> initial = new ImportAlgebra<>(intI, x -> ensX.get(x), tysX,
-        (en, x) -> fksX0.get(en).get(x), (en, x) -> attsX0.get(en).get(x), (x, y) -> y, (x, y) -> y,
-        (Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe), eqsX);
+    Algebra<Ty, String, Sym, Fk, Att, X, Y, X, Y> initial =
+        new ImportAlgebra<>(
+            intI,
+            x -> ensX.get(x),
+            tysX,
+            (en, x) -> fksX0.get(en).get(x),
+            (en, x) -> attsX0.get(en).get(x),
+            (x, y) -> y,
+            (x, y) -> y,
+            (Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe),
+            eqsX);
 
-    DP<Ty, String, Sym, Fk, Att, X, Y> dp2 = new DP<>() {
+    DP<Ty, String, Sym, Fk, Att, X, Y> dp2 =
+        new DP<>() {
 
-      @Override
-      public String toStringProver() {
-        return "Pivot prover (inst)";
-      }
+          @Override
+          public String toStringProver() {
+            return "Pivot prover (inst)";
+          }
 
-      @Override
-      public boolean eq(Map<String, Chc<Ty, String>> ctx, Term<Ty, String, Sym, Fk, Att, X, Y> lhs,
-          Term<Ty, String, Sym, Fk, Att, X, Y> rhs) {
-        if (ctx != null && !ctx.isEmpty()) {
-          return Util.anomaly();
-        } else if (lhs.hasTypeType()) {
-          Term<Ty, Void, Sym, Void, Void, Void, Y> y1 = initial.intoY(lhs);
-          Term<Ty, Void, Sym, Void, Void, Void, Y> y2 = initial.intoY(rhs);
-          return I.dp().eq(null, I.reprT(y1), I.reprT(y2));
-        } else {
-          return initial.intoX(lhs).equals(initial.intoX(rhs));
-        }
-      }
+          @Override
+          public boolean eq(
+              Map<String, Chc<Ty, String>> ctx,
+              Term<Ty, String, Sym, Fk, Att, X, Y> lhs,
+              Term<Ty, String, Sym, Fk, Att, X, Y> rhs) {
+            if (ctx != null && !ctx.isEmpty()) {
+              return Util.anomaly();
+            } else if (lhs.hasTypeType()) {
+              Term<Ty, Void, Sym, Void, Void, Void, Y> y1 = initial.intoY(lhs);
+              Term<Ty, Void, Sym, Void, Void, Void, Y> y2 = initial.intoY(rhs);
+              return I.dp().eq(null, I.reprT(y1), I.reprT(y2));
+            } else {
+              return initial.intoX(lhs).equals(initial.intoX(rhs));
+            }
+          }
+        };
 
-    };
-
-    J = new LiteralInstance<>(intI, col.gens(), col.sks(), eqs0, dp2, initial,
-        (Boolean) strat.getOrDefault(AqlOption.require_consistency),
-        (Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+    J =
+        new LiteralInstance<>(
+            intI,
+            col.gens(),
+            col.sks(),
+            eqs0,
+            dp2,
+            initial,
+            (Boolean) strat.getOrDefault(AqlOption.require_consistency),
+            (Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
     J.validate();
   }
 
   @SuppressWarnings("unchecked")
-  private Term<Void, En0, Void, Fk0, Void, Gen, Void> trans1(String en,
-      Term<Void, String, Void, Fk, Void, Void, Void> t) {
+  private Term<Void, En0, Void, Fk0, Void, Gen, Void> trans1(
+      String en, Term<Void, String, Void, Fk, Void, Void, Void> t) {
     if (t.gen() != null) {
       return Util.abort(t.gen());
     } else if (t.var != null) {
@@ -204,7 +226,8 @@ public class CqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
   }
 
   @SuppressWarnings("unchecked")
-  private Term<Ty, En0, Sym, Fk0, Att0, Gen, Sk> trans(String en, Term<Ty, String, Sym, Fk, Att, Void, Void> t) {
+  private Term<Ty, En0, Sym, Fk0, Att0, Gen, Sk> trans(
+      String en, Term<Ty, String, Sym, Fk, Att, Void, Void> t) {
     if (t.obj() != null) {
       return Term.Obj(t.obj(), t.ty());
     } else if (t.sym() != null) {
@@ -217,8 +240,15 @@ public class CqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
       return Util.abort(t.sk());
     } else if (t.att() != null) {
       Term<Void, En0, Void, Fk0, Void, Gen, Void> x = trans1(en, t.arg.asArgForAtt());
-      return Term.Att((Att0) Att.Att(t.att().en, t.att().str), x.map(Util::abort, Util::abort,
-          Function.identity(), Util::abort, Function.identity(), Util::abort));
+      return Term.Att(
+          (Att0) Att.Att(t.att().en, t.att().str),
+          x.map(
+              Util::abort,
+              Util::abort,
+              Function.identity(),
+              Util::abort,
+              Function.identity(),
+              Util::abort));
     }
     return Util.anomaly();
   }
@@ -250,5 +280,4 @@ public class CqlPivot<Ty, En0, Sym, Fk0, Att0, Gen, Sk, X, Y> {
     }
     return Util.anomaly();
   }
-
 }

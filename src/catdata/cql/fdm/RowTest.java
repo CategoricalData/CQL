@@ -166,8 +166,8 @@ class RowTest {
 
     @Test
     void mkRowEmptyOrderReturnsEmptyRow() {
-      Row<String, Integer, String> row = Row.mkRow(
-          List.of(), new HashMap<>(), "e", new HashMap<>(), new HashMap<>());
+      Row<String, Integer, String> row =
+          Row.mkRow(List.of(), new HashMap<>(), "e", new HashMap<>(), new HashMap<>());
       assertTrue(row.asMap().isEmpty());
     }
   }

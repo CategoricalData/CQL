@@ -1,15 +1,14 @@
 package catdata.cql.fdm;
 
+import catdata.Util;
+import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.ExternalCodeUtils;
+import catdata.cql.Pragma;
+import catdata.cql.exp.AqlEnv;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import catdata.Util;
-import catdata.cql.AqlOptions;
-import catdata.cql.ExternalCodeUtils;
-import catdata.cql.Pragma;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.exp.AqlEnv;
 
 public class JsPragma extends Pragma {
 
@@ -50,5 +49,4 @@ public class JsPragma extends Pragma {
   public String toString() {
     return Util.sep(responses, "\n\n--------------\n\n");
   }
-
 }

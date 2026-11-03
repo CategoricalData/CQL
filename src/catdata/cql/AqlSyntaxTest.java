@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import catdata.ParseException;
+import catdata.cql.exp.AqlParserFactory;
+import catdata.cql.exp.Exp;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
@@ -13,16 +16,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-import catdata.ParseException;
-import catdata.cql.exp.AqlParserFactory;
-import catdata.cql.exp.Exp;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 /**
- * The names of the expression classes. Exp.getSyntax looks a class up here by its simple name,
- * and the help generator writes a syntax page for each constant.
+ * The names of the expression classes. Exp.getSyntax looks a class up here by its simple name, and
+ * the help generator writes a syntax page for each constant.
  */
 class AqlSyntaxTest {
 

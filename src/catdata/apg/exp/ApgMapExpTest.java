@@ -92,8 +92,7 @@ class ApgMapExpTest {
     @Test
     void typeReturnsPairWhenDefined() {
       AqlTyping typing = new AqlTyping();
-      Pair<ApgSchExp, ApgSchExp> pair =
-          new Pair<>(new ApgSchExpVar("s1"), new ApgSchExpVar("s2"));
+      Pair<ApgSchExp, ApgSchExp> pair = new Pair<>(new ApgSchExpVar("s1"), new ApgSchExpVar("s2"));
       typing.defs.apgmappings.put("m1", pair);
       assertEquals(pair, new ApgMapExpVar("m1").type(typing));
     }
@@ -160,16 +159,14 @@ class ApgMapExpTest {
 
     @Test
     void depsUnionsBoth() {
-      ApgMapExpCompose compose =
-          new ApgMapExpCompose(new ApgMapExpVar("a"), new ApgMapExpVar("b"));
+      ApgMapExpCompose compose = new ApgMapExpCompose(new ApgMapExpVar("a"), new ApgMapExpVar("b"));
       assertEquals(2, compose.deps().size());
     }
 
     @Test
     void acceptReturnsNull() {
       // ApgMapExpCompose.accept returns null (commented-out delegation)
-      ApgMapExpCompose compose =
-          new ApgMapExpCompose(new ApgMapExpVar("a"), new ApgMapExpVar("b"));
+      ApgMapExpCompose compose = new ApgMapExpCompose(new ApgMapExpVar("a"), new ApgMapExpVar("b"));
       @SuppressWarnings("unchecked")
       ApgMapExp.ApgMapExpVisitor<String, Void> visitor = mock(ApgMapExp.ApgMapExpVisitor.class);
       assertNull(compose.accept(null, visitor));
@@ -182,11 +179,10 @@ class ApgMapExpTest {
       typing.defs.apgschemas.put("s1", new ApgTyExpVar("ts"));
       typing.defs.apgschemas.put("s2", new ApgTyExpVar("ts"));
       typing.defs.apgschemas.put("s3", new ApgTyExpVar("ts"));
-      typing.defs.apgmappings.put(
-          "m1", new Pair<>(new ApgSchExpVar("s1"), new ApgSchExpVar("s2")));
-      typing.defs.apgmappings.put(
-          "m2", new Pair<>(new ApgSchExpVar("s3"), new ApgSchExpVar("s1")));
-      ApgMapExpCompose compose = new ApgMapExpCompose(new ApgMapExpVar("m1"), new ApgMapExpVar("m2"));
+      typing.defs.apgmappings.put("m1", new Pair<>(new ApgSchExpVar("s1"), new ApgSchExpVar("s2")));
+      typing.defs.apgmappings.put("m2", new Pair<>(new ApgSchExpVar("s3"), new ApgSchExpVar("s1")));
+      ApgMapExpCompose compose =
+          new ApgMapExpCompose(new ApgMapExpVar("m1"), new ApgMapExpVar("m2"));
       assertThrows(RuntimeException.class, () -> compose.type(typing));
     }
 
@@ -197,11 +193,10 @@ class ApgMapExpTest {
       typing.defs.apgschemas.put("s1", new ApgTyExpVar("ts"));
       typing.defs.apgschemas.put("s2", new ApgTyExpVar("ts"));
       typing.defs.apgschemas.put("s3", new ApgTyExpVar("ts"));
-      typing.defs.apgmappings.put(
-          "m1", new Pair<>(new ApgSchExpVar("s1"), new ApgSchExpVar("s2")));
-      typing.defs.apgmappings.put(
-          "m2", new Pair<>(new ApgSchExpVar("s2"), new ApgSchExpVar("s3")));
-      ApgMapExpCompose compose = new ApgMapExpCompose(new ApgMapExpVar("m1"), new ApgMapExpVar("m2"));
+      typing.defs.apgmappings.put("m1", new Pair<>(new ApgSchExpVar("s1"), new ApgSchExpVar("s2")));
+      typing.defs.apgmappings.put("m2", new Pair<>(new ApgSchExpVar("s2"), new ApgSchExpVar("s3")));
+      ApgMapExpCompose compose =
+          new ApgMapExpCompose(new ApgMapExpVar("m1"), new ApgMapExpVar("m2"));
       Pair<ApgSchExp, ApgSchExp> result = compose.type(typing);
       assertEquals(new ApgSchExpVar("s1"), result.first);
       assertEquals(new ApgSchExpVar("s3"), result.second);

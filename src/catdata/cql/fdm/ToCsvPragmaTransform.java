@@ -1,22 +1,21 @@
 package catdata.cql.fdm;
 
+import catdata.Pair;
+import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Pragma;
+import catdata.cql.Transform;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.TObjectIntMap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.commons.csv.CSVPrinter;
 
-import catdata.Pair;
-import catdata.cql.AqlOptions;
-import catdata.cql.Pragma;
-import catdata.cql.Transform;
-import catdata.cql.AqlOptions.AqlOption;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.TObjectIntMap;
-
-public class ToCsvPragmaTransform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> extends Pragma {
+public class ToCsvPragmaTransform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
+    extends Pragma {
 
   private final File file;
 
@@ -26,8 +25,11 @@ public class ToCsvPragmaTransform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1
 
   private Transform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h;
 
-  public ToCsvPragmaTransform(Transform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h, String s,
-      AqlOptions options1, AqlOptions options2) {
+  public ToCsvPragmaTransform(
+      Transform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h,
+      String s,
+      AqlOptions options1,
+      AqlOptions options2) {
     this.options1 = options1;
     this.options2 = options2;
     this.file = new File(s);
@@ -50,7 +52,7 @@ public class ToCsvPragmaTransform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1
   public void execute() {
     StringBuffer sb = new StringBuffer();
     try (CSVPrinter printer = new CSVPrinter(sb, ToCsvPragmaInstance.getFormat(options1))) {
-    
+
       int srcId = (int) options1.getOrDefault(AqlOption.start_ids_at);
       int dstId = (int) options2.getOrDefault(AqlOption.start_ids_at);
 
@@ -83,5 +85,4 @@ public class ToCsvPragmaTransform<Ty, En, Sym, Att, Fk, Gen1, Sk1, Gen2, Sk2, X1
   public String toString() {
     return "Exported to " + file + ".";
   }
-
 }

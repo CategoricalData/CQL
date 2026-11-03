@@ -1,7 +1,5 @@
 package catdata.cql.fdm;
 
-import java.util.Map;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.Algebra;
@@ -10,7 +8,7 @@ import catdata.cql.Instance;
 import catdata.cql.Mapping;
 import catdata.cql.Schema;
 import catdata.cql.Term;
-
+import java.util.Map;
 
 public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y>
     extends Instance<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y>
@@ -20,17 +18,23 @@ public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
   private final DeltaAlgebra<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, Y> alg;
   private final SaturatedInstance<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y, Pair<En1, X>, Y> J;
 
-  public DeltaInstance(Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> f,
+  public DeltaInstance(
+      Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> f,
       Instance<Ty, En2, Sym, Fk2, Att2, Gen, Sk, X, Y> i) {
     if (!f.dst.equals(i.schema())) {
       throw new RuntimeException(
-          "In delta instance, target of mapping is " + f.src + ", but instance has type " + i.schema());
+          "In delta instance, target of mapping is "
+              + f.src
+              + ", but instance has type "
+              + i.schema());
     }
 
     F = f;
     I = i;
     alg = new DeltaAlgebra<>(F, I);
-    J = new SaturatedInstance<>(alg, dp(), I.requireConsistency(), I.allowUnsafeJava(), false, null);
+    J =
+        new SaturatedInstance<>(
+            alg, dp(), I.requireConsistency(), I.allowUnsafeJava(), false, null);
     if (J.size() < 16 * 1024) {
       validate();
     }
@@ -62,7 +66,9 @@ public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
   }
 
   @Override
-  public boolean eq(Map<String, Chc<Ty, En1>> ctx, Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y> lhs,
+  public boolean eq(
+      Map<String, Chc<Ty, En1>> ctx,
+      Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y> lhs,
       Term<Ty, En1, Sym, Fk1, Att1, Pair<En1, X>, Y> rhs) {
     return I.dp().eq(null, alg.translate(lhs), alg.translate(rhs));
   }
@@ -81,5 +87,4 @@ public class DeltaInstance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, En2, Fk2, Att2, X, 
   public boolean allowUnsafeJava() {
     return I.allowUnsafeJava();
   }
-
 }

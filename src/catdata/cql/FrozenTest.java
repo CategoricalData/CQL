@@ -9,12 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.AqlOptions.AqlOption;
@@ -22,6 +16,12 @@ import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
 import catdata.cql.fdm.LiteralInstance;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -196,8 +196,7 @@ class FrozenTest {
       Map<String, String> gens = new LinkedHashMap<>();
       gens.put("a", "A");
       gens.put("b", "B");
-      var f =
-          new Frozen<>(gens, Map.of("y", VARCHAR), List.of("a", "b", "y"), eqs, SCHEMA, ops());
+      var f = new Frozen<>(gens, Map.of("y", VARCHAR), List.of("a", "b", "y"), eqs, SCHEMA, ops());
       List<String> plan = f.order(ops(), sized(3, 2, 1));
       assertEquals(Set.of("a", "b", "y"), new HashSet<>(plan));
       assertEquals("y", plan.get(2));

@@ -9,16 +9,16 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import catdata.Pair;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Collage.CCollage;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -75,9 +75,7 @@ class NoAlgInstanceTest {
     assertTrue(i.allowUnsafeJava());
     var strict =
         new NoAlgInstance(
-            presentation(),
-            SCHEMA,
-            new AqlOptions(ops(), AqlOption.require_consistency, false));
+            presentation(), SCHEMA, new AqlOptions(ops(), AqlOption.require_consistency, false));
     assertFalse(strict.requireConsistency());
   }
 

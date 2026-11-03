@@ -1,21 +1,26 @@
 package catdata.cql;
 
-import java.util.Map;
-
 import catdata.Pair;
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
+import java.util.Map;
 
 public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
   protected static enum WH {
-    SYM, FK, ATT, GEN, SK, OBJ
+    SYM,
+    FK,
+    ATT,
+    GEN,
+    SK,
+    OBJ
   };
 
   private final Object object;
   private final WH which;
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> SymHead(Sym sym) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> SymHead(
+      Sym sym) {
     return mkHead(sym, null, null, null, null, null, null);
   }
 
@@ -23,11 +28,13 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
     return mkHead(null, fk, null, null, null, null, null);
   }
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> AttHead(Att att) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> AttHead(
+      Att att) {
     return mkHead(null, null, att, null, null, null, null);
   }
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> GenHead(Gen gen) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> GenHead(
+      Gen gen) {
     return mkHead(null, null, null, gen, null, null, null);
   }
 
@@ -35,31 +42,34 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
     return mkHead(null, null, null, null, sk, null, null);
   }
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> ObjHead(Object obj, Ty ty) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> ObjHead(
+      Object obj, Ty ty) {
     return mkHead(null, null, null, null, null, obj, ty);
   }
 
   @SuppressWarnings("rawtypes")
-  private static HashingStrategy<Head> strategy = new HashingStrategy<>() {
-    private static final long serialVersionUID = 1L;
+  private static HashingStrategy<Head> strategy =
+      new HashingStrategy<>() {
+        private static final long serialVersionUID = 1L;
 
-    @Override
-    public int computeHashCode(Head t) {
-      return t.hashCode2();
-    }
+        @Override
+        public int computeHashCode(Head t) {
+          return t.hashCode2();
+        }
 
-    @Override
-    public boolean equals(Head s, Head t) {
-      return s.equals2(t);
-    }
-  };
+        @Override
+        public boolean equals(Head s, Head t) {
+          return s.equals2(t);
+        }
+      };
 
   @SuppressWarnings("rawtypes")
   static Map<Head, Head> cache = (new TCustomHashMap<>(strategy));
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public synchronized static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> mkHead(Sym sym,
-      Fk fk, Att att, Gen gen, Sk sk, Object obj, Ty ty) {
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public static synchronized <Ty, En, Sym, Fk, Att, Gen, Sk>
+      Head<Ty, En, Sym, Fk, Att, Gen, Sk> mkHead(
+          Sym sym, Fk fk, Att att, Gen gen, Sk sk, Object obj, Ty ty) {
     WH o;
     Object x;
     if (gen != null) {
@@ -81,7 +91,8 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
       o = WH.OBJ;
       x = new Pair(obj, ty);
     } else {
-      throw new RuntimeException("|| " + fk + " " + att + " " + gen + " " + sk + " " + obj + " " + ty);
+      throw new RuntimeException(
+          "|| " + fk + " " + att + " " + gen + " " + sk + " " + obj + " " + ty);
     }
     Head h = new Head<>(x, o);
     Head h2 = cache.get(h);
@@ -98,6 +109,7 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
     this.which = wh;
     // this.code = hashCode2();
   }
+
   // private final int code;
 
   public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> mkHead(
@@ -105,7 +117,8 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
     return mkHead(term.sym(), term.fk(), term.att(), term.gen(), term.sk(), term.obj(), term.ty());
   }
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> mkHead(Object obj, Ty ty) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk> Head<Ty, En, Sym, Fk, Att, Gen, Sk> mkHead(
+      Object obj, Ty ty) {
     return mkHead(null, null, null, null, null, obj, ty);
   }
 
@@ -156,11 +169,11 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
   ///////////////////////
 
-//   @Override
-//  public void finalize() {
-//    synchronized (Term.class) {
-//      cache.remove(back);
-////    }
+  //   @Override
+  //  public void finalize() {
+  //    synchronized (Term.class) {
+  //      cache.remove(back);
+  ////    }
   // }
 
   @SuppressWarnings("unchecked")
@@ -218,5 +231,4 @@ public class Head<Ty, En, Sym, Fk, Att, Gen, Sk> {
     }
     return (Ty) ((Pair<?, ?>) object).second;
   }
-
 }

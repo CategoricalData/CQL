@@ -1,5 +1,15 @@
 package catdata.cql.fdm;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.Util;
+import catdata.Util.UpTo;
+import catdata.cql.Instance;
+import catdata.cql.Mapping;
+import catdata.cql.Term;
+import com.google.common.collect.Iterators;
+import gnu.trove.map.hash.THashMap;
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -14,18 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.IntConsumer;
 
-import com.google.common.collect.Iterators;
-
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.Util;
-import catdata.Util.UpTo;
-import catdata.cql.Instance;
-import catdata.cql.Mapping;
-import catdata.cql.Term;
-import gnu.trove.map.hash.THashMap;
-
 public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
 
   final Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F;
@@ -37,17 +35,18 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
     // BitSet set = x.ens;
     int top = x.top;
     int size = x.size();
-    Collection<Integer> ret = new AbstractCollection<>() {
-      @Override
-      public synchronized Iterator<Integer> iterator() {
-        return Iterators.filter(new UpTo(o, o + top), z -> x.find(z - o) == z - o);
-      }
+    Collection<Integer> ret =
+        new AbstractCollection<>() {
+          @Override
+          public synchronized Iterator<Integer> iterator() {
+            return Iterators.filter(new UpTo(o, o + top), z -> x.find(z - o) == z - o);
+          }
 
-      @Override
-      public int size() {
-        return size;
-      }
-    };
+          @Override
+          public int size() {
+            return size;
+          }
+        };
     int j = 0;
     for (@SuppressWarnings("unused") int i : ret) {
       j++;
@@ -61,6 +60,7 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
   public static class BST {
     Set<Integer> set;
     public final int node;
+
     // true if added
 
     public boolean add(int n) {
@@ -107,20 +107,14 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       BST other = (BST) obj;
-      if (node != other.node)
-        return false;
+      if (node != other.node) return false;
       if (set == null) {
-        if (other.set != null)
-          return false;
-      } else if (!set.equals(other.set))
-        return false;
+        if (other.set != null) return false;
+      } else if (!set.equals(other.set)) return false;
       return true;
     }
 
@@ -131,7 +125,6 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
       }
       return "{" + node + "," + Util.sep(set, ",") + "}";
     }
-
   }
 
   class En2Stuff {
@@ -155,7 +148,7 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
       iso1 = new Term[m];
       iso2 = Collections.synchronizedMap(new THashMap<>(m));
 
-//      iso2 =  (new TObjectIntHashMap<>(m) ) ;
+      //      iso2 =  (new TObjectIntHashMap<>(m) ) ;
       // iso2 = new THashMap<>(m);
       fks = Collections.synchronizedMap(new LinkedHashMap<>());
       for (Fk2 fk2 : F.dst.fksFrom(en2)) {
@@ -177,11 +170,12 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
         System.arraycopy(parent2, 0, parent, 0, parent2.length);
         System.arraycopy(isoX, 0, iso1, 0, parent2.length);
 
-        fks.replaceAll((fk, arr) -> {
-          BST[] arr2 = new BST[parent2.length * 2];
-          System.arraycopy(arr, 0, arr2, 0, parent2.length);
-          return arr2;
-        });
+        fks.replaceAll(
+            (fk, arr) -> {
+              BST[] arr2 = new BST[parent2.length * 2];
+              System.arraycopy(arr, 0, arr2, 0, parent2.length);
+              return arr2;
+            });
       }
     }
 
@@ -255,17 +249,27 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
           if (k == null) {
             continue;
           }
-          k.foreach(x -> {
-            if (x >= s.top || x < 0) {
-              Util.anomaly();
-            }
-          });
+          k.foreach(
+              x -> {
+                if (x >= s.top || x < 0) {
+                  Util.anomaly();
+                }
+              });
         }
       }
-      return "\n\nen2=" + en2 + " top= " + top + "\nfks=" + fks0 + "parent=" + Arrays.toString(parent) + "\niso1="
-          + Arrays.toString(iso1) + "\niso2=" + iso2;
+      return "\n\nen2="
+          + en2
+          + " top= "
+          + top
+          + "\nfks="
+          + fks0
+          + "parent="
+          + Arrays.toString(parent)
+          + "\niso1="
+          + Arrays.toString(iso1)
+          + "\niso2="
+          + iso2;
     }
-
   }
 
   public Map<En2, En2Stuff> eqcs = Collections.synchronizedMap(new LinkedHashMap<>());
@@ -274,7 +278,9 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
 
   public Map<En1, Map<X, Integer>> nt = Collections.synchronizedMap(new LinkedHashMap<>());
 
-  public Chase(Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F, Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I,
+  public Chase(
+      Mapping<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> F,
+      Instance<Ty, En1, Sym, Fk1, Att1, Gen, Sk, X, Y> I,
       Map<En1, Set<Pair<X, X>>> extra) {
     this.F = F;
     this.I = I;
@@ -420,17 +426,18 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
       BST set = ctx.get(a);
       En2 u = F.dst.fks.get(a).second;
       En2 vv = F.dst.fks.get(a).first;
-      set.foreach(x -> {
-        Term<Void, En2, Void, Fk2, Void, Gen, Void> z = eqcs.get(vv).iso1[x];
-        Term<Void, En2, Void, Fk2, Void, Gen, Void> y = Term.Fk(a, z);
-        BST q = eqcs.get(vv).fks.get(a)[x];
-        if (q == null) {
-          eqcs.get(vv).fks.get(a)[x] = new BST(eqcs.get(u).iso2.get(find(y, u)));
-          changed = true;
-          return;
-        }
-        changed = changed | q.add(eqcs.get(u).iso2.get(find(y, u)));
-      });
+      set.foreach(
+          x -> {
+            Term<Void, En2, Void, Fk2, Void, Gen, Void> z = eqcs.get(vv).iso1[x];
+            Term<Void, En2, Void, Fk2, Void, Gen, Void> y = Term.Fk(a, z);
+            BST q = eqcs.get(vv).fks.get(a)[x];
+            if (q == null) {
+              eqcs.get(vv).fks.get(a)[x] = new BST(eqcs.get(u).iso2.get(find(y, u)));
+              changed = true;
+              return;
+            }
+            changed = changed | q.add(eqcs.get(u).iso2.get(find(y, u)));
+          });
     }
   }
 
@@ -449,11 +456,12 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
             continue;
           }
           int y1 = ys.node;
-          ys.foreachNoRoot(y2x -> {
-            if (y1 != y2x) {
-              changed = changed | union(y1, y2x, en2);
-            }
-          });
+          ys.foreachNoRoot(
+              y2x -> {
+                if (y1 != y2x) {
+                  changed = changed | union(y1, y2x, en2);
+                }
+              });
         }
       }
     }
@@ -463,13 +471,17 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
   public synchronized void collageEqs() {
     for (En1 en : I.schema().ens) {
       for (X x : I.algebra().en(en)) {
-        Term<Void, En2, Void, Fk2, Void, Gen, Void> Fx = F.trans(I.algebra().repr(en, x).convert()).convert();
+        Term<Void, En2, Void, Fk2, Void, Gen, Void> Fx =
+            F.trans(I.algebra().repr(en, x).convert()).convert();
         // System.out.println("start " + Fx);
 
         for (Fk1 a : F.src.fksFrom(en)) {
-          Term<Void, En2, Void, Fk2, Void, Gen, Void> lhs = F
-              .trans(I.algebra().repr(I.schema().fks.get(a).second, I.algebra().fk(a, x)).convert())
-              .convert();
+          Term<Void, En2, Void, Fk2, Void, Gen, Void> lhs =
+              F.trans(
+                      I.algebra()
+                          .repr(I.schema().fks.get(a).second, I.algebra().fk(a, x))
+                          .convert())
+                  .convert();
           En2 en2 = F.ens.get(F.src.fks.get(a).first);
           En2 en3 = F.ens.get(F.src.fks.get(a).second);
           // System.out.println("fk " + a + " lhs " + lhs);
@@ -478,12 +490,15 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
           // F.fks.get(a).second);
           // System.out.println("fk " + a + " " +
           // stuff.get(en3).find(stuff.get(en3).iso2.get(lhs)));
-          evalX(F.fks.get(a).second, eqcs.get(en2).find(eqcs.get(en2).iso2.get(Fx)), m -> {
-            boolean b = union(m, eqcs.get(en3).find(eqcs.get(en3).iso2.get(lhs)), en3);
-            changed = changed | b;
-            // System.out.println(b + " from " + m + " and " +
-            // stuff.get(en3).find(stuff.get(en3).iso2.get(lhs)) + " at " + en3);
-          });
+          evalX(
+              F.fks.get(a).second,
+              eqcs.get(en2).find(eqcs.get(en2).iso2.get(Fx)),
+              m -> {
+                boolean b = union(m, eqcs.get(en3).find(eqcs.get(en3).iso2.get(lhs)), en3);
+                changed = changed | b;
+                // System.out.println(b + " from " + m + " and " +
+                // stuff.get(en3).find(stuff.get(en3).iso2.get(lhs)) + " at " + en3);
+              });
         }
       }
     }
@@ -510,7 +525,11 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
   }
 
   public synchronized void targetEqs() {
-    for (Triple<Pair<String, En2>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>, Term<Ty, En2, Sym, Fk2, Att2, Void, Void>> eq : F.dst.eqs) {
+    for (Triple<
+            Pair<String, En2>,
+            Term<Ty, En2, Sym, Fk2, Att2, Void, Void>,
+            Term<Ty, En2, Sym, Fk2, Att2, Void, Void>>
+        eq : F.dst.eqs) {
       Chc<Ty, En2> t = F.dst.type(eq.first, eq.second);
       if (t.left) {
         continue;
@@ -525,12 +544,15 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
         }
         List<Integer> l = new LinkedList<>();
         evalX(lhs, initial, l::add);
-        evalX(rhs, initial, i -> {
-          for (Integer n : l) {
-            // System.out.println("gire");
-            changed = changed | union(n, i, t.r);
-          }
-        });
+        evalX(
+            rhs,
+            initial,
+            i -> {
+              for (Integer n : l) {
+                // System.out.println("gire");
+                changed = changed | union(n, i, t.r);
+              }
+            });
       }
     }
   }
@@ -545,16 +567,17 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
     Fk2 fk = lhs.get(0);
     // find req correctness
     //
-    BST s = eqcs.get(F.dst.fks.get(fk).first).fks.get(fk)[eqcs.get(F.dst.fks.get(fk).first).find(n)];
+    BST s =
+        eqcs.get(F.dst.fks.get(fk).first).fks.get(fk)[eqcs.get(F.dst.fks.get(fk).first).find(n)];
     if (s != null) {
       // System.out.println("inside ");
-      s.foreach(z -> {
-        evalX(lhs.subList(1, lhs.size()), z, f);
-      });
+      s.foreach(
+          z -> {
+            evalX(lhs.subList(1, lhs.size()), z, f);
+          });
     } else {
       // System.out.println("outside");
     }
-
   }
 
   private synchronized void add(Term<Void, En2, Void, Fk2, Void, Gen, Void> x, En2 en2) {
@@ -580,24 +603,27 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
     return true;
   }
 
-  public synchronized Term<Void, En2, Void, Fk2, Void, Gen, Void> find(Term<Void, En2, Void, Fk2, Void, Gen, Void> p,
-      En2 en2) {
+  public synchronized Term<Void, En2, Void, Fk2, Void, Gen, Void> find(
+      Term<Void, En2, Void, Fk2, Void, Gen, Void> p, En2 en2) {
     add(p, en2);
     return eqcs.get(en2).iso1[eqcs.get(en2).find(eqcs.get(en2).iso2.get(p))];
   }
 
   public synchronized Term<Void, En2, Void, Fk2, Void, Gen, Void> findNoAdd(
       Term<Void, En2, Void, Fk2, Void, Gen, Void> p, En2 en2) {
-//    System.out.println("finding for " + p + " at " + en2);
+    //    System.out.println("finding for " + p + " at " + en2);
     // System.out.println("iso2 at " + stuff.get(en2).iso2);
-//    System.out.println("iso2 " + stuff.get(en2).iso2.get(p));
-//    System.out.println("find " + stuff.get(en2).find(stuff.get(en2).iso2.get(p)));
-//    System.out.println("all " + stuff.get(en2).iso1[stuff.get(en2).find(stuff.get(en2).iso2.get(p))]);
+    //    System.out.println("iso2 " + stuff.get(en2).iso2.get(p));
+    //    System.out.println("find " + stuff.get(en2).find(stuff.get(en2).iso2.get(p)));
+    //    System.out.println("all " +
+    // stuff.get(en2).iso1[stuff.get(en2).find(stuff.get(en2).iso2.get(p))]);
     return eqcs.get(en2).iso1[eqcs.get(en2).find(eqcs.get(en2).iso2.get(p))];
   }
 
-  public synchronized boolean connected(Term<Void, En2, Void, Fk2, Void, Gen, Void> p,
-      Term<Void, En2, Void, Fk2, Void, Gen, Void> q, En2 en2) {
+  public synchronized boolean connected(
+      Term<Void, En2, Void, Fk2, Void, Gen, Void> p,
+      Term<Void, En2, Void, Fk2, Void, Gen, Void> q,
+      En2 en2) {
     add(p, en2);
     add(q, en2);
     int pp = eqcs.get(en2).iso2.get(p);
@@ -607,8 +633,10 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
     return a == b;
   }
 
-  public synchronized void union(Term<Void, En2, Void, Fk2, Void, Gen, Void> p,
-      Term<Void, En2, Void, Fk2, Void, Gen, Void> q, En2 en2) {
+  public synchronized void union(
+      Term<Void, En2, Void, Fk2, Void, Gen, Void> p,
+      Term<Void, En2, Void, Fk2, Void, Gen, Void> q,
+      En2 en2) {
     add(p, en2);
     add(q, en2);
     union(eqcs.get(en2).iso2.get(p), eqcs.get(en2).iso2.get(q), en2);
@@ -622,5 +650,4 @@ public class Chase<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2, Gen, Sk, X, Y> {
   public String toStringShort() {
     return Util.sep(eqcs, ": ", "\n", x -> x.toStringShort()) + "\nextra: " + quo;
   }
-
 }

@@ -5,11 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
 import catdata.cql.AqlOptions;
 import catdata.cql.Query;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 class ToJdbcPragmaQueryTest {
 
@@ -20,7 +19,8 @@ class ToJdbcPragmaQueryTest {
     void toSQLViewsReturnsNonNull() {
       var schema = FdmTestHelpers.singleEntitySchema();
       var query = Query.id(AqlOptions.initialOptions, schema, schema);
-      var result = ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
+      var result =
+          ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
       assertNotNull(result);
       assertNotNull(result.first);
       assertNotNull(result.second);
@@ -30,7 +30,8 @@ class ToJdbcPragmaQueryTest {
     void toSQLViewsGeneratesSQLStatements() {
       var schema = FdmTestHelpers.singleEntitySchema();
       var query = Query.id(AqlOptions.initialOptions, schema, schema);
-      var result = ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
+      var result =
+          ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
       assertFalse(result.first.isEmpty());
     }
 
@@ -38,7 +39,8 @@ class ToJdbcPragmaQueryTest {
     void toSQLViewsGeneratesDropAndCreate() {
       var schema = FdmTestHelpers.singleEntitySchema();
       var query = Query.id(AqlOptions.initialOptions, schema, schema);
-      var result = ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
+      var result =
+          ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
       assertEquals(2, result.first.size());
       assertTrue(result.first.get(0).contains("drop view"));
       assertTrue(result.first.get(1).contains("create view"));
@@ -48,7 +50,8 @@ class ToJdbcPragmaQueryTest {
     void toSQLViewsPopulatesSecondMap() {
       var schema = FdmTestHelpers.singleEntitySchema();
       var query = Query.id(AqlOptions.initialOptions, schema, schema);
-      var result = ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
+      var result =
+          ToJdbcPragmaQuery.toSQLViews("src_", "dst_", "id", "VARCHAR(255)", "\"", query, 255);
       assertTrue(result.second.containsKey("E"));
     }
   }

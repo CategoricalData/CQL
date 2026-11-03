@@ -14,6 +14,16 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.cql.Algebra.TAlg;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.TObjectIntMap;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,16 +41,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.cql.Algebra.TAlg;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.TObjectIntMap;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -109,14 +109,18 @@ class AlgebraTest {
       return this;
     }
 
-    TableAlgebra<S, F, A> withAtt(A att, String x, Term<String, Void, S, Void, Void, Void, String> v) {
+    TableAlgebra<S, F, A> withAtt(
+        A att, String x, Term<String, Void, S, Void, Void, Void, String> v) {
       attValues.computeIfAbsent(att, k -> new HashMap<>()).put(x, v);
       return this;
     }
 
     TableAlgebra<S, F, A> withTalg(
         Map<String, String> sks,
-        List<Pair<Term<String, Void, S, Void, Void, Void, String>, Term<String, Void, S, Void, Void, Void, String>>>
+        List<
+                Pair<
+                    Term<String, Void, S, Void, Void, Void, String>,
+                    Term<String, Void, S, Void, Void, Void, String>>>
             eqs) {
       typeAlgebra = new TAlg<>(sks, eqs);
       return this;
@@ -231,7 +235,9 @@ class AlgebraTest {
     return sym("f");
   }
 
-  private static Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>
+  private static Pair<
+          Term<String, Void, String, Void, Void, Void, String>,
+          Term<String, Void, String, Void, Void, Void, String>>
       eq(
           Term<String, Void, String, Void, Void, Void, String> l,
           Term<String, Void, String, Void, Void, Void, String> r) {
@@ -242,7 +248,10 @@ class AlgebraTest {
     return new Pair<>(List.of(args), result);
   }
 
-  private static Triple<Map<String, String>, Term<String, Void, String, Void, Void, Void, Void>, Term<String, Void, String, Void, Void, Void, Void>>
+  private static Triple<
+          Map<String, String>,
+          Term<String, Void, String, Void, Void, Void, Void>,
+          Term<String, Void, String, Void, Void, Void, Void>>
       groundEq(
           Term<String, Void, String, Void, Void, Void, Void> l,
           Term<String, Void, String, Void, Void, Void, Void> r) {
@@ -255,7 +264,11 @@ class AlgebraTest {
     syms.put("t", sort(B));
     syms.put("f", sort(B));
     syms.put("neg", sort(B, B));
-    Set<Triple<Map<String, String>, Term<String, Void, String, Void, Void, Void, Void>, Term<String, Void, String, Void, Void, Void, Void>>>
+    Set<
+            Triple<
+                Map<String, String>,
+                Term<String, Void, String, Void, Void, Void, Void>,
+                Term<String, Void, String, Void, Void, Void, Void>>>
         eqs = new LinkedHashSet<>();
     eqs.add(groundEq(Term.Sym("neg", List.of(Term.Sym("t", List.of()))), Term.Sym("f", List.of())));
     AqlJs<String, String> js = new AqlJs<>(ops(), syms, Map.of(), Map.of(), Map.of());
@@ -280,7 +293,11 @@ class AlgebraTest {
       syms.put("f", sort(B));
       syms.put("neg", sort(B, B));
       syms.put("not", sort(BOOL, BOOL));
-      Set<Triple<Map<String, String>, Term<String, Void, String, Void, Void, Void, Void>, Term<String, Void, String, Void, Void, Void, Void>>>
+      Set<
+              Triple<
+                  Map<String, String>,
+                  Term<String, Void, String, Void, Void, Void, Void>,
+                  Term<String, Void, String, Void, Void, Void, Void>>>
           eqs = new LinkedHashSet<>();
       eqs.add(
           groundEq(Term.Sym("neg", List.of(Term.Sym("t", List.of()))), Term.Sym("f", List.of())));
@@ -383,7 +400,9 @@ class AlgebraTest {
         .withTalg(new LinkedHashMap<>(Map.of("y1", VARCHAR)), List.of());
   }
 
-  /** Over SqlTypeSide: the entity T with a : Varchar, b : Longvarchar, c : Integer, d : Nvarchar. */
+  /**
+   * Over SqlTypeSide: the entity T with a : Varchar, b : Longvarchar, c : Integer, d : Nvarchar.
+   */
   private static TableAlgebra<Sym, Fk, Att> textTable() {
     Map<Att, Pair<String, String>> atts = new LinkedHashMap<>();
     atts.put(COL_VARCHAR, new Pair<>(TABLE, VARCHAR));
@@ -431,7 +450,8 @@ class AlgebraTest {
 
   private static Set<String> indexNames(Connection conn, String table) throws SQLException {
     Set<String> ret = new TreeSet<>();
-    try (ResultSet rs = conn.getMetaData().getIndexInfo(null, null, table.toUpperCase(), false, false)) {
+    try (ResultSet rs =
+        conn.getMetaData().getIndexInfo(null, null, table.toUpperCase(), false, false)) {
       while (rs.next()) {
         ret.add(rs.getString("INDEX_NAME"));
       }
@@ -466,7 +486,10 @@ class AlgebraTest {
 
     @Test
     void keepsTheFirstRenderingAfterTheEquationsChange() {
-      List<Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>>
+      List<
+              Pair<
+                  Term<String, Void, String, Void, Void, Void, String>,
+                  Term<String, Void, String, Void, Void, Void, String>>>
           eqs = new ArrayList<>(List.of(eq(sk("y1"), t())));
       TAlg<String, String, String> talg = new TAlg<>(Map.of("y1", B), eqs);
       String first = talg.toString();
@@ -476,7 +499,10 @@ class AlgebraTest {
 
     @Test
     void exposesTheGivenCollectionOfEquations() {
-      List<Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>>
+      List<
+              Pair<
+                  Term<String, Void, String, Void, Void, Void, String>,
+                  Term<String, Void, String, Void, Void, Void, String>>>
           eqs = new ArrayList<>(List.of(eq(sk("y1"), t())));
       TAlg<String, String, String> talg = new TAlg<>(Map.of("y1", B), eqs);
       assertSame(eqs, talg.eqsNoDefns());
@@ -485,7 +511,10 @@ class AlgebraTest {
 
     @Test
     void reportsTheGivenSizeForAnIterableOfEquations() {
-      List<Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>>
+      List<
+              Pair<
+                  Term<String, Void, String, Void, Void, Void, String>,
+                  Term<String, Void, String, Void, Void, Void, String>>>
           backing = new ArrayList<>(List.of(eq(sk("y1"), t())));
       TAlg<String, String, String> talg = new TAlg<>(Map.of("y1", B), backing::iterator, 7);
       assertEquals(7, talg.eqsNoDefns().size());
@@ -494,7 +523,10 @@ class AlgebraTest {
 
     @Test
     void readsAnIterableOfEquationsLive() {
-      List<Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>>
+      List<
+              Pair<
+                  Term<String, Void, String, Void, Void, Void, String>,
+                  Term<String, Void, String, Void, Void, Void, String>>>
           backing = new ArrayList<>(List.of(eq(sk("y1"), t())));
       TAlg<String, String, String> talg = new TAlg<>(Map.of("y1", B), backing::iterator, 1);
       backing.add(eq(sk("y1"), f()));
@@ -511,8 +543,7 @@ class AlgebraTest {
 
     @Test
     void typesSkolemsAndSymbols() {
-      TAlg<String, String, String> talg =
-          new TAlg<>(Map.of("y1", B, "y2", BOOL), List.of());
+      TAlg<String, String, String> talg = new TAlg<>(Map.of("y1", B, "y2", BOOL), List.of());
       assertEquals(B, talg.type(mixed(), sk("y1")));
       assertEquals(BOOL, talg.type(mixed(), sym("not", sk("y2"))));
       assertEquals(B, talg.type(mixed(), sym("neg", t())));
@@ -521,8 +552,7 @@ class AlgebraTest {
     @Test
     void equalsComparesEquationsAndSkolems() {
       TAlg<String, String, String> a = new TAlg<>(Map.of("y1", B), List.of(eq(sk("y1"), t())));
-      TAlg<String, String, String> same =
-          new TAlg<>(Map.of("y1", B), List.of(eq(sk("y1"), t())));
+      TAlg<String, String, String> same = new TAlg<>(Map.of("y1", B), List.of(eq(sk("y1"), t())));
       assertEquals(a, a);
       assertEquals(a, same);
       assertEquals(a.hashCode(), same.hashCode());
@@ -534,7 +564,10 @@ class AlgebraTest {
 
     @Test
     void equalsHandlesMissingFields() {
-      List<Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>>
+      List<
+              Pair<
+                  Term<String, Void, String, Void, Void, Void, String>,
+                  Term<String, Void, String, Void, Void, Void, String>>>
           eqs = List.of(eq(sk("y1"), t()));
       TAlg<String, String, String> noEqs = new TAlg<>(Map.of("y1", B), null);
       TAlg<String, String, String> noSks = new TAlg<>(null, eqs);
@@ -549,7 +582,10 @@ class AlgebraTest {
 
     @Test
     void equalsComparesIterableBackedEquationsByIdentity() {
-      List<Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>>
+      List<
+              Pair<
+                  Term<String, Void, String, Void, Void, Void, String>,
+                  Term<String, Void, String, Void, Void, Void, String>>>
           backing = List.of(eq(sk("y1"), t()));
       TAlg<String, String, String> a = new TAlg<>(Map.of("y1", B), backing::iterator, 1);
       TAlg<String, String, String> b = new TAlg<>(Map.of("y1", B), backing::iterator, 1);
@@ -594,16 +630,17 @@ class AlgebraTest {
       Collection<Eq<String, Void, String, Void, Void, Void, String>> eqs =
           talg.toCollage(ts, true).eqs();
       assertEquals(1 + ts.eqs.size(), eqs.size());
-      List<Pair<Term<String, Void, String, Void, Void, Void, String>, Term<String, Void, String, Void, Void, Void, String>>>
+      List<
+              Pair<
+                  Term<String, Void, String, Void, Void, Void, String>,
+                  Term<String, Void, String, Void, Void, Void, String>>>
           pairs = new ArrayList<>();
       for (Eq<String, Void, String, Void, Void, Void, String> e : eqs) {
         pairs.add(new Pair<>(e.lhs, e.rhs));
       }
       assertEquals(
           List.of(
-              eq(sym("neg", t()), f()),
-              eq(sym("not", bool(true)), bool(false)),
-              eq(sk("y1"), t())),
+              eq(sym("neg", t()), f()), eq(sym("not", bool(true)), bool(false)), eq(sk("y1"), t())),
           pairs);
     }
   }
@@ -987,8 +1024,7 @@ class AlgebraTest {
     void intoYDoesNotReduceJavaSymbols() {
       TableAlgebra<String, String, String> alg = company();
       Term<String, String, String, String, String, String, String> e1 = Term.Gen("e1");
-      assertEquals(
-          sym("not", bool(true)), alg.intoY(Term.Sym("not", List.of(Term.Att(FLAG, e1)))));
+      assertEquals(sym("not", bool(true)), alg.intoY(Term.Sym("not", List.of(Term.Att(FLAG, e1)))));
     }
 
     @Test
@@ -1000,8 +1036,7 @@ class AlgebraTest {
 
     @Test
     void reprTMapsASkolemBackToItsLabelledNull() {
-      TableAlgebra<String, String, String> alg =
-          company().withOrigin("y9", Chc.inLeft("s9"));
+      TableAlgebra<String, String, String> alg = company().withOrigin("y9", Chc.inLeft("s9"));
       assertEquals(Term.Sk("s9"), alg.reprT(sk("y9")));
     }
 
@@ -1055,8 +1090,7 @@ class AlgebraTest {
       return conn;
     }
 
-    private void store(
-        TableAlgebra<Sym, Fk, Att> alg, Connection conn, String x, boolean emitNulls)
+    private void store(TableAlgebra<Sym, Fk, Att> alg, Connection conn, String x, boolean emitNulls)
         throws Exception {
       alg.storeMyRecord(
           false,
@@ -1241,8 +1275,7 @@ class AlgebraTest {
       conn.close();
       try (Connection again = DriverManager.getConnection(url + ";IFEXISTS=TRUE")) {
         assertEquals(
-            List.of("3"),
-            rows(again, "select count(*) from " + alg.schema().truncate(EMP, true)));
+            List.of("3"), rows(again, "select count(*) from " + alg.schema().truncate(EMP, true)));
         shutdown(again);
       }
     }
@@ -1339,8 +1372,7 @@ class AlgebraTest {
 
     @Test
     void sqlColumnTypesSizeNumericColumnsFromTheirPresentValues() {
-      Map<Att, Optional<SqlDialect.ColumnType>> types =
-          numbers().sqlColumnTypes(SqlDialect.H2, 32);
+      Map<Att, Optional<SqlDialect.ColumnType>> types = numbers().sqlColumnTypes(SqlDialect.H2, 32);
       assertEquals(
           Optional.of(new SqlDialect.ColumnType("numeric(5,2)", Types.NUMERIC)), types.get(number));
       assertEquals(

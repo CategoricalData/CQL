@@ -1,20 +1,18 @@
 package catdata.cql;
 
-import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.collections4.iterators.IteratorIterable;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Util;
 import catdata.Util.UpTo;
 import catdata.cql.AqlOptions.AqlOption;
 import gnu.trove.map.hash.THashMap;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.collections4.iterators.IteratorIterable;
 
 public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
     extends Instance<Ty, En, Sym, Fk, Att, Gen, Sk, Integer, Integer> {
@@ -30,58 +28,62 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
     I = i;
     alg = new InnerAlg();
 
-    dp = new DP<>() {
-      @Override
-      public String toStringProver() {
-        return "Skeleton Inv Wrapper";
-      }
-
-      @Override
-      public boolean eq(Map<String, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
-          Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
-        if (ctx != null && !ctx.isEmpty()) {
-          Util.anomaly();
-        }
-        if (lhs.hasTypeType()) {
-          return I.eqT(I.evalT(lhs), I.evalT(rhs));
-        }
-        return I.eval(lhs.convert()) == I.eval(rhs.convert());
-      }
-
-    };
-
-    gens = new AbstractMap<>() {
-      @Override
-      public Set<Entry<Gen, En>> entrySet() {
-        return new AbstractSet<>() {
+    dp =
+        new DP<>() {
           @Override
-          public Iterator<Entry<Gen, En>> iterator() {
-            return I.gens().iterator();
+          public String toStringProver() {
+            return "Skeleton Inv Wrapper";
           }
 
           @Override
-          public int size() {
-            return I.numGens();
+          public boolean eq(
+              Map<String, Chc<Ty, En>> ctx,
+              Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
+              Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
+            if (ctx != null && !ctx.isEmpty()) {
+              Util.anomaly();
+            }
+            if (lhs.hasTypeType()) {
+              return I.eqT(I.evalT(lhs), I.evalT(rhs));
+            }
+            return I.eval(lhs.convert()) == I.eval(rhs.convert());
           }
         };
-      }
-    };
-    sks = new AbstractMap<>() {
-      @Override
-      public Set<Entry<Sk, Ty>> entrySet() {
-        return new AbstractSet<>() {
-          @Override
-          public Iterator<Entry<Sk, Ty>> iterator() {
-            return I.sks().iterator();
-          }
 
+    gens =
+        new AbstractMap<>() {
           @Override
-          public int size() {
-            return I.ys();
+          public Set<Entry<Gen, En>> entrySet() {
+            return new AbstractSet<>() {
+              @Override
+              public Iterator<Entry<Gen, En>> iterator() {
+                return I.gens().iterator();
+              }
+
+              @Override
+              public int size() {
+                return I.numGens();
+              }
+            };
           }
         };
-      }
-    };
+    sks =
+        new AbstractMap<>() {
+          @Override
+          public Set<Entry<Sk, Ty>> entrySet() {
+            return new AbstractSet<>() {
+              @Override
+              public Iterator<Entry<Sk, Ty>> iterator() {
+                return I.sks().iterator();
+              }
+
+              @Override
+              public int size() {
+                return I.ys();
+              }
+            };
+          }
+        };
 
     if (size() < 1024 * 16) {
       validate();
@@ -211,9 +213,5 @@ public class SkeletonInstanceWrapperInv<Ty, En, Sym, Fk, Att, Gen, Sk>
     public boolean hasNulls() {
       return I.hasNulls();
     }
-
   }
-
-  
-
 }

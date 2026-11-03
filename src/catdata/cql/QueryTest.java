@@ -11,6 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Query.Agg;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,14 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Query.Agg;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -75,8 +75,8 @@ class QueryTest {
   }
 
   /**
-   * The schemas, built once and shared. The source schema is acyclic on purpose; a cyclic one
-   * with generators and no equations trips the divergence check in the initial algebra.
+   * The schemas, built once and shared. The source schema is acyclic on purpose; a cyclic one with
+   * generators and no equations trips the divergence check in the initial algebra.
    */
   private static final class Fixtures {
     /** Employee -worksIn-> Department -partOf-> Company, with a Varchar attribute on each. */
@@ -107,7 +107,8 @@ class QueryTest {
             List.of(ROW),
             Map.of(OUT, ROW),
             Map.of(),
-            List.of(forall("x", ROW, Term.Att(OUT, Term.Var("x")), Term.Obj(Optional.of("k"), TY))));
+            List.of(
+                forall("x", ROW, Term.Att(OUT, Term.Var("x")), Term.Obj(Optional.of("k"), TY))));
 
     /** ROWS with the equation forall x:Row. isNull(x.out) = false. */
     private static final Schema<String, String, Sym, Fk, Att> NON_NULL_ROWS =
@@ -223,8 +224,12 @@ class QueryTest {
     private final Map<String, Term<String, Void, Sym, Void, Void, Void, Void>> consts =
         new HashMap<>();
     private final Map<String, Block> blocks = new HashMap<>();
-    private final Map<Att, Chc<Term<String, String, Sym, Fk, Att, String, String>, Agg<String, String, Sym, Fk, Att>>> atts =
-        new HashMap<>();
+    private final Map<
+            Att,
+            Chc<
+                Term<String, String, Sym, Fk, Att, String, String>,
+                Agg<String, String, Sym, Fk, Att>>>
+        atts = new HashMap<>();
     private final Map<Fk, Map<String, Term<Void, String, Void, Fk, Void, String, Void>>> fks =
         new HashMap<>();
     private final Map<Fk, Map<String, Term<String, String, Sym, Fk, Att, String, String>>> fkSks =
@@ -252,8 +257,7 @@ class QueryTest {
     }
 
     /** Maps a type-sorted variable of the foreign key's target block. */
-    Builder foreignKeySkolem(
-        Fk f, String v, Term<String, String, Sym, Fk, Att, String, String> t) {
+    Builder foreignKeySkolem(Fk f, String v, Term<String, String, Sym, Fk, Att, String, String> t) {
       fkSks.computeIfAbsent(f, k -> new HashMap<>()).put(v, t);
       return this;
     }
@@ -284,14 +288,26 @@ class QueryTest {
       return Query.makeQuery(ens(), atts, fks(), sks(), src, dst, options);
     }
 
-    private Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens() {
-      Map<String, Triple<LinkedHashMap<String, Chc<String, String>>, Collection<Eq<String, String, Sym, Fk, Att, String, String>>, AqlOptions>> ens =
-          new HashMap<>();
+    private Map<
+            String,
+            Triple<
+                LinkedHashMap<String, Chc<String, String>>,
+                Collection<Eq<String, String, Sym, Fk, Att, String, String>>,
+                AqlOptions>>
+        ens() {
+      Map<
+              String,
+              Triple<
+                  LinkedHashMap<String, Chc<String, String>>,
+                  Collection<Eq<String, String, Sym, Fk, Att, String, String>>,
+                  AqlOptions>>
+          ens = new HashMap<>();
       blocks.forEach((en2, b) -> ens.put(en2, new Triple<>(b.vars, b.eqs, options)));
       return ens;
     }
 
-    private Map<Fk, Pair<Map<String, Term<Void, String, Void, Fk, Void, String, Void>>, AqlOptions>> fks() {
+    private Map<Fk, Pair<Map<String, Term<Void, String, Void, Fk, Void, String, Void>>, AqlOptions>>
+        fks() {
       Map<Fk, Pair<Map<String, Term<Void, String, Void, Fk, Void, String, Void>>, AqlOptions>> ret =
           new HashMap<>();
       fks.forEach((f, m) -> ret.put(f, new Pair<>(m, options)));
@@ -365,8 +381,7 @@ class QueryTest {
     @Test
     void buildsOneSingletonBlockPerSourceType() {
       Query<String, String, Sym, Fk, Att, String, Fk, Att> q = rowQuery();
-      assertEquals(
-          new HashSet<>(Fixtures.SRC.typeSide.tys), new HashSet<>(q.tys.keySet()));
+      assertEquals(new HashSet<>(Fixtures.SRC.typeSide.tys), new HashSet<>(q.tys.keySet()));
       assertEquals(Map.of("_y_", TY), q.tys.get(TY).sks);
       assertTrue(q.tys.get(TY).gens.isEmpty());
     }
@@ -502,11 +517,11 @@ class QueryTest {
 
     @Test
     void rejectsAForeignKeyClauseThatDoesNotPreserveTheTargetWhereClause() {
-      // Unit requires d.label = "rd", but nothing in the Person block implies e.worksIn.label = "rd",
+      // Unit requires d.label = "rd", but nothing in the Person block implies e.worksIn.label =
+      // "rd",
       // so d -> e.worksIn is not a morphism of the frozen instances.
       Builder b =
-          peopleBuilder()
-              .entity(UNIT, from("d", DEPT).where(att(LABEL, gen("d")), str("rd")));
+          peopleBuilder().entity(UNIT, from("d", DEPT).where(att(LABEL, gen("d")), str("rd")));
       RuntimeException e =
           assertThrows(RuntimeException.class, () -> b.build(Fixtures.SRC, Fixtures.PEOPLE));
       assertTrue(
@@ -518,8 +533,7 @@ class QueryTest {
       Builder b =
           peopleBuilder()
               .entity(UNIT, from("d", DEPT).where(att(LABEL, gen("d")), str("rd")))
-              .entity(
-                  PERSON, from("e", EMP).where(att(LABEL, fk(WORKS_IN, gen("e"))), str("rd")));
+              .entity(PERSON, from("e", EMP).where(att(LABEL, fk(WORKS_IN, gen("e"))), str("rd")));
       assertDoesNotThrow(() -> b.build(Fixtures.SRC, Fixtures.PEOPLE));
     }
 
@@ -544,8 +558,7 @@ class QueryTest {
 
     @Test
     void acceptsAnAttributeEquationThatTheWhereClauseImplies() {
-      Builder b =
-          rowBuilder().entity(ROW, from("e", EMP).where(att(NAME, gen("e")), str("k")));
+      Builder b = rowBuilder().entity(ROW, from("e", EMP).where(att(NAME, gen("e")), str("k")));
       assertDoesNotThrow(() -> b.build(Fixtures.SRC, Fixtures.CONSTANT_ROWS));
     }
 
@@ -553,7 +566,8 @@ class QueryTest {
     void rejectsAnAttributeEquationThatTheWhereClauseDoesNotImply() {
       RuntimeException e =
           assertThrows(
-              RuntimeException.class, () -> rowBuilder().build(Fixtures.SRC, Fixtures.CONSTANT_ROWS));
+              RuntimeException.class,
+              () -> rowBuilder().build(Fixtures.SRC, Fixtures.CONSTANT_ROWS));
       String msg = e.getMessage();
       assertTrue(msg.startsWith("Target equation "), msg);
       assertTrue(msg.contains(" not respected: transforms to e.name = "), msg);
@@ -564,7 +578,8 @@ class QueryTest {
     void translatesFunctionSymbolsThroughTheReturnClauses() {
       RuntimeException e =
           assertThrows(
-              RuntimeException.class, () -> rowBuilder().build(Fixtures.SRC, Fixtures.NON_NULL_ROWS));
+              RuntimeException.class,
+              () -> rowBuilder().build(Fixtures.SRC, Fixtures.NON_NULL_ROWS));
       String msg = e.getMessage();
       assertTrue(msg.contains("transforms to isNull(e.name) = "), msg);
     }
@@ -738,7 +753,8 @@ class QueryTest {
 
     @Test
     void rendersParamsAndBindings() {
-      String s = rowBuilder().param("p").bind("p", "x").build(Fixtures.SRC, Fixtures.ROWS).toString();
+      String s =
+          rowBuilder().param("p").bind("p", "x").build(Fixtures.SRC, Fixtures.ROWS).toString();
       assertTrue(s.startsWith("params p:Varchar\n\nbindings p:"), s);
     }
 
@@ -848,8 +864,7 @@ class QueryTest {
     @Test
     void toSqlSelectsTheRowIdOfEachFromVariable() {
       assertEquals(
-          Map.of(ROW, " select e.`rowid` as e from `Employee` as e"),
-          rowQuery().toSQL("`", false));
+          Map.of(ROW, " select e.`rowid` as e from `Employee` as e"), rowQuery().toSQL("`", false));
     }
 
     @Test
@@ -860,7 +875,10 @@ class QueryTest {
               .attribute(OUT, att(NAME, gen("e")))
               .build(Fixtures.SRC, Fixtures.ROWS);
       String sql = q.toSQL("", false).get(ROW);
-      assertTrue(sql.startsWith(" select e.rowid as e, d.rowid as d from Employee as e, Department as d where "), sql);
+      assertTrue(
+          sql.startsWith(
+              " select e.rowid as e, d.rowid as d from Employee as e, Department as d where "),
+          sql);
       assertTrue(sql.endsWith(" = d.rowid"), sql);
     }
 
@@ -887,8 +905,7 @@ class QueryTest {
 
     @Test
     void toSql2SelectsTheReturnClauses() {
-      assertEquals(
-          Map.of(ROW, "\nselect e.name as out\nfrom Employee as e"), rowQuery().toSQL2());
+      assertEquals(Map.of(ROW, "\nselect e.name as out\nfrom Employee as e"), rowQuery().toSQL2());
     }
 
     @Test
@@ -1055,8 +1072,7 @@ class QueryTest {
       // Unfolding d.partOf in the Unit block adds a variable unfold0 that the employer clause must
       // also map; its image e.worksIn.partOf is itself nested, so the Person block is unfolded
       // next. The reflexive where clause becomes unfold0.title = unfold0.title and is dropped.
-      Term<String, String, Sym, Fk, Att, String, String> title =
-          att(TITLE, fk(PART_OF, gen("d")));
+      Term<String, String, Sym, Fk, Att, String, String> title = att(TITLE, fk(PART_OF, gen("d")));
       Query<String, String, Sym, Fk, Att, String, Fk, Att> u =
           peopleBuilder()
               .entity(UNIT, from("d", DEPT).where(title, title))
@@ -1124,8 +1140,7 @@ class QueryTest {
               .foreignKey(NEXT, "n", path("n", PARENT, PARENT))
               .build(Fixtures.TREE, Fixtures.LOOP);
       RuntimeException e = assertThrows(RuntimeException.class, q::unnest);
-      assertTrue(
-          e.getMessage().startsWith("No convergence after 128 iterations."), e.getMessage());
+      assertTrue(e.getMessage().startsWith("No convergence after 128 iterations."), e.getMessage());
     }
   }
 
@@ -1238,7 +1253,9 @@ class QueryTest {
 
     @Test
     void freezeAggLeavesTheLambdaVariablesAsVariables() {
-      assertEquals(pair(v("a"), v("b")), Query.freezeAgg(pair(v("a"), v("b")), Map.of(), Set.of(), "a", "b"));
+      assertEquals(
+          pair(v("a"), v("b")),
+          Query.freezeAgg(pair(v("a"), v("b")), Map.of(), Set.of(), "a", "b"));
     }
 
     @Test

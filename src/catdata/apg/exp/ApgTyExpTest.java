@@ -149,7 +149,8 @@ class ApgTyExpTest {
   class ApgTyExpRawTest {
 
     private ApgTyExpRaw createEmptyRaw() {
-      return new ApgTyExpRaw(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+      return new ApgTyExpRaw(
+          Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private ApgTyExpRaw createRawWithType(String name, String className, String parseFn) {

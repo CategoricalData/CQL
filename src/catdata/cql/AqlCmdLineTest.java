@@ -5,14 +5,14 @@ import static catdata.cql.CqlTestHelpers.stdout;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import catdata.ParseException;
 import catdata.Program;
 import catdata.cql.exp.AqlMultiDriver;
 import catdata.cql.exp.AqlParserFactory;
 import catdata.cql.exp.Exp;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

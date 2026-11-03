@@ -16,8 +16,7 @@ class DiffInstanceTest {
     void constructorRejectsSchemaWithFks() {
       var inst1 = FdmTestHelpers.instanceWithFk();
       var inst2 = FdmTestHelpers.instanceWithFk();
-      assertThrows(RuntimeException.class,
-          () -> new DiffInstance<>(inst1, inst2, false, false));
+      assertThrows(RuntimeException.class, () -> new DiffInstance<>(inst1, inst2, false, false));
     }
 
     @Test
@@ -26,8 +25,7 @@ class DiffInstanceTest {
       var schema2 = FdmTestHelpers.emptySchema();
       var inst1 = FdmTestHelpers.emptyInstance(schema1);
       var inst2 = FdmTestHelpers.emptyInstance(schema2);
-      assertThrows(RuntimeException.class,
-          () -> new DiffInstance<>(inst1, inst2, false, false));
+      assertThrows(RuntimeException.class, () -> new DiffInstance<>(inst1, inst2, false, false));
     }
   }
 
