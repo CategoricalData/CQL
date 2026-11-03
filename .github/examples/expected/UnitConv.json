@@ -1,0 +1,24 @@
+{
+  "error": null,
+  "instances": {
+    "Boeing747": {
+      "Wing": {
+        "columns": ["wingLength"],
+        "rows": [
+          ["500.1"],
+          ["500.1"]
+        ]
+      }
+    },
+    "Boeing747Metric": {
+      "Wing": {
+        "columns": ["wingLength"],
+        "rows": [
+          ["1270.2540000000001"],
+          ["1270.2540000000001"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

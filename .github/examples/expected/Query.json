@@ -1,0 +1,72 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Man": {
+        "columns": ["fav_book_m", "name_m", "paying"],
+        "rows": [
+          ["book1", "bob", "true"],
+          ["book1", "charlie", "false"],
+          ["book2", "frank", "true"],
+          ["book3", "henry", "true"]
+        ]
+      },
+      "Woman": {
+        "columns": ["fav_book_w", "name_w"],
+        "rows": [
+          ["book1", "alice"],
+          ["book2", "doris"],
+          ["book2", "ellie"],
+          ["book4", "gina"]
+        ]
+      }
+    },
+    "I0": {
+      "Man": {
+        "columns": ["fav_book_m", "name_m", "paying"],
+        "rows": [
+          ["book1", "bob", "true"],
+          ["book1", "charlie", "false"],
+          ["book2", "frank", "true"]
+        ]
+      },
+      "Woman": {
+        "columns": ["fav_book_w", "name_w"],
+        "rows": [
+          ["book1", "alice"],
+          ["book2", "doris"],
+          ["book2", "ellie"]
+        ]
+      }
+    },
+    "J": {
+      "GoodMatch": {
+        "columns": ["ID", "for_man", "woman_name"],
+        "rows": [
+          ["0", "4", "alice"],
+          ["1", "5", "alice"],
+          ["2", "6", "doris"],
+          ["3", "6", "ellie"]
+        ]
+      },
+      "Male": {
+        "columns": ["ID", "man_name"],
+        "rows": [
+          ["4", "bob"],
+          ["5", "charlie"],
+          ["6", "frank"],
+          ["7", "henry"]
+        ]
+      },
+      "PayingGoodMatch": {
+        "columns": ["is_a"],
+        "rows": [
+          ["0"],
+          ["2"],
+          ["3"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

@@ -1,0 +1,111 @@
+{
+  "error": null,
+  "instances": {
+    "J": {
+      "T": {
+        "columns": ["first0", "last0", "salary0", "ssn0"],
+        "rows": [
+          ["?N", "Jones", "100", "198-887"],
+          ["?N", "Smith", "250", "115-234"],
+          ["?N", "Smith", "300", "112-988"]
+        ]
+      }
+    },
+    "J0": {
+      "T": {
+        "columns": ["first0", "last0", "salary0", "ssn0"],
+        "rows": [
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "Smith", "250", "115-234"],
+          ["?N", "Smith", "300", "112-988"],
+          ["Alice", "Jones", "100", "198-887"]
+        ]
+      }
+    },
+    "J2": {
+      "T": {
+        "columns": ["first0", "last0", "salary0", "ssn0"],
+        "rows": [
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"],
+          ["?N", "?N", "?N", "?N"]
+        ]
+      }
+    },
+    "deltaFJ": {
+      "T1": {
+        "columns": ["first", "last", "ssn"],
+        "rows": [
+          ["?N", "Jones", "198-887"],
+          ["?N", "Smith", "112-988"],
+          ["?N", "Smith", "115-234"]
+        ]
+      },
+      "T2": {
+        "columns": ["first", "last", "salary"],
+        "rows": [
+          ["?N", "Jones", "100"],
+          ["?N", "Smith", "250"],
+          ["?N", "Smith", "300"]
+        ]
+      }
+    },
+    "deltaFJ_alt1": {
+      "T1": {
+        "columns": ["first", "last", "ssn"],
+        "rows": [
+          ["?N", "Jones", "198-887"],
+          ["?N", "Smith", "112-988"],
+          ["?N", "Smith", "115-234"]
+        ]
+      },
+      "T2": {
+        "columns": ["first", "last", "salary"],
+        "rows": [
+          ["?N", "Jones", "100"],
+          ["?N", "Smith", "250"],
+          ["?N", "Smith", "300"]
+        ]
+      }
+    },
+    "deltaFJ_alt2": {
+      "T1": {
+        "columns": ["first", "last", "ssn"],
+        "rows": [
+          ["?N", "Jones", "198-887"],
+          ["?N", "Smith", "112-988"],
+          ["?N", "Smith", "115-234"]
+        ]
+      },
+      "T2": {
+        "columns": ["first", "last", "salary"],
+        "rows": [
+          ["?N", "Jones", "100"],
+          ["?N", "Smith", "250"],
+          ["?N", "Smith", "300"]
+        ]
+      }
+    },
+    "sigmadeltaFJ": {
+      "T": {
+        "columns": ["first0", "last0", "salary0", "ssn0"],
+        "rows": [
+          ["?N", "Jones", "100", "?N"],
+          ["?N", "Jones", "?N", "198-887"],
+          ["?N", "Smith", "250", "?N"],
+          ["?N", "Smith", "300", "?N"],
+          ["?N", "Smith", "?N", "112-988"],
+          ["?N", "Smith", "?N", "115-234"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

@@ -185,6 +185,11 @@ jobs:
           test -s examples/index.html || { echo "::error::missing or empty examples/index.html"; exit 1; }
           test -s examples/Employees.html || { echo "::error::missing or empty examples/Employees.html"; exit 1; }
 
+      # Each example's output must equal what CQL computes today, recorded in .github/examples/expected.
+      # After an intended change, regenerate it with the same command and --update.
+      - name: Compare the examples with their expected output
+        run: python3 -B .github/scripts/check_examples.py examples .github/examples/expected
+
       - name: Upload generated examples
         if: always()
         uses: actions/upload-artifact@v4
@@ -193,13 +198,46 @@ jobs:
           path: examples/
           retention-days: 14
 
+  # Runs the built-in JDBCSQL example against each database of the round-trip harness in #120,
+  # pointed at it as the example's comments describe, and compares the page with
+  # .github/databases/expected/<database>. The servers run in Docker, started by the script, which
+  # runs the same way locally.
+  databases:
+    name: Database (${{ matrix.database }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [h2, sqlite, postgresql, mysql, mariadb, sqlserver]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compile
+        run: ./gradlew classes
+
+      - name: Run the database tests
+        run: python3 -B .github/scripts/run_database_tests.py ${{ matrix.database }}
+
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-results-${{ matrix.database }}
+          path: build/database-tests/${{ matrix.database }}/
+          retention-days: 14
+
   # Releases cql.jar for every green push to master. The version is the UTC date (20261015), with
   # a counter for later releases on the same day (20261015.2). The notes group the commits since
   # the latest release by conventional commit type, as configured in .github/cliff.toml.
   release:
     name: Release
     if: github.event_name == 'push' && github.repository == 'CategoricalData/CQL'
-    needs: [test, checkstyle, javac, spotbugs, spotless, docs]
+    needs: [test, checkstyle, javac, spotbugs, spotless, docs, databases]
     runs-on: ubuntu-latest
     permissions:
       contents: write

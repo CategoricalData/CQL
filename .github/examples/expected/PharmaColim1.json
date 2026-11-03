@@ -1,0 +1,141 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "O": {
+        "columns": ["ID", "f", "g"],
+        "rows": []
+      },
+      "P": {
+        "columns": [],
+        "rows": [
+          []
+        ]
+      },
+      "T": {
+        "columns": [],
+        "rows": [
+          [],
+          []
+        ]
+      }
+    },
+    "I1": {
+      "Gender": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["0", "M"],
+          ["1", "F"]
+        ]
+      },
+      "ObsType": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["2", "BloodPressure"],
+          ["3", "BodyWeight"],
+          ["4", "HeartRate"]
+        ]
+      },
+      "Observation": {
+        "columns": ["f", "g"],
+        "rows": [
+          ["8", "2"],
+          ["8", "3"],
+          ["9", "4"]
+        ]
+      },
+      "Person": {
+        "columns": ["ID", "att", "h"],
+        "rows": [
+          ["8", "Peter", "0"],
+          ["9", "Paul", "0"]
+        ]
+      }
+    },
+    "I2": {
+      "Method": {
+        "columns": ["ID", "g2"],
+        "rows": [
+          ["0", "10"],
+          ["1", "10"],
+          ["2", "11"],
+          ["3", "11"]
+        ]
+      },
+      "Observation": {
+        "columns": ["f", "g1"],
+        "rows": [
+          ["8", "0"],
+          ["8", "1"],
+          ["9", "0"],
+          ["9", "2"]
+        ]
+      },
+      "Patient": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["8", "Pete"],
+          ["9", "Jane"]
+        ]
+      },
+      "Type": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["10", "BloodPressure"],
+          ["11", "BodyWeight"]
+        ]
+      }
+    },
+    "answer": {
+      "G": {
+        "columns": ["ID", "G_att"],
+        "rows": [
+          ["0", "M"],
+          ["1", "F"],
+          ["2", "?N"]
+        ]
+      },
+      "M": {
+        "columns": ["ID", "g2"],
+        "rows": [
+          ["3", "20"],
+          ["4", "21"],
+          ["5", "22"],
+          ["6", "20"],
+          ["7", "20"],
+          ["8", "21"],
+          ["9", "21"]
+        ]
+      },
+      "O": {
+        "columns": ["f", "g1"],
+        "rows": [
+          ["17", "3"],
+          ["17", "4"],
+          ["17", "6"],
+          ["17", "7"],
+          ["18", "5"],
+          ["19", "6"],
+          ["19", "8"]
+        ]
+      },
+      "P": {
+        "columns": ["ID", "P_att1", "P_att2", "h"],
+        "rows": [
+          ["17", "Peter", "Pete", "0"],
+          ["18", "Paul", "?N", "0"],
+          ["19", "?N", "Jane", "2"]
+        ]
+      },
+      "T": {
+        "columns": ["ID", "T_att1", "T_att2"],
+        "rows": [
+          ["20", "BloodPressure", "BloodPressure"],
+          ["21", "BodyWeight", "BodyWeight"],
+          ["22", "HeartRate", "?N"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

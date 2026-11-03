@@ -1,0 +1,146 @@
+{
+  "error": null,
+  "instances": {
+    "I1": {
+      "S": {
+        "columns": ["ssn"],
+        "rows": [
+          ["YYY-XXXX"]
+        ]
+      }
+    },
+    "I2": {
+      "S1": {
+        "columns": ["name"],
+        "rows": [
+          ["Alice"],
+          ["Bill"]
+        ]
+      },
+      "S2": {
+        "columns": ["name"],
+        "rows": [
+          ["Alice"],
+          ["Charlie"]
+        ]
+      }
+    },
+    "I3": {
+      "T1": {
+        "columns": ["ID", "fk", "id"],
+        "rows": [
+          ["0", "1", "0"]
+        ]
+      },
+      "T2": {
+        "columns": ["ID", "id"],
+        "rows": [
+          ["1", "2"]
+        ]
+      }
+    },
+    "I4": {
+      "T1": {
+        "columns": ["ID", "fk", "id"],
+        "rows": [
+          ["0", "2", "0"],
+          ["1", "?N", "1"]
+        ]
+      },
+      "T2": {
+        "columns": ["ID", "id"],
+        "rows": [
+          ["2", "2"]
+        ]
+      }
+    },
+    "J1": {
+      "T1": {
+        "columns": ["fk", "id"],
+        "rows": [
+          ["YYY-XXXX", "YYY-XXXX"]
+        ]
+      },
+      "T2": {
+        "columns": ["id"],
+        "rows": [
+          ["YYY-XXXX"]
+        ]
+      }
+    },
+    "J2": {
+      "T1": {
+        "columns": ["fk", "id"],
+        "rows": [
+          ["Alice", "Alice"]
+        ]
+      },
+      "T2": {
+        "columns": ["id"],
+        "rows": [
+          ["Alice"]
+        ]
+      }
+    },
+    "J3": {
+      "T1": {
+        "columns": ["fk", "id"],
+        "rows": [
+          ["2", "2"]
+        ]
+      },
+      "T2": {
+        "columns": ["id"],
+        "rows": [
+          ["2"]
+        ]
+      }
+    },
+    "J4": {
+      "T1": {
+        "columns": ["ID", "fk", "id"],
+        "rows": [
+          ["0", "2", "0"]
+        ]
+      },
+      "T2": {
+        "columns": ["id"],
+        "rows": [
+          ["2"]
+        ]
+      }
+    },
+    "J5": {
+      "T1": {
+        "columns": ["ID", "fk", "id"],
+        "rows": [
+          ["0", "2", "0"],
+          ["1", "2", "1"]
+        ]
+      },
+      "T2": {
+        "columns": ["ID", "id"],
+        "rows": [
+          ["2", "2"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "check1_redundant": [
+      "Satisfied"
+    ],
+    "check2_redundant": [
+      "Satisfied"
+    ],
+    "check3_redundant": [
+      "Satisfied"
+    ],
+    "check4_redundant": [
+      "Satisfied"
+    ],
+    "check5_redundant": [
+      "Satisfied"
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "Department": {
+        "columns": ["ID", "name", "secretary"],
+        "rows": [
+          ["0", "Math", "2"],
+          ["1", "CS", "4"]
+        ]
+      },
+      "Employee": {
+        "columns": ["ID", "age", "cummulative_age", "first", "last", "manager", "worksIn"],
+        "rows": [
+          ["2", "1", "2", "Al", "?N", "2", "0"],
+          ["3", "5", "6", "Bob", "Bo", "4", "1"],
+          ["4", "1", "2", "Carl", "?N", "4", "1"]
+        ]
+      }
+    },
+    "J": {
+      "N": {
+        "columns": ["age", "name", "salary"],
+        "rows": [
+          ["20", "Alice", "100"],
+          ["20", "Bob", "250"],
+          ["30", "Sue", "300"]
+        ]
+      }
+    },
+    "deltaFJ": {
+      "N1": {
+        "columns": ["f", "name", "salary"],
+        "rows": [
+          ["3", "Alice", "100"],
+          ["4", "Bob", "250"],
+          ["5", "Sue", "300"]
+        ]
+      },
+      "N2": {
+        "columns": ["ID", "age"],
+        "rows": [
+          ["3", "20"],
+          ["4", "20"],
+          ["5", "30"]
+        ]
+      }
+    },
+    "deltaFJ_prime": {
+      "N1": {
+        "columns": ["f", "name", "salary"],
+        "rows": [
+          ["3", "Alice", "100"],
+          ["4", "Bob", "250"],
+          ["5", "Sue", "300"]
+        ]
+      },
+      "N2": {
+        "columns": ["ID", "age"],
+        "rows": [
+          ["3", "20"],
+          ["4", "20"],
+          ["5", "30"]
+        ]
+      }
+    },
+    "sigmaFdeltaFJ": {
+      "N": {
+        "columns": ["age", "name", "salary"],
+        "rows": [
+          ["20", "Alice", "100"],
+          ["20", "Bob", "250"],
+          ["30", "Sue", "300"]
+        ]
+      }
+    },
+    "sigmaFdeltaFJ_prime": {
+      "N": {
+        "columns": ["age", "name", "salary"],
+        "rows": [
+          ["20", "Alice", "100"],
+          ["20", "Bob", "250"],
+          ["30", "Sue", "300"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

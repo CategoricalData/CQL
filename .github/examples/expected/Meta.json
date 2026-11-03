@@ -1,0 +1,37 @@
+{
+  "error": null,
+  "instances": {
+    "mysch": {
+      "IntAtt": {
+        "columns": ["ID", "on"],
+        "rows": []
+      },
+      "Mor": {
+        "columns": ["ID", "cod", "dom"],
+        "rows": [
+          ["0", "3", "3"],
+          ["1", "4", "4"],
+          ["2", "4", "3"]
+        ]
+      },
+      "Ob": {
+        "columns": ["ID", "id"],
+        "rows": [
+          ["3", "0"],
+          ["4", "1"]
+        ]
+      },
+      "Pair": {
+        "columns": ["ID", "Fst", "Snd", "comp"],
+        "rows": []
+      },
+      "StringAtt": {
+        "columns": ["on"],
+        "rows": [
+          ["3"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

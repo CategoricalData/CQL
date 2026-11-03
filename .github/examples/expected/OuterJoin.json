@@ -1,0 +1,90 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "A": {
+        "columns": ["ID", "Aid", "Aname"],
+        "rows": [
+          ["0", "1", "alice"],
+          ["1", "2", "bob"]
+        ]
+      },
+      "B": {
+        "columns": ["ID", "Bid", "Bname"],
+        "rows": [
+          ["2", "2", "charlie"],
+          ["3", "3", "dave"]
+        ]
+      }
+    },
+    "Ix": {
+      "Left": {
+        "columns": ["attL", "f"],
+        "rows": [
+          ["Alice", "5"],
+          ["Bob", "4"],
+          ["Carl", "4"],
+          ["Dave", "6"]
+        ]
+      },
+      "Middle": {
+        "columns": ["ID", "attM"],
+        "rows": [
+          ["4", "5"],
+          ["5", "10"],
+          ["6", "6"],
+          ["7", "7"]
+        ]
+      },
+      "Right": {
+        "columns": ["attR", "g"],
+        "rows": [
+          ["Happy", "4"],
+          ["Sad", "5"]
+        ]
+      }
+    },
+    "J": {
+      "C": {
+        "columns": ["ID", "CAname", "CBname", "Cid"],
+        "rows": [
+          ["0", "alice", "charlie", ""],
+          ["1", "alice", "dave", ""],
+          ["2", "bob", "charlie", "2"],
+          ["3", "bob", "dave", ""]
+        ]
+      }
+    },
+    "Joined": {
+      "Joiner": {
+        "columns": ["attM", "attR", "h"],
+        "rows": [
+          ["10", "Sad", "5"],
+          ["5", "Happy", "3"],
+          ["5", "Happy", "4"]
+        ]
+      },
+      "Left": {
+        "columns": ["ID", "attL"],
+        "rows": [
+          ["3", "Bob"],
+          ["4", "Carl"],
+          ["5", "Alice"],
+          ["6", "Dave"]
+        ]
+      }
+    },
+    "OuterJoinx": {
+      "Result": {
+        "columns": ["attL", "attM", "attR"],
+        "rows": [
+          ["Alice", "10", "Sad"],
+          ["Bob", "5", "Happy"],
+          ["Carl", "5", "Happy"],
+          ["Dave", "?N", "?N"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

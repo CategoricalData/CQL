@@ -1,0 +1,55 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "E": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["0", "0"],
+          ["1", "1"],
+          ["2", "2"]
+        ]
+      }
+    },
+    "I0": {
+      "Employee": {
+        "columns": ["ID", "eId", "is"],
+        "rows": [
+          ["0", "10", "0"],
+          ["1", "11", "1"],
+          ["2", "12", "2"]
+        ]
+      },
+      "Person": {
+        "columns": ["pId"],
+        "rows": [
+          ["0"],
+          ["1"],
+          ["2"]
+        ]
+      }
+    },
+    "J": {
+      "E": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["0", "0"],
+          ["1", "1"],
+          ["2", "2"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "createCsvData": [
+      "Java.type(\"catdata.Util\").writeFile(\"pId\\n0\\n1\\n2\", \"Person.csv\")",
+      "Java.type(\"catdata.Util\").writeFile(\"eId,is\\n10,0\\n11,1\\n12,2\", \"Employee.csv\")"
+    ],
+    "exportCsvData": [
+      "Export to exported/."
+    ],
+    "exportCsvData2": [
+      "Exported to exported_trans.csv."
+    ]
+  }
+}

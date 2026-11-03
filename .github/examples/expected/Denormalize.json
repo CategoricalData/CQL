@@ -1,0 +1,40 @@
+{
+  "error": null,
+  "instances": {
+    "DeNormalizedData": {
+      "Female": {
+        "columns": ["ID", "female_name"],
+        "rows": [
+          ["0", "Elaine"],
+          ["1", "Francine"]
+        ]
+      },
+      "Male": {
+        "columns": ["male_name", "mother", "mother_name"],
+        "rows": [
+          ["Albert", "0", "Elaine"],
+          ["Charles", "1", "Francine"],
+          ["George", "0", "Elaine"]
+        ]
+      }
+    },
+    "NormalizedData": {
+      "Female": {
+        "columns": ["ID", "female_name"],
+        "rows": [
+          ["0", "Elaine"],
+          ["1", "Francine"]
+        ]
+      },
+      "Male": {
+        "columns": ["male_name", "mother"],
+        "rows": [
+          ["Albert", "0"],
+          ["Charles", "1"],
+          ["George", "0"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

@@ -1,0 +1,194 @@
+{
+  "error": null,
+  "instances": {
+    "A": {
+      "E": {
+        "columns": ["att", "f"],
+        "rows": [
+          ["((true and true) and (true and true))", "11"],
+          ["((true and true) and (true and true))", "4"],
+          ["((true and true) and (true and true))", "7"],
+          ["((true and true) and (true and true))", "8"]
+        ]
+      },
+      "F": {
+        "columns": ["ID"],
+        "rows": [
+          ["10"],
+          ["11"],
+          ["4"],
+          ["5"],
+          ["6"],
+          ["7"],
+          ["8"],
+          ["9"]
+        ]
+      }
+    },
+    "A2": {
+      "E": {
+        "columns": ["att", "f"],
+        "rows": [
+          ["?N", "1"]
+        ]
+      },
+      "F": {
+        "columns": ["ID"],
+        "rows": [
+          ["1"]
+        ]
+      }
+    },
+    "B": {
+      "E": {
+        "columns": ["att", "f"],
+        "rows": [
+          ["((true and true) and (true and true))", "11"],
+          ["((true and true) and (true and true))", "4"],
+          ["((true and true) and (true and true))", "6"],
+          ["((true and true) and (true and true))", "9"]
+        ]
+      },
+      "F": {
+        "columns": ["ID"],
+        "rows": [
+          ["10"],
+          ["11"],
+          ["4"],
+          ["5"],
+          ["6"],
+          ["7"],
+          ["8"],
+          ["9"]
+        ]
+      }
+    },
+    "B2": {
+      "E": {
+        "columns": ["att", "f"],
+        "rows": [
+          ["?N", "1"]
+        ]
+      },
+      "F": {
+        "columns": ["ID"],
+        "rows": [
+          ["1"]
+        ]
+      }
+    },
+    "I": {
+      "u11": {
+        "columns": ["ID", "att1", "f1", "f1x", "l"],
+        "rows": [
+          ["2", "1.0", "0", "1", "2"]
+        ]
+      },
+      "u12": {
+        "columns": ["ID", "att2x", "f2", "f2x"],
+        "rows": [
+          ["3", "1.0", "0", "1"]
+        ]
+      },
+      "u21": {
+        "columns": ["att2", "g1", "h", "h2"],
+        "rows": [
+          ["1.0", "0", "2", "2"]
+        ]
+      },
+      "u22": {
+        "columns": ["g2", "h3"],
+        "rows": [
+          ["0", "3"]
+        ]
+      },
+      "u3": {
+        "columns": ["ID", "att3"],
+        "rows": [
+          ["0", "1.0"]
+        ]
+      },
+      "u3x": {
+        "columns": ["ID"],
+        "rows": [
+          ["1"]
+        ]
+      }
+    },
+    "II": {
+      "E": {
+        "columns": ["att", "f"],
+        "rows": [
+          ["true", "1"]
+        ]
+      },
+      "F": {
+        "columns": ["ID"],
+        "rows": [
+          ["1"]
+        ]
+      }
+    },
+    "J": {
+      "s": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["0", "4.0"]
+        ]
+      },
+      "s0": {
+        "columns": ["ss"],
+        "rows": [
+          ["0"]
+        ]
+      }
+    },
+    "JJ": {
+      "E": {
+        "columns": ["att", "f"],
+        "rows": [
+          ["(true and true)", "2"],
+          ["(true and true)", "5"]
+        ]
+      },
+      "F": {
+        "columns": ["ID"],
+        "rows": [
+          ["2"],
+          ["3"],
+          ["4"],
+          ["5"]
+        ]
+      }
+    },
+    "K": {
+      "s": {
+        "columns": ["ID", "att"],
+        "rows": [
+          ["0", "4.0"]
+        ]
+      },
+      "s0": {
+        "columns": ["ss"],
+        "rows": [
+          ["0"]
+        ]
+      }
+    },
+    "KK": {
+      "E": {
+        "columns": ["att", "f"],
+        "rows": [
+          ["?N", "1"]
+        ]
+      },
+      "F": {
+        "columns": ["ID"],
+        "rows": [
+          ["1"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

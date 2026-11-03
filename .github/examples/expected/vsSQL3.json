@@ -1,0 +1,91 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "SDeptEmp": {
+        "columns": ["SdeptId", "SempId", "SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      },
+      "TDept": {
+        "columns": ["ID", "TdeptId", "TmgrId", "TmgrName"],
+        "rows": []
+      },
+      "TEmp": {
+        "columns": ["ID", "TempId", "TwrksIn"],
+        "rows": []
+      }
+    },
+    "I1": {
+      "Front": {
+        "columns": ["de_SdeptId", "de_SempId", "de_SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      }
+    },
+    "I2": {
+      "Front": {
+        "columns": ["ID", "de_SdeptId", "de_SempId", "de_SmgrName"],
+        "rows": []
+      }
+    },
+    "J": {
+      "SDeptEmp": {
+        "columns": ["SdeptId", "SempId", "SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      },
+      "TDept": {
+        "columns": ["ID", "TdeptId", "TmgrId", "TmgrName"],
+        "rows": [
+          ["1", "cs", "?N", "?N"]
+        ]
+      },
+      "TEmp": {
+        "columns": ["TempId", "TwrksIn"],
+        "rows": [
+          ["1", "cs"],
+          ["?N", "cs"]
+        ]
+      }
+    },
+    "J1": {
+      "Front": {
+        "columns": ["de_SdeptId", "de_SempId", "de_SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      }
+    },
+    "J2": {
+      "Front": {
+        "columns": ["de_SdeptId", "de_SempId", "de_SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      }
+    },
+    "i1": {
+      "Front": {
+        "columns": ["de_SdeptId", "de_SempId", "de_SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      }
+    },
+    "j1": {
+      "Front": {
+        "columns": ["ID", "de_SdeptId", "de_SempId", "de_SmgrName"],
+        "rows": []
+      }
+    }
+  },
+  "commands": {
+    "JisOk1": [
+      "Satisfied"
+    ]
+  }
+}

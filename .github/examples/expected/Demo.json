@@ -1,0 +1,293 @@
+{
+  "error": null,
+  "instances": {
+    "ANonInjectiveWarehouse": {
+      "Amphibian": {
+        "columns": ["land_is", "water_is"],
+        "rows": [
+          ["3", "4"],
+          ["3", "5"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "land_species", "water_species"],
+        "rows": [
+          ["2", "?N", "?N"]
+        ]
+      },
+      "Land": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["3", "2"]
+        ]
+      },
+      "Water": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["4", "2"],
+          ["5", "2"]
+        ]
+      }
+    },
+    "LandInstance": {
+      "Amphibian": {
+        "columns": ["isA", "toAnimal"],
+        "rows": [
+          ["6", "2"],
+          ["7", "3"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "species"],
+        "rows": [
+          ["2", "Gecko"],
+          ["3", "FROG"],
+          ["4", "?N"],
+          ["5", "equine"]
+        ]
+      },
+      "LandAnimal": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["6", "2"],
+          ["7", "3"],
+          ["8", "5"]
+        ]
+      }
+    },
+    "LandInstanceForward": {
+      "Amphibian": {
+        "columns": ["land_is", "water_is"],
+        "rows": [
+          ["6", "9"],
+          ["7", "10"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "land_species", "water_species"],
+        "rows": [
+          ["2", "Gecko", "?N"],
+          ["3", "FROG", "?N"],
+          ["4", "?N", "?N"],
+          ["5", "equine", "?N"]
+        ]
+      },
+      "Land": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["6", "2"],
+          ["7", "3"],
+          ["8", "5"]
+        ]
+      },
+      "Water": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["10", "3"],
+          ["9", "2"]
+        ]
+      }
+    },
+    "RepairedInjectiveWarehouse": {
+      "Amphibian": {
+        "columns": ["land_is", "water_is"],
+        "rows": [
+          ["2", "3"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "land_species", "water_species"],
+        "rows": [
+          ["1", "?N", "?N"]
+        ]
+      },
+      "Land": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["2", "1"]
+        ]
+      },
+      "Water": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["3", "1"]
+        ]
+      }
+    },
+    "RoundTripAmphibians": {
+      "Amphibian": {
+        "columns": ["toAnimal"],
+        "rows": [
+          ["2"],
+          ["4"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "species"],
+        "rows": [
+          ["2", "FROG"],
+          ["3", "?N"],
+          ["4", "Gecko"],
+          ["5", "?N"],
+          ["6", "equine"]
+        ]
+      }
+    },
+    "RoundTripLand": {
+      "Amphibian": {
+        "columns": ["isA", "toAnimal"],
+        "rows": [
+          ["7", "2"],
+          ["8", "4"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "species"],
+        "rows": [
+          ["2", "FROG"],
+          ["3", "?N"],
+          ["4", "Gecko"],
+          ["5", "?N"],
+          ["6", "equine"]
+        ]
+      },
+      "LandAnimal": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["7", "2"],
+          ["8", "4"],
+          ["9", "6"]
+        ]
+      }
+    },
+    "UnmergedWarehouse": {
+      "Amphibian": {
+        "columns": ["land_is", "water_is"],
+        "rows": [
+          ["10", "14"],
+          ["12", "15"],
+          ["9", "13"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "land_species", "water_species"],
+        "rows": [
+          ["3", "Gecko", "?N"],
+          ["4", "FROG", "?N"],
+          ["5", "?N", "?N"],
+          ["6", "equine", "?N"],
+          ["7", "?N", "frog"],
+          ["8", "?N", "FISH"]
+        ]
+      },
+      "Land": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["10", "4"],
+          ["11", "6"],
+          ["12", "7"],
+          ["9", "3"]
+        ]
+      },
+      "Water": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["13", "3"],
+          ["14", "4"],
+          ["15", "7"],
+          ["16", "8"]
+        ]
+      }
+    },
+    "Warehouse": {
+      "Amphibian": {
+        "columns": ["land_is", "water_is"],
+        "rows": [
+          ["7", "10"],
+          ["8", "12"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "land_species", "water_species"],
+        "rows": [
+          ["2", "FROG", "frog"],
+          ["3", "?N", "FISH"],
+          ["4", "Gecko", "?N"],
+          ["5", "?N", "?N"],
+          ["6", "equine", "?N"]
+        ]
+      },
+      "Land": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["7", "2"],
+          ["8", "4"],
+          ["9", "6"]
+        ]
+      },
+      "Water": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["10", "2"],
+          ["11", "3"],
+          ["12", "4"]
+        ]
+      }
+    },
+    "WaterInstance": {
+      "Amphibian": {
+        "columns": ["isA", "toAnimal"],
+        "rows": [
+          ["3", "1"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "species"],
+        "rows": [
+          ["1", "frog"],
+          ["2", "FISH"]
+        ]
+      },
+      "WaterAnimal": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["3", "1"],
+          ["4", "2"]
+        ]
+      }
+    },
+    "WaterInstanceForward": {
+      "Amphibian": {
+        "columns": ["land_is", "water_is"],
+        "rows": [
+          ["3", "4"]
+        ]
+      },
+      "Animal": {
+        "columns": ["ID", "land_species", "water_species"],
+        "rows": [
+          ["1", "?N", "frog"],
+          ["2", "?N", "FISH"]
+        ]
+      },
+      "Land": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["3", "1"]
+        ]
+      },
+      "Water": {
+        "columns": ["ID", "isA"],
+        "rows": [
+          ["4", "1"],
+          ["5", "2"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "cmd": [
+      "Satisfied"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "error": [
+    "org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (near \"CASCADE\": syntax error)"
+  ],
+  "instances": {},
+  "commands": {}
+}

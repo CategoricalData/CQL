@@ -1,0 +1,47 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "SDeptEmp": {
+        "columns": ["SdeptId", "SempId", "SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      },
+      "TDept": {
+        "columns": ["ID", "TdeptId", "TmgrId", "TmgrName"],
+        "rows": []
+      },
+      "TEmp": {
+        "columns": ["ID", "TempId", "TwrksIn"],
+        "rows": []
+      }
+    },
+    "J": {
+      "SDeptEmp": {
+        "columns": ["SdeptId", "SempId", "SmgrName"],
+        "rows": [
+          ["cs", "1", "alice"]
+        ]
+      },
+      "TDept": {
+        "columns": ["ID", "TdeptId", "TmgrId", "TmgrName"],
+        "rows": [
+          ["1", "cs", "?N", "?N"]
+        ]
+      },
+      "TEmp": {
+        "columns": ["TempId", "TwrksIn"],
+        "rows": [
+          ["1", "cs"],
+          ["?N", "cs"]
+        ]
+      }
+    }
+  },
+  "commands": {
+    "JisOk1": [
+      "Satisfied"
+    ]
+  }
+}

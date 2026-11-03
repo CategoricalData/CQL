@@ -1,0 +1,7 @@
+{
+  "error": [
+    "com.microsoft.sqlserver.jdbc.SQLServerException: Incorrect syntax near the keyword 'CASCADE'."
+  ],
+  "instances": {},
+  "commands": {}
+}

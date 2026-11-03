@@ -1,0 +1,105 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "assign": {
+        "columns": ["v1", "v2"],
+        "rows": [
+          ["a", "x"],
+          ["b", "y"],
+          ["c", "a"],
+          ["c", "z"],
+          ["d", "b"],
+          ["d", "x"]
+        ]
+      },
+      "hP": {
+        "columns": ["ID", "f", "h1", "h2"],
+        "rows": []
+      },
+      "load": {
+        "columns": ["f", "v1", "v2"],
+        "rows": [
+          ["f", "z", "q"]
+        ]
+      },
+      "store": {
+        "columns": ["f", "v1", "v2"],
+        "rows": [
+          ["f", "c", "d"]
+        ]
+      },
+      "vP": {
+        "columns": ["ID", "h", "v"],
+        "rows": []
+      },
+      "vP0": {
+        "columns": ["h", "v"],
+        "rows": [
+          ["main@1", "x"],
+          ["main@2", "y"],
+          ["main@3", "z"]
+        ]
+      }
+    },
+    "J": {
+      "assign": {
+        "columns": ["v1", "v2"],
+        "rows": [
+          ["a", "x"],
+          ["b", "y"],
+          ["c", "a"],
+          ["c", "z"],
+          ["d", "b"],
+          ["d", "x"]
+        ]
+      },
+      "hP": {
+        "columns": ["f", "h1", "h2"],
+        "rows": [
+          ["f", "main@1", "main@1"],
+          ["f", "main@1", "main@2"],
+          ["f", "main@3", "main@1"],
+          ["f", "main@3", "main@2"]
+        ]
+      },
+      "load": {
+        "columns": ["f", "v1", "v2"],
+        "rows": [
+          ["f", "z", "q"]
+        ]
+      },
+      "store": {
+        "columns": ["f", "v1", "v2"],
+        "rows": [
+          ["f", "c", "d"]
+        ]
+      },
+      "vP": {
+        "columns": ["h", "v"],
+        "rows": [
+          ["main@1", "a"],
+          ["main@1", "c"],
+          ["main@1", "d"],
+          ["main@1", "q"],
+          ["main@1", "x"],
+          ["main@2", "b"],
+          ["main@2", "d"],
+          ["main@2", "q"],
+          ["main@2", "y"],
+          ["main@3", "c"],
+          ["main@3", "z"]
+        ]
+      },
+      "vP0": {
+        "columns": ["h", "v"],
+        "rows": [
+          ["main@1", "x"],
+          ["main@2", "y"],
+          ["main@3", "z"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

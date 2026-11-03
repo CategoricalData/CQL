@@ -1,0 +1,295 @@
+{
+  "error": null,
+  "instances": {
+    "I": {
+      "R": {
+        "columns": ["object", "predicate", "subject"],
+        "rows": [
+          ["A", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "a1"],
+          ["A", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "a2"],
+          ["Alice", "attA", "a1"],
+          ["Ann", "attA", "a2"],
+          ["B", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "b1"],
+          ["B", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "b2"],
+          ["Bill", "attB", "b2"],
+          ["Bob", "attB", "b1"],
+          ["b1", "f", "a1"],
+          ["b1", "f", "a2"],
+          ["b2", "f", "a2"]
+        ]
+      }
+    },
+    "J": {
+      "A": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["0", "a1"],
+          ["1", "a2"]
+        ]
+      },
+      "B": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["2", "b1"],
+          ["3", "b2"]
+        ]
+      },
+      "attA_A": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Alice", "0"],
+          ["Ann", "1"]
+        ]
+      },
+      "attB_B": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Bill", "3"],
+          ["Bob", "2"]
+        ]
+      },
+      "f_A_B": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["2", "0"],
+          ["2", "1"],
+          ["3", "1"]
+        ]
+      }
+    },
+    "J2": {
+      "A": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["0", "a1"],
+          ["1", "a2"]
+        ]
+      },
+      "B": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["2", "b1"],
+          ["3", "b2"]
+        ]
+      },
+      "attA_A": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Alice", "0"],
+          ["Ann", "1"]
+        ]
+      },
+      "attB_B": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Bill", "3"],
+          ["Bob", "2"]
+        ]
+      },
+      "f_A_B": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["2", "0"],
+          ["2", "1"],
+          ["3", "1"]
+        ]
+      }
+    },
+    "K": {
+      "W": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["0", "a2"],
+          ["1", "a1"],
+          ["2", "?N"],
+          ["3", "?N"]
+        ]
+      },
+      "X": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["4", "?N"],
+          ["5", "?N"],
+          ["6", "?N"]
+        ]
+      },
+      "Y": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["7", "?N"],
+          ["8", "?N"],
+          ["9", "?N"]
+        ]
+      },
+      "Z": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["10", "b2"],
+          ["11", "b1"],
+          ["12", "?N"],
+          ["13", "?N"]
+        ]
+      },
+      "attW_W": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Alice", "3"],
+          ["Ann", "2"]
+        ]
+      },
+      "attX_X": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      },
+      "attY_Y": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      },
+      "attZ_Z": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Bill", "12"],
+          ["Bob", "13"]
+        ]
+      },
+      "g_W_X": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["4", "0"],
+          ["5", "0"],
+          ["6", "1"]
+        ]
+      },
+      "h_X_Y": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["7", "4"],
+          ["8", "5"],
+          ["9", "6"]
+        ]
+      },
+      "i_Y_Z": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["10", "8"],
+          ["11", "7"],
+          ["11", "9"]
+        ]
+      }
+    },
+    "K2": {
+      "W": {
+        "columns": ["ID", "subject"],
+        "rows": [
+          ["0", "a2"],
+          ["1", "a1"],
+          ["2", "b2"],
+          ["3", "b1"],
+          ["4", "?N"],
+          ["5", "?N"],
+          ["6", "?N"],
+          ["7", "?N"]
+        ]
+      },
+      "X": {
+        "columns": ["ID", "subject"],
+        "rows": []
+      },
+      "Y": {
+        "columns": ["ID", "subject"],
+        "rows": []
+      },
+      "Z": {
+        "columns": ["ID", "subject"],
+        "rows": []
+      },
+      "attW_W": {
+        "columns": ["object", "subject"],
+        "rows": [
+          ["Alice", "5"],
+          ["Ann", "4"],
+          ["Bill", "6"],
+          ["Bob", "7"]
+        ]
+      },
+      "attX_X": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      },
+      "attY_Y": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      },
+      "attZ_Z": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      },
+      "g_W_X": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      },
+      "h_X_Y": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      },
+      "i_Y_Z": {
+        "columns": ["ID", "object", "subject"],
+        "rows": []
+      }
+    },
+    "L": {
+      "R": {
+        "columns": ["object", "predicate", "subject"],
+        "rows": [
+          ["?N", "g", "a1"],
+          ["?N", "g", "a2"],
+          ["?N", "g", "a2"],
+          ["?N", "h", "?N"],
+          ["?N", "h", "?N"],
+          ["?N", "h", "?N"],
+          ["Alice", "attW", "?N"],
+          ["Ann", "attW", "?N"],
+          ["Bill", "attZ", "?N"],
+          ["Bob", "attZ", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "a1"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "a2"],
+          ["X", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["X", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["X", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["Y", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["Y", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["Y", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["Z", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["Z", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["Z", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "b1"],
+          ["Z", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "b2"],
+          ["b1", "i", "?N"],
+          ["b1", "i", "?N"],
+          ["b2", "i", "?N"]
+        ]
+      }
+    },
+    "L2": {
+      "R": {
+        "columns": ["object", "predicate", "subject"],
+        "rows": [
+          ["Alice", "attW", "?N"],
+          ["Ann", "attW", "?N"],
+          ["Bill", "attW", "?N"],
+          ["Bob", "attW", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "?N"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "a1"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "a2"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "b1"],
+          ["W", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "b2"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}

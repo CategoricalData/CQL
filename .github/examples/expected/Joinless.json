@@ -1,0 +1,43 @@
+{
+  "error": null,
+  "instances": {
+    "BiggestDeptIsMathInBoston": {
+      "Person": {
+        "columns": ["lastName", "schoolName"],
+        "rows": [
+          ["Malecha", "Harvard"],
+          ["Morrisett", "Harvard"],
+          ["Wisnesky", "Harvard"]
+        ]
+      }
+    },
+    "BostonSchools": {
+      "Dept": {
+        "columns": ["ID", "deptName"],
+        "rows": [
+          ["0", "Mathematics"],
+          ["1", "CompSci"]
+        ]
+      },
+      "Person": {
+        "columns": ["deptOf", "instituteOf", "lastName"],
+        "rows": [
+          ["0", "8", "Wisnesky"],
+          ["0", "9", "Spivak"],
+          ["1", "8", "Malecha"],
+          ["1", "8", "Morrisett"],
+          ["1", "9", "Chlipala"],
+          ["1", "9", "Gross"]
+        ]
+      },
+      "School": {
+        "columns": ["ID", "biggestDept", "schoolName"],
+        "rows": [
+          ["8", "0", "Harvard"],
+          ["9", "1", "MIT"]
+        ]
+      }
+    }
+  },
+  "commands": {}
+}
