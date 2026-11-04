@@ -10,6 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.cql.Collage.CCollage;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -18,12 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.cql.Collage.CCollage;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -231,8 +231,8 @@ class RdfExporterTest {
     private final Att object = Att.Att("R", "object");
 
     /**
-     * Dom holds strings, Opt optional strings and Num integers; object has the type given, and
-     * the instance is r1 with subject s and predicate p, plus the values given.
+     * Dom holds strings, Opt optional strings and Num integers; object has the type given, and the
+     * instance is r1 with subject s and predicate p, plus the values given.
      */
     private Instance<
             String, String, Sym, Fk, Att, String, String, Integer, Chc<String, Pair<Integer, Att>>>

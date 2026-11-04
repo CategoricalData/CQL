@@ -3,10 +3,9 @@ package catdata.cql.fdm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import catdata.cql.Term;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.cql.Term;
 
 class LiteralTransformTest {
 
@@ -16,10 +15,9 @@ class LiteralTransformTest {
     @Test
     void constructorSetsFields() {
       var inst = FdmTestHelpers.singleElementInstance();
-      var lt = new LiteralTransform<>(
-          (gen, en) -> Term.Gen(gen),
-          (sk, ty) -> Term.Sk(sk),
-          inst, inst, true);
+      var lt =
+          new LiteralTransform<>(
+              (gen, en) -> Term.Gen(gen), (sk, ty) -> Term.Sk(sk), inst, inst, true);
       assertSame(inst, lt.src());
       assertSame(inst, lt.dst());
     }
@@ -27,20 +25,18 @@ class LiteralTransformTest {
     @Test
     void gensReturnsMappingFunction() {
       var inst = FdmTestHelpers.singleElementInstance();
-      var lt = new LiteralTransform<>(
-          (gen, en) -> Term.Gen(gen),
-          (sk, ty) -> Term.Sk(sk),
-          inst, inst, true);
+      var lt =
+          new LiteralTransform<>(
+              (gen, en) -> Term.Gen(gen), (sk, ty) -> Term.Sk(sk), inst, inst, true);
       assertEquals(Term.Gen("e1"), lt.gens().apply("e1", "E"));
     }
 
     @Test
     void sksReturnsMappingFunction() {
       var inst = FdmTestHelpers.singleElementInstance();
-      var lt = new LiteralTransform<>(
-          (gen, en) -> Term.Gen(gen),
-          (sk, ty) -> Term.Sk(sk),
-          inst, inst, true);
+      var lt =
+          new LiteralTransform<>(
+              (gen, en) -> Term.Gen(gen), (sk, ty) -> Term.Sk(sk), inst, inst, true);
       assertEquals(Term.Sk("s1"), lt.sks().apply("s1", "String"));
     }
   }

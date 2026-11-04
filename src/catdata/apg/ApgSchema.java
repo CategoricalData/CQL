@@ -1,15 +1,14 @@
 package catdata.apg;
 
+import catdata.Util;
+import catdata.cql.Kind;
+import catdata.cql.Semantics;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import catdata.Util;
-import catdata.cql.Kind;
-import catdata.cql.Semantics;
-
 public class ApgSchema<L> implements Map<L, ApgTy<L>>, Semantics {
-  
+
   /*
   public void type(ApgTerm<Void> term, ApgTy<L> ty) {
     if (term.e != null) {
@@ -34,12 +33,12 @@ public class ApgSchema<L> implements Map<L, ApgTy<L>>, Semantics {
       if (!ty.l.equals(l2)) {
         throw new RuntimeException("Expecting element at label " + ty.l + ", but received element " + term + " at label " + l2);
       }
-      
+
     } else if (ty.m != null && ty.all) {
       if (term.m == null) {
         throw new RuntimeException("Expecting tuple at type " + ty + ", but received " + term);
       }
-      
+
       for (Entry<String, ApgTerm<E>> x : term.m.entrySet()) {
         ApgTy<L> w = ty.m.get(x.getKey());
         if (w == null) {
@@ -51,13 +50,13 @@ public class ApgSchema<L> implements Map<L, ApgTy<L>>, Semantics {
         if (!term.m.containsKey(w)) {
           throw new RuntimeException("In " + term + ", no field for " + w);
         }
-      }        
-      
+      }
+
     } else if (ty.m != null && !ty.all) {
       if (term.inj == null) {
         throw new RuntimeException("Expecting injection at type " + ty + ", but received " + term);
       }
-    
+
       ApgTy<L> w = ty.m.get(term.inj);
       if (w == null) {
         throw new RuntimeException("In " + term + ", " + term.inj + ", is not a field in " + ty);
@@ -70,7 +69,7 @@ public class ApgSchema<L> implements Map<L, ApgTy<L>>, Semantics {
     } else if (term.c != null) {
       throw new RuntimeException("Expected an introduction form, encountered case analysis of " + term.a);
     }
-    
+
   } */
 
   public final Map<L, ApgTy<L>> schema;
@@ -86,28 +85,21 @@ public class ApgSchema<L> implements Map<L, ApgTy<L>>, Semantics {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     ApgSchema<?> other = (ApgSchema<?>) obj;
     if (typeside == null) {
-      if (other.typeside != null)
-        return false;
-    } else if (!typeside.equals(other.typeside))
-      return false;
+      if (other.typeside != null) return false;
+    } else if (!typeside.equals(other.typeside)) return false;
     if (schema == null) {
-      if (other.schema != null)
-        return false;
-    } else if (!schema.equals(other.schema))
-      return false;
+      if (other.schema != null) return false;
+    } else if (!schema.equals(other.schema)) return false;
     return true;
   }
 
   public final ApgTypeside typeside;
-  
+
   public ApgSchema(ApgTypeside typeside, Map<L, ApgTy<L>> schema) {
     this.schema = schema;
     this.typeside = typeside;
@@ -182,7 +174,4 @@ public class ApgSchema<L> implements Map<L, ApgTy<L>>, Semantics {
   public Kind kind() {
     return Kind.APG_schema;
   }
-  
-  
-  
 }

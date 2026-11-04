@@ -134,7 +134,7 @@ spotless {
     ratchetFrom(System.getenv('CI') ? 'origin/master' : 'HEAD')
     java {
         target 'src/**/*.java'
-        targetExclude '**/*Test.java', '**/*TestHelpers.java', '**/easik/**', '**/com/**', '**/OilExample.java'
+        targetExclude '**/easik/**', '**/com/**', '**/OilExample.java'
         googleJavaFormat('1.28.0')
         removeUnusedImports()
         trimTrailingWhitespace()

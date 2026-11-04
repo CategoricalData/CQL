@@ -1,14 +1,5 @@
 package catdata.cql.fdm;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
@@ -20,28 +11,47 @@ import catdata.cql.Mapping;
 import catdata.cql.Schema;
 import catdata.cql.Term;
 import catdata.cql.TypeSide;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 class FdmTestHelpers {
 
   static TypeSide<String, String> emptyTypeSide() {
-    AqlJs<String, String> js = new AqlJs<>(
-        AqlOptions.initialOptions,
+    AqlJs<String, String> js =
+        new AqlJs<>(
+            AqlOptions.initialOptions,
+            Collections.emptyMap(),
+            Collections.emptyMap(),
+            Collections.emptyMap(),
+            Collections.emptyMap());
+    DP<String, Void, String, Void, Void, Void, Void> dp =
+        new DP<>() {
+          @Override
+          public String toStringProver() {
+            return "test";
+          }
+
+          @Override
+          public boolean eq(
+              Map<String, Chc<String, Void>> ctx,
+              Term<String, Void, String, Void, Void, Void, Void> lhs,
+              Term<String, Void, String, Void, Void, Void, Void> rhs) {
+            return lhs.equals(rhs);
+          }
+        };
+    return new TypeSide<>(
+        Collections.emptySet(),
         Collections.emptyMap(),
-        Collections.emptyMap(),
-        Collections.emptyMap(),
-        Collections.emptyMap());
-    DP<String, Void, String, Void, Void, Void, Void> dp = new DP<>() {
-      @Override
-      public String toStringProver() { return "test"; }
-      @Override
-      public boolean eq(Map<String, Chc<String, Void>> ctx,
-          Term<String, Void, String, Void, Void, Void, Void> lhs,
-          Term<String, Void, String, Void, Void, Void, Void> rhs) {
-        return lhs.equals(rhs);
-      }
-    };
-    return new TypeSide<>(Collections.emptySet(), Collections.emptyMap(),
-        Collections.emptySet(), js, dp, AqlOptions.initialOptions);
+        Collections.emptySet(),
+        js,
+        dp,
+        AqlOptions.initialOptions);
   }
 
   static TypeSide<String, String> simpleTypeSide() {
@@ -50,24 +60,30 @@ class FdmTestHelpers {
     javaTys.put("String", "java.lang.String");
     Map<String, String> javaParsers = new HashMap<>();
     javaParsers.put("String", "x => x");
-    AqlJs<String, String> js = new AqlJs<>(
-        AqlOptions.initialOptions,
-        Collections.emptyMap(),
-        javaTys,
-        javaParsers,
-        Collections.emptyMap());
-    DP<String, Void, String, Void, Void, Void, Void> dp = new DP<>() {
-      @Override
-      public String toStringProver() { return "test"; }
-      @Override
-      public boolean eq(Map<String, Chc<String, Void>> ctx,
-          Term<String, Void, String, Void, Void, Void, Void> lhs,
-          Term<String, Void, String, Void, Void, Void, Void> rhs) {
-        return lhs.equals(rhs);
-      }
-    };
-    return new TypeSide<>(tys, Collections.emptyMap(),
-        Collections.emptySet(), js, dp, AqlOptions.initialOptions);
+    AqlJs<String, String> js =
+        new AqlJs<>(
+            AqlOptions.initialOptions,
+            Collections.emptyMap(),
+            javaTys,
+            javaParsers,
+            Collections.emptyMap());
+    DP<String, Void, String, Void, Void, Void, Void> dp =
+        new DP<>() {
+          @Override
+          public String toStringProver() {
+            return "test";
+          }
+
+          @Override
+          public boolean eq(
+              Map<String, Chc<String, Void>> ctx,
+              Term<String, Void, String, Void, Void, Void, Void> lhs,
+              Term<String, Void, String, Void, Void, Void, Void> rhs) {
+            return lhs.equals(rhs);
+          }
+        };
+    return new TypeSide<>(
+        tys, Collections.emptyMap(), Collections.emptySet(), js, dp, AqlOptions.initialOptions);
   }
 
   static Schema<String, String, String, String, String> emptySchema() {
@@ -78,28 +94,43 @@ class FdmTestHelpers {
   static Schema<String, String, String, String, String> singleEntitySchema() {
     TypeSide<String, String> ts = emptyTypeSide();
     DP dp = ts.semantics();
-    return new Schema<>(ts, Collections.singleton("E"),
-        Collections.emptyMap(), Collections.emptyMap(),
-        Collections.emptySet(), dp, false);
+    return new Schema<>(
+        ts,
+        Collections.singleton("E"),
+        Collections.emptyMap(),
+        Collections.emptyMap(),
+        Collections.emptySet(),
+        dp,
+        false);
   }
 
   static Schema<String, String, String, String, String> schemaWithAtt() {
     TypeSide<String, String> ts = simpleTypeSide();
     Map<String, Pair<String, String>> atts = new HashMap<>();
     atts.put("name", new Pair<>("E", "String"));
-    DP<String, String, String, String, String, Void, Void> dp = new DP<>() {
-      @Override
-      public String toStringProver() { return "test"; }
-      @Override
-      public boolean eq(Map<String, Chc<String, String>> ctx,
-          Term<String, String, String, String, String, Void, Void> lhs,
-          Term<String, String, String, String, String, Void, Void> rhs) {
-        return lhs.equals(rhs);
-      }
-    };
-    return new Schema<>(ts, Collections.singleton("E"),
-        atts, Collections.emptyMap(),
-        Collections.emptySet(), dp, false);
+    DP<String, String, String, String, String, Void, Void> dp =
+        new DP<>() {
+          @Override
+          public String toStringProver() {
+            return "test";
+          }
+
+          @Override
+          public boolean eq(
+              Map<String, Chc<String, String>> ctx,
+              Term<String, String, String, String, String, Void, Void> lhs,
+              Term<String, String, String, String, String, Void, Void> rhs) {
+            return lhs.equals(rhs);
+          }
+        };
+    return new Schema<>(
+        ts,
+        Collections.singleton("E"),
+        atts,
+        Collections.emptyMap(),
+        Collections.emptySet(),
+        dp,
+        false);
   }
 
   static Schema<String, String, String, String, String> schemaWithFk() {
@@ -107,18 +138,22 @@ class FdmTestHelpers {
     Set<String> ens = new HashSet<>(Arrays.asList("A", "B"));
     Map<String, Pair<String, String>> fks = new HashMap<>();
     fks.put("f", new Pair<>("A", "B"));
-    DP<String, String, String, String, String, Void, Void> dp = new DP<>() {
-      @Override
-      public String toStringProver() { return "test"; }
-      @Override
-      public boolean eq(Map<String, Chc<String, String>> ctx,
-          Term<String, String, String, String, String, Void, Void> lhs,
-          Term<String, String, String, String, String, Void, Void> rhs) {
-        return lhs.equals(rhs);
-      }
-    };
-    return new Schema<>(ts, ens, Collections.emptyMap(), fks,
-        Collections.emptySet(), dp, false);
+    DP<String, String, String, String, String, Void, Void> dp =
+        new DP<>() {
+          @Override
+          public String toStringProver() {
+            return "test";
+          }
+
+          @Override
+          public boolean eq(
+              Map<String, Chc<String, String>> ctx,
+              Term<String, String, String, String, String, Void, Void> lhs,
+              Term<String, String, String, String, String, Void, Void> rhs) {
+            return lhs.equals(rhs);
+          }
+        };
+    return new Schema<>(ts, ens, Collections.emptyMap(), fks, Collections.emptySet(), dp, false);
   }
 
   static Schema<String, String, String, String, String> schemaWithAttAndFk() {
@@ -128,22 +163,26 @@ class FdmTestHelpers {
     atts.put("name", new Pair<>("E", "String"));
     Map<String, Pair<String, String>> fks = new HashMap<>();
     fks.put("f", new Pair<>("E", "E"));
-    DP<String, String, String, String, String, Void, Void> dp = new DP<>() {
-      @Override
-      public String toStringProver() { return "test"; }
-      @Override
-      public boolean eq(Map<String, Chc<String, String>> ctx,
-          Term<String, String, String, String, String, Void, Void> lhs,
-          Term<String, String, String, String, String, Void, Void> rhs) {
-        return lhs.equals(rhs);
-      }
-    };
-    return new Schema<>(ts, ens, atts, fks,
-        Collections.emptySet(), dp, false);
+    DP<String, String, String, String, String, Void, Void> dp =
+        new DP<>() {
+          @Override
+          public String toStringProver() {
+            return "test";
+          }
+
+          @Override
+          public boolean eq(
+              Map<String, Chc<String, String>> ctx,
+              Term<String, String, String, String, String, Void, Void> lhs,
+              Term<String, String, String, String, String, Void, Void> rhs) {
+            return lhs.equals(rhs);
+          }
+        };
+    return new Schema<>(ts, ens, atts, fks, Collections.emptySet(), dp, false);
   }
 
-  static Instance<String, String, String, String, String, String, String, String, String> emptyInstance(
-      Schema<String, String, String, String, String> schema) {
+  static Instance<String, String, String, String, String, String, String, String, String>
+      emptyInstance(Schema<String, String, String, String, String> schema) {
     Map<String, Collection<String>> ensMap = new HashMap<>();
     Map<String, Collection<String>> tysMap = new HashMap<>();
 
@@ -155,51 +194,66 @@ class FdmTestHelpers {
     }
 
     ImportAlgebra<String, String, String, String, String, String, String> alg =
-        new ImportAlgebra<>(schema,
-            en -> ensMap.get(en), tysMap,
+        new ImportAlgebra<>(
+            schema,
+            en -> ensMap.get(en),
+            tysMap,
             (en, x) -> Collections.emptyMap(),
             (en, x) -> Collections.emptyMap(),
-            (en, x) -> x, (ty, y) -> y,
-            true, Collections.emptyList());
+            (en, x) -> x,
+            (ty, y) -> y,
+            true,
+            Collections.emptyList());
 
     return new SaturatedInstance<>(alg, alg, false, false, false, null);
   }
 
-  static Instance<String, String, String, String, String, String, String, String, String> singleElementInstance() {
+  static Instance<String, String, String, String, String, String, String, String, String>
+      singleElementInstance() {
     Schema<String, String, String, String, String> schema = singleEntitySchema();
     Map<String, Collection<String>> ensMap = new HashMap<>();
     ensMap.put("E", Collections.singletonList("e1"));
     Map<String, Collection<String>> tysMap = new HashMap<>();
 
     ImportAlgebra<String, String, String, String, String, String, String> alg =
-        new ImportAlgebra<>(schema,
-            en -> ensMap.get(en), tysMap,
+        new ImportAlgebra<>(
+            schema,
+            en -> ensMap.get(en),
+            tysMap,
             (en, x) -> Collections.emptyMap(),
             (en, x) -> Collections.emptyMap(),
-            (en, x) -> x, (ty, y) -> y,
-            true, Collections.emptyList());
+            (en, x) -> x,
+            (ty, y) -> y,
+            true,
+            Collections.emptyList());
 
     return new SaturatedInstance<>(alg, alg, false, false, false, null);
   }
 
-  static Instance<String, String, String, String, String, String, String, String, String> twoElementInstance() {
+  static Instance<String, String, String, String, String, String, String, String, String>
+      twoElementInstance() {
     Schema<String, String, String, String, String> schema = singleEntitySchema();
     Map<String, Collection<String>> ensMap = new HashMap<>();
     ensMap.put("E", Arrays.asList("e1", "e2"));
     Map<String, Collection<String>> tysMap = new HashMap<>();
 
     ImportAlgebra<String, String, String, String, String, String, String> alg =
-        new ImportAlgebra<>(schema,
-            en -> ensMap.get(en), tysMap,
+        new ImportAlgebra<>(
+            schema,
+            en -> ensMap.get(en),
+            tysMap,
             (en, x) -> Collections.emptyMap(),
             (en, x) -> Collections.emptyMap(),
-            (en, x) -> x, (ty, y) -> y,
-            true, Collections.emptyList());
+            (en, x) -> x,
+            (ty, y) -> y,
+            true,
+            Collections.emptyList());
 
     return new SaturatedInstance<>(alg, alg, false, false, false, null);
   }
 
-  static Instance<String, String, String, String, String, String, String, String, String> instanceWithAtt() {
+  static Instance<String, String, String, String, String, String, String, String, String>
+      instanceWithAtt() {
     Schema<String, String, String, String, String> schema = schemaWithAtt();
     Map<String, Collection<String>> ensMap = new HashMap<>();
     ensMap.put("E", Collections.singletonList("e1"));
@@ -210,17 +264,22 @@ class FdmTestHelpers {
     e1Atts.put("name", Term.Obj("Alice", "String"));
 
     ImportAlgebra<String, String, String, String, String, String, String> alg =
-        new ImportAlgebra<>(schema,
-            en -> ensMap.get(en), tysMap,
+        new ImportAlgebra<>(
+            schema,
+            en -> ensMap.get(en),
+            tysMap,
             (en, x) -> Collections.emptyMap(),
             (en, x) -> e1Atts,
-            (en, x) -> x, (ty, y) -> y,
-            true, Collections.emptyList());
+            (en, x) -> x,
+            (ty, y) -> y,
+            true,
+            Collections.emptyList());
 
     return new SaturatedInstance<>(alg, alg, false, false, false, null);
   }
 
-  static Instance<String, String, String, String, String, String, String, String, String> instanceWithFk() {
+  static Instance<String, String, String, String, String, String, String, String, String>
+      instanceWithFk() {
     Schema<String, String, String, String, String> schema = schemaWithFk();
     Map<String, Collection<String>> ensMap = new HashMap<>();
     ensMap.put("A", Collections.singletonList("a1"));
@@ -231,15 +290,19 @@ class FdmTestHelpers {
     a1Fks.put("f", "b1");
 
     ImportAlgebra<String, String, String, String, String, String, String> alg =
-        new ImportAlgebra<>(schema,
-            en -> ensMap.get(en), tysMap,
+        new ImportAlgebra<>(
+            schema,
+            en -> ensMap.get(en),
+            tysMap,
             (en, x) -> {
               if (en.equals("A")) return a1Fks;
               return Collections.emptyMap();
             },
             (en, x) -> Collections.emptyMap(),
-            (en, x) -> x, (ty, y) -> y,
-            true, Collections.emptyList());
+            (en, x) -> x,
+            (ty, y) -> y,
+            true,
+            Collections.emptyList());
 
     return new SaturatedInstance<>(alg, alg, false, false, false, null);
   }
@@ -254,10 +317,10 @@ class FdmTestHelpers {
     for (String fk : schema.fks.keySet()) {
       fks.put(fk, new Pair<>(schema.fks.get(fk).first, Collections.singletonList(fk)));
     }
-    Map<String, Triple<String, String, Term<String, String, String, String, String, Void, Void>>> atts = new HashMap<>();
+    Map<String, Triple<String, String, Term<String, String, String, String, String, Void, Void>>>
+        atts = new HashMap<>();
     for (String att : schema.atts.keySet()) {
-      atts.put(att, new Triple<>("x", schema.atts.get(att).first,
-          Term.Att(att, Term.Var("x"))));
+      atts.put(att, new Triple<>("x", schema.atts.get(att).first, Term.Att(att, Term.Var("x"))));
     }
     return new Mapping<>(ens, atts, fks, schema, schema, false);
   }

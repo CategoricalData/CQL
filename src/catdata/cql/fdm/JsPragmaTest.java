@@ -3,13 +3,11 @@ package catdata.cql.fdm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Collections;
-
-import org.junit.jupiter.api.Test;
-
 import catdata.Program;
 import catdata.cql.exp.AqlEnv;
 import catdata.cql.exp.Exp;
+import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
 class JsPragmaTest {
 

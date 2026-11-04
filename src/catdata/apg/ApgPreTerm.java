@@ -1,9 +1,8 @@
 package catdata.apg;
 
-import java.util.List;
-
 import catdata.Pair;
 import catdata.Util;
+import java.util.List;
 
 public class ApgPreTerm {
 
@@ -40,9 +39,17 @@ public class ApgPreTerm {
     return Util.anomaly();
   }
 
-  private ApgPreTerm(String str, List<Pair<String, ApgPreTerm>> fields, ApgPreTerm inj, String field,
-      ApgTy<Object> ty, String proj, String deref, List<Pair<String, Pair<String, ApgPreTerm>>> cases,
-      String head, List<ApgPreTerm> args) {
+  private ApgPreTerm(
+      String str,
+      List<Pair<String, ApgPreTerm>> fields,
+      ApgPreTerm inj,
+      String field,
+      ApgTy<Object> ty,
+      String proj,
+      String deref,
+      List<Pair<String, Pair<String, ApgPreTerm>>> cases,
+      String head,
+      List<ApgPreTerm> args) {
     this.str = str;
     this.fields = fields;
     this.arg = inj;
@@ -83,8 +90,8 @@ public class ApgPreTerm {
     return new ApgPreTerm(null, null, e, null, null, null, deref, null, null, null);
   }
 
-  public static ApgPreTerm ApgPreTermCase(ApgPreTerm x, List<Pair<String, Pair<String, ApgPreTerm>>> cases,
-      ApgTy ty) {
+  public static ApgPreTerm ApgPreTermCase(
+      ApgPreTerm x, List<Pair<String, Pair<String, ApgPreTerm>>> cases, ApgTy ty) {
     return new ApgPreTerm(null, null, x, null, ty, null, null, cases, null, null);
   }
 
@@ -125,64 +132,40 @@ public class ApgPreTerm {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     ApgPreTerm other = (ApgPreTerm) obj;
     if (inj == null) {
-      if (other.inj != null)
-        return false;
-    } else if (!inj.equals(other.inj))
-      return false;
+      if (other.inj != null) return false;
+    } else if (!inj.equals(other.inj)) return false;
     if (cases == null) {
-      if (other.cases != null)
-        return false;
-    } else if (!cases.equals(other.cases))
-      return false;
+      if (other.cases != null) return false;
+    } else if (!cases.equals(other.cases)) return false;
     if (proj == null) {
-      if (other.proj != null)
-        return false;
-    } else if (!proj.equals(other.proj))
-      return false;
+      if (other.proj != null) return false;
+    } else if (!proj.equals(other.proj)) return false;
     if (deref == null) {
-      if (other.deref != null)
-        return false;
-    } else if (!deref.equals(other.deref))
-      return false;
+      if (other.deref != null) return false;
+    } else if (!deref.equals(other.deref)) return false;
     if (fields == null) {
-      if (other.fields != null)
-        return false;
-    } else if (!fields.equals(other.fields))
-      return false;
+      if (other.fields != null) return false;
+    } else if (!fields.equals(other.fields)) return false;
     if (ty == null) {
-      if (other.ty != null)
-        return false;
-    } else if (!ty.equals(other.ty))
-      return false;
+      if (other.ty != null) return false;
+    } else if (!ty.equals(other.ty)) return false;
     if (arg == null) {
-      if (other.arg != null)
-        return false;
-    } else if (!arg.equals(other.arg))
-      return false;
+      if (other.arg != null) return false;
+    } else if (!arg.equals(other.arg)) return false;
     if (str == null) {
-      if (other.str != null)
-        return false;
-    } else if (!str.equals(other.str))
-      return false;
+      if (other.str != null) return false;
+    } else if (!str.equals(other.str)) return false;
     if (args == null) {
-      if (other.args != null)
-        return false;
-    } else if (!args.equals(other.args))
-      return false;
+      if (other.args != null) return false;
+    } else if (!args.equals(other.args)) return false;
     if (head == null) {
-      if (other.head != null)
-        return false;
-    } else if (!head.equals(other.head))
-      return false;
+      if (other.head != null) return false;
+    } else if (!head.equals(other.head)) return false;
     return true;
   }
-
 }

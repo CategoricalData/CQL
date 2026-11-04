@@ -1,9 +1,5 @@
 package catdata.cql;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Triple;
@@ -12,6 +8,9 @@ import catdata.provers.DPKB;
 import catdata.provers.KBExp;
 import catdata.provers.KBTheory;
 import catdata.provers.MonoidalProver;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
     extends DPKB<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String> {
@@ -44,7 +43,11 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
 
   public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(
       KBTheory<Chc<Ty, En>, Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String> th) {
-    for (Triple<Map<String, Chc<Ty, En>>, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String>, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String>> eq : th.eqs) {
+    for (Triple<
+            Map<String, Chc<Ty, En>>,
+            KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String>,
+            KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String>>
+        eq : th.eqs) {
       if (!ok(eq.second) || !ok(eq.third) || eq.first.size() > 1) {
         return false;
       }
@@ -52,7 +55,8 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
     return true;
   }
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(
+      Collage<Ty, En, Sym, Fk, Att, Gen, Sk> col) {
     for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : col.eqs()) {
       if (!ok(eq.lhs) || !ok(eq.rhs) || eq.ctx.size() > 1) {
         return false;
@@ -62,8 +66,12 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
   }
 
   public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(Term<Ty, En, Sym, Fk, Att, Gen, Sk> e) {
-    if (e.var != null || e.gen() != null || e.sk() != null || e.obj() != null
-        || (e.sym() != null && e.args().size() == 0) || (e.sym() != null && e.args().size() == 1)) {
+    if (e.var != null
+        || e.gen() != null
+        || e.sk() != null
+        || e.obj() != null
+        || (e.sym() != null && e.args().size() == 0)
+        || (e.sym() != null && e.args().size() == 1)) {
       return true;
     } else if (e.args().size() > 1) {
       return false;
@@ -76,7 +84,8 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
     return false;
   }
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String> e) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk> boolean ok(
+      KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String> e) {
     if (e.isVar()) {
       return true;
     } else if (e.getArgs().size() > 1) {
@@ -88,7 +97,9 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
   }
 
   @Override
-  public synchronized boolean eq(Map<String, Chc<Ty, En>> ctx, KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String> lhs,
+  public synchronized boolean eq(
+      Map<String, Chc<Ty, En>> ctx,
+      KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String> lhs,
       KBExp<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, String> rhs) {
     if (ctx.size() > 1) {
       Util.anomaly();
@@ -104,7 +115,7 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
           return false;
         }
       }
-      //System.out.println("true on " + lhs + " and " + rhs);
+      // System.out.println("true on " + lhs + " and " + rhs);
       return true;
     } else if (lhs.getArgs().size() <= 1 && rhs.getArgs().size() <= 1) {
       return dpkb.eq(ctx, lhs, rhs);
@@ -122,5 +133,5 @@ public class MonoidalFreeDP<Ty, En, Sym, Fk, Att, Gen, Sk>
   public boolean supportsTrivialityCheck() {
     return false;
   }
-
-};
+}
+;

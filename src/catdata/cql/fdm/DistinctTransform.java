@@ -1,25 +1,27 @@
 package catdata.cql.fdm;
 
-import java.util.function.BiFunction;
-
 import catdata.cql.AqlOptions;
 import catdata.cql.Instance;
 import catdata.cql.Term;
 import catdata.cql.Transform;
+import java.util.function.BiFunction;
 
 public class DistinctTransform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
     extends Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> {
 
   private final Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t;
-//  private final AqlOptions ops1;
-//  private final AqlOptions ops2;
+  //  private final AqlOptions ops1;
+  //  private final AqlOptions ops2;
   private final DistinctInstance<Ty, En, Sym, Fk, Att, Gen1, Sk1, X1, Y1> src;
   private final DistinctInstance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst;
 
-  public DistinctTransform(Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t, AqlOptions ops1, AqlOptions ops2) {
+  public DistinctTransform(
+      Transform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t,
+      AqlOptions ops1,
+      AqlOptions ops2) {
     this.t = t;
-  //  this.ops1 = ops1;
-  //  this.ops2 = ops2;
+    //  this.ops1 = ops1;
+    //  this.ops2 = ops2;
     this.src = new DistinctInstance<>(t.src(), ops1);
     this.dst = new DistinctInstance<>(t.dst(), ops2);
   }
@@ -43,5 +45,4 @@ public class DistinctTransform<Ty, En, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y
   public Instance<Ty, En, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst() { // TODO aql recomputes
     return dst;
   }
-
 }

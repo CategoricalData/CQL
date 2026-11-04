@@ -4,9 +4,7 @@ import catdata.graph.DMG;
 
 public class Graph<N, E> implements Semantics {
 
-  /**
-   * return size of nodes plus size of edges
-   */
+  /** return size of nodes plus size of edges */
   @Override
   public int size() {
     return dmg.nodes.size() + dmg.edges.size();
@@ -33,18 +31,13 @@ public class Graph<N, E> implements Semantics {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Graph<?, ?> other = (Graph<?, ?>) obj;
     if (dmg == null) {
-      if (other.dmg != null)
-        return false;
-    } else if (!dmg.equals(other.dmg))
-      return false;
+      if (other.dmg != null) return false;
+    } else if (!dmg.equals(other.dmg)) return false;
     return true;
   }
 
@@ -52,5 +45,4 @@ public class Graph<N, E> implements Semantics {
   public String toString() {
     return dmg.toString();
   }
-
 }

@@ -8,6 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.cql.Collage.CCollage;
+import catdata.provers.KBTheory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,11 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.cql.Collage.CCollage;
-import catdata.provers.KBTheory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -208,8 +208,7 @@ class CollageTest {
       assertEquals(
           "Conflict on Str, was java.lang.String now is java.lang.Object",
           message(() -> c.java_tys().put(STR, "java.lang.Object")));
-      assertEquals(
-          "Conflict on e, was Emp now is Dept", message(() -> c.addAll(rebound())));
+      assertEquals("Conflict on e, was Emp now is Dept", message(() -> c.addAll(rebound())));
     }
 
     private Col rebound() {
@@ -427,8 +426,7 @@ class CollageTest {
       Col c = col();
       assertEquals(Chc.inLeft(STR), c.type(X_EMP, att("name", v("x"))));
       assertEquals(
-          Chc.inLeft(INT),
-          c.type(Map.of("n", Chc.inLeft(INT)), sym("plus", v("n"), sym("zero"))));
+          Chc.inLeft(INT), c.type(Map.of("n", Chc.inLeft(INT)), sym("plus", v("n"), sym("zero"))));
     }
   }
 

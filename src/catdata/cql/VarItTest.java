@@ -8,8 +8,8 @@ import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 
 /**
- * Fresh variable names for the program prover. The counter is static and other tests advance it,
- * so the tests compare consecutive names instead of fixed ones.
+ * Fresh variable names for the program prover. The counter is static and other tests advance it, so
+ * the tests compare consecutive names instead of fixed ones.
  */
 class VarItTest {
 

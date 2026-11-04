@@ -5,15 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Pair;
+import catdata.cql.AqlOptions;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.Pair;
-import catdata.cql.AqlOptions;
 
 class SubInstanceTest {
 

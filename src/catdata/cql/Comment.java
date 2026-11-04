@@ -26,20 +26,14 @@ public class Comment implements Semantics {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Comment other = (Comment) obj;
     if (comment == null) {
-      if (other.comment != null)
-        return false;
-    } else if (!comment.equals(other.comment))
-      return false;
-    if (isMarkdown != other.isMarkdown)
-      return false;
+      if (other.comment != null) return false;
+    } else if (!comment.equals(other.comment)) return false;
+    if (isMarkdown != other.isMarkdown) return false;
     return true;
   }
 
@@ -52,5 +46,4 @@ public class Comment implements Semantics {
   public Kind kind() {
     return Kind.COMMENT;
   }
-
 }

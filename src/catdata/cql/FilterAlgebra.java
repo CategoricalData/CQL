@@ -1,36 +1,43 @@
 package catdata.cql;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Triple;
+import catdata.cql.fdm.SaturatedInstance;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.UnmodifiableIterator;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.UnmodifiableIterator;
-
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Triple;
-import catdata.cql.fdm.SaturatedInstance;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
-public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
+public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
+    extends Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> {
 
   final Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I;
   private Map<En, Iterable<X>> ens = new THashMap<>();
   Schema<Ty, En, Sym, Fk, Att> schema;
 
-  public static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> filterInstance(
-      Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, Schema<Ty, En, Sym, Fk, Att> schema) {
+  public static <Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
+      Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> filterInstance(
+          Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> I, Schema<Ty, En, Sym, Fk, Att> schema) {
     Algebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> alg = new FilterAlgebra<>(I, schema);
-    Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> ret = new SaturatedInstance<>(alg, I.dp(), I.requireConsistency(),
-        I.allowUnsafeJava(), false, Collections.emptyMap());
+    Instance<Ty, En, Sym, Fk, Att, X, Y, X, Y> ret =
+        new SaturatedInstance<>(
+            alg,
+            I.dp(),
+            I.requireConsistency(),
+            I.allowUnsafeJava(),
+            false,
+            Collections.emptyMap());
 
     return ret;
   }
 
-  public FilterAlgebra(Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i, Schema<Ty, En, Sym, Fk, Att> schema) {
+  public FilterAlgebra(
+      Instance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> i, Schema<Ty, En, Sym, Fk, Att> schema) {
     I = i;
     this.schema = schema;
     for (En en : schema.ens) {
@@ -51,13 +58,14 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
 
     m = getUnsatisfying();
     for (En en : schema.ens) {
-      UnmodifiableIterator<X> z = Iterators.filter(I.algebra().en(en).iterator(), x -> !m.get(en).contains(x));
+      UnmodifiableIterator<X> z =
+          Iterators.filter(I.algebra().en(en).iterator(), x -> !m.get(en).contains(x));
       Set<X> s = new THashSet<>(I.algebra().size(en));
       z.forEachRemaining(s::add);
       ens.put(en, s);
     }
 
-    for (;;) {
+    for (; ; ) {
       boolean hit = false;
       for (En en : schema.ens) {
         Iterator<X> it = ens.get(en).iterator();
@@ -77,7 +85,6 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
         break;
       }
     }
-
   }
 
   Map<En, Set<X>> m;
@@ -92,7 +99,11 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
     for (En en : schema.ens) {
       ret.put(en, new THashSet<>(I.algebra().size(en)));
     }
-    for (Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schema().eqs) {
+    for (Triple<
+            Pair<String, En>,
+            Term<Ty, En, Sym, Fk, Att, Void, Void>,
+            Term<Ty, En, Sym, Fk, Att, Void, Void>>
+        eq : schema().eqs) {
       for (X x : I.algebra().en(eq.first.second)) {
         Term<Void, En, Void, Fk, Void, Gen, Void> xx = I.algebra().repr(eq.first.second, x);
 
@@ -153,7 +164,6 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
   @Override
   protected TAlg<Ty, Sym, Y> talg0() {
     return I.algebra().talg();
-
   }
 
   @Override
@@ -180,5 +190,4 @@ public class FilterAlgebra<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y> extends Algebra<
   public boolean hasNulls() {
     return I.algebra().hasNulls();
   }
-
 }

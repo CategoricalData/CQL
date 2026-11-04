@@ -1,14 +1,5 @@
 package catdata.apg.exp;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import catdata.InteriorLabel;
 import catdata.LocStr;
 import catdata.Pair;
@@ -18,68 +9,71 @@ import catdata.apg.ApgOps;
 import catdata.apg.ApgSchema;
 import catdata.apg.ApgTy;
 import catdata.apg.ApgTypeside;
-import catdata.cql.Kind;
 import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
 import catdata.cql.exp.AqlEnv;
 import catdata.cql.exp.AqlTyping;
 import catdata.cql.exp.Exp;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
-  
+
   @Override
   public abstract ApgTyExp type(AqlTyping G);
-  
-  
-  public abstract <R, P> R accept(P param, ApgSchExpVisitor<R, P> v) ;
+
+  public abstract <R, P> R accept(P param, ApgSchExpVisitor<R, P> v);
 
   public static interface ApgSchExpCoVisitor<R, P> {
-    
-    public abstract ApgSchExpInitial visitApgSchExpInitial(P params, R r) ;
-    
-    public abstract ApgSchExpTerminal visitApgSchExpTerminal(P params, R r) ;
-    
-    public abstract ApgSchExpTimes visitApgSchExpTimes(P params, R r) ;
-    
-    public abstract ApgSchExpPlus visitApgSchExpPlus(P params, R r) ;
-    
-    public abstract ApgSchExpVar visitApgSchExpVar(P param, R exp) ;
-  
-    public abstract ApgSchExpRaw visitApgSchExpRaw(P param, R exp) ;
 
-    //public abstract ApgSchExpEqualize visitApgSchExpEqualize(P params, R r) ;
-    
-    //public abstract ApgSchExpCoEqualize visitApgSchExpCoEqualize(P params, R r) ;
+    public abstract ApgSchExpInitial visitApgSchExpInitial(P params, R r);
+
+    public abstract ApgSchExpTerminal visitApgSchExpTerminal(P params, R r);
+
+    public abstract ApgSchExpTimes visitApgSchExpTimes(P params, R r);
+
+    public abstract ApgSchExpPlus visitApgSchExpPlus(P params, R r);
+
+    public abstract ApgSchExpVar visitApgSchExpVar(P param, R exp);
+
+    public abstract ApgSchExpRaw visitApgSchExpRaw(P param, R exp);
+
+    // public abstract ApgSchExpEqualize visitApgSchExpEqualize(P params, R r) ;
+
+    // public abstract ApgSchExpCoEqualize visitApgSchExpCoEqualize(P params, R r) ;
   }
 
-  public abstract <R, P> ApgSchExp coaccept(P params, ApgSchExpCoVisitor<R, P> v, R r) ;
+  public abstract <R, P> ApgSchExp coaccept(P params, ApgSchExpCoVisitor<R, P> v, R r);
 
   public static interface ApgSchExpVisitor<R, P> {
-    public abstract R visit(P param, ApgSchExpVar exp) ;
+    public abstract R visit(P param, ApgSchExpVar exp);
 
-    public abstract R visit(P params, ApgSchExpInitial exp) ;
-    
-    public abstract R visit(P params, ApgSchExpTerminal exp) ;
-    
-    public abstract R visit(P params, ApgSchExpTimes exp) ;
-    
-    public abstract R visit(P params, ApgSchExpPlus exp) ;
+    public abstract R visit(P params, ApgSchExpInitial exp);
 
-    public abstract R visit(P param, ApgSchExpRaw exp) ;
+    public abstract R visit(P params, ApgSchExpTerminal exp);
 
-    //public abstract R visit(P params, ApgSchExpEqualize exp) ;
-    
-    //public abstract R visit(P params, ApgSchExpCoEqualize exp) ;
+    public abstract R visit(P params, ApgSchExpTimes exp);
+
+    public abstract R visit(P params, ApgSchExpPlus exp);
+
+    public abstract R visit(P param, ApgSchExpRaw exp);
+
+    // public abstract R visit(P params, ApgSchExpEqualize exp) ;
+
+    // public abstract R visit(P params, ApgSchExpCoEqualize exp) ;
 
   }
 
-  
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-    
-  }
-
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   protected Map<String, String> options() {
@@ -96,15 +90,13 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
     return new ApgSchExpVar(v);
   }
 
-  
   ////////////////////////////////////////////////////////////////////////
-  
+
   public static final class ApgSchExpVar extends ApgSchExp {
     public final String var;
 
-    
     @Override
-    public <R, P> R accept(P params, ApgSchExpVisitor<R, P> v)  {
+    public <R, P> R accept(P params, ApgSchExpVisitor<R, P> v) {
       return v.visit(params, this);
     }
 
@@ -112,8 +104,7 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
     public <R, P> ApgSchExpVar coaccept(P params, ApgSchExpCoVisitor<R, P> v, R r) {
       return v.visitApgSchExpVar(params, r);
     }
-    
-  
+
     @Override
     public Collection<Pair<String, Kind>> deps() {
       return Collections.singletonList(new Pair<>(var, Kind.APG_instance));
@@ -142,12 +133,9 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgSchExpVar other = (ApgSchExpVar) obj;
       return var.equals(other.var);
     }
@@ -158,63 +146,59 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
     @Override
     public boolean isVar() {
       return true;
     }
-
-    
-
   }
-  
 
   public static final class ApgSchExpRaw extends ApgSchExp implements Raw {
 
-    
     @Override
     public String toString() {
-      String s = "literal : " + typeside + " {\n" + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " ")))
-          + "\nlabels\n\t" + Util.sep(Ls, " -> ", "\n\t") ;
+      String s =
+          "literal : "
+              + typeside
+              + " {\n"
+              + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " ")))
+              + "\nlabels\n\t"
+              + Util.sep(Ls, " -> ", "\n\t");
       String x = "";
-      
 
-      return s+ x +    "\n}";
-  
+      return s + x + "\n}";
     }
 
     public final ApgTyExp typeside;
     public final Set<ApgSchExp> imports;
     public final Map<String, ApgTy<String>> Ls;
 
-    public ApgSchExpRaw(ApgTyExp typeside0, List<ApgSchExp> imports0, List<Pair<LocStr, ApgTy<String>>> Ls0) {
+    public ApgSchExpRaw(
+        ApgTyExp typeside0, List<ApgSchExp> imports0, List<Pair<LocStr, ApgTy<String>>> Ls0) {
       Util.assertNotNull(typeside0, imports0, Ls0);
       this.typeside = typeside0;
       this.imports = Util.toSetSafely(imports0);
       this.Ls = Util.toMapSafely(LocStr.list2(Ls0));
-      
+
       doGuiIndex(imports0, Ls0);
     }
-    
-    public void doGuiIndex(List<ApgSchExp> imports0, 
-        List<Pair<LocStr, ApgTy<String>>> ls0) {
-      
-      
+
+    public void doGuiIndex(List<ApgSchExp> imports0, List<Pair<LocStr, ApgTy<String>>> ls0) {
+
       List<InteriorLabel<Object>> t = new LinkedList<>();
       for (Pair<LocStr, ApgTy<String>> p : ls0) {
-        t.add(new InteriorLabel<>("labels", new Pair<>(p.first.str, p.second),
-            p.first.loc,
-            x -> x.first + " -> " + x.second)
+        t.add(
+            new InteriorLabel<>(
+                    "labels",
+                    new Pair<>(p.first.str, p.second),
+                    p.first.loc,
+                    x -> x.first + " -> " + x.second)
                 .conv());
       }
       raw.put("labels", t);
-      
     }
-    
-    
+
     private Map<String, List<InteriorLabel<Object>>> raw = new THashMap<>();
 
     @Override
@@ -232,9 +216,8 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
       return ret;
     }
 
-
     @Override
-    public <R, P> R accept(P params, ApgSchExpVisitor<R, P> v)  {
+    public <R, P> R accept(P params, ApgSchExpVisitor<R, P> v) {
       return v.visit(params, this);
     }
 
@@ -244,28 +227,27 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
     private void wf(ApgTy<String> ty, ApgTypeside typeside, Map<String, ApgTy<String>> Ls0) {
-      if (ty.b != null && ! typeside.Bs.containsKey(ty.b)) {
+      if (ty.b != null && !typeside.Bs.containsKey(ty.b)) {
         throw new RuntimeException("Type not in typeside: " + ty.b);
       }
-      if (ty.l != null && ! Ls0.containsKey(ty.l)) {
+      if (ty.l != null && !Ls0.containsKey(ty.l)) {
         throw new RuntimeException("Label not in schema: " + ty.l);
       }
       if (ty.m != null) {
-        ty.m.forEach((k,v) -> wf(v, typeside, Ls0));
+        ty.m.forEach((k, v) -> wf(v, typeside, Ls0));
       }
     }
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected synchronized ApgSchema eval0(AqlEnv env, boolean isCompileTime) {
       ApgTypeside ts = typeside.eval(env, isCompileTime);
-      
+
       Map<String, ApgTy<String>> Ls0 = new THashMap<>(Ls);
-      
+
       for (ApgSchExp w : imports) {
         ApgSchema x = w.eval(env, isCompileTime);
         Util.putAllSafely(Ls0, x.schema);
@@ -273,10 +255,11 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
       for (Entry<String, ApgTy<String>> l : Ls0.entrySet()) {
         wf(l.getValue(), ts, Ls0);
       }
-      
+
       return new ApgSchema<>(ts, Ls0);
     }
-/*
+
+    /*
     private ApgTerm<String> eval0(ApgPreTerm term, ApgTypeside ts, ApgTy<String> ty, Map<String, Pair<String, ApgTerm<String>>> Es0) {
       if (ty.b != null) {
         if (term.str == null) {
@@ -327,13 +310,13 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
           if (!map.containsKey(w)) {
             throw new RuntimeException("In " + term + ", no field for " + w);
           }
-        }        
+        }
         return ApgTerm.ApgTermTuple(map);
       } else if (ty.m != null && !ty.all) {
         if (term.field == null) {
           throw new RuntimeException("Expecting injection at type " + ty + ", but received " + term);
         }
-      
+
         ApgTy<String> w = ty.m.get(term.field);
         if (w == null) {
           throw new RuntimeException("In " + term + ", " + term.field + ", is not a field in " + ty);
@@ -342,9 +325,9 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
 
         return ApgTerm.ApgTermInj(term.field, o);
       }
-      
+
       return Util.anomaly();
-      
+
     } */
 
     @Override
@@ -358,23 +341,16 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgSchExpRaw other = (ApgSchExpRaw) obj;
       if (typeside == null) {
-        if (other.typeside != null)
-          return false;
-      } else if (!typeside.equals(other.typeside))
-        return false;
+        if (other.typeside != null) return false;
+      } else if (!typeside.equals(other.typeside)) return false;
       if (Ls == null) {
-        if (other.Ls != null)
-          return false;
-      } else if (!Ls.equals(other.Ls))
-        return false;
+        if (other.Ls != null) return false;
+      } else if (!Ls.equals(other.Ls)) return false;
       return true;
     }
 
@@ -385,18 +361,24 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
         if (z.kind() != Kind.APG_schema) {
           throw new RuntimeException("Import of wrong kind: " + z);
         }
-        ApgTyExp u = ((ApgSchExp)z).type(G);
+        ApgTyExp u = ((ApgSchExp) z).type(G);
         if (!typeside.equals(u)) {
-          throw new RuntimeException("Import instance typeside mismatch on " + z + ", is " + u + " and not " + typeside + " as expected.");
+          throw new RuntimeException(
+              "Import instance typeside mismatch on "
+                  + z
+                  + ", is "
+                  + u
+                  + " and not "
+                  + typeside
+                  + " as expected.");
         }
       }
       return typeside;
     }
-
   }
-  
+
   /////////////
-  
+
   public static final class ApgSchExpInitial extends ApgSchExp {
     public final ApgTyExp typeside;
 
@@ -414,18 +396,13 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgSchExpInitial other = (ApgSchExpInitial) obj;
       if (typeside == null) {
-        if (other.typeside != null)
-          return false;
-      } else if (!typeside.equals(other.typeside))
-        return false;
+        if (other.typeside != null) return false;
+      } else if (!typeside.equals(other.typeside)) return false;
       return true;
     }
 
@@ -465,7 +442,6 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
     public String toString() {
       return "empty " + typeside;
     }
-
   }
 
   public static final class ApgSchExpTerminal extends ApgSchExp {
@@ -482,18 +458,13 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgSchExpTerminal other = (ApgSchExpTerminal) obj;
       if (typeside == null) {
-        if (other.typeside != null)
-          return false;
-      } else if (!typeside.equals(other.typeside))
-        return false;
+        if (other.typeside != null) return false;
+      } else if (!typeside.equals(other.typeside)) return false;
       return true;
     }
 
@@ -537,7 +508,6 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
     public String toString() {
       return "unit " + typeside;
     }
-
   }
 
   public static final class ApgSchExpTimes extends ApgSchExp {
@@ -560,23 +530,16 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgSchExpTimes other = (ApgSchExpTimes) obj;
       if (l == null) {
-        if (other.l != null)
-          return false;
-      } else if (!l.equals(other.l))
-        return false;
+        if (other.l != null) return false;
+      } else if (!l.equals(other.l)) return false;
       if (r == null) {
-        if (other.r != null)
-          return false;
-      } else if (!r.equals(other.r))
-        return false;
+        if (other.r != null) return false;
+      } else if (!r.equals(other.r)) return false;
       return true;
     }
 
@@ -643,23 +606,16 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgSchExpPlus other = (ApgSchExpPlus) obj;
       if (l == null) {
-        if (other.l != null)
-          return false;
-      } else if (!l.equals(other.l))
-        return false;
+        if (other.l != null) return false;
+      } else if (!l.equals(other.l)) return false;
       if (r == null) {
-        if (other.r != null)
-          return false;
-      } else if (!r.equals(other.r))
-        return false;
+        if (other.r != null) return false;
+      } else if (!r.equals(other.r)) return false;
       return true;
     }
 
@@ -704,7 +660,5 @@ public abstract class ApgSchExp extends Exp<ApgSchema<Object>> {
     public String toString() {
       return "<" + l + " + " + r + ">";
     }
-
   }
-  
 }

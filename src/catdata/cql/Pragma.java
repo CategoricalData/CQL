@@ -19,5 +19,4 @@ public abstract class Pragma implements Semantics {
   public int size() {
     return toString().length();
   }
-
 }

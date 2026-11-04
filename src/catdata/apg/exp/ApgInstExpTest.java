@@ -236,8 +236,7 @@ class ApgInstExpTest {
 
     @Test
     void depsUnionsBoth() {
-      ApgInstExpTimes times =
-          new ApgInstExpTimes(new ApgInstExpVar("a"), new ApgInstExpVar("b"));
+      ApgInstExpTimes times = new ApgInstExpTimes(new ApgInstExpVar("a"), new ApgInstExpVar("b"));
       assertEquals(2, times.deps().size());
     }
 

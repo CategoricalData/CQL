@@ -5,20 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.cql.Collage.CCollage;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.cql.Collage.CCollage;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Definitional simplification: an equation f(x1, ..., xn) = t, with distinct variables that make
- * up its whole context and no f in t, removes f and replaces it by t everywhere. Terms hash by
+ * Definitional simplification: an equation f(x1, ..., xn) = t, with distinct variables that make up
+ * its whole context and no f in t, removes f and replaces it by t everywhere. Terms hash by
  * identity, so the order in which equations are tried changes between runs, and the tests check
  * only what every order gives.
  */
@@ -65,8 +65,8 @@ class CollageSimplifierTest {
     return col;
   }
 
-  private static CollageSimplifier<String, String, String, String, String, String, String>
-      simplify(Collage<String, String, String, String, String, String, String> col) {
+  private static CollageSimplifier<String, String, String, String, String, String, String> simplify(
+      Collage<String, String, String, String, String, String, String> col) {
     return new CollageSimplifier<>(col);
   }
 

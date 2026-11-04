@@ -1,15 +1,5 @@
 package catdata.apg.exp;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import catdata.InteriorLabel;
 import catdata.LocStr;
 import catdata.Pair;
@@ -25,17 +15,27 @@ import catdata.apg.ApgTypeside;
 import catdata.apg.exp.ApgSchExp.ApgSchExpPlus;
 import catdata.apg.exp.ApgSchExp.ApgSchExpTerminal;
 import catdata.apg.exp.ApgSchExp.ApgSchExpTimes;
-import catdata.cql.Kind;
 import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
 import catdata.cql.exp.AqlEnv;
 import catdata.cql.exp.AqlTyping;
 import catdata.cql.exp.Exp;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
-  public abstract <R, P, E extends Exception> R accept(P param, ApgInstExpVisitor<R, P, E> v) throws E;
+  public abstract <R, P, E extends Exception> R accept(P param, ApgInstExpVisitor<R, P, E> v)
+      throws E;
 
   public static interface ApgInstExpCoVisitor<R, P, E extends Exception> {
 
@@ -58,8 +58,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public abstract ApgInstExpCoEqualize visitApgInstExpCoEqualize(P params, R r) throws E;
   }
 
-  public abstract <R, P, E extends Exception> ApgInstExp coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-      throws E;
+  public abstract <R, P, E extends Exception> ApgInstExp coaccept(
+      P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E;
 
   public static interface ApgInstExpVisitor<R, P, E extends Exception> {
     public abstract R visit(P param, ApgInstExpVar exp) throws E;
@@ -79,7 +79,6 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public abstract R visit(P params, ApgInstExpCoEqualize exp) throws E;
 
     public abstract R visit(P params, ApgInstExpDelta exp) throws E;
-
   }
 
   @Override
@@ -101,9 +100,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   public static final class ApgInstExpVar extends ApgInstExp {
     public final String var;
@@ -114,8 +111,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpVar coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpVar coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpVar(params, r);
     }
 
@@ -147,12 +144,9 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpVar other = (ApgInstExpVar) obj;
       return var.equals(other.var);
     }
@@ -163,37 +157,39 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
     @Override
     public boolean isVar() {
       return true;
     }
-
   }
 
   public static final class ApgInstExpRaw extends ApgInstExp implements Raw {
 
     @Override
     public String toString() {
-      String s = "literal : " + typeside + " {\n" + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " ")))
-          + "\nelements\n\t";
+      String s =
+          "literal : "
+              + typeside
+              + " {\n"
+              + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " ")))
+              + "\nelements\n\t";
       String x = "";
       for (Entry<String, Pair<String, ApgPreTerm>> e : Es.entrySet()) {
         x += "\t" + e.getKey() + ":" + e.getValue().first + " -> " + e.getValue().second + "\n";
       }
 
       return s + x + "\n}";
-
     }
 
     public final ApgSchExp typeside;
     public final Set<ApgInstExp> imports;
     public final Map<String, Pair<String, ApgPreTerm>> Es;
 
-    public ApgInstExpRaw(ApgSchExp typeside0, List<ApgInstExp> imports0,
+    public ApgInstExpRaw(
+        ApgSchExp typeside0,
+        List<ApgInstExp> imports0,
         List<Pair<LocStr, Pair<String, ApgPreTerm>>> Es0) {
       Util.assertNotNull(typeside0, imports0, Es0);
       this.typeside = typeside0;
@@ -203,12 +199,18 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
       doGuiIndex(imports0, Es0);
     }
 
-    public void doGuiIndex(List<ApgInstExp> imports0, List<Pair<LocStr, Pair<String, ApgPreTerm>>> es0) {
+    public void doGuiIndex(
+        List<ApgInstExp> imports0, List<Pair<LocStr, Pair<String, ApgPreTerm>>> es0) {
 
       List<InteriorLabel<Object>> f = new LinkedList<>();
       for (Pair<LocStr, Pair<String, ApgPreTerm>> p : es0) {
-        f.add(new InteriorLabel<>("elements", new Pair<>(p.first.str, p.second), p.first.loc,
-            x -> x.first + " : " + x.second.first + " -> " + x.second.second).conv());
+        f.add(
+            new InteriorLabel<>(
+                    "elements",
+                    new Pair<>(p.first.str, p.second),
+                    p.first.loc,
+                    x -> x.first + " : " + x.second.first + " -> " + x.second.second)
+                .conv());
       }
 
       raw.put("elements", f);
@@ -237,14 +239,13 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpRaw coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpRaw coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpRaw(params, r);
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
     @SuppressWarnings("unused")
     private void wf(ApgTy<String> ty, ApgTypeside typeside, Map<String, ApgTy<String>> Ls0) {
@@ -259,7 +260,7 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
       }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected synchronized ApgInstance eval0(AqlEnv env, boolean isCompileTime) {
       ApgSchema<Object> ts = typeside.eval(env, isCompileTime);
@@ -272,17 +273,24 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
       for (Entry<String, Pair<String, ApgPreTerm>> eld : Es.entrySet()) {
         ApgTy<Object> z = ts.schema.get(eld.getValue().first);
         if (z == null) {
-          throw new RuntimeException(eld.getValue().first + " not found in " + ts.schema.keySet() + " (perhaps the instance is not on the schema you intend?)");
+          throw new RuntimeException(
+              eld.getValue().first
+                  + " not found in "
+                  + ts.schema.keySet()
+                  + " (perhaps the instance is not on the schema you intend?)");
         }
-        Pair<Object, ApgTerm<Object, Object>> p = new Pair<>(eld.getValue().first,
-            eval0(eld.getValue().second, ts, z, Es0));
+        Pair<Object, ApgTerm<Object, Object>> p =
+            new Pair<>(eld.getValue().first, eval0(eld.getValue().second, ts, z, Es0));
         Es0.put(eld.getKey(), p);
       }
 
       return new ApgInstance<>(ts, Es0);
     }
 
-    private ApgTerm<Object, Object> eval0(ApgPreTerm term, ApgSchema<Object> ts, ApgTy<Object> ty,
+    private ApgTerm<Object, Object> eval0(
+        ApgPreTerm term,
+        ApgSchema<Object> ts,
+        ApgTy<Object> ty,
         Map<Object, Pair<Object, ApgTerm<Object, Object>>> Es0) {
       if (ty == null) {
         return Util.anomaly();
@@ -302,7 +310,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
         return ApgTerm.ApgTermV(o, ty.b);
       } else if (ty.l != null) {
         if (term.str == null) {
-          throw new RuntimeException("Expecting element at label " + ty.l + ", but received " + term);
+          throw new RuntimeException(
+              "Expecting element at label " + ty.l + ", but received " + term);
         }
         if (!(Es0.containsKey(term.str) || Es.containsKey(term.str))) {
           throw new RuntimeException("Not an element: " + term.str);
@@ -315,8 +324,13 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
           l2 = l2x.first;
         }
         if (!ty.l.equals(l2)) {
-          throw new RuntimeException("Expecting element at label " + ty.l + ", but received element " + term
-              + " at label " + l2);
+          throw new RuntimeException(
+              "Expecting element at label "
+                  + ty.l
+                  + ", but received element "
+                  + term
+                  + " at label "
+                  + l2);
         }
         return ApgTerm.ApgTermE(term.str);
       } else if (ty.m != null && ty.all) {
@@ -341,7 +355,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
         return ApgTerm.ApgTermTuple(map);
       } else if (ty.m != null && !ty.all) {
         if (term.inj == null) {
-          throw new RuntimeException("Expecting injection at type " + ty + ", but received " + term);
+          throw new RuntimeException(
+              "Expecting injection at type " + ty + ", but received " + term);
         }
         Map<String, ApgTy<Object>> d = ty.m;
         ApgTy<Object> w = d.get(term.inj);
@@ -357,7 +372,6 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
       }
 
       return Util.anomaly();
-
     }
 
     @Override
@@ -372,23 +386,16 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpRaw other = (ApgInstExpRaw) obj;
       if (Es == null) {
-        if (other.Es != null)
-          return false;
-      } else if (!Es.equals(other.Es))
-        return false;
+        if (other.Es != null) return false;
+      } else if (!Es.equals(other.Es)) return false;
       if (typeside == null) {
-        if (other.typeside != null)
-          return false;
-      } else if (!typeside.equals(other.typeside))
-        return false;
+        if (other.typeside != null) return false;
+      } else if (!typeside.equals(other.typeside)) return false;
       return true;
     }
 
@@ -401,13 +408,18 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
         }
         ApgTyExp u = ((ApgInstExp) z).type(G).type(G);
         if (!w.equals(u)) {
-          throw new RuntimeException("Import instance typeside mismatch on " + z + ", is " + u + " and not "
-              + u + " as expected.");
+          throw new RuntimeException(
+              "Import instance typeside mismatch on "
+                  + z
+                  + ", is "
+                  + u
+                  + " and not "
+                  + u
+                  + " as expected.");
         }
       }
       return typeside;
     }
-
   }
 
   public static final class ApgInstExpInitial extends ApgInstExp {
@@ -427,18 +439,13 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpInitial other = (ApgInstExpInitial) obj;
       if (typeside == null) {
-        if (other.typeside != null)
-          return false;
-      } else if (!typeside.equals(other.typeside))
-        return false;
+        if (other.typeside != null) return false;
+      } else if (!typeside.equals(other.typeside)) return false;
       return true;
     }
 
@@ -448,8 +455,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpInitial coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpInitial coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpInitial(params, r);
     }
 
@@ -479,7 +486,6 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public String toString() {
       return "empty " + typeside;
     }
-
   }
 
   public static final class ApgInstExpTerminal extends ApgInstExp {
@@ -496,18 +502,13 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpTerminal other = (ApgInstExpTerminal) obj;
       if (typeside == null) {
-        if (other.typeside != null)
-          return false;
-      } else if (!typeside.equals(other.typeside))
-        return false;
+        if (other.typeside != null) return false;
+      } else if (!typeside.equals(other.typeside)) return false;
       return true;
     }
 
@@ -521,8 +522,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpTerminal coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpTerminal coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpTerminal(params, r);
     }
 
@@ -552,7 +553,6 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public String toString() {
       return "unit " + typeside;
     }
-
   }
 
   public static final class ApgInstExpTimes extends ApgInstExp {
@@ -575,23 +575,16 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpTimes other = (ApgInstExpTimes) obj;
       if (l == null) {
-        if (other.l != null)
-          return false;
-      } else if (!l.equals(other.l))
-        return false;
+        if (other.l != null) return false;
+      } else if (!l.equals(other.l)) return false;
       if (r == null) {
-        if (other.r != null)
-          return false;
-      } else if (!r.equals(other.r))
-        return false;
+        if (other.r != null) return false;
+      } else if (!r.equals(other.r)) return false;
       return true;
     }
 
@@ -601,8 +594,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpTimes coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpTimes coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpTimes(params, r);
     }
 
@@ -661,23 +654,16 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpPlus other = (ApgInstExpPlus) obj;
       if (l == null) {
-        if (other.l != null)
-          return false;
-      } else if (!l.equals(other.l))
-        return false;
+        if (other.l != null) return false;
+      } else if (!l.equals(other.l)) return false;
       if (r == null) {
-        if (other.r != null)
-          return false;
-      } else if (!r.equals(other.r))
-        return false;
+        if (other.r != null) return false;
+      } else if (!r.equals(other.r)) return false;
       return true;
     }
 
@@ -687,8 +673,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpPlus coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpPlus coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpPlus(params, r);
     }
 
@@ -725,7 +711,6 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public String toString() {
       return "<" + l + " + " + r + ">";
     }
-
   }
 
   public static final class ApgInstExpEqualize extends ApgInstExp {
@@ -753,23 +738,16 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpEqualize other = (ApgInstExpEqualize) obj;
       if (l == null) {
-        if (other.l != null)
-          return false;
-      } else if (!l.equals(other.l))
-        return false;
+        if (other.l != null) return false;
+      } else if (!l.equals(other.l)) return false;
       if (r == null) {
-        if (other.r != null)
-          return false;
-      } else if (!r.equals(other.r))
-        return false;
+        if (other.r != null) return false;
+      } else if (!r.equals(other.r)) return false;
       return true;
     }
 
@@ -779,8 +757,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpEqualize coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpEqualize coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpEqualize(params, r);
     }
 
@@ -791,7 +769,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
       if (!a.first.equals(b.first)) {
         throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
       } else if (!a.second.equals(b.second)) {
-        throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
+        throw new RuntimeException(
+            "CoDomain mismatch: " + a.second + " is not equal to " + b.second);
       }
       return a.first.type(G);
     }
@@ -811,7 +790,6 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public Collection<Pair<String, Kind>> deps() {
       return Util.union(l.deps(), r.deps());
     }
-
   }
 
   public static final class ApgInstExpCoEqualize extends ApgInstExp {
@@ -839,23 +817,16 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpCoEqualize other = (ApgInstExpCoEqualize) obj;
       if (l == null) {
-        if (other.l != null)
-          return false;
-      } else if (!l.equals(other.l))
-        return false;
+        if (other.l != null) return false;
+      } else if (!l.equals(other.l)) return false;
       if (r == null) {
-        if (other.r != null)
-          return false;
-      } else if (!r.equals(other.r))
-        return false;
+        if (other.r != null) return false;
+      } else if (!r.equals(other.r)) return false;
       return true;
     }
 
@@ -865,8 +836,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExpCoEqualize coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r)
-        throws E {
+    public <R, P, E extends Exception> ApgInstExpCoEqualize coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpCoEqualize(params, r);
     }
 
@@ -877,7 +848,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
       if (!a.first.equals(b.first)) {
         throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
       } else if (!a.second.equals(b.second)) {
-        throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
+        throw new RuntimeException(
+            "CoDomain mismatch: " + a.second + " is not equal to " + b.second);
       }
       return a.first.type(G);
     }
@@ -897,7 +869,6 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public Collection<Pair<String, Kind>> deps() {
       return Util.union(l.deps(), r.deps());
     }
-
   }
 
   //////////////////////////////////////
@@ -923,23 +894,16 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgInstExpDelta other = (ApgInstExpDelta) obj;
       if (F == null) {
-        if (other.F != null)
-          return false;
-      } else if (!F.equals(other.F))
-        return false;
+        if (other.F != null) return false;
+      } else if (!F.equals(other.F)) return false;
       if (J == null) {
-        if (other.J != null)
-          return false;
-      } else if (!J.equals(other.J))
-        return false;
+        if (other.J != null) return false;
+      } else if (!J.equals(other.J)) return false;
       return true;
     }
 
@@ -954,7 +918,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     }
 
     @Override
-    public <R, P, E extends Exception> ApgInstExp coaccept(P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
+    public <R, P, E extends Exception> ApgInstExp coaccept(
+        P params, ApgInstExpCoVisitor<R, P, E> v, R r) throws E {
       return v.visitApgInstExpDelta(params, r);
     }
 
@@ -966,7 +931,8 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
         throw new RuntimeException("Typeside mismatch");
       }
       if (!f.second.equals(j)) {
-        throw new RuntimeException("Instance is on schema " + j + " but mapping target is " + f.second);
+        throw new RuntimeException(
+            "Instance is on schema " + j + " but mapping target is " + f.second);
       }
       return f.first;
     }
@@ -986,7 +952,5 @@ public abstract class ApgInstExp extends Exp<ApgInstance<Object, Object>> {
     public Collection<Pair<String, Kind>> deps() {
       return Util.union(J.deps(), F.deps());
     }
-
   }
-
 }

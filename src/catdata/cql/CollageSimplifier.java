@@ -1,17 +1,15 @@
 package catdata.cql;
 
+import catdata.Chc;
+import catdata.Triple;
+import catdata.cql.Collage.CCollage;
+import gnu.trove.set.hash.THashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-
 import org.apache.commons.collections4.list.TreeList;
-
-import catdata.Chc;
-import catdata.Triple;
-import catdata.cql.Collage.CCollage;
-import gnu.trove.set.hash.THashSet;
 
 public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
@@ -19,24 +17,30 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
 
   public Collage<Ty, En, Sym, Fk, Att, Gen, Sk> simplified;
 
-  private List<Triple<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, List<String>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>> list = (new TreeList<>());
+  private List<
+          Triple<
+              Head<Ty, En, Sym, Fk, Att, Gen, Sk>,
+              List<String>,
+              Term<Ty, En, Sym, Fk, Att, Gen, Sk>>>
+      list = (new TreeList<>());
 
-  public Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>>
-
-  simp = term -> {
-    for (Triple<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, List<String>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> t : list) {
-      term = term.replaceHead(t.first, t.second, t.third);
-    }
-    return term;
-  };
+  public Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> simp =
+      term -> {
+        for (Triple<
+                Head<Ty, En, Sym, Fk, Att, Gen, Sk>,
+                List<String>,
+                Term<Ty, En, Sym, Fk, Att, Gen, Sk>>
+            t : list) {
+          term = term.replaceHead(t.first, t.second, t.third);
+        }
+        return term;
+      };
 
   public CollageSimplifier(Collage<Ty, En, Sym, Fk, Att, Gen, Sk> in) {
     simplified = new CCollage<>(in);
     this.in = in;
 
-    while (simplify1()) {
-
-    }
+    while (simplify1()) {}
 
     Iterator<Eq<Ty, En, Sym, Fk, Att, Gen, Sk>> it = simplified.eqs().iterator();
     while (it.hasNext()) {
@@ -45,7 +49,6 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
         it.remove();
       }
     }
-
   }
 
   private boolean simplify1() {
@@ -57,7 +60,9 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
     return false;
   }
 
-  private boolean simplify2(Map<String, Chc<Ty, En>> ctx, Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
+  private boolean simplify2(
+      Map<String, Chc<Ty, En>> ctx,
+      Term<Ty, En, Sym, Fk, Att, Gen, Sk> lhs,
       Term<Ty, En, Sym, Fk, Att, Gen, Sk> rhs) {
     if (lhs.var != null || lhs.obj() != null) {
       return false;
@@ -77,7 +82,9 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
       simplified.remove(head);
       list.add(new Triple<>(head, vars, rhs));
       for (Eq<Ty, En, Sym, Fk, Att, Gen, Sk> eq : simplified.eqs()) {
-        neweqs.add(new Eq<>(eq.ctx, eq.lhs.replaceHead(head, vars, rhs), eq.rhs.replaceHead(head, vars, rhs)));
+        neweqs.add(
+            new Eq<>(
+                eq.ctx, eq.lhs.replaceHead(head, vars, rhs), eq.rhs.replaceHead(head, vars, rhs)));
       }
       simplified.eqs().clear();
       simplified.eqs().addAll(neweqs);
@@ -85,5 +92,4 @@ public class CollageSimplifier<Ty, En, Sym, Fk, Att, Gen, Sk> {
     }
     return false;
   }
-
 }

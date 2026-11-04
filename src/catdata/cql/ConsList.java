@@ -1,12 +1,11 @@
 package catdata.cql;
 
+import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.strategy.HashingStrategy;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import gnu.trove.map.hash.TCustomHashMap;
-import gnu.trove.strategy.HashingStrategy;
 
 public class ConsList<X> {
 
@@ -23,19 +22,20 @@ public class ConsList<X> {
   public final List<X> list;
 
   @SuppressWarnings("rawtypes")
-  private static HashingStrategy<List> strategy = new HashingStrategy<>() {
-    private static final long serialVersionUID = 1L;
+  private static HashingStrategy<List> strategy =
+      new HashingStrategy<>() {
+        private static final long serialVersionUID = 1L;
 
-    @Override
-    public int computeHashCode(List t) {
-      return t.hashCode();
-    }
+        @Override
+        public int computeHashCode(List t) {
+          return t.hashCode();
+        }
 
-    @Override
-    public boolean equals(List s, List t) {
-      return s.equals(t);
-    }
-  };
+        @Override
+        public boolean equals(List s, List t) {
+          return s.equals(t);
+        }
+      };
 
   @SuppressWarnings("rawtypes")
   public static Map<List, ConsList> cache = new TCustomHashMap<>(strategy);
@@ -116,5 +116,4 @@ public class ConsList<X> {
   public String toString() {
     return list.toString();
   }
-
 }

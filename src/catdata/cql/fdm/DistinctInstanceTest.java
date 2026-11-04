@@ -4,10 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.cql.AqlOptions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.cql.AqlOptions;
 
 class DistinctInstanceTest {
 

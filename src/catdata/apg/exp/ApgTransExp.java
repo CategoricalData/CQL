@@ -1,13 +1,5 @@
 package catdata.apg.exp;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import catdata.InteriorLabel;
 import catdata.LocStr;
 import catdata.Pair;
@@ -23,13 +15,20 @@ import catdata.apg.exp.ApgInstExp.ApgInstExpInitial;
 import catdata.apg.exp.ApgInstExp.ApgInstExpPlus;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTerminal;
 import catdata.apg.exp.ApgInstExp.ApgInstExpTimes;
-import catdata.cql.Kind;
 import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
 import catdata.cql.exp.AqlEnv;
 import catdata.cql.exp.AqlTyping;
 import catdata.cql.exp.Exp;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Object, Object>> {
 
@@ -72,7 +71,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public R visit(P params, ApgTransExpCoEqualizeU exp);
 
     public R visit(P params, ApgTransExpDelta exp);
-
   }
 
   public interface ApgTransExpCoVisitor<R, P> {
@@ -110,7 +108,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public ApgTransExp visitApgTransExpCoEqualize(P params, R r);
 
     public ApgTransExp visitApgTransExpCoEqualizeU(P params, R r);
-
   }
 
   @Override
@@ -132,9 +129,7 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   public static final class ApgTransExpVar extends ApgTransExp {
     public final String var;
@@ -159,7 +154,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     }
 
     @Override
-    public synchronized ApgTransform<Object, Object, Object, Object> eval0(AqlEnv env, boolean isC) {
+    public synchronized ApgTransform<Object, Object, Object, Object> eval0(
+        AqlEnv env, boolean isC) {
       return env.defs.apgms.get(var);
     }
 
@@ -178,12 +174,9 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpVar other = (ApgTransExpVar) obj;
       return var.equals(other.var);
     }
@@ -194,24 +187,29 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
     @Override
     public boolean isVar() {
       return true;
     }
-
   }
 
   public static final class ApgTransExpRaw extends ApgTransExp implements Raw {
 
     @Override
     public String toString() {
-      String s = "literal : " + src + " -> " + dst + " {\n"
-          + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " "))) + "\nlabels\n\t"
-          + Util.sep(Ls, " -> ", "\n\t") + "\nelements\n\t" + Util.sep(Es, " -> ", "\n\t");
+      String s =
+          "literal : "
+              + src
+              + " -> "
+              + dst
+              + " {\n"
+              + (imports.isEmpty() ? "" : ("\n" + Util.sep(imports, " ")))
+              + "\nlabels\n\t"
+              + Util.sep(Ls, " -> ", "\n\t")
+              + "\nelements\n\t"
+              + Util.sep(Es, " -> ", "\n\t");
 
       return s + "\n}";
     }
@@ -221,8 +219,12 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public final Map<String, String> Es;
     public final Map<String, String> Ls;
 
-    public ApgTransExpRaw(ApgInstExp src0, ApgInstExp dst0, List<ApgTransExp> imports0,
-        List<Pair<LocStr, String>> Ls0, List<Pair<LocStr, String>> Es0) {
+    public ApgTransExpRaw(
+        ApgInstExp src0,
+        ApgInstExp dst0,
+        List<ApgTransExp> imports0,
+        List<Pair<LocStr, String>> Ls0,
+        List<Pair<LocStr, String>> Es0) {
       this.src = src0;
       this.dst = dst0;
       this.imports = Util.toSetSafely(imports0);
@@ -232,13 +234,17 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
       doGuiIndex(Es0, Ls0);
     }
 
-    public void doGuiIndex(List<Pair<LocStr, String>> ls0,
-        List<Pair<LocStr, String>> es0) {
+    public void doGuiIndex(List<Pair<LocStr, String>> ls0, List<Pair<LocStr, String>> es0) {
 
       List<InteriorLabel<Object>> f = new LinkedList<>();
       for (Pair<LocStr, String> p : es0) {
-        f.add(new InteriorLabel<>("values", new Pair<>(p.first.str, p.second), p.first.loc,
-            x -> x.first + " -> " + x.second).conv());
+        f.add(
+            new InteriorLabel<>(
+                    "values",
+                    new Pair<>(p.first.str, p.second),
+                    p.first.loc,
+                    x -> x.first + " -> " + x.second)
+                .conv());
       }
 
       raw.put("elements", f);
@@ -273,10 +279,9 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected ApgTransform eval0(AqlEnv env, boolean isCompileTime) {
       ApgInstance s = src.eval(env, isCompileTime);
@@ -321,41 +326,27 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpRaw other = (ApgTransExpRaw) obj;
       if (Es == null) {
-        if (other.Es != null)
-          return false;
-      } else if (!Es.equals(other.Es))
-        return false;
+        if (other.Es != null) return false;
+      } else if (!Es.equals(other.Es)) return false;
       if (Ls == null) {
-        if (other.Ls != null)
-          return false;
-      } else if (!Ls.equals(other.Ls))
-        return false;
+        if (other.Ls != null) return false;
+      } else if (!Ls.equals(other.Ls)) return false;
       if (dst == null) {
-        if (other.dst != null)
-          return false;
-      } else if (!dst.equals(other.dst))
-        return false;
+        if (other.dst != null) return false;
+      } else if (!dst.equals(other.dst)) return false;
       if (imports == null) {
-        if (other.imports != null)
-          return false;
-      } else if (!imports.equals(other.imports))
-        return false;
+        if (other.imports != null) return false;
+      } else if (!imports.equals(other.imports)) return false;
       if (src == null) {
-        if (other.src != null)
-          return false;
-      } else if (!src.equals(other.src))
-        return false;
+        if (other.src != null) return false;
+      } else if (!src.equals(other.src)) return false;
       return true;
     }
-
   }
 
   public static final class ApgTransExpTerminal extends ApgTransExp {
@@ -376,18 +367,13 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpTerminal other = (ApgTransExpTerminal) obj;
       if (G == null) {
-        if (other.G != null)
-          return false;
-      } else if (!G.equals(other.G))
-        return false;
+        if (other.G != null) return false;
+      } else if (!G.equals(other.G)) return false;
       return true;
     }
 
@@ -427,7 +413,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public String toString() {
       return "unit " + G;
     }
-
   }
 
   public static final class ApgTransExpInitial extends ApgTransExp {
@@ -444,18 +429,13 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpInitial other = (ApgTransExpInitial) obj;
       if (G == null) {
-        if (other.G != null)
-          return false;
-      } else if (!G.equals(other.G))
-        return false;
+        if (other.G != null) return false;
+      } else if (!G.equals(other.G)) return false;
       return true;
     }
 
@@ -476,7 +456,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     @Override
     public Pair<ApgInstExp, ApgInstExp> type(AqlTyping G) {
       return new Pair<>(new ApgInstExpInitial(this.G.type(G)), this.G);
-
     }
 
     @SuppressWarnings("rawtypes")
@@ -499,7 +478,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public String toString() {
       return "empty " + G;
     }
-
   }
 
   public static final class ApgTransExpFst extends ApgTransExp {
@@ -521,23 +499,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpFst other = (ApgTransExpFst) obj;
       if (G1 == null) {
-        if (other.G1 != null)
-          return false;
-      } else if (!G1.equals(other.G1))
-        return false;
+        if (other.G1 != null) return false;
+      } else if (!G1.equals(other.G1)) return false;
       if (G2 == null) {
-        if (other.G2 != null)
-          return false;
-      } else if (!G2.equals(other.G2))
-        return false;
+        if (other.G2 != null) return false;
+      } else if (!G2.equals(other.G2)) return false;
       return true;
     }
 
@@ -582,7 +553,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public Collection<Pair<String, Kind>> deps() {
       return Util.union(G1.deps(), G2.deps());
     }
-
   }
 
   public static final class ApgTransExpSnd extends ApgTransExp {
@@ -604,23 +574,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpSnd other = (ApgTransExpSnd) obj;
       if (G1 == null) {
-        if (other.G1 != null)
-          return false;
-      } else if (!G1.equals(other.G1))
-        return false;
+        if (other.G1 != null) return false;
+      } else if (!G1.equals(other.G1)) return false;
       if (G2 == null) {
-        if (other.G2 != null)
-          return false;
-      } else if (!G2.equals(other.G2))
-        return false;
+        if (other.G2 != null) return false;
+      } else if (!G2.equals(other.G2)) return false;
       return true;
     }
 
@@ -681,23 +644,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpPair other = (ApgTransExpPair) obj;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -763,23 +719,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpInl other = (ApgTransExpInl) obj;
       if (G1 == null) {
-        if (other.G1 != null)
-          return false;
-      } else if (!G1.equals(other.G1))
-        return false;
+        if (other.G1 != null) return false;
+      } else if (!G1.equals(other.G1)) return false;
       if (G2 == null) {
-        if (other.G2 != null)
-          return false;
-      } else if (!G2.equals(other.G2))
-        return false;
+        if (other.G2 != null) return false;
+      } else if (!G2.equals(other.G2)) return false;
       return true;
     }
 
@@ -850,23 +799,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpInr other = (ApgTransExpInr) obj;
       if (G1 == null) {
-        if (other.G1 != null)
-          return false;
-      } else if (!G1.equals(other.G1))
-        return false;
+        if (other.G1 != null) return false;
+      } else if (!G1.equals(other.G1)) return false;
       if (G2 == null) {
-        if (other.G2 != null)
-          return false;
-      } else if (!G2.equals(other.G2))
-        return false;
+        if (other.G2 != null) return false;
+      } else if (!G2.equals(other.G2)) return false;
       return true;
     }
 
@@ -927,23 +869,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpCase other = (ApgTransExpCase) obj;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -1013,18 +948,13 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpId other = (ApgTransExpId) obj;
       if (G == null) {
-        if (other.G != null)
-          return false;
-      } else if (!G.equals(other.G))
-        return false;
+        if (other.G != null) return false;
+      } else if (!G.equals(other.G)) return false;
 
       return true;
     }
@@ -1085,23 +1015,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpCompose other = (ApgTransExpCompose) obj;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -1125,7 +1048,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
       Pair<ApgInstExp, ApgInstExp> a = h1.type(G);
       Pair<ApgInstExp, ApgInstExp> b = h2.type(G);
       if (!a.second.equals(b.first)) {
-        throw new RuntimeException("Intermediate APGs do not match: " + a.second + " and " + b.first);
+        throw new RuntimeException(
+            "Intermediate APGs do not match: " + a.second + " and " + b.first);
       }
       return new Pair<>(a.first, b.second);
     }
@@ -1137,7 +1061,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     }
 
     @Override
-    protected ApgTransform<Object, Object, Object, Object> eval0(AqlEnv env, boolean isCompileTime) {
+    protected ApgTransform<Object, Object, Object, Object> eval0(
+        AqlEnv env, boolean isCompileTime) {
       return ApgOps.compose(h1.eval(env, isCompileTime), h2.eval(env, isCompileTime));
     }
 
@@ -1145,7 +1070,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public Collection<Pair<String, Kind>> deps() {
       return Util.union(h1.deps(), h2.deps());
     }
-
   }
 
   public static final class ApgTransExpEqualize extends ApgTransExp {
@@ -1167,23 +1091,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpEqualize other = (ApgTransExpEqualize) obj;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -1199,7 +1116,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
       if (!a.first.equals(b.first)) {
         throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
       } else if (!a.second.equals(b.second)) {
-        throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
+        throw new RuntimeException(
+            "CoDomain mismatch: " + a.second + " is not equal to " + b.second);
       }
       return new Pair<>(new ApgInstExpEqualize(h1, h2), a.first);
     }
@@ -1230,7 +1148,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
       return v.visitApgTransExpEqualize(params, r);
     }
-
   }
 
   public static final class ApgTransExpEqualizeU extends ApgTransExp {
@@ -1264,28 +1181,19 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpEqualizeU other = (ApgTransExpEqualizeU) obj;
       if (h == null) {
-        if (other.h != null)
-          return false;
-      } else if (!h.equals(other.h))
-        return false;
+        if (other.h != null) return false;
+      } else if (!h.equals(other.h)) return false;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -1297,9 +1205,10 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     }
 
     @Override
-    protected ApgTransform<Object, Object, Object, Object> eval0(AqlEnv env, boolean isCompileTime) {
-      return ApgOps.equalizeU(h.eval(env, isCompileTime), h1.eval(env, isCompileTime),
-          h2.eval(env, isCompileTime));
+    protected ApgTransform<Object, Object, Object, Object> eval0(
+        AqlEnv env, boolean isCompileTime) {
+      return ApgOps.equalizeU(
+          h.eval(env, isCompileTime), h1.eval(env, isCompileTime), h2.eval(env, isCompileTime));
     }
 
     @Override
@@ -1320,14 +1229,15 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
       if (!a.first.equals(b.first)) {
         throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
       } else if (!a.second.equals(b.second)) {
-        throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
+        throw new RuntimeException(
+            "CoDomain mismatch: " + a.second + " is not equal to " + b.second);
       } else if (!c.second.equals(a.first)) {
-        throw new RuntimeException("Domain and CoDomain mismatch: " + a.first + " is not equal to " + c.second);
+        throw new RuntimeException(
+            "Domain and CoDomain mismatch: " + a.first + " is not equal to " + c.second);
       }
 
       return new Pair<>(c.first, new ApgInstExpEqualize(h1, h2));
     }
-
   }
 
   public static final class ApgTransExpCoEqualize extends ApgTransExp {
@@ -1349,23 +1259,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpCoEqualize other = (ApgTransExpCoEqualize) obj;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -1381,7 +1284,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
       if (!a.first.equals(b.first)) {
         throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
       } else if (!a.second.equals(b.second)) {
-        throw new RuntimeException("Codomain mismatch: " + a.second + " is not equal to " + b.second);
+        throw new RuntimeException(
+            "Codomain mismatch: " + a.second + " is not equal to " + b.second);
       }
       return new Pair<>(a.second, new ApgInstExpCoEqualize(h1, h2));
     }
@@ -1412,7 +1316,6 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public <R, P> ApgTransExp coaccept(P params, ApgTransExpCoVisitor<R, P> v, R r) {
       return v.visitApgTransExpCoEqualize(params, r);
     }
-
   }
 
   public static final class ApgTransExpCoEqualizeU extends ApgTransExp {
@@ -1446,28 +1349,19 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpCoEqualizeU other = (ApgTransExpCoEqualizeU) obj;
       if (h == null) {
-        if (other.h != null)
-          return false;
-      } else if (!h.equals(other.h))
-        return false;
+        if (other.h != null) return false;
+      } else if (!h.equals(other.h)) return false;
       if (h1 == null) {
-        if (other.h1 != null)
-          return false;
-      } else if (!h1.equals(other.h1))
-        return false;
+        if (other.h1 != null) return false;
+      } else if (!h1.equals(other.h1)) return false;
       if (h2 == null) {
-        if (other.h2 != null)
-          return false;
-      } else if (!h2.equals(other.h2))
-        return false;
+        if (other.h2 != null) return false;
+      } else if (!h2.equals(other.h2)) return false;
       return true;
     }
 
@@ -1481,8 +1375,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     @SuppressWarnings("rawtypes")
     @Override
     protected ApgTransform eval0(AqlEnv env, boolean isCompileTime) {
-      return ApgOps.coequalizeU(h.eval(env, isCompileTime), h1.eval(env, isCompileTime),
-          h2.eval(env, isCompileTime));
+      return ApgOps.coequalizeU(
+          h.eval(env, isCompileTime), h1.eval(env, isCompileTime), h2.eval(env, isCompileTime));
     }
 
     @Override
@@ -1503,14 +1397,15 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
       if (!a.first.equals(b.first)) {
         throw new RuntimeException("Domain mismatch: " + a.first + " is not equal to " + b.first);
       } else if (!a.second.equals(b.second)) {
-        throw new RuntimeException("CoDomain mismatch: " + a.second + " is not equal to " + b.second);
+        throw new RuntimeException(
+            "CoDomain mismatch: " + a.second + " is not equal to " + b.second);
       } else if (!c.first.equals(a.second)) {
-        throw new RuntimeException("Domain and CoDomain mismatch: " + a.second + " is not equal to " + c.first);
+        throw new RuntimeException(
+            "Domain and CoDomain mismatch: " + a.second + " is not equal to " + c.first);
       }
 
       return new Pair<>(new ApgInstExpCoEqualize(h1, h2), c.second);
     }
-
   }
 
   public static class ApgTransExpDelta extends ApgTransExp {
@@ -1540,23 +1435,16 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       ApgTransExpDelta other = (ApgTransExpDelta) obj;
       if (F == null) {
-        if (other.F != null)
-          return false;
-      } else if (!F.equals(other.F))
-        return false;
+        if (other.F != null) return false;
+      } else if (!F.equals(other.F)) return false;
       if (h == null) {
-        if (other.h != null)
-          return false;
-      } else if (!h.equals(other.h))
-        return false;
+        if (other.h != null) return false;
+      } else if (!h.equals(other.h)) return false;
       return true;
     }
 
@@ -1583,7 +1471,8 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
       }
 
       if (!z.equals(b.second)) {
-        throw new RuntimeException("Target of mapping is " + b.second + " but transform is on " + z);
+        throw new RuntimeException(
+            "Target of mapping is " + b.second + " but transform is on " + z);
       }
 
       return new Pair<>(new ApgInstExpDelta(F, a.first), new ApgInstExpDelta(F, a.second));
@@ -1604,7 +1493,5 @@ public abstract class ApgTransExp extends Exp<ApgTransform<Object, Object, Objec
     public Collection<Pair<String, Kind>> deps() {
       return Util.union(F.deps(), h.deps());
     }
-
   }
-
 }

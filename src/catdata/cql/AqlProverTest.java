@@ -6,15 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.AqlProver.ProverName;
 import catdata.cql.Collage.CCollage;
 import catdata.cql.exp.Sym;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;

@@ -4,11 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import catdata.cql.Term;
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.cql.Term;
 
 class IdentityTransformTest {
 
@@ -33,8 +32,7 @@ class IdentityTransformTest {
 
     @Test
     void constructorRejectsNull() {
-      assertThrows(RuntimeException.class,
-          () -> new IdentityTransform<>(null, Optional.empty()));
+      assertThrows(RuntimeException.class, () -> new IdentityTransform<>(null, Optional.empty()));
     }
   }
 

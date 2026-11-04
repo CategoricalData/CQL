@@ -12,12 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Quad;
@@ -28,6 +22,12 @@ import catdata.cql.exp.Fk;
 import catdata.cql.exp.RawTerm;
 import catdata.cql.exp.Sym;
 import catdata.graph.DMG;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -69,7 +69,11 @@ class ColimitSchemaTest {
             Map.of(NAME, PERSON, ADDR, OFFICE),
             Map.of(WORKS_AT, new Pair<>(PERSON, OFFICE), BACKUP_AT, new Pair<>(PERSON, OFFICE)),
             List.of(
-                forall("p", PERSON, Term.Fk(WORKS_AT, Term.Var("p")), Term.Fk(BACKUP_AT, Term.Var("p")))));
+                forall(
+                    "p",
+                    PERSON,
+                    Term.Fk(WORKS_AT, Term.Var("p")),
+                    Term.Fk(BACKUP_AT, Term.Var("p")))));
 
     /** crm: Client -locatedIn-> Site, with fullName on Client and street on Site. */
     private static final Schema<String, String, Sym, Fk, Att> CRM_SCH =
@@ -243,7 +247,8 @@ class ColimitSchemaTest {
       assertEquals(new Pair<>(PERSON, OFFICE), s.fks.get(WORKS_AT));
       assertEquals(new Pair<>(PERSON, OFFICE), s.fks.get(LOCATED_IN_P));
       assertEquals(
-          Set.of(NAME, FULL_NAME_P, ADDR, Att.Att(OFFICE, "street")), new HashSet<>(s.atts.keySet()));
+          Set.of(NAME, FULL_NAME_P, ADDR, Att.Att(OFFICE, "street")),
+          new HashSet<>(s.atts.keySet()));
     }
 
     @Test
@@ -293,7 +298,9 @@ class ColimitSchemaTest {
     void addsObservationEquations() {
       Schema<String, String, Sym, Fk, Att> s = mergedWithName().schemaStr;
       assertTrue(proves(s, "p", PERSON, att(NAME, v("p")), att(FULL_NAME_P, v("p"))));
-      assertFalse(proves(merged(ops()).schemaStr, "p", PERSON, att(NAME, v("p")), att(FULL_NAME_P, v("p"))));
+      assertFalse(
+          proves(
+              merged(ops()).schemaStr, "p", PERSON, att(NAME, v("p")), att(FULL_NAME_P, v("p"))));
     }
 
     @Test
@@ -318,7 +325,8 @@ class ColimitSchemaTest {
   class QuotientErrors {
 
     private String failure(
-        Set<Quad<String, String, String, String>> eqEn, Set<Pair<List<String>, List<String>>> eqTerms2) {
+        Set<Quad<String, String, String, String>> eqEn,
+        Set<Pair<List<String>, List<String>>> eqTerms2) {
       return assertThrows(
               RuntimeException.class,
               () -> quotient(List.of(HR, CRM), hrAndCrm(), eqEn, new HashSet<>(), eqTerms2, ops()))
@@ -327,13 +335,15 @@ class ColimitSchemaTest {
 
     @Test
     void rejectsAnUnknownFirstSchema() {
-      assertEquals("Not a schema: ghost", failure(Set.of(same("ghost", PERSON, CRM, CLIENT)), Set.of()));
+      assertEquals(
+          "Not a schema: ghost", failure(Set.of(same("ghost", PERSON, CRM, CLIENT)), Set.of()));
     }
 
     @Test
     void namesTheWrongSchemaWhenTheSecondIsUnknown() {
       // The check is on s.third, but the message prints s.first.
-      assertEquals("Not a schema: hr", failure(Set.of(same(HR, PERSON, "ghost", CLIENT)), Set.of()));
+      assertEquals(
+          "Not a schema: hr", failure(Set.of(same(HR, PERSON, "ghost", CLIENT)), Set.of()));
     }
 
     @Test
@@ -367,7 +377,9 @@ class ColimitSchemaTest {
           assertThrows(
               RuntimeException.class,
               () -> quotient(List.of(HR, CRM), hrAndCrm(), merge(), eqTerms, Set.of(), ops()));
-      assertTrue(e.getMessage().endsWith("variable x has type Varchar which is not an entity"), e.getMessage());
+      assertTrue(
+          e.getMessage().endsWith("variable x has type Varchar which is not an entity"),
+          e.getMessage());
     }
 
     @Test
@@ -494,10 +506,14 @@ class ColimitSchemaTest {
           Map.of(
               "zeta",
               sqlSchema(
-                  List.of(PERSON, OFFICE), Map.of(zetaName, PERSON), Map.of(zetaLink, new Pair<>(PERSON, OFFICE))),
+                  List.of(PERSON, OFFICE),
+                  Map.of(zetaName, PERSON),
+                  Map.of(zetaLink, new Pair<>(PERSON, OFFICE))),
               "ab",
               sqlSchema(
-                  List.of(CLIENT, SITE), Map.of(abName, CLIENT), Map.of(abLink, new Pair<>(CLIENT, SITE)))),
+                  List.of(CLIENT, SITE),
+                  Map.of(abName, CLIENT),
+                  Map.of(abLink, new Pair<>(CLIENT, SITE)))),
           Set.of(same("zeta", PERSON, "ab", CLIENT), same("zeta", OFFICE, "ab", SITE)),
           new HashSet<>(),
           Set.of(),
@@ -526,9 +542,11 @@ class ColimitSchemaTest {
       // The first schema therefore wins for attributes, by insertion order rather than by the sort.
       ColimitSchema<String> c = clashingForeignKeys();
       assertEquals(
-          Att.Att(PERSON, "nm"), c.mappingsStr.get("zeta").atts.get(Att.Att(PERSON, "nm")).third.att());
+          Att.Att(PERSON, "nm"),
+          c.mappingsStr.get("zeta").atts.get(Att.Att(PERSON, "nm")).third.att());
       assertEquals(
-          Att.Att(PERSON, "ab_nm"), c.mappingsStr.get("ab").atts.get(Att.Att(CLIENT, "nm")).third.att());
+          Att.Att(PERSON, "ab_nm"),
+          c.mappingsStr.get("ab").atts.get(Att.Att(CLIENT, "nm")).third.att());
     }
   }
 
@@ -542,9 +560,13 @@ class ColimitSchemaTest {
     private final Att pname = Att.Att(PERSON, "pname");
 
     private final Schema<String, String, Sym, Fk, Att> s =
-        sqlSchema(List.of("Emp", "Dept"), Map.of(ename, "Emp"), Map.of(wi, new Pair<>("Emp", "Dept")));
+        sqlSchema(
+            List.of("Emp", "Dept"), Map.of(ename, "Emp"), Map.of(wi, new Pair<>("Emp", "Dept")));
     private final Schema<String, String, Sym, Fk, Att> t =
-        sqlSchema(List.of(PERSON, "Team"), Map.of(pname, PERSON), Map.of(memberOf, new Pair<>(PERSON, "Team")));
+        sqlSchema(
+            List.of(PERSON, "Team"),
+            Map.of(pname, PERSON),
+            Map.of(memberOf, new Pair<>(PERSON, "Team")));
 
     private ColimitSchema<String> colimit() {
       Mapping<String, String, Sym, Fk, Att, String, Fk, Att> f =
@@ -575,7 +597,12 @@ class ColimitSchemaTest {
       Fk cmemberOf = Fk.Fk("Emp", "memberOf");
       assertTrue(proves(col, "v", "Emp", fk(cwi, v("v")), fk(cmemberOf, v("v"))));
       assertTrue(
-          proves(col, "v", "Emp", att(Att.Att("Emp", "ename"), v("v")), att(Att.Att("Emp", "pname"), v("v"))));
+          proves(
+              col,
+              "v",
+              "Emp",
+              att(Att.Att("Emp", "ename"), v("v")),
+              att(Att.Att("Emp", "pname"), v("v"))));
     }
 
     @Test
@@ -586,7 +613,12 @@ class ColimitSchemaTest {
               RuntimeException.class,
               () ->
                   new ColimitSchema<>(
-                      List.of("S", "T"), shape, sqlTypeSide(), Map.of("S", s, "T", t), Map.of(), ops()));
+                      List.of("S", "T"),
+                      shape,
+                      sqlTypeSide(),
+                      Map.of("S", s, "T", t),
+                      Map.of(),
+                      ops()));
       assertEquals("No schema for node U", e.getMessage());
     }
   }
@@ -612,15 +644,24 @@ class ColimitSchemaTest {
       Schema<String, String, Sym, Fk, Att> s = r.first.schemaStr;
       assertTrue(s.dp.toStringProver().startsWith("rename entity of "), s.dp.toStringProver());
       assertTrue(
-          proves(s, "h", "Human", fk(Fk.Fk("Human", "worksAt"), v("h")), fk(Fk.Fk("Human", "locatedIn"), v("h"))));
+          proves(
+              s,
+              "h",
+              "Human",
+              fk(Fk.Fk("Human", "worksAt"), v("h")),
+              fk(Fk.Fk("Human", "locatedIn"), v("h"))));
     }
 
     @Test
     void rejectsAnEntityRenameThatDoesNotApply() {
       ColimitSchema<String> c = merged(ops());
-      String msg = assertThrows(RuntimeException.class, () -> c.renameEntity("Ghost", "X", false)).getMessage();
+      String msg =
+          assertThrows(RuntimeException.class, () -> c.renameEntity("Ghost", "X", false))
+              .getMessage();
       assertTrue(msg.startsWith("Ghost is not an entity in \n"), msg);
-      msg = assertThrows(RuntimeException.class, () -> c.renameEntity(PERSON, OFFICE, false)).getMessage();
+      msg =
+          assertThrows(RuntimeException.class, () -> c.renameEntity(PERSON, OFFICE, false))
+              .getMessage();
       assertTrue(msg.startsWith("Office is already an entity in \n"), msg);
     }
 
@@ -631,7 +672,8 @@ class ColimitSchemaTest {
       Schema<String, String, Sym, Fk, Att> s = r.first.schemaStr;
       assertFalse(s.fks.containsKey(WORKS_AT));
       assertEquals(new Pair<>(PERSON, OFFICE), s.fks.get(employedAt));
-      assertEquals(new Pair<>(PERSON, List.of(employedAt)), r.first.mappingsStr.get(HR).fks.get(WORKS_AT));
+      assertEquals(
+          new Pair<>(PERSON, List.of(employedAt)), r.first.mappingsStr.get(HR).fks.get(WORKS_AT));
       assertTrue(s.dp.toStringProver().startsWith("rename foreign key of "), s.dp.toStringProver());
       assertTrue(proves(s, "p", PERSON, fk(employedAt, v("p")), fk(LOCATED_IN_P, v("p"))));
     }
@@ -640,10 +682,13 @@ class ColimitSchemaTest {
     void rejectsAForeignKeyRenameThatDoesNotApply() {
       ColimitSchema<String> c = merged(ops());
       String msg =
-          assertThrows(RuntimeException.class, () -> c.renameFk(Fk.Fk(PERSON, "ghost"), WORKS_AT, false))
+          assertThrows(
+                  RuntimeException.class, () -> c.renameFk(Fk.Fk(PERSON, "ghost"), WORKS_AT, false))
               .getMessage();
       assertTrue(msg.startsWith("Person.ghost is not a foreign_key in \n"), msg);
-      msg = assertThrows(RuntimeException.class, () -> c.renameFk(WORKS_AT, LOCATED_IN_P, false)).getMessage();
+      msg =
+          assertThrows(RuntimeException.class, () -> c.renameFk(WORKS_AT, LOCATED_IN_P, false))
+              .getMessage();
       assertTrue(msg.startsWith("locatedIn is already a foreign_key in \n"), msg);
     }
 
@@ -662,10 +707,13 @@ class ColimitSchemaTest {
     void rejectsAnAttributeRenameThatDoesNotApply() {
       ColimitSchema<String> c = merged(ops());
       String msg =
-          assertThrows(RuntimeException.class, () -> c.renameAtt(Att.Att(PERSON, "ghost"), NAME, false))
+          assertThrows(
+                  RuntimeException.class, () -> c.renameAtt(Att.Att(PERSON, "ghost"), NAME, false))
               .getMessage();
       assertTrue(msg.startsWith("ghost is not an attribute of Person in \n"), msg);
-      msg = assertThrows(RuntimeException.class, () -> c.renameAtt(NAME, FULL_NAME_P, false)).getMessage();
+      msg =
+          assertThrows(RuntimeException.class, () -> c.renameAtt(NAME, FULL_NAME_P, false))
+              .getMessage();
       assertTrue(msg.startsWith("fullName is already an attribute in \n"), msg);
     }
   }
@@ -679,7 +727,8 @@ class ColimitSchemaTest {
       Schema<String, String, Sym, Fk, Att> s = r.first.schemaStr;
       assertFalse(s.fks.containsKey(LOCATED_IN_P));
       assertTrue(s.eqs.isEmpty(), "worksAt = locatedIn becomes worksAt = worksAt and is dropped");
-      assertEquals(new Pair<>(PERSON, List.of(WORKS_AT)), r.first.mappingsStr.get(CRM).fks.get(LOCATED_IN));
+      assertEquals(
+          new Pair<>(PERSON, List.of(WORKS_AT)), r.first.mappingsStr.get(CRM).fks.get(LOCATED_IN));
       assertTrue(s.dp.toStringProver().startsWith("remove foreign key of "), s.dp.toStringProver());
     }
 
@@ -687,7 +736,9 @@ class ColimitSchemaTest {
     void rejectsAForeignKeyRemovalThatDoesNotApply() {
       ColimitSchema<String> c = mergedWithPath();
       assertTrue(
-          assertThrows(RuntimeException.class, () -> c.removeFk(Fk.Fk(PERSON, "ghost"), List.of(), false))
+          assertThrows(
+                  RuntimeException.class,
+                  () -> c.removeFk(Fk.Fk(PERSON, "ghost"), List.of(), false))
               .getMessage()
               .startsWith("ghost is not a foreign_key in \n"));
       assertEquals(
@@ -696,7 +747,8 @@ class ColimitSchemaTest {
               .getMessage());
       assertEquals(
           "The term v has type Person and not Office as expected.",
-          assertThrows(RuntimeException.class, () -> c.removeFk(WORKS_AT, List.of(), false)).getMessage());
+          assertThrows(RuntimeException.class, () -> c.removeFk(WORKS_AT, List.of(), false))
+              .getMessage());
       ColimitSchema<String> unrelated = merged(ops());
       assertEquals(
           "The term v.worksAt is not provably equal to v.locatedIn",
@@ -712,7 +764,8 @@ class ColimitSchemaTest {
       Schema<String, String, Sym, Fk, Att> s = r.first.schemaStr;
       assertFalse(s.atts.containsKey(FULL_NAME_P));
       assertEquals(
-          new Triple<>("v", PERSON, att(NAME, v("v"))), r.first.mappingsStr.get(CRM).atts.get(FULL_NAME));
+          new Triple<>("v", PERSON, att(NAME, v("v"))),
+          r.first.mappingsStr.get(CRM).atts.get(FULL_NAME));
       assertTrue(s.dp.toStringProver().startsWith("remove attribute of "), s.dp.toStringProver());
     }
 
@@ -728,12 +781,14 @@ class ColimitSchemaTest {
       assertEquals(
           "The term v.worksAt has type Office and not Varchar as expected.",
           assertThrows(
-                  RuntimeException.class, () -> c.removeAtt(FULL_NAME_P, "v", fk(WORKS_AT, v("v")), false))
+                  RuntimeException.class,
+                  () -> c.removeAtt(FULL_NAME_P, "v", fk(WORKS_AT, v("v")), false))
               .getMessage());
       assertEquals(
           "Cannot replace fullName with v.fullName because that term contains fullName",
           assertThrows(
-                  RuntimeException.class, () -> c.removeAtt(FULL_NAME_P, "v", att(FULL_NAME_P, v("v")), false))
+                  RuntimeException.class,
+                  () -> c.removeAtt(FULL_NAME_P, "v", att(FULL_NAME_P, v("v")), false))
               .getMessage());
       ColimitSchema<String> unrelated = merged(ops());
       assertEquals(
@@ -769,7 +824,9 @@ class ColimitSchemaTest {
       var swap = new Mapping<>(id.ens, id.atts, swapped, s, s, true);
       String msg = assertThrows(RuntimeException.class, () -> c.wrap(id, swap)).getMessage();
       assertTrue(
-          msg.endsWith(", which is not provably equal to itself,  when composing (toUser ; fromUser)"), msg);
+          msg.endsWith(
+              ", which is not provably equal to itself,  when composing (toUser ; fromUser)"),
+          msg);
     }
 
     @Test
@@ -809,13 +866,15 @@ class ColimitSchemaTest {
     void keepsEveryEntityApart() {
       ColimitSchema<String> c = pseudo(Map.of("same", same(HR, PERSON, CRM, CLIENT)));
       assertEquals(
-          Set.of("hr_Person", "hr_Office", "crm_Client", "crm_Site"), new HashSet<>(c.schemaStr.ens));
+          Set.of("hr_Person", "hr_Office", "crm_Client", "crm_Site"),
+          new HashSet<>(c.schemaStr.ens));
       assertEquals("hr_Person", c.mappingsStr.get(HR).ens.get(PERSON));
     }
 
     @Test
     void joinsAnEquatedPairByAnIsomorphism() {
-      Schema<String, String, Sym, Fk, Att> s = pseudo(Map.of("same", same(HR, PERSON, CRM, CLIENT))).schemaStr;
+      Schema<String, String, Sym, Fk, Att> s =
+          pseudo(Map.of("same", same(HR, PERSON, CRM, CLIENT))).schemaStr;
       Fk there = Fk.Fk("hr_Person", "same");
       Fk back = Fk.Fk("crm_Client", "same_inv");
       assertEquals(new Pair<>("hr_Person", "crm_Client"), s.fks.get(there));
@@ -831,7 +890,11 @@ class ColimitSchemaTest {
       nodes.put(CRM, Fixtures.CRM_SCH);
       Schema<String, String, Sym, Fk, Att> s =
           new ColimitSchema<>(
-                  sqlTypeSide(), nodes, Map.of("same", same(HR, PERSON, CRM, CLIENT)), new HashSet<>(), ops())
+                  sqlTypeSide(),
+                  nodes,
+                  Map.of("same", same(HR, PERSON, CRM, CLIENT)),
+                  new HashSet<>(),
+                  ops())
               .schemaStr;
       assertTrue(
           proves(
@@ -869,10 +932,18 @@ class ColimitSchemaTest {
       // again, and toRaw prints the SqlTypeSide constant Optional.of("k") as "Optional[k]".
       Set<Quad<String, Pair<String, String>, RawTerm, RawTerm>> eqTerms = new HashSet<>();
       eqTerms.add(
-          new Quad<>("p", new Pair<>(HR, PERSON), app("name", new RawTerm("p")), new RawTerm("k", VARCHAR)));
+          new Quad<>(
+              "p",
+              new Pair<>(HR, PERSON),
+              app("name", new RawTerm("p")),
+              new RawTerm("k", VARCHAR)));
       ColimitSchema<String> c =
           new ColimitSchema<>(
-              sqlTypeSide(), ordered(), Map.of("same", same(HR, PERSON, CRM, CLIENT)), eqTerms, ops());
+              sqlTypeSide(),
+              ordered(),
+              Map.of("same", same(HR, PERSON, CRM, CLIENT)),
+              eqTerms,
+              ops());
       assertEquals(Set.of(Optional.of("k")), constants(c.schemaStr));
       assertEquals(Set.of(Optional.of("Optional[k]")), constants(c.fromPsuedo.dst));
     }
@@ -881,20 +952,26 @@ class ColimitSchemaTest {
     void rejectsUnknownSchemasAndEntities() {
       assertEquals(
           "Not a schema: ghost available: hr,crm",
-          assertThrows(RuntimeException.class, () -> pseudo(Map.of("k", same("ghost", PERSON, CRM, CLIENT))))
+          assertThrows(
+                  RuntimeException.class,
+                  () -> pseudo(Map.of("k", same("ghost", PERSON, CRM, CLIENT))))
               .getMessage());
       assertEquals(
           "Not a schema: hr available: hr,crm",
-          assertThrows(RuntimeException.class, () -> pseudo(Map.of("k", same(HR, PERSON, "ghost", CLIENT))))
+          assertThrows(
+                  RuntimeException.class,
+                  () -> pseudo(Map.of("k", same(HR, PERSON, "ghost", CLIENT))))
               .getMessage(),
           "the check is on the second schema but the message names the first");
       assertEquals(
           "Not an entity in hr, Ghost",
-          assertThrows(RuntimeException.class, () -> pseudo(Map.of("k", same(HR, "Ghost", CRM, CLIENT))))
+          assertThrows(
+                  RuntimeException.class, () -> pseudo(Map.of("k", same(HR, "Ghost", CRM, CLIENT))))
               .getMessage());
       assertEquals(
           "Not an entity in crm, Ghost",
-          assertThrows(RuntimeException.class, () -> pseudo(Map.of("k", same(HR, PERSON, CRM, "Ghost"))))
+          assertThrows(
+                  RuntimeException.class, () -> pseudo(Map.of("k", same(HR, PERSON, CRM, "Ghost"))))
               .getMessage());
     }
   }
@@ -912,7 +989,8 @@ class ColimitSchemaTest {
 
     @Test
     void skipsTheGivenForeignKeys() {
-      assertEquals("v.name", c.toRaw(att(NAME, fk(WORKS_AT, v("v"))), Set.of("worksAt")).toString());
+      assertEquals(
+          "v.name", c.toRaw(att(NAME, fk(WORKS_AT, v("v"))), Set.of("worksAt")).toString());
     }
 
     @Test
@@ -963,7 +1041,8 @@ class ColimitSchemaTest {
     @Test
     void distinguishesOnTheNodes() {
       ColimitSchema<String> hrOnly =
-          quotient(List.of(HR), Map.of(HR, Fixtures.HR_SCH), Set.of(), new HashSet<>(), Set.of(), ops());
+          quotient(
+              List.of(HR), Map.of(HR, Fixtures.HR_SCH), Set.of(), new HashSet<>(), Set.of(), ops());
       assertNotEquals(coproduct(), hrOnly);
     }
   }

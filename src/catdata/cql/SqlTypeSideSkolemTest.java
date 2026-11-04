@@ -9,6 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
 import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.HashMap;
@@ -18,11 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -222,8 +222,7 @@ class SqlTypeSideSkolemTest {
       List<Optional<Boolean>> vals = List.of(T, F, U);
       for (Optional<Boolean> x : vals) {
         for (Optional<Boolean> y : vals) {
-          assertEquals(
-              SqlTypeSideSkolem.and(x, y), SqlTypeSideSkolem.and(y, x), x + " and " + y);
+          assertEquals(SqlTypeSideSkolem.and(x, y), SqlTypeSideSkolem.and(y, x), x + " and " + y);
         }
       }
     }
@@ -462,8 +461,7 @@ class SqlTypeSideSkolemTest {
     void failsOnIsFalseEveryTime() {
       for (int i = 0; i < 2; i++) {
         RuntimeException e =
-            assertThrows(
-                RuntimeException.class, () -> SqlTypeSideSkolem.SqlTypeSideSkolem(ops()));
+            assertThrows(RuntimeException.class, () -> SqlTypeSideSkolem.SqlTypeSideSkolem(ops()));
         assertEquals("The java function isFalse is not a declared function", e.getMessage());
       }
     }
@@ -479,8 +477,7 @@ class SqlTypeSideSkolemTest {
       Constraints c = SqlTypeSideSkolem.makeEds(schema, ops());
       assertSame(schema, c.schema);
       assertEquals(3 * SqlTypeSide.tys().size(), c.eds.size());
-      assertEquals(
-          new HashSet<>(SqlTypeSide.makeEds(schema, ops()).eds), new HashSet<>(c.eds));
+      assertEquals(new HashSet<>(SqlTypeSide.makeEds(schema, ops()).eds), new HashSet<>(c.eds));
     }
 
     @Test

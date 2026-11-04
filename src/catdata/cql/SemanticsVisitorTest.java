@@ -6,10 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import catdata.Unit;
 import catdata.apg.ApgInstance;
 import catdata.apg.ApgMapping;
@@ -18,6 +14,10 @@ import catdata.apg.ApgTransform;
 import catdata.apg.ApgTypeside;
 import catdata.cql.fdm.IdentityTransform;
 import catdata.graph.DMG;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -68,8 +68,7 @@ class SemanticsVisitorTest {
     }
 
     @Override
-    public <Ty, En, Sym, Fk, Att> String visit(
-        String k, Unit arg, Schema<Ty, En, Sym, Fk, Att> s) {
+    public <Ty, En, Sym, Fk, Att> String visit(String k, Unit arg, Schema<Ty, En, Sym, Fk, Att> s) {
       return "schema " + k;
     }
 

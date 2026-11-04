@@ -3,11 +3,10 @@ package catdata.cql.fdm;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.cql.AqlOptions;
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.cql.AqlOptions;
 
 class SigmaTransformTest {
 
@@ -20,7 +19,9 @@ class SigmaTransformTest {
       var mapping = FdmTestHelpers.identityMapping(schema);
       var inst = FdmTestHelpers.singleElementInstance();
       var idTransform = new IdentityTransform<>(inst, Optional.empty());
-      var sigma = new SigmaTransform<>(mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
+      var sigma =
+          new SigmaTransform<>(
+              mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
       assertNotNull(sigma.src());
       assertNotNull(sigma.dst());
     }
@@ -35,7 +36,9 @@ class SigmaTransformTest {
       var mapping = FdmTestHelpers.identityMapping(schema);
       var inst = FdmTestHelpers.singleElementInstance();
       var idTransform = new IdentityTransform<>(inst, Optional.empty());
-      var sigma = new SigmaTransform<>(mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
+      var sigma =
+          new SigmaTransform<>(
+              mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
       assertTrue(sigma.src() instanceof SigmaInstance);
     }
 
@@ -45,7 +48,9 @@ class SigmaTransformTest {
       var mapping = FdmTestHelpers.identityMapping(schema);
       var inst = FdmTestHelpers.singleElementInstance();
       var idTransform = new IdentityTransform<>(inst, Optional.empty());
-      var sigma = new SigmaTransform<>(mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
+      var sigma =
+          new SigmaTransform<>(
+              mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
       assertNotNull(sigma.gens());
     }
 
@@ -55,7 +60,9 @@ class SigmaTransformTest {
       var mapping = FdmTestHelpers.identityMapping(schema);
       var inst = FdmTestHelpers.singleElementInstance();
       var idTransform = new IdentityTransform<>(inst, Optional.empty());
-      var sigma = new SigmaTransform<>(mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
+      var sigma =
+          new SigmaTransform<>(
+              mapping, idTransform, AqlOptions.initialOptions, AqlOptions.initialOptions);
       assertNotNull(sigma.sks());
     }
   }

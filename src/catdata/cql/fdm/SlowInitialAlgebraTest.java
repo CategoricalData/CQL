@@ -4,16 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
 import catdata.cql.AqlOptions;
 import catdata.cql.DP;
 import catdata.cql.Schema;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 class SlowInitialAlgebraTest {
 
@@ -33,9 +31,11 @@ class SlowInitialAlgebraTest {
     };
   }
 
-  private static <Gen, Sk> SlowInitialAlgebra<String, String, String, String, String, Gen, Sk, Integer> create(
-      Schema<String, String, String, String, String> schema,
-      Map<Gen, String> gens, Map<Sk, String> sks) {
+  private static <Gen, Sk>
+      SlowInitialAlgebra<String, String, String, String, String, Gen, Sk, Integer> create(
+          Schema<String, String, String, String, String> schema,
+          Map<Gen, String> gens,
+          Map<Sk, String> sks) {
     DP<String, String, String, String, String, Gen, Sk> dp = schema.dp();
     return new SlowInitialAlgebra<>(
         u -> dp,

@@ -37,9 +37,10 @@ class ApgPreTermTest {
 
     @Test
     void tupleFactorySetsFields() {
-      List<Pair<String, ApgPreTerm>> fields = List.of(
-          new Pair<>("a", ApgPreTerm.ApgPreTermStr("x")),
-          new Pair<>("b", ApgPreTerm.ApgPreTermStr("y")));
+      List<Pair<String, ApgPreTerm>> fields =
+          List.of(
+              new Pair<>("a", ApgPreTerm.ApgPreTermStr("x")),
+              new Pair<>("b", ApgPreTerm.ApgPreTermStr("y")));
       ApgPreTerm t = ApgPreTerm.ApgPreTermTuple(fields);
       assertNotNull(t.fields);
       assertEquals(2, t.fields.size());
@@ -48,9 +49,10 @@ class ApgPreTermTest {
 
     @Test
     void tupleToStringContainsComma() {
-      List<Pair<String, ApgPreTerm>> fields = List.of(
-          new Pair<>("a", ApgPreTerm.ApgPreTermStr("x")),
-          new Pair<>("b", ApgPreTerm.ApgPreTermStr("y")));
+      List<Pair<String, ApgPreTerm>> fields =
+          List.of(
+              new Pair<>("a", ApgPreTerm.ApgPreTermStr("x")),
+              new Pair<>("b", ApgPreTerm.ApgPreTermStr("y")));
       ApgPreTerm t = ApgPreTerm.ApgPreTermTuple(fields);
       assertTrue(t.toString().contains(","));
     }
@@ -136,9 +138,7 @@ class ApgPreTermTest {
 
     @Test
     void appFactorySetsFields() {
-      List<ApgPreTerm> args = List.of(
-          ApgPreTerm.ApgPreTermStr("a"),
-          ApgPreTerm.ApgPreTermStr("b"));
+      List<ApgPreTerm> args = List.of(ApgPreTerm.ApgPreTermStr("a"), ApgPreTerm.ApgPreTermStr("b"));
       ApgPreTerm t = ApgPreTerm.ApgPreTermApp("fn", args);
       assertEquals("fn", t.head);
       assertEquals(2, t.args.size());

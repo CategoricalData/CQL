@@ -267,8 +267,7 @@ class ApgTransExpTest {
       typing.defs.apgis.put("b", new ApgSchExpVar("s2"));
       assertThrows(
           RuntimeException.class,
-          () ->
-              new ApgTransExpFst(new ApgInstExpVar("a"), new ApgInstExpVar("b")).type(typing));
+          () -> new ApgTransExpFst(new ApgInstExpVar("a"), new ApgInstExpVar("b")).type(typing));
     }
   }
 
@@ -327,8 +326,7 @@ class ApgTransExpTest {
       assertThrows(
           RuntimeException.class,
           () ->
-              new ApgTransExpPair(new ApgTransExpVar("t1"), new ApgTransExpVar("t2"))
-                  .type(typing));
+              new ApgTransExpPair(new ApgTransExpVar("t1"), new ApgTransExpVar("t2")).type(typing));
     }
 
     @Test
@@ -401,8 +399,7 @@ class ApgTransExpTest {
       assertThrows(
           RuntimeException.class,
           () ->
-              new ApgTransExpCase(new ApgTransExpVar("t1"), new ApgTransExpVar("t2"))
-                  .type(typing));
+              new ApgTransExpCase(new ApgTransExpVar("t1"), new ApgTransExpVar("t2")).type(typing));
     }
 
     @Test
@@ -627,8 +624,7 @@ class ApgTransExpTest {
 
     @Test
     void depsUnionsBoth() {
-      ApgTransExpDelta delta =
-          new ApgTransExpDelta(new ApgMapExpVar("m"), new ApgTransExpVar("t"));
+      ApgTransExpDelta delta = new ApgTransExpDelta(new ApgMapExpVar("m"), new ApgTransExpVar("t"));
       assertEquals(2, delta.deps().size());
     }
   }

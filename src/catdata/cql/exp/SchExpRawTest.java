@@ -3,8 +3,8 @@ package catdata.cql.exp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import catdata.InteriorLabel;
-import catdata.ParseException;
 import catdata.Pair;
+import catdata.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -112,7 +112,9 @@ class SchExpRawTest {
     void indexesAttributes() throws ParseException {
       assertEquals(
           List.of(
-              "name : Patient -> String", "dob : Patient -> String", "visit_date : Visit -> String"),
+              "name : Patient -> String",
+              "dob : Patient -> String",
+              "visit_date : Visit -> String"),
           labels(parse(SECTIONED), ATTRIBUTES));
     }
   }
@@ -134,7 +136,9 @@ class SchExpRawTest {
     void indexesAttributesWithTheEnclosingEntityAsSource() throws ParseException {
       assertEquals(
           List.of(
-              "name : Patient -> String", "dob : Patient -> String", "visit_date : Visit -> String"),
+              "name : Patient -> String",
+              "dob : Patient -> String",
+              "visit_date : Visit -> String"),
           labels(parse(PER_ENTITY), ATTRIBUTES));
     }
 

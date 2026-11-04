@@ -12,13 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.AqlOptions.AqlOption;
@@ -30,6 +23,13 @@ import catdata.cql.fdm.IdentityTransform;
 import catdata.cql.fdm.LiteralInstance;
 import catdata.cql.fdm.Row;
 import catdata.provers.KBTheory;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -348,8 +348,7 @@ class ConstraintsTest {
     void compareValuesWithTheDecisionProcedure() {
       var i = colored();
       AqlOptions keep = new AqlOptions(ops(), AqlOption.query_remove_redundancy, false);
-      var t =
-          new Constraints(i.schema(), List.of(everyColorUsed(keep)), keep).triggers(i, keep);
+      var t = new Constraints(i.schema(), List.of(everyColorUsed(keep)), keep).triggers(i, keep);
       assertEquals(1, t.size(), "" + t);
       assertEquals(Term.Sym(GREEN, List.of()), t.iterator().next().second.get("c").r);
     }
@@ -436,8 +435,7 @@ class ConstraintsTest {
       a.hashCode();
       b.hashCode();
       String m =
-          assertThrows(RuntimeException.class, () -> Constraints.pushout(j, k, ops()))
-              .getMessage();
+          assertThrows(RuntimeException.class, () -> Constraints.pushout(j, k, ops())).getMessage();
       assertTrue(m.startsWith("Source of \n"), m);
     }
   }
@@ -448,8 +446,8 @@ class ConstraintsTest {
     @Test
     void tptpWritesOneFormulaPerEdAfterAnOptionalPreamble() {
       Constraints c = of(KEYED, key(), kv());
-      KBTheory<Chc<String, String>, Head<String, String, Sym, Fk, Att, Object, Object>, String>
-          kb = KEYED.collage().toKB();
+      KBTheory<Chc<String, String>, Head<String, String, Sym, Fk, Att, Object, Object>, String> kb =
+          KEYED.collage().toKB();
       String with = c.tptp("axiom", true, kb);
       assertTrue(with.startsWith("fof(sort"), with);
       String without = c.tptp("axiom", false, kb);
@@ -463,8 +461,8 @@ class ConstraintsTest {
     @Test
     void tptpNamesKeepCountingAcrossCalls() {
       Constraints c = of(KEYED, key());
-      KBTheory<Chc<String, String>, Head<String, String, Sym, Fk, Att, Object, Object>, String>
-          kb = KEYED.collage().toKB();
+      KBTheory<Chc<String, String>, Head<String, String, Sym, Fk, Att, Object, Object>, String> kb =
+          KEYED.collage().toKB();
       assertNotEquals(c.tptp("axiom", false, kb), c.tptp("axiom", false, kb));
       String first = c.tptpSorted("axiom", KEYED);
       String second = c.tptpSorted("axiom", KEYED);

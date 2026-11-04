@@ -3,17 +3,15 @@ package catdata.cql.fdm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.cql.Term;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.cql.Term;
 
 class SaturatedInstanceTest {
 
@@ -31,12 +29,17 @@ class SaturatedInstanceTest {
       var schema = FdmTestHelpers.singleEntitySchema();
       Map<String, Collection<String>> ensMap = new HashMap<>();
       ensMap.put("E", Collections.singletonList("e1"));
-      var alg = new ImportAlgebra<>(schema,
-          en -> ensMap.get(en), new HashMap<>(),
-          (en, x) -> Collections.emptyMap(),
-          (en, x) -> Collections.emptyMap(),
-          (en, x) -> x, (ty, y) -> y,
-          true, Collections.emptyList());
+      var alg =
+          new ImportAlgebra<>(
+              schema,
+              en -> ensMap.get(en),
+              new HashMap<>(),
+              (en, x) -> Collections.emptyMap(),
+              (en, x) -> Collections.emptyMap(),
+              (en, x) -> x,
+              (ty, y) -> y,
+              true,
+              Collections.emptyList());
 
       var sat = new SaturatedInstance<>(alg, alg, true, true, false, null);
       assertTrue(sat.requireConsistency());
@@ -50,16 +53,20 @@ class SaturatedInstanceTest {
     @Test
     @SuppressWarnings("unchecked")
     void gensContainsAlgebraElements() {
-      var inst = (SaturatedInstance<String, String, String, String, String, String, String, String, String>)
-          FdmTestHelpers.singleElementInstance();
+      var inst =
+          (SaturatedInstance<
+                  String, String, String, String, String, String, String, String, String>)
+              FdmTestHelpers.singleElementInstance();
       assertEquals("E", inst.gens().get("e1"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     void gensEntrySetIteratesOverElements() {
-      var inst = (SaturatedInstance<String, String, String, String, String, String, String, String, String>)
-          FdmTestHelpers.singleElementInstance();
+      var inst =
+          (SaturatedInstance<
+                  String, String, String, String, String, String, String, String, String>)
+              FdmTestHelpers.singleElementInstance();
       List<String> elements = new ArrayList<>();
       inst.gens().entrySet((x, en) -> elements.add(x));
       assertTrue(elements.contains("e1"));

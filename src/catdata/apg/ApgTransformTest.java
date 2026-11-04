@@ -45,9 +45,7 @@ class ApgTransformTest {
       ApgInstance<String, String> src = emptyInstance(schema);
       ApgInstance<String, String> dst = emptyInstance(schema);
       assertDoesNotThrow(
-          () ->
-              new ApgTransform<>(
-                  src, dst, Collections.emptyMap(), Collections.emptyMap()));
+          () -> new ApgTransform<>(src, dst, Collections.emptyMap(), Collections.emptyMap()));
     }
 
     @Test
@@ -55,9 +53,7 @@ class ApgTransformTest {
       ApgSchema<String> schema = personSchema();
       ApgInstance<String, String> inst = singletonInstance(schema);
       assertDoesNotThrow(
-          () ->
-              new ApgTransform<>(
-                  inst, inst, Map.of("person", "person"), Map.of("e1", "e1")));
+          () -> new ApgTransform<>(inst, inst, Map.of("person", "person"), Map.of("e1", "e1")));
     }
 
     @Test
@@ -66,9 +62,7 @@ class ApgTransformTest {
       ApgInstance<String, String> inst = singletonInstance(schema);
       assertThrows(
           RuntimeException.class,
-          () ->
-              new ApgTransform<>(
-                  inst, inst, Collections.emptyMap(), Map.of("e1", "e1")));
+          () -> new ApgTransform<>(inst, inst, Collections.emptyMap(), Map.of("e1", "e1")));
     }
 
     @Test
@@ -77,9 +71,7 @@ class ApgTransformTest {
       ApgInstance<String, String> inst = singletonInstance(schema);
       assertThrows(
           RuntimeException.class,
-          () ->
-              new ApgTransform<>(
-                  inst, inst, Map.of("person", "person"), Collections.emptyMap()));
+          () -> new ApgTransform<>(inst, inst, Map.of("person", "person"), Collections.emptyMap()));
     }
   }
 
@@ -115,9 +107,7 @@ class ApgTransformTest {
       ApgInstance<String, String> inst = singletonInstance(schema);
       assertThrows(
           RuntimeException.class,
-          () ->
-              new ApgTransform<>(
-                  inst, inst, Collections.emptyMap(), Map.of("e1", "e1")));
+          () -> new ApgTransform<>(inst, inst, Collections.emptyMap(), Map.of("e1", "e1")));
     }
 
     @Test
@@ -126,9 +116,7 @@ class ApgTransformTest {
       ApgInstance<String, String> inst = singletonInstance(schema);
       assertThrows(
           RuntimeException.class,
-          () ->
-              new ApgTransform<>(
-                  inst, inst, Map.of("person", "person"), Collections.emptyMap()));
+          () -> new ApgTransform<>(inst, inst, Map.of("person", "person"), Collections.emptyMap()));
     }
 
     @Test
@@ -150,9 +138,7 @@ class ApgTransformTest {
       // Label maps person -> person, but target element e2 has label "animal"
       assertThrows(
           RuntimeException.class,
-          () ->
-              new ApgTransform<>(
-                  src, dst, Map.of("person", "person"), Map.of("e1", "e2")));
+          () -> new ApgTransform<>(src, dst, Map.of("person", "person"), Map.of("e1", "e2")));
     }
   }
 

@@ -157,8 +157,7 @@ class ApgSchExpTest {
     @Test
     void constructorWithLabels() {
       ApgTy<String> ty = ApgTy.ApgTyB("Int");
-      List<Pair<LocStr, ApgTy<String>>> labels =
-          List.of(new Pair<>(new LocStr(0, "age"), ty));
+      List<Pair<LocStr, ApgTy<String>>> labels = List.of(new Pair<>(new LocStr(0, "age"), ty));
       ApgSchExpRaw raw = new ApgSchExpRaw(new ApgTyExpVar("ts"), Collections.emptyList(), labels);
       assertEquals(1, raw.Ls.size());
       assertTrue(raw.Ls.containsKey("age"));
@@ -244,8 +243,7 @@ class ApgSchExpTest {
     @Test
     void notEqualsDifferent() {
       assertNotEquals(
-          new ApgSchExpInitial(new ApgTyExpVar("a")),
-          new ApgSchExpInitial(new ApgTyExpVar("b")));
+          new ApgSchExpInitial(new ApgTyExpVar("a")), new ApgSchExpInitial(new ApgTyExpVar("b")));
     }
 
     @Test
@@ -353,8 +351,7 @@ class ApgSchExpTest {
 
     @Test
     void depsUnionsBothSides() {
-      ApgSchExpTimes times =
-          new ApgSchExpTimes(new ApgSchExpVar("a"), new ApgSchExpVar("b"));
+      ApgSchExpTimes times = new ApgSchExpTimes(new ApgSchExpVar("a"), new ApgSchExpVar("b"));
       Collection<Pair<String, Kind>> deps = times.deps();
       assertEquals(2, deps.size());
     }

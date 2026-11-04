@@ -20,8 +20,8 @@ class ApgTypesideTest {
   private static final Map<String, Pair<Class<?>, Function<String, Object>>> EMPTY_BS =
       Collections.emptyMap();
 
-  private static final Map<String, Triple<List<String>, String, Function<List<Object>, Object>>> EMPTY_UDFS =
-      Collections.emptyMap();
+  private static final Map<String, Triple<List<String>, String, Function<List<Object>, Object>>>
+      EMPTY_UDFS = Collections.emptyMap();
 
   private ApgTypeside createEmpty() {
     return new ApgTypeside(EMPTY_BS, EMPTY_UDFS);
@@ -70,8 +70,11 @@ class ApgTypesideTest {
       Map<String, Pair<Class<?>, Function<String, Object>>> bs =
           Map.of("Int", new Pair<>(Integer.class, Integer::parseInt));
       Map<String, Triple<List<String>, String, Function<List<Object>, Object>>> udfs =
-          Map.of("add", new Triple<>(List.of("Int", "Int"), "Int", args -> args.get(0)),
-              "sub", new Triple<>(List.of("Int", "Int"), "Int", args -> args.get(0)));
+          Map.of(
+              "add",
+              new Triple<>(List.of("Int", "Int"), "Int", args -> args.get(0)),
+              "sub",
+              new Triple<>(List.of("Int", "Int"), "Int", args -> args.get(0)));
       ApgTypeside ts = new ApgTypeside(bs, udfs);
       assertEquals(3, ts.size());
     }

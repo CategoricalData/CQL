@@ -10,12 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiFunction;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.exp.Att;
@@ -24,6 +18,12 @@ import catdata.cql.exp.Sym;
 import catdata.cql.fdm.IdentityTransform;
 import catdata.cql.fdm.LiteralInstance;
 import catdata.cql.fdm.LiteralTransform;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiFunction;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -269,8 +269,7 @@ class TransformTest {
       Mapped t = collapse();
       var src = t.src().algebra();
       var dst = t.dst().algebra();
-      assertEquals(
-          Map.of(dst.gen("x"), Set.of(src.gen("e1"), src.gen("e2"))), t.preImage(E));
+      assertEquals(Map.of(dst.gen("x"), Set.of(src.gen("e1"), src.gen("e2"))), t.preImage(E));
       assertEquals(Map.of(dst.gen("c"), Set.of(src.gen("d"))), t.preImage(D));
     }
 
@@ -327,8 +326,8 @@ class TransformTest {
     }
 
     /**
-     * Issue 57: the message promises the target instance but cuts its text after as many
-     * characters as the target has rows.
+     * Issue 57: the message promises the target instance but cuts its text after as many characters
+     * as the target has rows.
      */
     @Test
     void rejectsAnEquationTheTargetDoesNotProve() {
@@ -350,8 +349,7 @@ class TransformTest {
                   eq(Term.Att(A, gen("x1")), Term.Obj(Optional.of("p"), VARCHAR)),
                   eq(Term.Att(A, gen("x2")), Term.Obj(Optional.of("q"), VARCHAR))));
       var t =
-          new Mapped(
-              src, dst, Map.of("e1", row("x1"), "e2", row("x2"), "d", row("c")), Map.of());
+          new Mapped(src, dst, Map.of("e1", row("x1"), "e2", row("x2"), "d", row("c")), Map.of());
       String m = message(() -> t.validate(false));
       assertTrue(
           m.startsWith(

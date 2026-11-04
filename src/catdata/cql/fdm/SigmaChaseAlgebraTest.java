@@ -3,16 +3,14 @@ package catdata.cql.fdm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import catdata.Pair;
+import catdata.cql.AqlOptions;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import catdata.Pair;
-import catdata.cql.AqlOptions;
 
 class SigmaChaseAlgebraTest {
 

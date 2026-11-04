@@ -1,9 +1,8 @@
 package catdata.cql;
 
+import catdata.cql.It.ID;
 import java.io.Serializable;
 import java.util.Iterator;
-
-import catdata.cql.It.ID;
 
 @SuppressWarnings("serial")
 public class It implements Iterator<ID>, Serializable {
@@ -31,20 +30,16 @@ public class It implements Iterator<ID>, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
       if (getClass() != obj.getClass()) {
         return false;
       }
       ID other = (ID) obj;
-    
+
       if (str == null) {
-        if (other.str != null)
-          return false;
-      } else if (!str.equals(other.str))
-        return false;
+        if (other.str != null) return false;
+      } else if (!str.equals(other.str)) return false;
       return true;
     }
 
@@ -63,5 +58,4 @@ public class It implements Iterator<ID>, Serializable {
      */
 
   }
-
 }

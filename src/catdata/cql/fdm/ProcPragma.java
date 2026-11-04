@@ -1,5 +1,7 @@
 package catdata.cql.fdm;
 
+import catdata.Util;
+import catdata.cql.Pragma;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,13 +11,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteStreamHandler;
-
-import catdata.Util;
-import catdata.cql.Pragma;
 
 public class ProcPragma extends Pragma {
 
@@ -55,7 +53,6 @@ public class ProcPragma extends Pragma {
     private final String cmd;
 
     Thread out, err;
-
     InputStream outs, errs;
 
     private ProcHandler(String str) {
@@ -112,9 +109,6 @@ public class ProcPragma extends Pragma {
     }
 
     @Override
-    public void setProcessInputStream(OutputStream arg0) {
-    }
-
+    public void setProcessInputStream(OutputStream arg0) {}
   }
-
 }

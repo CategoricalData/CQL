@@ -9,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.cql.exp.Att;
+import catdata.cql.exp.Fk;
+import catdata.cql.exp.Sym;
+import catdata.cql.fdm.LiteralInstance;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,12 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import catdata.Chc;
-import catdata.Pair;
-import catdata.cql.exp.Att;
-import catdata.cql.exp.Fk;
-import catdata.cql.exp.Sym;
-import catdata.cql.fdm.LiteralInstance;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -49,8 +49,7 @@ class FilterAlgebraTest {
           Map.of(B, "B", C, "B"),
           FKS,
           List.of(
-              forall(
-                  "x", "B", Term.Att(B, Term.Var("x")), Term.Obj(Optional.of("ok"), VARCHAR))));
+              forall("x", "B", Term.Att(B, Term.Var("x")), Term.Obj(Optional.of("ok"), VARCHAR))));
 
   private static Term<String, String, Sym, Fk, Att, String, String> gen(String g) {
     return Term.Gen(g);
@@ -112,8 +111,7 @@ class FilterAlgebraTest {
     void findsTheRowsThatBreakAnEquation() {
       var i = instance();
       var a = new FilterAlgebra<>(i, T);
-      assertEquals(
-          Map.of("A", Set.of(), "B", Set.of(i.algebra().gen("b1"))), a.getUnsatisfying());
+      assertEquals(Map.of("A", Set.of(), "B", Set.of(i.algebra().gen("b1"))), a.getUnsatisfying());
     }
 
     @Test
@@ -200,8 +198,7 @@ class FilterAlgebraTest {
       Chc<String, Pair<Integer, Att>> deleted = Chc.inRight(new Pair<>(i.algebra().gen("b1"), C));
       assertTrue(a.talg().sks.containsKey(deleted));
       assertEquals(i.algebra().reprT_prot(deleted), a.reprT_prot(deleted));
-      assertEquals(
-          i.algebra().printY(VARCHAR, deleted), a.printY(VARCHAR, deleted));
+      assertEquals(i.algebra().printY(VARCHAR, deleted), a.printY(VARCHAR, deleted));
     }
   }
 
