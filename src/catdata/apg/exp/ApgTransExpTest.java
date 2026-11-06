@@ -35,9 +35,14 @@ import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
 import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
 import catdata.cql.Kind;
 import catdata.cql.exp.AqlTyping;
+import catdata.cql.exp.Exp;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class ApgTransExpTest {
 
@@ -632,5 +637,84 @@ class ApgTransExpTest {
   @Test
   void optionsReturnsEmptyMap() {
     assertTrue(new ApgTransExpVar("x").options().isEmpty());
+  }
+
+  @Nested
+  class IllTypedOperations {
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        value = {
+          "literal : I -> I2 { labels L -> L elements a -> a }|Not the same typeside: Ty and Ty2",
+          "fst I I2|Typesides Ty and Ty2 not equal.",
+          "snd I I2|Typesides Ty and Ty2 not equal.",
+          "inl I I2|Typesides Ty and Ty2 not equal.",
+          "inr I I2|Typesides Ty and Ty2 not equal.",
+          "equalize h k|Domain mismatch: I is not equal to J",
+          "equalize h ii|CoDomain mismatch: J is not equal to I",
+          "equalize_u h k h|Domain mismatch: I is not equal to J",
+          "equalize_u h ii h|CoDomain mismatch: J is not equal to I",
+          "equalize_u h h k|Domain and CoDomain mismatch: I is not equal to J",
+          "coequalize h k|Domain mismatch: I is not equal to J",
+          "coequalize h ii|Codomain mismatch: J is not equal to I",
+          "coequalize_u h k h|Domain mismatch: I is not equal to J",
+          "coequalize_u h ii h|CoDomain mismatch: J is not equal to I",
+          "coequalize_u h h h|Domain and CoDomain mismatch: J is not equal to I",
+          "delta F h2|Typeside mismatch: Ty2 and Ty",
+          "delta F (identity (empty T))|Target of mapping is S but transform is on T"
+        })
+    void reportsTheMismatch(String exp, String message) {
+      assertEquals(message, ApgExpTestHelpers.typeError("apg_morphism X = " + exp));
+    }
+
+    /** A literal morphism checks nothing about the morphisms it imports, and adds their maps. */
+    @Test
+    void addsTheMapsOfTheMorphismsItImports() throws Exception {
+      String program =
+          ApgExpTestHelpers.BASE
+              + "apg_morphism X = literal : I -> J { imports h labels L -> L }\n";
+      ApgExpTestHelpers.typing(program);
+      var d = ApgExpTestHelpers.run(program);
+      String x = d.env.defs.apgms.get("X").toString();
+      assertTrue(x.contains("a -> b"), x);
+    }
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void coVisitsEachKindInItsOwnCase() throws Exception {
+    var exps =
+        ApgExpTestHelpers.exps(
+            ApgExpTestHelpers.BASE
+                + """
+                apg_morphism V = h
+                apg_morphism Id = identity I
+                apg_morphism In = empty I
+                apg_morphism Te = unit I
+                apg_morphism Fs = fst I J
+                apg_morphism Sn = snd I J
+                apg_morphism Pa = (h, h)
+                apg_morphism Il = inl I J
+                apg_morphism Ir = inr I J
+                apg_morphism Ca = <h | h>
+                apg_morphism Cm = [h ; k]
+                apg_morphism Eq = equalize h h
+                apg_morphism Eu = equalize_u h h h
+                apg_morphism Ce = coequalize h h
+                apg_morphism Cu = coequalize_u h h h
+                apg_morphism De = delta F h
+                """);
+    Set<Class<?>> kinds = new HashSet<>();
+    for (Exp<?> e : exps.values()) {
+      if (e instanceof ApgTransExp t) {
+        ApgTransExp.ApgTransExpCoVisitor<String, Void> v =
+            mock(ApgTransExp.ApgTransExpCoVisitor.class);
+        t.coaccept(null, v, "r");
+        ApgExpTestHelpers.assertCoVisitedItsCase(v, t);
+        kinds.add(t.getClass());
+      }
+    }
+    assertEquals(17, kinds.size());
   }
 }

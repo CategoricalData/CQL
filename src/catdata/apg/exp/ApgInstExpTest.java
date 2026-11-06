@@ -1,7 +1,9 @@
 package catdata.apg.exp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -23,9 +25,14 @@ import catdata.apg.exp.ApgTransExp.ApgTransExpVar;
 import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
 import catdata.cql.Kind;
 import catdata.cql.exp.AqlTyping;
+import catdata.cql.exp.Exp;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class ApgInstExpTest {
 
@@ -399,5 +406,227 @@ class ApgInstExpTest {
   @Test
   void optionsReturnsEmptyMap() {
     assertTrue(new ApgInstExpVar("x").options().isEmpty());
+  }
+
+  @Nested
+  class IllTypedOperations {
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        value = {
+          "<I + I2>|Different typesides: Ty and Ty2",
+          "(I * I2)|Different typesides: Ty and Ty2",
+          "equalize h k|Domain mismatch: I is not equal to J",
+          "equalize h ii|CoDomain mismatch: J is not equal to I",
+          "coequalize h k|Domain mismatch: I is not equal to J",
+          "coequalize h ii|CoDomain mismatch: J is not equal to I",
+          "delta F I2|Typeside mismatch",
+          "delta F (empty T)|Instance is on schema T but mapping target is S"
+        })
+    void reportsTheMismatch(String exp, String message) {
+      assertEquals(message, ApgExpTestHelpers.typeError("apg_instance X = " + exp));
+    }
+  }
+
+  /**
+   * Literal instances on the schema of a user {@code User -> ()}, a name {@code name -> (User:
+   * label User * name: base Str)} and a choice {@code choice -> <a: base Str + b: base Str>}, each
+   * with the user {@code u1} and one more element.
+   */
+  @Nested
+  class IllFormedLiterals {
+
+    private static final String SCHEMA =
+        """
+        apg_typeside Ty = literal { types Str -> "java.lang.String" "x => x" }
+        apg_schema S = literal : Ty { labels User -> ()
+          name -> (User: label User * name: base Str) choice -> <a: base Str + b: base Str> }
+        """;
+
+    private String error(String element) throws Exception {
+      return ApgExpTestHelpers.runError(
+          SCHEMA + "apg_instance I = literal : S { elements u1 : User -> () " + element + " }\n");
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        value = {
+          "n1 : Nobody -> ()|Nobody not found in ",
+          "n1 : name -> (User: u9, name: A)|Not an element: u9",
+          "n1 : name -> (User: u1, name: ())|Expecting data at type Str, but received ()",
+          "n1 : name -> (User: (), name: A)|Expecting element at label User, but received ()",
+          "n1 : name -> (User: n1, name: A)"
+              + "|Expecting element at label User, but received element n1 at label name",
+          "n1 : name -> A|Expecting tuple at type (name:Str * User:User), but received A",
+          "n1 : name -> (User: u1, name: A, extra: B)"
+              + "|In (User: u1 , name: A , extra: B), extra, is not a field in (name:Str * User:User)",
+          "n1 : name -> (User: u1)|In (User: u1), no field for name",
+          "c1 : choice -> A|Expecting injection at type <b:Str + a:Str>, but received A",
+          "c1 : choice -> <c: A>|In <c: A>, c, is not a field in <b:Str + a:Str>"
+        })
+    void reportsTheElementThatDoesNotFit(String element, String message) throws Exception {
+      String msg = error(element);
+      assertTrue(msg.contains(message), msg);
+    }
+
+    @Test
+    void acceptsAnInjectionIntoAVariant() throws Exception {
+      assertEquals("", error("c1 : choice -> <a: A>"));
+    }
+  }
+
+  /**
+   * A literal instance may import an instance on a schema over another typeside: the check of its
+   * imports reads {@code imports()}, which the literal does not override, so it checks none of
+   * them.
+   */
+  @Nested
+  class ImportsAcrossTypesides {
+
+    @Test
+    void mergesTheElementsOfAnImportOverAnotherTypeside() throws Exception {
+      String program =
+          ApgExpTestHelpers.BASE
+              + "apg_instance X = literal : S { imports I2 elements c : L -> z }\n";
+      ApgExpTestHelpers.typing(program);
+      var d = ApgExpTestHelpers.run(program);
+      assertNull(d.env.exn);
+      String x = d.env.defs.apgis.get("X").toString();
+      assertTrue(x.contains("a:L -> x"), x);
+      assertTrue(x.contains("c:L -> z"), x);
+    }
+
+    @Test
+    void failsOnlyWhenTheImportedDataDoesNotFit() throws Exception {
+      String program =
+          """
+          apg_typeside Ty = literal { types Str -> "java.lang.String" "x => x" }
+          apg_typeside Ty2 = literal { types Nat -> "java.lang.Integer" "parseInt" }
+          apg_schema S = literal : Ty { labels L -> base Str }
+          apg_schema S2 = literal : Ty2 { labels L -> base Nat }
+          apg_instance I2 = literal : S2 { elements a : L -> 5 }
+          apg_instance X = literal : S { imports I2 elements c : L -> z }
+          """;
+      ApgExpTestHelpers.typing(program);
+      String msg = ApgExpTestHelpers.runError(program);
+      assertTrue(msg.contains("Not an instance of class java.lang.String: 5, is Integer"), msg);
+    }
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void coVisitsEachKindInItsOwnCase() throws Exception {
+    var exps =
+        ApgExpTestHelpers.exps(
+            ApgExpTestHelpers.BASE
+                + """
+                apg_instance V = I
+                apg_instance E0 = empty S
+                apg_instance U0 = unit Ty
+                apg_instance Tm = (I * J)
+                apg_instance Pl = <I + J>
+                apg_instance Eq = equalize h h
+                apg_instance Co = coequalize h h
+                apg_instance De = delta F I
+                """);
+    Set<Class<?>> kinds = new HashSet<>();
+    for (Exp<?> e : exps.values()) {
+      if (e instanceof ApgInstExp i) {
+        ApgInstExp.ApgInstExpCoVisitor<String, Void, RuntimeException> v =
+            mock(ApgInstExp.ApgInstExpCoVisitor.class);
+        i.coaccept(null, v, "r");
+        ApgExpTestHelpers.assertCoVisitedItsCase(v, i);
+        kinds.add(i.getClass());
+      }
+    }
+    assertEquals(9, kinds.size());
+  }
+
+  /**
+   * The pullback along a mapping whose case branch reads the lambda's own variable. Each element
+   * has a successor or a stop value, and the mapping should read the name of the element itself in
+   * the successor branch.
+   */
+  @Nested
+  class DeltaThroughACase {
+
+    private static final String PROGRAM =
+        """
+        apg_typeside Ty = literal { types Str -> "java.lang.String" "x => x" }
+        apg_schema T = literal : Ty {
+          labels tLbl -> (k: <next: label tLbl + stop: base Str> * n: base Str) }
+        apg_schema S = literal : Ty { labels sLbl -> base Str }
+        apg_mapping F = literal : S -> T { labels sLbl -> lambda v: label tLbl.
+          case .k(!tLbl(v)) where next -> lambda x. .n(!tLbl(v)) stop -> lambda y. y : base Str }
+        apg_instance J = literal : T {
+          elements e : tLbl -> (k: <next: f>, n: Bob) f : tLbl -> (k: <stop: Alice>, n: Carol) }
+        apg_instance I = delta F J
+        """;
+
+    /** e should map to its own name, Bob, but gets Carol, the name of its successor f. */
+    @Test
+    void readsTheNameOfTheSuccessorInstead() throws Exception {
+      var d = ApgExpTestHelpers.run(PROGRAM);
+      assertNull(d.env.exn);
+      String i = d.env.defs.apgis.get("I").toString();
+      assertTrue(i.contains("(sLbl, e):sLbl -> Carol"), i);
+      assertTrue(i.contains("(sLbl, f):sLbl -> Alice"), i);
+    }
+  }
+
+  /**
+   * Equalizers of morphisms {@code I -> J} that disagree: k sends b elsewhere than h, and k2 also
+   * sends the label L to L2. The equalizer keeps the labels and elements on which the two agree,
+   * and a reference to a dropped element or label becomes a unit.
+   */
+  @Nested
+  class Equalizers {
+
+    private static final String PROGRAM =
+        """
+        apg_typeside Ty = literal { types Str -> "java.lang.String" "x => x" }
+        apg_schema S = literal : Ty { labels L -> base Str P -> label L }
+        apg_schema S2 = literal : Ty { labels L -> base Str L2 -> base Str P -> label L }
+        apg_instance I = literal : S { elements a : L -> x b : L -> y p : P -> b }
+        apg_instance J = literal : S2 { elements c : L -> x d : L -> y c2 : L2 -> x r : P -> c }
+        apg_morphism h = literal : I -> J { labels L -> L P -> P elements a -> c b -> c p -> r }
+        apg_morphism k = literal : I -> J { labels L -> L P -> P elements a -> c b -> d p -> r }
+        apg_morphism k2 = literal : I -> J { labels L -> L2 P -> P elements a -> c2 b -> c2 p -> r }
+        """;
+
+    private String equalizer(String exp) throws Exception {
+      var d = ApgExpTestHelpers.run(PROGRAM + "apg_instance E = " + exp + "\n");
+      assertNull(d.env.exn);
+      return d.env.defs.apgis.get("E").toString();
+    }
+
+    @Test
+    void dropsTheElementsOnWhichTheMorphismsDisagree() throws Exception {
+      String e = equalizer("equalize h k");
+      assertTrue(e.contains("a:L -> x"), e);
+      assertTrue(e.contains("p:P -> <unit:()>"), e);
+      assertFalse(e.contains("b:L"), e);
+    }
+
+    @Test
+    void dropsTheLabelsOnWhichTheMorphismsDisagree() throws Exception {
+      String e = equalizer("equalize h k2");
+      assertEquals("elements\n\tp:P -> ()\n", e);
+    }
+
+    @Test
+    void refusesMorphismsThatTheMapDoesNotEqualize() throws Exception {
+      String msg =
+          ApgExpTestHelpers.runError(PROGRAM + "apg_morphism U = equalize_u h k (identity I)\n");
+      assertTrue(msg.contains("Not equal: "), msg);
+      msg =
+          ApgExpTestHelpers.runError(PROGRAM + "apg_morphism U = coequalize_u h k (identity J)\n");
+      assertTrue(msg.contains("Not equal: "), msg);
+      assertEquals(
+          "",
+          ApgExpTestHelpers.runError(PROGRAM + "apg_morphism U = equalize_u h h (identity I)\n"));
+    }
   }
 }
