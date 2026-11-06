@@ -273,4 +273,12 @@ class ApgTyExpTest {
     typing.defs.apgts.put("x", Unit.unit);
     assertEquals(Unit.unit, v.type(typing));
   }
+
+  @Test
+  void refusesAClassThatDoesNotExist() throws Exception {
+    String msg =
+        ApgExpTestHelpers.runError(
+            "apg_typeside X = literal { types Foo -> \"no.such.Clazz\" \"x => x\" }\n");
+    assertTrue(msg.contains("Class not found: no.such.Clazz"), msg);
+  }
 }
