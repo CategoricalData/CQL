@@ -22,9 +22,12 @@ import catdata.apg.exp.ApgSchExp.ApgSchExpVar;
 import catdata.apg.exp.ApgTyExp.ApgTyExpVar;
 import catdata.cql.Kind;
 import catdata.cql.exp.AqlTyping;
+import catdata.cql.exp.Exp;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -429,5 +432,59 @@ class ApgSchExpTest {
   @Test
   void optionsReturnsEmptyMap() {
     assertTrue(new ApgSchExpVar("x").options().isEmpty());
+  }
+
+  @Nested
+  class IllFormedLiterals {
+
+    @Test
+    void refusesAnUnknownBaseTypeOrLabel() throws Exception {
+      String base = ApgExpTestHelpers.BASE + "apg_schema X = literal : Ty { labels N -> ";
+      String msg = ApgExpTestHelpers.runError(base + "base Foo }\n");
+      assertTrue(msg.contains("Type not in typeside: Foo"), msg);
+      msg = ApgExpTestHelpers.runError(base + "label Nope }\n");
+      assertTrue(msg.contains("Label not in schema: Nope"), msg);
+    }
+
+    /**
+     * The check of the imports reads {@code imports()}, which the literal does not override, so a
+     * schema on Ty takes in the labels of S2, which is on Ty2.
+     */
+    @Test
+    void takesTheLabelsOfAnImportOverAnotherTypeside() throws Exception {
+      String program =
+          ApgExpTestHelpers.BASE
+              + "apg_schema X = literal : Ty { imports S2 labels N -> base Str }\n";
+      ApgExpTestHelpers.typing(program);
+      var d = ApgExpTestHelpers.run(program);
+      String x = d.env.defs.apgschemas.get("X").toString();
+      assertTrue(x.contains("L -> Str"), x);
+      assertTrue(x.contains("N -> Str"), x);
+    }
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void coVisitsEachKindInItsOwnCase() throws Exception {
+    var exps =
+        ApgExpTestHelpers.exps(
+            ApgExpTestHelpers.BASE
+                + """
+                apg_schema V = S
+                apg_schema E0 = empty Ty
+                apg_schema U0 = unit Ty
+                apg_schema Tm = (S * T)
+                apg_schema Pl = <S + T>
+                """);
+    Set<Class<?>> kinds = new HashSet<>();
+    for (Exp<?> e : exps.values()) {
+      if (e instanceof ApgSchExp t) {
+        ApgSchExp.ApgSchExpCoVisitor<String, Void> v = mock(ApgSchExp.ApgSchExpCoVisitor.class);
+        t.coaccept(null, v, "r");
+        ApgExpTestHelpers.assertCoVisitedItsCase(v, t);
+        kinds.add(t.getClass());
+      }
+    }
+    assertEquals(6, kinds.size());
   }
 }

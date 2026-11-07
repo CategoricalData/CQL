@@ -16,6 +16,8 @@ import catdata.Pair;
 import catdata.Triple;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Query.Agg;
+import catdata.cql.exp.AqlMultiDriver;
+import catdata.cql.exp.AqlParserFactory;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
@@ -1440,6 +1442,63 @@ class QueryTest {
       Query<String, String, Sym, Fk, Att, String, Fk, Att> q = rowQuery();
       RuntimeException e = assertThrows(RuntimeException.class, () -> q.composeT(gen("g"), ROW));
       assertEquals("Anomaly: please report", e.getMessage());
+    }
+  }
+
+  /**
+   * The Cypher script of the query viewer's Neo4j tab: it loads each source entity from a CSV file,
+   * builds a node per row of each target entity, projects the nodes and their edges, and deletes
+   * the intermediate nodes. The source here has no foreign keys, as the script requires.
+   */
+  @Nested
+  class Cypher {
+
+    private static final String PROGRAM =
+        """
+        typeside Ty = literal { types String constants x : String }
+        schema S = literal : Ty {
+          entities Person Dept attributes name : Person -> String dname : Dept -> String }
+        schema T = literal : Ty {
+          entities P D foreign_keys f : P -> D attributes pname : P -> String dl : D -> String }
+        query Q = literal : S -> T {
+          entity D -> { from d:Dept attributes dl -> d.dname }
+          entity P -> { from p:Person d:Dept where p.name = d.dname
+            attributes pname -> p.name foreign_keys f -> { d -> d } } }
+        schema S2 = literal : Ty { entities A B foreign_keys g : A -> B }
+        query Q2 = identity S2
+        """;
+
+    private Query<?, ?, ?, ?, ?, ?, ?, ?> query(String name) throws Exception {
+      AqlMultiDriver d =
+          new AqlMultiDriver(AqlParserFactory.getParser().parseProgram(PROGRAM), null);
+      d.start();
+      return (Query<?, ?, ?, ?, ?, ?, ?, ?>) d.env.defs.qs.get(name);
+    }
+
+    @Test
+    void writesAScriptThatBuildsTheTargetFromCsvFiles() throws Exception {
+      String c = query("Q").toCypher();
+      for (String part :
+          List.of(
+              "LOAD CSV WITH HEADERS FROM 'file:///Person.csv' AS row\n"
+                  + "MERGE (n:Person {name : coalesce(row.name, '')});",
+              "MATCH (d : Dept)\nMERGE (ret : bag_D {\n\td_dname : d.dname,\n\tdl : d.dname});",
+              "WHERE p.name = d.dname\nMERGE (ret : bag_P {",
+              "MATCH (src : bag_P),(dst : bag_D)\nWHERE dst.d_dname = src.d_dname\n"
+                  + "MERGE (src)-[r:bag_f]->(dst);",
+              "MATCH (src:bag_P)-[:bag_f]->(v0)\nMERGE (dst:P { pname : src.pname,\n\tv0_dl : v0.dl})",
+              "MATCH (src:P)\nREMOVE src.v0_dl;",
+              "(srcX)-[:bag_f]->(dstX)\nMERGE (src)-[:f]->(dst);",
+              "MATCH (n: bag_P) DETACH DELETE n;")) {
+        assertTrue(c.contains(part), part + "\n---\n" + c);
+      }
+    }
+
+    @Test
+    void refusesASourceWithForeignKeys() throws Exception {
+      var q = query("Q2");
+      RuntimeException e = assertThrows(RuntimeException.class, q::toCypher);
+      assertEquals("Does not support source side fks", e.getMessage());
     }
   }
 }
