@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
+import org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 
 public final class PragmaExpTinkerpop extends PragmaExp {
   private final List<String> jss;
@@ -89,8 +91,7 @@ public final class PragmaExpTinkerpop extends PragmaExp {
         AqlOptions ops = new AqlOptions(options, env.defaults);
 
         try {
-          List<Object> str0 = execGremlin(ops, jss);
-          str += format(str0, jss);
+          str += execGremlin(ops, jss, results -> format(results, jss));
           str += "\n";
 
         } catch (Exception ex) {
@@ -106,7 +107,20 @@ public final class PragmaExpTinkerpop extends PragmaExp {
     };
   }
 
-  public static List<Object> execGremlin(AqlOptions ops, List<String> jss) throws Exception {
+  /** Reads the results of Gremlin scripts while the connection that produced them is open. */
+  @FunctionalInterface
+  public interface GremlinReader<X> {
+    X read(List<Object> results) throws Exception;
+  }
+
+  /**
+   * Runs the scripts on the graph that the options name and hands their results to the reader. A
+   * result can be a traversal that still reads from the server, so the connection stays open until
+   * the reader returns. Then the remote traversal source is closed, which closes the driver's
+   * cluster and stops its threads, and the two configuration files are deleted.
+   */
+  public static <X> X execGremlin(AqlOptions ops, List<String> jss, GremlinReader<X> reader)
+      throws Exception {
     String host = (String) ops.getOrDefault(AqlOption.tinkerpop_host);
     Integer port = (Integer) ops.getOrDefault(AqlOption.tinkerpop_port);
     long timeout = 1000 * (Long) ops.getOrDefault(AqlOption.timeout);
@@ -121,32 +135,37 @@ public final class PragmaExpTinkerpop extends PragmaExp {
             + "\n"
             + "serializer: { className: org.apache.tinkerpop.gremlin.driver.ser.GraphBinaryMessageSerializerV1, config: { ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV1d0] }}";
     File f0 = File.createTempFile("tempfile0", ".yaml");
-    Util.writeFile(file0, f0.getAbsolutePath());
-    //		org.apache.tinkerpop.gremlin.util.Serializer
-    String file1 =
-        "gremlin.remote.remoteConnectionClass=org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection\ngremlin.remote.driver.clusterFile="
-            + f0.getAbsolutePath()
-            + "\ngremlin.remote.driver.sourceName="
-            + gname;
     File f1 = File.createTempFile("tempfile1", ".properties");
-    Util.writeFile(file1, f1.getAbsolutePath());
+    try {
+      Util.writeFile(file0, f0.getAbsolutePath());
+      //		org.apache.tinkerpop.gremlin.util.Serializer
+      String file1 =
+          "gremlin.remote.remoteConnectionClass=org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection\ngremlin.remote.driver.clusterFile="
+              + f0.getAbsolutePath()
+              + "\ngremlin.remote.driver.sourceName="
+              + gname;
+      Util.writeFile(file1, f1.getAbsolutePath());
 
-    ConcurrentBindings b = new ConcurrentBindings();
-    var zzz =
-        org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal()
-            .withRemote(f1.getAbsolutePath());
-    b.putIfAbsent(gname, zzz);
+      try (GraphTraversalSource source =
+          AnonymousTraversalSource.traversal().withRemote(f1.getAbsolutePath())) {
+        ConcurrentBindings b = new ConcurrentBindings();
+        b.putIfAbsent(gname, source);
 
-    GremlinExecutor conn =
-        GremlinExecutor.build().evaluationTimeout(timeout).globalBindings(b).create();
-    List<Object> ret = new ArrayList<>(jss.size());
-    for (String s : jss) {
-      CompletableFuture<Object> evalResult = conn.eval(s);
-      Object actualResult = evalResult.get();
-      ret.add(actualResult);
+        List<Object> ret = new ArrayList<>(jss.size());
+        try (GremlinExecutor conn =
+            GremlinExecutor.build().evaluationTimeout(timeout).globalBindings(b).create()) {
+          for (String s : jss) {
+            CompletableFuture<Object> evalResult = conn.eval(s);
+            Object actualResult = evalResult.get();
+            ret.add(actualResult);
+          }
+        }
+        return reader.read(ret);
+      }
+    } finally {
+      f0.delete();
+      f1.delete();
     }
-    conn.close();
-    return ret;
   }
 
   public static String maybeQuote(String s) {

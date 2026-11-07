@@ -61,6 +61,22 @@ public class InstExpTinkerpop extends InstExp<String, Null<?>, String, Null<?>> 
     return makeSch().eval(env, false);
   }
 
+  /**
+   * Runs the traversal on the graph that the options name and returns what it yields, read while
+   * its connection is open.
+   */
+  private static List<?> traverse(AqlOptions ops, String traversal) throws Exception {
+    return PragmaExpTinkerpop.execGremlin(
+        ops,
+        List.of(traversal),
+        results -> {
+          GraphTraversal<?, ?> t = (GraphTraversal<?, ?>) results.get(0);
+          List<?> ret = t.toList();
+          t.close();
+          return ret;
+        });
+  }
+
   @Override
   public synchronized Instance<String, String, Sym, Fk, Att, String, Null<?>, String, Null<?>>
       eval0(AqlEnv env, boolean isC) {
@@ -98,15 +114,10 @@ public class InstExpTinkerpop extends InstExp<String, Null<?>, String, Null<?>> 
     }
     int i = 0;
     try {
-      List<String> cmds = new LinkedList<>();
-      cmds.add(gname + ".V()");
-      List<Object> results = PragmaExpTinkerpop.execGremlin(ops, cmds);
-      Object o = results.get(0);
-      GraphTraversal<?, ?> t = (GraphTraversal<?, ?>) o;
       Collection<String> vertices = ens0.get("Vertex");
       Map<String, Map<Att, Term<String, Void, Sym, Void, Void, Void, Null<?>>>> m =
           atts0x.get("Vertex");
-      for (Object x : t.toList()) {
+      for (Object x : traverse(ops, gname + ".V()")) {
         Vertex v = (Vertex) x;
         Object id = v.id();
         String j = Integer.toString(i);
@@ -124,24 +135,18 @@ public class InstExpTinkerpop extends InstExp<String, Null<?>, String, Null<?>> 
 
         i++;
       }
-      t.close();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
 
     try {
-      List<String> cmds = new LinkedList<>();
-      cmds.add(gname + ".E()");
-      List<Object> results = PragmaExpTinkerpop.execGremlin(ops, cmds);
-      Object o = results.get(0);
-      GraphTraversal<?, ?> t = (GraphTraversal<?, ?>) o;
       Collection<String> edges = ens0.get("Edge");
       Map<String, Map<Att, Term<String, Void, Sym, Void, Void, Void, Null<?>>>> m =
           atts0x.get("Edge");
       Map<String, Map<Fk, String>> m2 = fks0x.get("Edge");
 
-      for (Object x : t.toList()) {
+      for (Object x : traverse(ops, gname + ".E()")) {
         Edge v = (Edge) x;
         Object id = v.id();
         String j = Integer.toString(i);
@@ -167,20 +172,13 @@ public class InstExpTinkerpop extends InstExp<String, Null<?>, String, Null<?>> 
 
         i++;
       }
-      t.close();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
 
     try {
-      List<String> cmds = new LinkedList<>();
-      cmds.add(gname + ".V().elementMap()");
-      List<Object> results = PragmaExpTinkerpop.execGremlin(ops, cmds);
-      Object o = results.get(0);
-      GraphTraversal<?, ?> t = (GraphTraversal<?, ?>) o;
-
-      for (Object x : t.toList()) {
+      for (Object x : traverse(ops, gname + ".V().elementMap()")) {
         Map<?, ?> v = (Map<?, ?>) x;
         Object ii = v.get(org.apache.tinkerpop.gremlin.structure.T.id);
         String idX = Integer.toString(ids0.get(ii));
@@ -208,20 +206,13 @@ public class InstExpTinkerpop extends InstExp<String, Null<?>, String, Null<?>> 
           i++;
         }
       }
-      t.close();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
 
     try {
-      List<String> cmds = new LinkedList<>();
-      cmds.add(gname + ".E().elementMap()");
-      List<Object> results = PragmaExpTinkerpop.execGremlin(ops, cmds);
-      Object o = results.get(0);
-      GraphTraversal<?, ?> t = (GraphTraversal<?, ?>) o;
-
-      for (Object x : t.toList()) {
+      for (Object x : traverse(ops, gname + ".E().elementMap()")) {
         Map<?, ?> v = (Map<?, ?>) x;
         Object ii = v.get(org.apache.tinkerpop.gremlin.structure.T.id);
         String idX = Integer.toString(ids0E.get(ii));
@@ -246,7 +237,6 @@ public class InstExpTinkerpop extends InstExp<String, Null<?>, String, Null<?>> 
           i++;
         }
       }
-      t.close();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);

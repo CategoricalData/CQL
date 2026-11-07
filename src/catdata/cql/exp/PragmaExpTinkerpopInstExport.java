@@ -115,9 +115,10 @@ public final class PragmaExpTinkerpopInstExport<Gen, Sk, X, Y> extends PragmaExp
         str = sb.toString();
 
         try {
-          List<Object> o = PragmaExpTinkerpop.execGremlin(ops, Collections.singletonList(str));
-
-          str += PragmaExpTinkerpop.format(o, Collections.singletonList(str));
+          List<String> script = Collections.singletonList(str);
+          str +=
+              PragmaExpTinkerpop.execGremlin(
+                  ops, script, o -> PragmaExpTinkerpop.format(o, script));
 
         } catch (Exception e) {
           e.printStackTrace();
