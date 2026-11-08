@@ -7,10 +7,13 @@ import catdata.ParseException;
 import catdata.Program;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Kind;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Set;
 
 /** Shared helpers for the tests of {@code catdata.cql.exp}. */
@@ -47,8 +50,45 @@ final class ExpTestHelpers {
   /** The value a run bound to a name, after asserting the run had no errors. */
   @SuppressWarnings("unchecked")
   static <X> X value(AqlMultiDriver d, String name, Kind kind) {
-    assertTrue(d.exn.isEmpty(), d.exn.toString());
+    assertTrue(d.exn.isEmpty(), () -> d.exn + threadsAtTimeout(d));
     return (X) d.env.defs.get(name, kind);
+  }
+
+  /**
+   * After a run that timed out, the stacks of the threads that run CQL, TinkerPop or Netty code, so
+   * that the failure shows where the run was stuck. Empty after any other run.
+   */
+  private static String threadsAtTimeout(AqlMultiDriver d) {
+    if (!d.exn.toString().contains("Timeout after")) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder("\nThreads at the timeout:\n");
+    for (ThreadInfo t : ManagementFactory.getThreadMXBean().dumpAllThreads(true, true)) {
+      if (t.getThreadId() == Thread.currentThread().getId()) {
+        continue;
+      }
+      StackTraceElement[] stack = t.getStackTrace();
+      boolean relevant =
+          Arrays.stream(stack)
+              .map(StackTraceElement::getClassName)
+              .anyMatch(
+                  c -> c.startsWith("catdata.") || c.contains("tinkerpop") || c.contains("netty"));
+      if (!relevant) {
+        continue;
+      }
+      sb.append('"').append(t.getThreadName()).append("\" ").append(t.getThreadState());
+      if (t.getLockName() != null) {
+        sb.append(" on ").append(t.getLockName());
+      }
+      if (t.getLockOwnerName() != null) {
+        sb.append(" owned by ").append(t.getLockOwnerName());
+      }
+      sb.append('\n');
+      for (int i = 0; i < Math.min(stack.length, 40); i++) {
+        sb.append("    at ").append(stack[i]).append('\n');
+      }
+    }
+    return sb.toString();
   }
 
   /** Runs a program and returns the value bound to a name, asserting the run had no errors. */
