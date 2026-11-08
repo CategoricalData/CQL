@@ -14,7 +14,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /** Shared helpers for the tests of {@code catdata.cql.exp}. */
 final class ExpTestHelpers {
@@ -40,29 +43,66 @@ final class ExpTestHelpers {
     return (E) parse(program).exps.get(name);
   }
 
-  /** Runs a program as the IDE's Run does. */
+  /** How long a run goes before its watchdog records the threads, before the default timeout. */
+  private static final long WATCHDOG_MILLIS = 20_000;
+
+  /** The threads that the watchdog of {@link #run} recorded, for the runs still going after it. */
+  private static final Map<AqlMultiDriver, String> SLOW_RUNS =
+      Collections.synchronizedMap(new WeakHashMap<>());
+
+  /**
+   * Runs a program as the IDE's Run does. A run still going after 20 s gets its threads recorded,
+   * because once the 30 s timeout fires it interrupts the thread it stops, which then leaves the
+   * call where it was stuck.
+   */
   static AqlMultiDriver run(String program) throws ParseException {
     AqlMultiDriver d = new AqlMultiDriver(parse(program), null);
-    d.start();
+    Thread watchdog =
+        new Thread(
+            () -> {
+              try {
+                Thread.sleep(WATCHDOG_MILLIS);
+              } catch (InterruptedException e) {
+                return;
+              }
+              SLOW_RUNS.put(d, threads());
+            },
+            "test-watchdog");
+    watchdog.setDaemon(true);
+    watchdog.start();
+    try {
+      d.start();
+    } finally {
+      watchdog.interrupt();
+    }
     return d;
   }
 
   /** The value a run bound to a name, after asserting the run had no errors. */
   @SuppressWarnings("unchecked")
   static <X> X value(AqlMultiDriver d, String name, Kind kind) {
-    assertTrue(d.exn.isEmpty(), () -> d.exn + threadsAtTimeout(d));
+    assertTrue(d.exn.isEmpty(), () -> d.exn + threadsOfATimeout(d));
     return (X) d.env.defs.get(name, kind);
   }
 
   /**
-   * After a run that timed out, the stacks of the threads that run CQL, TinkerPop or Netty code, so
-   * that the failure shows where the run was stuck. Empty after any other run.
+   * After a run that timed out, the threads that its watchdog recorded 20 s into the run, or the
+   * threads now if it recorded none, so that the failure shows where the run was stuck. Empty after
+   * any other run.
    */
-  private static String threadsAtTimeout(AqlMultiDriver d) {
+  private static String threadsOfATimeout(AqlMultiDriver d) {
     if (!d.exn.toString().contains("Timeout after")) {
       return "";
     }
-    StringBuilder sb = new StringBuilder("\nThreads at the timeout:\n");
+    String recorded = SLOW_RUNS.get(d);
+    return recorded != null
+        ? "\nThreads 20 s into the run:\n" + recorded
+        : "\nThreads at the timeout:\n" + threads();
+  }
+
+  /** The stacks of the threads that run CQL, TinkerPop or Netty code, other than this one. */
+  private static String threads() {
+    StringBuilder sb = new StringBuilder();
     for (ThreadInfo t : ManagementFactory.getThreadMXBean().dumpAllThreads(true, true)) {
       if (t.getThreadId() == Thread.currentThread().getId()) {
         continue;
