@@ -459,16 +459,34 @@ class ApgInstExpTest {
           "n1 : name -> (User: (), name: A)|Expecting element at label User, but received ()",
           "n1 : name -> (User: n1, name: A)"
               + "|Expecting element at label User, but received element n1 at label name",
-          "n1 : name -> A|Expecting tuple at type (name:Str * User:User), but received A",
-          "n1 : name -> (User: u1, name: A, extra: B)"
-              + "|In (User: u1 , name: A , extra: B), extra, is not a field in (name:Str * User:User)",
-          "n1 : name -> (User: u1)|In (User: u1), no field for name",
-          "c1 : choice -> A|Expecting injection at type <b:Str + a:Str>, but received A",
-          "c1 : choice -> <c: A>|In <c: A>, c, is not a field in <b:Str + a:Str>"
+          "n1 : name -> (User: u1)|In (User: u1), no field for name"
         })
     void reportsTheElementThatDoesNotFit(String element, String message) throws Exception {
       String msg = error(element);
       assertTrue(msg.contains(message), msg);
+    }
+
+    /** These messages print a tuple or a variant type, whose fields can come in either order. */
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        value = {
+          "n1 : name -> A"
+              + "|Expecting tuple at type (name:Str * User:User), but received A"
+              + "|Expecting tuple at type (User:User * name:Str), but received A",
+          "n1 : name -> (User: u1, name: A, extra: B)"
+              + "|In (User: u1 , name: A , extra: B), extra, is not a field in (name:Str * User:User)"
+              + "|In (User: u1 , name: A , extra: B), extra, is not a field in (User:User * name:Str)",
+          "c1 : choice -> A"
+              + "|Expecting injection at type <b:Str + a:Str>, but received A"
+              + "|Expecting injection at type <a:Str + b:Str>, but received A",
+          "c1 : choice -> <c: A>"
+              + "|In <c: A>, c, is not a field in <b:Str + a:Str>"
+              + "|In <c: A>, c, is not a field in <a:Str + b:Str>"
+        })
+    void reportsTheTypeThatTheElementDoesNotFit(String element, String message, String swapped)
+        throws Exception {
+      ApgExpTestHelpers.assertContainsOneOf(error(element), message, swapped);
     }
 
     @Test

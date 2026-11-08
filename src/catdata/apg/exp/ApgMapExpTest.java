@@ -341,8 +341,6 @@ class ApgMapExpTest {
         value = {
           "case v where age -> lambda x. x name -> lambda y. 0@Nat : base Nat"
               + "|Argument type cLbl is not a variant.",
-          "case !cLbl(v) where age -> lambda x. x : base Nat"
-              + "|Branches are [age], not {name, age} as expected from argument.",
           "case !cLbl(v) where age -> lambda v. v name -> lambda y. 0@Nat : base Nat"
               + "|Re-bound variable: v",
           "case !cLbl(v) where age -> lambda x. x name -> lambda y. y : base Nat"
@@ -355,14 +353,25 @@ class ApgMapExpTest {
       assertTrue(msg.contains(message), msg);
     }
 
+    /** The expected branches are the fields of the variant, which can come in either order. */
+    @Test
+    void reportsTheBranchesThatTheVariantExpects() throws Exception {
+      ApgExpTestHelpers.assertContainsOneOf(
+          error("case !cLbl(v) where age -> lambda x. x : base Nat"),
+          "Branches are [age], not {name, age} as expected from argument.",
+          "Branches are [age], not {age, name} as expected from argument.");
+    }
+
     /** The message for an injection of the wrong type has no space after the injected term. */
     @Test
     void checksTheAnnotationOfAnInjection() throws Exception {
       String cases = " where age -> lambda x. x name -> lambda y. 0@Nat : base Nat";
       String msg = error("case <age: x@Str> : " + SUM + cases);
       assertTrue(msg.contains("xhas type Str and not Nat as expected."), msg);
-      msg = error("case <zz: 0@Nat> : " + SUM + cases);
-      assertTrue(msg.contains("Not a variant type containing zz: <name:Str + age:Nat>"), msg);
+      ApgExpTestHelpers.assertContainsOneOf(
+          error("case <zz: 0@Nat> : " + SUM + cases),
+          "Not a variant type containing zz: <name:Str + age:Nat>",
+          "Not a variant type containing zz: <age:Nat + name:Str>");
       assertEquals("", error("case !cLbl(v)" + cases));
     }
 

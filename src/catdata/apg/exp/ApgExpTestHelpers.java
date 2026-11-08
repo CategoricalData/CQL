@@ -2,6 +2,7 @@ package catdata.apg.exp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockingDetails;
 
 import catdata.LineException;
@@ -9,6 +10,7 @@ import catdata.cql.exp.AqlMultiDriver;
 import catdata.cql.exp.AqlParserFactory;
 import catdata.cql.exp.AqlTyping;
 import catdata.cql.exp.Exp;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +70,16 @@ final class ApgExpTestHelpers {
   /** The expressions of the program, by name. */
   static Map<String, Exp<?>> exps(String program) throws Exception {
     return AqlParserFactory.getParser().parseProgram(program).exps;
+  }
+
+  /**
+   * Asserts that the message contains one of the texts. Types that differ only in the order of
+   * their fields are one cached {@code ApgTy}, which prints its fields in the order of the first
+   * one built. That order depends on the tests that ran before, so a message that prints a tuple or
+   * a variant type is checked against each order.
+   */
+  static void assertContainsOneOf(String message, String... texts) {
+    assertTrue(Arrays.stream(texts).anyMatch(message::contains), message);
   }
 
   /** Asserts that the mocked co-visitor got one call, to the case named after the class of e. */

@@ -33,9 +33,16 @@ class InstExpSkolemTest {
       typeside Ty = sql
       schema S = literal : Ty { entities A attributes n : A -> Varchar }
       instance I = literal : S { generators a b : A equations a.n = hello b.n = null }
-      instance K = skolem I
-      transform t = skolem I
       """;
+
+  /**
+   * K and t are in programs of their own. In one program the driver evaluates them in parallel, and
+   * the two can deadlock: each validates a transform out of I, and they take the lock of I and the
+   * lock of a map of I in opposite orders.
+   */
+  private static final String SQL_K = SQL + "instance K = skolem I\n";
+
+  private static final String SQL_T = SQL + "transform t = skolem I\n";
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private static InstExpSkolem<?, ?, ?, ?> inst(String i) {
@@ -53,7 +60,7 @@ class InstExpSkolemTest {
     @Test
     void namesEveryValueByALabelledNull() throws Exception {
       Instance<String, String, Sym, Fk, Att, ?, ?, ?, ?> k =
-          ExpTestHelpers.eval(SQL, "K", Kind.INSTANCE);
+          ExpTestHelpers.eval(SQL_K, "K", Kind.INSTANCE);
       assertEquals(2, k.algebra().size("A"));
       assertEquals(2, k.sks().size());
       String text = k.toString();
@@ -64,7 +71,7 @@ class InstExpSkolemTest {
     @Test
     void mapsBackToTheInstance() throws Exception {
       Transform<String, String, Sym, Fk, Att, ?, ?, ?, ?, ?, ?, ?, ?> t =
-          ExpTestHelpers.eval(SQL, "t", Kind.TRANSFORM);
+          ExpTestHelpers.eval(SQL_T, "t", Kind.TRANSFORM);
       assertEquals(2, t.src().sks().size());
       assertEquals(0, t.dst().sks().size());
     }
@@ -72,7 +79,7 @@ class InstExpSkolemTest {
     /** A labelled null of I, or a value that is not a SQL value, reaches an anomaly. */
     @Test
     void failsOnAMissingValue() throws Exception {
-      String msg = ExpTestHelpers.error(SQL.replace(" b.n = null", ""));
+      String msg = ExpTestHelpers.error(SQL_K.replace(" b.n = null", ""));
       assertTrue(msg.contains("Anomaly: please report"), msg);
     }
 
