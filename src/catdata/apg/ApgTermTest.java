@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import catdata.Pair;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -268,6 +270,84 @@ class ApgTermTest {
     void nullReturnsFalse() {
       ApgTerm<String, String> t = ApgTerm.ApgTermVar("x");
       assertFalse(t.equals2(null));
+    }
+
+    /**
+     * Terms are shared through a cache keyed by this equality, which ignores the annotation of an
+     * injection or a case analysis, so a term gets the annotation of the first equal term built.
+     */
+    @Test
+    void ignoresTheAnnotationOfAnInjectionOrACaseAnalysis() {
+      ApgTy<String> one = ApgTy.ApgTyB("Annotated");
+      ApgTy<String> narrow = ApgTy.ApgTyP(false, Map.of("one", one));
+      ApgTy<String> wide = ApgTy.ApgTyP(false, Map.of("one", one, "two", one));
+      ApgTerm<String, String> arg = ApgTerm.ApgTermV("equals2-annotation-probe", "Annotated");
+      ApgTerm<String, String> first = ApgTerm.ApgTermInj("one", arg, narrow);
+      ApgTerm<String, String> second = ApgTerm.ApgTermInj("one", arg, wide);
+      assertTrue(first.equals2(second));
+      assertSame(first, second);
+      assertSame(narrow, second.cases_t);
+      Map<String, Pair<String, ApgTerm<String, String>>> cases =
+          Map.of("one", new Pair<>("x", ApgTerm.ApgTermVar("x")));
+      ApgTerm<String, String> c1 = ApgTerm.ApgTermCase(first, cases, one);
+      ApgTerm<String, String> c2 = ApgTerm.ApgTermCase(first, cases, ApgTy.ApgTyB("Other"));
+      assertSame(c1, c2);
+      assertSame(one, c2.cases_t);
+    }
+  }
+
+  /**
+   * Substitution into a case branch {@code lambda x. body} whose body mentions the substituted
+   * variable renames that variable, instead of x, to a fresh name and makes it the binder, so the
+   * substitution is lost and x becomes free.
+   */
+  @Nested
+  class SubstitutionUnderACase {
+
+    private final ApgTy<String> sum = ApgTy.ApgTyP(false, Map.of("l", ApgTy.ApgTyB("capture-ty")));
+
+    private final ApgTerm<String, String> v = ApgTerm.ApgTermVar("capture-v");
+
+    private ApgTerm<String, String> body() {
+      return ApgTerm.ApgTermTuple(
+          Map.of(
+              "p", ApgTerm.ApgTermProj("f", v),
+              "q", ApgTerm.ApgTermInj("l", ApgTerm.ApgTermDeref("L", v), sum),
+              "r", ApgTerm.ApgTermApp("h", List.of(v, ApgTerm.ApgTermV("one", "capture-ty"))),
+              "s", ApgTerm.ApgTermVar("capture-x"),
+              "t",
+                  ApgTerm.ApgTermCase(
+                      v,
+                      Map.of("l", new Pair<>("capture-y", ApgTerm.ApgTermVar("capture-y"))),
+                      sum)));
+    }
+
+    private ApgTerm<String, String> caseOf(String binder, ApgTerm<String, String> body) {
+      return ApgTerm.ApgTermCase(
+          ApgTerm.ApgTermVar("capture-w"), Map.of("l", new Pair<>(binder, body)), sum);
+    }
+
+    @Test
+    void bindsTheSubstitutedVariableAndFreesTheBinder() {
+      ApgTerm<String, String> r =
+          caseOf("capture-x", body()).subst("capture-v", ApgTerm.ApgTermE("e"));
+      Pair<String, ApgTerm<String, String>> branch = r.cases.get("l");
+      assertTrue(branch.first.startsWith("_gensym_"), branch.first);
+      ApgTerm<String, String> z = ApgTerm.ApgTermVar(branch.first);
+      assertSame(z, branch.second.fields.get("p").a);
+      assertSame(z, branch.second.fields.get("q").a.a);
+      assertSame(z, branch.second.fields.get("r").args.get(0));
+      assertSame(z, branch.second.fields.get("t").a);
+      assertSame(ApgTerm.ApgTermVar("capture-x"), branch.second.fields.get("s"));
+      assertFalse(r.toString().contains("(e)"), r.toString());
+    }
+
+    @Test
+    void leavesABranchAloneThatBindsOrDoesNotMentionTheVariable() {
+      ApgTerm<String, String> shadow = caseOf("capture-v", body());
+      assertSame(shadow, shadow.subst("capture-v", ApgTerm.ApgTermE("e")));
+      ApgTerm<String, String> other = caseOf("capture-x", ApgTerm.ApgTermVar("capture-x"));
+      assertSame(other, other.subst("capture-v", ApgTerm.ApgTermE("e")));
     }
   }
 }

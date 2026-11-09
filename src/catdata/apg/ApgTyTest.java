@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,25 @@ class ApgTyTest {
       ApgTy<String> ty1 = ApgTy.ApgTyB("CachedType");
       ApgTy<String> ty2 = ApgTy.ApgTyB("CachedType");
       assertSame(ty1, ty2);
+    }
+
+    /**
+     * Types that differ only in the order of their fields are one cached type, which prints its
+     * fields in the order of the first one built. No other test uses these field names, so this
+     * test builds that type first.
+     */
+    @Test
+    void printsTheFieldOrderOfTheFirstEqualTypeBuilt() {
+      Map<String, ApgTy<String>> first = new LinkedHashMap<>();
+      first.put("cachedFirst", ApgTy.ApgTyB("Str"));
+      first.put("cachedSecond", ApgTy.ApgTyB("Nat"));
+      Map<String, ApgTy<String>> reversed = new LinkedHashMap<>();
+      reversed.put("cachedSecond", ApgTy.ApgTyB("Nat"));
+      reversed.put("cachedFirst", ApgTy.ApgTyB("Str"));
+      ApgTy<String> built = ApgTy.ApgTyP(true, first);
+      ApgTy<String> again = ApgTy.ApgTyP(true, reversed);
+      assertSame(built, again);
+      assertEquals("(cachedFirst:Str * cachedSecond:Nat)", again.toString());
     }
   }
 

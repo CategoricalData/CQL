@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.text.StringEscapeUtils;
@@ -107,6 +110,27 @@ public final class PragmaExpTinkerpop extends PragmaExp {
     };
   }
 
+  /**
+   * The threads of the pool that each {@link #execGremlin} call gives its {@code GremlinExecutor}.
+   * Each evaluation schedules its timeout on that pool and cancels it from another task once the
+   * evaluation ends. An executor that owns its pool shuts it down on close and waits for it, and a
+   * shutdown that runs before the cancel keeps the timeout queued, so the close waits the whole
+   * timeout, 30 s by default. A pool the call owns is not shut down by the executor, so the call
+   * drops the queued timeout with {@code shutdownNow}. The threads are daemons, so a pool never
+   * keeps the JVM running.
+   */
+  private static final ThreadFactory EXECUTOR_THREADS =
+      new ThreadFactory() {
+        private final AtomicInteger count = new AtomicInteger();
+
+        @Override
+        public Thread newThread(Runnable r) {
+          Thread t = new Thread(r, "cql-gremlin-executor-" + count.incrementAndGet());
+          t.setDaemon(true);
+          return t;
+        }
+      };
+
   /** Reads the results of Gremlin scripts while the connection that produced them is open. */
   @FunctionalInterface
   public interface GremlinReader<X> {
@@ -152,13 +176,21 @@ public final class PragmaExpTinkerpop extends PragmaExp {
         b.putIfAbsent(gname, source);
 
         List<Object> ret = new ArrayList<>(jss.size());
+        ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(4, EXECUTOR_THREADS);
         try (GremlinExecutor conn =
-            GremlinExecutor.build().evaluationTimeout(timeout).globalBindings(b).create()) {
+            GremlinExecutor.build()
+                .evaluationTimeout(timeout)
+                .globalBindings(b)
+                .executorService(pool)
+                .scheduledExecutorService(pool)
+                .create()) {
           for (String s : jss) {
             CompletableFuture<Object> evalResult = conn.eval(s);
             Object actualResult = evalResult.get();
             ret.add(actualResult);
           }
+        } finally {
+          pool.shutdownNow();
         }
         return reader.read(ret);
       }

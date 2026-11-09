@@ -243,4 +243,197 @@ class ApgInstanceTest {
       assertEquals(i1.hashCode(), i2.hashCode());
     }
   }
+
+  /**
+   * An instance over the labels person (an Int), pair (a product of two persons) and choice (a sum
+   * of a person and an Int), with the persons p1 and p2, the pair pr and the choice c.
+   */
+  @Nested
+  class ElementsAndTyping {
+
+    private static ApgTy<String> label(String l) {
+      return ApgTy.ApgTyL(l);
+    }
+
+    private static ApgTy<String> product(Map<String, ApgTy<String>> m) {
+      return ApgTy.ApgTyP(true, m);
+    }
+
+    private static ApgTy<String> sum(Map<String, ApgTy<String>> m) {
+      return ApgTy.ApgTyP(false, m);
+    }
+
+    private static ApgSchema<String> schema() {
+      Map<String, ApgTy<String>> labels = new HashMap<>();
+      labels.put("person", ApgTy.ApgTyB("Int"));
+      labels.put("pair", product(Map.of("a", label("person"), "b", label("person"))));
+      labels.put("choice", sum(Map.of("x", label("person"), "y", ApgTy.ApgTyB("Int"))));
+      return new ApgSchema<>(intTypeside(), labels);
+    }
+
+    private static Map<String, Pair<String, ApgTerm<String, String>>> elements() {
+      Map<String, Pair<String, ApgTerm<String, String>>> es = new HashMap<>();
+      es.put("p1", new Pair<>("person", ApgTerm.ApgTermV(1, "Int")));
+      es.put("p2", new Pair<>("person", ApgTerm.ApgTermV(2, "Int")));
+      es.put(
+          "pr",
+          new Pair<>(
+              "pair",
+              ApgTerm.ApgTermTuple(
+                  Map.of("a", ApgTerm.ApgTermE("p1"), "b", ApgTerm.ApgTermE("p2")))));
+      es.put(
+          "c",
+          new Pair<>("choice", ApgTerm.ApgTermInj("x", ApgTerm.ApgTermE("p1"), label("person"))));
+      return es;
+    }
+
+    private static ApgInstance<String, String> instance() {
+      return new ApgInstance<>(schema(), elements());
+    }
+
+    @Test
+    void enumeratesTheElementsOfEachKindOfType() {
+      var i = instance();
+      assertEquals(2, i.elemsFor(label("person")).size());
+      assertEquals(
+          4, i.elemsFor(product(Map.of("u", label("person"), "v", label("person")))).size());
+      assertEquals(1, i.elemsFor(product(Map.of())).size());
+      assertEquals(3, i.elemsFor(sum(Map.of("x", label("person"), "y", label("pair")))).size());
+      RuntimeException e =
+          assertThrows(RuntimeException.class, () -> i.elemsFor(ApgTy.ApgTyB("Int")));
+      assertEquals("Cannot enumerate types: Int", e.getMessage());
+      assertTrue(i.toString().startsWith("elements\n"), i.toString());
+    }
+
+    private String fails(String label, ApgTerm<String, String> term) {
+      var es = elements();
+      es.put("bad", new Pair<>(label, term));
+      return assertThrows(RuntimeException.class, () -> new ApgInstance<>(schema(), es))
+          .getMessage();
+    }
+
+    @Test
+    void rejectsAValueOfTheWrongKind() {
+      assertTrue(
+          fails("person", ApgTerm.ApgTermTuple(Map.of()))
+              .startsWith("Expecting data at type Int, but received "));
+      assertTrue(
+          fails("person", ApgTerm.ApgTermV("one", "Int"))
+              .startsWith("Not an instance of class java.lang.Integer: one, is String"));
+      assertTrue(fails("pair", ApgTerm.ApgTermV(1, "Int")).startsWith("Expecting tuple at type "));
+      assertTrue(
+          fails("choice", ApgTerm.ApgTermV(1, "Int")).startsWith("Expecting injection at type "));
+    }
+
+    @Test
+    void rejectsAnElementOrFieldThatDoesNotFit() {
+      assertTrue(fails("pair", ApgTerm.ApgTermE("p1")).startsWith("Type error: On p1, expected "));
+      assertTrue(fails("person", ApgTerm.ApgTermE("zz")).startsWith("Element zz not in "));
+      String msg =
+          fails(
+              "pair",
+              ApgTerm.ApgTermTuple(
+                  Map.of(
+                      "a",
+                      ApgTerm.ApgTermE("p1"),
+                      "b",
+                      ApgTerm.ApgTermE("p2"),
+                      "c",
+                      ApgTerm.ApgTermE("p1"))));
+      assertTrue(msg.contains(", c, is not a field in "), msg);
+      msg = fails("pair", ApgTerm.ApgTermTuple(Map.of("a", ApgTerm.ApgTermE("p1"))));
+      assertTrue(msg.endsWith(", no field for b"), msg);
+      msg = fails("choice", ApgTerm.ApgTermInj("z", ApgTerm.ApgTermE("p1"), label("person")));
+      assertTrue(msg.contains(", z, is not a field in "), msg);
+      msg =
+          fails(
+              "pair",
+              ApgTerm.ApgTermTuple(
+                  Map.of("a", ApgTerm.ApgTermV(1, "Int"), "b", ApgTerm.ApgTermE("p2"))));
+      assertTrue(msg.startsWith("Expecting element at label person, but received "), msg);
+    }
+
+    @Test
+    void rejectsATypeOrLabelItDoesNotKnow() {
+      Map<String, ApgTy<String>> labels = new HashMap<>();
+      labels.put("odd", ApgTy.ApgTyB("Str"));
+      RuntimeException e =
+          assertThrows(
+              RuntimeException.class,
+              () ->
+                  new ApgInstance<>(
+                      new ApgSchema<>(intTypeside(), labels),
+                      Map.of("o", new Pair<>("odd", ApgTerm.ApgTermV("s", "Str")))));
+      assertEquals("Type not in typeside: Str", e.getMessage());
+      Map<String, ApgTy<String>> dangling = new HashMap<>();
+      dangling.put("ref", label("nowhere"));
+      e =
+          assertThrows(
+              RuntimeException.class,
+              () ->
+                  new ApgInstance<>(
+                      new ApgSchema<>(intTypeside(), dangling),
+                      Map.of("r", new Pair<>("ref", ApgTerm.ApgTermE("r")))));
+      assertEquals("Label not in instance: nowhere", e.getMessage());
+    }
+  }
+
+  /**
+   * Arguments that no schema produces. Every type of a schema has a label, a base type or fields,
+   * so the checks for open terms and eliminations are reached only by calling {@code type} directly
+   * with a type that has none of them.
+   */
+  @Nested
+  class DegenerateArguments {
+
+    private final ApgInstance<String, String> inst =
+        new ApgInstance<>(personSchema(), Collections.emptyMap());
+
+    private String typeError(ApgTerm<String, String> term, ApgTy<String> ty) {
+      return assertThrows(RuntimeException.class, () -> inst.type(term, ty)).getMessage();
+    }
+
+    @Test
+    void cannotEvaluateAType() {
+      RuntimeException e =
+          assertThrows(RuntimeException.class, () -> inst.eval(ApgTy.ApgTyB("Int")));
+      assertEquals("Anomaly: please report", e.getMessage());
+    }
+
+    @Test
+    void rejectsABaseTypeOutsideTheTypeside() {
+      assertEquals("Not a type: Str", typeError(ApgTerm.ApgTermV("s", "Str"), ApgTy.ApgTyB("Str")));
+    }
+
+    @Test
+    void rejectsOpenTermsAndEliminationsAtATypeWithoutStructure() {
+      ApgTy<String> none = ApgTy.ApgTyP(false, null);
+      ApgTerm<String, String> unit = ApgTerm.ApgTermTuple(Collections.emptyMap());
+      assertEquals(
+          "Expected a closed term, encountered variable x",
+          typeError(ApgTerm.ApgTermVar("x"), none));
+      assertEquals(
+          "Expected an introduction form, encountered projection of f",
+          typeError(ApgTerm.ApgTermProj("f", unit), none));
+      assertEquals(
+          "Expected an introduction form, encountered case analysis of ()",
+          typeError(ApgTerm.ApgTermCase(unit, Map.of(), none), none));
+      assertEquals(
+          "Expected an introduction form, encountered foreign key of person",
+          typeError(ApgTerm.ApgTermDeref("person", unit), none));
+      assertDoesNotThrow(() -> inst.type(unit, none));
+    }
+
+    @Test
+    void comparesInstancesWithoutASchema() {
+      ApgInstance<String, String> a = new ApgInstance<>(null, Collections.emptyMap());
+      ApgInstance<String, String> b = new ApgInstance<>(null, Collections.emptyMap());
+      assertEquals(a, b);
+      assertEquals(a.hashCode(), b.hashCode());
+      assertNotEquals(a, inst);
+      assertNotEquals(inst, a);
+      assertNotEquals(a, null);
+      assertNotEquals(a, "instance");
+    }
+  }
 }

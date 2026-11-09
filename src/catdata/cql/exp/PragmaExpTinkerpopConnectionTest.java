@@ -42,24 +42,31 @@ class PragmaExpTinkerpopConnectionTest {
         Map.of("tinkerpop_port", Integer.toString(server.port)), AqlOptions.initialOptions);
   }
 
-  /** The live threads of Gremlin drivers. */
-  private static long driverThreads() {
+  /** The prefix of the threads of Gremlin drivers. */
+  private static final String DRIVER = "gremlin-driver-";
+
+  /** The prefix of the threads that run the scripts of a call. */
+  private static final String EXECUTOR = "cql-gremlin-executor-";
+
+  /** The live threads whose names start with the prefix. */
+  private static long threads(String prefix) {
     return Thread.getAllStackTraces().keySet().stream()
         .filter(Thread::isAlive)
-        .filter(t -> t.getName().startsWith("gremlin-driver-"))
+        .filter(t -> t.getName().startsWith(prefix))
         .count();
   }
 
   /**
-   * The driver threads once they settle, waiting up to 30 s for them to fall to the given number: a
-   * cluster shuts its event loops down as it closes, and they stop after a short quiet period.
+   * The threads with the prefix once they settle, waiting up to 30 s for them to fall to the given
+   * number: a cluster shuts its event loops down as it closes, and they stop after a short quiet
+   * period.
    */
-  private static long driverThreadsOnceAtMost(long expected) throws InterruptedException {
+  private static long threadsOnceAtMost(String prefix, long expected) throws InterruptedException {
     long deadline = System.nanoTime() + 30_000_000_000L;
-    while (driverThreads() > expected && System.nanoTime() < deadline) {
+    while (threads(prefix) > expected && System.nanoTime() < deadline) {
       Thread.sleep(100);
     }
-    return driverThreads();
+    return threads(prefix);
   }
 
   /** The configuration files that calls left in the temporary directory. */
@@ -86,27 +93,42 @@ class PragmaExpTinkerpopConnectionTest {
   /** Each script reads from the server first, since the driver connects only when a script does. */
   @Test
   void releasesTheClusterAndTheFilesOfEachCall() throws Exception {
-    long threads = driverThreads();
+    long threads = threads(DRIVER);
     Set<String> files = configFiles();
     for (int i = 0; i < 5; i++) {
       assertEquals(
           "[2]",
           PragmaExpTinkerpop.execGremlin(options(), List.of("g.inject(2).next()"), List::toString));
     }
-    assertEquals(threads, driverThreadsOnceAtMost(threads));
+    assertEquals(threads, threadsOnceAtMost(DRIVER, threads));
     assertEquals(files, configFiles());
   }
 
   @Test
   void releasesTheClusterAndTheFilesWhenAScriptFails() throws Exception {
-    long threads = driverThreads();
+    long threads = threads(DRIVER);
     Set<String> files = configFiles();
     assertThrows(
         ExecutionException.class,
         () ->
             PragmaExpTinkerpop.execGremlin(
                 options(), List.of("g.inject(1).next(); nope()"), List::toString));
-    assertEquals(threads, driverThreadsOnceAtMost(threads));
+    assertEquals(threads, threadsOnceAtMost(DRIVER, threads));
     assertEquals(files, configFiles());
+  }
+
+  /**
+   * The scripts run on a pool that the call shuts down whether they pass or fail, which also drops
+   * the timeout that each evaluation schedules on it.
+   */
+  @Test
+  void stopsTheThreadsThatRunItsScripts() throws Exception {
+    long threads = threads(EXECUTOR);
+    assertEquals(
+        "[2]", PragmaExpTinkerpop.execGremlin(options(), List.of("1 + 1"), List::toString));
+    assertThrows(
+        ExecutionException.class,
+        () -> PragmaExpTinkerpop.execGremlin(options(), List.of("nope()"), List::toString));
+    assertEquals(threads, threadsOnceAtMost(EXECUTOR, threads));
   }
 }

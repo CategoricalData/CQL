@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import catdata.Chc;
 import catdata.Pair;
 import catdata.cql.Collage.CCollage;
+import catdata.cql.exp.AqlMultiDriver;
+import catdata.cql.exp.AqlParserFactory;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
@@ -18,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -574,6 +577,87 @@ class EDTest {
       // over entity-sorted variables keeps its type-sorted ones untouched.
       ED ed = new ED(ctx("x", ty()), ctx("e", dept()), eqs(), eqs(), false, ops());
       assertTrue(ed.As.get("x").left, "type-sorted variables are not remapped by sigma");
+    }
+  }
+
+  /**
+   * The ED of a transform {@code h : I -> J} says that every match of I extends to a match of J.
+   * Nothing in the sources calls this constructor. It substitutes away the existential variables
+   * that the equations of J fix, and the equations of I become the hypotheses.
+   */
+  @Nested
+  class FromATransform {
+
+    private static final String PROGRAM =
+        """
+        typeside Ty = literal { types String constants x y : String }
+        schema S = literal : Ty {
+          entities A B foreign_keys f : A -> B attributes n : B -> String }
+        instance I = literal : S { generators a : A }
+        instance J = literal : S { generators a : A b : B equations a.f = b b.n = x }
+        instance K = literal : S { generators a a2 : A equations a.f = a2.f }
+        transform h = literal : I -> J { generators a -> a }
+        transform k = literal : I -> K { generators a -> a }
+        transform idj = identity J
+        """;
+
+    @SuppressWarnings("rawtypes")
+    private Transform transform(String name) throws Exception {
+      AqlMultiDriver d =
+          new AqlMultiDriver(AqlParserFactory.getParser().parseProgram(PROGRAM), null);
+      d.start();
+      return (Transform) d.env.defs.trans.get(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    private ED ed(String name) throws Exception {
+      return new ED(ops(), transform(name));
+    }
+
+    private static Set<String> strings(Set<?> eqs) {
+      return eqs.stream().map(Object::toString).collect(Collectors.toSet());
+    }
+
+    @Test
+    void substitutesTheExistentialsThatTheTargetFixes() throws Exception {
+      ED e = ed("h");
+      assertEquals(Set.of("Aa"), e.As.keySet());
+      assertTrue(e.Es.isEmpty());
+      assertTrue(e.Awh.isEmpty());
+      assertEquals(Set.of("(Aa.f.n, x)"), strings(e.Ewh));
+    }
+
+    @Test
+    void keepsAnExistentialThatTheTargetLeavesFree() throws Exception {
+      ED e = ed("k");
+      assertEquals(Set.of("Ea2"), e.Es.keySet());
+      assertEquals(Set.of("(Aa.f, Ea2.f)"), strings(e.Ewh));
+    }
+
+    /**
+     * The existentials Ea and Eb are substituted one equation at a time in hash order, so the
+     * conclusion is one of two equivalent pairs of equations.
+     */
+    @Test
+    void turnsTheEquationsOfTheSourceIntoHypotheses() throws Exception {
+      ED e = ed("idj");
+      assertEquals(Set.of("Aa", "Ab"), e.As.keySet());
+      assertTrue(e.Es.isEmpty());
+      assertEquals(Set.of("(Aa.f, Ab)", "(Ab.n, x)"), strings(e.Awh));
+      Set<Set<String>> substitutions =
+          Set.of(Set.of("(Ab, Aa.f)", "(Aa.f.n, x)"), Set.of("(Aa.f, Ab)", "(Ab.n, x)"));
+      assertTrue(substitutions.contains(strings(e.Ewh)), e.Ewh.toString());
+    }
+
+    /** {@code frontQ}, which nothing calls either, builds the same generators as {@code front}. */
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void buildsItsFrontTwoWays() throws Exception {
+      var h = transform("idj");
+      ED e = new ED(ops(), h);
+      Schema<String, String, Sym, Fk, Att> s = (Schema) h.src().schema();
+      assertEquals(e.front(s).gens().toString(), e.frontQ(s).gens().toString());
+      assertEquals(e.front(s).size(), e.frontQ(s).size());
     }
   }
 }
