@@ -1,16 +1,15 @@
 package catdata.cql.exp;
 
+import catdata.Pair;
+import catdata.Program;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
+import catdata.cql.Schema;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.Pair;
-import catdata.Program;
-import catdata.cql.Kind;
-import catdata.cql.Schema;
-import catdata.cql.AqlOptions.AqlOption;
 
 public final class SchExpTinkerpop extends SchExp {
 
@@ -24,7 +23,8 @@ public final class SchExpTinkerpop extends SchExp {
   }
 
   @Override
-  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitSchExpRdf(params, r);
   }
 
@@ -33,8 +33,7 @@ public final class SchExpTinkerpop extends SchExp {
     return Collections.emptyMap();
   }
 
-  public SchExpTinkerpop() {
-  }
+  public SchExpTinkerpop() {}
 
   @Override
   public Schema<String, String, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
@@ -48,12 +47,9 @@ public final class SchExpTinkerpop extends SchExp {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     return true;
   }
 
@@ -73,11 +69,8 @@ public final class SchExpTinkerpop extends SchExp {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
-  public void mapSubExps(Consumer<Exp<?>> f) {
-
-  }
+  public void mapSubExps(Consumer<Exp<?>> f) {}
 }

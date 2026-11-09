@@ -1,5 +1,10 @@
 package catdata.provers;
 
+import catdata.Pair;
+import catdata.Quad;
+import catdata.Util;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -7,12 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import catdata.Pair;
-import catdata.Quad;
-import catdata.Util;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
 
 @SuppressWarnings("unused")
 public class ThueSlow<Y, Z> {
@@ -24,8 +23,7 @@ public class ThueSlow<Y, Z> {
   private int iteration = 0;
 
   /**
-   * @param rules          to be completed. DOES NOT copy, and MUTATES IN PLACE
-   *                       the pairs inside of rules
+   * @param rules to be completed. DOES NOT copy, and MUTATES IN PLACE the pairs inside of rules
    * @param max_iterations to run (-1 for infinity)
    */
   public ThueSlow(List<Pair<List<Y>, List<Y>>> rules) {
@@ -41,11 +39,11 @@ public class ThueSlow<Y, Z> {
   }
 
   /**
-   * DANGEROUS! THIS DOES NOT PROVIDE A TRUE NORMAL FORM!!! ONLY NORMAL WRT
-   * LENGTH-PRESERVING EQUATIONS!!
+   * DANGEROUS! THIS DOES NOT PROVIDE A TRUE NORMAL FORM!!! ONLY NORMAL WRT LENGTH-PRESERVING
+   * EQUATIONS!!
    *
-   * @param s this parameter is ignore, but required to make sure users read the
-   *          document to note that this is not a true normal form
+   * @param s this parameter is ignore, but required to make sure users read the document to note
+   *     that this is not a true normal form
    * @param e the word to normalize
    * @return the normalized word
    */
@@ -57,7 +55,7 @@ public class ThueSlow<Y, Z> {
   }
 
   public boolean equiv(List<Y> a, List<Y> b) {
-//    check_oriented(rules);
+    //    check_oriented(rules);
     Pair<List<Y>, List<Y>> pair = new Pair<>(a, b);
     if (equivs.containsKey(pair)) {
       return equivs.get(pair);
@@ -116,11 +114,10 @@ public class ThueSlow<Y, Z> {
     // normalize(t);
     // cp(t); //has side effect, more than just orient
     return false;
-
   }
 
-  private static <X> Pair<List<X>, List<X>> getUnmarked(List<Pair<List<X>, List<X>>> marked,
-      List<Pair<List<X>, List<X>>> t) {
+  private static <X> Pair<List<X>, List<X>> getUnmarked(
+      List<Pair<List<X>, List<X>>> marked, List<Pair<List<X>, List<X>>> t) {
     for (Pair<List<X>, List<X>> rule : t) {
       if (!marked.contains(rule)) {
         return rule;
@@ -138,9 +135,7 @@ public class ThueSlow<Y, Z> {
       t0.remove(rule);
       if (!normal_form(rule.first, t0).equals(rule.first)) {
         it.remove();
-
       }
-
     }
   }
 
@@ -272,7 +267,8 @@ public class ThueSlow<Y, Z> {
     List<Pair<List<X>, List<X>>> ret = new LinkedList<>();
     for (Pair<List<X>, List<X>> rule1 : t) {
       for (Pair<List<X>, List<X>> rule2 : t) {
-        if (rule1.first.size() == rule1.second.size() && rule2.first.size() == rule2.second.size()) {
+        if (rule1.first.size() == rule1.second.size()
+            && rule2.first.size() == rule2.second.size()) {
           continue;
         }
         List<Quad<List<X>, List<X>, List<X>, List<X>>> todo = new LinkedList<>();
@@ -311,7 +307,12 @@ public class ThueSlow<Y, Z> {
     return ret;
   }
 
-  private <X> void addCP1(List<X> li, List<X> ri, List<X> lj, List<X> rj, List<Pair<List<X>, List<X>>> t,
+  private <X> void addCP1(
+      List<X> li,
+      List<X> ri,
+      List<X> lj,
+      List<X> rj,
+      List<Pair<List<X>, List<X>>> t,
       Collection<Pair<List<X>, List<X>>> ret) {
     for (Pair<List<X>, List<X>> uv : split(li)) {
       for (Pair<List<X>, List<X>> vw : split(lj)) {
@@ -329,7 +330,12 @@ public class ThueSlow<Y, Z> {
     }
   }
 
-  private <X> void addCP2(List<X> li, List<X> ri, List<X> lj, List<X> rj, List<Pair<List<X>, List<X>>> t,
+  private <X> void addCP2(
+      List<X> li,
+      List<X> ri,
+      List<X> lj,
+      List<X> rj,
+      List<Pair<List<X>, List<X>>> t,
       Collection<Pair<List<X>, List<X>>> ret) {
     List<Integer> uws = middle(li, lj);
     for (Integer i : uws) {
@@ -357,15 +363,18 @@ public class ThueSlow<Y, Z> {
 
   @Override
   public String toString() {
-    List<String> ret = rules.stream().map(x -> {
-      String s1 = Util.sep(x.first, ".");
-      String s2 = Util.sep(x.second, ".");
-      if (x.first.size() == x.second.size()) {
-        return "  " + s1 + " = " + s2;
-      }
-      return "  " + s1 + " -> " + s2;
-    }).collect(Collectors.toList());
+    List<String> ret =
+        rules.stream()
+            .map(
+                x -> {
+                  String s1 = Util.sep(x.first, ".");
+                  String s2 = Util.sep(x.second, ".");
+                  if (x.first.size() == x.second.size()) {
+                    return "  " + s1 + " = " + s2;
+                  }
+                  return "  " + s1 + " -> " + s2;
+                })
+            .collect(Collectors.toList());
     return Util.sep(ret, "\n");
   }
-
 }

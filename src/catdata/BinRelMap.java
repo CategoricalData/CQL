@@ -1,12 +1,11 @@
 package catdata;
 
+import gnu.trove.map.hash.THashMap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import gnu.trove.map.hash.THashMap;
 
 public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
 
@@ -17,18 +16,13 @@ public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (!(obj instanceof BinRelMap))
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (!(obj instanceof BinRelMap)) return false;
     BinRelMap<?, ?> other = (BinRelMap<?, ?>) obj;
     if (R == null) {
-      if (other.R != null)
-        return false;
-    } else if (!R.equals(other.R))
-      return false;
+      if (other.R != null) return false;
+    } else if (!R.equals(other.R)) return false;
     return true;
   }
 
@@ -77,7 +71,6 @@ public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
       Y y = yIt.next();
       return new Pair<>(x, y);
     }
-
   }
 
   public Map<X, Set<Y>> toRel(Set<Pair<X, Y>> m) {
@@ -196,11 +189,9 @@ public class BinRelMap<X, Y> implements Iterable<Pair<X, Y>> {
 
   public synchronized int size() {
     int i = 0;
-    for (@SuppressWarnings("unused")
-    Pair<X, Y> x : this) {
+    for (@SuppressWarnings("unused") Pair<X, Y> x : this) {
       i++;
     }
     return i;
   }
-
 }

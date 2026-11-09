@@ -1,12 +1,11 @@
 package catdata;
 
+import gnu.trove.set.hash.THashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import gnu.trove.set.hash.THashSet;
 
 /**
  * @author Ryan Wisnesky
@@ -30,7 +29,6 @@ public class Chc<X, Y> /* , Comparable<Chc<X,Y>> */ {
         return Chc.inLeft(it.next());
       }
     };
-
   }
 
   public static <X, Y> Iterator<Chc<X, Y>> rightIterator(Iterator<Y> it) {
@@ -46,7 +44,6 @@ public class Chc<X, Y> /* , Comparable<Chc<X,Y>> */ {
         return Chc.inRight(it.next());
       }
     };
-
   }
 
   public static <X, Y> Set<X> projIfAllLeft(Set<Chc<X, Y>> set) {
@@ -71,7 +68,6 @@ public class Chc<X, Y> /* , Comparable<Chc<X,Y>> */ {
         throw new RuntimeException("Cannot projRight " + x);
       }
       ret.add(x.r);
-
     }
 
     return ret;
@@ -108,29 +104,29 @@ public class Chc<X, Y> /* , Comparable<Chc<X,Y>> */ {
     this.r = r;
   }
 
-  //@SuppressWarnings("rawtypes")
-  //private static Map<Object, Chc> lm = new THashMap<>();
-//  @SuppressWarnings("rawtypes")
-  //private static Map<Object, Chc> rm = new THashMap<>();
+  // @SuppressWarnings("rawtypes")
+  // private static Map<Object, Chc> lm = new THashMap<>();
+  //  @SuppressWarnings("rawtypes")
+  // private static Map<Object, Chc> rm = new THashMap<>();
 
-  public synchronized static <X, Y> Chc<X, Y> inLeft(X l) {
-//    Chc<X, Y> z = lm.get(l);
-  //  if (z != null) {
-  //    return z;
-  //  }
+  public static synchronized <X, Y> Chc<X, Y> inLeft(X l) {
+    //    Chc<X, Y> z = lm.get(l);
+    //  if (z != null) {
+    //    return z;
+    //  }
     return new Chc<>(true, l, null);
-  //  lm.put(l, z);
-    //return z;
+    //  lm.put(l, z);
+    // return z;
   }
 
-  public synchronized static <X, Y> Chc<X, Y> inRight(Y r) {
-  //  Chc<X, Y> z = rm.get(r);
-  //  if (z != null) {
-  //    return z;
-  //  }
+  public static synchronized <X, Y> Chc<X, Y> inRight(Y r) {
+    //  Chc<X, Y> z = rm.get(r);
+    //  if (z != null) {
+    //    return z;
+    //  }
     return new Chc<>(false, null, r);
-//    rm.put(r, z);
-  //  return z;
+    //    rm.put(r, z);
+    //  return z;
   }
 
   public static <X, Y> Chc<X, Y> inLeftNC(X l) {
@@ -166,20 +162,15 @@ public class Chc<X, Y> /* , Comparable<Chc<X,Y>> */ {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Chc<?, ?> other = (Chc<?, ?>) obj;
-    if (left != other.left)
-      return false;
+    if (left != other.left) return false;
     if (left) {
       return l.equals(other.l);
     }
     return r.equals(other.r);
-
   }
 
   private int code = -1;
@@ -215,5 +206,4 @@ public class Chc<X, Y> /* , Comparable<Chc<X,Y>> */ {
     }
     return Chc.inLeft(r);
   }
-
 }

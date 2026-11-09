@@ -53,29 +53,19 @@ class SqlPath {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     SqlPath other = (SqlPath) obj;
     if (edges == null) {
-      if (other.edges != null)
-        return false;
-    } else if (!edges.equals(other.edges))
-      return false;
+      if (other.edges != null) return false;
+    } else if (!edges.equals(other.edges)) return false;
     if (source == null) {
-      if (other.source != null)
-        return false;
-    } else if (!source.equals(other.source))
-      return false;
+      if (other.source != null) return false;
+    } else if (!source.equals(other.source)) return false;
     if (target == null) {
-      if (other.target != null)
-        return false;
-    } else if (!target.equals(other.target))
-      return false;
+      if (other.target != null) return false;
+    } else if (!target.equals(other.target)) return false;
     return true;
   }
-
 }

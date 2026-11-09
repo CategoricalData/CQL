@@ -1,25 +1,24 @@
 package catdata.cql.exp;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.function.Consumer;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Program;
 import catdata.Triple;
 import catdata.Util;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.DP;
 import catdata.cql.Kind;
 import catdata.cql.Schema;
 import catdata.cql.Term;
-import catdata.cql.AqlOptions.AqlOption;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public final class SchExpPrefix extends SchExp {
 
@@ -36,7 +35,8 @@ public final class SchExpPrefix extends SchExp {
   }
 
   @Override
-  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitSchExpPrefix(params, r);
   }
 
@@ -68,55 +68,82 @@ public final class SchExpPrefix extends SchExp {
       }
     }
 
-    Collection<Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>>> eqs = new ArrayList<>(
-        old.eqs.size());
-    for (Triple<Pair<String, String>, Term<String, String, Sym, Fk, Att, Void, Void>, Term<String, String, Sym, Fk, Att, Void, Void>> eq : old.eqs) {
-      Term<String, String, Sym, Fk, Att, Void, Void> a = eq.second.map(w -> w, w -> w,
-          fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
-          att -> Att.Att((dom + old.atts.get(att).first), att.str), x -> Util.abort(x),
-          x -> Util.abort(x));
-      Term<String, String, Sym, Fk, Att, Void, Void> b = eq.third.map(w -> w, w -> w,
-          fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
-          att -> Att.Att((dom + old.atts.get(att).first), att.str), x -> Util.abort(x),
-          x -> Util.abort(x));
+    Collection<
+            Triple<
+                Pair<String, String>,
+                Term<String, String, Sym, Fk, Att, Void, Void>,
+                Term<String, String, Sym, Fk, Att, Void, Void>>>
+        eqs = new ArrayList<>(old.eqs.size());
+    for (Triple<
+            Pair<String, String>,
+            Term<String, String, Sym, Fk, Att, Void, Void>,
+            Term<String, String, Sym, Fk, Att, Void, Void>>
+        eq : old.eqs) {
+      Term<String, String, Sym, Fk, Att, Void, Void> a =
+          eq.second.map(
+              w -> w,
+              w -> w,
+              fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
+              att -> Att.Att((dom + old.atts.get(att).first), att.str),
+              x -> Util.abort(x),
+              x -> Util.abort(x));
+      Term<String, String, Sym, Fk, Att, Void, Void> b =
+          eq.third.map(
+              w -> w,
+              w -> w,
+              fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
+              att -> Att.Att((dom + old.atts.get(att).first), att.str),
+              x -> Util.abort(x),
+              x -> Util.abort(x));
       eqs.add(new Triple<>(new Pair<>(eq.first.first, (dom + eq.first.second)), a, b));
     }
 
-    DP<String, String, Sym, Fk, Att, Void, Void> dp = new DP<String, String, Sym, Fk, Att, Void, Void>() {
+    DP<String, String, Sym, Fk, Att, Void, Void> dp =
+        new DP<String, String, Sym, Fk, Att, Void, Void>() {
 
-      @Override
-      public String toStringProver() {
-        return "Prefix renaming";
-      }
-
-      @Override
-      public boolean eq(Map<String, Chc<String, String>> ctx,
-          Term<String, String, Sym, Fk, Att, Void, Void> lhs,
-          Term<String, String, Sym, Fk, Att, Void, Void> rhs) {
-        Map<String, Chc<String, String>> ctx2 = null;
-
-        if (ctx != null) {
-          ctx2 = new THashMap<>(ctx.size(), 2);
-          for (Entry<String, Chc<String, String>> k : ctx.entrySet()) {
-            ctx.put(k.getKey(), k.getValue().left ? Chc.inLeft(k.getValue().l)
-                : Chc.inRight((dom + k.getValue().r)));
-
+          @Override
+          public String toStringProver() {
+            return "Prefix renaming";
           }
-        }
 
-        Term<String, String, Sym, Fk, Att, Object, Object> a = lhs.map(w -> w, w -> w,
-            fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
-            att -> Att.Att((dom + old.atts.get(att).first), att.str), x -> Util.abort(x),
-            x -> Util.abort(x));
-        Term<String, String, Sym, Fk, Att, Object, Object> b = rhs.map(w -> w, w -> w,
-            fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
-            att -> Att.Att((dom + old.atts.get(att).first), att.str), x -> Util.abort(x),
-            x -> Util.abort(x));
+          @Override
+          public boolean eq(
+              Map<String, Chc<String, String>> ctx,
+              Term<String, String, Sym, Fk, Att, Void, Void> lhs,
+              Term<String, String, Sym, Fk, Att, Void, Void> rhs) {
+            Map<String, Chc<String, String>> ctx2 = null;
 
-        return old.dp().eq(ctx2, a, b);
-      }
+            if (ctx != null) {
+              ctx2 = new THashMap<>(ctx.size(), 2);
+              for (Entry<String, Chc<String, String>> k : ctx.entrySet()) {
+                ctx.put(
+                    k.getKey(),
+                    k.getValue().left
+                        ? Chc.inLeft(k.getValue().l)
+                        : Chc.inRight((dom + k.getValue().r)));
+              }
+            }
 
-    };
+            Term<String, String, Sym, Fk, Att, Object, Object> a =
+                lhs.map(
+                    w -> w,
+                    w -> w,
+                    fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
+                    att -> Att.Att((dom + old.atts.get(att).first), att.str),
+                    x -> Util.abort(x),
+                    x -> Util.abort(x));
+            Term<String, String, Sym, Fk, Att, Object, Object> b =
+                rhs.map(
+                    w -> w,
+                    w -> w,
+                    fk -> Fk.Fk((dom + old.fks.get(fk).first), fk.str),
+                    att -> Att.Att((dom + old.atts.get(att).first), att.str),
+                    x -> Util.abort(x),
+                    x -> Util.abort(x));
+
+            return old.dp().eq(ctx2, a, b);
+          }
+        };
     return new Schema<>(old.typeSide, ens, atts, fks, eqs, dp, false);
   }
 
@@ -131,23 +158,16 @@ public final class SchExpPrefix extends SchExp {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     SchExpPrefix other = (SchExpPrefix) obj;
     if (dom == null) {
-      if (other.dom != null)
-        return false;
-    } else if (!dom.equals(other.dom))
-      return false;
+      if (other.dom != null) return false;
+    } else if (!dom.equals(other.dom)) return false;
     if (sch == null) {
-      if (other.sch != null)
-        return false;
-    } else if (!dom.equals(other.dom))
-      return false;
+      if (other.sch != null) return false;
+    } else if (!dom.equals(other.dom)) return false;
     return true;
   }
 
@@ -167,8 +187,7 @@ public final class SchExpPrefix extends SchExp {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public void mapSubExps(Consumer<Exp<?>> f) {

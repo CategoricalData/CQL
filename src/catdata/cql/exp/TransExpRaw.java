@@ -1,13 +1,5 @@
 package catdata.cql.exp;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import catdata.Chc;
 import catdata.InteriorLabel;
 import catdata.LocException;
@@ -16,18 +8,27 @@ import catdata.Pair;
 import catdata.Raw;
 import catdata.Util;
 import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Collage;
+import catdata.cql.Collage.CCollage;
 import catdata.cql.Instance;
 import catdata.cql.Kind;
 import catdata.cql.Term;
 import catdata.cql.Transform;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Collage.CCollage;
 import catdata.cql.fdm.LiteralTransform;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
 
-public final class TransExpRaw extends TransExp<String, String, String, String, String, String, String, String> implements Raw {
+public final class TransExpRaw
+    extends TransExp<String, String, String, String, String, String, String, String>
+    implements Raw {
 
   @SuppressWarnings("unchecked")
   @Override
@@ -72,8 +73,13 @@ public final class TransExpRaw extends TransExp<String, String, String, String, 
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder().append("literal : ").append(src).append(" -> ").append(dst)
-        .append(" {");
+    final StringBuilder sb =
+        new StringBuilder()
+            .append("literal : ")
+            .append(src)
+            .append(" -> ")
+            .append(dst)
+            .append(" {");
 
     if (!imports.isEmpty()) {
       sb.append("\n\timports");
@@ -119,44 +125,35 @@ public final class TransExpRaw extends TransExp<String, String, String, String, 
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     TransExpRaw other = (TransExpRaw) obj;
     if (dst == null) {
-      if (other.dst != null)
-        return false;
-    } else if (!dst.equals(other.dst))
-      return false;
+      if (other.dst != null) return false;
+    } else if (!dst.equals(other.dst)) return false;
     if (gens == null) {
-      if (other.gens != null)
-        return false;
-    } else if (!gens.equals(other.gens))
-      return false;
+      if (other.gens != null) return false;
+    } else if (!gens.equals(other.gens)) return false;
     if (imports == null) {
-      if (other.imports != null)
-        return false;
-    } else if (!imports.equals(other.imports))
-      return false;
+      if (other.imports != null) return false;
+    } else if (!imports.equals(other.imports)) return false;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     if (src == null) {
-      if (other.src != null)
-        return false;
-    } else if (!src.equals(other.src))
-      return false;
+      if (other.src != null) return false;
+    } else if (!src.equals(other.src)) return false;
     return true;
   }
 
   @SuppressWarnings("unchecked")
-  public TransExpRaw(InstExp<?, ?, ?, ?> src, InstExp<?, ?, ?, ?> dst, List<TransExp<?, ?, ?, ?, ?, ?, ?, ?>> imports,
-      List<Pair<LocStr, RawTerm>> gens, List<Pair<String, String>> options) {
+  public TransExpRaw(
+      InstExp<?, ?, ?, ?> src,
+      InstExp<?, ?, ?, ?> dst,
+      List<TransExp<?, ?, ?, ?, ?, ?, ?, ?>> imports,
+      List<Pair<LocStr, RawTerm>> gens,
+      List<Pair<String, String>> options) {
     this.src = (InstExp<String, String, String, String>) src;
     this.dst = (InstExp<String, String, String, String>) dst;
     this.imports = new THashSet<>(imports);
@@ -169,17 +166,37 @@ public final class TransExpRaw extends TransExp<String, String, String, String, 
 
     List<InteriorLabel<Object>> f = new LinkedList<>();
     for (Pair<LocStr, RawTerm> p : gens) {
-      f.add(new InteriorLabel<>("generators", new Pair<>(p.first.str, p.second), p.first.loc,
-          x -> x.first + " -> " + x.second).conv());
+      f.add(
+          new InteriorLabel<>(
+                  "generators",
+                  new Pair<>(p.first.str, p.second),
+                  p.first.loc,
+                  x -> x.first + " -> " + x.second)
+              .conv());
     }
     raw.put("generators", f);
   }
 
   @Override
-  public synchronized Transform<String, String, Sym, Fk, Att, String, String, String, String, String, String, String, String> eval0(
-      AqlEnv env, boolean isC) {
-    Instance<String, String, Sym, Fk, Att, String, String, String, String> src0 = src.eval(env, isC);
-    Instance<String, String, Sym, Fk, Att, String, String, String, String> dst0 = dst.eval(env, isC);
+  public synchronized Transform<
+          String,
+          String,
+          Sym,
+          Fk,
+          Att,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String,
+          String>
+      eval0(AqlEnv env, boolean isC) {
+    Instance<String, String, Sym, Fk, Att, String, String, String, String> src0 =
+        src.eval(env, isC);
+    Instance<String, String, Sym, Fk, Att, String, String, String, String> dst0 =
+        dst.eval(env, isC);
     // Collage<String, String, String, String, String, Void, Void> scol = new
     // Collage<>(src0);
     Collage<String, String, Sym, Fk, Att, String, String> dcol = new CCollage<>(dst0.collage());
@@ -206,8 +223,8 @@ public final class TransExpRaw extends TransExp<String, String, String, String, 
           throw new RuntimeException(gen.first + " is not a source generator/labelled null");
         }
 
-        Term<String, String, Sym, Fk, Att, String, String> term0 = RawTerm.infer1x(ctx, term, null, required, dcol, "",
-            src0.schema().typeSide.js).second;
+        Term<String, String, Sym, Fk, Att, String, String> term0 =
+            RawTerm.infer1x(ctx, term, null, required, dcol, "", src0.schema().typeSide.js).second;
 
         if (required.left) {
           Util.putSafely(sks0, gen.first, term0.convert());
@@ -216,20 +233,40 @@ public final class TransExpRaw extends TransExp<String, String, String, String, 
         }
       } catch (RuntimeException ex) {
         ex.printStackTrace();
-        throw new LocException(find("generators", gen),
-            "In transform for " + gen.first + ", " + ex.getMessage());
+        throw new LocException(
+            find("generators", gen), "In transform for " + gen.first + ", " + ex.getMessage());
       }
     }
 
     AqlOptions ops = new AqlOptions(options, env.defaults);
 
-    LiteralTransform<String, String, Sym, Fk, Att, String, String, String, String, String, String, String, String> ret = new LiteralTransform<>(
-        (k,t)->gens0.get(k), (k,t)->sks0.get(k), src0, dst0, (Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));
+    LiteralTransform<
+            String,
+            String,
+            Sym,
+            Fk,
+            Att,
+            String,
+            String,
+            String,
+            String,
+            String,
+            String,
+            String,
+            String>
+        ret =
+            new LiteralTransform<>(
+                (k, t) -> gens0.get(k),
+                (k, t) -> sks0.get(k),
+                src0,
+                dst0,
+                (Boolean) ops.getOrDefault(AqlOption.dont_validate_unsafe));
     return ret;
   }
 
   @Override
-  public Pair<InstExp<String, String, String, String>, InstExp<String, String, String, String>> type(AqlTyping G) {
+  public Pair<InstExp<String, String, String, String>, InstExp<String, String, String, String>>
+      type(AqlTyping G) {
     SchExp a = src.type(G);
     SchExp b = dst.type(G);
     if (!G.eq(a, b)) {
@@ -248,5 +285,4 @@ public final class TransExpRaw extends TransExp<String, String, String, String, 
     src.map(f);
     dst.map(f);
   }
-
 }

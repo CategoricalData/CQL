@@ -1,21 +1,5 @@
 package catdata.mpl;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
-import com.google.common.base.Function;
-
 import catdata.Pair;
 import catdata.Triple;
 import catdata.Unit;
@@ -36,6 +20,7 @@ import catdata.mpl.Mpl.MplType.MplBase;
 import catdata.mpl.Mpl.MplType.MplProd;
 import catdata.mpl.Mpl.MplType.MplUnit;
 import catdata.mpl.MplStrict.Node;
+import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -43,6 +28,18 @@ import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 public class Mpl implements MplObject {
 
@@ -82,18 +79,13 @@ public class Mpl implements MplObject {
 
       @Override
       public boolean equals(Object obj) {
-        if (this == obj)
-          return true;
-        if (obj == null)
-          return false;
-        if (getClass() != obj.getClass())
-          return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         MplBase<?> other = (MplBase<?>) obj;
         if (o == null) {
-          if (other.o != null)
-            return false;
-        } else if (!o.equals(other.o))
-          return false;
+          if (other.o != null) return false;
+        } else if (!o.equals(other.o)) return false;
         return true;
       }
 
@@ -148,23 +140,16 @@ public class Mpl implements MplObject {
 
       @Override
       public boolean equals(Object obj) {
-        if (this == obj)
-          return true;
-        if (obj == null)
-          return false;
-        if (getClass() != obj.getClass())
-          return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         MplProd<?> other = (MplProd<?>) obj;
         if (l == null) {
-          if (other.l != null)
-            return false;
-        } else if (!l.equals(other.l))
-          return false;
+          if (other.l != null) return false;
+        } else if (!l.equals(other.l)) return false;
         if (r == null) {
-          if (other.r != null)
-            return false;
-        } else if (!r.equals(other.r))
-          return false;
+          if (other.r != null) return false;
+        } else if (!r.equals(other.r)) return false;
         return true;
       }
 
@@ -178,7 +163,6 @@ public class Mpl implements MplObject {
       public <R, E> R accept(E env, MplTypeVisitor<O, R, E> v) {
         return v.visit(env, this);
       }
-
     }
 
     static class MplUnit<O> extends MplType<O> {
@@ -204,17 +188,13 @@ public class Mpl implements MplObject {
       }
 
       @Override
-      public void type(MplSch<O, ?> ctx) {
-
-      }
+      public void type(MplSch<O, ?> ctx) {}
 
       @Override
       public <R, E> R accept(E env, MplTypeVisitor<O, R, E> v) {
         return v.visit(env, this);
       }
-
     }
-
   }
 
   abstract static class MplTerm<O, A> extends Mpl {
@@ -262,8 +242,15 @@ public class Mpl implements MplObject {
         MplProd<O> dom = (MplProd<O>) x.first;
         MplProd<O> cod = (MplProd<O>) x.second;
         if (!dom.r.equals(cod.r)) {
-          throw new RuntimeException("Second component of dom and cod do not match: are " + dom.r + " and "
-              + cod.r + " in " + x.first + " -> " + x.second);
+          throw new RuntimeException(
+              "Second component of dom and cod do not match: are "
+                  + dom.r
+                  + " and "
+                  + cod.r
+                  + " in "
+                  + x.first
+                  + " -> "
+                  + x.second);
         }
         return new Pair<>(dom.l, cod.l);
       }
@@ -280,8 +267,15 @@ public class Mpl implements MplObject {
         O dom = x.first.get(0);
         O cod = x.second.get(0);
         if (!dom.equals(cod)) {
-          throw new RuntimeException("Second component of dom and cod do not match: are " + dom + " and "
-              + cod + " in " + x.first + " -> " + x.second);
+          throw new RuntimeException(
+              "Second component of dom and cod do not match: are "
+                  + dom
+                  + " and "
+                  + cod
+                  + " in "
+                  + x.first
+                  + " -> "
+                  + x.second);
         }
         return new Pair<>(x.first.subList(1, x.first.size()), x.second.subList(1, x.second.size()));
       }
@@ -295,7 +289,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return "tr " + t;
       }
-
     }
 
     static class MplConst<O, A> extends MplTerm<O, A> {
@@ -317,7 +310,8 @@ public class Mpl implements MplObject {
 
       @Override
       public Pair<List<O>, List<O>> typeStrict(MplSch<O, A> ctx) {
-        return new Pair<>(ctx.getSymbol(a).first.typeStrict(ctx), ctx.getSymbol(a).second.typeStrict(ctx));
+        return new Pair<>(
+            ctx.getSymbol(a).first.typeStrict(ctx), ctx.getSymbol(a).second.typeStrict(ctx));
       }
 
       @Override
@@ -329,7 +323,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return a.toString();
       }
-
     }
 
     static class MplId<O, A> extends MplTerm<O, A> {
@@ -364,7 +357,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return "id " + o;
       }
-
     }
 
     static class MplComp<O, A> extends MplTerm<O, A> {
@@ -400,7 +392,8 @@ public class Mpl implements MplObject {
         Pair<MplType<O>, MplType<O>> p1 = l.type(ctx);
         Pair<MplType<O>, MplType<O>> p2 = r.type(ctx);
         if (!p1.second.equals(p2.first)) {
-          throw new RuntimeException("cod=" + p1.second + " dom=" + p2.first + " mismatch on " + this);
+          throw new RuntimeException(
+              "cod=" + p1.second + " dom=" + p2.first + " mismatch on " + this);
         }
         return new Pair<>(p1.first, p2.second);
       }
@@ -410,7 +403,8 @@ public class Mpl implements MplObject {
         Pair<List<O>, List<O>> p1 = l.typeStrict(ctx);
         Pair<List<O>, List<O>> p2 = r.typeStrict(ctx);
         if (!p1.second.equals(p2.first)) {
-          throw new RuntimeException("cod=" + p1.second + " dom=" + p2.first + " mismatch on " + this);
+          throw new RuntimeException(
+              "cod=" + p1.second + " dom=" + p2.first + " mismatch on " + this);
         }
         return new Pair<>(p1.first, p2.second);
       }
@@ -424,7 +418,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return "(" + l + " ; " + r + ")";
       }
-
     }
 
     static class MplPair<O, A> extends MplTerm<O, A> {
@@ -470,7 +463,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return "(" + l + " * " + r + ")";
       }
-
     }
 
     static class MplAlpha<O, A> extends MplTerm<O, A> {
@@ -516,7 +508,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return leftToRight ? "alpha1 " + a + " " + b + " " + c : "alpha2 " + a + " " + b + " " + c;
       }
-
     }
 
     static class MplSym<O, A> extends MplTerm<O, A> {
@@ -564,7 +555,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return "sym " + a + " " + b;
       }
-
     }
 
     // ai->a
@@ -604,7 +594,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return leftToRight ? "rho1 " + a : "rho2 " + a;
       }
-
     }
 
     // ia->a
@@ -645,7 +634,6 @@ public class Mpl implements MplObject {
         return leftToRight ? "lambda1 " + a : "lambda2 " + a;
       }
     }
-
   }
 
   abstract static class MplExp<O, A> extends Mpl {
@@ -669,18 +657,13 @@ public class Mpl implements MplObject {
 
       @Override
       public boolean equals(Object obj) {
-        if (this == obj)
-          return true;
-        if (obj == null)
-          return false;
-        if (getClass() != obj.getClass())
-          return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         MplVar<?, ?> other = (MplVar<?, ?>) obj;
         if (s == null) {
-          if (other.s != null)
-            return false;
-        } else if (!s.equals(other.s))
-          return false;
+          if (other.s != null) return false;
+        } else if (!s.equals(other.s)) return false;
         return true;
       }
 
@@ -693,7 +676,6 @@ public class Mpl implements MplObject {
       public String toString() {
         return s;
       }
-
     }
 
     static class MplSch<O, A> extends MplExp<O, A> {
@@ -701,7 +683,9 @@ public class Mpl implements MplObject {
       final Map<A, Pair<MplType<O>, MplType<O>>> symbols;
       final Set<Pair<MplTerm<O, A>, MplTerm<O, A>>> eqs;
 
-      public MplSch(Set<O> sorts, Map<A, Pair<MplType<O>, MplType<O>>> symbols,
+      public MplSch(
+          Set<O> sorts,
+          Map<A, Pair<MplType<O>, MplType<O>>> symbols,
           Set<Pair<MplTerm<O, A>, MplTerm<O, A>>> eqs) {
         this.sorts = sorts;
         this.symbols = symbols;
@@ -778,10 +762,8 @@ public class Mpl implements MplObject {
          */
 
         return p;
-
       }
     }
-
   }
 
   public interface MplTypeVisitor<O, R, E> {
@@ -820,30 +802,33 @@ public class Mpl implements MplObject {
     R visit(E env, MplEval<O, A> e);
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static <O, A> JComponent doTermView(Color src, Color dst, Graph<Node<O, A>, Integer> sgv) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static <O, A> JComponent doTermView(
+      Color src, Color dst, Graph<Node<O, A>, Integer> sgv) {
     if (sgv.getVertexCount() == 0) {
       return new JPanel();
     }
     Layout layout = new FRLayout<>(sgv);
     layout.setSize(new Dimension(600, 400));
     VisualizationViewer vv = new VisualizationViewer<>(layout);
-    Function<Node<O, A>, Color> vertexPaint = x -> {
-      if (x.isInput) {
-        return src;
-      }
-      return dst;
-    };
+    Function<Node<O, A>, Color> vertexPaint =
+        x -> {
+          if (x.isInput) {
+            return src;
+          }
+          return dst;
+        };
     DefaultModalGraphMouse<String, String> gm = new DefaultModalGraphMouse<>();
     gm.setMode(Mode.TRANSFORMING);
     vv.setGraphMouse(gm);
     gm.setMode(Mode.PICKING);
     vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 
-    Function<Node<O, A>, String> ttt = arg0 -> {
-      String w = arg0.isInput ? "in" : "out";
-      return arg0.term + " #" + arg0.which + " " + w;
-    };
+    Function<Node<O, A>, String> ttt =
+        arg0 -> {
+          String w = arg0.isInput ? "in" : "out";
+          return arg0.term + " #" + arg0.which + " " + w;
+        };
     vv.getRenderContext().setVertexLabelTransformer(ttt);
     vv.getRenderContext().setEdgeLabelTransformer(xx -> "");
 
@@ -854,7 +839,7 @@ public class Mpl implements MplObject {
     return ret;
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public static <O, A> JComponent doTermView2(Graph<MplStrict2.Node<O, A>, Integer> sgv) {
     if (sgv.getVertexCount() == 0) {
       return new JPanel();
@@ -869,7 +854,7 @@ public class Mpl implements MplObject {
     gm.setMode(Mode.PICKING);
     // vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
 
-//    vv.getRenderContext().setVertexLabelTransformer(ttt);
+    //    vv.getRenderContext().setVertexLabelTransformer(ttt);
     vv.getRenderContext().setEdgeLabelTransformer(xx -> "");
 
     GraphZoomScrollPane zzz = new GraphZoomScrollPane(vv);

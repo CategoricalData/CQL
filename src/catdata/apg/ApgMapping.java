@@ -1,13 +1,5 @@
 package catdata.apg;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Function;
-
 import catdata.Pair;
 import catdata.Triple;
 import catdata.Util;
@@ -15,6 +7,13 @@ import catdata.cql.Kind;
 import catdata.cql.Semantics;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Function;
 
 public class ApgMapping<L1, L2> implements Semantics {
 
@@ -27,7 +26,8 @@ public class ApgMapping<L1, L2> implements Semantics {
       ApgTransform<L2, E1, L2, E2> h) {
     for (Entry<L2, L2> x : h.lMap.entrySet()) {
       if (!x.getKey().equals(x.getValue())) {
-        throw new RuntimeException("Transform not identity on labels: " + x.getKey() + " -> " + x.getValue());
+        throw new RuntimeException(
+            "Transform not identity on labels: " + x.getKey() + " -> " + x.getValue());
       }
     }
     h.assertNaturalData();
@@ -50,7 +50,8 @@ public class ApgMapping<L1, L2> implements Semantics {
     if (!G.Ls.equals(dst)) {
       Util.anomaly();
     }
-    Map<Pair<L1, ApgTerm<L2, E>>, Pair<L1, ApgTerm<L1, Pair<L1, ApgTerm<L2, E>>>>> es = new THashMap<>();
+    Map<Pair<L1, ApgTerm<L2, E>>, Pair<L1, ApgTerm<L1, Pair<L1, ApgTerm<L2, E>>>>> es =
+        new THashMap<>();
     // System.out.println("&&&& " + src);
     for (Entry<L1, Triple<String, ApgTy<L2>, ApgTerm<L2, Void>>> x : mapping.entrySet()) {
       Triple<String, ApgTy<L2>, ApgTerm<L2, Void>> t = x.getValue();
@@ -68,22 +69,22 @@ public class ApgMapping<L1, L2> implements Semantics {
         ApgTerm<L1, E> jj = eval(G, z);
         // System.out.println("jj " + jj);
 
-        ApgTerm<L1, Pair<L1, ApgTerm<L2, E>>> a = jj
-            .map((E h) -> new Pair<L1, ApgTerm<L2, E>>(l1, ApgTerm.ApgTermE(h)));
+        ApgTerm<L1, Pair<L1, ApgTerm<L2, E>>> a =
+            jj.map((E h) -> new Pair<L1, ApgTerm<L2, E>>(l1, ApgTerm.ApgTermE(h)));
 
         // System.out.println("a " + a);
 
         es.put(new Pair<>(l1, e), new Pair<>(l1, a));
       }
     }
-//    System.out.println("es " + Util.sep(es, " -> ", " \n "));
+    //    System.out.println("es " + Util.sep(es, " -> ", " \n "));
 
     var w = new ApgInstance<>(src, es);
     return w;
   }
 
   private static <L1, L2, E> ApgTerm<L1, E> eval(ApgInstance<L2, E> g, ApgTerm<L2, E> t) {
-    for (;;) {
+    for (; ; ) {
       ApgTerm<L2, E> t0 = deref(g, t);
       if (t.equals(t0)) {
         return t.convert();
@@ -114,11 +115,10 @@ public class ApgMapping<L1, L2> implements Semantics {
         }
       }
       if (o.size() == l.size()) {
-        return ApgTerm.ApgTermV(g.Ls.typeside.udfs.get(t.head).third.apply(o),
-            g.Ls.typeside.udfs.get(t.head).second);
+        return ApgTerm.ApgTermV(
+            g.Ls.typeside.udfs.get(t.head).third.apply(o), g.Ls.typeside.udfs.get(t.head).second);
       }
-        return ApgTerm.ApgTermApp(t.head, l);
-      
+      return ApgTerm.ApgTermApp(t.head, l);
     }
     if (t.value != null || t.e != null || t.var != null) {
       return t.convert();
@@ -133,8 +133,10 @@ public class ApgMapping<L1, L2> implements Semantics {
       return ApgTerm.ApgTermProj(t.proj, deref(g, t.a));
     }
     if (t.cases != null) {
-      return ApgTerm.ApgTermCase(deref(g, t.a),
-          Util.map(t.cases, (k, v) -> new Pair<>(k, new Pair<>(v.first, deref(g, v.second)))), t.cases_t);
+      return ApgTerm.ApgTermCase(
+          deref(g, t.a),
+          Util.map(t.cases, (k, v) -> new Pair<>(k, new Pair<>(v.first, deref(g, v.second)))),
+          t.cases_t);
     }
     if (t.deref != null) {
       return ApgTerm.ApgTermDeref(t.deref, deref(g, t.a.convert()));
@@ -151,7 +153,9 @@ public class ApgMapping<L1, L2> implements Semantics {
     return new ApgMapping<>(s, s, m);
   }
 
-  public ApgMapping(ApgSchema<L1> src, ApgSchema<L2> dst,
+  public ApgMapping(
+      ApgSchema<L1> src,
+      ApgSchema<L2> dst,
       Map<L1, Triple<String, ApgTy<L2>, ApgTerm<L2, Void>>> mapping) {
     this.src = src;
     this.dst = dst;
@@ -176,7 +180,8 @@ public class ApgMapping<L1, L2> implements Semantics {
       ApgTy<L2> t2 = type(z.third, ctx);
       t.validate(dst);
       if (!t.equals(t2)) {
-        throw new RuntimeException("Term " + z.third + " has type " + t2 + ", not " + t + " as expected.");
+        throw new RuntimeException(
+            "Term " + z.third + " has type " + t2 + ", not " + t + " as expected.");
       }
       seen.add(z.first);
     }
@@ -187,10 +192,16 @@ public class ApgMapping<L1, L2> implements Semantics {
       return Util.abort(term.e);
     } else if (term.value != null) {
       if (!src.typeside.Bs.containsKey(term.prim)) {
-        throw new RuntimeException("Encountered primitive value " + term + " at non-type " + term.prim);
+        throw new RuntimeException(
+            "Encountered primitive value " + term + " at non-type " + term.prim);
       } else if (!src.typeside.Bs.get(term.prim).first.isInstance(term.value)) {
-        throw new RuntimeException("Primitive value " + term + " is not of type "
-            + src.typeside.Bs.get(term.prim) + ", is " + term.value.getClass().getSimpleName());
+        throw new RuntimeException(
+            "Primitive value "
+                + term
+                + " is not of type "
+                + src.typeside.Bs.get(term.prim)
+                + ", is "
+                + term.value.getClass().getSimpleName());
       }
       return ApgTy.ApgTyB(term.prim);
     } else if (term.var != null) {
@@ -199,13 +210,21 @@ public class ApgMapping<L1, L2> implements Semantics {
       }
       return ctx.get(term.var);
     } else if (term.head != null) {
-      Triple<List<String>, String, Function<List<Object>, Object>> t = src.typeside.udfs.get(term.head);
+      Triple<List<String>, String, Function<List<Object>, Object>> t =
+          src.typeside.udfs.get(term.head);
       if (t == null) {
         throw new RuntimeException("Not a UDF: " + term.head);
       }
-      List<ApgTy<L2>> l = Util.map(term.args, x->type(x,ctx));
+      List<ApgTy<L2>> l = Util.map(term.args, x -> type(x, ctx));
       if (l.size() != t.first.size()) {
-        throw new RuntimeException("In " + term + ", given " + l.size() + " arguments, not " + t.first.size() + " as expected.");
+        throw new RuntimeException(
+            "In "
+                + term
+                + ", given "
+                + l.size()
+                + " arguments, not "
+                + t.first.size()
+                + " as expected.");
       }
       Iterator<ApgTy<L2>> it = l.iterator();
       Iterator<String> jt = t.first.iterator();
@@ -213,28 +232,40 @@ public class ApgMapping<L1, L2> implements Semantics {
         ApgTy<L2> x = it.next();
         String y = jt.next();
         if (x.b == null || !x.b.equals(y)) {
-          throw new RuntimeException("In " + term + ", argument " + i + " (" + term.args.get(i) + ") has type " + x + " not " + y + " as expected.");
-        }        
+          throw new RuntimeException(
+              "In "
+                  + term
+                  + ", argument "
+                  + i
+                  + " ("
+                  + term.args.get(i)
+                  + ") has type "
+                  + x
+                  + " not "
+                  + y
+                  + " as expected.");
+        }
       }
       return ApgTy.ApgTyB(t.second);
-    }
-    
-    
-    else if (term.deref != null) {
+    } else if (term.deref != null) {
       ApgTy<L2> x = dst.schema.get(term.deref);
       if (x == null) {
         throw new RuntimeException("In " + term + ", " + term.deref + " is not a target label.");
       }
       ApgTy<L2> y = type(term.a, ctx);
       if (!term.deref.equals(y.l)) {
-        throw new RuntimeException("In " + term + ", " + term.deref + " given argument of type " + y);
+        throw new RuntimeException(
+            "In " + term + ", " + term.deref + " given argument of type " + y);
       }
       return x;
     } else if (term.head != null) {
-      Triple<List<String>, String, Function<List<Object>, Object>> x = src.typeside.udfs.get(term.head);
+      Triple<List<String>, String, Function<List<Object>, Object>> x =
+          src.typeside.udfs.get(term.head);
       if (x == null) {
         throw new RuntimeException(
-            term.head + " not a UDF in source typeside " + Util.sep(src.typeside.udfs.keySet(), ", "));
+            term.head
+                + " not a UDF in source typeside "
+                + Util.sep(src.typeside.udfs.keySet(), ", "));
       }
       if (x.first.size() != term.args.size()) {
         throw new RuntimeException(
@@ -245,15 +276,20 @@ public class ApgMapping<L1, L2> implements Semantics {
       for (ApgTerm<L2, Void> y : term.args) {
         String z = it1.next();
         if (y.prim == null || !y.prim.equals(z)) {
-          throw new RuntimeException("In " + this + ", argument " + i + ", a value of base type " + z
-              + " expected, but given " + y);
+          throw new RuntimeException(
+              "In "
+                  + this
+                  + ", argument "
+                  + i
+                  + ", a value of base type "
+                  + z
+                  + " expected, but given "
+                  + y);
         }
         i++;
       }
       return ApgTy.ApgTyB(x.second);
-    }
-
-    else if (term.fields != null) {
+    } else if (term.fields != null) {
       return ApgTy.ApgTyP(true, Util.map(term.fields, (k, v) -> new Pair<>(k, type(v, ctx))));
     } else if (term.proj != null) {
       ApgTy<L2> x = type(term.a, ctx);
@@ -278,20 +314,32 @@ public class ApgMapping<L1, L2> implements Semantics {
         throw new RuntimeException(
             "In " + term + " label " + term.inj + " not found in " + term.cases_t.m.keySet());
       } else if (!term.cases_t.m.get(term.inj).equals(x)) {
-        throw new RuntimeException("In " + term + " type of label for " + term.inj + ", namely, "
-            + term.cases_t.m.get(term.inj) + " is not equal to " + x + ", as expected.");
+        throw new RuntimeException(
+            "In "
+                + term
+                + " type of label for "
+                + term.inj
+                + ", namely, "
+                + term.cases_t.m.get(term.inj)
+                + " is not equal to "
+                + x
+                + ", as expected.");
       }
       return term.cases_t;
     } else if (term.cases != null) {
       ApgTy<L2> x = type(term.a, ctx);
       if (x.m == null || x.all) {
-        throw new RuntimeException("Cannot perform case analysis on " + term.a + " at non-sum type: " + x);
+        throw new RuntimeException(
+            "Cannot perform case analysis on " + term.a + " at non-sum type: " + x);
       }
       if (!term.cases.keySet().equals(x.m.keySet())) {
         throw new RuntimeException(
-            "Set of cases " + term.cases.keySet() + " not the same as variants in type: " + x.m.keySet());
+            "Set of cases "
+                + term.cases.keySet()
+                + " not the same as variants in type: "
+                + x.m.keySet());
       }
-      //Map<String, ApgTy<L2>> map = new THashMap<>();
+      // Map<String, ApgTy<L2>> map = new THashMap<>();
       ApgTy<L2> b = term.cases_t;
       for (String branch : term.cases.keySet()) {
         Pair<String, ApgTerm<L2, Void>> a = term.cases.get(branch);
@@ -325,11 +373,15 @@ public class ApgMapping<L1, L2> implements Semantics {
 
   @Override
   public String toString() {
-    String s = "labels\n\t"
-        + Util.sep(mapping, " -> ", "\n\t", (Triple<String, ApgTy<L2>, ApgTerm<L2, Void>> w) -> "lambda " + w.first
-            + " : " + w.second + ". " + w.third);
+    String s =
+        "labels\n\t"
+            + Util.sep(
+                mapping,
+                " -> ",
+                "\n\t",
+                (Triple<String, ApgTy<L2>, ApgTerm<L2, Void>> w) ->
+                    "lambda " + w.first + " : " + w.second + ". " + w.third);
 
     return s;
   }
-
 }

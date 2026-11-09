@@ -1,6 +1,7 @@
-
 package catdata.provers;
 
+import catdata.Pair;
+import catdata.Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -8,14 +9,11 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Optional;
 
-import catdata.Pair;
-import catdata.Util;
-
 public class VampireProver<T, C, V> extends DPKB<T, C, V> {
 
   private static final String TRUE = "% SZS status Theorem",
-                              FALSE = "% SZS status CounterSatisfiable",
-                              FAILURE = "% Exception";
+      FALSE = "% SZS status CounterSatisfiable",
+      FAILURE = "% Exception";
 
   private final long seconds;
   private final String exePath;
@@ -26,7 +24,6 @@ public class VampireProver<T, C, V> extends DPKB<T, C, V> {
     super(th);
     this.seconds = seconds;
     this.exePath = exePath;
-
   }
 
   private static Process runProver(String exePath, long seconds, String tptp) throws IOException {
@@ -65,7 +62,7 @@ public class VampireProver<T, C, V> extends DPKB<T, C, V> {
       }
       System.err.println(sb.toString());
       reader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-    
+
       while ((line = reader.readLine()) != null) {
         System.err.print(line);
       }
@@ -96,7 +93,7 @@ public class VampireProver<T, C, V> extends DPKB<T, C, V> {
         }
       }
       reader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-    
+
       while ((line = reader.readLine()) != null) {
         System.err.print(line);
       }
@@ -112,13 +109,10 @@ public class VampireProver<T, C, V> extends DPKB<T, C, V> {
   }
 
   @Override
-  public void add(C c, T t) {
-
-  }
+  public void add(C c, T t) {}
 
   @Override
   public boolean supportsTrivialityCheck() {
     return true;
   }
-
 }

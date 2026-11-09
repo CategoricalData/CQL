@@ -6,7 +6,6 @@ import java.lang.management.ThreadMXBean;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javax.swing.JOptionPane;
 
 public class DeadLockDetector {
@@ -16,7 +15,8 @@ public class DeadLockDetector {
   }
 
   public static void makeDeadLockDetector() {
-    DeadLockDetector deadlockDetector = new DeadLockDetector(new DeadlockConsoleHandler(), 60, TimeUnit.SECONDS);
+    DeadLockDetector deadlockDetector =
+        new DeadLockDetector(new DeadlockConsoleHandler(), 60, TimeUnit.SECONDS);
     deadlockDetector.start();
   }
 
@@ -28,7 +28,7 @@ public class DeadLockDetector {
         JOptionPane.showMessageDialog(null, "Deadlock!");
         System.err.println("Deadlock detected!");
 
-//        Map<Thread, StackTraceElement[]> stackTraceMap = Thread.getAllStackTraces();
+        //        Map<Thread, StackTraceElement[]> stackTraceMap = Thread.getAllStackTraces();
         for (ThreadInfo threadInfo : deadlockedThreads) {
 
           if (threadInfo != null) {
@@ -55,22 +55,25 @@ public class DeadLockDetector {
   private final ThreadMXBean mbean = ManagementFactory.getThreadMXBean();
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-  final Runnable deadlockCheck = new Runnable() {
-    @Override
-    public void run() {
-      // System.out.println("+++ " + Term.cache.keySet().size());
+  final Runnable deadlockCheck =
+      new Runnable() {
+        @Override
+        public void run() {
+          // System.out.println("+++ " + Term.cache.keySet().size());
 
-      long[] deadlockedThreadIds = DeadLockDetector.this.mbean.findDeadlockedThreads();
+          long[] deadlockedThreadIds = DeadLockDetector.this.mbean.findDeadlockedThreads();
 
-      if (deadlockedThreadIds != null) {
-        ThreadInfo[] threadInfos = DeadLockDetector.this.mbean.getThreadInfo(deadlockedThreadIds);
+          if (deadlockedThreadIds != null) {
+            ThreadInfo[] threadInfos =
+                DeadLockDetector.this.mbean.getThreadInfo(deadlockedThreadIds);
 
-        DeadLockDetector.this.deadlockHandler.handleDeadlock(threadInfos);
-      }
-    }
-  };
+            DeadLockDetector.this.deadlockHandler.handleDeadlock(threadInfos);
+          }
+        }
+      };
 
-  public DeadLockDetector(final DeadlockHandler deadlockHandler, final long period, final TimeUnit unit) {
+  public DeadLockDetector(
+      final DeadlockHandler deadlockHandler, final long period, final TimeUnit unit) {
     this.deadlockHandler = deadlockHandler;
     this.period = period;
     this.unit = unit;

@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-//TODO aql replace with Ctx
+// TODO aql replace with Ctx
 public class Environment<X> {
 
   private final Map<String, X> objs = Collections.synchronizedMap(new LinkedHashMap<>());
@@ -31,5 +31,4 @@ public class Environment<X> {
     }
     return ret;
   }
-
 }

@@ -1,34 +1,29 @@
 package catdata.cql.exp;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.swing.text.BadLocationException;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
-import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
-
 import catdata.Chc;
 import catdata.Pair;
 import catdata.Program;
 import catdata.Unit;
 import catdata.Util;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Kind;
 import catdata.cql.Pragma;
-import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.gui.CqlCodeEditor.StaticParserNotice;
 import gnu.trove.set.hash.THashSet;
+import java.awt.Color;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import javax.swing.text.BadLocationException;
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
+import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
 
 public class AqlStatic extends AbstractParser {
 
-  
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void validate(RSyntaxTextArea area) {
     Set<String> done = new TreeSet<>(exns.keySet());
     Set<String> added = new THashSet<>(exns.size());
@@ -40,46 +35,50 @@ public class AqlStatic extends AbstractParser {
       Exp exp = env.prog.exps.get(n);
       long l = (long) exp.getOrDefault(env, AqlOption.static_timeout);
       try {
-        Util.timeout(() -> {
-          Optional<Chc<String, ?>> oo = exp.eval_static(env, exns);
-          if (oo.isEmpty()) {
-            if (exp instanceof InstExpQueryQuotient) {
-              try {
-                boolean ok = true;
-                for (Object o : exp.deps()) {
-                  Pair<String, Kind> z = (Pair<String, Kind>) o;
-                  if (null == env.get(z.second, z.first)) {
-                    ok = false;
-                    break;
+        Util.timeout(
+            () -> {
+              Optional<Chc<String, ?>> oo = exp.eval_static(env, exns);
+              if (oo.isEmpty()) {
+                if (exp instanceof InstExpQueryQuotient) {
+                  try {
+                    boolean ok = true;
+                    for (Object o : exp.deps()) {
+                      Pair<String, Kind> z = (Pair<String, Kind>) o;
+                      if (null == env.get(z.second, z.first)) {
+                        ok = false;
+                        break;
+                      }
+                    }
+                    if (ok) {
+                      exp.eval0(env, true);
+                    }
+                  } catch (IgnoreException ex) {
                   }
                 }
-                if (ok) {
-                  exp.eval0(env, true);
+                exns.put(n, Optional.empty());
+              } else {
+                Chc<String, ?> o = oo.get();
+                if (o.left) {
+                  exns.put(n, Optional.of(o.l));
+                } else {
+                  if (exp instanceof PragmaExpCheck2) {
+                    ((Pragma) o.r).execute();
+                  }
+                  env.defs.put(n, exp.kind(), o.r);
                 }
-              } catch (IgnoreException ex) {
               }
-            }
-            exns.put(n, Optional.empty());
-          } else {
-            Chc<String, ?> o = oo.get();
-            if (o.left) {
-              exns.put(n, Optional.of(o.l));
-            } else {
-              if (exp instanceof PragmaExpCheck2) {
-                ((Pragma) o.r).execute();
-              }
-              env.defs.put(n, exp.kind(), o.r);
-            }
-          }
 
-          return Unit.unit;
-        }, l * 1000, "");
+              return Unit.unit;
+            },
+            l * 1000,
+            "");
       } catch (Exception ex) {
         if (ex.getMessage() == null) {
           ex.printStackTrace();
         }
         ex.printStackTrace();
-        exns.put(n, Optional.of(ex.getMessage() == null ? "Null pointer exception." : ex.getMessage()));
+        exns.put(
+            n, Optional.of(ex.getMessage() == null ? "Null pointer exception." : ex.getMessage()));
       }
 
       for (String k : exns.keySet()) {
@@ -94,12 +93,11 @@ public class AqlStatic extends AbstractParser {
           StaticParserNotice p = new StaticParserNotice(this, w, z, Color.magenta);
           if (!added.contains(p.getMessage())) {
             result.addNotice(p);
-            added.add(p.getMessage());  
+            added.add(p.getMessage());
           }
         } catch (BadLocationException ex) {
           ex.printStackTrace();
         }
-
       }
     }
   }
@@ -116,11 +114,12 @@ public class AqlStatic extends AbstractParser {
         }
         env.typing.defs.put(n, exp.kind(), o.r);
       } catch (Throwable ex) {
-        //ex.printStackTrace();
+        // ex.printStackTrace();
         if (ex.getMessage() == null) {
           ex.printStackTrace();
         }
-        exns.put(n, Optional.of(ex.getMessage() == null ? "Null pointer exception" : ex.getMessage()));
+        exns.put(
+            n, Optional.of(ex.getMessage() == null ? "Null pointer exception" : ex.getMessage()));
       }
     }
     for (String k : exns.keySet()) {
@@ -136,11 +135,10 @@ public class AqlStatic extends AbstractParser {
   }
 
   public final DefaultParseResult result;
-  
+
   @Override
   public synchronized DefaultParseResult parse(RSyntaxDocument doc1, String style) {
     return result;
-    
   }
 
   public final AqlEnv env;
@@ -155,7 +153,4 @@ public class AqlStatic extends AbstractParser {
   public String toString() {
     return "AqlStatic [result=" + result + ", env=" + env + ", exns=" + exns + "]";
   }
-  
-  
-  
 }

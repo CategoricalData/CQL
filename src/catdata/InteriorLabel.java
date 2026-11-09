@@ -42,23 +42,16 @@ public class InteriorLabel<X> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     InteriorLabel<?> other = (InteriorLabel<?>) obj;
     if (s == null) {
-      if (other.s != null)
-        return false;
-    } else if (!s.equals(other.s))
-      return false;
+      if (other.s != null) return false;
+    } else if (!s.equals(other.s)) return false;
     if (section == null) {
-      if (other.section != null)
-        return false;
-    } else if (!section.equals(other.section))
-      return false;
+      if (other.section != null) return false;
+    } else if (!section.equals(other.section)) return false;
     return true;
   }
 
@@ -69,5 +62,4 @@ public class InteriorLabel<X> {
     }
     return ret;
   }
-
 }

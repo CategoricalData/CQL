@@ -1,5 +1,10 @@
 package catdata.cql.exp;
 
+import catdata.LocStr;
+import catdata.Pair;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Instance;
+import catdata.cql.Kind;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -7,12 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.LocStr;
-import catdata.Pair;
-import catdata.cql.Instance;
-import catdata.cql.Kind;
-import catdata.cql.AqlOptions.AqlOption;
 
 public class InstExpMsError extends InstExp<String, String, String, String> {
 
@@ -28,28 +27,19 @@ public class InstExpMsError extends InstExp<String, String, String, String> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     InstExpMsError other = (InstExpMsError) obj;
     if (dom == null) {
-      if (other.dom != null)
-        return false;
-    } else if (!dom.equals(other.dom))
-      return false;
+      if (other.dom != null) return false;
+    } else if (!dom.equals(other.dom)) return false;
     if (jdbcString == null) {
-      if (other.jdbcString != null)
-        return false;
-    } else if (!jdbcString.equals(other.jdbcString))
-      return false;
+      if (other.jdbcString != null) return false;
+    } else if (!jdbcString.equals(other.jdbcString)) return false;
     if (ty == null) {
-      if (other.ty != null)
-        return false;
-    } else if (!ty.equals(other.ty))
-      return false;
+      if (other.ty != null) return false;
+    } else if (!ty.equals(other.ty)) return false;
     return true;
   }
 
@@ -78,9 +68,7 @@ public class InstExpMsError extends InstExp<String, String, String, String> {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public SchExp type(AqlTyping G) {
@@ -94,22 +82,24 @@ public class InstExpMsError extends InstExp<String, String, String, String> {
   }
 
   @Override
-  protected Instance<String, String, Sym, Fk, Att, String, String, String, String> eval0(AqlEnv env, boolean isCompileTime) {
+  protected Instance<String, String, Sym, Fk, Att, String, String, String, String> eval0(
+      AqlEnv env, boolean isCompileTime) {
     var schema = new SchExpMsError(dom, jdbcString, ty);
 
     List<Pair<LocStr, String>> l = new LinkedList<>();
-    String s = """
+    String s =
+        """
         SELECT message_id, severity, text,
                 logged = CASE is_event_logged WHEN 0 THEN 'false' ELSE 'true' END
                 FROM sys.messages
                 WHERE language_id = 1033
                 ORDER BY message_id""";
- 
-    l.add(new Pair<>(new LocStr(0,"Error"), s));
+
+    l.add(new Pair<>(new LocStr(0, "Error"), s));
     List<Pair<String, String>> map = new LinkedList<>();
     map.add(new Pair<>(AqlOption.import_col_seperator.toString(), ""));
-    
-//    map.add(new Pair<>(AqlOption.prepend_entity_on_ids.toString(), "false"));
+
+    //    map.add(new Pair<>(AqlOption.prepend_entity_on_ids.toString(), "false"));
     map.add(new Pair<>(AqlOption.id_column_name.toString(), "message_id"));
 
     return new InstExpJdbc(new TyExpSch(schema), map, jdbcString, l).eval(env, isCompileTime);
@@ -124,5 +114,4 @@ public class InstExpMsError extends InstExp<String, String, String, String> {
   public String toString() {
     return "ms_error " + dom + " " + ty + " " + jdbcString;
   }
-
 }

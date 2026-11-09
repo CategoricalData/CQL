@@ -1,5 +1,7 @@
 package catdata.graph;
 
+import catdata.Util;
+import gnu.trove.map.hash.THashMap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -7,9 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Stack;
-
-import catdata.Util;
-import gnu.trove.map.hash.THashMap;
 
 /* Dijkstra's algorith a la Sedgewick and Wayne
  */
@@ -61,31 +60,21 @@ class ShortestPath<N, E> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       DirectedEdge<?, ?> other = (DirectedEdge<?, ?>) obj;
       if (e == null) {
-        if (other.e != null)
-          return false;
-      } else if (!e.equals(other.e))
-        return false;
+        if (other.e != null) return false;
+      } else if (!e.equals(other.e)) return false;
       if (from == null) {
-        if (other.from != null)
-          return false;
-      } else if (!from.equals(other.from))
-        return false;
+        if (other.from != null) return false;
+      } else if (!from.equals(other.from)) return false;
       if (to == null) {
-        if (other.to != null)
-          return false;
-      } else if (!to.equals(other.to))
-        return false;
+        if (other.to != null) return false;
+      } else if (!to.equals(other.to)) return false;
       return true;
     }
-
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,17 +250,15 @@ class ShortestPath<N, E> {
     private final int[] qp; // inverse of pq - qp[pq[i]] = pq[qp[i]] = i
     private final Key[] keys; // keys[i] = priority of i
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({"unchecked"})
     private IndexMinPQ(int maxN) {
-      if (maxN < 0)
-        throw new IllegalArgumentException();
+      if (maxN < 0) throw new IllegalArgumentException();
       this.maxN = maxN;
       n = 0;
       keys = (Key[]) new Comparable[maxN + 1]; // make this of length maxN??
       pq = new int[maxN + 1];
       qp = new int[maxN + 1]; // make this of length maxN??
-      for (int i = 0; i <= maxN; i++)
-        qp[i] = -1;
+      for (int i = 0; i <= maxN; i++) qp[i] = -1;
     }
 
     public boolean isEmpty() {
@@ -279,8 +266,7 @@ class ShortestPath<N, E> {
     }
 
     public boolean contains(int i) {
-      if (i < 0 || i >= maxN)
-        throw new IndexOutOfBoundsException();
+      if (i < 0 || i >= maxN) throw new IndexOutOfBoundsException();
       return qp[i] != -1;
     }
 
@@ -289,10 +275,8 @@ class ShortestPath<N, E> {
     // }
 
     public void insert(int i, Key key) {
-      if (i < 0 || i >= maxN)
-        throw new IndexOutOfBoundsException();
-      if (contains(i))
-        throw new IllegalArgumentException("index is already in the priority queue");
+      if (i < 0 || i >= maxN) throw new IndexOutOfBoundsException();
+      if (contains(i)) throw new IllegalArgumentException("index is already in the priority queue");
       n++;
       qp[i] = n;
       pq[n] = i;
@@ -303,14 +287,13 @@ class ShortestPath<N, E> {
     /*
      * public int minIndex() { if (n == 0) throw new
      * NoSuchElementException("Priority queue underflow"); return pq[1]; }
-     * 
+     *
      * public Key minKey() { if (n == 0) throw new
      * NoSuchElementException("Priority queue underflow"); return keys[pq[1]]; }
      */
 
     public int delMin() {
-      if (n == 0)
-        throw new NoSuchElementException("Priority queue underflow");
+      if (n == 0) throw new NoSuchElementException("Priority queue underflow");
       int min = pq[1];
       exch(1, n--);
       sink(1);
@@ -320,6 +303,7 @@ class ShortestPath<N, E> {
       pq[n + 1] = -1; // not needed
       return min;
     }
+
     /*
      * public Key keyOf(int i) { if (i < 0 || i >= maxN) throw new
      * IndexOutOfBoundsException(); if (!contains(i)) throw new
@@ -339,10 +323,8 @@ class ShortestPath<N, E> {
      */
 
     public void decreaseKey(int i, Key key) {
-      if (i < 0 || i >= maxN)
-        throw new IndexOutOfBoundsException();
-      if (!contains(i))
-        throw new NoSuchElementException("index is not in the priority queue");
+      if (i < 0 || i >= maxN) throw new IndexOutOfBoundsException();
+      if (!contains(i)) throw new NoSuchElementException("index is not in the priority queue");
       if (keys[i].compareTo(key) <= 0)
         throw new IllegalArgumentException(
             "Calling decreaseKey() with given argument would not strictly decrease the key");
@@ -357,7 +339,7 @@ class ShortestPath<N, E> {
      * (keys[i].compareTo(key) >= 0) throw new
      * IllegalArgumentException("Calling increaseKey() with given argument would not strictly increase the key"
      * ); keys[i] = key; sink(qp[i]); }
-     * 
+     *
      * public void delete(int i) { if (i < 0 || i >= maxN) throw new
      * IndexOutOfBoundsException(); if (!contains(i)) throw new
      * NoSuchElementException("index is not in the priority queue"); int index =
@@ -387,10 +369,8 @@ class ShortestPath<N, E> {
     private void sink(int k) {
       while (2 * k <= n) {
         int j = 2 * k;
-        if (j < n && greater(j, j + 1))
-          j++;
-        if (!greater(k, j))
-          break;
+        if (j < n && greater(j, j + 1)) j++;
+        if (!greater(k, j)) break;
         exch(k, j);
         k = j;
       }
@@ -409,8 +389,7 @@ class ShortestPath<N, E> {
       // takes linear time since already in heap order so no keys move
       private HeapIterator() {
         copy = new IndexMinPQ<>(pq.length - 1);
-        for (int i = 1; i <= n; i++)
-          copy.insert(pq[i], keys[pq[i]]);
+        for (int i = 1; i <= n; i++) copy.insert(pq[i], keys[pq[i]]);
       }
 
       @Override
@@ -425,11 +404,9 @@ class ShortestPath<N, E> {
 
       @Override
       public Integer next() {
-        if (!hasNext())
-          throw new NoSuchElementException();
+        if (!hasNext()) throw new NoSuchElementException();
         return copy.delMin();
       }
     }
-
   }
 }

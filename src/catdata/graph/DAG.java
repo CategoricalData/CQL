@@ -1,5 +1,6 @@
 package catdata.graph;
 
+import catdata.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,8 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import catdata.Util;
 
 /********************************************************************************
  * Copyright (c) 2006 IBM Corporation and others. All rights reserved. This
@@ -33,26 +32,19 @@ public final class DAG<N> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       MultiMap<?, ?> other = (MultiMap<?, ?>) obj;
       if (fMap == null) {
-        if (other.fMap != null)
-          return false;
-      } else if (!fMap.equals(other.fMap))
-        return false;
+        if (other.fMap != null) return false;
+      } else if (!fMap.equals(other.fMap)) return false;
       return true;
     }
 
     private final Map<K, Set<V>> fMap = new LinkedHashMap<>();
 
-    private MultiMap() {
-
-    }
+    private MultiMap() {}
 
     private MultiMap(MultiMap<K, V> x) {
       for (K k : x.keySet()) {
@@ -63,7 +55,7 @@ public final class DAG<N> {
     /**
      * Adds <code>val to the values mapped to by key. If <code>val is null, key is
      * added to the key set of the multimap.
-     * 
+     *
      * @param key the key
      * @param val the value
      */
@@ -77,7 +69,7 @@ public final class DAG<N> {
     /**
      * Returns all mappings for the given key, an empty set if there are no
      * mappings.
-     * 
+     *
      * @param key the key
      * @return the mappings for <code>key
      */
@@ -92,7 +84,7 @@ public final class DAG<N> {
 
     /**
      * Removes all mappings for <code>key and removes key from the key set.
-     * 
+     *
      * @param key the key to remove
      * @return the removed mappings
      */
@@ -104,7 +96,7 @@ public final class DAG<N> {
     /**
      * Removes a mapping from the multimap, but does not remove the <code>key from
      * the key set.
-     * 
+     *
      * @param key the key
      * @param val the value
      */
@@ -127,7 +119,7 @@ public final class DAG<N> {
    * Adds a directed edge from <code>origin to target. The vertices are not
    * required to exist prior to this call - if they are not currently contained by
    * the graph, they are automatically added.
-   * 
+   *
    * @param origin the origin vertex of the dependency
    * @param target the target vertex of the dependency
    * @return <code>true if the edge was added, false if the edge was not added
@@ -153,10 +145,9 @@ public final class DAG<N> {
   }
 
   /**
-   * Adds a vertex to the graph. If the vertex does not exist prior to this call,
-   * it is added with no incoming or outgoing edges. Nothing happens if the vertex
-   * already exists.
-   * 
+   * Adds a vertex to the graph. If the vertex does not exist prior to this call, it is added with
+   * no incoming or outgoing edges. Nothing happens if the vertex already exists.
+   *
    * @param vertex the new vertex
    */
   public void addVertex(N vertex) {
@@ -188,10 +179,9 @@ public final class DAG<N> {
   }
 
   /**
-   * Returns the sources of the receiver. A source is a vertex with no incoming
-   * edges. The returned set's iterator traverses the nodes in the order they were
-   * added to the graph.
-   * 
+   * Returns the sources of the receiver. A source is a vertex with no incoming edges. The returned
+   * set's iterator traverses the nodes in the order they were added to the graph.
+   *
    * @return the sources of the receiver
    */
   Set<N> getSources() {
@@ -199,10 +189,9 @@ public final class DAG<N> {
   }
 
   /**
-   * Returns the sinks of the receiver. A sink is a vertex with no outgoing edges.
-   * The returned set's iterator traverses the nodes in the order they were added
-   * to the graph.
-   * 
+   * Returns the sinks of the receiver. A sink is a vertex with no outgoing edges. The returned
+   * set's iterator traverses the nodes in the order they were added to the graph.
+   *
    * @return the sinks of the receiver
    */
   public Set<N> getSinks() {
@@ -223,7 +212,7 @@ public final class DAG<N> {
   /**
    * Returns the direct children of a vertex. The returned {@link Set} is
    * unmodifiable.
-   * 
+   *
    * @param vertex the parent vertex
    * @return the direct children of <code>vertex
    */
@@ -231,12 +220,12 @@ public final class DAG<N> {
     return fOut.get(vertex);
   }
 
-//  Map<Pair<N,N>,Boolean> cache = new HashMap<>();
+  //  Map<Pair<N,N>,Boolean> cache = new HashMap<>();
   public boolean hasPath(N start, N end) {
     if (start.equals(end)) {
       return true;
     }
-  
+
     // Pair<N,N> p = new Pair<>(start, end);
     // Boolean b = cache.get(p);
     // if (b != null) {
@@ -270,12 +259,9 @@ public final class DAG<N> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     @SuppressWarnings("unchecked")
     DAG<N> other = (DAG<N>) obj;
     if (!other.vertices().equals(vertices())) {
@@ -320,5 +306,4 @@ public final class DAG<N> {
 
     return ret;
   }
-
 }

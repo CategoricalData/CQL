@@ -4,9 +4,10 @@ public class Ref<X> {
 
   public volatile X x;
 
-  private volatile int var; // needed to make sure refs don't compare to equal just because their referents
-                // are equal. could have not used value eauality, but var aso useful for
-                // printing
+  private volatile int
+      var; // needed to make sure refs don't compare to equal just because their referents
+  // are equal. could have not used value eauality, but var aso useful for
+  // printing
 
   private static int count = 0;
 
@@ -66,21 +67,14 @@ public class Ref<X> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Ref<?> other = (Ref<?>) obj;
-    if (var != other.var)
-      return false;
+    if (var != other.var) return false;
     if (x == null) {
-      if (other.x != null)
-        return false;
-    } else if (!x.equals(other.x))
-      return false;
+      if (other.x != null) return false;
+    } else if (!x.equals(other.x)) return false;
     return true;
   }
-
 }

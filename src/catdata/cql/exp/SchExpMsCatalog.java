@@ -1,16 +1,15 @@
 package catdata.cql.exp;
 
+import catdata.Pair;
+import catdata.Program;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
+import catdata.cql.Schema;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.Pair;
-import catdata.Program;
-import catdata.cql.Kind;
-import catdata.cql.Schema;
-import catdata.cql.AqlOptions.AqlOption;
 
 public final class SchExpMsCatalog extends SchExp {
 
@@ -27,7 +26,8 @@ public final class SchExpMsCatalog extends SchExp {
   }
 
   @Override
-  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitSchExpMsCatalog(params, r);
   }
 
@@ -58,23 +58,16 @@ public final class SchExpMsCatalog extends SchExp {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     SchExpMsCatalog other = (SchExpMsCatalog) obj;
     if (dom == null) {
-      if (other.dom != null)
-        return false;
-    } else if (!dom.equals(other.dom))
-      return false;
+      if (other.dom != null) return false;
+    } else if (!dom.equals(other.dom)) return false;
     if (ty == null) {
-      if (other.ty != null)
-        return false;
-    } else if (!ty.equals(other.ty))
-      return false;
+      if (other.ty != null) return false;
+    } else if (!ty.equals(other.ty)) return false;
     return true;
   }
 
@@ -95,8 +88,7 @@ public final class SchExpMsCatalog extends SchExp {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public void mapSubExps(Consumer<Exp<?>> f) {

@@ -1,5 +1,9 @@
 package catdata.provers;
 
+import catdata.Pair;
+import catdata.Triple;
+import catdata.Util;
+import gnu.trove.set.hash.THashSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -7,13 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.collections4.list.TreeList;
-
-import catdata.Pair;
-import catdata.Triple;
-import catdata.Util;
-import gnu.trove.set.hash.THashSet;
 
 /*Loosen requirement for program in MVP that are of form
 
@@ -21,7 +19,7 @@ l -> r
 
 in worst case, must try all combinations of orientations, but maybe can do better.
 */
-//TODO aql merge constants and functions in typeside
+// TODO aql merge constants and functions in typeside
 public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 
   private final Iterator<V> fresh;
@@ -37,19 +35,22 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
     }
 
     inhabGen(groundInhabited);
-
   }
 
   // TODO: aql find some way to cache the fact that something has been proved to
   // be a program
-  public static <T, C, V> boolean isProgram(Iterator<V> fresh, KBTheory<T, C, V> theory, boolean throwerror) {
+  public static <T, C, V> boolean isProgram(
+      Iterator<V> fresh, KBTheory<T, C, V> theory, boolean throwerror) {
     for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : theory.eqs) {
       List<V> vars = new TreeList<>();
       eq.second.vars(vars);
       if (vars.size() != eq.second.getVars().size()) {
         if (throwerror) {
           throw new RuntimeException(
-              "Not left linear (cotains duplicated variable on lhs): " + eq.second + " = " + eq.third);
+              "Not left linear (cotains duplicated variable on lhs): "
+                  + eq.second
+                  + " = "
+                  + eq.third);
         }
         return false;
       }
@@ -65,19 +66,29 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
 
         // Pair<KBExp<C, V>, KBExp<C, V>> ab = LPOUKB.freshen(fresh, new
         // Pair<>(ab0.second, ab0.third));
-        Pair<KBExp<C, V>, KBExp<C, V>> gd = LPOUKB.freshen(theory, fresh, new Pair<>(gd0.second, gd0.third));
+        Pair<KBExp<C, V>, KBExp<C, V>> gd =
+            LPOUKB.freshen(theory, fresh, new Pair<>(gd0.second, gd0.third));
 
-        Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, KBExp<C, V>>>> cps = gd.first.cp((new LinkedList<>()),
-            ab0.second, ab0.third, gd.first, gd.second);
+        Set<Triple<KBExp<C, V>, KBExp<C, V>, Map<V, KBExp<C, V>>>> cps =
+            gd.first.cp((new LinkedList<>()), ab0.second, ab0.third, gd.first, gd.second);
         for (Triple<KBExp<C, V>, KBExp<C, V>, Map<V, KBExp<C, V>>> cp : cps) {
           if (!cp.first.equals(cp.second)) {
             if (throwerror) {
-              throw new RuntimeException("Is not a program: equation " + ab0.second + " = " + ab0.third
-                  + " overlaps with " + gd0.second + " = " + gd0.third + ", the critical pair is "
-                  + cp.first + " and " + cp.second);
+              throw new RuntimeException(
+                  "Is not a program: equation "
+                      + ab0.second
+                      + " = "
+                      + ab0.third
+                      + " overlaps with "
+                      + gd0.second
+                      + " = "
+                      + gd0.third
+                      + ", the critical pair is "
+                      + cp.first
+                      + " and "
+                      + cp.second);
             }
             return false;
-
           }
         }
       }
@@ -113,18 +124,17 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
     }
     KBExp<C, V> ret = kb.factory.KBApp(ee.f(), args0);
     return step1(ret, ctx);
-
   }
 
   private void inhabGen(Set<T> inhabited) {
     while (inhabGen1(inhabited))
       ;
-
   }
 
   private boolean inhabGen1(Set<T> ret) {
     boolean changed = false;
-    outer: for (C c : kb.syms.keySet()) {
+    outer:
+    for (C c : kb.syms.keySet()) {
       for (T t : kb.syms.get(c).first) {
         if (!ret.contains(t)) {
           continue outer;
@@ -150,7 +160,7 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
       if (s == null) {
         continue;
       }
-      //System.out.println("s " + s + " applies " + applies(r0.first, s, g) + " g " + g);
+      // System.out.println("s " + s + " applies " + applies(r0.first, s, g) + " g " + g);
       if (!applies(s, r0.first, ctx)) {
         continue;
       }
@@ -160,7 +170,8 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
     return e;
   }
 
-  private synchronized boolean applies(Map<V, KBExp<C, V>> subst, Map<V, T> ruleCtx, Map<V, T> ctx) {
+  private synchronized boolean applies(
+      Map<V, KBExp<C, V>> subst, Map<V, T> ruleCtx, Map<V, T> ctx) {
     Map<V, T> unionCtx = Util.mk();
     unionCtx.putAll(ruleCtx);
     unionCtx.putAll(ctx);
@@ -198,5 +209,4 @@ public class ProgramProver<T, C, V> extends DPKB<T, C, V> {
   public boolean supportsTrivialityCheck() {
     return true;
   }
-
 }

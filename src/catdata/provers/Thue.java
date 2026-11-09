@@ -1,5 +1,11 @@
 package catdata.provers;
 
+import catdata.Pair;
+import catdata.Quad;
+import catdata.Util;
+import catdata.cql.ConsList;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,31 +15,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.collections4.iterators.IteratorIterable;
 import org.apache.commons.collections4.list.TreeList;
 
-import catdata.Pair;
-import catdata.Quad;
-import catdata.Util;
-import catdata.cql.ConsList;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
 /**
  * @author Ryan Wisnesky
- * 
- *         Implementation of a Knuth-Bendix variant for Thue systems (monoid
- *         presentations), following the Kapur and Narendran 1985 paper.
- * 
- *         Note: In this variant of Knuth-Bendix, two terms can be equal without
- *         having the same normal form. Therefore, clients MUST use equiv
- *         instead of normalize followed by equals. is provided for client
- *         convenience.
- * 
- *         Note: The constructor mutates the input words IN PLACE.
- * 
+ *     <p>Implementation of a Knuth-Bendix variant for Thue systems (monoid presentations),
+ *     following the Kapur and Narendran 1985 paper.
+ *     <p>Note: In this variant of Knuth-Bendix, two terms can be equal without having the same
+ *     normal form. Therefore, clients MUST use equiv instead of normalize followed by equals. is
+ *     provided for client convenience.
+ *     <p>Note: The constructor mutates the input words IN PLACE.
  * @param <Y> the alphabet
  */
 public class Thue<X> {
@@ -46,8 +39,8 @@ public class Thue<X> {
 
     private final Map<X, Set<Pair<ConsList<X>, ConsList<X>>>> index;
 
-//    private final Map<ConsList<X>, ConsList<X>> nf_cache = new Map<>();
-//    private final Map<ConsList<X>, Set<ConsList<X>>> c_cache = new Map<>();
+    //    private final Map<ConsList<X>, ConsList<X>> nf_cache = new Map<>();
+    //    private final Map<ConsList<X>, Set<ConsList<X>>> c_cache = new Map<>();
 
     public Iterable<Pair<ConsList<X>, ConsList<X>>> rules(X y) {
       IteratorChain<Pair<ConsList<X>, ConsList<X>>> chain = new IteratorChain<>();
@@ -82,7 +75,6 @@ public class Thue<X> {
       for (Pair<List<X>, List<X>> x : rules) {
         add(ConsList.new0(x.first, false), ConsList.new0(x.second, false));
       }
-
     }
 
     public void add(ConsList<X> x, ConsList<X> y) {
@@ -121,7 +113,8 @@ public class Thue<X> {
     }
 
     public synchronized void simplify() {
-      Set<Pair<ConsList<X>, ConsList<X>>> unmarked = new THashSet<>(rs.size() + es1.size() + es2.size());
+      Set<Pair<ConsList<X>, ConsList<X>>> unmarked =
+          new THashSet<>(rs.size() + es1.size() + es2.size());
       for (Pair<ConsList<X>, ConsList<X>> rule : allRules()) {
         unmarked.add(rule);
       }
@@ -219,7 +212,12 @@ public class Thue<X> {
       return rs.keySet();
     }
 
-    private boolean close1_h(Set<ConsList<X>> ret, ConsList<X> e, int i, ConsList<X> rule1, ConsList<X> rule2,
+    private boolean close1_h(
+        Set<ConsList<X>> ret,
+        ConsList<X> e,
+        int i,
+        ConsList<X> rule1,
+        ConsList<X> rule2,
         ConsList<X> f0) {
       List<X> test = e.list.subList(i, i + rule1.size());
 
@@ -234,7 +232,6 @@ public class Thue<X> {
       ret.add(ll);
 
       return f0.equals(ll);
-
     }
 
     // TODO aql bottleneck
@@ -288,15 +285,18 @@ public class Thue<X> {
           return init.contains(f0);
         }
         init.addAll(next.get());
-
       }
-
     }
 
-    private synchronized void addCP1(ConsList<X> li, ConsList<X> ri, ConsList<X> lj, ConsList<X> rj,
+    private synchronized void addCP1(
+        ConsList<X> li,
+        ConsList<X> ri,
+        ConsList<X> lj,
+        ConsList<X> rj,
         Set<Pair<ConsList<X>, ConsList<X>>> ret) {
       Iterator<Pair<List<X>, List<X>>> uvIt = split(li);
-      outer: while (uvIt.hasNext()) {
+      outer:
+      while (uvIt.hasNext()) {
         Pair<List<X>, List<X>> uv = uvIt.next();
         List<X> u = uv.first;
         List<X> v = uv.second;
@@ -322,9 +322,14 @@ public class Thue<X> {
       }
     }
 
-    private synchronized void addCP2(ConsList<X> li, ConsList<X> ri, ConsList<X> lj, ConsList<X> rj,
+    private synchronized void addCP2(
+        ConsList<X> li,
+        ConsList<X> ri,
+        ConsList<X> lj,
+        ConsList<X> rj,
         Set<Pair<ConsList<X>, ConsList<X>>> ret) {
-      outer: for (int i = 0; i < li.size(); i++) {
+      outer:
+      for (int i = 0; i < li.size(); i++) {
         if (lj.size() > li.size() - i) {
           return;
         }
@@ -346,9 +351,11 @@ public class Thue<X> {
     }
 
     private synchronized void normalize() {
-      Set<Pair<ConsList<X>, ConsList<X>>> marked = new THashSet<>(rs.size() + es1.size() + es2.size()); // size()
-                                                        // * 4
-      Set<Pair<ConsList<X>, ConsList<X>>> unmarked = new THashSet<>(rs.size() + es1.size() + es2.size());
+      Set<Pair<ConsList<X>, ConsList<X>>> marked =
+          new THashSet<>(rs.size() + es1.size() + es2.size()); // size()
+      // * 4
+      Set<Pair<ConsList<X>, ConsList<X>>> unmarked =
+          new THashSet<>(rs.size() + es1.size() + es2.size());
       for (Pair<ConsList<X>, ConsList<X>> rule : allRules()) {
         unmarked.add(rule);
       }
@@ -441,10 +448,11 @@ public class Thue<X> {
       }
 
       return close(e0, f0);
-
     }
 
-    private synchronized void cp_h(Set<Pair<ConsList<X>, ConsList<X>>> ret, Pair<ConsList<X>, ConsList<X>> rule1,
+    private synchronized void cp_h(
+        Set<Pair<ConsList<X>, ConsList<X>>> ret,
+        Pair<ConsList<X>, ConsList<X>> rule1,
         Pair<ConsList<X>, ConsList<X>> rule2) {
 
       List<Quad<ConsList<X>, ConsList<X>, ConsList<X>, ConsList<X>>> todo = new ArrayList<>(5);
@@ -463,7 +471,6 @@ public class Thue<X> {
         addCP1(rule.first, rule.second, rule.third, rule.fourth, ret);
         addCP2(rule.first, rule.second, rule.third, rule.fourth, ret);
       }
-
     }
 
     private synchronized Set<Pair<ConsList<X>, ConsList<X>>> cp() {
@@ -473,7 +480,8 @@ public class Thue<X> {
       for (Pair<ConsList<X>, ConsList<X>> rule1 : allRules()) {
         for (X x : rule1.first.list) {
           for (Pair<ConsList<X>, ConsList<X>> rule2 : index.get(x)) {
-            if (rule1.first.size() == rule1.second.size() && rule2.first.size() == rule2.second.size()) {
+            if (rule1.first.size() == rule1.second.size()
+                && rule2.first.size() == rule2.second.size()) {
               continue;
             }
             cp_h(ret, rule1, rule2);
@@ -481,7 +489,8 @@ public class Thue<X> {
         }
         for (X x : rule1.second.list) {
           for (Pair<ConsList<X>, ConsList<X>> rule2 : index.get(x)) {
-            if (rule1.first.size() == rule1.second.size() && rule2.first.size() == rule2.second.size()) {
+            if (rule1.first.size() == rule1.second.size()
+                && rule2.first.size() == rule2.second.size()) {
               continue;
             }
             cp_h(ret, rule1, rule2);
@@ -504,7 +513,6 @@ public class Thue<X> {
         i += x.size();
       }
       return i;
-
     }
 
     public synchronized void add(X x) {
@@ -520,12 +528,11 @@ public class Thue<X> {
   // private boolean finished = false;
   // private final Map<Pair<ConsList<X>, ConsList<X>>, Boolean> equivs =
   // (new HashMap<>());
-//  private final int max_iterations;
+  //  private final int max_iterations;
   // private int iteration = 0;
 
   /**
-   * @param rules          to be completed. DOES NOT copy, and MUTATES IN PLACE
-   *                       the pairs inside of rules
+   * @param rules to be completed. DOES NOT copy, and MUTATES IN PLACE the pairs inside of rules
    * @param max_iterations to run (-1 for infinity)
    */
   public Thue(List<Pair<List<X>, List<X>>> rules, Collection<X> xs) {
@@ -542,7 +549,7 @@ public class Thue<X> {
     /*
      * if (!a.equals(b)) { System.out.println(Util.sep(a, "\n"));
      * System.out.println("----"); System.out.println(Util.sep(b, "\n"));
-     * 
+     *
      * Util.anomaly(); }
      */
 
@@ -554,7 +561,7 @@ public class Thue<X> {
 
     while (!step())
       ;
-//    finished = true;
+    //    finished = true;
   }
 
   public synchronized boolean equiv0(List<X> a, List<X> b) {
@@ -582,12 +589,12 @@ public class Thue<X> {
     // System.out.println(slow.toString());
     // System.out.print("+++++");
     // System.out.println(toString());
-//    slow.step(slow.rules);
+    //    slow.step(slow.rules);
     // if (i > 8) {
     // Util.anomaly();
     // }
 
-//    check_oriented(rules.allRules());
+    //    check_oriented(rules.allRules());
     rules.normalize();
     Collection<Pair<ConsList<X>, ConsList<X>>> ce = rules.cp();
     // System.out.println("+++++");
@@ -620,9 +627,7 @@ public class Thue<X> {
         i++;
         return ret;
       }
-
     };
-
   }
 
   @Override
@@ -633,14 +638,18 @@ public class Thue<X> {
       if (rules.rs.get(xx).isEmpty()) {
         continue;
       }
-      List<String> ret = rules.rs.get(xx).stream().map(x -> {
-        String s1 = Util.sep(x.first.list, ".");
-        String s2 = Util.sep(x.second.list, ".");
-        if (x.first.size() == x.second.size()) {
-          return Util.anomaly();
-        }
-        return s1 + " -> " + s2;
-      }).collect(Collectors.toList());
+      List<String> ret =
+          rules.rs.get(xx).stream()
+              .map(
+                  x -> {
+                    String s1 = Util.sep(x.first.list, ".");
+                    String s2 = Util.sep(x.second.list, ".");
+                    if (x.first.size() == x.second.size()) {
+                      return Util.anomaly();
+                    }
+                    return s1 + " -> " + s2;
+                  })
+              .collect(Collectors.toList());
       z += Util.sep(ret, "\n") + "\n";
     }
 
@@ -648,14 +657,18 @@ public class Thue<X> {
       if (rules.es1.get(xx).isEmpty()) {
         continue;
       }
-      List<String> ret = rules.es1.get(xx).stream().map(x -> {
-        String s1 = Util.sep(x.first.list, ".");
-        String s2 = Util.sep(x.second.list, ".");
-        if (x.first.size() == x.second.size()) {
-          return s1 + " = " + s2;
-        }
-        return Util.anomaly();
-      }).collect(Collectors.toList());
+      List<String> ret =
+          rules.es1.get(xx).stream()
+              .map(
+                  x -> {
+                    String s1 = Util.sep(x.first.list, ".");
+                    String s2 = Util.sep(x.second.list, ".");
+                    if (x.first.size() == x.second.size()) {
+                      return s1 + " = " + s2;
+                    }
+                    return Util.anomaly();
+                  })
+              .collect(Collectors.toList());
       z += Util.sep(ret, "\n") + "\n";
     }
 
@@ -663,18 +676,21 @@ public class Thue<X> {
       if (rules.es2.get(xx).isEmpty()) {
         continue;
       }
-      List<String> ret = rules.es2.get(xx).stream().map(x -> {
-        String s1 = Util.sep(x.first.list, ".");
-        String s2 = Util.sep(x.second.list, ".");
-        if (x.first.size() == x.second.size()) {
-          return s1 + " = " + s2;
-        }
-        return Util.anomaly();
-      }).collect(Collectors.toList());
+      List<String> ret =
+          rules.es2.get(xx).stream()
+              .map(
+                  x -> {
+                    String s1 = Util.sep(x.first.list, ".");
+                    String s2 = Util.sep(x.second.list, ".");
+                    if (x.first.size() == x.second.size()) {
+                      return s1 + " = " + s2;
+                    }
+                    return Util.anomaly();
+                  })
+              .collect(Collectors.toList());
       z += Util.sep(ret, "\n") + "\n";
     }
 
     return z;
   }
-
 }
