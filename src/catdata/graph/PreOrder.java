@@ -1,5 +1,10 @@
 package catdata.graph;
 
+import catdata.Pair;
+import catdata.Util;
+import com.google.common.collect.Iterators;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -8,15 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.iterators.IteratorIterable;
-
-import com.google.common.collect.Iterators;
-
-import catdata.Pair;
-import catdata.Util;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
 
 public class PreOrder<X> {
 
@@ -36,7 +33,9 @@ public class PreOrder<X> {
 
   private static <X> PreOrder<X> convert(List<X> xs, PreOrder<Integer> p) {
     return new PreOrder<>(
-        p.g.stream().map(z -> new Pair<>(xs.get(z.first), xs.get(z.second))).collect(Collectors.toList()));
+        p.g.stream()
+            .map(z -> new Pair<>(xs.get(z.first), xs.get(z.second)))
+            .collect(Collectors.toList()));
   }
 
   private static Collection<Integer> allUpTo(int n) {
@@ -77,25 +76,25 @@ public class PreOrder<X> {
     }
     return ret;
   }
+
   /*
    * public static <X> Set<PreOrder<X>> allTotal(Collection<X> xs) { List<Pair<X,
    * X>> dom = new LinkedList<>(); List<Boolean> cod = new LinkedList<>();
    * cod.add(true); cod.add(false);
-   * 
+   *
    * for (X x : xs) { for (X y : xs) { if (x.equals(y)) { continue; } dom.add(new
    * Pair<>(x, y)); } }
-   * 
+   *
    * Set<PreOrder<X>> ret = new HashSet<>(); List<LinkedHashMap<Pair<X,X>,
    * Boolean>> cands = FinSet.homomorphs(dom, cod); for (Map<Pair<X, X>, Boolean>
    * cand : cands) { PreOrder<X> p = new PreOrder<>(); for (Pair<X,X> pair :
    * cand.keySet()) { if (cand.get(pair)) { p.add(pair.first, pair.second); } else
    * { p.add(pair.second, pair.first); } } ret.add(p); }
-   * 
+   *
    * return ret; }
    */
 
-  private PreOrder() {
-  }
+  private PreOrder() {}
 
   private PreOrder(Collection<Pair<X, X>> p) {
     g.addAll(p);
@@ -149,18 +148,13 @@ public class PreOrder<X> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     PreOrder<?> other = (PreOrder<?>) obj;
     if (g == null) {
-      if (other.g != null)
-        return false;
-    } else if (!g.equals(other.g))
-      return false;
+      if (other.g != null) return false;
+    } else if (!g.equals(other.g)) return false;
     return true;
   }
 
@@ -168,5 +162,4 @@ public class PreOrder<X> {
   public String toString() {
     return "PreOrder [g=" + g + "]";
   }
-
 }

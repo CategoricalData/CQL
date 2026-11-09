@@ -1,17 +1,16 @@
 package catdata.cql.exp;
 
+import catdata.Pair;
+import catdata.Unit;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
+import catdata.cql.SqlTypeSide2;
+import catdata.cql.TypeSide;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.Pair;
-import catdata.Unit;
-import catdata.cql.Kind;
-import catdata.cql.SqlTypeSide2;
-import catdata.cql.TypeSide;
-import catdata.cql.AqlOptions.AqlOption;
 
 public final class TyExpSqlNull extends TyExp {
 
@@ -22,7 +21,8 @@ public final class TyExpSqlNull extends TyExp {
   }
 
   @Override
-  public <R, P, E extends Exception> TyExp coaccept(P params, TyExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> TyExp coaccept(P params, TyExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitTyExpSql(params, r);
   }
 
@@ -37,9 +37,7 @@ public final class TyExpSqlNull extends TyExp {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public Map<String, String> options() {
@@ -66,18 +64,13 @@ public final class TyExpSqlNull extends TyExp {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     TyExpSqlNull other = (TyExpSqlNull) obj;
     if (parent == null) {
-      if (other.parent != null)
-        return false;
-    } else if (!parent.equals(other.parent))
-      return false;
+      if (other.parent != null) return false;
+    } else if (!parent.equals(other.parent)) return false;
     return true;
   }
 
@@ -91,5 +84,4 @@ public final class TyExpSqlNull extends TyExp {
     f.accept(parent);
     parent.mapSubExps(f);
   }
-
 }

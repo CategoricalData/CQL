@@ -1,21 +1,5 @@
 package catdata.cql.exp;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import catdata.Pair;
 import catdata.Triple;
 import catdata.Util;
@@ -24,6 +8,19 @@ import catdata.cql.Term;
 import catdata.cql.exp.EdsExpRaw.EdExpRaw;
 import catdata.cql.exp.SchExp.SchExpVar;
 import catdata.cql.exp.TyExp.TyExpVar;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class EasikAql {
 
@@ -35,10 +32,18 @@ public class EasikAql {
   }
 
   public static String aqlToEasik(AqlEnv in, String title, Set<String> warnings) {
-    String pre = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" + "\n<easketch_overview>"
-        + "\n<header>" + "\n<title>" + title + "</title>" + "\n<author>Translated from CQL</author>"
-        + "\n<description></description>" + "\n<creationDate></creationDate>"
-        + "\n<lastModificationDate></lastModificationDate>" + "\n</header><sketches>";
+    String pre =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
+            + "\n<easketch_overview>"
+            + "\n<header>"
+            + "\n<title>"
+            + title
+            + "</title>"
+            + "\n<author>Translated from CQL</author>"
+            + "\n<description></description>"
+            + "\n<creationDate></creationDate>"
+            + "\n<lastModificationDate></lastModificationDate>"
+            + "\n</header><sketches>";
 
     String post = "\n</sketches><views/>" + "\n</easketch_overview>";
 
@@ -63,11 +68,29 @@ public class EasikAql {
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   @SuppressWarnings("hiding")
-  private static <Ty, En, Sym, Fk, Att> String aqlToEasik(String name, Schema<Ty, En, Sym, Fk, Att> schema, int x,
-      int y, int len, Set<String> warnings) {
-    String pre = "\n<easketch cascade=\"cascade\" name=\"" + name + "\" partial-cascade=\"set_null\" x=\"" + x
-        + "\" y=\"" + y + "\">" + "\n<header>" + "\n<title>" + name + "</title>" + "\n<description/>"
-        + "\n<creationDate></creationDate>" + "\n<lastModificationDate></lastModificationDate>" + "\n</header>";
+  private static <Ty, En, Sym, Fk, Att> String aqlToEasik(
+      String name,
+      Schema<Ty, En, Sym, Fk, Att> schema,
+      int x,
+      int y,
+      int len,
+      Set<String> warnings) {
+    String pre =
+        "\n<easketch cascade=\"cascade\" name=\""
+            + name
+            + "\" partial-cascade=\"set_null\" x=\""
+            + x
+            + "\" y=\""
+            + y
+            + "\">"
+            + "\n<header>"
+            + "\n<title>"
+            + name
+            + "</title>"
+            + "\n<description/>"
+            + "\n<creationDate></creationDate>"
+            + "\n<lastModificationDate></lastModificationDate>"
+            + "\n</header>";
 
     String str = "";
 
@@ -80,8 +103,12 @@ public class EasikAql {
     for (En en : schema.ens) {
       str += "\n<entity name=\"" + en.toString() + "\" x=\"" + x0 + "\" y=\"" + y0 + "\">";
       for (Att att : schema.attsFrom(en)) {
-        str += "\n<attribute attributeTypeClass=\"" + aqlTypeToString(schema, schema.atts.get(att).second)
-            + "\" name=\"" + removePrefix(en.toString(), att.toString()) + "\" />";
+        str +=
+            "\n<attribute attributeTypeClass=\""
+                + aqlTypeToString(schema, schema.atts.get(att).second)
+                + "\" name=\""
+                + removePrefix(en.toString(), att.toString())
+                + "\" />";
       }
       str += "\n</entity>";
 
@@ -95,15 +122,25 @@ public class EasikAql {
 
     str += "\n<edges>";
     for (Fk fk : schema.fks.keySet()) {
-      str += "\n<edge cascade=\"cascade\" id=\"" + fk.toString() + "\" source=\"" + schema.fks.get(fk).first
-          + "\" target=\"" + schema.fks.get(fk).second + "\" type=\"normal\"/>";
+      str +=
+          "\n<edge cascade=\"cascade\" id=\""
+              + fk.toString()
+              + "\" source=\""
+              + schema.fks.get(fk).first
+              + "\" target=\""
+              + schema.fks.get(fk).second
+              + "\" type=\"normal\"/>";
     }
     str += "\n</edges>";
 
     str += "\n<keys/>";
 
     str += "\n<constraints>";
-    for (Triple<Pair<String, En>, Term<Ty, En, Sym, Fk, Att, Void, Void>, Term<Ty, En, Sym, Fk, Att, Void, Void>> eq : schema.eqs) {
+    for (Triple<
+            Pair<String, En>,
+            Term<Ty, En, Sym, Fk, Att, Void, Void>,
+            Term<Ty, En, Sym, Fk, Att, Void, Void>>
+        eq : schema.eqs) {
       if (schema.type(eq.first, eq.second).left) {
         warnings.add("observation_equations not exported.");
         continue;
@@ -125,13 +162,16 @@ public class EasikAql {
   }
 
   @SuppressWarnings("hiding")
-  private static <Ty, En, Sym, Fk, Att> String aqlTypeToString(Schema<Ty, En, Sym, Fk, Att> schema, Ty t) {
+  private static <Ty, En, Sym, Fk, Att> String aqlTypeToString(
+      Schema<Ty, En, Sym, Fk, Att> schema, Ty t) {
     String s = schema.typeSide.js.java_tys.containsKey(t) ? schema.typeSide.js.java_tys.get(t) : "";
     return easikTypeFor(s);
   }
 
   @SuppressWarnings("hiding")
-  private static <Ty, En, Sym, Fk, Att> String aqlToEasik(Schema<Ty, En, Sym, Fk, Att> schema, Pair<String, En> p,
+  private static <Ty, En, Sym, Fk, Att> String aqlToEasik(
+      Schema<Ty, En, Sym, Fk, Att> schema,
+      Pair<String, En> p,
       Term<Ty, En, Sym, Fk, Att, Void, Void> term) {
     String str = "\n<path codomain=\"" + schema.type(p, term).r + "\" domain=\"" + p.second + "\">";
     List<String> l = new LinkedList<>();
@@ -150,8 +190,8 @@ public class EasikAql {
     return s.replace(" ", "_").replace("-", "_").replace(".", "_").replaceAll("/", "_");
   }
 
-  private static Pair<SchExp, List<Pair<String, EdsExpRaw>>> translate1(Node sketch, Set<String> used,
-      Set<String> warnings, String sname) {
+  private static Pair<SchExp, List<Pair<String, EdsExpRaw>>> translate1(
+      Node sketch, Set<String> used, Set<String> warnings, String sname) {
     List<String> ens = new LinkedList<>();
     List<Pair<String, Pair<String, String>>> atts = new LinkedList<>();
     List<Pair<String, Pair<String, String>>> fks = new LinkedList<>();
@@ -178,30 +218,39 @@ public class EasikAql {
               String attName = safe(w.getAttributes().getNamedItem("name").getTextContent());
               String tyName = w.getAttributes().getNamedItem("attributeTypeClass").getTextContent();
               used.add(tyName);
-              atts.add(new Pair<>(nodeName + "_" + attName.replace(" ", "_"),
-                  new Pair<>(nodeName, (easikTypeToString(tyName)))));
+              atts.add(
+                  new Pair<>(
+                      nodeName + "_" + attName.replace(" ", "_"),
+                      new Pair<>(nodeName, (easikTypeToString(tyName)))));
             }
           }
         } else if (m.getNodeName().equals("edge")) {
           String ename = safe(m.getAttributes().getNamedItem("id").getTextContent());
           String esrc = safe(m.getAttributes().getNamedItem("source").getTextContent());
-          fks.add(new Pair<>(ename,
-              new Pair<>(esrc, safe(m.getAttributes().getNamedItem("target").getTextContent()))));
+          fks.add(
+              new Pair<>(
+                  ename,
+                  new Pair<>(
+                      esrc, safe(m.getAttributes().getNamedItem("target").getTextContent()))));
           if (m.getAttributes().getNamedItem("type").getTextContent().equals("injective")) {
             List<EdExpRaw> eds = new LinkedList<>();
             List<Pair<String, String>> As = new LinkedList<>();
             As.add(new Pair<>("x", esrc));
             As.add(new Pair<>("y", esrc));
             List<Pair<RawTerm, RawTerm>> Aeqs = new LinkedList<>();
-            Aeqs.add(new Pair<>(new RawTerm(ename, Collections.singletonList(new RawTerm("x"))),
-                new RawTerm(ename, Collections.singletonList(new RawTerm("y")))));
+            Aeqs.add(
+                new Pair<>(
+                    new RawTerm(ename, Collections.singletonList(new RawTerm("x"))),
+                    new RawTerm(ename, Collections.singletonList(new RawTerm("y")))));
             List<Pair<String, String>> Es = new LinkedList<>();
             List<Pair<RawTerm, RawTerm>> Eeqs = new LinkedList<>();
             Eeqs.add(new Pair<>(new RawTerm("x"), new RawTerm("y")));
             EdExpRaw ed = new EdExpRaw(As, Aeqs, Es, Eeqs, false, null);
             eds.add(ed);
-            edsExps.add(new Pair<>("injective",
-                new EdsExpRaw(new SchExpVar(sname), new LinkedList<>(), eds, null)));
+            edsExps.add(
+                new Pair<>(
+                    "injective",
+                    new EdsExpRaw(new SchExpVar(sname), new LinkedList<>(), eds, null)));
           }
           if (m.getAttributes().getNamedItem("type").getTextContent().equals("partial")) {
             warnings.add("Not exported - partial edges.  Their CQL semantics is unclear");
@@ -223,18 +272,20 @@ public class EasikAql {
           As.add(new Pair<>("y", esrc));
           List<Pair<RawTerm, RawTerm>> Aeqs = new LinkedList<>();
           for (String att : atts0) {
-            Aeqs.add(new Pair<>(new RawTerm(esrc + "_" + att, Collections.singletonList(new RawTerm("x"))),
-                new RawTerm(esrc + "_" + att, Collections.singletonList(new RawTerm("y")))));
+            Aeqs.add(
+                new Pair<>(
+                    new RawTerm(esrc + "_" + att, Collections.singletonList(new RawTerm("x"))),
+                    new RawTerm(esrc + "_" + att, Collections.singletonList(new RawTerm("y")))));
           }
           List<Pair<String, String>> Es = new LinkedList<>();
           List<Pair<RawTerm, RawTerm>> Eeqs = new LinkedList<>();
           Eeqs.add(new Pair<>(new RawTerm("x"), new RawTerm("y")));
           EdExpRaw ed = new EdExpRaw(As, Aeqs, Es, Eeqs, false, null);
           eds.add(ed);
-          edsExps.add(new Pair<>("key", new EdsExpRaw(new SchExpVar(sname), new LinkedList<>(), eds, null)));
-        }
-
-        else if (m.getNodeName().equals("commutativediagram")) {
+          edsExps.add(
+              new Pair<>(
+                  "key", new EdsExpRaw(new SchExpVar(sname), new LinkedList<>(), eds, null)));
+        } else if (m.getNodeName().equals("commutativediagram")) {
           NodeList k = m.getChildNodes();
           Node w1 = null;
           Node w2 = null;
@@ -261,7 +312,8 @@ public class EasikAql {
             if (!lhsX.item(temp3).getNodeName().equals("edgeref")) {
               continue;
             }
-            String toAdd = safe(lhsX.item(temp3).getAttributes().getNamedItem("id").getTextContent());
+            String toAdd =
+                safe(lhsX.item(temp3).getAttributes().getNamedItem("id").getTextContent());
             lhs.add(toAdd);
           }
           NodeList rhsX = w2.getChildNodes();
@@ -269,15 +321,26 @@ public class EasikAql {
             if (!rhsX.item(temp3).getNodeName().equals("edgeref")) {
               continue;
             }
-            String toAdd = safe(rhsX.item(temp3).getAttributes().getNamedItem("id").getTextContent());
+            String toAdd =
+                safe(rhsX.item(temp3).getAttributes().getNamedItem("id").getTextContent());
             rhs.add(toAdd);
           }
           eqs.add(new Pair<>(lhs, rhs));
         }
       }
     }
-    SchExp schExp = new SchExpRaw(new TyExpVar("sql"), new LinkedList<>(), ens, fks, eqs, atts, new LinkedList<>(),
-        new LinkedList<>(), null, null);
+    SchExp schExp =
+        new SchExpRaw(
+            new TyExpVar("sql"),
+            new LinkedList<>(),
+            ens,
+            fks,
+            eqs,
+            atts,
+            new LinkedList<>(),
+            new LinkedList<>(),
+            null,
+            null);
 
     return new Pair<>(schExp, edsExps);
   }
@@ -306,7 +369,8 @@ public class EasikAql {
     return r;
   }
 
-  private static List<Pair<String, EdsExpRaw>> translateC(Node sketch, Set<String> warnings, SchExp schExp) {
+  private static List<Pair<String, EdsExpRaw>> translateC(
+      Node sketch, Set<String> warnings, SchExp schExp) {
     List<Pair<String, EdsExpRaw>> edsExps = new LinkedList<>();
     NodeList l = sketch.getChildNodes();
     for (int temp = 0; temp < l.getLength(); temp++) {
@@ -317,7 +381,8 @@ public class EasikAql {
         List<EdExpRaw> edExps = new LinkedList<>();
         String name = null;
         if (m.getNodeName().equals("sumconstraint")) {
-          warnings.add("sum constraints not exported - CQL does not currently support sum constraints");
+          warnings.add(
+              "sum constraints not exported - CQL does not currently support sum constraints");
           continue;
         } else if (m.getNodeName().equals("limitconstraint")) {
           warnings.add("limit constraints not exported - if you see this, please report");
@@ -452,64 +517,64 @@ public class EasikAql {
 
   private static String easikTypeToString(String tyName) {
     switch (tyName) {
-    case "easik.database.types.BigInt":
-      return "BigInt"; // Long
-    case "easik.database.types.Blob":
-      return "Blob"; // byte[]
-    case "easik.database.types.Boolean":
-      return "Boolean"; // Boolean
-    case "easik.database.types.Char":
-      return "Char"; // Character
-    case "easik.database.types.Date":
-      return "Date"; // java.Sql.Date
-    case "easik.database.types.Decimal":
-      return "Decimal"; // java.math.BigDecimal
-    case "easik.database.types.DoublePrecision":
-      return "DoublePrecision"; // Double
-    case "easik.database.types.Float":
-      return "Float"; // Float
-    case "easik.database.types.Int":
-      return "Integer"; // Integer
-    case "easik.database.types.SmallInt":
-      return "SmallInt"; // Short
-    case "easik.database.types.Text":
-      return "Text"; // String
-    case "easik.database.types.Time":
-      return "Time"; // java.sql.time
-    case "easik.database.types.TimeStamp":
-      return "TimeStamp"; // java.sql.timestamp
-    case "easik.database.types.Varchar":
-      return "Varchar";
-    case "easik.database.types.Custom":
-      return "Custom"; // Object
-    default:
-      throw new RuntimeException("Unknown type: " + tyName);
+      case "easik.database.types.BigInt":
+        return "BigInt"; // Long
+      case "easik.database.types.Blob":
+        return "Blob"; // byte[]
+      case "easik.database.types.Boolean":
+        return "Boolean"; // Boolean
+      case "easik.database.types.Char":
+        return "Char"; // Character
+      case "easik.database.types.Date":
+        return "Date"; // java.Sql.Date
+      case "easik.database.types.Decimal":
+        return "Decimal"; // java.math.BigDecimal
+      case "easik.database.types.DoublePrecision":
+        return "DoublePrecision"; // Double
+      case "easik.database.types.Float":
+        return "Float"; // Float
+      case "easik.database.types.Int":
+        return "Integer"; // Integer
+      case "easik.database.types.SmallInt":
+        return "SmallInt"; // Short
+      case "easik.database.types.Text":
+        return "Text"; // String
+      case "easik.database.types.Time":
+        return "Time"; // java.sql.time
+      case "easik.database.types.TimeStamp":
+        return "TimeStamp"; // java.sql.timestamp
+      case "easik.database.types.Varchar":
+        return "Varchar";
+      case "easik.database.types.Custom":
+        return "Custom"; // Object
+      default:
+        throw new RuntimeException("Unknown type: " + tyName);
     }
   }
 
   public static String easikTypeFor(String s) {
     switch (s) {
-    case "java.lang.Long":
-      return "easik.database.types.BigInt";
-    case "java.lang.Boolean":
-      return "easik.database.types.Boolean";
-    case "java.lang.Character":
-      return "easik.database.types.Char";
-    case "java.lang.Double":
-      return "easik.database.types.DoublePrecision";
-    case "java.lang.Float":
-      return "easik.database.types.Float";
-    case "java.lang.Integer":
-      return "easik.database.types.Int";
-    case "java.lang.Short":
-      return "easik.database.types.SmallInt";
-    case "java.lang.String":
-      return "easik.database.types.Varchar";
-    default:
-      return "easik.database.types.Varchar";
+      case "java.lang.Long":
+        return "easik.database.types.BigInt";
+      case "java.lang.Boolean":
+        return "easik.database.types.Boolean";
+      case "java.lang.Character":
+        return "easik.database.types.Char";
+      case "java.lang.Double":
+        return "easik.database.types.DoublePrecision";
+      case "java.lang.Float":
+        return "easik.database.types.Float";
+      case "java.lang.Integer":
+        return "easik.database.types.Int";
+      case "java.lang.Short":
+        return "easik.database.types.SmallInt";
+      case "java.lang.String":
+        return "easik.database.types.Varchar";
+      default:
+        return "easik.database.types.Varchar";
     }
-
   }
+
   /*
    * public static String javaClassFor(String s) { switch (s) { case "BigInt":
    * return "java.lang.Long"; case "Boolean": return "java.lang.Boolean"; case
@@ -576,7 +641,9 @@ public class EasikAql {
         if (!nNode.getNodeName().equals("easketch")) {
           continue;
         }
-        String s0 = nNode.getAttributes().getNamedItem("name").getTextContent().replace(" ", "_") + "_schema";
+        String s0 =
+            nNode.getAttributes().getNamedItem("name").getTextContent().replace(" ", "_")
+                + "_schema";
         Pair<SchExp, List<Pair<String, EdsExpRaw>>> schExp0 = translate1(nNode, tys, warnings, s0);
         SchExp schExp = schExp0.first;
         String s1 = "schema " + s0 + " = " + schExp + "\n\n";
@@ -587,17 +654,24 @@ public class EasikAql {
         int i = 0;
         List<String> imports = new LinkedList<>();
         for (Pair<String, EdsExpRaw> edsExp : edsExps) {
-          String x = nNode.getAttributes().getNamedItem("name").getTextContent().replace(" ", "_") + "_"
-              + edsExp.first + i;
+          String x =
+              nNode.getAttributes().getNamedItem("name").getTextContent().replace(" ", "_")
+                  + "_"
+                  + edsExp.first
+                  + i;
           ret2 += "constraints " + x + " = " + edsExp.second + "\n\n";
           imports.add(x);
           i++;
         }
         if (!imports.isEmpty()) {
-          ret2 += "constraints "
-              + nNode.getAttributes().getNamedItem("name").getTextContent().replace(" ", "_")
-              + "_constraints = literal : " + s0 + " {\n\timports\n\t\t" + Util.sep(imports, "\n\t\t")
-              + "\n}\n\n";
+          ret2 +=
+              "constraints "
+                  + nNode.getAttributes().getNamedItem("name").getTextContent().replace(" ", "_")
+                  + "_constraints = literal : "
+                  + s0
+                  + " {\n\timports\n\t\t"
+                  + Util.sep(imports, "\n\t\t")
+                  + "\n}\n\n";
         }
       }
 
@@ -614,7 +688,5 @@ public class EasikAql {
       e.printStackTrace();
       return e.getMessage();
     }
-
   }
-
 }

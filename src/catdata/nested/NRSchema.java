@@ -13,29 +13,30 @@ public abstract class NRSchema {
       this.t = t;
     }
   }
+
   /*
    * public static class NRSchemaToNRel implements NRSchemaVisitor<NRel>, Object>
    * {
-   * 
+   *
    * @Override public NRel visit(Object env, Dom e) { // Auto-generated method
    * stub return null; }
-   * 
+   *
    * @Override public NRel visit(Object env, Rcd e) { // Auto-generated method
    * stub return null; }
-   * 
+   *
    * @Override public NRel visit(Object env, Pow e) { if (e.t instanceof Pow) {
-   * 
+   *
    * } else if (e.t instanceof Dom) {
-   * 
+   *
    * } else if (e.t instanceof Rcd) { Map<String, Optional<NRel>> map = new
    * HashMap<>(); Rcd r = (Rcd) e.t; for (Entry<String, NRSchema> p :
    * r.row.entrySet()) { if (p.getValue() instanceof Dom) { map.put(p.getKey(),
    * Optional.empty()); } else { Pair<NRSchema.NRel,Object> k =
    * p.getValue().accept(null, this); map.put(p.getKey(), k.first); } } NRel ret =
    * new NRel(map); } else { throw new RuntimeException(); }
-   * 
+   *
    * // Auto-generated method stub return null; }
-   * 
+   *
    * }
    */
 

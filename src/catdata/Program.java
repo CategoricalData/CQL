@@ -1,5 +1,8 @@
 package catdata;
 
+import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
+import gnu.trove.map.hash.THashMap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
@@ -8,14 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
 import org.jparsec.error.Location;
 import org.jparsec.error.ParseErrorDetails;
 import org.jparsec.error.ParserException;
-
-import catdata.cql.AqlOptions;
-import catdata.cql.AqlOptions.AqlOption;
-import gnu.trove.map.hash.THashMap;
 
 public class Program<X> implements Prog {
 
@@ -33,7 +31,7 @@ public class Program<X> implements Prog {
     }
     return 30;
   }
-  
+
   public final List<String> imports = Collections.synchronizedList(new LinkedList<>());
 
   /*
@@ -41,7 +39,7 @@ public class Program<X> implements Prog {
    * Named objects are as they appear in the CQL program, but anonymous objects
    * have names generated. Example: "graph g100 = ..." -> "g100" "md { ... }" ->
    * "md35"
-   * 
+   *
    * These names are the keys into other containers.
    */
   public final List<String> order = Collections.synchronizedList(new LinkedList<>());
@@ -51,7 +49,8 @@ public class Program<X> implements Prog {
    * of a misnomer as there is an entry for expression and the value is measured
    * in characters.
    */
-  public final Map<String, Pair<Integer, Integer>> lines = Collections.synchronizedMap(new THashMap<>());
+  public final Map<String, Pair<Integer, Integer>> lines =
+      Collections.synchronizedMap(new THashMap<>());
   /*
    * 'expr' contains the expressions. There are many types of expressions, each
    * one has its own data structure. see catadata.aql.exp
@@ -89,14 +88,18 @@ public class Program<X> implements Prog {
 
   /**
    * The main program constructor.
-   * 
+   *
    * @param decls
    * @param text
    * @param options
    * @param k
    */
-  public Program(List<Quad<String, Integer, X, Integer>> decls, String text, List<Pair<String, String>> options,
-      Function<X, String> k, List<String> imports) {
+  public Program(
+      List<Quad<String, Integer, X, Integer>> decls,
+      String text,
+      List<Pair<String, String>> options,
+      Function<X, String> k,
+      List<String> imports) {
     this.text = text;
     List<Quad<String, Integer, X, Integer>> seen = new LinkedList<>();
     for (Quad<String, Integer, X, Integer> decl : decls) {
@@ -118,14 +121,17 @@ public class Program<X> implements Prog {
       this.options = new AqlOptions(Util.toMapSafely(options), AqlOptions.initialOptions);
     } catch (Exception ex) {
       ex.printStackTrace();
-      throw new ParserException(ex, null,
-          "Error parsing global options.\nPossible cause: completion precedence at global level.", new Location(1, 1));
+      throw new ParserException(
+          ex,
+          null,
+          "Error parsing global options.\nPossible cause: completion precedence at global level.",
+          new Location(1, 1));
     }
-    
+
     for (String x : imports) {
       if (!new File(x).exists()) {
-        throw new ParserException(new FileNotFoundException(x), null,
-            "File does not exist: " + x, new Location(1, 1));
+        throw new ParserException(
+            new FileNotFoundException(x), null, "File does not exist: " + x, new Location(1, 1));
       }
     }
     this.imports.addAll(imports);
@@ -146,7 +152,8 @@ public class Program<X> implements Prog {
   }
 
   @SuppressWarnings("deprecation")
-  private void checkDup(List<Quad<String, Integer, X, Integer>> seen, Quad<String, Integer, X, Integer> toAdd) {
+  private void checkDup(
+      List<Quad<String, Integer, X, Integer>> seen, Quad<String, Integer, X, Integer> toAdd) {
     for (Quad<String, Integer, X, Integer> other : seen) {
       if (other.first.equals(toAdd.first)) {
         if (text == null) {
@@ -154,34 +161,39 @@ public class Program<X> implements Prog {
           // other.second + " and " +
           // toAdd.second);
         }
-        throw new ParserException(new ParseErrorDetails() {
+        throw new ParserException(
+            new ParseErrorDetails() {
 
-          @Override
-          public String getEncountered() {
-            return other.first;
-          }
+              @Override
+              public String getEncountered() {
+                return other.first;
+              }
 
-          @Override
-          public List<String> getExpected() {
-            return new LinkedList<>();
-          }
+              @Override
+              public List<String> getExpected() {
+                return new LinkedList<>();
+              }
 
-          @Override
-          public String getFailureMessage() {
-            return "Other occurance: line " + conv(other.second).line + ", column " + conv(other.second).column;
-          }
+              @Override
+              public String getFailureMessage() {
+                return "Other occurance: line "
+                    + conv(other.second).line
+                    + ", column "
+                    + conv(other.second).column;
+              }
 
-          @Override
-          public int getIndex() {
-            return other.second;
-          }
+              @Override
+              public int getIndex() {
+                return other.second;
+              }
 
-          @Override
-          public String getUnexpected() {
-            return "";
-          }
-        }, "Duplicate name: " + toAdd.first, conv(toAdd.second)); // TODO CQL );
-
+              @Override
+              public String getUnexpected() {
+                return "";
+              }
+            },
+            "Duplicate name: " + toAdd.first,
+            conv(toAdd.second)); // TODO CQL );
       }
     }
     seen.add(toAdd);
@@ -214,43 +226,29 @@ public class Program<X> implements Prog {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Program other = (Program) obj;
     if (exps == null) {
-      if (other.exps != null)
-        return false;
-    } else if (!exps.equals(other.exps))
-      return false;
+      if (other.exps != null) return false;
+    } else if (!exps.equals(other.exps)) return false;
     if (lines == null) {
-      if (other.lines != null)
-        return false;
-    } else if (!lines.equals(other.lines))
-      return false;
+      if (other.lines != null) return false;
+    } else if (!lines.equals(other.lines)) return false;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     if (order == null) {
-      if (other.order != null)
-        return false;
-    } else if (!order.equals(other.order))
-      return false;
+      if (other.order != null) return false;
+    } else if (!order.equals(other.order)) return false;
     return true;
   }
 
   public boolean comp(Program<X> obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
     boolean b = options.equals(obj.options) && exps.equals(obj.exps);
     return b;
   }
-
 }

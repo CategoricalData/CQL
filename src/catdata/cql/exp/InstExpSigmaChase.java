@@ -1,5 +1,20 @@
 package catdata.cql.exp;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Util;
+import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Collage;
+import catdata.cql.Collage.CCollage;
+import catdata.cql.Eq;
+import catdata.cql.Instance;
+import catdata.cql.Kind;
+import catdata.cql.Mapping;
+import catdata.cql.Term;
+import catdata.cql.fdm.LiteralInstance;
+import catdata.cql.fdm.SigmaChaseAlgebra;
+import catdata.cql.fdm.SigmaLeftKanAlgebra;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,27 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Util;
-import catdata.cql.AqlOptions;
-import catdata.cql.Collage;
-import catdata.cql.Eq;
-import catdata.cql.Instance;
-import catdata.cql.Kind;
-import catdata.cql.Mapping;
-import catdata.cql.Term;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Collage.CCollage;
-import catdata.cql.fdm.LiteralInstance;
-import catdata.cql.fdm.SigmaChaseAlgebra;
-import catdata.cql.fdm.SigmaLeftKanAlgebra;
-
-public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {
+public final class InstExpSigmaChase<Gen, Sk, X, Y>
+    extends InstExp<Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> {
 
   public final InstExp<Gen, Sk, X, Y> I;
   public final MapExp F;
   public final Map<String, String> options;
+
   // public final Integer max;
 
   public <R, P, E extends Exception> R accept(P param, InstExpVisitor<R, P, E> v) throws E {
@@ -76,28 +77,19 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     InstExpSigmaChase<?, ?, ?, ?> other = (InstExpSigmaChase<?, ?, ?, ?>) obj;
     if (F == null) {
-      if (other.F != null)
-        return false;
-    } else if (!F.equals(other.F))
-      return false;
+      if (other.F != null) return false;
+    } else if (!F.equals(other.F)) return false;
     if (I == null) {
-      if (other.I != null)
-        return false;
-    } else if (!I.equals(other.I))
-      return false;
+      if (other.I != null) return false;
+    } else if (!I.equals(other.I)) return false;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     return true;
   }
 
@@ -108,7 +100,12 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
 
     if (!G.eq(t1.first, t0)) { // TODO aql schema equality
       throw new RuntimeException(
-          "Type error: In " + this + " domain of mapping is " + t1.first + " but instance has schema " + t0);
+          "Type error: In "
+              + this
+              + " domain of mapping is "
+              + t1.first
+              + " but instance has schema "
+              + t0);
     }
 
     return t1.second;
@@ -120,19 +117,23 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
     if (!options.isEmpty()) {
       l = " {\n" + Util.sep(options, " = ", "\n\t") + "\n}";
     }
-    return new StringBuilder().append("sigma_chase " + F).append(" " + I).append(" " + l).toString();
+    return new StringBuilder()
+        .append("sigma_chase " + F)
+        .append(" " + I)
+        .append(" " + l)
+        .toString();
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
-  public synchronized Instance<String, String, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>> eval0(AqlEnv env,
-      boolean isC) {
+  public synchronized Instance<
+          String, String, Sym, Fk, Att, Gen, Sk, Integer, Chc<Sk, Pair<Integer, Att>>>
+      eval0(AqlEnv env, boolean isC) {
     if (isC) {
       throw new IgnoreException();
     }
     Mapping<String, String, catdata.cql.exp.Sym, Fk, Att, String, Fk, Att> f = F.eval(env, isC);
     Instance<String, String, Sym, Fk, Att, Gen, Sk, X, Y> i = I.eval(env, isC);
-    
 
     AqlOptions op = new AqlOptions(options, env.defaults);
 
@@ -146,47 +147,59 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
     if (type.equals("sequential")) {
       Collage<String, String, Sym, Fk, Att, Gen, Sk> col = new CCollage<>(f.dst.collage());
 
-      i.sks().entrySet((a,b)->{
-        col.sks().put(a,b);
-      });
-      
-      i.gens().entrySet((a,b) -> {
-        col.gens().put(a, f.ens.get(b));
-      });
+      i.sks()
+          .entrySet(
+              (a, b) -> {
+                col.sks().put(a, b);
+              });
 
-      List<Pair<Term<String, String, Sym, Fk, Att, Gen, Sk>,Term<String, String, Sym, Fk, Att, Gen, Sk>>> 
-      l = Collections.synchronizedList(new ArrayList<>(col.eqs().size()));
-      
-      i.eqs((a,b) -> {
-        Term<String,String,Sym,Fk,Att,Gen,Sk> aa = f.trans(a);
-        Term<String,String,Sym,Fk,Att,Gen,Sk> bb = f.trans(b);
-        Eq<String, String, Sym, Fk, Att, Gen, Sk> w = new Eq<>(null, aa, bb);
-        col.eqs().add(w);
-        l.add(new Pair<>(aa, bb));
-      });
-      SigmaLeftKanAlgebra<String, String, Sym, Fk, Att, String, Fk, Att, Gen, Sk, X, Y> alg = new SigmaLeftKanAlgebra<>(f, i,
-          col, reduce);
+      i.gens()
+          .entrySet(
+              (a, b) -> {
+                col.gens().put(a, f.ens.get(b));
+              });
 
-      Instance zz = new LiteralInstance<>(alg.schema(), col.gens(), col.sks(), l, alg, alg,
-          (Boolean) op.getOrDefault(AqlOption.require_consistency),
-          (Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
+      List<
+              Pair<
+                  Term<String, String, Sym, Fk, Att, Gen, Sk>,
+                  Term<String, String, Sym, Fk, Att, Gen, Sk>>>
+          l = Collections.synchronizedList(new ArrayList<>(col.eqs().size()));
+
+      i.eqs(
+          (a, b) -> {
+            Term<String, String, Sym, Fk, Att, Gen, Sk> aa = f.trans(a);
+            Term<String, String, Sym, Fk, Att, Gen, Sk> bb = f.trans(b);
+            Eq<String, String, Sym, Fk, Att, Gen, Sk> w = new Eq<>(null, aa, bb);
+            col.eqs().add(w);
+            l.add(new Pair<>(aa, bb));
+          });
+      SigmaLeftKanAlgebra<String, String, Sym, Fk, Att, String, Fk, Att, Gen, Sk, X, Y> alg =
+          new SigmaLeftKanAlgebra<>(f, i, col, reduce);
+
+      Instance zz =
+          new LiteralInstance<>(
+              alg.schema(),
+              col.gens(),
+              col.sks(),
+              l,
+              alg,
+              alg,
+              (Boolean) op.getOrDefault(AqlOption.require_consistency),
+              (Boolean) op.getOrDefault(AqlOption.allow_java_eqs_unsafe));
 
       zz.validate();
       zz.validateMore();
-      
-      //System.out.println("valid " + zz);
+
+      // System.out.println("valid " + zz);
       return zz;
     } else if (type.equals("parallel")) {
 
-      SigmaChaseAlgebra<String, String, Sym, Fk, Att, String, Fk, Att, Gen, Sk, X, Y> alg = new SigmaChaseAlgebra<>(f, i,
-          Collections.emptyMap(), op);
+      SigmaChaseAlgebra<String, String, Sym, Fk, Att, String, Fk, Att, Gen, Sk, X, Y> alg =
+          new SigmaChaseAlgebra<>(f, i, Collections.emptyMap(), op);
       return alg.theInst;
-
     }
     throw new RuntimeException("Chase style must be sequential or parallel.");
   }
-  
-  
 
   @Override
   protected void allowedOptions(Set<AqlOption> set) {
@@ -194,5 +207,4 @@ public final class InstExpSigmaChase<Gen, Sk, X, Y> extends InstExp<Gen, Sk, Int
     set.add(AqlOption.require_consistency);
     set.add(AqlOption.allow_java_eqs_unsafe);
   }
-
 }

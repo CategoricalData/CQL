@@ -1,26 +1,25 @@
 package catdata.cql.exp;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import catdata.InteriorLabel;
 import catdata.LocStr;
 import catdata.Pair;
 import catdata.Raw;
 import catdata.Util;
 import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Instance;
 import catdata.cql.Kind;
 import catdata.cql.Schema;
 import catdata.cql.Term;
 import catdata.cql.Transform;
-import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.fdm.LiteralTransform;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handle>
     extends TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> implements Raw {
@@ -44,8 +43,11 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
     return options;
   }
 
-  public TransExpImport(InstExp<Gen1, Sk1, X1, Y1> src, InstExp<Gen2, Sk2, X2, Y2> dst,
-      List<Pair<LocStr, String>> map, List<Pair<String, String>> options) {
+  public TransExpImport(
+      InstExp<Gen1, Sk1, X1, Y1> src,
+      InstExp<Gen2, Sk2, X2, Y2> dst,
+      List<Pair<LocStr, String>> map,
+      List<Pair<String, String>> options) {
     this.src = src;
     this.dst = dst;
     this.options = Util.toMapSafely(options);
@@ -53,8 +55,13 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 
     List<InteriorLabel<Object>> f = new LinkedList<>();
     for (Pair<LocStr, String> p : map) {
-      f.add(new InteriorLabel<>("imports", new Pair<>(p.first.str, p.second), p.first.loc,
-          x -> x.first + " -> " + x.second).conv());
+      f.add(
+          new InteriorLabel<>(
+                  "imports",
+                  new Pair<>(p.first.str, p.second),
+                  p.first.loc,
+                  x -> x.first + " -> " + x.second)
+              .conv());
     }
     raw.put("imports", f);
   }
@@ -67,7 +74,8 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
   protected boolean labelledNulls;
 
   @Override
-  public Transform<String, String, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> eval0(AqlEnv env, boolean isC) {
+  public Transform<String, String, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> eval0(
+      AqlEnv env, boolean isC) {
     Instance<String, String, Sym, Fk, Att, Gen1, Sk1, X1, Y1> src0 = src.eval(env, isC);
     Instance<String, String, Sym, Fk, Att, Gen2, Sk2, X2, Y2> dst0 = dst.eval(env, isC);
     if (!src0.schema().equals(dst0.schema())) {
@@ -78,7 +86,8 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 
     for (String o : map.keySet()) {
       if (!sch.ens.contains((o))) {
-        throw new RuntimeException("there is an import for " + o + ", which is not an entity in the schema ");
+        throw new RuntimeException(
+            "there is an import for " + o + ", which is not an entity in the schema ");
       }
     }
     if (isC) {
@@ -89,7 +98,7 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 
     op = new AqlOptions(options, env.defaults);
     dontValidateEqs = (Boolean) op.getOrDefault(AqlOption.dont_validate_unsafe);
-    //boolean autoMapNulls = (Boolean) op.getOrDefault(AqlOption.map_nulls_arbitrarily_unsafe);
+    // boolean autoMapNulls = (Boolean) op.getOrDefault(AqlOption.map_nulls_arbitrarily_unsafe);
 
     if (src0.sks().size() > 0) {
       throw new RuntimeException("Import of nulls not supported.");
@@ -107,17 +116,19 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
       stop(h);
     } catch (Exception exn) {
       // exn.printStackTrace();
-      throw new RuntimeException(exn); 
+      throw new RuntimeException(exn);
     }
 
-    return new LiteralTransform<>((k,v)->gens.get(k), (k,v)->sks.get(k), src0, dst0, dontValidateEqs);
+    return new LiteralTransform<>(
+        (k, v) -> gens.get(k), (k, v) -> sks.get(k), src0, dst0, dontValidateEqs);
   }
 
   protected abstract String getHelpStr();
 
   protected abstract void stop(Handle h) throws Exception;
 
-  protected abstract void processEn(String en, Schema<String, String, Sym, Fk, Att> sch, Handle h, String q) throws Exception;
+  protected abstract void processEn(
+      String en, Schema<String, String, Sym, Fk, Att> sch, Handle h, String q) throws Exception;
 
   protected abstract Handle start(Schema<String, String, Sym, Fk, Att> sch) throws Exception;
 
@@ -143,33 +154,24 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
     if (!(obj instanceof TransExpImport)) // TODO aql note!!!!
-      return false;
-    TransExpImport<?, ?, ?, ?, ?, ?, ?, ?, ?> other = (TransExpImport<?, ?, ?, ?, ?, ?, ?, ?, ?>) obj;
+    return false;
+    TransExpImport<?, ?, ?, ?, ?, ?, ?, ?, ?> other =
+        (TransExpImport<?, ?, ?, ?, ?, ?, ?, ?, ?>) obj;
     if (map == null) {
-      if (other.map != null)
-        return false;
-    } else if (!map.equals(other.map))
-      return false;
+      if (other.map != null) return false;
+    } else if (!map.equals(other.map)) return false;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     if (src == null) {
-      if (other.src != null)
-        return false;
-    } else if (!src.equals(other.src))
-      return false;
+      if (other.src != null) return false;
+    } else if (!src.equals(other.src)) return false;
     if (dst == null) {
-      if (other.dst != null)
-        return false;
-    } else if (!dst.equals(other.dst))
-      return false;
+      if (other.dst != null) return false;
+    } else if (!dst.equals(other.dst)) return false;
     return true;
   }
 
@@ -179,9 +181,11 @@ public abstract class TransExpImport<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2, Handl
     SchExp t = dst.type(G);
     if (!G.eq(s, t)) {
       throw new RuntimeException(
-          "Source instance of transform has schema\n" + s + " \n\n but target instance has schema\n" + t);
+          "Source instance of transform has schema\n"
+              + s
+              + " \n\n but target instance has schema\n"
+              + t);
     }
     return new Pair<>(src, dst);
   }
-
 }

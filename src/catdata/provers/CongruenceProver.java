@@ -1,19 +1,18 @@
 package catdata.provers;
 
+import catdata.Pair;
+import catdata.Triple;
+import catdata.graph.UnionFind;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import catdata.Pair;
-import catdata.Triple;
-import catdata.graph.UnionFind;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
-//Congruence closure a la Nelson Oppen
-//TODO aql better incremental computation for congruence closure
+// Congruence closure a la Nelson Oppen
+// TODO aql better incremental computation for congruence closure
 public class CongruenceProver<T, C, V> extends DPKB<T, C, V> {
 
   @Override
@@ -81,7 +80,8 @@ public class CongruenceProver<T, C, V> extends DPKB<T, C, V> {
     }
     for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : kb.eqs) {
       if (!eq.first.isEmpty()) {
-        throw new RuntimeException("Congruence closure does not work with universal quantification.");
+        throw new RuntimeException(
+            "Congruence closure does not work with universal quantification.");
       }
       T t = eq.second.type(th.syms, eq.first);
       eq.second.allSubExps0(th.syms, t, pred);
@@ -107,13 +107,13 @@ public class CongruenceProver<T, C, V> extends DPKB<T, C, V> {
         KBExp<C, V> dd = kb.factory.KBApp(d, Collections.emptyList());
         KBExp<C, V> zz = kb.factory.KBApp(c, Collections.singletonList(dd));
         zz.allSubExps0(th.syms, t.second, pred);
-
       }
     }
     doCong();
 
     // p = new CongruenceProverUniform<>(th);
   }
+
   // CongruenceProverUniform<T, C, V> p;
 
   private synchronized void doCong2() {
@@ -164,5 +164,4 @@ public class CongruenceProver<T, C, V> extends DPKB<T, C, V> {
   public boolean supportsTrivialityCheck() {
     return false;
   }
-
 }

@@ -1,5 +1,8 @@
 package catdata.sql;
 
+import catdata.Util;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,19 +13,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import catdata.Util;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
-//TODO: aql can store these not as sets, but as maps from primary key
+// TODO: aql can store these not as sets, but as maps from primary key
 public class SqlInstance {
 
   private final Map<SqlTable, Set<Map<SqlColumn, Optional<Object>>>> db = new THashMap<>();
   private final SqlSchema schema;
   private final String tick;
+
   // private final Connection conn;
 
-  public Map<SqlColumn, Optional<Object>> follow(Map<SqlColumn, Optional<Object>> row, SqlForeignKey fk) {
+  public Map<SqlColumn, Optional<Object>> follow(
+      Map<SqlColumn, Optional<Object>> row, SqlForeignKey fk) {
     Map<SqlColumn, Optional<Object>> cand = new THashMap<>();
 
     for (SqlColumn tcol : fk.target.pk) {
@@ -31,7 +32,8 @@ public class SqlInstance {
     }
     Map<SqlColumn, Optional<Object>> ret = null;
 
-    outer: for (Map<SqlColumn, Optional<Object>> tuple : get(fk.target)) {
+    outer:
+    for (Map<SqlColumn, Optional<Object>> tuple : get(fk.target)) {
       for (SqlColumn col : fk.target.pk) {
         if (!cand.get(col).equals(tuple.get(col))) {
           continue outer;
@@ -57,7 +59,8 @@ public class SqlInstance {
     return db.get(t);
   }
 
-  public SqlInstance(SqlSchema schema, Connection conn, boolean errMeansNull, boolean useDistinct, String tick)
+  public SqlInstance(
+      SqlSchema schema, Connection conn, boolean errMeansNull, boolean useDistinct, String tick)
       throws SQLException {
     if (schema == null) {
       throw new RuntimeException("Null schema given to SqlInstance");
@@ -70,7 +73,8 @@ public class SqlInstance {
     // this.conn = conn;
     String d = useDistinct ? "DISTINCT" : "";
     for (SqlTable table : schema.tables) {
-      try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+      try (Statement stmt =
+          conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
         // System.out.println("SELECT " + d + " * FROM " + tick + table.name + tick);
         stmt.execute("SELECT " + d + " * FROM " + tick + table.name + tick);
         try (ResultSet resultSet = stmt.getResultSet()) {
@@ -127,10 +131,10 @@ public class SqlInstance {
         y += Util.sep(q, ", ") + ")";
         x.add(y);
       }
-      all.add("INSERT INTO " + tick + table.name + tick + " VALUES\n  " + Util.sep(x, ",\n  ") + ";");
+      all.add(
+          "INSERT INTO " + tick + table.name + tick + " VALUES\n  " + Util.sep(x, ",\n  ") + ";");
     }
 
     return Util.sep(all, "\n\n");
   }
-
 }

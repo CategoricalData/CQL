@@ -1,15 +1,5 @@
 package catdata.cql.exp;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import org.apache.commons.collections4.list.TreeList;
-
 import catdata.Chc;
 import catdata.InteriorLabel;
 import catdata.LocStr;
@@ -17,17 +7,26 @@ import catdata.Pair;
 import catdata.Raw;
 import catdata.Util;
 import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Instance;
 import catdata.cql.Kind;
 import catdata.cql.Transform;
-import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.fdm.ColimitInstance;
 import catdata.graph.DMG;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import org.apache.commons.collections4.list.TreeList;
 
 public class InstExpColim<Gen, Sk, X, Y>
-    extends InstExp<Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>>
+    extends InstExp<
+        Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>>
     implements Raw {
 
   @Override
@@ -73,8 +72,12 @@ public class InstExpColim<Gen, Sk, X, Y>
     return options;
   }
 
-  public InstExpColim(GraphExp shape, SchExp schema, List<Pair<LocStr, InstExp<Gen, Sk, X, Y>>> nodes,
-      List<Pair<LocStr, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>>> edges, List<Pair<String, String>> options) {
+  public InstExpColim(
+      GraphExp shape,
+      SchExp schema,
+      List<Pair<LocStr, InstExp<Gen, Sk, X, Y>>> nodes,
+      List<Pair<LocStr, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>>> edges,
+      List<Pair<String, String>> options) {
     this.schema = schema;
     this.shape = shape;
     this.nodes = Util.toMapSafely(LocStr.list2(nodes));
@@ -83,15 +86,25 @@ public class InstExpColim<Gen, Sk, X, Y>
 
     List<InteriorLabel<Object>> f = new TreeList<>();
     for (Pair<LocStr, InstExp<Gen, Sk, X, Y>> p : nodes) {
-      f.add(new InteriorLabel<>("nodes", new Pair<>(p.first.str, p.second), p.first.loc,
-          x -> x.first + " -> " + x.second).conv());
+      f.add(
+          new InteriorLabel<>(
+                  "nodes",
+                  new Pair<>(p.first.str, p.second),
+                  p.first.loc,
+                  x -> x.first + " -> " + x.second)
+              .conv());
     }
     raw.put("nodes", f);
 
     f = new LinkedList<>();
     for (Pair<LocStr, TransExp<Gen, Sk, Gen, Sk, X, Y, X, Y>> p : edges) {
-      f.add(new InteriorLabel<>("edges", new Pair<>(p.first.str, p.second), p.first.loc,
-          x -> x.first + " -> " + x.second).conv());
+      f.add(
+          new InteriorLabel<>(
+                  "edges",
+                  new Pair<>(p.first.str, p.second),
+                  p.first.loc,
+                  x -> x.first + " -> " + x.second)
+              .conv());
     }
     raw.put("edges", f);
   }
@@ -110,56 +123,61 @@ public class InstExpColim<Gen, Sk, X, Y>
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     InstExpColim<?, ?, ?, ?> other = (InstExpColim<?, ?, ?, ?>) obj;
     if (edges == null) {
-      if (other.edges != null)
-        return false;
-    } else if (!edges.equals(other.edges))
-      return false;
+      if (other.edges != null) return false;
+    } else if (!edges.equals(other.edges)) return false;
     if (nodes == null) {
-      if (other.nodes != null)
-        return false;
-    } else if (!nodes.equals(other.nodes))
-      return false;
+      if (other.nodes != null) return false;
+    } else if (!nodes.equals(other.nodes)) return false;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     if (schema == null) {
-      if (other.schema != null)
-        return false;
-    } else if (!schema.equals(other.schema))
-      return false;
+      if (other.schema != null) return false;
+    } else if (!schema.equals(other.schema)) return false;
     if (shape == null) {
-      if (other.shape != null)
-        return false;
-    } else if (!shape.equals(other.shape))
-      return false;
+      if (other.shape != null) return false;
+    } else if (!shape.equals(other.shape)) return false;
     return true;
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder().append("colimit ").append(shape).append(" ").append(schema).append(" {");
+    StringBuilder sb =
+        new StringBuilder()
+            .append("colimit ")
+            .append(shape)
+            .append(" ")
+            .append(schema)
+            .append(" {");
     if (!nodes.isEmpty()) {
-      sb.append("\n\tnodes\n\t\t").append(Util.sep(nodes, " -> ", "\n\t\t")).append("\n\tedges\n\t\t")
+      sb.append("\n\tnodes\n\t\t")
+          .append(Util.sep(nodes, " -> ", "\n\t\t"))
+          .append("\n\tedges\n\t\t")
           .append(Util.sep(edges, " -> ", "\n\t\t"));
     }
     return sb.append("}").toString();
   }
 
   @Override
-  public synchronized Instance<String, String, Sym, Fk, Att, Pair<String, Gen>, Pair<String, Sk>, Integer, Chc<Pair<String, Sk>, Pair<Integer, Att>>> eval0(
-      AqlEnv env, boolean isC) {
+  public synchronized Instance<
+          String,
+          String,
+          Sym,
+          Fk,
+          Att,
+          Pair<String, Gen>,
+          Pair<String, Sk>,
+          Integer,
+          Chc<Pair<String, Sk>, Pair<Integer, Att>>>
+      eval0(AqlEnv env, boolean isC) {
     Map<String, Instance<String, String, Sym, Fk, Att, Gen, Sk, X, Y>> nodes0 = Util.mk();
-    Map<String, Transform<String, String, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y>> edges0 = Util.mk();
+    Map<String, Transform<String, String, Sym, Fk, Att, Gen, Sk, Gen, Sk, X, Y, X, Y>> edges0 =
+        Util.mk();
 
     for (String n : nodes.keySet()) {
       nodes0.put(n, nodes.get(n).eval(env, isC));
@@ -172,7 +190,11 @@ public class InstExpColim<Gen, Sk, X, Y>
       throw new IgnoreException();
     }
 
-    return new ColimitInstance<>(schema.eval(env, false), shape.eval(env, false).dmg, nodes0, edges0,
+    return new ColimitInstance<>(
+        schema.eval(env, false),
+        shape.eval(env, false).dmg,
+        nodes0,
+        edges0,
         new AqlOptions(options, env.defaults));
   }
 
@@ -180,8 +202,14 @@ public class InstExpColim<Gen, Sk, X, Y>
   public SchExp type(AqlTyping G) {
     for (String n : nodes.keySet()) {
       if (!G.eq(nodes.get(n).type(G), schema)) {
-        throw new RuntimeException("The instance for " + n + " has schema " + nodes.get(n).type(G) + ", not "
-            + schema + " as expected");
+        throw new RuntimeException(
+            "The instance for "
+                + n
+                + " has schema "
+                + nodes.get(n).type(G)
+                + ", not "
+                + schema
+                + " as expected");
       }
     }
     if (!(Boolean) new AqlOptions(options, G.prog.options).getOrDefault(AqlOption.static_typing)) {
@@ -194,12 +222,15 @@ public class InstExpColim<Gen, Sk, X, Y>
       InstExp<Gen, Sk, X, Y> reqdSrc = nodes.get(g.edges.get(e).first);
       InstExp<Gen, Sk, X, Y> reqdDst = nodes.get(g.edges.get(e).second);
 
-      InstExp<Gen, Sk, X, Y> givenSrc = edges.get(e).type(G).first, givenDst = edges.get(e).type(G).second;
+      InstExp<Gen, Sk, X, Y> givenSrc = edges.get(e).type(G).first,
+          givenDst = edges.get(e).type(G).second;
 
       if (!reqdSrc.equals(givenSrc)) {
-        throw new RuntimeException("On " + e + ", its source is " + givenSrc + " but should be " + reqdSrc);
+        throw new RuntimeException(
+            "On " + e + ", its source is " + givenSrc + " but should be " + reqdSrc);
       } else if (!reqdDst.equals(givenDst)) {
-        throw new RuntimeException("On " + e + ", its target is " + givenDst + " but should be " + reqdDst);
+        throw new RuntimeException(
+            "On " + e + ", its target is " + givenDst + " but should be " + reqdDst);
       }
     }
 
@@ -226,5 +257,4 @@ public class InstExpColim<Gen, Sk, X, Y>
     set.add(AqlOption.allow_java_eqs_unsafe);
     set.addAll(AqlOptions.proverOptionNames());
   }
-
 }

@@ -1,5 +1,15 @@
 package catdata.cql.exp;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Program;
+import catdata.Util;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.DP;
+import catdata.cql.Kind;
+import catdata.cql.Schema;
+import catdata.cql.Term;
+import gnu.trove.map.hash.THashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,17 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Program;
-import catdata.Util;
-import catdata.cql.DP;
-import catdata.cql.Kind;
-import catdata.cql.Schema;
-import catdata.cql.Term;
-import catdata.cql.AqlOptions.AqlOption;
-import gnu.trove.map.hash.THashMap;
 
 public final class SchExpMsErrorShallow extends SchExp {
 
@@ -36,7 +35,8 @@ public final class SchExpMsErrorShallow extends SchExp {
   }
 
   @Override
-  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitSchExpMsError(params, r);
   }
 
@@ -61,46 +61,42 @@ public final class SchExpMsErrorShallow extends SchExp {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     SchExpMsErrorShallow other = (SchExpMsErrorShallow) obj;
     if (dom == null) {
-      if (other.dom != null)
-        return false;
-    } else if (!dom.equals(other.dom))
-      return false;
+      if (other.dom != null) return false;
+    } else if (!dom.equals(other.dom)) return false;
     if (ty == null) {
-      if (other.ty != null)
-        return false;
-    } else if (!ty.equals(other.ty))
-      return false;
+      if (other.ty != null) return false;
+    } else if (!ty.equals(other.ty)) return false;
     return true;
   }
 
-  public Schema<String, String, Sym, Fk, Att> eval0_alt(AqlEnv env, boolean isC, String jdbcString, TyExp t) {
+  public Schema<String, String, Sym, Fk, Att> eval0_alt(
+      AqlEnv env, boolean isC, String jdbcString, TyExp t) {
     var I = new InstExpMsError(dom, jdbcString, t).eval(env, isC);
     var ts = I.schema().typeSide;
 
     List<String> ens = new ArrayList<>(I.size());
     Map<Att, Pair<String, String>> atts = new THashMap<>(I.size() * 8, 2);
 
-    DP<String, String, Sym, Fk, Att, Void, Void> dp = new DP<String, String, Sym, Fk, Att, Void, Void>() {
-      @Override
-      public String toStringProver() {
-        return "SchExpMsErrorShallow";
-      }
+    DP<String, String, Sym, Fk, Att, Void, Void> dp =
+        new DP<String, String, Sym, Fk, Att, Void, Void>() {
+          @Override
+          public String toStringProver() {
+            return "SchExpMsErrorShallow";
+          }
 
-      @Override
-      public boolean eq(Map<String, Chc<String, String>> ctx,
-          Term<String, String, Sym, Fk, Att, Void, Void> lhs,
-          Term<String, String, Sym, Fk, Att, Void, Void> rhs) {
-        return lhs.equals(rhs);
-      }
-    };
+          @Override
+          public boolean eq(
+              Map<String, Chc<String, String>> ctx,
+              Term<String, String, Sym, Fk, Att, Void, Void> lhs,
+              Term<String, String, Sym, Fk, Att, Void, Void> rhs) {
+            return lhs.equals(rhs);
+          }
+        };
     String ty = "CQL_RESERVED_CQL";
     List<String> lll = new LinkedList<>();
     StringBuffer sb = new StringBuffer();
@@ -130,7 +126,8 @@ public final class SchExpMsErrorShallow extends SchExp {
         atts.put(att4, new Pair<>(en2, ty));
 
         sb2.append(
-            " " + att1.str + " " + att2.str + " " + att3.str + " " + att4.str + " : " + x + "->" + ty);
+            " " + att1.str + " " + att2.str + " " + att3.str + " " + att4.str + " : " + x + "->"
+                + ty);
         if (sb2.length() > 32 * 1024) {
           jjj.add("public static final String att" + (j++) + " = \"" + sb2.toString() + "\";");
           sb2 = new StringBuffer();
@@ -149,8 +146,8 @@ public final class SchExpMsErrorShallow extends SchExp {
       ex.printStackTrace();
     }
 
-    return new Schema<String, String, Sym, Fk, Att>(ts, ens, atts, Collections.emptyMap(),
-        Collections.emptySet(), dp, false);
+    return new Schema<String, String, Sym, Fk, Att>(
+        ts, ens, atts, Collections.emptyMap(), Collections.emptySet(), dp, false);
   }
 
   @Override
@@ -179,7 +176,13 @@ public final class SchExpMsErrorShallow extends SchExp {
       throw new RuntimeException(ex);
     }
     return CombinatorParser.parseSchExpRaw(
-        "literal : " + ty + "{\nentities " + sb1.toString() + "\nattributes\n" + sb2.toString() + "\n}")
+            "literal : "
+                + ty
+                + "{\nentities "
+                + sb1.toString()
+                + "\nattributes\n"
+                + sb2.toString()
+                + "\n}")
         .eval(env, isC);
   }
 
@@ -200,8 +203,7 @@ public final class SchExpMsErrorShallow extends SchExp {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public void mapSubExps(Consumer<Exp<?>> f) {

@@ -1,26 +1,25 @@
 package catdata.cql.exp;
 
+import catdata.Chc;
+import catdata.Pair;
+import catdata.Util;
+import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Collage;
+import catdata.cql.Collage.CCollage;
+import catdata.cql.Eq;
+import catdata.cql.Instance;
+import catdata.cql.Kind;
+import catdata.cql.Term;
+import catdata.cql.Transform;
+import catdata.cql.fdm.InitialAlgebra;
+import catdata.cql.fdm.LiteralInstance;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.Chc;
-import catdata.Pair;
-import catdata.Util;
-import catdata.cql.AqlOptions;
-import catdata.cql.Collage;
-import catdata.cql.Eq;
-import catdata.cql.Instance;
-import catdata.cql.Kind;
-import catdata.cql.Term;
-import catdata.cql.Transform;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Collage.CCollage;
-import catdata.cql.fdm.InitialAlgebra;
-import catdata.cql.fdm.LiteralInstance;
 
 public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
     extends InstExp<Gen2, Sk2, Integer, Chc<Sk2, Pair<Integer, Att>>> {
@@ -54,8 +53,10 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
     return Util.union(t1.deps(), t2.deps());
   }
 
-  public InstExpCoEq(TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t1,
-      TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t2, List<Pair<String, String>> options) {
+  public InstExpCoEq(
+      TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t1,
+      TransExp<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> t2,
+      List<Pair<String, String>> options) {
     this.t1 = t1;
     this.t2 = t2;
     this.options = Util.toMapSafely(options);
@@ -73,28 +74,19 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     InstExpCoEq<?, ?, ?, ?, ?, ?, ?, ?> other = (InstExpCoEq<?, ?, ?, ?, ?, ?, ?, ?>) obj;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     if (t1 == null) {
-      if (other.t1 != null)
-        return false;
-    } else if (!t1.equals(other.t1))
-      return false;
+      if (other.t1 != null) return false;
+    } else if (!t1.equals(other.t1)) return false;
     if (t2 == null) {
-      if (other.t2 != null)
-        return false;
-    } else if (!t2.equals(other.t2))
-      return false;
+      if (other.t2 != null) return false;
+    } else if (!t2.equals(other.t2)) return false;
     return true;
   }
 
@@ -106,7 +98,8 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
   @Override
   public SchExp type(AqlTyping G) {
     if (!t1.type(G).first.equals(t2.type(G).first)) {
-      throw new RuntimeException("Domains do not match: " + t1.type(G).first + " and \n\n" + t2.type(G).first);
+      throw new RuntimeException(
+          "Domains do not match: " + t1.type(G).first + " and \n\n" + t2.type(G).first);
     } else if (!t1.type(G).second.equals(t2.type(G).second)) {
       throw new RuntimeException(
           "CoDomains do not match: " + t1.type(G).second + " and \n\n" + t2.type(G).second);
@@ -115,33 +108,50 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
   }
 
   @Override
-  public synchronized Instance<String, String, Sym, Fk, Att, Gen2, Sk2, Integer, Chc<Sk2, Pair<Integer, Att>>> eval0(
-      AqlEnv env, boolean isC) {
-    Transform<String, String, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h1 = t1.eval(env, isC);
-    Transform<String, String, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h2 = t2.eval(env, isC);
+  public synchronized Instance<
+          String, String, Sym, Fk, Att, Gen2, Sk2, Integer, Chc<Sk2, Pair<Integer, Att>>>
+      eval0(AqlEnv env, boolean isC) {
+    Transform<String, String, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h1 =
+        t1.eval(env, isC);
+    Transform<String, String, Sym, Fk, Att, Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2> h2 =
+        t2.eval(env, isC);
     if (isC) {
       throw new IgnoreException();
     }
     Collage<String, String, Sym, Fk, Att, Gen2, Sk2> col = new CCollage<>(h1.dst().collage());
     AqlOptions strat = new AqlOptions(options, env.defaults);
-    h1.dst().eqs((a,b) -> {
-      col.eqs().add(new Eq<>(null, a, b));
-    });
+    h1.dst()
+        .eqs(
+            (a, b) -> {
+              col.eqs().add(new Eq<>(null, a, b));
+            });
 
-    h1.src().gens().entrySet((k,t) -> {
-      Term<String, String, Sym, Fk, Att, Gen2, Sk2> l = h1.gens().apply(k,t).convert();
-      Term<String, String, Sym, Fk, Att, Gen2, Sk2> r = h2.gens().apply(k,t).convert();
-      col.eqs().add(new Eq<>(null, l, r));
-    });
-    h1.src().sks().entrySet((k,t) -> {
-      Term<String, String, Sym, Fk, Att, Gen2, Sk2> l = h1.sks().apply(k,t);
-      Term<String, String, Sym, Fk, Att, Gen2, Sk2> r = h2.sks().apply(k,t);
-      col.eqs().add(new Eq<>(null, l, r));
-    });
-    InitialAlgebra<String, String, Sym, Fk, Att, Gen2, Sk2> initial0 = new InitialAlgebra<>(strat, h1.src().schema(), col,
-        (y) -> y, (x, y) -> y);
+    h1.src()
+        .gens()
+        .entrySet(
+            (k, t) -> {
+              Term<String, String, Sym, Fk, Att, Gen2, Sk2> l = h1.gens().apply(k, t).convert();
+              Term<String, String, Sym, Fk, Att, Gen2, Sk2> r = h2.gens().apply(k, t).convert();
+              col.eqs().add(new Eq<>(null, l, r));
+            });
+    h1.src()
+        .sks()
+        .entrySet(
+            (k, t) -> {
+              Term<String, String, Sym, Fk, Att, Gen2, Sk2> l = h1.sks().apply(k, t);
+              Term<String, String, Sym, Fk, Att, Gen2, Sk2> r = h2.sks().apply(k, t);
+              col.eqs().add(new Eq<>(null, l, r));
+            });
+    InitialAlgebra<String, String, Sym, Fk, Att, Gen2, Sk2> initial0 =
+        new InitialAlgebra<>(strat, h1.src().schema(), col, (y) -> y, (x, y) -> y);
 
-    return new LiteralInstance<>(h1.src().schema(), col.gens(), col.sks(), col.eqsAsPairs(), initial0.dp(), initial0,
+    return new LiteralInstance<>(
+        h1.src().schema(),
+        col.gens(),
+        col.sks(),
+        col.eqsAsPairs(),
+        initial0.dp(),
+        initial0,
         (Boolean) strat.getOrDefault(AqlOption.require_consistency),
         (Boolean) strat.getOrDefault(AqlOption.allow_java_eqs_unsafe));
   }
@@ -152,5 +162,4 @@ public final class InstExpCoEq<Gen1, Sk1, Gen2, Sk2, X1, Y1, X2, Y2>
     set.add(AqlOption.allow_java_eqs_unsafe);
     set.addAll(AqlOptions.proverOptionNames());
   }
-
 }

@@ -1,11 +1,10 @@
 package catdata.graph;
 
+import catdata.Util;
+import gnu.trove.map.hash.THashMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-
-import catdata.Util;
-import gnu.trove.map.hash.THashMap;
 
 class UnionFindSimple<X> {
   private final Map<X, X> id; // id[i] = component identifier of i
@@ -39,8 +38,7 @@ class UnionFindSimple<X> {
     X qID = find(q); // to reduce the number of array accesses
 
     // p and q are already in the same component
-    if (pID.equals(qID))
-      return;
+    if (pID.equals(qID)) return;
 
     Set<X> set = id.keySet();
     for (X i : set) {
@@ -55,5 +53,4 @@ class UnionFindSimple<X> {
   public String toString() {
     return "UnionFindSimple [id=" + id + ", count=" + count + "]";
   }
-
 }

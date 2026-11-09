@@ -1,16 +1,15 @@
 package catdata.cql.exp;
 
+import catdata.Pair;
+import catdata.Program;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
+import catdata.cql.Schema;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.Pair;
-import catdata.Program;
-import catdata.cql.Kind;
-import catdata.cql.Schema;
-import catdata.cql.AqlOptions.AqlOption;
 
 public final class SchExpMsError extends SchExp {
 
@@ -28,7 +27,8 @@ public final class SchExpMsError extends SchExp {
   }
 
   @Override
-  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> SchExp coaccept(P params, SchExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitSchExpMsError(params, r);
   }
 
@@ -55,39 +55,32 @@ public final class SchExpMsError extends SchExp {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     SchExpMsError other = (SchExpMsError) obj;
     if (dom == null) {
-      if (other.dom != null)
-        return false;
-    } else if (!dom.equals(other.dom))
-      return false;
+      if (other.dom != null) return false;
+    } else if (!dom.equals(other.dom)) return false;
     if (jdbcString == null) {
-      if (other.jdbcString != null)
-        return false;
-    } else if (!jdbcString.equals(other.jdbcString))
-      return false;
+      if (other.jdbcString != null) return false;
+    } else if (!jdbcString.equals(other.jdbcString)) return false;
     if (ty == null) {
-      if (other.ty != null)
-        return false;
-    } else if (!ty.equals(other.ty))
-      return false;
+      if (other.ty != null) return false;
+    } else if (!ty.equals(other.ty)) return false;
     return true;
   }
 
   @Override
   public Schema<String, String, Sym, Fk, Att> eval0(AqlEnv env, boolean isC) {
-    String body = """
+    String body =
+        """
         entities
           Error
         attributes
           message_id severity logged text : Error -> """;
-    return CombinatorParser.parseSchExpRaw("literal : " + ty + "{\n" + body + dom + "\n}").eval(env, isC);
+    return CombinatorParser.parseSchExpRaw("literal : " + ty + "{\n" + body + dom + "\n}")
+        .eval(env, isC);
   }
 
   @Override
@@ -107,8 +100,7 @@ public final class SchExpMsError extends SchExp {
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public void mapSubExps(Consumer<Exp<?>> f) {

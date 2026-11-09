@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-//import gnu.trove.map.hash.THashMap;
+
+// import gnu.trove.map.hash.THashMap;
 
 public class LocStr {
 
@@ -26,23 +27,16 @@ public class LocStr {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (!(obj instanceof LocStr))
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (!(obj instanceof LocStr)) return false;
     LocStr other = (LocStr) obj;
     if (loc == null) {
-      if (other.loc != null)
-        return false;
-    } else if (!loc.equals(other.loc))
-      return false;
+      if (other.loc != null) return false;
+    } else if (!loc.equals(other.loc)) return false;
     if (str == null) {
-      if (other.str != null)
-        return false;
-    } else if (!str.equals(other.str))
-      return false;
+      if (other.str != null) return false;
+    } else if (!str.equals(other.str)) return false;
     return true;
   }
 
@@ -67,9 +61,10 @@ public class LocStr {
     return ret;
   }
 
-  public static Map<Pair<String, Object>, Pair<Integer, Function<Pair<String, Object>, String>>> imports(
-      String section, Collection<LocStr> l, Function<Pair<String, Object>, String> f) {
-    Map<Pair<String, Object>, Pair<Integer, Function<Pair<String, Object>, String>>> ret = new LinkedHashMap<>(l.size());
+  public static Map<Pair<String, Object>, Pair<Integer, Function<Pair<String, Object>, String>>>
+      imports(String section, Collection<LocStr> l, Function<Pair<String, Object>, String> f) {
+    Map<Pair<String, Object>, Pair<Integer, Function<Pair<String, Object>, String>>> ret =
+        new LinkedHashMap<>(l.size());
     for (LocStr s : l) {
       ret.put(new Pair<>(section, s.str), new Pair<>(s.loc, f));
     }
@@ -86,24 +81,25 @@ public class LocStr {
   }
 
   public static <X> Set<Pair<String, X>> set2(Collection<Pair<LocStr, X>> l) {
-    return set2y(l, Function.identity()); 
+    return set2y(l, Function.identity());
   }
 
-  public static <X> Set<Pair<String, Pair<String, X>>> set2x(Collection<Pair<LocStr, Pair<String, String>>> atts,
-      Function<String, X> f) {
+  public static <X> Set<Pair<String, Pair<String, X>>> set2x(
+      Collection<Pair<LocStr, Pair<String, String>>> atts, Function<String, X> f) {
     Set<Pair<String, Pair<String, X>>> ret = new LinkedHashSet<>(atts.size());
-    
+
     for (Pair<LocStr, Pair<String, String>> x : atts) {
       ret.add(new Pair<>(x.first.str, new Pair<>(x.second.first, f.apply(x.second.second))));
     }
-    
+
     return ret;
   }
 
-  public static <En, Y> Set<Pair<String, En>> set2y(Collection<Pair<LocStr, Y>> gens, Function<Y, En> f) {
+  public static <En, Y> Set<Pair<String, En>> set2y(
+      Collection<Pair<LocStr, Y>> gens, Function<Y, En> f) {
     Set<Pair<String, En>> ret = new LinkedHashSet<>(gens.size());
     for (Pair<LocStr, Y> x : gens) {
-       ret.add(new Pair<>(x.first.str, f.apply(x.second)));
+      ret.add(new Pair<>(x.first.str, f.apply(x.second)));
     }
     return ret;
   }
@@ -112,11 +108,11 @@ public class LocStr {
       Collection<Pair<LocStr, Triple<List<String>, String, String>>> f) {
     Set<Pair<String, Triple<List<String>, String, String>>> ret = new LinkedHashSet<>(f.size());
     for (Pair<LocStr, Triple<List<String>, String, String>> x : f) {
-      ret.add(new Pair<>(x.first.str, x.second));      
+      ret.add(new Pair<>(x.first.str, x.second));
     }
     return ret;
   }
-  
+
   public static List<InteriorLabel<Object>> imports(String section, List<LocStr> imports) {
     List<InteriorLabel<Object>> ret = new LinkedList<>();
     for (LocStr str : imports) {
@@ -125,7 +121,6 @@ public class LocStr {
     return ret;
   }
 
-  
   public static <X> Set<X> proj2(Collection<Pair<Integer, X>> eqs) {
     return eqs.stream().map(x -> x.second).collect(Collectors.toSet());
   }
@@ -133,19 +128,22 @@ public class LocStr {
   public static <X> List<X> proj2l(Collection<Pair<Integer, X>> eqs) {
     return eqs.stream().map(x -> x.second).collect(Collectors.toList());
   }
+
   public static <X, Y> List<Pair<Pair<Y, String>, X>> list2x(List<Pair<Pair<Y, LocStr>, X>> as) {
-    return as.stream().map(x -> new Pair<>(new Pair<>(x.first.first, x.first.second.str), x.second))
+    return as.stream()
+        .map(x -> new Pair<>(new Pair<>(x.first.first, x.first.second.str), x.second))
         .collect(Collectors.toUnmodifiableList());
   }
 
   public static <X> List<Pair<String, X>> list2(List<Pair<LocStr, X>> as) {
-    return as.stream().map(x -> new Pair<>(x.first.str, x.second)).collect(Collectors.toUnmodifiableList());
+    return as.stream()
+        .map(x -> new Pair<>(x.first.str, x.second))
+        .collect(Collectors.toUnmodifiableList());
   }
 
   public static <X, Y> List<Pair<Y, X>> list2(List<Pair<LocStr, X>> as, Function<String, Y> f) {
-    return as.stream().map(x -> new Pair<>(f.apply(x.first.str), x.second))
+    return as.stream()
+        .map(x -> new Pair<>(f.apply(x.first.str), x.second))
         .collect(Collectors.toUnmodifiableList());
   }
-  
-
 }

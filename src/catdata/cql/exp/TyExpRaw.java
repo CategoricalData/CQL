@@ -1,15 +1,5 @@
 package catdata.cql.exp;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import catdata.Chc;
 import catdata.InteriorLabel;
 import catdata.LocException;
@@ -21,15 +11,24 @@ import catdata.Unit;
 import catdata.Util;
 import catdata.cql.AqlJs;
 import catdata.cql.AqlOptions;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Collage;
+import catdata.cql.Collage.CCollage;
 import catdata.cql.Eq;
 import catdata.cql.Kind;
 import catdata.cql.Term;
 import catdata.cql.TypeSide;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.Collage.CCollage;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class TyExpRaw extends TyExp implements Raw {
 
@@ -40,7 +39,8 @@ public final class TyExpRaw extends TyExp implements Raw {
   }
 
   @Override
-  public <R, P, E extends Exception> TyExp coaccept(P params, TyExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> TyExp coaccept(P params, TyExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitTyExpRaw(params, r);
   }
 
@@ -82,10 +82,15 @@ public final class TyExpRaw extends TyExp implements Raw {
     return options;
   }
 
-  public TyExpRaw(List<TyExp> imports, List<LocStr> types, List<Pair<LocStr, Pair<List<String>, String>>> functions,
+  public TyExpRaw(
+      List<TyExp> imports,
+      List<LocStr> types,
+      List<Pair<LocStr, Pair<List<String>, String>>> functions,
       List<Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>>> eqsX,
-      List<Pair<LocStr, String>> java_tys_string, List<Pair<LocStr, String>> java_parser_string,
-      List<Pair<LocStr, Triple<List<String>, String, String>>> java_fns_string, List<Pair<String, String>> options) {
+      List<Pair<LocStr, String>> java_tys_string,
+      List<Pair<LocStr, String>> java_parser_string,
+      List<Pair<LocStr, Triple<List<String>, String, String>>> java_fns_string,
+      List<Pair<String, String>> options) {
     this.imports = Util.toSetSafely(imports);
     this.types = LocStr.set1(types);
     this.functions = LocStr.functions1(functions);
@@ -104,7 +109,8 @@ public final class TyExpRaw extends TyExp implements Raw {
     col.java_tys().putAll(conv3(Util.toMapSafely(this.java_tys)));
     col.tys().addAll(col.java_tys().keySet());
     col.java_parsers().putAll(conv3(Util.toMapSafely(this.java_parser)));
-    for (Entry<String, Triple<List<String>, String, String>> kv : Util.toMapSafely(this.java_fns).entrySet()) {
+    for (Entry<String, Triple<List<String>, String, String>> kv :
+        Util.toMapSafely(this.java_fns).entrySet()) {
       List<String> l1 = kv.getValue().first.stream().map(x -> (x)).collect(Collectors.toList());
       var zzz = new Pair<>(l1, (kv.getValue().second));
       Sym s = Sym.Sym(kv.getKey(), zzz);
@@ -117,64 +123,105 @@ public final class TyExpRaw extends TyExp implements Raw {
   }
 
   @SuppressWarnings("unchecked")
-  static Triple<Map<String, Chc<String, Void>>, Term<String, Void, Sym, Void, Void, Void, Void>, Term<String, Void, Sym, Void, Void, Void, Void>> infer1x(
-      Map<String, Chc<String, String>> Map0, RawTerm e0, RawTerm f, Chc<String, Void> expected,
-      @SuppressWarnings("rawtypes") Collage col, String pre, AqlJs<String, Sym> js) {
-    return RawTerm.infer1x(Map0, e0, f, (Chc<String, String>) ((Object) expected), col, pre, js).first3();
+  static Triple<
+          Map<String, Chc<String, Void>>,
+          Term<String, Void, Sym, Void, Void, Void, Void>,
+          Term<String, Void, Sym, Void, Void, Void, Void>>
+      infer1x(
+          Map<String, Chc<String, String>> Map0,
+          RawTerm e0,
+          RawTerm f,
+          Chc<String, Void> expected,
+          @SuppressWarnings("rawtypes") Collage col,
+          String pre,
+          AqlJs<String, Sym> js) {
+    return RawTerm.infer1x(Map0, e0, f, (Chc<String, String>) ((Object) expected), col, pre, js)
+        .first3();
   }
 
   private static Map<String, String> conv3(Map<String, String> m) {
     return Util.map(m, (x, y) -> new Pair<>((x), y));
   }
 
- // private static Pair<List<String>, String> conv2(List<String> k, String v) {
- //   List<String> l1 = k.stream().map(x -> (x)).collect(Collectors.toList());
- //   return new Pair<>(l1, (v));
- // }
+  // private static Pair<List<String>, String> conv2(List<String> k, String v) {
+  //   List<String> l1 = k.stream().map(x -> (x)).collect(Collectors.toList());
+  //   return new Pair<>(l1, (v));
+  // }
 
- // private static Map<Sym, Pair<List<String>, String>> conv1(Map<String, Pair<List<String>, String>> m) {
+  // private static Map<Sym, Pair<List<String>, String>> conv1(Map<String, Pair<List<String>,
+  // String>> m) {
   //  return Util.map(m, (k, v) -> new Pair<>(Sym.Sym(k, v), conv2(v.first, v.second)));
- // }
+  // }
 
-  public void doGuiIndex(List<LocStr> types, List<Pair<LocStr, Pair<List<String>, String>>> functions,
+  public void doGuiIndex(
+      List<LocStr> types,
+      List<Pair<LocStr, Pair<List<String>, String>>> functions,
       List<Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>>> eqs,
-      List<Pair<LocStr, String>> java_tys_string, List<Pair<LocStr, String>> java_parser_string,
+      List<Pair<LocStr, String>> java_tys_string,
+      List<Pair<LocStr, String>> java_parser_string,
       List<Pair<LocStr, Triple<List<String>, String, String>>> java_fns_string) {
     List<InteriorLabel<Object>> t = InteriorLabel.imports("types", types);
     raw.put("types", t);
 
     List<InteriorLabel<Object>> f = new LinkedList<>();
     for (Pair<LocStr, Pair<List<String>, String>> p : functions) {
-      f.add(new InteriorLabel<>("functions", new Triple<>(p.first.str, p.second.first, p.second.second), p.first.loc,
-          x -> x.first + " : " + Util.sep(x.second, ",") + (x.second.isEmpty() ? "" : " -> ") + x.third).conv());
+      f.add(
+          new InteriorLabel<>(
+                  "functions",
+                  new Triple<>(p.first.str, p.second.first, p.second.second),
+                  p.first.loc,
+                  x ->
+                      x.first
+                          + " : "
+                          + Util.sep(x.second, ",")
+                          + (x.second.isEmpty() ? "" : " -> ")
+                          + x.third)
+              .conv());
     }
     raw.put("functions", f);
 
     List<InteriorLabel<Object>> e = new LinkedList<>();
     for (Pair<Integer, Triple<List<Pair<String, String>>, RawTerm, RawTerm>> p : eqs) {
-      e.add(new InteriorLabel<>("equations", p.second, p.first, x -> x.second + " = " + x.third).conv());
+      e.add(
+          new InteriorLabel<>("equations", p.second, p.first, x -> x.second + " = " + x.third)
+              .conv());
     }
     raw.put("equations", e);
 
     List<InteriorLabel<Object>> jt = new LinkedList<>();
     raw.put("java_types", jt);
     for (Pair<LocStr, String> p : java_tys_string) {
-      jt.add(new InteriorLabel<>("java_types", new Pair<>(p.first.str, p.second), p.first.loc,
-          x -> x.first + " = " + x.second).conv());
+      jt.add(
+          new InteriorLabel<>(
+                  "java_types",
+                  new Pair<>(p.first.str, p.second),
+                  p.first.loc,
+                  x -> x.first + " = " + x.second)
+              .conv());
     }
 
     List<InteriorLabel<Object>> jc = new LinkedList<>();
     for (Pair<LocStr, String> p : java_parser_string) {
-      jc.add(new InteriorLabel<>("java_constants", new Pair<>(p.first.str, p.second), p.first.loc,
-          x -> x.first + " = " + x.second).conv());
+      jc.add(
+          new InteriorLabel<>(
+                  "java_constants",
+                  new Pair<>(p.first.str, p.second),
+                  p.first.loc,
+                  x -> x.first + " = " + x.second)
+              .conv());
     }
     raw.put("java_constants", jc);
 
     List<InteriorLabel<Object>> jf = new LinkedList<>();
     raw.put("java_functions", jf);
     for (Pair<LocStr, Triple<List<String>, String, String>> p : java_fns_string) {
-      jf.add(new InteriorLabel<>("java_functions", new Triple<>(p.first.str, p.second.first, p.second.second),
-          p.first.loc, x -> x.first + " : " + Util.sep(x.second, ",") + " -> " + x.third).conv());
+      jf.add(
+          new InteriorLabel<>(
+                  "java_functions",
+                  new Triple<>(p.first.str, p.second.first, p.second.second),
+                  p.first.loc,
+                  x -> x.first + " : " + Util.sep(x.second, ",") + " -> " + x.third)
+              .conv());
     }
   }
 
@@ -195,53 +242,34 @@ public final class TyExpRaw extends TyExp implements Raw {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     TyExpRaw other = (TyExpRaw) obj;
     if (eqs == null) {
-      if (other.eqs != null)
-        return false;
-    } else if (!eqs.equals(other.eqs))
-      return false;
+      if (other.eqs != null) return false;
+    } else if (!eqs.equals(other.eqs)) return false;
     if (functions == null) {
-      if (other.functions != null)
-        return false;
-    } else if (!functions.equals(other.functions))
-      return false;
+      if (other.functions != null) return false;
+    } else if (!functions.equals(other.functions)) return false;
     if (imports == null) {
-      if (other.imports != null)
-        return false;
-    } else if (!imports.equals(other.imports))
-      return false;
+      if (other.imports != null) return false;
+    } else if (!imports.equals(other.imports)) return false;
     if (java_fns == null) {
-      if (other.java_fns != null)
-        return false;
-    } else if (!java_fns.equals(other.java_fns))
-      return false;
+      if (other.java_fns != null) return false;
+    } else if (!java_fns.equals(other.java_fns)) return false;
     if (java_parser == null) {
-      if (other.java_parser != null)
-        return false;
-    } else if (!java_parser.equals(other.java_parser))
-      return false;
+      if (other.java_parser != null) return false;
+    } else if (!java_parser.equals(other.java_parser)) return false;
     if (java_tys == null) {
-      if (other.java_tys != null)
-        return false;
-    } else if (!java_tys.equals(other.java_tys))
-      return false;
+      if (other.java_tys != null) return false;
+    } else if (!java_tys.equals(other.java_tys)) return false;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     if (types == null) {
-      if (other.types != null)
-        return false;
-    } else if (!types.equals(other.types))
-      return false;
+      if (other.types != null) return false;
+    } else if (!types.equals(other.types)) return false;
     return true;
   }
 
@@ -284,7 +312,8 @@ public final class TyExpRaw extends TyExp implements Raw {
       temp = new LinkedList<>();
       for (Pair<String, Pair<List<String>, String>> sym : Util.alphabetical(functions)) {
         if (!sym.second.first.isEmpty()) {
-          temp.add(sym.first + " : " + Util.sep(sym.second.first, ", ") + " -> " + sym.second.second);
+          temp.add(
+              sym.first + " : " + Util.sep(sym.second.first, ", ") + " -> " + sym.second.second);
         }
       }
       sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
@@ -314,7 +343,12 @@ public final class TyExpRaw extends TyExp implements Raw {
       temp = new LinkedList<>();
       for (Pair<String, Triple<List<String>, String, String>> sym : Util.alphabetical(java_fns)) {
         temp.add(
-            sym.first + " : " + fff.apply(sym.second.first) + sym.second.second + " = " + Util.quote(sym.second.third));
+            sym.first
+                + " : "
+                + fff.apply(sym.second.first)
+                + sym.second.second
+                + " = "
+                + Util.quote(sym.second.third));
       }
 
       sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
@@ -324,8 +358,10 @@ public final class TyExpRaw extends TyExp implements Raw {
       sb.append("\tequations");
       temp = new LinkedList<>();
       for (Triple<List<Pair<String, String>>, RawTerm, RawTerm> sym : Util.alphabetical(eqs)) {
-        List<String> vars = sym.first.stream().map(x -> (x.second == null) ? x.first : x.first + ":" + x.second)
-            .collect(Collectors.toList());
+        List<String> vars =
+            sym.first.stream()
+                .map(x -> (x.second == null) ? x.first : x.first + ":" + x.second)
+                .collect(Collectors.toList());
         temp.add("forall " + Util.sep(vars, ", ") + ". " + sym.second + " = " + sym.third);
       }
       sb.append("\n\t\t" + Util.sep(temp, "\n\t\t") + "\n");
@@ -351,25 +387,38 @@ public final class TyExpRaw extends TyExp implements Raw {
     for (TyExp k : imports) {
       col.addAll(k.eval(env, isC).collage());
     }
-    AqlJs<String, Sym> js = new AqlJs<>(ops, col.syms(), col.java_tys(), col.java_parsers(), col.java_fns());
+    AqlJs<String, Sym> js =
+        new AqlJs<>(ops, col.syms(), col.java_tys(), col.java_parsers(), col.java_fns());
 
     for (Triple<List<Pair<String, String>>, RawTerm, RawTerm> eq : eqs) {
       try {
-        Triple<Map<String, Chc<String, Void>>, Term<String, Void, Sym, Void, Void, Void, Void>, Term<String, Void, Sym, Void, Void, Void, Void>> tr = infer1x(
-            yyy(eq.first), eq.second, eq.third, null, col, "", js);
+        Triple<
+                Map<String, Chc<String, Void>>,
+                Term<String, Void, Sym, Void, Void, Void, Void>,
+                Term<String, Void, Sym, Void, Void, Void, Void>>
+            tr = infer1x(yyy(eq.first), eq.second, eq.third, null, col, "", js);
         col.eqs().add(new Eq<>(tr.first, tr.second, tr.third));
       } catch (Exception ex) {
         ex.printStackTrace();
-        throw new LocException(find("equations", eq),
+        throw new LocException(
+            find("equations", eq),
             "In equation " + eq.second + " = " + eq.third + ", " + ex.getMessage());
       }
     }
 
-    Set<Triple<Map<String, String>, Term<String, Void, Sym, Void, Void, Void, Void>, Term<String, Void, Sym, Void, Void, Void, Void>>> eqs0 = col
-        .eqsAsTriples().stream().map(x -> new Triple<>(xxx(x.first), x.second, x.third)).collect(Collectors.toSet());
+    Set<
+            Triple<
+                Map<String, String>,
+                Term<String, Void, Sym, Void, Void, Void, Void>,
+                Term<String, Void, Sym, Void, Void, Void, Void>>>
+        eqs0 =
+            col.eqsAsTriples().stream()
+                .map(x -> new Triple<>(xxx(x.first), x.second, x.third))
+                .collect(Collectors.toSet());
 
-    TypeSide<String, Sym> ret = new TypeSide<>(col.tys(), col.syms(), (eqs0), col.java_tys(), col.java_parsers(),
-        col.java_fns(), ops);
+    TypeSide<String, Sym> ret =
+        new TypeSide<>(
+            col.tys(), col.syms(), (eqs0), col.java_tys(), col.java_parsers(), col.java_fns(), ops);
 
     return ret;
   }
@@ -403,8 +452,5 @@ public final class TyExpRaw extends TyExp implements Raw {
   }
 
   @Override
-  public void mapSubExps(Consumer<Exp<?>> f) {
-
-  }
-
+  public void mapSubExps(Consumer<Exp<?>> f) {}
 }

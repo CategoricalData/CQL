@@ -1,13 +1,12 @@
 package catdata.graph;
 
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
-//WeightedQuickUnionPathCompressionUF a la Robert Sedgewick and Kevin Wayne
+// WeightedQuickUnionPathCompressionUF a la Robert Sedgewick and Kevin Wayne
 public class UnionFindClassic<X> {
 
   @Override
@@ -93,5 +92,4 @@ public class UnionFindClassic<X> {
     }
     return ret;
   }
-
 }

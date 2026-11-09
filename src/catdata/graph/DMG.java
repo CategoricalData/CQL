@@ -1,22 +1,20 @@
 package catdata.graph;
 
+import catdata.Pair;
+import catdata.Triple;
+import catdata.Util;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import catdata.Pair;
-import catdata.Triple;
-import catdata.Util;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
 /**
  * Directed labeled multi-graphs.
- * 
- * @author ryan
  *
+ * @author ryan
  * @param <N> type of nodes
  * @param <E> type of edges
  */
@@ -59,8 +57,15 @@ public class DMG<N, E> {
         throw new RuntimeException("Not an edge: " + e);
       }
       if (!dst.equals(edges.get(e).first)) {
-        throw new RuntimeException("Ill-typed: " + path + ", edge " + e + " has source " + edges.get(e).first
-            + " but is applied to " + src);
+        throw new RuntimeException(
+            "Ill-typed: "
+                + path
+                + ", edge "
+                + e
+                + " has source "
+                + edges.get(e).first
+                + " but is applied to "
+                + src);
       }
       dst = edges.get(e).second;
     }
@@ -103,24 +108,16 @@ public class DMG<N, E> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     DMG<?, ?> other = (DMG<?, ?>) obj;
     if (edges == null) {
-      if (other.edges != null)
-        return false;
-    } else if (!edges.equals(other.edges))
-      return false;
+      if (other.edges != null) return false;
+    } else if (!edges.equals(other.edges)) return false;
     if (nodes == null) {
-      if (other.nodes != null)
-        return false;
-    } else if (!nodes.equals(other.nodes))
-      return false;
+      if (other.nodes != null) return false;
+    } else if (!nodes.equals(other.nodes)) return false;
     return true;
   }
-
 }

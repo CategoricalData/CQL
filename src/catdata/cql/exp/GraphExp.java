@@ -1,14 +1,5 @@
 package catdata.cql.exp;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import catdata.InteriorLabel;
 import catdata.LocStr;
 import catdata.Pair;
@@ -17,12 +8,20 @@ import catdata.Raw;
 import catdata.Triple;
 import catdata.Unit;
 import catdata.Util;
+import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Graph;
 import catdata.cql.Kind;
-import catdata.cql.AqlOptions.AqlOption;
 import catdata.graph.DMG;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public abstract class GraphExp extends Exp<Graph<String, String>> {
 
@@ -43,7 +42,7 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
     return ret;
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public Exp<Graph<String, String>> Var(String v) {
     Exp ret = new GraphExpVar(v);
@@ -66,7 +65,8 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
     public abstract GraphExpLiteral visitGraphExpLiteral(P params, R exp) throws E;
   }
 
-  public abstract <R, P, Ex extends Exception> R accept(P params, GraphExpVisitor<R, P, Ex> v) throws Ex;
+  public abstract <R, P, Ex extends Exception> R accept(P params, GraphExpVisitor<R, P, Ex> v)
+      throws Ex;
 
   ////////////////////////////
 
@@ -94,7 +94,10 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
 
     public final Set<GraphExp> imports;
 
-    public GraphExpRaw(List<LocStr> nodes, List<Pair<LocStr, Pair<String, String>>> edges, List<GraphExp> imports) {
+    public GraphExpRaw(
+        List<LocStr> nodes,
+        List<Pair<LocStr, Pair<String, String>>> edges,
+        List<GraphExp> imports) {
       this.nodes = LocStr.set1(nodes);
       this.edges = Util.toMapSafely(LocStr.set2(edges));
       this.imports = new THashSet<>(imports);
@@ -107,8 +110,13 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
 
       List<InteriorLabel<Object>> f = new ArrayList<>(edges.size());
       for (Pair<LocStr, Pair<String, String>> p : edges) {
-        f.add(new InteriorLabel<>("edges", new Triple<>(p.first.str, p.second.first, p.second.second),
-            p.first.loc, x -> x.first + " : " + x.second + " -> " + x.third).conv());
+        f.add(
+            new InteriorLabel<>(
+                    "edges",
+                    new Triple<>(p.first.str, p.second.first, p.second.second),
+                    p.first.loc,
+                    x -> x.first + " : " + x.second + " -> " + x.third)
+                .conv());
       }
       raw.put("edges", f);
     }
@@ -125,28 +133,19 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       GraphExpRaw other = (GraphExpRaw) obj;
       if (edges == null) {
-        if (other.edges != null)
-          return false;
-      } else if (!edges.equals(other.edges))
-        return false;
+        if (other.edges != null) return false;
+      } else if (!edges.equals(other.edges)) return false;
       if (imports == null) {
-        if (other.imports != null)
-          return false;
-      } else if (!imports.equals(other.imports))
-        return false;
+        if (other.imports != null) return false;
+      } else if (!imports.equals(other.imports)) return false;
       if (nodes == null) {
-        if (other.nodes != null)
-          return false;
-      } else if (!nodes.equals(other.nodes))
-        return false;
+        if (other.nodes != null) return false;
+      } else if (!nodes.equals(other.nodes)) return false;
       return true;
     }
 
@@ -173,8 +172,12 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
       for (Object e : edges.keySet()) {
         l.add(e + ": " + edges.get(e).first + " -> " + edges.get(e).second);
       }
-      return sb.append("literal {\n\tnodes\n\t\t").append(Util.sep(nodes, " ")).append("\n\tedges\n\t\t")
-          .append(Util.sep(l, "\n\t\t")).append("\n}").toString();
+      return sb.append("literal {\n\tnodes\n\t\t")
+          .append(Util.sep(nodes, " "))
+          .append("\n\tedges\n\t\t")
+          .append(Util.sep(l, "\n\t\t"))
+          .append("\n}")
+          .toString();
     }
 
     @Override
@@ -187,15 +190,10 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
     }
 
     @Override
-    protected void allowedOptions(Set<AqlOption> set) {
-
-    }
+    protected void allowedOptions(Set<AqlOption> set) {}
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
-
+    public void mapSubExps(Consumer<Exp<?>> f) {}
   }
 
   ////////////////////////////
@@ -230,18 +228,13 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       GraphExpLiteral other = (GraphExpLiteral) obj;
       if (graph == null) {
-        if (other.graph != null)
-          return false;
-      } else if (!graph.equals(other.graph))
-        return false;
+        if (other.graph != null) return false;
+      } else if (!graph.equals(other.graph)) return false;
       return true;
     }
 
@@ -251,8 +244,7 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
     }
 
     @Override
-    protected void allowedOptions(Set<AqlOption> set) {
-    }
+    protected void allowedOptions(Set<AqlOption> set) {}
 
     @Override
     public Graph<String, String> resolve(Program<Exp<?>> G) {
@@ -260,10 +252,7 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
-
+    public void mapSubExps(Consumer<Exp<?>> f) {}
   }
 
   //////////////
@@ -302,18 +291,13 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       GraphExpVar other = (GraphExpVar) obj;
       if (var == null) {
-        if (other.var != null)
-          return false;
-      } else if (!var.equals(other.var))
-        return false;
+        if (other.var != null) return false;
+      } else if (!var.equals(other.var)) return false;
       return true;
     }
 
@@ -323,8 +307,7 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
     }
 
     @Override
-    protected void allowedOptions(Set<AqlOption> set) {
-    }
+    protected void allowedOptions(Set<AqlOption> set) {}
 
     @Override
     public Graph<String, String> resolve(Program<Exp<?>> G) {
@@ -332,10 +315,6 @@ public abstract class GraphExp extends Exp<Graph<String, String>> {
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
-
+    public void mapSubExps(Consumer<Exp<?>> f) {}
   }
-
 }

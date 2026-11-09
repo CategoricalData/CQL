@@ -1,15 +1,12 @@
 package catdata.graph;
 
+import catdata.Util;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import catdata.Util;
-
 /**
- *
- * A morphism of graphs taking nodes to nodes and edges to (possibly empty)
- * paths.
+ * A morphism of graphs taking nodes to nodes and edges to (possibly empty) paths.
  *
  * @author ryan
  */
@@ -37,7 +34,14 @@ public final class Match<N1, E1, N2, E2> {
       }
       if (!dst.nodes.contains(en2)) {
         throw new RuntimeException(
-            "in " + this + ", " + "source node " + en1 + " maps to " + en2 + ", which is not in target");
+            "in "
+                + this
+                + ", "
+                + "source node "
+                + en1
+                + " maps to "
+                + en2
+                + ", which is not in target");
       }
     }
     for (N1 en1 : nodes.keySet()) {
@@ -74,42 +78,33 @@ public final class Match<N1, E1, N2, E2> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Match<?, ?, ?, ?> other = (Match<?, ?, ?, ?>) obj;
     if (dst == null) {
-      if (other.dst != null)
-        return false;
-    } else if (!dst.equals(other.dst))
-      return false;
+      if (other.dst != null) return false;
+    } else if (!dst.equals(other.dst)) return false;
     if (edges == null) {
-      if (other.edges != null)
-        return false;
-    } else if (!edges.equals(other.edges))
-      return false;
+      if (other.edges != null) return false;
+    } else if (!edges.equals(other.edges)) return false;
     if (nodes == null) {
-      if (other.nodes != null)
-        return false;
-    } else if (!nodes.equals(other.nodes))
-      return false;
+      if (other.nodes != null) return false;
+    } else if (!nodes.equals(other.nodes)) return false;
     if (src == null) {
-      if (other.src != null)
-        return false;
-    } else if (!src.equals(other.src))
-      return false;
+      if (other.src != null) return false;
+    } else if (!src.equals(other.src)) return false;
     return true;
   }
 
   @Override
   public String toString() {
-    List<String> nodesStr = nodes.keySet().stream().map(x -> x + " -> " + nodes.get(x))
-        .collect(Collectors.toList());
-    List<String> edgesStr = edges.keySet().stream().map(x -> x + " -> " + Util.sep(edges.get(x), "."))
-        .collect(Collectors.toList());
+    List<String> nodesStr =
+        nodes.keySet().stream().map(x -> x + " -> " + nodes.get(x)).collect(Collectors.toList());
+    List<String> edgesStr =
+        edges.keySet().stream()
+            .map(x -> x + " -> " + Util.sep(edges.get(x), "."))
+            .collect(Collectors.toList());
     return "nodes\n\t" + Util.sep(nodesStr, "\n\t") + "\n\nedges\n\t" + Util.sep(edgesStr, "\n\t");
   }
 
@@ -122,5 +117,4 @@ public final class Match<N1, E1, N2, E2> {
   boolean testEdges(java.util.function.Function<Map<E1, List<E2>>, Boolean> f) {
     return f.apply(edges);
   }
-
 }

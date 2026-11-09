@@ -1,5 +1,15 @@
 package catdata.cql.exp;
 
+import catdata.InteriorLabel;
+import catdata.Pair;
+import catdata.Raw;
+import catdata.Triple;
+import catdata.Unit;
+import catdata.Util;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
+import catdata.cql.TypeSide;
+import gnu.trove.set.hash.THashSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -8,31 +18,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import catdata.InteriorLabel;
-import catdata.Pair;
-import catdata.Raw;
-import catdata.Triple;
-import catdata.Unit;
-import catdata.Util;
-import catdata.cql.Kind;
-import catdata.cql.TypeSide;
-import catdata.cql.AqlOptions.AqlOption;
-import gnu.trove.set.hash.THashSet;
-
 public final class TyExpAdt extends TyExp implements Raw {
-  
+
   public static void main(String[] args) {
     Set<String> s = new THashSet<>();
-  //  s.add("Person");
-  //  s.add("Color");
-    Set<Pair<String,String>> c = new THashSet<>();
-    //c.add(new Pair<>("red"  , "Color"));
-    //c.add(new Pair<>("blue" , "Color"));
-    //c.add(new Pair<>("green", "Color"));
-  //  c.add(new Pair<>("alice", "Person"));
-    List<Triple<String,String,Boolean>> t = new LinkedList<>();
+    //  s.add("Person");
+    //  s.add("Color");
+    Set<Pair<String, String>> c = new THashSet<>();
+    // c.add(new Pair<>("red"  , "Color"));
+    // c.add(new Pair<>("blue" , "Color"));
+    // c.add(new Pair<>("green", "Color"));
+    //  c.add(new Pair<>("alice", "Person"));
+    List<Triple<String, String, Boolean>> t = new LinkedList<>();
     t.add(new Triple<>("1", "1", true));
-    
+
     System.out.println(new Cat(s, c, t).toString());
   }
 
@@ -42,7 +41,8 @@ public final class TyExpAdt extends TyExp implements Raw {
   }
 
   @Override
-  public <R, P, E extends Exception> TyExp coaccept(P params, TyExpCoVisitor<R, P, E> v, R r) throws E {
+  public <R, P, E extends Exception> TyExp coaccept(P params, TyExpCoVisitor<R, P, E> v, R r)
+      throws E {
     return v.visitTyExpAdt(params, r);
   }
 
@@ -61,15 +61,15 @@ public final class TyExpAdt extends TyExp implements Raw {
     return Collections.emptySet();
   }
 
-  
-  
   public final Map<String, String> options;
   public final List<String> base;
   public final List<Pair<String, String>> values;
   public final List<Triple<String, String, Boolean>> types;
-  
 
-  public TyExpAdt(Map<String, String> options, List<String> base, List<Pair<String, String>> values,
+  public TyExpAdt(
+      Map<String, String> options,
+      List<String> base,
+      List<Pair<String, String>> values,
       List<Triple<String, String, Boolean>> types) {
     this.options = options;
     this.base = base;
@@ -77,7 +77,6 @@ public final class TyExpAdt extends TyExp implements Raw {
     this.types = types;
   }
 
-  
   @Override
   public Map<String, String> options() {
     return options;
@@ -89,11 +88,11 @@ public final class TyExpAdt extends TyExp implements Raw {
     }
     return s;
   }
-  
-  private static class Cat {  
-  
+
+  private static class Cat {
+
     Map<String, Set<String>> arrs = Util.mk();
-    
+
     @Override
     public String toString() {
       StringBuffer sb = new StringBuffer();
@@ -111,7 +110,7 @@ public final class TyExpAdt extends TyExp implements Raw {
         for (String x : arrs.get(t)) {
           sb.append("\t\t");
           sb.append(quote(x));
-          sb.append(" : V\n");  
+          sb.append(" : V\n");
         }
       }
       for (String x : arrs.keySet()) {
@@ -125,16 +124,18 @@ public final class TyExpAdt extends TyExp implements Raw {
           sb.append("\t\t");
           sb.append(quote(x));
           sb.append(".typeOf = " + quote(t));
-          sb.append("\n");  
+          sb.append("\n");
         }
       }
       sb.append("\toptions\n\t\tinterpret_as_algebra = true\n}\n");
-      
+
       return sb.toString();
     }
-    
-  
-    public Cat(Set<String> base, Set<Pair<String, String>> consts, List<Triple<String, String, Boolean>> types) {
+
+    public Cat(
+        Set<String> base,
+        Set<Pair<String, String>> consts,
+        List<Triple<String, String, Boolean>> types) {
       arrs.put("0", Collections.emptySet());
       arrs.put("1", Collections.singleton("tt"));
       for (String x : base) {
@@ -163,22 +164,19 @@ public final class TyExpAdt extends TyExp implements Raw {
         }
       }
     }
-      
-
   }
-  
+
   @Override
   public synchronized TypeSide<String, Sym> eval0(AqlEnv env, boolean isC) {
-    //AqlOptions ops = new AqlOptions(options, env.defaults);
-    
-    TypeSide<String, Sym> ret = null; 
+    // AqlOptions ops = new AqlOptions(options, env.defaults);
+
+    TypeSide<String, Sym> ret = null;
 
     return ret;
   }
 
   @Override
-  protected void allowedOptions(Set<AqlOption> set) {
-  }
+  protected void allowedOptions(Set<AqlOption> set) {}
 
   @Override
   public Object type(AqlTyping G) {
@@ -186,8 +184,7 @@ public final class TyExpAdt extends TyExp implements Raw {
   }
 
   @Override
-  public void mapSubExps(Consumer<Exp<?>> f) {
-  }
+  public void mapSubExps(Consumer<Exp<?>> f) {}
 
   @Override
   public int hashCode() {
@@ -202,33 +199,22 @@ public final class TyExpAdt extends TyExp implements Raw {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     TyExpAdt other = (TyExpAdt) obj;
     if (base == null) {
-      if (other.base != null)
-        return false;
-    } else if (!base.equals(other.base))
-      return false;
+      if (other.base != null) return false;
+    } else if (!base.equals(other.base)) return false;
     if (options == null) {
-      if (other.options != null)
-        return false;
-    } else if (!options.equals(other.options))
-      return false;
+      if (other.options != null) return false;
+    } else if (!options.equals(other.options)) return false;
     if (types == null) {
-      if (other.types != null)
-        return false;
-    } else if (!types.equals(other.types))
-      return false;
+      if (other.types != null) return false;
+    } else if (!types.equals(other.types)) return false;
     if (values == null) {
-      if (other.values != null)
-        return false;
-    } else if (!values.equals(other.values))
-      return false;
+      if (other.values != null) return false;
+    } else if (!values.equals(other.values)) return false;
     return true;
   }
 
@@ -237,5 +223,4 @@ public final class TyExpAdt extends TyExp implements Raw {
     // TODO Auto-generated method stub
     return null;
   }
-
 }
