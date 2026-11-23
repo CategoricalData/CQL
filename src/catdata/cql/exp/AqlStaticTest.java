@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import catdata.cql.Kind;
 import catdata.cql.Pragma;
+import catdata.cql.gui.CqlCodeEditor.StaticParserNotice;
 import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
@@ -18,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link AqlStatic}, which the CQL editor runs as the program is typed: {@code
  * typeCheck} marks the definitions that do not type-check in red, then {@code validate} evaluates
- * the rest at compile time and marks their errors in magenta.
+ * the rest at compile time, marks their errors in magenta and their warnings in orange.
  */
 class AqlStaticTest {
 
@@ -114,6 +116,42 @@ class AqlStaticTest {
             """;
     AqlStatic s = check(program, true).s();
     assertEquals(Optional.empty(), s.exns.get("Q"));
+  }
+
+  /** A colimit that gives the name E to two classes of entities, {A.E, B.F} and {B.E, C.H}. */
+  private static final String CLASH =
+      """
+      typeside Ty = literal { types String }
+      schema A = literal : Ty { entities E }
+      schema B = literal : Ty { entities F E }
+      schema C = literal : Ty { entities H }
+      schema_colimit Q = quotient A + B + C : Ty { entity_equations A.E = B.F B.E = C.H }
+      """;
+
+  @Test
+  void marksAWarningInOrangeOnTheLineOfItsDefinition() throws Exception {
+    AqlStatic s = check(CLASH, true).s();
+    List<String> warnings = s.env.get(Kind.SCHEMA_COLIMIT, "Q").warnings();
+    assertEquals(1, warnings.size());
+    assertEquals(warnings, s.warnings.get("Q"));
+    assertEquals(Set.of(4), notices(s, Color.orange).keySet());
+    assertEquals(1, s.result.getNotices().size(), s.result.getNotices().toString());
+    StaticParserNotice notice = (StaticParserNotice) s.result.getNotices().get(0);
+    assertEquals("Warning: " + warnings.get(0), notice.msg);
+    assertEquals(ParserNotice.Level.WARNING, notice.getLevel());
+    assertEquals(List.of(), s.warnings.get("A"));
+  }
+
+  @Test
+  void skipsTheNoticeOfAWarningWhoseTextIsGone() throws Exception {
+    // The editor parses its text in the background, so the text can be shorter by the time the
+    // notices are placed.
+    AqlStatic s = new AqlStatic(ExpTestHelpers.parse(CLASH));
+    RSyntaxTextArea area = new RSyntaxTextArea("");
+    s.typeCheck(area);
+    s.validate(area);
+    assertEquals(1, s.warnings.get("Q").size());
+    assertEquals(List.of(), s.result.getNotices());
   }
 
   @Test

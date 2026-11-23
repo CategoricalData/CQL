@@ -1,11 +1,21 @@
 package catdata.cql;
 
+import java.util.List;
+
 public interface Semantics {
 
   public default String sample(@SuppressWarnings("unused") int size) {
     return null;
   }
   ;
+
+  /**
+   * Warnings about this result, one message each. A warning reports something the user may not
+   * expect, such as two symbols merged because they were given one name, without stopping the run.
+   */
+  public default List<String> warnings() {
+    return List.of();
+  }
 
   public Kind kind();
 

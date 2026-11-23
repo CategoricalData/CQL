@@ -8,9 +8,11 @@ import catdata.Util;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Kind;
 import catdata.cql.Pragma;
+import catdata.cql.Semantics;
 import catdata.cql.gui.CqlCodeEditor.StaticParserNotice;
 import gnu.trove.set.hash.THashSet;
 import java.awt.Color;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -20,6 +22,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
+import org.fife.ui.rsyntaxtextarea.parser.ParserNotice;
 
 public class AqlStatic extends AbstractParser {
 
@@ -65,6 +68,7 @@ public class AqlStatic extends AbstractParser {
                     ((Pragma) o.r).execute();
                   }
                   env.defs.put(n, exp.kind(), o.r);
+                  warnings.put(n, ((Semantics) o.r).warnings());
                 }
               }
 
@@ -99,6 +103,26 @@ public class AqlStatic extends AbstractParser {
           ex.printStackTrace();
         }
       }
+      for (String w : warnings.getOrDefault(n, List.of())) {
+        addWarning(area, n, w);
+      }
+    }
+  }
+
+  /**
+   * Marks a warning of the definition {@code n} in orange, on the line where {@code n} starts. A
+   * warning does not stop the run, so its notice has the level of a warning rather than an error.
+   */
+  private void addWarning(RSyntaxTextArea area, String n, String warning) {
+    try {
+      int line = area.getLineOfOffset(env.prog.lines.get(n).first);
+      StaticParserNotice p =
+          new StaticParserNotice(
+              this, "Warning: " + warning, Integer.min(line, area.getLineCount()), Color.orange);
+      p.setLevel(ParserNotice.Level.WARNING);
+      result.addNotice(p);
+    } catch (BadLocationException ex) {
+      ex.printStackTrace();
     }
   }
 
@@ -143,6 +167,9 @@ public class AqlStatic extends AbstractParser {
 
   public final AqlEnv env;
   public final Map<String, Optional<String>> exns = Util.mk();
+
+  /** The warnings of each definition that {@code validate} computed, by name. */
+  public final Map<String, List<String>> warnings = Util.mk();
 
   public AqlStatic(Program<Exp<?>> p) {
     this.result = new DefaultParseResult(this);
