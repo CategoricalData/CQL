@@ -24,8 +24,22 @@ jobs:
       - name: Compile
         run: ./gradlew compileJava compileTestJava
 
+      # EgglogProverTest runs CQL's egglog prover and chase against the egglog that CQL_EGGLOG
+      # names, and skips those tests without it. It must not be /usr/local/bin/egglog, the
+      # default egglog_path, because AqlProverTest expects nothing there.
+      - name: Cache egglog
+        id: egglog-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/egglog
+          key: egglog-0.5.0-${{ runner.os }}
+
+      - name: Build egglog 0.5.0
+        if: steps.egglog-cache.outputs.cache-hit != 'true'
+        run: cargo install egglog --version 0.5.0 --locked --root ~/egglog
+
       - name: Run tests + coverage
-        run: ./gradlew test jacocoTestReport jacocoTestCoverageVerification
+        run: CQL_EGGLOG="$HOME/egglog/bin/egglog" ./gradlew test jacocoTestReport jacocoTestCoverageVerification
 
       - name: Upload test results
         if: always()

@@ -16,6 +16,7 @@ import catdata.cql.exp.AqlParserFactory;
 import catdata.cql.exp.Att;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -189,6 +190,81 @@ class SkolemInstanceTest {
       assertEquals("Anomaly: please report", e.getMessage());
       e = assertThrows(RuntimeException.class, () -> sks.put(sk, "Varchar"));
       assertEquals("Anomaly: please report", e.getMessage());
+    }
+  }
+
+  /**
+   * K is {@code skolem I} where the attribute m sits behind the foreign key f: the m of c is hi and
+   * the m of d is a SQL null. The queries return the n of the rows of A they select.
+   */
+  @Nested
+  class ThroughAForeignKey {
+
+    private static final String PROGRAM =
+        """
+        typeside Ty = sql
+        schema S = literal : Ty { entities A B foreign_keys f : A -> B
+          attributes n : A -> Varchar m : B -> Varchar }
+        instance I = literal : S { generators a b : A c d : B
+          equations a.f = c b.f = d c.m = hi d.m = null a.n = ann b.n = bo }
+        instance K = skolem I
+        schema T = literal : Ty { entities R attributes name : R -> Varchar }
+        """;
+
+    private static final Att NAME = Att.Att("R", "name");
+
+    /** The names of the rows that a query on K returns, sorted. */
+    private static List<String> names(String query) throws Exception {
+      AqlMultiDriver d =
+          new AqlMultiDriver(
+              AqlParserFactory.getParser()
+                  .parseProgram(
+                      PROGRAM
+                          + "query Q = literal : S -> T { entity R -> { from x:A where "
+                          + query
+                          + " attributes name -> x.n } }\ninstance J = eval Q K\n"),
+              null);
+      d.start();
+      assertNull(d.env.exn);
+      var j = d.env.defs.insts.get("J");
+      List<String> names = new ArrayList<>();
+      for (Object x : j.algebra().en("R")) {
+        names.add(j.algebra().att(NAME, x).toString());
+      }
+      Collections.sort(names);
+      return names;
+    }
+
+    @Test
+    void comparesAValueBehindAForeignKey() throws Exception {
+      assertEquals(List.of("ann"), names("x.f.m = hi"));
+    }
+
+    @Test
+    void decidesIsNullBehindAForeignKey() throws Exception {
+      assertEquals(List.of("bo"), names("isNull(x.f.m) = true"));
+    }
+
+    /**
+     * isNull of a term that is neither a value of a row nor a labelled null has no rewriting, and
+     * stops the query with the term as the message. The inner isNull below becomes a constant, so
+     * the outer one is such a term. Which row the query reaches first is not fixed.
+     */
+    @Test
+    void refusesIsNullOfAComputedTerm() throws Exception {
+      AqlMultiDriver d =
+          new AqlMultiDriver(
+              AqlParserFactory.getParser()
+                  .parseProgram(
+                      PROGRAM
+                          + "query Q = literal : S -> T { entity R -> { from x:A where"
+                          + " isNull(isNull(x.n)) = false attributes name -> x.n } }\n"
+                          + "instance J = eval Q K\n"),
+              null);
+      d.start();
+      String msg = d.env.exn.getMessage();
+      assertTrue(
+          msg.matches("java\\.lang\\.RuntimeException: isNull\\(isNull\\([ab]\\.n\\)\\)"), msg);
     }
   }
 }
