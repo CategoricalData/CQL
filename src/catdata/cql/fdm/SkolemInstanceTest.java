@@ -182,6 +182,19 @@ class SkolemInstanceTest {
       assertTrue(alg.hasNulls());
     }
 
+    /**
+     * The algebra is built at the first call and kept. Building it reads every attribute of I, and
+     * the check of the transform asks for it once per cell, so building it at every call makes that
+     * check grow with the square of the number of cells.
+     */
+    @Test
+    void buildsItsAlgebraOnceAndKeepsIt() throws Exception {
+      var k = k(run());
+      var alg = k.algebra();
+      assertSame(alg, k.algebra());
+      assertSame(alg, k.algebra());
+    }
+
     @Test
     void refusesToChangeItsLabelledNulls() throws Exception {
       var sks = k(run()).sks();
