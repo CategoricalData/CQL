@@ -229,8 +229,26 @@ public class SkolemInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
     throw new RuntimeException(t.toString());
   }
 
+  // Built at the first call and kept. The algebra is asked for again by every term this instance
+  // evaluates, and building it reads every attribute of the wrapped instance.
+  private volatile Algebra<Ty, En, Sym, Fk, Att, Gen, Pair<X, Att>, X, Pair<X, Att>> cachedAlgebra;
+
   @Override
   public Algebra<Ty, En, Sym, Fk, Att, Gen, Pair<X, Att>, X, Pair<X, Att>> algebra() {
+    Algebra<Ty, En, Sym, Fk, Att, Gen, Pair<X, Att>, X, Pair<X, Att>> result = cachedAlgebra;
+    if (result == null) {
+      synchronized (this) {
+        result = cachedAlgebra;
+        if (result == null) {
+          result = buildAlgebra();
+          cachedAlgebra = result;
+        }
+      }
+    }
+    return result;
+  }
+
+  private Algebra<Ty, En, Sym, Fk, Att, Gen, Pair<X, Att>, X, Pair<X, Att>> buildAlgebra() {
 
     List<
             Pair<
