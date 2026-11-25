@@ -208,7 +208,7 @@ class UtilTest {
       assertEquals(Optional.of(false), Util.stringPrefix(Optional.of("ab"), Optional.of("cd")));
     }
 
-    /** Tinkerpop and Bitsy read their properties files with Commons Configuration. */
+    /** Bitsy reads the properties file of its graph with Commons Configuration. */
     @Test
     void escapesAPropertyThatHoldsAWindowsPath(@TempDir Path dir) throws Exception {
       String windowsPath = "C:\\Users\\me\\tempfile0.yaml";
