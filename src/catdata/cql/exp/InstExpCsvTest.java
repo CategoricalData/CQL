@@ -1,5 +1,6 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -50,7 +51,11 @@ class InstExpCsvTest {
 
   /** A program importing dir onto the SQL typeside, with the given text after the directory. */
   private String program(String rest) {
-    return "typeside Ty = sql\ninstance I = import_csv \"" + dir + "\" : Ty " + rest + "\n";
+    return "typeside Ty = sql\ninstance I = import_csv \""
+        + inCqlString(dir)
+        + "\" : Ty "
+        + rest
+        + "\n";
   }
 
   private static String instance(String program) throws Exception {
@@ -161,7 +166,9 @@ class InstExpCsvTest {
     @Test
     void rejectsAFile() throws Exception {
       String program =
-          "typeside Ty = sql\ninstance I = import_csv \"" + dir.resolve("A.csv") + "\" : Ty\n";
+          "typeside Ty = sql\ninstance I = import_csv \""
+              + inCqlString(dir.resolve("A.csv"))
+              + "\" : Ty\n";
       assertTrue(ExpTestHelpers.error(program).contains("Expects folder of CSV files."));
     }
 
@@ -198,7 +205,7 @@ class InstExpCsvTest {
           + "\ntypeside Ty = literal { external_types Dom -> \"java.lang.String\""
           + " external_parsers Dom -> \"x => { if (x == 'bad') { throw 'bad value'; } return x; }\" }"
           + "\ninstance I = import_csv \""
-          + dir
+          + inCqlString(dir)
           + "\" : Ty\n";
     }
 
@@ -251,7 +258,7 @@ class InstExpCsvTest {
   class Expression {
 
     private InstExpCsv exp(String rest) throws Exception {
-      return ExpTestHelpers.exp(program(rest).replace(dir.toString(), "d"), "I");
+      return ExpTestHelpers.exp(program(rest).replace(inCqlString(dir), "d"), "I");
     }
 
     @Test
@@ -298,7 +305,8 @@ class InstExpCsvTest {
       assertNotEquals(e, exp("{ options csv_file_extension = \"txt\" }"));
       assertNotEquals(
           e,
-          ExpTestHelpers.exp(program("").replace(dir.toString(), "d").replace(": Ty", ": U"), "I"));
+          ExpTestHelpers.exp(
+              program("").replace(inCqlString(dir), "d").replace(": Ty", ": U"), "I"));
       assertNotEquals(e, null);
       assertNotEquals(e, "import_csv");
     }

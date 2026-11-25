@@ -1,5 +1,6 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -83,7 +84,7 @@ class PragmaExpCheckTest {
       Path out = Files.createTempDirectory("check_test").resolve("failing.json");
       String msg =
           ExpTestHelpers.error(
-              program("y", "{ options check_command_export_file = \"" + out + "\" }"));
+              program("y", "{ options check_command_export_file = \"" + inCqlString(out) + "\" }"));
       assertTrue(msg.contains("Not satisfied."), msg);
       String json = Files.readString(out);
       assertTrue(json.startsWith("{\""), json);
@@ -94,7 +95,7 @@ class PragmaExpCheckTest {
     void writesOnlyTheEntityVariablesOfAFailingRow() throws Exception {
       Path out = Files.createTempDirectory("check_test").resolve("failing.json");
       ExpTestHelpers.error(
-          program("y", "{ options check_command_export_file = \"" + out + "\" }")
+          program("y", "{ options check_command_export_file = \"" + inCqlString(out) + "\" }")
               .replace(
                   "forall a:A -> exists b:B where a.a1 = b.b1",
                   "forall a:A s:String where a.a1 = s -> exists b:B where s = b.b1"));
@@ -106,7 +107,7 @@ class PragmaExpCheckTest {
     void writesNothingForASatisfiedInstance() throws Exception {
       Path out = Files.createTempDirectory("check_test").resolve("failing.json");
       ExpTestHelpers.eval(
-          program("x", "{ options check_command_export_file = \"" + out + "\" }"),
+          program("x", "{ options check_command_export_file = \"" + inCqlString(out) + "\" }"),
           "chk",
           Kind.PRAGMA);
       assertFalse(Files.exists(out));
@@ -117,7 +118,7 @@ class PragmaExpCheckTest {
       Path dir = Files.createTempDirectory("check_test");
       String msg =
           ExpTestHelpers.error(
-              program("y", "{ options check_command_export_file = \"" + dir + "\" }"));
+              program("y", "{ options check_command_export_file = \"" + inCqlString(dir) + "\" }"));
       assertTrue(msg.contains(dir.toString()), msg);
     }
 

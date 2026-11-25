@@ -1,5 +1,6 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -68,7 +69,7 @@ class PragmaExpToExcelInstTest {
   /** The sheet that the program writes to out.xlsx in dir. */
   private Sheet export(String program) throws Exception {
     File out = dir.resolve("out.xlsx").toFile();
-    String command = "command E = export_excel_instance I \"" + out + "\"\n";
+    String command = "command E = export_excel_instance I \"" + inCqlString(out) + "\"\n";
     AqlMultiDriver d = ExpTestHelpers.run(program + command);
     assertTrue(d.exn.isEmpty(), d.exn.toString());
     assertTrue(d.env.exn == null, String.valueOf(d.env.exn));
@@ -181,7 +182,9 @@ class PragmaExpToExcelInstTest {
     @Test
     void reportsAFileThatCannotBeWritten() throws Exception {
       String command =
-          "command E = export_excel_instance I \"" + dir.resolve("no/out.xlsx") + "\"\n";
+          "command E = export_excel_instance I \""
+              + inCqlString(dir.resolve("no/out.xlsx"))
+              + "\"\n";
       String msg = ExpTestHelpers.error(EXCEL + command);
       assertTrue(msg.contains("java.io.FileNotFoundException"), msg);
     }
@@ -189,7 +192,10 @@ class PragmaExpToExcelInstTest {
     @Test
     void isNotEvaluatedAtCompileTime() throws Exception {
       String program =
-          EXCEL + "command E = export_excel_instance I \"" + dir.resolve("o.xlsx") + "\"\n";
+          EXCEL
+              + "command E = export_excel_instance I \""
+              + inCqlString(dir.resolve("o.xlsx"))
+              + "\"\n";
       AqlEnv env = ExpTestHelpers.run(program).env;
       PragmaExpToExcelInst<?, ?> e = ExpTestHelpers.exp(program, "E");
       assertThrows(IgnoreException.class, () -> e.eval0(env, true));

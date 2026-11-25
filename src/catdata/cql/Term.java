@@ -687,7 +687,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
     return w;
   }
 
-  public synchronized String toTpTpForChecker() {
+  public String toTpTpForChecker() {
     if (var != null) {
       return sqlVar(var);
     } else if (sym() != null) {
@@ -943,7 +943,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
     return false;
   }
 
-  public synchronized void forEachArg(Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Unit> f) {
+  public void forEachArg(Function<Term<Ty, En, Sym, Fk, Att, Gen, Sk>, Unit> f) {
     if (arg != null) {
       f.apply(arg);
     } else if (args != null) {
@@ -954,7 +954,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
   }
 
   // private List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> a;
-  public synchronized List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args() {
+  public List<Term<Ty, En, Sym, Fk, Att, Gen, Sk>> args() {
     if (args != null) {
       return args;
     } else if (arg != null) {
@@ -964,7 +964,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
     }
   }
 
-  public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(
+  public Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(
       Map<Head<Ty, En, Sym, Fk, Att, Gen, Sk>, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> replacee,
       List<String> vars) {
     if (var != null) {
@@ -1003,7 +1003,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
     return 0;
   }
 
-  public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(
+  public Term<Ty, En, Sym, Fk, Att, Gen, Sk> replaceHead(
       Head<Ty, En, Sym, Fk, Att, Gen, Sk> replacee,
       List<String> vars,
       Term<Ty, En, Sym, Fk, Att, Gen, Sk> replacer) {
@@ -1053,7 +1053,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
     return _head.equals(o);
   }
 
-  public synchronized Term<Ty, En, Sym, Fk, Att, Gen, Sk> subst(
+  public Term<Ty, En, Sym, Fk, Att, Gen, Sk> subst(
       Map<String, Term<Ty, En, Sym, Fk, Att, Gen, Sk>> map) {
     if (map == null || map.isEmpty()) {
       return this;
@@ -1083,7 +1083,7 @@ public final class Term<Ty, En, Sym, Fk, Att, Gen, Sk>
     return (Term<Ty, En, Sym, Fk, Att, Gen, Sk>) e;
   }
 
-  public synchronized Set<Sk> sks() {
+  public Set<Sk> sks() {
     Set<Sk> ret = new THashSet<>();
     sks(ret);
     return ret;

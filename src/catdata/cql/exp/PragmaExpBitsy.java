@@ -106,7 +106,8 @@ public final class PragmaExpBitsy extends PragmaExp {
     }
 
     File h = File.createTempFile("bitsySrc", ".properties");
-    String toH = "gremlin.graph=com.lambdazen.bitsy.BitsyGraph\n" + "dbPath=" + path;
+    String toH =
+        "gremlin.graph=com.lambdazen.bitsy.BitsyGraph\n" + "dbPath=" + Util.escapeProperty(path);
     Util.writeFile(toH, h.getAbsolutePath());
 
     File ff = new File(path);

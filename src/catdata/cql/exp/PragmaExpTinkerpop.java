@@ -7,7 +7,6 @@ import catdata.cql.AqlOptions;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Kind;
 import catdata.cql.Pragma;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,11 +21,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.tinkerpop.gremlin.driver.Cluster;
+import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
+import org.apache.tinkerpop.gremlin.driver.ser.GraphBinaryMessageSerializerV1;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV1d0;
 
 public final class PragmaExpTinkerpop extends PragmaExp {
   private final List<String> jss;
@@ -140,8 +143,9 @@ public final class PragmaExpTinkerpop extends PragmaExp {
   /**
    * Runs the scripts on the graph that the options name and hands their results to the reader. A
    * result can be a traversal that still reads from the server, so the connection stays open until
-   * the reader returns. Then the remote traversal source is closed, which closes the driver's
-   * cluster and stops its threads, and the two configuration files are deleted.
+   * the reader returns. Then the remote traversal source is closed, and the driver's cluster is
+   * closed, which stops its threads. The cluster is configured in memory, not from a file, because
+   * Tinkerpop never closes a cluster file it reads, which Windows then cannot delete.
    */
   public static <X> X execGremlin(AqlOptions ops, List<String> jss, GremlinReader<X> reader)
       throws Exception {
@@ -149,54 +153,36 @@ public final class PragmaExpTinkerpop extends PragmaExp {
     Integer port = (Integer) ops.getOrDefault(AqlOption.tinkerpop_port);
     long timeout = 1000 * (Long) ops.getOrDefault(AqlOption.timeout);
     String gname = (String) ops.getOrDefault(AqlOption.tinkerpop_graph_name);
-    // ChannelHandler o;
-    String file0 =
-        "hosts: ["
-            + host
-            + "]\n"
-            + "port: "
-            + port
-            + "\n"
-            + "serializer: { className: org.apache.tinkerpop.gremlin.driver.ser.GraphBinaryMessageSerializerV1, config: { ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV1d0] }}";
-    File f0 = File.createTempFile("tempfile0", ".yaml");
-    File f1 = File.createTempFile("tempfile1", ".properties");
-    try {
-      Util.writeFile(file0, f0.getAbsolutePath());
-      //		org.apache.tinkerpop.gremlin.util.Serializer
-      String file1 =
-          "gremlin.remote.remoteConnectionClass=org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection\ngremlin.remote.driver.clusterFile="
-              + f0.getAbsolutePath()
-              + "\ngremlin.remote.driver.sourceName="
-              + gname;
-      Util.writeFile(file1, f1.getAbsolutePath());
+    GraphBinaryMessageSerializerV1 serializer = new GraphBinaryMessageSerializerV1();
+    serializer.configure(
+        Map.of("ioRegistries", List.of(TinkerIoRegistryV1d0.class.getName())), null);
+    Cluster cluster = Cluster.build(host).port(port).serializer(serializer).create();
+    try (GraphTraversalSource source =
+        AnonymousTraversalSource.traversal()
+            .withRemote(DriverRemoteConnection.using(cluster, gname))) {
+      ConcurrentBindings b = new ConcurrentBindings();
+      b.putIfAbsent(gname, source);
 
-      try (GraphTraversalSource source =
-          AnonymousTraversalSource.traversal().withRemote(f1.getAbsolutePath())) {
-        ConcurrentBindings b = new ConcurrentBindings();
-        b.putIfAbsent(gname, source);
-
-        List<Object> ret = new ArrayList<>(jss.size());
-        ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(4, EXECUTOR_THREADS);
-        try (GremlinExecutor conn =
-            GremlinExecutor.build()
-                .evaluationTimeout(timeout)
-                .globalBindings(b)
-                .executorService(pool)
-                .scheduledExecutorService(pool)
-                .create()) {
-          for (String s : jss) {
-            CompletableFuture<Object> evalResult = conn.eval(s);
-            Object actualResult = evalResult.get();
-            ret.add(actualResult);
-          }
-        } finally {
-          pool.shutdownNow();
+      List<Object> ret = new ArrayList<>(jss.size());
+      ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(4, EXECUTOR_THREADS);
+      try (GremlinExecutor conn =
+          GremlinExecutor.build()
+              .evaluationTimeout(timeout)
+              .globalBindings(b)
+              .executorService(pool)
+              .scheduledExecutorService(pool)
+              .create()) {
+        for (String s : jss) {
+          CompletableFuture<Object> evalResult = conn.eval(s);
+          Object actualResult = evalResult.get();
+          ret.add(actualResult);
         }
-        return reader.read(ret);
+      } finally {
+        pool.shutdownNow();
       }
+      return reader.read(ret);
     } finally {
-      f0.delete();
-      f1.delete();
+      cluster.close();
     }
   }
 

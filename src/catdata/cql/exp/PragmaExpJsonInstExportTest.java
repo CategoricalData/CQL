@@ -1,5 +1,6 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -40,7 +41,12 @@ class PragmaExpJsonInstExportTest {
         instance I = literal : S { generators a : A equations a.n = %s }
         command c = export_json_instance I "%s" %s
         """
-        .formatted(typeside, typeside.equals("sql") ? "Varchar" : "String", value, file, block);
+        .formatted(
+            typeside,
+            typeside.equals("sql") ? "Varchar" : "String",
+            value,
+            inCqlString(file),
+            block);
   }
 
   private static final String LITERAL = "literal { types String constants x : String }";

@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -27,6 +28,9 @@ DRIVERS = WORK / "drivers"
 
 MAVEN = "https://repo1.maven.org/maven2/"
 DOWNLOAD_ATTEMPTS = 3
+# Pauses between attempts, for Maven Central's rate limit (HTTP 429).
+FIRST_PAUSE_SECONDS = 20
+MAX_RETRY_AFTER_SECONDS = 120
 EXAMPLE_TIMEOUT_SECONDS = 600
 READY_TIMEOUT_SECONDS = 240
 
@@ -319,17 +323,32 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def retry_after(error: OSError) -> float:
+    """Seconds an HTTP error asks to wait in Retry-After, capped, or 0."""
+    if not isinstance(error, urllib.error.HTTPError):
+        return 0
+    value = str(error.headers.get("Retry-After", "")).strip()
+    if not value.isdigit():
+        return 0
+    return min(float(value), MAX_RETRY_AFTER_SECONDS)
+
+
 def fetch(driver: Driver) -> None:
-    """Download a driver, retrying a failed or corrupted download, and
-    check its SHA-256."""
+    """Download a driver and check its SHA-256, retrying after a pause."""
     problem = ""
-    for _ in range(DOWNLOAD_ATTEMPTS):
+    pause = 0.0
+    for attempt in range(DOWNLOAD_ATTEMPTS):
+        if attempt > 0:
+            print(f"{driver.path}: {problem}. Trying again in {pause:.0f} s.")
+            time.sleep(pause)
+        pause = FIRST_PAUSE_SECONDS * 2**attempt
         try:
             url = MAVEN + driver.path
             with urllib.request.urlopen(url, timeout=120) as response:
                 driver.file.write_bytes(response.read())
         except OSError as error:
             problem = str(error)
+            pause = max(pause, retry_after(error))
             continue
         actual = sha256(driver.file)
         if actual == driver.sha256:

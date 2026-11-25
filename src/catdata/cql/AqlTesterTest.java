@@ -20,6 +20,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 
 /**
  * The self-test helpers. deleteFilesCreatedDuring compares the working directory before and after,
@@ -132,6 +133,7 @@ class AqlTesterTest {
 
     @Test
     void wrapsAFileItCannotDelete() {
+      assumeFalse(OS.WINDOWS.isCurrentOs(), "Windows deletes the files of a read-only folder");
       Path locked = base.resolve("locked");
       RuntimeException e =
           assertThrows(

@@ -56,6 +56,11 @@ public class Util {
     w.close();
   }
 
+  /** Escapes the backslashes of a properties value, such as a Windows path. */
+  public static String escapeProperty(String value) {
+    return value.replace("\\", "\\\\");
+  }
+
   public static <K, V> Map<K, V> fromNullable(Map<K, V> m) {
     Map<K, V> ret = new THashMap<>(m.size());
     for (Entry<K, V> k : m.entrySet()) {

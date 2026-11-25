@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import catdata.Chc;
 import catdata.cql.Head;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
@@ -30,6 +32,7 @@ class VampireProverTest {
 
   /** An executable that ignores its arguments and prints the given line. */
   private String stub(String name, String line) throws Exception {
+    assumeFalse(OS.WINDOWS.isCurrentOs(), "the stand-in prover is a POSIX shell script");
     Path p = dir.resolve(name);
     Files.writeString(p, "#!/bin/sh\necho '" + line + "'\n");
     assertTrue(p.toFile().setExecutable(true));
