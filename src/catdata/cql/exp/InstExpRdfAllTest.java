@@ -1,5 +1,6 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,7 +53,7 @@ class InstExpRdfAllTest {
   }
 
   private String program(String block) {
-    return "instance I = import_rdf_all \"" + file + "\" : rdf " + block + "\n";
+    return "instance I = import_rdf_all \"" + inCqlString(file) + "\" : rdf " + block + "\n";
   }
 
   private static Instance<String, String, Sym, Fk, Att, ?, ?, ?, ?> eval(String program)

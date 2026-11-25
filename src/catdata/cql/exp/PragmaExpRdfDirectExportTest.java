@@ -1,5 +1,6 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,7 +42,7 @@ class PragmaExpRdfDirectExportTest {
         }
         command c = export_rdf_direct_xml I "%s"
         """
-        .formatted(file);
+        .formatted(inCqlString(file));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -72,7 +73,7 @@ class PragmaExpRdfDirectExportTest {
           instance I = literal : S { generators a : A }
           command c = export_rdf_direct_xml I "%s"
           """
-              .formatted(file);
+              .formatted(inCqlString(file));
       Pragma p = ExpTestHelpers.eval(program, "c", Kind.PRAGMA);
       assertTrue(p.toString().contains("Not on triple schema"), p.toString());
     }

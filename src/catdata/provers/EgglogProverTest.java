@@ -1,10 +1,12 @@
 package catdata.provers;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import catdata.Chc;
@@ -32,6 +34,7 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
@@ -45,6 +48,7 @@ class EgglogProverTest {
   @TempDir Path dir;
 
   private String stub(String name, String answer) throws Exception {
+    assumeFalse(OS.WINDOWS.isCurrentOs(), "the stand-in prover is a POSIX shell script");
     Path p = dir.resolve(name);
     Files.writeString(
         p,
@@ -168,6 +172,7 @@ class EgglogProverTest {
   class Chase {
 
     private String stub() throws Exception {
+      assumeFalse(OS.WINDOWS.isCurrentOs(), "the stand-in prover is a POSIX shell script");
       Path p = dir.resolve("chase");
       Files.writeString(
           p,
@@ -201,7 +206,7 @@ class EgglogProverTest {
             forall p : Person -> exists q : Person where q.name = p.name }
           instance J = chase C I { options use_egglog_for_chase = true egglog_path = "%s" }
           """
-              .formatted(path);
+              .formatted(inCqlString(path));
       AqlMultiDriver d =
           new AqlMultiDriver(AqlParserFactory.getParser().parseProgram(program), null);
       d.start();
@@ -319,7 +324,8 @@ class EgglogProverTest {
     private AqlMultiDriver run(String program) throws Exception {
       AqlMultiDriver d =
           new AqlMultiDriver(
-              AqlParserFactory.getParser().parseProgram(program.formatted(egglog)), null);
+              AqlParserFactory.getParser().parseProgram(program.formatted(inCqlString(egglog))),
+              null);
       d.start();
       return d;
     }

@@ -1,10 +1,12 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +44,11 @@ class SchExpCsvTest {
   }
 
   private static String program(Object dir, String options) {
-    return "typeside Ty = sql\nschema S = import_csv \"" + dir + "\" : Ty " + options + "\n";
+    return "typeside Ty = sql\nschema S = import_csv \""
+        + inCqlString(dir)
+        + "\" : Ty "
+        + options
+        + "\n";
   }
 
   private static Schema<String, String, Sym, Fk, Att> schema(Object dir, String options)
@@ -126,7 +132,9 @@ class SchExpCsvTest {
     @Test
     void readsNothingFromARelativePathStartingWithADot() throws Exception {
       Path dir = folder("People.csv", "id\n");
-      Path relative = Path.of("").toAbsolutePath().relativize(dir);
+      Path cwd = Path.of("").toAbsolutePath();
+      assumeTrue(cwd.getRoot().equals(dir.getRoot()), "the temporary folder is on another drive");
+      Path relative = cwd.relativize(dir);
       assertTrue(relative.toString().startsWith(".."), relative.toString());
       assertTrue(schema(relative, "").ens.isEmpty());
     }

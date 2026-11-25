@@ -1,5 +1,6 @@
 package catdata.cql.exp;
 
+import static catdata.PathTestHelpers.inCqlString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -47,7 +48,9 @@ class AqlMultiDriverTest {
     void addsTheDefinitionsOfAnImportedFile() throws Exception {
       Path p = file("typeside Ty = literal { types String }\n");
       AqlMultiDriver d =
-          run("imports \"" + p + "\"\ntypeside Ty2 = literal { types Integer }\n", null);
+          run(
+              "imports \"" + inCqlString(p) + "\"\ntypeside Ty2 = literal { types Integer }\n",
+              null);
       assertTrue(d.exn.isEmpty(), d.exn.toString());
       assertTrue(d.env.defs.tys.containsKey("Ty"));
       assertTrue(d.env.defs.tys.containsKey("Ty2"));
@@ -64,15 +67,22 @@ class AqlMultiDriverTest {
       LineException e =
           assertThrows(
               LineException.class,
-              () -> run("imports \"" + p + "\"\nschema S = literal : Ty { entities A }\n", null));
+              () ->
+                  run(
+                      "imports \""
+                          + inCqlString(p)
+                          + "\"\nschema S = literal : Ty { entities A }\n",
+                      null));
       assertEquals("Undefined variable: Ty", e.getMessage());
     }
 
     @Test
     void followsImportsOfImports() throws Exception {
       Path inner = file("typeside Ty = literal { types String }\n");
-      Path outer = file("imports \"" + inner + "\"\ntypeside Ty2 = literal { types Integer }\n");
-      AqlMultiDriver d = run("imports \"" + outer + "\"\n", null);
+      Path outer =
+          file(
+              "imports \"" + inCqlString(inner) + "\"\ntypeside Ty2 = literal { types Integer }\n");
+      AqlMultiDriver d = run("imports \"" + inCqlString(outer) + "\"\n", null);
       assertTrue(d.exn.isEmpty(), d.exn.toString());
       assertEquals(List.of("Ty2", "Ty"), d.env.prog.order);
     }
@@ -85,7 +95,7 @@ class AqlMultiDriverTest {
     void evaluatesTheSameDefinitionTwice() throws Exception {
       Path p = file("typeside Ty = literal { types String }\n");
       AqlMultiDriver d =
-          run("imports \"" + p + "\"\ntypeside Ty = literal { types String }\n", null);
+          run("imports \"" + inCqlString(p) + "\"\ntypeside Ty = literal { types String }\n", null);
       assertEquals(List.of("Ty", "Ty"), d.env.prog.order);
       if (d.env.exn != null) {
         assertTrue(
@@ -99,7 +109,12 @@ class AqlMultiDriverTest {
       RuntimeException e =
           assertThrows(
               RuntimeException.class,
-              () -> run("imports \"" + p + "\"\ntypeside Ty = literal { types Integer }\n", null));
+              () ->
+                  run(
+                      "imports \""
+                          + inCqlString(p)
+                          + "\"\ntypeside Ty = literal { types Integer }\n",
+                      null));
       assertTrue(
           e.getMessage()
               .startsWith(
@@ -116,7 +131,7 @@ class AqlMultiDriverTest {
       RuntimeException e =
           assertThrows(
               RuntimeException.class,
-              () -> run("imports \"" + p + "\"\noptions timeout = 7\n", null));
+              () -> run("imports \"" + inCqlString(p) + "\"\noptions timeout = 7\n", null));
       assertTrue(
           e.getMessage().contains("Imported option already set: timeout in " + p), e.getMessage());
     }
@@ -133,7 +148,8 @@ class AqlMultiDriverTest {
     void reportsAFileItCannotParse() throws Exception {
       Path p = file("typeside Ty = literal {\n");
       RuntimeException e =
-          assertThrows(RuntimeException.class, () -> run("imports \"" + p + "\"\n", null));
+          assertThrows(
+              RuntimeException.class, () -> run("imports \"" + inCqlString(p) + "\"\n", null));
       assertTrue(
           e.getMessage()
               .startsWith("Nested Import Error (line numbers refer to import file " + p + "):"),

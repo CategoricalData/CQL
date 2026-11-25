@@ -3,6 +3,7 @@ package catdata.cql;
 import static catdata.cql.CqlTestHelpers.stderr;
 import static catdata.cql.CqlTestHelpers.stdout;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import catdata.ParseException;
@@ -10,6 +11,8 @@ import catdata.Program;
 import catdata.cql.exp.AqlMultiDriver;
 import catdata.cql.exp.AqlParserFactory;
 import catdata.cql.exp.Exp;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,7 +107,9 @@ class AqlCmdLineTest {
     void reportsAMissingFile() {
       String path = dir.resolve("missing.cql").toString();
       String out = stdout(() -> stderr(() -> AqlCmdLine.main(path)));
-      assertEquals("ERROR " + path + " (No such file or directory)", out.trim());
+      String message =
+          assertThrows(FileNotFoundException.class, () -> new FileInputStream(path)).getMessage();
+      assertEquals("ERROR " + message, out.trim());
     }
 
     @Test

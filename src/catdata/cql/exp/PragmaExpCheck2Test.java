@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 
 /**
  * Unit tests for {@link PragmaExpCheck2}, {@code command c = check_query Q C D}, which asks the E
@@ -48,6 +50,7 @@ class PragmaExpCheck2Test {
 
   /** A stand-in for E that prints the given line. */
   private static String prover(String line) throws Exception {
+    assumeFalse(OS.WINDOWS.isCurrentOs(), "the stand-in prover is a POSIX shell script");
     Path p = Files.createTempFile("eprover", ".sh");
     Files.writeString(p, "#!/bin/sh\necho '" + line + "'\n");
     Files.setPosixFilePermissions(p, PosixFilePermissions.fromString("rwx------"));
