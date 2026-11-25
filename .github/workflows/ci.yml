@@ -10,10 +10,45 @@ permissions:
   contents: read
 
 jobs:
+  # The unit tests run on Linux, macOS and Windows, because they exercise the code whose behavior
+  # can depend on the system: file paths, line endings and the processes that CQL starts, such as
+  # egglog. They include CqlExamplesTest, which runs every built-in example. The other jobs check
+  # the sources, build the documentation and the release, or talk to databases in Linux
+  # containers, which the macOS and Windows runners cannot start, so they run on Linux only.
+  #
+  # Coverage is measured on Linux alone, so that a run has one coverage report and one summary.
+  # Linux uploads its test report on every run, as before. macOS and Windows upload theirs only
+  # when they fail, as test-results-macOS and test-results-Windows.
   test:
-    name: Test + Coverage
-    runs-on: ubuntu-latest
+    name: Test (${{ matrix.system }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # A failure on one system must not cancel the others, whose results tell whether the
+      # failure depends on the system.
+      fail-fast: false
+      matrix:
+        include:
+          - system: Linux
+            os: ubuntu-latest
+            coverage: true
+          - system: macOS
+            os: macos-latest
+            coverage: false
+          - system: Windows
+            os: windows-latest
+            coverage: false
+    defaults:
+      run:
+        # Git Bash on Windows, so that every step runs the same commands on every system.
+        shell: bash
     steps:
+      # Git on the Windows runners checks files out with CRLF line endings, which bash cannot run
+      # gradlew with. Keeping LF also gives the tests the files that the release jar, built on
+      # Linux, contains.
+      - name: Keep LF line endings
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
@@ -38,19 +73,41 @@ jobs:
         if: steps.egglog-cache.outputs.cache-hit != 'true'
         run: cargo install egglog --version 0.5.0 --locked --root ~/egglog
 
+      # On Windows the executable is egglog.exe, and Java needs its Windows path.
+      - name: Point the tests at egglog
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then
+            echo "CQL_EGGLOG=$(cygpath -w ~/egglog/bin/egglog.exe)" >> "$GITHUB_ENV"
+          else
+            echo "CQL_EGGLOG=$HOME/egglog/bin/egglog" >> "$GITHUB_ENV"
+          fi
+
       - name: Run tests + coverage
-        run: CQL_EGGLOG="$HOME/egglog/bin/egglog" ./gradlew test jacocoTestReport jacocoTestCoverageVerification
+        if: matrix.coverage
+        run: ./gradlew test jacocoTestReport jacocoTestCoverageVerification
+
+      - name: Run tests
+        if: ${{ !matrix.coverage }}
+        run: ./gradlew test
 
       - name: Upload test results
-        if: always()
+        if: always() && matrix.coverage
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: build/reports/tests/
           retention-days: 14
 
+      - name: Upload test results of a failure
+        if: failure() && !matrix.coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.system }}
+          path: build/reports/tests/
+          retention-days: 14
+
       - name: Upload coverage report
-        if: always()
+        if: always() && matrix.coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -58,7 +115,7 @@ jobs:
           retention-days: 14
 
       - name: Coverage summary
-        if: always()
+        if: always() && matrix.coverage
         run: |
           awk -F',' '
             NR > 1 {
