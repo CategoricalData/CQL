@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -204,6 +206,16 @@ class UtilTest {
       assertEquals(Optional.of(true), Util.stringPrefix(Optional.of("ab"), Optional.of("abc")));
       assertEquals(Optional.of(true), Util.stringPrefix(Optional.of("bc"), Optional.of("abcd")));
       assertEquals(Optional.of(false), Util.stringPrefix(Optional.of("ab"), Optional.of("cd")));
+    }
+
+    /** Tinkerpop and Bitsy read their properties files with Commons Configuration. */
+    @Test
+    void escapesAPropertyThatHoldsAWindowsPath(@TempDir Path dir) throws Exception {
+      String windowsPath = "C:\\Users\\me\\tempfile0.yaml";
+      Path file = dir.resolve("remote.properties");
+      Files.writeString(file, "clusterFile=" + Util.escapeProperty(windowsPath) + "\n");
+      PropertiesConfiguration read = new Configurations().properties(file.toFile());
+      assertEquals(windowsPath, read.getString("clusterFile"));
     }
   }
 

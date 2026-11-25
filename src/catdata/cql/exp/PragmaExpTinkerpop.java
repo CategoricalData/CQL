@@ -165,7 +165,7 @@ public final class PragmaExpTinkerpop extends PragmaExp {
       //		org.apache.tinkerpop.gremlin.util.Serializer
       String file1 =
           "gremlin.remote.remoteConnectionClass=org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection\ngremlin.remote.driver.clusterFile="
-              + f0.getAbsolutePath()
+              + Util.escapeProperty(f0.getAbsolutePath())
               + "\ngremlin.remote.driver.sourceName="
               + gname;
       Util.writeFile(file1, f1.getAbsolutePath());
