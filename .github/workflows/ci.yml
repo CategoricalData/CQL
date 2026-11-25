@@ -158,14 +158,7 @@ jobs:
           distribution: "temurin"
 
       - name: Compile main sources with javac
-        run: |
-          mkdir -p out-javac
-          find src -name '*.java' \
-            ! -name '*Test.java' \
-            ! -name '*TestHelpers.java' \
-            ! -name 'OilExample.java' > sources.txt
-          javac -encoding UTF-8 -Xlint:none \
-            -d out-javac -cp "lib/*" @sources.txt
+        run: bash .github/scripts/compile_with_javac.sh out-javac
 
   spotbugs:
     name: SpotBugs
@@ -273,10 +266,13 @@ jobs:
         with:
           java-version: "21"
           distribution: "temurin"
-      - uses: gradle/actions/setup-gradle@v4
 
+      # Without Gradle, whose plugin downloads from Maven Central hit its rate limit (HTTP 429).
       - name: Compile
-        run: ./gradlew classes
+        run: |
+          bash .github/scripts/compile_with_javac.sh build/classes/java/main
+          mkdir -p build/resources
+          cp -R resources/open build/resources/main
 
       # Maven Central rate-limits the shared runners (HTTP 429). The script pins the drivers.
       - name: Cache the JDBC drivers
