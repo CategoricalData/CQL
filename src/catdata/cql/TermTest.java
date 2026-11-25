@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -974,6 +978,30 @@ class TermTest {
           fk("owner", gen("e")),
           fk("worksIn", gen("e"))
               .replaceHead(Map.of(Head.FkHead("worksIn"), fk("owner", v("p"))), List.of("p")));
+    }
+
+    /**
+     * Terms are shared through the hash-consing cache, so evaluations on two threads can rewrite
+     * the same terms. If replaceHead waited for the lock of its replacement, two threads that each
+     * hold the replacement of the other would wait forever.
+     */
+    @Test
+    void replaceHeadDoesNotWaitForTheLockOfItsReplacement() throws Exception {
+      Term<String, String, String, String, String, String, String> swapped =
+          sym("plus", v("b"), v("a"));
+      ExecutorService other = Executors.newSingleThreadExecutor();
+      try {
+        synchronized (swapped) {
+          Future<Term<String, String, String, String, String, String, String>> rewritten =
+              other.submit(
+                  () ->
+                      sym("plus", v("x"), sym("zero"))
+                          .replaceHead(Head.SymHead("plus"), List.of("a", "b"), swapped));
+          assertSame(sym("plus", sym("zero"), v("x")), rewritten.get(10, TimeUnit.SECONDS));
+        }
+      } finally {
+        other.shutdownNow();
+      }
     }
 
     @Test
