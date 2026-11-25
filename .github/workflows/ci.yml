@@ -10,21 +10,11 @@ permissions:
   contents: read
 
 jobs:
-  # The unit tests run on Linux, macOS and Windows, because they exercise the code whose behavior
-  # can depend on the system: file paths, line endings and the processes that CQL starts, such as
-  # egglog. They include CqlExamplesTest, which runs every built-in example. The other jobs check
-  # the sources, build the documentation and the release, or talk to databases in Linux
-  # containers, which the macOS and Windows runners cannot start, so they run on Linux only.
-  #
-  # Coverage is measured on Linux alone, so that a run has one coverage report and one summary.
-  # Linux uploads its test report on every run, as before. macOS and Windows upload theirs only
-  # when they fail, as test-results-macOS and test-results-Windows.
+  # The only job whose result can depend on the OS. Coverage is measured on Linux only.
   test:
     name: Test (${{ matrix.system }})
     runs-on: ${{ matrix.os }}
     strategy:
-      # A failure on one system must not cancel the others, whose results tell whether the
-      # failure depends on the system.
       fail-fast: false
       matrix:
         include:
@@ -39,12 +29,9 @@ jobs:
             coverage: false
     defaults:
       run:
-        # Git Bash on Windows, so that every step runs the same commands on every system.
-        shell: bash
+        shell: bash # Git Bash on Windows
     steps:
-      # Git on the Windows runners checks files out with CRLF line endings, which bash cannot run
-      # gradlew with. Keeping LF also gives the tests the files that the release jar, built on
-      # Linux, contains.
+      # Windows runners check out with CRLF, which breaks ./gradlew under bash.
       - name: Keep LF line endings
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
@@ -73,7 +60,7 @@ jobs:
         if: steps.egglog-cache.outputs.cache-hit != 'true'
         run: cargo install egglog --version 0.5.0 --locked --root ~/egglog
 
-      # On Windows the executable is egglog.exe, and Java needs its Windows path.
+      # Java on Windows needs the Windows path of egglog.exe.
       - name: Point the tests at egglog
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
@@ -290,6 +277,13 @@ jobs:
 
       - name: Compile
         run: ./gradlew classes
+
+      # Maven Central rate-limits the shared runners (HTTP 429). The script pins the drivers.
+      - name: Cache the JDBC drivers
+        uses: actions/cache@v4
+        with:
+          path: build/database-tests/drivers
+          key: jdbc-drivers-${{ matrix.database }}-${{ hashFiles('.github/scripts/run_database_tests.py') }}
 
       - name: Run the database tests
         run: python3 -B .github/scripts/run_database_tests.py ${{ matrix.database }}
