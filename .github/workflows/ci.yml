@@ -54,11 +54,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/egglog
-          key: egglog-0.5.0-${{ runner.os }}
+          key: egglog-3.0.0-${{ runner.os }}
 
-      - name: Build egglog 0.5.0
+      - name: Build egglog 3.0.0
         if: steps.egglog-cache.outputs.cache-hit != 'true'
-        run: cargo install egglog --version 0.5.0 --locked --root ~/egglog
+        run: cargo install egglog --version 3.0.0 --locked --root ~/egglog
 
       # Java on Windows needs the Windows path of egglog.exe.
       - name: Point the tests at egglog
