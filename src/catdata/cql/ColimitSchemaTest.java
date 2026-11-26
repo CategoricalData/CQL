@@ -54,6 +54,20 @@ class ColimitSchemaTest {
 
   private static final Att FULL_NAME_P = Att.Att(PERSON, "fullName");
 
+  /** The start of the warning of a colimit that gives one name to two symbols. */
+  private static final String CLASHES =
+      "The schema colimit gives each of these names to more than one entity, or to more than one"
+          + " foreign key or attribute of an entity, which merges them:\n\t";
+
+  /** The warning after the clashes. */
+  private static final String RENAME =
+      "\nRename the schemas, entities, foreign keys or attributes involved, or equate the entities"
+          + " if they are the same.";
+
+  /** The end of the warning when the names of simplify_names = false would not clash. */
+  private static final String QUALIFY =
+      " With simplify_names = false, every name starts with its schema and no two clash.";
+
   private static final class Fixtures {
     /** hr: Person -worksAt-> Office, with name on Person and addr on Office. */
     private static final Schema<String, String, Sym, Fk, Att> HR_SCH =
@@ -218,7 +232,8 @@ class ColimitSchemaTest {
     @Test
     void unmergedEntitiesCanReceiveTheSameName() {
       // Node A_B with entity C and node A with entity B_C are both named A_B_C, so the two
-      // entities, which nothing equates, become one.
+      // entities, which nothing equates, become one. The names of simplify_names = false are the
+      // same, so the warning does not suggest it.
       ColimitSchema<String> c =
           quotient(
               List.of("A_B", "A"),
@@ -230,11 +245,65 @@ class ColimitSchemaTest {
       assertEquals(Set.of("A_B_C"), new HashSet<>(c.schemaStr.ens));
       assertEquals("A_B_C", c.mappingsStr.get("A_B").ens.get("C"));
       assertEquals("A_B_C", c.mappingsStr.get("A").ens.get("B_C"));
+      assertEquals(List.of(CLASHES + "entity A_B_C: {A.B_C} and {A_B.C}" + RENAME), c.warnings());
+    }
+
+    @Test
+    void warnsOfTheSameClashWithoutSimplifyNames() {
+      ColimitSchema<String> c =
+          quotient(
+              List.of("A_B", "A"),
+              Map.of("A_B", entities("C"), "A", entities("B_C")),
+              Set.of(),
+              new HashSet<>(),
+              Set.of(),
+              with(AqlOption.simplify_names, false));
+      assertEquals(Set.of("A_B_C"), new HashSet<>(c.schemaStr.ens));
+      assertEquals(List.of(CLASHES + "entity A_B_C: {A.B_C} and {A_B.C}" + RENAME), c.warnings());
+    }
+
+    @Test
+    void listsEveryClashOnALineOfItsOwn() {
+      // Three classes are named X_Y_Z, the merged one after its first member W.X_Y_Z, and two are
+      // named P_Q_R. The lines are in alphabetical order.
+      ColimitSchema<String> c =
+          quotient(
+              List.of("X_Y", "X", "W", "V", "P", "P_Q"),
+              Map.of(
+                  "X_Y", entities("Z"),
+                  "X", entities("Y_Z"),
+                  "W", entities("X_Y_Z"),
+                  "V", entities("K"),
+                  "P", entities("Q_R"),
+                  "P_Q", entities("R")),
+              Set.of(same("W", "X_Y_Z", "V", "K")),
+              new HashSet<>(),
+              Set.of(),
+              ops());
+      assertEquals(Set.of("X_Y_Z", "P_Q_R"), new HashSet<>(c.schemaStr.ens));
+      assertEquals(
+          List.of(
+              CLASHES
+                  + "entity P_Q_R: {P.Q_R} and {P_Q.R}\n"
+                  + "\tentity X_Y_Z: {V.K, W.X_Y_Z}, {X.Y_Z} and {X_Y.Z}"
+                  + RENAME),
+          c.warnings());
+    }
+
+    @Test
+    void hasNoWarningsWhenNoNamesClash() {
+      assertEquals(List.of(), coproduct().warnings());
     }
   }
 
   @Nested
   class Quotients {
+
+    private static final Map<String, Schema<String, String, Sym, Fk, Att>> TWO_ES =
+        Map.of("A", entities("E"), "B", entities("F", "E"), "C", entities("H"));
+
+    private static final Set<Quad<String, String, String, String>> TWO_CLASSES =
+        Set.of(same("A", "E", "B", "F"), same("B", "E", "C", "H"));
 
     @Test
     void namesAMergedEntityAfterItsFirstMember() {
@@ -308,16 +377,103 @@ class ColimitSchemaTest {
       // {A.E, B.F} and {B.E, C.H} are different classes, but each is named after its first member,
       // and both first members are called E.
       ColimitSchema<String> c =
-          quotient(
-              List.of("A", "B", "C"),
-              Map.of("A", entities("E"), "B", entities("F", "E"), "C", entities("H")),
-              Set.of(same("A", "E", "B", "F"), same("B", "E", "C", "H")),
-              new HashSet<>(),
-              Set.of(),
-              ops());
+          quotient(List.of("A", "B", "C"), TWO_ES, TWO_CLASSES, new HashSet<>(), Set.of(), ops());
       assertEquals(Set.of("E"), new HashSet<>(c.schemaStr.ens));
       assertEquals("E", c.mappingsStr.get("C").ens.get("H"));
       assertEquals("E", c.mappingsStr.get("A").ens.get("E"));
+      assertEquals(
+          List.of(CLASHES + "entity E: {A.E, B.F} and {B.E, C.H}" + RENAME + QUALIFY),
+          c.warnings());
+    }
+
+    @Test
+    void namesTheSameClassesApartWithoutSimplifyNames() {
+      ColimitSchema<String> c =
+          quotient(
+              List.of("A", "B", "C"),
+              TWO_ES,
+              TWO_CLASSES,
+              new HashSet<>(),
+              Set.of(),
+              with(AqlOption.simplify_names, false));
+      assertEquals(Set.of("A_E", "B_E"), new HashSet<>(c.schemaStr.ens));
+      assertEquals("B_E", c.mappingsStr.get("C").ens.get("H"));
+      assertEquals(List.of(), c.warnings());
+    }
+
+    @Test
+    void warnsOfAMergedClassNamedLikeAnUnmergedEntity() {
+      // {Other.Sales_Item, Third.P} keeps the name Sales_Item, which is also the name of the
+      // unmerged entity Item of Sales.
+      ColimitSchema<String> c =
+          quotient(
+              List.of("Sales", "Other", "Third"),
+              Map.of(
+                  "Sales", entities("Item"),
+                  "Other", entities("Sales_Item"),
+                  "Third", entities("P")),
+              Set.of(same("Other", "Sales_Item", "Third", "P")),
+              new HashSet<>(),
+              Set.of(),
+              ops());
+      assertEquals(Set.of("Sales_Item"), new HashSet<>(c.schemaStr.ens));
+      assertEquals(
+          List.of(
+              CLASHES
+                  + "entity Sales_Item: {Other.Sales_Item, Third.P} and {Sales.Item}"
+                  + RENAME
+                  + QUALIFY),
+          c.warnings());
+    }
+
+    @Test
+    void warnsOfTwoForeignKeysOfAMergedEntityThatShareAName() {
+      // A.E has f and F_f, B.F has f. The two f are named E_f and F_f, after their entities, and
+      // F_f, which is unique, keeps its name, so E gets 2 foreign keys instead of 3.
+      Fk aF = Fk.Fk("E", "f");
+      Fk aFf = Fk.Fk("E", "F_f");
+      Fk bF = Fk.Fk("F", "f");
+      ColimitSchema<String> c =
+          quotient(
+              List.of("A", "B"),
+              Map.of(
+                  "A",
+                  sqlSchema(
+                      List.of("E", "G"),
+                      Map.of(),
+                      Map.of(aF, new Pair<>("E", "G"), aFf, new Pair<>("E", "G"))),
+                  "B",
+                  sqlSchema(List.of("F", "H"), Map.of(), Map.of(bF, new Pair<>("F", "H")))),
+              Set.of(same("A", "E", "B", "F"), same("A", "G", "B", "H")),
+              new HashSet<>(),
+              Set.of(),
+              ops());
+      assertEquals(Set.of(Fk.Fk("E", "E_f"), Fk.Fk("E", "F_f")), c.schemaStr.fks.keySet());
+      assertEquals(
+          List.of(CLASHES + "foreign key E.F_f: A.E.F_f and B.F.f" + RENAME + QUALIFY),
+          c.warnings());
+    }
+
+    @Test
+    void warnsOfTwoAttributesOfAMergedEntityThatShareAName() {
+      ColimitSchema<String> c =
+          quotient(
+              List.of("A", "B"),
+              Map.of(
+                  "A",
+                  sqlSchema(
+                      List.of("E"),
+                      Map.of(Att.Att("E", "x"), "E", Att.Att("E", "F_x"), "E"),
+                      Map.of()),
+                  "B",
+                  sqlSchema(List.of("F"), Map.of(Att.Att("F", "x"), "F"), Map.of())),
+              Set.of(same("A", "E", "B", "F")),
+              new HashSet<>(),
+              Set.of(),
+              ops());
+      assertEquals(Set.of(Att.Att("E", "E_x"), Att.Att("E", "F_x")), c.schemaStr.atts.keySet());
+      assertEquals(
+          List.of(CLASHES + "attribute E.F_x: A.E.F_x and B.F.x" + RENAME + QUALIFY), c.warnings());
     }
   }
 
@@ -477,6 +633,36 @@ class ColimitSchemaTest {
                       Set.of(),
                       leftBias()));
       assertTrue(e.getMessage().startsWith("Ambiguous renaming: "), e.getMessage());
+    }
+
+    @Test
+    void warnsOfTwoAttributesThatShareAName() {
+      // hr's x keeps its name, crm's x becomes crm_x, which is also the name of another hr
+      // attribute of the merged entity. left_bias always qualifies by the schema, so the warning
+      // does not suggest simplify_names = false.
+      ColimitSchema<String> c =
+          quotient(
+              List.of(HR, CRM),
+              Map.of(
+                  HR,
+                  sqlSchema(
+                      List.of("E"),
+                      Map.of(Att.Att("E", "x"), "E", Att.Att("E", "crm_x"), "E"),
+                      Map.of()),
+                  CRM,
+                  sqlSchema(List.of("F"), Map.of(Att.Att("F", "x"), "F"), Map.of())),
+              Set.of(same(HR, "E", CRM, "F")),
+              new HashSet<>(),
+              Set.of(),
+              leftBias());
+      assertEquals(Set.of(Att.Att("E", "x"), Att.Att("E", "crm_x")), c.schemaStr.atts.keySet());
+      assertEquals(
+          List.of(CLASHES + "attribute E.crm_x: crm.F.x and hr.E.crm_x" + RENAME), c.warnings());
+    }
+
+    @Test
+    void hasNoWarningsWhenItRenamesAClash() {
+      assertEquals(List.of(), clashingForeignKeys().warnings());
     }
 
     @Test
@@ -860,6 +1046,12 @@ class ColimitSchemaTest {
 
     private ColimitSchema<String> pseudo(Map<String, Quad<String, String, String, String>> eqEn) {
       return new ColimitSchema<>(sqlTypeSide(), ordered(), eqEn, new HashSet<>(), ops());
+    }
+
+    @Test
+    void reportsNoWarnings() {
+      // The pseudo-colimit names every entity after its schema and does not look for clashes.
+      assertEquals(List.of(), pseudo(Map.of("same", same(HR, PERSON, CRM, CLIENT))).warnings());
     }
 
     @Test

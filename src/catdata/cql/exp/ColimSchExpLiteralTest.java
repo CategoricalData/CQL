@@ -13,6 +13,7 @@ import catdata.ParseException;
 import catdata.Unit;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.ColimitSchema;
+import catdata.cql.Instance;
 import catdata.cql.Kind;
 import catdata.cql.exp.ColimSchExp.ColimSchExpVisitor;
 import catdata.cql.exp.GraphExp.GraphExpVar;
@@ -281,6 +282,68 @@ class ColimSchExpLiteralTest {
       ColimitSchema<String> c = eval(COLIMIT);
       assertEquals(Set.of("A"), c.schemaStr.ens);
       assertEquals(1, c.schemaStr.eqs.size());
+    }
+
+    /**
+     * Two classes of entities whose first members are both called Customer: the shop's customers
+     * with the CRM's clients, and the CRM's customers with the billing system's payers.
+     */
+    private static final String TWO_CUSTOMERS =
+        """
+        typeside Sql = sql
+        schema Shop = literal : Sql { entities Customer attributes email : Customer -> Varchar }
+        schema CRM = literal : Sql { entities Client Customer
+          attributes cname : Client -> Varchar tier : Customer -> Varchar }
+        schema Billing = literal : Sql { entities Payer attributes iban : Payer -> Varchar }
+        schema_colimit C = quotient Shop + CRM + Billing : Sql {
+          entity_equations Shop.Customer = CRM.Client CRM.Customer = Billing.Payer
+        """;
+
+    /** Two shop customers and one payer, moved onto the colimit and put side by side. */
+    private static final String BOTH =
+        """
+        schema U = getSchema C
+        instance Shoppers = literal : Shop { generators alice bob : Customer }
+        instance Payers = literal : Billing { generators acme : Payer }
+        instance ShoppersInU = sigma (getMapping C Shop) Shoppers
+        instance PayersInU = sigma (getMapping C Billing) Payers
+        instance Both = coproduct ShoppersInU + PayersInU : U
+        """;
+
+    @Test
+    void warnsOfTwoClassesThatShareAName() throws Exception {
+      ColimitSchema<String> c = ExpTestHelpers.eval(TWO_CUSTOMERS + "}", "C", Kind.SCHEMA_COLIMIT);
+      assertEquals(Set.of("Customer"), c.schemaStr.ens);
+      assertEquals(1, c.warnings().size());
+      String warning = c.warnings().get(0);
+      assertTrue(
+          warning.contains(
+              "\n\tentity Customer: {Billing.Payer, CRM.Customer} and {CRM.Client,"
+                  + " Shop.Customer}\n"),
+          warning);
+      assertTrue(
+          warning.endsWith(
+              "With simplify_names = false, every name starts with its schema"
+                  + " and no two clash."),
+          warning);
+    }
+
+    @Test
+    void runsOnAfterTheWarningWithTheClassesMerged() throws Exception {
+      AqlMultiDriver d = ExpTestHelpers.run(TWO_CUSTOMERS + "}\n" + BOTH);
+      Instance<String, String, Sym, Fk, Att, ?, ?, ?, ?> both =
+          ExpTestHelpers.value(d, "Both", Kind.INSTANCE);
+      assertEquals(Set.of("Customer"), Set.copyOf(both.schema().ens));
+      assertEquals(3, both.algebra().size("Customer"));
+    }
+
+    @Test
+    void namesTheTwoClassesApartWithoutSimplifyNames() throws Exception {
+      ColimitSchema<String> c =
+          ExpTestHelpers.eval(
+              TWO_CUSTOMERS + " options simplify_names = false }", "C", Kind.SCHEMA_COLIMIT);
+      assertEquals(Set.of("Shop_Customer", "CRM_Customer"), c.schemaStr.ens);
+      assertEquals(List.of(), c.warnings());
     }
 
     @Test

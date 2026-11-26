@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -56,6 +57,14 @@ public class ColimitSchema<N> implements Semantics {
 
   // actually final
   public final Map<N, Mapping<String, String, Sym, Fk, Att, String, Fk, Att>> mappingsStr;
+
+  /** The warnings of the renaming that named this colimit's symbols, empty when nothing clashed. */
+  private final List<String> warnings;
+
+  @Override
+  public List<String> warnings() {
+    return warnings;
+  }
 
   // TODO: should be triple that also returns mappings
   public Triple<ColimitSchema<N>, Mapping, Mapping> renameEntity(
@@ -559,6 +568,7 @@ public class ColimitSchema<N> implements Semantics {
     this.nodes = nodes;
     this.schemaStr = schemaStr;
     this.mappingsStr = mappingsStr;
+    this.warnings = List.of();
   }
 
   public class Renamer2 {
@@ -571,6 +581,9 @@ public class ColimitSchema<N> implements Semantics {
         new LinkedHashMap<>();
 
     public final Schema<String, String, Sym, Fk, Att> schemaStr0;
+
+    /** The warning about the names this renaming gives to two symbols, if any. */
+    public final List<String> warnings;
 
     Map<Set<Pair<N, String>>, Map<Pair<N, Fk>, String>> mFk = new LinkedHashMap<>();
     Map<Set<Pair<N, String>>, Map<Pair<N, Att>, String>> mAtt = new LinkedHashMap<>();
@@ -613,6 +626,8 @@ public class ColimitSchema<N> implements Semantics {
       doEns(s1, s2);
       this.col = col;
       doFksAndAtts(s1, s2);
+      List<String> clashes = clashes(eqcs, this::conv1, this::conv2Fk, this::conv2Att);
+      warnings = clashes.isEmpty() ? List.of() : List.of(clashWarning(clashes, false));
 
       // System.out.println("f1 " + m1);
       // Util.anomaly();
@@ -883,6 +898,89 @@ public class ColimitSchema<N> implements Semantics {
     }
   }
 
+  /**
+   * The names that a renaming gives to more than one entity of the colimit, or to more than one
+   * foreign key or attribute of one of its entities, one line per name. The colimit keys its
+   * entities, foreign keys and attributes by name, so two of them with one name become one, merging
+   * what no equation of the colimit identifies.
+   */
+  private List<String> clashes(
+      Map<Pair<N, String>, Set<Pair<N, String>>> eqcs,
+      Function<Set<Pair<N, String>>, String> enName,
+      Function<Pair<N, Fk>, String> fkName,
+      Function<Pair<N, Att>, String> attName) {
+    Map<String, Set<String>> ens = new LinkedHashMap<>();
+    Map<Pair<String, String>, Set<String>> fks = new LinkedHashMap<>();
+    Map<Pair<String, String>, Set<String>> atts = new LinkedHashMap<>();
+    for (N n : nodes.keySet()) {
+      Schema<String, String, Sym, Fk, Att> s = nodes.get(n);
+      for (String en : s.ens) {
+        Set<Pair<N, String>> eqc = eqcs.get(new Pair<>(n, en));
+        ens.computeIfAbsent(enName.apply(eqc), k -> new TreeSet<>()).add(members(eqc));
+      }
+      for (Fk fk : s.fks.keySet()) {
+        String en = enName.apply(eqcs.get(new Pair<>(n, fk.en)));
+        fks.computeIfAbsent(new Pair<>(en, fkName.apply(new Pair<>(n, fk))), k -> new TreeSet<>())
+            .add(n + "." + fk.en + "." + fk.str);
+      }
+      for (Att att : s.atts.keySet()) {
+        String en = enName.apply(eqcs.get(new Pair<>(n, att.en)));
+        atts.computeIfAbsent(
+                new Pair<>(en, attName.apply(new Pair<>(n, att))), k -> new TreeSet<>())
+            .add(n + "." + att.en + "." + att.str);
+      }
+    }
+    List<String> ret = new ArrayList<>();
+    ret.addAll(clashesOf("entity", ens, k -> k));
+    ret.addAll(clashesOf("foreign key", fks, k -> k.first + "." + k.second));
+    ret.addAll(clashesOf("attribute", atts, k -> k.first + "." + k.second));
+    return ret;
+  }
+
+  /** The members of a class of entities, as schema.entity, in alphabetical order. */
+  private String members(Set<Pair<N, String>> eqc) {
+    return eqc.stream()
+        .map(p -> p.first + "." + p.second)
+        .sorted()
+        .collect(Collectors.joining(", ", "{", "}"));
+  }
+
+  /** One line for each name given to more than one symbol, in alphabetical order of the lines. */
+  private static <K> List<String> clashesOf(
+      String kind, Map<K, Set<String>> byName, Function<K, String> label) {
+    List<String> ret = new ArrayList<>();
+    for (Entry<K, Set<String>> e : byName.entrySet()) {
+      if (e.getValue().size() > 1) {
+        List<String> symbols = new ArrayList<>(e.getValue());
+        ret.add(
+            kind
+                + " "
+                + label.apply(e.getKey())
+                + ": "
+                + String.join(", ", symbols.subList(0, symbols.size() - 1))
+                + " and "
+                + symbols.get(symbols.size() - 1));
+      }
+    }
+    Collections.sort(ret);
+    return ret;
+  }
+
+  /**
+   * The warning for the given clashes. When {@code qualifiedNamesDiffer}, it ends by saying that
+   * the names of {@code simplify_names = false} would keep the symbols apart.
+   */
+  private static String clashWarning(List<String> clashes, boolean qualifiedNamesDiffer) {
+    return "The schema colimit gives each of these names to more than one entity, or to more than"
+        + " one foreign key or attribute of an entity, which merges them:\n\t"
+        + String.join("\n\t", clashes)
+        + "\nRename the schemas, entities, foreign keys or attributes involved, or equate the"
+        + " entities if they are the same."
+        + (qualifiedNamesDiffer
+            ? " With simplify_names = false, every name starts with its schema and no two clash."
+            : "");
+  }
+
   public class Renamer {
 
     public final Map<Set<Pair<N, String>>, String> m1 = new LinkedHashMap<>();
@@ -893,6 +991,9 @@ public class ColimitSchema<N> implements Semantics {
         new THashMap<>();
 
     public final Schema<String, String, Sym, Fk, Att> schemaStr0;
+
+    /** The warning about the names this renaming gives to two symbols, if any. */
+    public final List<String> warnings;
 
     // Map<Pair<N, En>, Set<Pair<N, En>>> eqcs;
     Map<Pair<Set<Pair<N, String>>, String>, Set<N>> mEn = new LinkedHashMap<>();
@@ -964,6 +1065,21 @@ public class ColimitSchema<N> implements Semantics {
         m2.put(s, eqc);
       }
 
+      List<String> clashes = clashes(eqcs, this::conv1, this::conv2Fk, this::conv2Att);
+      if (clashes.isEmpty()) {
+        warnings = List.of();
+      } else {
+        boolean qualifiedNamesDiffer =
+            shorten
+                && clashes(
+                        eqcs,
+                        eqc -> conv2En(doFind(eqc), false),
+                        p -> conv2Fk(p, false),
+                        p -> conv2Att(p, false))
+                    .isEmpty();
+        warnings = List.of(clashWarning(clashes, qualifiedNamesDiffer));
+      }
+
       colX = new CCollage<>(ty.collage());
 
       colX.getEns().addAll(col.getEns().stream().map(this::conv1).collect(Collectors.toSet()));
@@ -1019,29 +1135,41 @@ public class ColimitSchema<N> implements Semantics {
     }
 
     private String conv2En(Pair<N, String> p) {
-      if (!shorten || mEn.get(new Pair<>(eqcs.get(p), p.second)).size() > 1) {
+      return conv2En(p, shorten);
+    }
+
+    private String conv2En(Pair<N, String> p, boolean simplify) {
+      if (!simplify || mEn.get(new Pair<>(eqcs.get(p), p.second)).size() > 1) {
         return p.first + "_" + p.second;
       }
       return p.second;
     }
 
     private String conv2Fk(Pair<N, Fk> p) {
+      return conv2Fk(p, shorten);
+    }
+
+    private String conv2Fk(Pair<N, Fk> p, boolean simplify) {
       Pair<N, String> en = new Pair<>(p.first, p.second.en);
-      String s = conv2En(en);
+      String s = conv2En(en, simplify);
       Pair<Set<Pair<N, String>>, String> f = new Pair<>(eqcs.get(en), p.second.str);
 
-      if (!shorten || mFk.get(f).size() > 1) {
+      if (!simplify || mFk.get(f).size() > 1) {
         return s + "_" + p.second.str;
       }
       return p.second.str;
     }
 
     private String conv2Att(Pair<N, Att> p) {
+      return conv2Att(p, shorten);
+    }
+
+    private String conv2Att(Pair<N, Att> p, boolean simplify) {
       Pair<N, String> en = new Pair<>(p.first, p.second.en);
-      String s = conv2En(en);
+      String s = conv2En(en, simplify);
       Pair<Set<Pair<N, String>>, String> f = new Pair<>(eqcs.get(en), p.second.str);
 
-      if (!shorten || mAtt.get(f).size() > 1) {
+      if (!simplify || mAtt.get(f).size() > 1) {
         return s + "_" + p.second.str;
       }
       return p.second.str;
@@ -1101,6 +1229,7 @@ public class ColimitSchema<N> implements Semantics {
       AqlOptions options) {
     this.ty = ty;
     this.nodes = new LinkedHashMap<>(nodes);
+    this.warnings = List.of();
     options = new AqlOptions(options, AqlOption.simplify_names, false);
     Set<Pair<N, String>> ens = new LinkedHashSet<>(nodes.keySet().size());
     for (N n : nodes.keySet()) {
@@ -1402,10 +1531,12 @@ public class ColimitSchema<N> implements Semantics {
     Schema<String, Set<Pair<N, String>>, Sym, Pair<N, Fk>, Pair<N, Att>> schema =
         new Schema<>(ty, col, options);
 
-    Pair<
+    Triple<
             Schema<String, String, Sym, Fk, Att>,
-            Map<N, Mapping<String, String, Sym, Fk, Att, String, Fk, Att>>>
+            Map<N, Mapping<String, String, Sym, Fk, Att, String, Fk, Att>>,
+            List<String>>
         x = initialUser(order, options, col, eqcs, schema);
+    warnings = x.third;
 
     Schema<String, String, Sym, Fk, Att> q = quotient(x.first, eqTerms, eqTerms2, options);
 
@@ -1636,17 +1767,20 @@ public class ColimitSchema<N> implements Semantics {
     Schema<String, Set<Pair<N, String>>, Sym, Pair<N, Fk>, Pair<N, Att>> schema =
         new Schema<>(ty, col, options);
 
-    Pair<
+    Triple<
             Schema<String, String, Sym, Fk, Att>,
-            Map<N, Mapping<String, String, Sym, Fk, Att, String, Fk, Att>>>
+            Map<N, Mapping<String, String, Sym, Fk, Att, String, Fk, Att>>,
+            List<String>>
         x = initialUser(order, options, col, eqcs, schema);
+    warnings = x.third;
     schemaStr = x.first;
     mappingsStr = x.second;
   }
 
-  private synchronized Pair<
+  private synchronized Triple<
           Schema<String, String, Sym, Fk, Att>,
-          Map<N, Mapping<String, String, Sym, Fk, Att, String, Fk, Att>>>
+          Map<N, Mapping<String, String, Sym, Fk, Att, String, Fk, Att>>,
+          List<String>>
       initialUser(
           Collection<N> order,
           AqlOptions options,
@@ -1697,10 +1831,10 @@ public class ColimitSchema<N> implements Semantics {
     }
     if (left) {
       Renamer2 r2 = new Renamer2(order, new THashMap<>(eqcs), col, mappings, options);
-      return new Pair<>(r2.schemaStr0, r2.mappingsStr0);
+      return new Triple<>(r2.schemaStr0, r2.mappingsStr0, r2.warnings);
     }
     Renamer r = new Renamer(new THashMap<>(eqcs), col, mappings, options);
-    return new Pair<>(r.schemaStr0, r.mappingsStr0);
+    return new Triple<>(r.schemaStr0, r.mappingsStr0, r.warnings);
   }
 
   private static <N> void makeCoprodSchema(
