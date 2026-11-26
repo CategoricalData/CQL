@@ -2420,6 +2420,9 @@ public class CombinatorParser implements IAqlParser {
             Parsers.tuple(
                     token("reformulate"), eds_ref.lazy(), query_ref.lazy(), sch_ref.lazy(), ident)
                 .map(x -> new QueryExpReformulate(x.c, x.b, x.d, x.e)),
+        fkeys =
+            Parsers.tuple(token("foreign_keys"), sch_ref.lazy(), foreignKeysBlock())
+                .map(x -> new QueryExpForeignKeys(x.b, x.c.first, x.c.second)),
         ret =
             Parsers.or(
                 id,
@@ -2442,9 +2445,34 @@ public class CombinatorParser implements IAqlParser {
                 chase,
                 star,
                 refl,
+                fkeys,
                 parens(query_ref));
 
     query_ref.set(ret);
+  }
+
+  /**
+   * The block of {@code foreign_keys S}: declarations {@code f : A -> B where a1 = b1 a2 = b2}, a
+   * column of A on the left of each equation and a column of B on the right, then options.
+   */
+  private static Parser<
+          catdata.Pair<List<QueryExpForeignKeys.Key>, List<catdata.Pair<String, String>>>>
+      foreignKeysBlock() {
+    Parser<QueryExpForeignKeys.Key> key =
+        Parsers.tuple(
+                Parsers.tuple(ident, token(":"), ident, token("->"), ident),
+                token("where"),
+                Parsers.tuple(ident, token("="), ident).atomic().many1())
+            .map(
+                x -> {
+                  List<catdata.Pair<String, String>> on = new ArrayList<>(x.c.size());
+                  for (Tuple3<String, Token, String> e : x.c) {
+                    on.add(new catdata.Pair<>(e.a, e.c));
+                  }
+                  return new QueryExpForeignKeys.Key(x.a.a, x.a.c, x.a.e, on);
+                });
+    return Parsers.tuple(token("{"), key.many(), options, token("}"))
+        .map(x -> new catdata.Pair<>(x.b, x.c));
   }
 
   private static void colimSchExp() {
