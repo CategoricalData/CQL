@@ -1,6 +1,7 @@
 package catdata.cql.fdm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import catdata.cql.Instance;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -76,6 +78,45 @@ class SaturatedInstanceTest {
       List<String> elements = new ArrayList<>();
       inst.gens().entrySet((x, en) -> elements.add(x));
       assertTrue(elements.contains("e1"));
+    }
+
+    /** The entity of a row is found from one listing of the rows, however often it is asked. */
+    @Test
+    void gensListsTheRowsOnce() {
+      AtomicInteger listings = new AtomicInteger();
+      var alg =
+          new ImportAlgebra<>(
+              FdmTestHelpers.singleEntitySchema(),
+              en -> {
+                listings.incrementAndGet();
+                return List.of("e1", "e2");
+              },
+              new HashMap<>(),
+              (en, x) -> Collections.emptyMap(),
+              (en, x) -> Collections.emptyMap(),
+              (en, x) -> x,
+              (ty, y) -> y,
+              true,
+              Collections.emptyList());
+      var sat = new SaturatedInstance<>(alg, alg, false, false, false, null);
+      assertEquals("E", sat.gens().get("e1"));
+      int listed = listings.get();
+      for (int n = 0; n < 50; n++) {
+        assertEquals("E", sat.gens().get("e2"));
+        assertTrue(sat.gens().containsKey("e1"));
+      }
+      assertEquals(listed, listings.get());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void gensRefusesWhatIsNotARow() {
+      var inst =
+          (SaturatedInstance<
+                  String, String, String, String, String, String, String, String, String>)
+              FdmTestHelpers.singleElementInstance();
+      RuntimeException e = assertThrows(RuntimeException.class, () -> inst.gens().get("e2"));
+      assertTrue(e.getMessage().contains("Anomaly"), e.getMessage());
     }
   }
 
@@ -160,6 +201,9 @@ class SaturatedInstanceTest {
       assertEquals("b.n", alg.printY("Varchar", y).toString());
       assertTrue(alg.hasFreeTypeAlgebraOnJava());
       assertTrue(alg.hasFreeTypeAlgebra());
+      assertEquals("A", i.gens().get("a"));
+      assertEquals("A", i.gens().get("b"));
+      assertEquals("B", i.gens().get("c"));
     }
 
     @Test
