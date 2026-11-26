@@ -420,7 +420,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
     // doNotCheckPathEqs);
 
     Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b = new Blob<>(ens2, atts, map, map2, src2, dst2);
-    b = removeRedundantVars(b);
+    b = removeRedundantVars(b, tHashMap.keySet());
 
     // for testing
     // b = unfoldNestedApplications(b);
@@ -457,15 +457,17 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
     }
   }
 
+  // params are skolems of every block (see Frozen), but they are not from variables: an
+  // equation on a parameter is a filter, so it must survive until deParam substitutes the binding
   private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>
       Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> removeRedundantVars(
-          Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b) {
+          Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b, Set<String> params) {
     for (; ; ) {
       Triple<String, En2, Term<Void, En1, Void, Fk1, Void, String, Void>> p = findRedundant(b);
       if (p == null) {
 
         for (; ; ) {
-          p = findRedundantT(b);
+          p = findRedundantT(b, params);
           // System.out.println("found1 " + p);
           if (p == null) {
             return b;
@@ -769,12 +771,16 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
 
   private static <Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2>
       Triple<String, En2, Term<Void, En1, Void, Fk1, Void, String, Void>> findRedundantT(
-          Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b) {
+          Blob<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> b, Set<String> params) {
     for (En2 en2 : b.ens.keySet()) {
       for (Eq<Ty, En1, Sym, Fk1, Att1, String, String> eq : b.ens.get(en2).second) {
-        if (eq.lhs.sk() != null && !eq.rhs.sks().contains(eq.lhs.sk())) {
+        if (eq.lhs.sk() != null
+            && !params.contains(eq.lhs.sk())
+            && !eq.rhs.sks().contains(eq.lhs.sk())) {
           return new Triple<>(eq.lhs.sk(), en2, eq.rhs.convert());
-        } else if (eq.rhs.sk() != null && !eq.lhs.sks().contains(eq.rhs.sk())) {
+        } else if (eq.rhs.sk() != null
+            && !params.contains(eq.rhs.sk())
+            && !eq.lhs.sks().contains(eq.rhs.sk())) {
           return new Triple<>(eq.rhs.sk(), en2, eq.lhs.convert());
         }
       }
@@ -1598,11 +1604,15 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
         ens2 = new THashMap<>();
     for (En2 en2 : ens.keySet()) {
       LinkedHashMap<String, Chc<En1, Ty>> ctx = new LinkedHashMap<>();
+      // the block's skolems include the params, which f replaces by their bindings; copying
+      // them would turn each one into a from variable ranging over its whole type
       ens.get(en2)
           .sks()
           .entrySet(
               (k, v) -> {
-                ctx.put(k, Chc.inRight(v));
+                if (!params.containsKey(k)) {
+                  ctx.put(k, Chc.inRight(v));
+                }
               });
       ens.get(en2)
           .gens()
@@ -1612,7 +1622,24 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
               });
       ens2.put(en2, new Triple<>(ctx, g.apply(ens.get(en2).eqs), ens.get(en2).options));
     }
-    return makeQuery(ens2, atts2, conv2(this), conv3(this), src, dst, this.doNotCheckPathEqs);
+
+    // a foreign key can send a type-sorted variable of its target block to a term that mentions
+    // a param, and the params are no longer variables of the source block
+    Map<Fk2, Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>>> sks2 = new THashMap<>();
+    conv3(this)
+        .forEach(
+            (fk2, m) -> {
+              Map<String, Term<Ty, En1, Sym, Fk1, Att1, String, String>> m2 =
+                  new THashMap<>(m.size());
+              m.forEach(
+                  (v, t) -> {
+                    if (!params.containsKey(v)) {
+                      m2.put(v, f.apply(t));
+                    }
+                  });
+              sks2.put(fk2, m2);
+            });
+    return makeQuery(ens2, atts2, conv2(this), sks2, src, dst, this.doNotCheckPathEqs);
   }
 
   @SuppressWarnings("hiding")

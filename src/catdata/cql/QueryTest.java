@@ -7,18 +7,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import catdata.Chc;
 import catdata.Pair;
+import catdata.ParseException;
+import catdata.Program;
 import catdata.Triple;
 import catdata.cql.AqlOptions.AqlOption;
 import catdata.cql.Query.Agg;
+import catdata.cql.exp.AqlEnv;
 import catdata.cql.exp.AqlMultiDriver;
 import catdata.cql.exp.AqlParserFactory;
 import catdata.cql.exp.Att;
+import catdata.cql.exp.Exp;
 import catdata.cql.exp.Fk;
 import catdata.cql.exp.Sym;
 import java.util.ArrayList;
@@ -31,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -288,6 +294,12 @@ class QueryTest {
     Query<String, String, Sym, Fk, Att, String, Fk, Att> make(
         Schema<String, String, Sym, Fk, Att> src, Schema<String, String, Sym, Fk, Att> dst) {
       return Query.makeQuery(ens(), atts, fks(), sks(), src, dst, options);
+    }
+
+    /** Builds through {@link Query#makeQuery2}, as the parser does, keeping params and bindings. */
+    Query<String, String, Sym, Fk, Att, String, Fk, Att> makeWithParams(
+        Schema<String, String, Sym, Fk, Att> src, Schema<String, String, Sym, Fk, Att> dst) {
+      return Query.makeQuery2(params, consts, ens(), atts, fks(), sks(), src, dst, options);
     }
 
     private Map<
@@ -662,6 +674,31 @@ class QueryTest {
               .options(new AqlOptions(ops(), AqlOption.query_remove_redundancy, false))
               .make(Fixtures.SRC, Fixtures.ROWS);
       assertEquals(Map.of("e", EMP, "d", DEPT), q.ens.get(ROW).gens);
+    }
+
+    /** Issue 116: an equation on a parameter is a filter, not the definition of a variable. */
+    @Test
+    void keepsAWhereClauseOnAParameter() {
+      Query<String, String, Sym, Fk, Att, String, Fk, Att> q =
+          rowBuilder()
+              .param("p")
+              .entity(ROW, from("e", EMP).where(att(NAME, gen("e")), sk("p")))
+              .makeWithParams(Fixtures.SRC, Fixtures.ROWS);
+      assertEquals(Set.of(eq(att(NAME, gen("e")), sk("p"))), q.ens.get(ROW).eqs);
+      assertEquals(Map.of("p", TY), q.ens.get(ROW).sks);
+    }
+
+    @Test
+    void removesATypeVariableEqualToAParameter() {
+      Query<String, String, Sym, Fk, Att, String, Fk, Att> q =
+          new Builder()
+              .param("p")
+              .entity(ROW, from("e", EMP).andType("x").where(sk("p"), sk("x")))
+              .attribute(OUT, sk("x"))
+              .makeWithParams(Fixtures.SRC, Fixtures.ROWS);
+      assertEquals(Map.of("p", TY), q.ens.get(ROW).sks);
+      assertTrue(q.ens.get(ROW).eqs.isEmpty(), "p = p is reflexive and is dropped");
+      assertEquals(sk("p"), q.atts.get(OUT).l);
     }
 
     @Test
@@ -1183,19 +1220,286 @@ class QueryTest {
       assertTrue(d.consts.isEmpty());
     }
 
+    /** Issue 116: a parameter left in a from clause would range over its whole type. */
     @Test
-    void keepsTheParameterAsATypeSortedFromVariable() {
-      // The block's skolems, parameters included, are copied into the new from clause, so p
-      // survives as an unused type-sorted variable after its occurrences are substituted.
+    void leavesTheParametersOutOfTheFromClauses() {
       Query<String, String, Sym, Fk, Att, String, Fk, Att> d = parameterized().deParam();
       assertEquals(Map.of("e", EMP), d.ens.get(ROW).gens);
-      assertEquals(Map.of("p", TY), d.ens.get(ROW).sks);
+      assertTrue(d.ens.get(ROW).sks.isEmpty());
+    }
+
+    /** Issue 116: employer sends the type-sorted variable x of Unit to the parameter. */
+    @Test
+    void substitutesTheBindingsIntoTheForeignKeys() {
+      Query<String, String, Sym, Fk, Att, String, Fk, Att> d =
+          new Builder()
+              .param("p")
+              .bind("p", "Alice")
+              .entity(PERSON, from("e", EMP))
+              .entity(UNIT, from("d", DEPT).andType("x"))
+              .attribute(PNAME, att(NAME, gen("e")))
+              .attribute(UNAME, sk("x"))
+              .foreignKey(EMPLOYER, "d", path("e", WORKS_IN))
+              .foreignKeySkolem(EMPLOYER, "x", sk("p"))
+              .build(Fixtures.SRC, Fixtures.PEOPLE)
+              .deParam();
+      assertEquals(str("Alice"), d.fks.get(EMPLOYER).sks().apply("x", TY));
+      assertTrue(d.ens.get(PERSON).sks.isEmpty());
     }
 
     @Test
     void rejectsAggregates() {
       RuntimeException e = assertThrows(RuntimeException.class, () -> aggQuery().deParam());
       assertEquals("Anomaly: please report", e.getMessage());
+    }
+  }
+
+  /**
+   * Issue 116: a query with params and bindings selects the same rows as the query with the bound
+   * values written in. The programs run as the IDE's Run button runs them.
+   */
+  @Nested
+  class Parameters {
+
+    private static final String COLORS =
+        """
+        typeside Ty = literal {
+          types
+            Color
+          constants
+            red green blue : Color
+        }
+        schema S = literal : Ty {
+          entities
+            E
+          attributes
+            c : E -> Color
+        }
+        instance I = literal : S {
+          generators
+            x y : E
+          equations
+            x.c = red
+            y.c = green
+        }
+        schema T = literal : Ty {
+          entities
+            F
+          attributes
+            d : F -> Color
+        }
+        query Qplain = literal : S -> T {
+          entity F -> {
+            from e:E
+            where e.c = red
+            attributes d -> e.c
+          }
+        }
+        """;
+
+    /** The program of the issue, with or without the bindings. */
+    private static String withParameter(String bindings) {
+      return COLORS
+          + """
+          query Q = literal : S -> T {
+            params
+              p : Color
+          """
+          + bindings
+          + """
+            entity F -> {
+              from e:E
+              where e.c = p
+              attributes d -> e.c
+            }
+          }
+          """;
+    }
+
+    private static final String BOUND = "  bindings\n    p = red\n";
+
+    private static AqlEnv run(String program) throws ParseException {
+      Program<Exp<?>> prog = AqlParserFactory.getParser().parseProgram(program);
+      AqlMultiDriver d = new AqlMultiDriver(prog, null);
+      d.start();
+      return d.env;
+    }
+
+    private static Instance<?, ?, ?, ?, ?, ?, ?, ?, ?> instance(AqlEnv env, String name) {
+      assertNull(env.exn);
+      return (Instance<?, ?, ?, ?, ?, ?, ?, ?, ?>) env.defs.get(name, Kind.INSTANCE);
+    }
+
+    /** Each entity's rows, as their attributes and those of the rows their foreign keys reach. */
+    private static <T, E, S, F, A, G, K, X, Y> Map<String, List<String>> rows(
+        Instance<T, E, S, F, A, G, K, X, Y> i) {
+      Map<String, List<String>> ret = new TreeMap<>();
+      for (E en : i.schema().ens) {
+        List<String> rows = new ArrayList<>();
+        for (X x : i.algebra().en(en)) {
+          rows.add(row(i, en, x, true));
+        }
+        Collections.sort(rows);
+        ret.put(en.toString(), rows);
+      }
+      return ret;
+    }
+
+    private static <T, E, S, F, A, G, K, X, Y> String row(
+        Instance<T, E, S, F, A, G, K, X, Y> i, E en, X x, boolean followForeignKeys) {
+      List<String> cols = new ArrayList<>();
+      for (A a : i.schema().attsFrom(en)) {
+        cols.add(a + "=" + i.algebra().att(a, x));
+      }
+      if (followForeignKeys) {
+        for (F f : i.schema().fksFrom(en)) {
+          E target = i.schema().fks.get(f).second;
+          cols.add(f + "=(" + row(i, target, i.algebra().fk(f, x), false) + ")");
+        }
+      }
+      Collections.sort(cols);
+      return String.join(" ", cols);
+    }
+
+    @Test
+    void selectsTheRowsOfTheQueryWithTheValueWrittenIn() throws ParseException {
+      AqlEnv env =
+          run(withParameter(BOUND) + "instance J = eval Q I\ninstance Jplain = eval Qplain I\n");
+      Map<String, List<String>> plain = rows(instance(env, "Jplain"));
+      assertEquals(Map.of("F", List.of("d=red")), plain);
+      assertEquals(plain, rows(instance(env, "J")));
+    }
+
+    /** Over java types, enumerating the parameter failed with "Cannot enumerate". */
+    @Test
+    void evaluatesOverJavaTypesInMemoryAndInSql() throws ParseException {
+      AqlEnv env =
+          run(
+              """
+              typeside Ty = sql
+              schema S = literal : Ty {
+                entities
+                  E
+                attributes
+                  a : E -> Varchar
+              }
+              schema T = literal : Ty {
+                entities
+                  F
+                attributes
+                  b : F -> Varchar
+              }
+              instance I = literal : S {
+                generators
+                  x y : E
+                equations
+                  x.a = hello
+                  y.a = world
+              }
+              query Q = literal : S -> T {
+                params
+                  p : Varchar
+                bindings
+                  p = hello
+                entity F -> {
+                  from e:E
+                  where e.a = p
+                  attributes b -> e.a
+                }
+              }
+              instance Jmemory = eval Q I
+              instance Jsql = eval Q I { options eval_use_sql_above = 0 }
+              """);
+      assertEquals(Map.of("F", List.of("b=hello")), rows(instance(env, "Jmemory")));
+      assertEquals(Map.of("F", List.of("b=hello")), rows(instance(env, "Jsql")));
+    }
+
+    /** G ranges over Color; h sends the one row of F to the G row of the parameter's value. */
+    @Test
+    void substitutesTheBindingInAForeignKey() throws ParseException {
+      String target =
+          """
+          schema T2 = literal : Ty {
+            entities
+              F G
+            foreign_keys
+              h : F -> G
+            attributes
+              d : F -> Color
+              k : G -> Color
+          }
+          """;
+      String queries =
+          """
+          query Q2 = literal : S -> T2 {
+            params
+              p : Color
+            bindings
+              p = red
+            entity G -> {
+              from y:Color
+              attributes k -> y
+            }
+            entity F -> {
+              from e:E
+              where e.c = p
+              attributes d -> e.c
+              foreign_keys h -> {y -> p}
+            }
+          }
+          query Q2plain = literal : S -> T2 {
+            entity G -> {
+              from y:Color
+              attributes k -> y
+            }
+            entity F -> {
+              from e:E
+              where e.c = red
+              attributes d -> e.c
+              foreign_keys h -> {y -> red}
+            }
+          }
+          instance J = eval Q2 I
+          instance Jplain = eval Q2plain I
+          """;
+      AqlEnv env = run(COLORS + target + queries);
+      Map<String, List<String>> plain = rows(instance(env, "Jplain"));
+      assertEquals(
+          Map.of("F", List.of("d=red h=(k=red)"), "G", List.of("k=blue", "k=green", "k=red")),
+          plain);
+      assertEquals(plain, rows(instance(env, "J")));
+    }
+
+    /** coeval used to add a labelled null for the parameter to every block. */
+    @Test
+    void coevaluatesWithoutANullForTheParameter() throws ParseException {
+      AqlEnv env =
+          run(
+              withParameter(BOUND)
+                  + """
+                  instance K = literal : T {
+                    generators
+                      f : F
+                    equations
+                      f.d = red
+                  }
+                  instance C = coeval Q K
+                  instance Cplain = coeval Qplain K
+                  """);
+      Instance<?, ?, ?, ?, ?, ?, ?, ?, ?> c = instance(env, "C");
+      assertEquals(rows(instance(env, "Cplain")), rows(c));
+      assertTrue(c.algebra().talg().sks.isEmpty());
+    }
+
+    /** Without bindings the query cannot be evaluated, but its where clause is kept for SQL. */
+    @Test
+    void keepsTheWhereClauseOfAnUnboundParameter() throws ParseException {
+      AqlEnv env = run(withParameter("") + "instance J = eval Q I\n");
+      String m = env.exn.getMessage();
+      assertTrue(m.endsWith("Missing bindings: p"), m);
+      Query<?, ?, ?, ?, ?, ?, ?, ?> q =
+          (Query<?, ?, ?, ?, ?, ?, ?, ?>) env.defs.get("Q", Kind.QUERY);
+      assertEquals(1, q.ens.values().iterator().next().eqs.size());
     }
   }
 
