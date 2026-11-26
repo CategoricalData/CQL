@@ -1,6 +1,5 @@
 package catdata.cql.exp;
 
-import catdata.Unit;
 import catdata.cql.exp.QueryExp.QueryExpLit;
 import catdata.cql.exp.QueryExp.QueryExpVar;
 
@@ -16,9 +15,9 @@ public interface QueryExpCoVisitor<R, P, E extends Exception> {
   public QueryExpRaw visitQueryExpRaw(P params, R exp) throws E;
 
   public QueryExpSpanify visitQueryExpSpanify(P params, R exp) throws E;
-  
+
   public QueryExpMapToSpanQuery visitQueryExpMapToSpanQuery(P params, R exp) throws E;
-  
+
   public QueryExpDeltaCoEval visitQueryExpDeltaCoEval(P params, R exp) throws E;
 
   public QueryExpDeltaEval visitQueryExpDeltaEval(P params, R exp) throws E;
@@ -28,15 +27,14 @@ public interface QueryExpCoVisitor<R, P, E extends Exception> {
   public QueryExpFromCoSpan visitQueryExpFromCoSpan(P params, R exp) throws E;
 
   public QueryExpFromEds visitQueryExpFromEds(P params, R exp) throws E;
-  
+
   public QueryExpFront visitQueryExpFront(P params, R exp) throws E;
 
   public QueryExpRext visitQueryExpRext(P params, R exp) throws E;
-  
-  public QueryExpFromInst visitQueryExpFromInst(P params, R exp) throws E;
-  
-  public QueryExpChase visitQueryExpChase(P params, R exp) throws E;
-  
-  public QueryExpReformulate visitQueryExpReformulate(P params, R exp) throws E;
 
+  public QueryExpFromInst visitQueryExpFromInst(P params, R exp) throws E;
+
+  public QueryExpChase visitQueryExpChase(P params, R exp) throws E;
+
+  public QueryExpReformulate visitQueryExpReformulate(P params, R exp) throws E;
 }
