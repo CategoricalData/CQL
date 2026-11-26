@@ -11,7 +11,7 @@ import catdata.cql.Schema;
 import catdata.cql.Term;
 import java.util.ArrayList;
 import java.util.Collections;
-// import java.util.HashMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,16 +66,27 @@ public class SaturatedInstance<Ty, En, Sym, Fk, Att, Gen, Sk, X, Y>
     gens =
         new IMap<X, En>() {
 
+          /**
+           * The entity of each row, listed at the first question. A decision procedure asks it for
+           * every row a term names, and a search through the rows for each answer made a check or a
+           * query on n rows take time that grows with n squared.
+           */
+          private volatile Map<X, En> entities;
+
           @Override
           public En get(X x) {
-            for (En en : alg.schema().ens) {
-              for (X y : alg.en(en)) {
-                if (x.equals(y)) {
-                  return en;
+            Map<X, En> known = entities;
+            if (known == null) {
+              known = new HashMap<>();
+              for (En en : alg.schema().ens) {
+                for (X y : alg.en(en)) {
+                  known.putIfAbsent(y, en);
                 }
               }
+              entities = known;
             }
-            return Util.anomaly();
+            En en = known.get(x);
+            return en == null ? Util.anomaly() : en;
           }
 
           @Override
