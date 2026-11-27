@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,12 +43,28 @@ import org.junit.jupiter.api.io.TempDir;
  * Unit tests for {@link EgglogProver}, run against stand-ins for egglog and, in {@link
  * AgainstEgglog}, against a real egglog. CQL starts egglog with {@code --mode interactive}, writes
  * one command a line, and reads its standard output up to the {@code (done)} or {@code (error)}
- * that ends each line. A stand-in is a shell script that records the lines it reads and ends each
- * with a mark.
+ * that ends each line; the facts of a program it writes to files, which egglog reads with {@code
+ * input}. A stand-in is a shell script that records the lines it reads, and the files that a line
+ * has it read, and ends each line with a mark.
  */
 class EgglogProverTest {
 
   @TempDir Path dir;
+
+  /**
+   * What a stand-in does with a line that has egglog read a file: it copies the file, after the
+   * name of the relation, to a file named after it with {@code .rows} added.
+   */
+  private static final String READ =
+      """
+          case "$line" in
+            "(input "*)
+              set -- $line
+              echo "$2" >> "$0.rows"
+              file=${line#*\\"}
+              cat "${file%\\"*}" >> "$0.rows" ;;
+          esac
+      """;
 
   /**
    * A stand-in that records what it reads in a file named after it, with {@code .input} added, and
@@ -58,13 +76,14 @@ class EgglogProverTest {
         """
         while IFS= read -r line; do
           printf '%%s\\n' "$line" >> "$0.input"
+        %s
           case "$line" in
             "(check"*) echo "%s" ;;
             *) echo "(done)" ;;
           esac
         done
         """
-            .formatted(check));
+            .formatted(READ, check));
   }
 
   private String script(String name, String body) throws Exception {
@@ -102,6 +121,21 @@ class EgglogProverTest {
 
   private String input(String name) throws Exception {
     return Files.readString(dir.resolve(name + ".input"));
+  }
+
+  /** What a stand-in read, with the path of each file that a line has it read shown as FILE. */
+  private String sent(String name) throws Exception {
+    return input(name).replaceAll("\\(input (L[0-9]+) \"[^\"\n]*\"\\)", "(input $1 FILE)");
+  }
+
+  /** The files that a stand-in was told to read. */
+  private List<Path> files(String name) throws Exception {
+    List<Path> files = new ArrayList<>();
+    Matcher m = Pattern.compile("\\(input L[0-9]+ \"([^\"\n]*)\"\\)").matcher(input(name));
+    while (m.find()) {
+      files.add(Path.of(m.group(1)));
+    }
+    return files;
   }
 
   /**
@@ -264,8 +298,8 @@ class EgglogProverTest {
         Head.SymHead(Sym.Sym("e", new Pair<>(List.of(), "T")));
     p.add(e, Chc.inLeft("T"));
     p.add(e, Chc.inLeft("T"));
+    assertTrue(input("yes").endsWith("(run R1 1)\n(U0_T (C0_T 2))\n"), input("yes"));
     String added = "(union (C0_T 0) (C0_T 1))\n(U0_T (C0_T 2))\n";
-    assertTrue(input("yes").endsWith(added), input("yes"));
     assertTrue(p.toString().endsWith(added), p.toString());
     assertTrue(p.kb.syms.containsKey(e));
     assertTrue(p.eq(Map.of(), c("e"), c("a")));
@@ -275,7 +309,8 @@ class EgglogProverTest {
   /**
    * The theory becomes a sort for each sort, with its constants and its universe, a constructor for
    * each symbol with arguments, and a rewrite or a union for each axiom. A function of the type
-   * side is not applied to the whole universe: only what takes a row of an entity is.
+   * side is not applied to the whole universe: only what takes a row of an entity is. The facts,
+   * that each constant is in its universe and the unions, come last.
    */
   @Test
   void writesTheTheoryInEgglog() throws Exception {
@@ -285,13 +320,62 @@ class EgglogProverTest {
         (constructor C0_T (i64) S0_T)
         (relation U0_T (S0_T))
         (constructor F0_f (S0_T) S0_T)
-        (U0_T (C0_T 0))
-        (U0_T (C0_T 1))
         (rule ((= V0 (F0_f V1))) ((U0_T V0)))
         (birewrite (F0_f V0_x) V0_x :when ((U0_T V0_x)))
+        (U0_T (C0_T 0))
+        (U0_T (C0_T 1))
         (union (C0_T 0) (C0_T 1))
         """,
         EgglogProver.toEgglog(kb()));
+  }
+
+  /**
+   * egglog reads the facts from files, one file for each shape of fact, with a row of numbers for
+   * each fact; a rule for each shape adds the facts, in one run, and the files are gone once egglog
+   * has read them.
+   */
+  @Test
+  void hasEgglogReadTheFactsFromFiles() throws Exception {
+    new EgglogProver<>(stub("yes", "(done)"), kb(), 3);
+    assertEquals(
+        """
+        (sort S0_T)
+        (constructor C0_T (i64) S0_T)
+        (relation U0_T (S0_T))
+        (constructor F0_f (S0_T) S0_T)
+        (rule ((= V0 (F0_f V1))) ((U0_T V0)))
+        (birewrite (F0_f V0_x) V0_x :when ((U0_T V0_x)))
+        (ruleset R1)
+        (relation L0 (i64))
+        (rule ((L0 V0)) ((U0_T (C0_T V0))) :ruleset R1)
+        (input L0 FILE)
+        (relation L1 (i64 i64))
+        (rule ((L1 V0 V1)) ((union (C0_T V0) (C0_T V1))) :ruleset R1)
+        (input L1 FILE)
+        (run R1 1)
+        """,
+        sent("yes"));
+    assertEquals("L0\n0\n1\nL1\n0\t1\n", Files.readString(dir.resolve("yes.rows")));
+    List<Path> files = files("yes");
+    assertEquals(2, files.size());
+    for (Path file : files) {
+      assertTrue(file.isAbsolute(), file.toString());
+      assertFalse(Files.exists(file), file.toString());
+    }
+    assertFalse(Files.exists(files.get(0).getParent()), files.get(0).getParent().toString());
+  }
+
+  /**
+   * A path goes to egglog in quotes, with a backslash before each backslash and quote, and a tab
+   * and a newline written as egglog reads them.
+   */
+  @Test
+  void quotesAPathAsEgglogReadsIt() {
+    assertEquals("\"/tmp/a b/x.tsv\"", EgglogProver.Session.quoted("/tmp/a b/x.tsv"));
+    assertEquals(
+        "\"C:\\\\Users\\\\a \\\"b\\\"\\\\x.tsv\"",
+        EgglogProver.Session.quoted("C:\\Users\\a \"b\"\\x.tsv"));
+    assertEquals("\"a\\tb\\nc\"", EgglogProver.Session.quoted("a\tb\nc"));
   }
 
   /**
@@ -432,6 +516,7 @@ class EgglogProverTest {
           """
           while IFS= read -r line; do
             printf '%%s\\n' "$line" >> "$0.input"
+          %s
             case "$line" in
               "(print-function U0_String)")
                 echo "("
@@ -451,7 +536,7 @@ class EgglogProverTest {
             echo "(done)"
           done
           """
-              .formatted(persons, names));
+              .formatted(READ, persons, names));
     }
 
     private AqlMultiDriver run(String path) throws Exception {
@@ -491,8 +576,9 @@ class EgglogProverTest {
     }
 
     /**
-     * CQL writes the program, has egglog run it, prints the rows of each sort, numbers them in the
-     * order of their terms, and prints the table that egglog fills for the attribute.
+     * CQL writes the program, with its facts in files, has egglog run it, prints the rows of each
+     * sort, numbers them in the order of their terms, and prints the table that egglog fills for
+     * the attribute.
      */
     @Test
     void readsTheRowsAndTheirAttributesFromEgglog() throws Exception {
@@ -502,7 +588,7 @@ class EgglogProverTest {
       assertTrue(j.contains(".name = Alice"), j);
       assertTrue(j.contains(".name = Bob"), j);
       assertEquals(List.of("a", "b"), shown(d));
-      String input = input("chase1");
+      String input = sent("chase1");
       assertTrue(
           input.startsWith(
               """
@@ -513,14 +599,8 @@ class EgglogProverTest {
               (constructor C1_Person (i64) S1_Person)
               (relation U1_Person (S1_Person))
               (constructor F0_name (S1_Person) S0_String :cost 1000000)
-              (U0_String (C0_String 0))
-              (U0_String (C0_String 1))
-              (U1_Person (C1_Person 0))
-              (U1_Person (C1_Person 1))
               (rule ((= V0 (F0_name V1))) ((U0_String V0)))
               (rule ((U1_Person V1)) ((F0_name V1)))
-              (union (F0_name (C1_Person 0)) (C0_String 0))
-              (union (F0_name (C1_Person 1)) (C0_String 1))
               (rule ((U1_Person V\
               """),
           input);
@@ -541,6 +621,18 @@ class EgglogProverTest {
               "(constructor K0_q (S1_Person) S1_Person)\n"
                   + witness
                   + """
+                  (ruleset R1)
+                  (relation L0 (i64))
+                  (rule ((L0 V0)) ((U0_String (C0_String V0))) :ruleset R1)
+                  (input L0 FILE)
+                  (relation L1 (i64))
+                  (rule ((L1 V0)) ((U1_Person (C1_Person V0))) :ruleset R1)
+                  (input L1 FILE)
+                  (relation L2 (i64 i64))
+                  (rule ((L2 V0 V1)) ((union (F0_name (C1_Person V0)) (C0_String V1))) \
+                  :ruleset R1)
+                  (input L2 FILE)
+                  (run R1 1)
                   (run-schedule (saturate (run)))
                   (print-function U0_String)
                   (print-function U1_Person)
@@ -556,6 +648,8 @@ class EgglogProverTest {
                   + table
                   + "(run R0 1)\n(print-function T0_name)\n"),
           input);
+      assertEquals(
+          "L0\n0\n1\nL1\n0\n1\nL2\n0\t0\n1\t1\n", Files.readString(dir.resolve("chase1.rows")));
     }
 
     /** A row that is the witness of a constraint is named as CQL named it before: R2q(a). */
@@ -973,6 +1067,25 @@ class EgglogProverTest {
       var a = kbExp(constant("a", "String"));
       assertTrue(answer(prover, Map.of(), a, kbExp(constant("b", "String"))));
       assertFalse(answer(prover, Map.of(), a, kbExp(constant("c", "String"))));
+    }
+
+    /**
+     * egglog reads a file whose path has spaces, brackets, a semicolon, a tab, quotes and a
+     * backslash in it, as CQL quotes it. Windows allows only the spaces, brackets and semicolon.
+     */
+    @Test
+    void readsAFileWhosePathItIsToldInQuotes() throws Exception {
+      String name = OS.WINDOWS.isCurrentOs() ? "a b (c);d" : "a b (c);d\te \"f\" \\g";
+      Path file = Files.createDirectory(dir.resolve(name)).resolve("rows.tsv");
+      Files.writeString(file, "7\t8\n");
+      try (EgglogProver.Session s = EgglogProver.Session.start(egglog)) {
+        s.run(
+            List.of(
+                "(relation R (i64 i64))",
+                "(input R " + EgglogProver.Session.quoted(file.toString()) + ")"));
+        assertTrue(s.holds("(check (R 7 8))"));
+        assertFalse(s.holds("(check (R 8 7))"));
+      }
     }
 
     /** A constant that is added later is equal to itself only. */

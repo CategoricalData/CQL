@@ -32,6 +32,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.Cleaner;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +51,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 
 /**
  * CQL's use of egglog (https://github.com/egraphs-good/egglog), a program that CQL starts and talks
@@ -69,6 +72,8 @@ import java.util.function.Consumer;
  * prints what they print and then {@code (done)}, or {@code (error)} alone if one of them failed,
  * on standard output. CQL sends one command a line and reads standard output up to that mark. It
  * reads nothing from egglog's log; standard error is only kept to quote when a command is refused.
+ * The facts of a program, which are most of an instance, go another way: CQL writes them to files
+ * as rows of numbers, and egglog reads each file with {@code input} ({@link Session#load}).
  *
  * <p><b>Program.</b> A theory becomes a sort for each sort, with a relation that holds its
  * universe, and a constructor for each symbol with arguments. Every constant is in the universe of
@@ -94,6 +99,9 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
   /** The ruleset of the rules that fill the tables of {@link Model}. */
   private static final String TABLES = "R0";
 
+  /** The ruleset of the rules that add the facts that egglog reads from files. */
+  private static final String FACTS = "R1";
+
   private final Program program;
   private final Session egglog;
   private final int runLevel;
@@ -104,7 +112,7 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
     program = program(th);
     egglog = Session.start(exePath);
     CLEANER.register(this, egglog.stopper());
-    egglog.run(program.lines);
+    egglog.load(program);
   }
 
   /**
@@ -150,9 +158,11 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
     if (kb.syms.containsKey(c)) {
       return;
     }
-    List<String> commands = program.names.declareConstant(c, t);
+    Names names = program.names;
+    List<String> commands = new ArrayList<>(names.declareConstant(c, t));
+    commands.add(names.member(c, t).text());
     egglog.run(commands);
-    program.lines.addAll(commands);
+    program.later.addAll(commands);
     kb.syms.put(c, new Pair<>(Collections.emptyList(), t));
   }
 
@@ -251,7 +261,7 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
     Program program = chaseProgram(eds, I.collage().toKB());
     Model model;
     try (Session egglog = Session.start(exePath)) {
-      egglog.run(program.lines);
+      egglog.load(program);
       egglog.run(List.of("(run-schedule (saturate (run)))"));
       model = new Model(egglog, program.names, schema);
     }
@@ -298,13 +308,149 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
     return new SaturatedInstance<>(ret, ret, false, false, true, new HashMap<>());
   }
 
-  /** A theory as an egglog program, one command a line, with the names it gave. */
+  /**
+   * A theory as an egglog program, with the names it gave: commands, one a line; facts; and the
+   * commands that come after the facts, which add constants. Facts of one shape are kept as rows of
+   * numbers, one row a fact, which is how egglog reads them ({@link Session#load}).
+   */
   static final class Program {
     final Names names = new Names();
     final List<String> lines = new ArrayList<>();
 
+    /** For each shape, the numbers of each of its facts. */
+    final Map<List<String>, List<int[]>> facts = new LinkedHashMap<>();
+
+    final List<String> later = new ArrayList<>();
+
+    void add(Fact fact) {
+      facts.computeIfAbsent(fact.shape(), s -> new ArrayList<>()).add(fact.numbers());
+    }
+
+    /** The program as commands alone: each fact is the command that it stands for. */
     String text() {
-      return String.join("\n", lines) + "\n";
+      StringBuilder sb = new StringBuilder();
+      for (String line : lines) {
+        sb.append(line).append('\n');
+      }
+      for (Map.Entry<List<String>, List<int[]>> shape : facts.entrySet()) {
+        for (int[] numbers : shape.getValue()) {
+          sb.append(new Fact(shape.getKey(), numbers).text()).append('\n');
+        }
+      }
+      for (String line : later) {
+        sb.append(line).append('\n');
+      }
+      return sb.toString();
+    }
+
+    /**
+     * Writes the facts of each shape to a file in a directory, a line of numbers separated by tabs
+     * for each fact, and returns the commands that have egglog read them: for each shape a
+     * relation, which {@code input} fills from the file, and a rule that adds the fact of each of
+     * its rows; then a single run of those rules.
+     */
+    List<String> input(Path dir) throws IOException {
+      List<String> commands = new ArrayList<>();
+      commands.add("(ruleset " + FACTS + ")");
+      int n = 0;
+      for (Map.Entry<List<String>, List<int[]>> shape : facts.entrySet()) {
+        String relation = Names.facts(n++);
+        Path file = dir.resolve(relation + ".tsv").toAbsolutePath();
+        try (Writer out = Files.newBufferedWriter(file, StandardCharsets.US_ASCII)) {
+          for (int[] numbers : shape.getValue()) {
+            for (int i = 0; i < numbers.length; i++) {
+              if (i > 0) {
+                out.write('\t');
+              }
+              out.write(Integer.toString(numbers[i]));
+            }
+            out.write('\n');
+          }
+        }
+        int columns = shape.getKey().size() - 1;
+        StringBuilder row = new StringBuilder(relation);
+        for (int i = 0; i < columns; i++) {
+          row.append(" V").append(i);
+        }
+        commands.add("(relation " + relation + " (" + "i64 ".repeat(columns).trim() + "))");
+        commands.add(
+            "(rule (("
+                + row
+                + ")) ("
+                + Fact.fill(shape.getKey(), i -> "V" + i)
+                + ") :ruleset "
+                + FACTS
+                + ")");
+        commands.add("(input " + relation + " " + Session.quoted(file.toString()) + ")");
+      }
+      commands.add("(run " + FACTS + " 1)");
+      return commands;
+    }
+  }
+
+  /**
+   * An action without variables, as two parts: its shape, which is the text before, between and
+   * after the numbers of its constants, and those numbers. The shape of {@code (union (F0_f (C1_E
+   * 2)) (C0_T 5))} is {@code "(union (F0_f (C1_E "}, {@code ")) (C0_T "} and {@code "))"}.
+   */
+  record Fact(List<String> shape, int[] numbers) {
+
+    String text() {
+      return fill(shape, i -> Integer.toString(numbers[i]));
+    }
+
+    /** The shape with the i-th number replaced by what is given for it. */
+    static String fill(List<String> shape, IntFunction<String> number) {
+      StringBuilder sb = new StringBuilder(shape.get(0));
+      for (int i = 1; i < shape.size(); i++) {
+        sb.append(number.apply(i - 1)).append(shape.get(i));
+      }
+      return sb.toString();
+    }
+  }
+
+  /** Writes a fact: its text, with each constant's number kept apart. */
+  private static final class FactWriter {
+    private final Names names;
+    private final List<String> shape = new ArrayList<>();
+    private final List<Integer> numbers = new ArrayList<>();
+    private final StringBuilder text = new StringBuilder();
+
+    FactWriter(Names names) {
+      this.names = names;
+    }
+
+    FactWriter text(String s) {
+      text.append(s);
+      return this;
+    }
+
+    <C, V> FactWriter term(KBExp<C, V> e) {
+      if (e.isVar()) {
+        throw new RuntimeException("The variable " + e.getVar() + " is not in the context.");
+      }
+      Names.Constant constant = names.constantOf(e.f());
+      if (constant != null) {
+        text.append('(').append(constant.constructor()).append(' ');
+        shape.add(text.toString());
+        text.setLength(0);
+        numbers.add(constant.number());
+        text.append(')');
+        return this;
+      }
+      text.append('(').append(names.symbol(e.f()));
+      for (KBExp<C, V> arg : e.getArgs()) {
+        text.append(' ');
+        term(arg);
+      }
+      text.append(')');
+      return this;
+    }
+
+    Fact fact() {
+      List<String> parts = new ArrayList<>(shape);
+      parts.add(text.toString());
+      return new Fact(List.copyOf(parts), numbers.stream().mapToInt(Integer::intValue).toArray());
     }
   }
 
@@ -337,6 +483,7 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
       Pair<List<T>, T> type = th.syms.get(c);
       if (type.first.isEmpty()) {
         lines.addAll(names.declareConstant(c, type.second));
+        program.add(names.member(c, type.second));
       }
     }
     for (C c : symbols) {
@@ -357,26 +504,39 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
         lines.add("(rule (" + String.join(" ", arguments) + ") (" + applied + "))");
       }
     }
-    List<String> equations = new ArrayList<>();
+    List<String> rewrites = new ArrayList<>();
+    List<Pair<String, Fact>> unions = new ArrayList<>();
     for (Triple<Map<V, T>, KBExp<C, V>, KBExp<C, V>> eq : th.eqs) {
+      if (eq.first == null || eq.first.isEmpty()) {
+        Fact union =
+            new FactWriter(names)
+                .text("(union ")
+                .term(eq.second)
+                .text(" ")
+                .term(eq.third)
+                .text(")")
+                .fact();
+        unions.add(new Pair<>(union.text(), union));
+        continue;
+      }
       Map<V, String> vars = new LinkedHashMap<>();
       List<String> universes = new ArrayList<>();
-      if (eq.first != null) {
-        for (Map.Entry<V, T> v : eq.first.entrySet()) {
-          String name = Names.variable(vars.size(), v.getKey());
-          vars.put(v.getKey(), name);
-          universes.add("(" + names.universe(v.getValue()) + " " + name + ")");
-        }
+      for (Map.Entry<V, T> v : eq.first.entrySet()) {
+        String name = Names.variable(vars.size(), v.getKey());
+        vars.put(v.getKey(), name);
+        universes.add("(" + names.universe(v.getValue()) + " " + name + ")");
       }
       String lhs = term(names, eq.second, vars);
       String rhs = term(names, eq.third, vars);
-      equations.add(
-          vars.isEmpty()
-              ? "(union " + lhs + " " + rhs + ")"
-              : "(birewrite " + lhs + " " + rhs + " :when (" + String.join(" ", universes) + "))");
+      rewrites.add(
+          "(birewrite " + lhs + " " + rhs + " :when (" + String.join(" ", universes) + "))");
     }
-    Collections.sort(equations);
-    lines.addAll(equations);
+    Collections.sort(rewrites);
+    lines.addAll(rewrites);
+    unions.sort(Comparator.comparing((Pair<String, Fact> u) -> u.first));
+    for (Pair<String, Fact> union : unions) {
+      program.add(union.second);
+    }
     return program;
   }
 
@@ -572,16 +732,25 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
    * sort: S, with C for the constructor of its constants, N for that of its labelled nulls, U for
    * the relation that holds its universe and I for the function that numbers its rows. F for a
    * symbol with arguments and T for the table of its values; K for the witness of an existential
-   * variable of a constraint; V for a variable of a rule.
+   * variable of a constraint; V for a variable of a rule; L for the relation that egglog reads the
+   * facts of one shape into.
    */
   static final class Names {
 
     /** How many letters and digits of a CQL name its egglog name keeps. */
     private static final int KEPT = 24;
 
+    /** A constant: the constructor of its sort's constants or labelled nulls, and its number. */
+    record Constant(String constructor, int number) {
+
+      String term() {
+        return "(" + constructor + " " + number + ")";
+      }
+    }
+
     private final Map<Object, String> sorts = new HashMap<>();
     private final Map<Object, String> symbols = new HashMap<>();
-    private final Map<Object, String> constants = new HashMap<>();
+    private final Map<Object, Constant> constants = new HashMap<>();
 
     /** The CQL symbol of each name F, and the CQL symbols of each name C or N, by number. */
     private final Map<String, Object> named = new HashMap<>();
@@ -615,9 +784,10 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
     }
 
     /**
-     * Numbers a constant, and returns the commands that put it into the universe of its sort. The
-     * labelled nulls of a sort are numbered apart, under a constructor that costs more, so that
-     * egglog prints a value as a constant when it is equal to one.
+     * Numbers a constant. The labelled nulls of a sort are numbered apart, under a constructor that
+     * costs more, so that egglog prints a value as a constant when it is equal to one; for the
+     * first labelled null of a sort, this returns the command that declares that constructor, and
+     * otherwise nothing.
      */
     List<String> declareConstant(Object constant, Object sort) {
       boolean labelledNull = constant instanceof Head<?, ?, ?, ?, ?, ?, ?> h && h.sk() != null;
@@ -636,11 +806,22 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
                 + ")");
       }
       List<Object> others = numbered.get(constructor);
-      String term = "(" + constructor + " " + others.size() + ")";
+      constants.put(constant, new Constant(constructor, others.size()));
       others.add(constant);
-      constants.put(constant, term);
-      commands.add("(" + universe(sort) + " " + term + ")");
       return commands;
+    }
+
+    /** The fact that a constant is in the universe of its sort. */
+    Fact member(Object constant, Object sort) {
+      Constant c = constants.get(constant);
+      return new Fact(
+          List.of("(" + universe(sort) + " (" + c.constructor() + " ", "))"),
+          new int[] {c.number()});
+    }
+
+    /** The relation that egglog reads the facts of the n-th shape into. */
+    static String facts(int n) {
+      return "L" + n;
     }
 
     /** The witness of an existential variable of the n-th constraint, shown as CQL did: R2x. */
@@ -677,6 +858,12 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
 
     /** The term of a constant, or null for a symbol that takes arguments. */
     String constant(Object symbol) {
+      Constant c = constants.get(symbol);
+      return c == null ? null : c.term();
+    }
+
+    /** A constant, or null for a symbol that takes arguments. */
+    Constant constantOf(Object symbol) {
       return constants.get(symbol);
     }
 
@@ -1164,11 +1351,11 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
 
   /**
    * An egglog that CQL started with {@code --mode interactive}. CQL writes commands to its standard
-   * input, one a line, and for each line egglog writes what the command prints to its standard
-   * output, and then {@code (done)}, or {@code (error)} alone. Two threads follow egglog's standard
-   * output and standard error, so that egglog never waits for CQL to read, and so that the thread
-   * that waits for an answer can be interrupted: an interrupt, such as the timeout of a definition,
-   * ends egglog.
+   * input, one a line, in UTF-8, and for each line egglog writes what the command prints to its
+   * standard output, and then {@code (done)}, or {@code (error)} alone. Two threads follow egglog's
+   * standard output and standard error, so that egglog never waits for CQL to read, and so that the
+   * thread that waits for an answer can be interrupted: an interrupt, such as the timeout of a
+   * definition, ends egglog.
    */
   static final class Session implements AutoCloseable {
     private static final String DONE = "(done)";
@@ -1206,7 +1393,7 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
       this.process = process;
       commands =
           new BufferedWriter(
-              new OutputStreamWriter(process.getOutputStream(), StandardCharsets.US_ASCII));
+              new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8));
       BlockingQueue<Object> out = answers;
       Complaints err = complaints;
       follow(process.getInputStream(), "egglog-output", out::add, () -> out.add(END));
@@ -1232,6 +1419,61 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
               name);
       thread.setDaemon(true);
       thread.start();
+    }
+
+    /**
+     * Has egglog run a program: its commands, and then its facts, which egglog reads from files
+     * that CQL writes into a directory of its own and deletes once egglog has read them.
+     */
+    void load(Program program) {
+      run(program.lines);
+      if (program.facts.isEmpty()) {
+        return;
+      }
+      File dir = null;
+      try {
+        dir = Files.createTempDirectory("cql-egglog").toFile();
+        run(program.input(dir.toPath()));
+      } catch (IOException e) {
+        throw new RuntimeException("CQL cannot write the facts for egglog: " + e.getMessage(), e);
+      } finally {
+        if (dir != null) {
+          delete(dir);
+        }
+      }
+    }
+
+    /** Deletes a directory and its files; what cannot be deleted now is deleted when Java ends. */
+    private static void delete(File dir) {
+      File[] files = dir.listFiles();
+      List<File> left = new ArrayList<>();
+      for (File file : files == null ? new File[0] : files) {
+        if (!file.delete()) {
+          left.add(file);
+        }
+      }
+      if (!left.isEmpty() || !dir.delete()) {
+        dir.deleteOnExit();
+        left.forEach(File::deleteOnExit);
+      }
+    }
+
+    /**
+     * A string in egglog's syntax: in quotes, with a backslash before each backslash and quote, and
+     * a newline and a tab written {@code \n} and {@code \t}.
+     */
+    static String quoted(String s) {
+      StringBuilder sb = new StringBuilder("\"");
+      for (int i = 0; i < s.length(); i++) {
+        char ch = s.charAt(i);
+        switch (ch) {
+          case '\\', '"' -> sb.append('\\').append(ch);
+          case '\n' -> sb.append("\\n");
+          case '\t' -> sb.append("\\t");
+          default -> sb.append(ch);
+        }
+      }
+      return sb.append('"').toString();
     }
 
     /** Sends commands and waits until egglog has run each. One that egglog refuses ends it. */
