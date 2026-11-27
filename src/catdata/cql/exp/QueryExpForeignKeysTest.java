@@ -124,6 +124,45 @@ class QueryExpForeignKeysTest {
     return vs.get(0);
   }
 
+  /**
+   * One entity whose rows point to a next row: 1 -> 2 -> 3 -> 3, whose third step is its second,
+   * and 4 -> 5 -> 6 -> 4, whose third step is its first.
+   */
+  private static final String STEPS =
+      """
+      schema S = literal : sql {
+        entities Step
+        attributes s_id s_next : Step -> String
+      }
+      instance I = literal : S {
+        generators s1 s2 s3 s4 s5 s6 : Step
+        multi_equations
+          s_id -> {s1 "1", s2 "2", s3 "3", s4 "4", s5 "5", s6 "6"}
+          s_next -> {s1 "2", s2 "3", s3 "3", s4 "5", s5 "6", s6 "4"}
+      }
+      """;
+
+  /** The diamond A -> B -> D, A -> C -> D, with a1 meeting d1 both ways and a2 not. */
+  private static final String DIAMOND =
+      """
+      schema S = literal : sql {
+        entities A B C D
+        attributes
+          a_b a_c : A -> String
+          b_key b_d : B -> String
+          c_key c_d : C -> String
+          d_key : D -> String
+      }
+      instance I = literal : S {
+        generators a1 a2 : A  b1 b2 : B  c1 c2 : C  d1 d2 : D
+        multi_equations
+          a_b -> {a1 "b1", a2 "b2"}  a_c -> {a1 "c1", a2 "c2"}
+          b_key -> {b1 "b1", b2 "b2"}  b_d -> {b1 "d1", b2 "d1"}
+          c_key -> {c1 "c1", c2 "c2"}  c_d -> {c1 "d1", c2 "d2"}
+          d_key -> {d1 "d1", d2 "d2"}
+      }
+      """;
+
   /** Whether each row of A reaches one row of D by both of its paths. */
   private static <X, Y> boolean bothPathsMeet(
       Algebra<String, String, Sym, Fk, Att, ?, ?, X, Y> alg) {
@@ -426,6 +465,144 @@ class QueryExpForeignKeysTest {
       assertTrue(e.contains("foreign_keys: c_unit is an attribute of Record already."), e);
     }
 
+    /**
+     * A loop that an equation stops after two steps: three paths up to the equation, so the block
+     * has three variables, and the rows whose third step is not their second are left out.
+     */
+    @Test
+    void unfoldsALoopThatAnEquationMakesFinite() throws Exception {
+      String program =
+          STEPS
+              + """
+              query Q = foreign_keys S {
+                next : Step -> Step where s_next = s_id
+                path_equations Step.next.next.next = Step.next.next
+              }
+              instance J = eval Q I
+              """;
+      Query<String, String, Sym, Fk, Att, String, Fk, Att> q =
+          ExpTestHelpers.eval(program, "Q", Kind.QUERY);
+      assertEquals(3, q.ens.get("Step").gens.size());
+      Instance<String, String, Sym, Fk, Att, ?, ?, ?, ?> j =
+          ExpTestHelpers.eval(program, "J", Kind.INSTANCE);
+      assertEquals(
+          Set.of(List.of("1", "2"), List.of("2", "3"), List.of("3", "3")),
+          rows(j.algebra(), "Step", "s_id", "s_next"));
+      assertTrue(agree(j.algebra(), Fk.Fk("Step", "next"), "Step", "s_next", "s_id"));
+    }
+
+    /** With the two ways declared equal, the block of A has one variable of D, not two. */
+    @Test
+    void givesACommutingDiamondOneVariableOfD() throws Exception {
+      String program =
+          DIAMOND
+              + """
+              query Q = foreign_keys S {
+                ab : A -> B where a_b = b_key
+                ac : A -> C where a_c = c_key
+                bd : B -> D where b_d = d_key
+                cd : C -> D where c_d = d_key
+                path_equations A.ab.bd = A.ac.cd
+              }
+              instance J = eval Q I
+              """;
+      Query<String, String, Sym, Fk, Att, String, Fk, Att> q =
+          ExpTestHelpers.eval(program, "Q", Kind.QUERY);
+      Map<String, String> a = q.ens.get("A").gens;
+      assertEquals(4, a.size());
+      assertEquals(1, a.values().stream().filter("D"::equals).count());
+      // a2 reaches d1 through B and d2 through C, so it breaks the equation and is left out
+      Instance<String, String, Sym, Fk, Att, ?, ?, ?, ?> j =
+          ExpTestHelpers.eval(program, "J", Kind.INSTANCE);
+      assertEquals(Set.of(List.of("b1", "c1")), rows(j.algebra(), "A", "a_b", "a_c"));
+      assertTrue(bothPathsMeet(j.algebra()));
+    }
+
+    /** Each block has one variable for each path the target schema counts up to its equations. */
+    @Test
+    void hasAVariableForEachPathTheSchemaCounts() throws Exception {
+      for (String program :
+          List.of(
+              STEPS
+                  + """
+                  query Q = foreign_keys S {
+                    next : Step -> Step where s_next = s_id
+                    path_equations Step.next.next.next = Step.next.next
+                  }
+                  """,
+              DIAMOND
+                  + """
+                  query Q = foreign_keys S {
+                    ab : A -> B where a_b = b_key
+                    ac : A -> C where a_c = c_key
+                    bd : B -> D where b_d = d_key
+                    cd : C -> D where c_d = d_key
+                    path_equations A.ab.bd = A.ac.cd
+                  }
+                  """,
+              PROGRAM)) {
+        Query<String, String, Sym, Fk, Att, String, Fk, Att> q =
+            ExpTestHelpers.eval(program, "Q", Kind.QUERY);
+        for (String en : q.dst.ens) {
+          assertEquals(q.dst.pathsFrom(en).size(), q.ens.get(en).gens.size(), en);
+        }
+      }
+    }
+
+    /** Two loops that commute have infinitely many paths: it runs until the timeout. */
+    @Test
+    void runsUntilTheTimeoutWhenItsEquationsLeaveTheLoopsInfinite() throws Exception {
+      String program =
+          STEPS
+              + """
+              query Q = foreign_keys S {
+                next : Step -> Step where s_next = s_id
+                prev : Step -> Step where s_id = s_next
+                path_equations Step.next.prev = Step.prev.next
+                options timeout = 2
+              }
+              """;
+      String e = ExpTestHelpers.error(program);
+      assertTrue(e.contains("Timeout after 2 seconds."), e);
+    }
+
+    @Test
+    void rejectsAPathEquationItCannotRead() throws Exception {
+      String keys =
+          """
+            ab : A -> B where a_b = b_key
+            ac : A -> C where a_c = c_key
+            bd : B -> D where b_d = d_key
+            cd : C -> D where c_d = d_key
+          """;
+      String e =
+          ExpTestHelpers.error(
+              DIAMOND + "query Q = foreign_keys S {" + keys + "path_equations E.ab = E.ac }\n");
+      assertTrue(e.contains("in the path equation E.ab = E.ac, E is not an entity of S."), e);
+      e =
+          ExpTestHelpers.error(
+              DIAMOND + "query Q = foreign_keys S {" + keys + "path_equations A.ab = B.bd }\n");
+      assertTrue(
+          e.contains("in the path equation A.ab = B.bd, the two sides start at A and B."), e);
+      e =
+          ExpTestHelpers.error(
+              DIAMOND
+                  + "query Q = foreign_keys S {"
+                  + keys
+                  + "path_equations A.ab.cd = A.ac.cd }\n");
+      assertTrue(
+          e.contains(
+              "in the path equation A.ab.cd = A.ac.cd, cd is not a foreign key declared from B."),
+          e);
+      e =
+          ExpTestHelpers.error(
+              DIAMOND + "query Q = foreign_keys S {" + keys + "path_equations A.ab = A.ac }\n");
+      assertTrue(
+          e.contains(
+              "in the path equation A.ab = A.ac, the left side ends at B and the right side at C."),
+          e);
+    }
+
     @Test
     void isTypedFromTheSchemaToTheSchemaWithTheForeignKeys() throws Exception {
       QueryExpForeignKeys q = ExpTestHelpers.exp(PROGRAM, "Q");
@@ -448,7 +625,17 @@ class QueryExpForeignKeysTest {
       assertEquals(
           "foreign_keys S {\n\tf : A -> B where a = b\n\toptions\n\t\ttimeout = 5\n}",
           withOptions.toString());
-      for (QueryExpForeignKeys e : List.of(exp, withOptions)) {
+      QueryExpForeignKeys withEquations =
+          new QueryExpForeignKeys(
+              new SchExpVar("S"),
+              List.of(key("f", "A", "A", "a", "b")),
+              List.of(new Pair<>(List.of("A", "f", "f"), List.of("A", "f"))),
+              List.of(new Pair<>("timeout", "5")));
+      assertEquals(
+          "foreign_keys S {\n\tf : A -> A where a = b\n\tpath_equations\n\t\tA.f.f = A.f"
+              + "\n\toptions\n\t\ttimeout = 5\n}",
+          withEquations.toString());
+      for (QueryExpForeignKeys e : List.of(exp, withOptions, withEquations)) {
         assertEquals(e, ExpTestHelpers.exp("query Q = " + e, "Q"));
       }
     }
@@ -466,7 +653,7 @@ class QueryExpForeignKeysTest {
     }
 
     @Test
-    void equalityComparesTheSchemaTheForeignKeysAndTheOptions() {
+    void equalityComparesTheSchemaTheForeignKeysTheEquationsAndTheOptions() {
       QueryExpForeignKeys.Key f = key("f", "A", "B", "a", "b");
       QueryExpForeignKeys.Key g = key("g", "B", "C", "b1", "c1", "b2", "c2");
       assertEquals(exp, exp);
@@ -478,6 +665,13 @@ class QueryExpForeignKeysTest {
       assertNotEquals(exp, exp("S", List.of(), f, key("g", "B", "C", "b2", "c2", "b1", "c1")));
       assertNotEquals(exp, exp("S", List.of(), f, key("g", "B", "D", "b1", "c1", "b2", "c2")));
       assertNotEquals(exp, exp("S", List.of(new Pair<>("timeout", "5")), f, g));
+      assertNotEquals(
+          exp,
+          new QueryExpForeignKeys(
+              new SchExpVar("S"),
+              List.of(f, g),
+              List.of(new Pair<>(List.of("A", "f", "g"), List.of("A", "f", "g"))),
+              List.of()));
       assertNotEquals(exp, null);
       assertNotEquals(exp, "foreign_keys");
     }
