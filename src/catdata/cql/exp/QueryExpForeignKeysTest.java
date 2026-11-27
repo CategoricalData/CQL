@@ -1,6 +1,7 @@
 package catdata.cql.exp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -601,6 +602,20 @@ class QueryExpForeignKeysTest {
           e.contains(
               "in the path equation A.ab = A.ac, the left side ends at B and the right side at C."),
           e);
+    }
+
+    /** The viewer's Neo4j script of the query loads the sources apart and keeps its result. */
+    @Test
+    void writesANeo4jScriptThatKeepsItsResult() throws Exception {
+      Query<String, String, Sym, Fk, Att, String, Fk, Att> q =
+          ExpTestHelpers.eval(PROGRAM, "Q", Kind.QUERY);
+      String c = q.toCypher();
+      for (String en : List.of("Unit", "Habitat", "Record", "Observed", "Label")) {
+        assertTrue(c.contains("MERGE (n:src_" + en + " {"), c);
+        assertTrue(c.contains("MATCH (n: src_" + en + ") DETACH DELETE n;"), c);
+        assertFalse(c.contains("MATCH (n: " + en + ") DETACH DELETE n;"), c);
+      }
+      assertTrue(c.contains("MERGE (src)-[:seen_rec]->(dst);"), c);
     }
 
     @Test

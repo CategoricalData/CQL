@@ -1466,6 +1466,7 @@ class QueryTest {
             attributes pname -> p.name foreign_keys f -> { d -> d } } }
         schema S2 = literal : Ty { entities A B foreign_keys g : A -> B }
         query Q2 = identity S2
+        query Q3 = identity S
         """;
 
     private Query<?, ?, ?, ?, ?, ?, ?, ?> query(String name) throws Exception {
@@ -1492,6 +1493,26 @@ class QueryTest {
               "MATCH (n: bag_P) DETACH DELETE n;")) {
         assertTrue(c.contains(part), part + "\n---\n" + c);
       }
+    }
+
+    /**
+     * When the target names the source's entities, as an identity does, the source nodes get labels
+     * of their own: otherwise the target's nodes would merge with them and be deleted with them.
+     */
+    @Test
+    void keepsTheSourceNodesApartWhenTheTargetNamesTheSameEntities() throws Exception {
+      String c = query("Q3").toCypher();
+      for (String part :
+          List.of(
+              "LOAD CSV WITH HEADERS FROM 'file:///Person.csv' AS row\n"
+                  + "MERGE (n:src_Person {name : coalesce(row.name, '')});",
+              "MATCH (v : src_Person)",
+              "MERGE (dst:Person {",
+              "MATCH (n: src_Person) DETACH DELETE n;",
+              "MATCH (n: bag_Person) DETACH DELETE n;")) {
+        assertTrue(c.contains(part), part + "\n---\n" + c);
+      }
+      assertFalse(c.contains("MATCH (n: Person) DETACH DELETE n;"), c);
     }
 
     @Test
