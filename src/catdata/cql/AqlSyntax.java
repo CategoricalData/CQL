@@ -73,6 +73,7 @@ public enum AqlSyntax {
   SchExpDiff,
   QueryExpSpanify,
   QueryExpMapToSpanQuery,
+  QueryExpForeignKeys,
   InstExpCod,
   InstExpColim,
   InstExpDelta,

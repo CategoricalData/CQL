@@ -1,16 +1,15 @@
 package catdata.cql.exp;
 
+import catdata.Pair;
+import catdata.cql.AqlOptions.AqlOption;
+import catdata.cql.Kind;
+import catdata.cql.Query;
+import catdata.cql.exp.SchExp.SchExpLit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import catdata.Pair;
-import catdata.cql.Kind;
-import catdata.cql.Query;
-import catdata.cql.AqlOptions.AqlOption;
-import catdata.cql.exp.SchExp.SchExpLit;
 
 public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, String, Fk, Att>> {
 
@@ -21,7 +20,7 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
 
   public abstract Pair<SchExp, SchExp> type(AqlTyping G);
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public Exp<Query<String, String, Sym, Fk, Att, String, Fk, Att>> Var(String v) {
     Exp ret = new QueryExpVar(v);
@@ -52,23 +51,26 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
     public R visit(P params, QueryExpFromCoSpan exp) throws E;
 
     public R visit(P params, QueryExpFromEds exp) throws E;
-    
+
     public R visit(P params, QueryExpFront exp) throws E;
 
-	public R visit(P params, QueryExpDeltaMigrate exp) throws E;
+    public R visit(P params, QueryExpDeltaMigrate exp) throws E;
 
-	public R visit(P params, QueryExpFromInst queryExpFromInst) throws E;
+    public R visit(P params, QueryExpFromInst queryExpFromInst) throws E;
 
-	public R visit(P params, QueryExpRext queryExpRext) throws E;
+    public R visit(P params, QueryExpRext queryExpRext) throws E;
 
-	public R visit(P params, QueryExpChase queryExpChase)throws E;
+    public R visit(P params, QueryExpChase queryExpChase) throws E;
 
-	public R visit(P params, QueryExpReformulate queryExpReFormulate) throws E; 
-	
-	public R visit(P params, QueryExpSelectStar q) throws E; 
+    public R visit(P params, QueryExpReformulate queryExpReFormulate) throws E;
+
+    public R visit(P params, QueryExpSelectStar q) throws E;
+
+    public R visit(P params, QueryExpForeignKeys exp) throws E;
   }
 
-  public abstract <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v) throws E;
+  public abstract <R, P, E extends Exception> R accept(P params, QueryExpVisitor<R, P, E> v)
+      throws E;
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -80,9 +82,7 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
     }
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
+    public void mapSubExps(Consumer<Exp<?>> f) {}
 
     @Override
     public boolean isVar() {
@@ -100,8 +100,16 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
     }
 
     @Override
-    public Query<String, String, catdata.cql.exp.Sym, catdata.cql.exp.Fk, catdata.cql.exp.Att, String, catdata.cql.exp.Fk, catdata.cql.exp.Att> eval0(
-        AqlEnv env, boolean isC) {
+    public Query<
+            String,
+            String,
+            catdata.cql.exp.Sym,
+            catdata.cql.exp.Fk,
+            catdata.cql.exp.Att,
+            String,
+            catdata.cql.exp.Fk,
+            catdata.cql.exp.Att>
+        eval0(AqlEnv env, boolean isC) {
       return env.defs.qs.get(var);
     }
 
@@ -112,12 +120,9 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       QueryExpVar other = (QueryExpVar) obj;
       return var.equals(other.var);
     }
@@ -141,10 +146,7 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
     }
 
     @Override
-    protected void allowedOptions(Set<AqlOption> set) {
-
-    }
-
+    protected void allowedOptions(Set<AqlOption> set) {}
   }
 
   public static final class QueryExpLit extends QueryExp {
@@ -181,12 +183,9 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
       QueryExpLit other = (QueryExpLit) obj;
       return q.equals(other.q);
     }
@@ -202,15 +201,9 @@ public abstract class QueryExp extends Exp<Query<String, String, Sym, Fk, Att, S
     }
 
     @Override
-    protected void allowedOptions(Set<AqlOption> set) {
-
-    }
+    protected void allowedOptions(Set<AqlOption> set) {}
 
     @Override
-    public void mapSubExps(Consumer<Exp<?>> f) {
-
-    }
-
+    public void mapSubExps(Consumer<Exp<?>> f) {}
   }
-
 }

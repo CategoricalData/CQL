@@ -2568,6 +2568,21 @@ public class TypingInversion implements ExpCoVisitor<AqlTyping, Unit, RuntimeExc
   }
 
   @Override
+  public QueryExpForeignKeys visitQueryExpForeignKeys(Unit params, AqlTyping exp) {
+    exp.defs.tys.put("t", Unit.unit);
+    TyExpVar t = new TyExpVar("t");
+    exp.prog.exps.put("t", new TyExpEmpty());
+    exp.defs.schs.put("s", t);
+    exp.prog.exps.put("s", new SchExpEmpty(t));
+    return new QueryExpForeignKeys(
+        new SchExpVar("s"),
+        Collections.singletonList(
+            new QueryExpForeignKeys.Key(
+                "f", "A", "B", Collections.singletonList(new Pair<>("a", "b")))),
+        Collections.emptyList());
+  }
+
+  @Override
   public QueryExpRext visitQueryExpRext(Unit params, AqlTyping exp) {
     exp.defs.tys.put("t", Unit.unit);
     TyExpVar t = new TyExpVar("t");

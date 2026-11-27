@@ -2420,6 +2420,9 @@ public class CombinatorParser implements IAqlParser {
             Parsers.tuple(
                     token("reformulate"), eds_ref.lazy(), query_ref.lazy(), sch_ref.lazy(), ident)
                 .map(x -> new QueryExpReformulate(x.c, x.b, x.d, x.e)),
+        fkeys =
+            Parsers.tuple(token("foreign_keys"), sch_ref.lazy(), foreignKeysBlock())
+                .map(x -> new QueryExpForeignKeys(x.b, x.c.first, x.c.second, x.c.third)),
         ret =
             Parsers.or(
                 id,
@@ -2442,9 +2445,43 @@ public class CombinatorParser implements IAqlParser {
                 chase,
                 star,
                 refl,
+                fkeys,
                 parens(query_ref));
 
     query_ref.set(ret);
+  }
+
+  /**
+   * The block of {@code foreign_keys S}: declarations {@code f : A -> B where a1 = b1 a2 = b2}, a
+   * column of A on the left of each equation and a column of B on the right; then, optionally,
+   * {@code path_equations} written as in a schema ({@code A.f.g = A.h}); then options.
+   */
+  private static Parser<
+          Triple<
+              List<QueryExpForeignKeys.Key>,
+              List<catdata.Pair<List<String>, List<String>>>,
+              List<catdata.Pair<String, String>>>>
+      foreignKeysBlock() {
+    Parser<QueryExpForeignKeys.Key> key =
+        Parsers.tuple(
+                Parsers.tuple(ident, token(":"), ident, token("->"), ident),
+                token("where"),
+                Parsers.tuple(ident, token("="), ident).atomic().many1())
+            .map(
+                x -> {
+                  List<catdata.Pair<String, String>> on = new ArrayList<>(x.c.size());
+                  for (Tuple3<String, Token, String> e : x.c) {
+                    on.add(new catdata.Pair<>(e.a, e.c));
+                  }
+                  return new QueryExpForeignKeys.Key(x.a.a, x.a.c, x.a.e, on);
+                });
+    Parser<catdata.Pair<List<String>, List<String>>> eq =
+        Parsers.tuple(ident.sepBy1(token(".")), token("="), ident.sepBy1(token(".")))
+            .map(x -> new catdata.Pair<>(x.a, x.c));
+    Parser<List<catdata.Pair<List<String>, List<String>>>> eqs =
+        Parsers.tuple(token("path_equations"), eq.many()).map(x -> x.b);
+    return Parsers.tuple(token("{"), key.many(), eqs.optional(), options, token("}"))
+        .map(x -> new Triple<>(x.b, x.c == null ? Collections.emptyList() : x.c, x.d));
   }
 
   private static void colimSchExp() {

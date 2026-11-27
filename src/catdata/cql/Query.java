@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1751,6 +1752,22 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
       throw new RuntimeException("Does not support source side fks");
     }
 
+    // a source entity named like a target entity gets a label of its own, or the script would
+    // merge the two kinds of node and its last step would delete the result with the source
+    Set<String> taken = new HashSet<>();
+    for (En2 en2 : dst.ens) {
+      taken.add(en2.toString());
+    }
+    Map<En1, String> label = new HashMap<>();
+    for (En1 en1 : src.ens) {
+      String l = en1.toString();
+      while (taken.contains(l)) {
+        l = "src_" + l;
+      }
+      taken.add(l);
+      label.put(en1, l);
+    }
+
     for (En1 en1 : src.ens) {
       // add explicit nulls
       sb1.append("LOAD CSV WITH HEADERS FROM 'file:///" + en1 + ".csv' AS row\n");
@@ -1760,9 +1777,9 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
         temp0.add(att1 + " : coalesce(row." + att1 + ", '')");
       }
       //			MERGE (:Artist {name: row[1], year: toInteger(row[2])})
-      sb1.append("MERGE (n:" + en1 + " {" + Util.sep(temp0, ",\n\t") + "});\n\n");
+      sb1.append("MERGE (n:" + label.get(en1) + " {" + Util.sep(temp0, ",\n\t") + "});\n\n");
       //	sb1.append("SET n += row;\n\n");
-      dels.append("MATCH (n: " + en1 + ") DETACH DELETE n;\n\n");
+      dels.append("MATCH (n: " + label.get(en1) + ") DETACH DELETE n;\n\n");
     }
     for (En2 en2 : ens.keySet()) {
       Frozen<Ty, En1, Sym, Fk1, Att1> b = ens.get(en2);
@@ -1783,7 +1800,7 @@ public final class Query<Ty, En1, Sym, Fk1, Att1, En2, Fk2, Att2> implements Sem
       List<String> temp4 = new LinkedList<>();
 
       for (String v : gens.keySet()) {
-        temp.add("(" + v + " : " + gens.get(v) + ")");
+        temp.add("(" + v + " : " + label.get(gens.get(v)) + ")");
         for (Att1 a : src.attsFrom(gens.get(v))) {
           temp2.add(v + "_" + a + " : " + v + "." + a);
           temp4.add("ret." + v + "_" + a);
