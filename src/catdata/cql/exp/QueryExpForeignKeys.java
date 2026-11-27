@@ -47,6 +47,13 @@ import java.util.function.Consumer;
  * sends each column on the left to the path through its foreign key to the column on the right. A
  * block has a variable for each path of foreign keys from its entity, and its where clause says
  * that the columns of each declaration agree.
+ *
+ * <p>Paths are taken as written. The schema may not have foreign keys or equations of its own, and
+ * the declarations take no equations, so in the target no two paths are equal and none is proved
+ * equal to another. Declarations that branch and meet again give a block one variable for each way:
+ * with A -> B -> D and A -> C -> D the block of A has two variables of D, and a chain of k such
+ * diamonds gives 2^k. With keys that are keys the rows do not multiply, the joins do. A cycle would
+ * have infinitely many paths, so it is refused before anything is unfolded.
  */
 public class QueryExpForeignKeys extends QueryExp {
 

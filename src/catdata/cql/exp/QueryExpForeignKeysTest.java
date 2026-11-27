@@ -112,6 +112,31 @@ class QueryExpForeignKeysTest {
     return rows;
   }
 
+  /** The one variable of a block that ranges over the entity. */
+  private static String onlyOf(Map<String, String> gens, String en) {
+    List<String> vs = new ArrayList<>();
+    for (Map.Entry<String, String> e : gens.entrySet()) {
+      if (e.getValue().equals(en)) {
+        vs.add(e.getKey());
+      }
+    }
+    assertEquals(1, vs.size(), gens::toString);
+    return vs.get(0);
+  }
+
+  /** Whether each row of A reaches one row of D by both of its paths. */
+  private static <X, Y> boolean bothPathsMeet(
+      Algebra<String, String, Sym, Fk, Att, ?, ?, X, Y> alg) {
+    for (X x : alg.en("A")) {
+      X viaB = alg.fk(Fk.Fk("B", "bd"), alg.fk(Fk.Fk("A", "ab"), x));
+      X viaC = alg.fk(Fk.Fk("C", "cd"), alg.fk(Fk.Fk("A", "ac"), x));
+      if (!viaB.equals(viaC)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @Nested
   class Evaluation {
 
@@ -314,6 +339,60 @@ class QueryExpForeignKeysTest {
               List.of());
       RuntimeException e = assertThrows(RuntimeException.class, q::cod);
       assertEquals("foreign_keys: f names no columns.", e.getMessage());
+    }
+
+    /** A -> B -> D and A -> C -> D: two paths from A to D, so two variables of D in A's block. */
+    @Test
+    void givesABlockAVariableForEachPathOfADiamond() throws Exception {
+      String program =
+          """
+          schema S = literal : sql {
+            entities A B C D
+            attributes
+              a_b a_c : A -> String
+              b_key b_d : B -> String
+              c_key c_d : C -> String
+              d_key : D -> String
+          }
+          instance I = literal : S {
+            generators a1 : A  b1 : B  c1 : C  d1 : D
+            multi_equations
+              a_b -> {a1 "b"}  a_c -> {a1 "c"}
+              b_key -> {b1 "b"}  b_d -> {b1 "d"}
+              c_key -> {c1 "c"}  c_d -> {c1 "d"}
+              d_key -> {d1 "d"}
+          }
+          query Q = foreign_keys S {
+            ab : A -> B where a_b = b_key
+            ac : A -> C where a_c = c_key
+            bd : B -> D where b_d = d_key
+            cd : C -> D where c_d = d_key
+          }
+          instance J = eval Q I
+          """;
+      Query<String, String, Sym, Fk, Att, String, Fk, Att> q =
+          ExpTestHelpers.eval(program, "Q", Kind.QUERY);
+      Map<String, String> a = q.ens.get("A").gens;
+      assertEquals(5, a.size());
+      assertEquals(2, a.values().stream().filter("D"::equals).count());
+      String viaB =
+          q.fks
+              .get(Fk.Fk("A", "ab"))
+              .gens()
+              .apply(onlyOf(q.ens.get("B").gens, "D"), "D")
+              .toString();
+      String viaC =
+          q.fks
+              .get(Fk.Fk("A", "ac"))
+              .gens()
+              .apply(onlyOf(q.ens.get("C").gens, "D"), "D")
+              .toString();
+      assertNotEquals(viaB, viaC);
+      // with keys that are keys the rows do not multiply: one row of A, whose two paths reach d1
+      Instance<String, String, Sym, Fk, Att, ?, ?, ?, ?> j =
+          ExpTestHelpers.eval(program, "J", Kind.INSTANCE);
+      assertEquals(1, j.algebra().size("A"));
+      assertTrue(bothPathsMeet(j.algebra()));
     }
 
     @Test
