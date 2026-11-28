@@ -331,8 +331,8 @@ class EgglogProverTest {
 
   /**
    * egglog reads the facts from files, one file for each shape of fact, with a row of numbers for
-   * each fact; a rule for each shape adds the facts, in one run, and the files are gone once egglog
-   * has read them.
+   * each fact; a rule for each shape adds the facts, in one run. The files are temporary files of
+   * Java's, in its temporary directory, and they are gone once egglog has read them.
    */
   @Test
   void hasEgglogReadTheFactsFromFiles() throws Exception {
@@ -358,11 +358,12 @@ class EgglogProverTest {
     assertEquals("L0\n0\n1\nL1\n0\t1\n", Files.readString(dir.resolve("yes.rows")));
     List<Path> files = files("yes");
     assertEquals(2, files.size());
+    Path tmp = Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath();
     for (Path file : files) {
-      assertTrue(file.isAbsolute(), file.toString());
+      assertEquals(tmp, file.getParent(), file.toString());
+      assertTrue(file.getFileName().toString().startsWith("cql-egglog-L"), file.toString());
       assertFalse(Files.exists(file), file.toString());
     }
-    assertFalse(Files.exists(files.get(0).getParent()), files.get(0).getParent().toString());
   }
 
   /**

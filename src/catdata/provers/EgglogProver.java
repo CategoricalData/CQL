@@ -344,18 +344,18 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
     }
 
     /**
-     * Writes the facts of each shape to a file in a directory, a line of numbers separated by tabs
-     * for each fact, and returns the commands that have egglog read them: for each shape a
-     * relation, which {@code input} fills from the file, and a rule that adds the fact of each of
-     * its rows; then a single run of those rules.
+     * Writes the facts of each shape to a temporary file, a line of numbers separated by tabs for
+     * each fact, and returns the commands that have egglog read them: for each shape a relation,
+     * which {@code input} fills from the file, and a rule that adds the fact of each of its rows;
+     * then a single run of those rules.
      */
-    List<String> input(Path dir) throws IOException {
+    List<String> input(TempFiles files) throws IOException {
       List<String> commands = new ArrayList<>();
       commands.add("(ruleset " + FACTS + ")");
       int n = 0;
       for (Map.Entry<List<String>, List<int[]>> shape : facts.entrySet()) {
         String relation = Names.facts(n++);
-        Path file = dir.resolve(relation + ".tsv").toAbsolutePath();
+        Path file = files.file(relation, ".tsv");
         try (Writer out = Files.newBufferedWriter(file, StandardCharsets.US_ASCII)) {
           for (int[] numbers : shape.getValue()) {
             for (int i = 0; i < numbers.length; i++) {
@@ -1350,6 +1350,36 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
   }
 
   /**
+   * The files that CQL and egglog give each other, each a temporary file of Java's, made in Java's
+   * temporary directory and marked to be deleted when Java ends. CQL deletes them once egglog is
+   * done with them; any left when Java ends, as when it ends during a load, Java deletes then.
+   */
+  static final class TempFiles implements AutoCloseable {
+    private final List<Path> files = new ArrayList<>();
+
+    /** A new, empty temporary file, whose name begins with that of what it will hold. */
+    Path file(String name, String suffix) throws IOException {
+      Path file = Files.createTempFile("cql-egglog-" + name + "-", suffix).toAbsolutePath();
+      file.toFile().deleteOnExit();
+      files.add(file);
+      return file;
+    }
+
+    /** Deletes the files; one that cannot be deleted now is deleted when Java ends. */
+    @Override
+    public void close() {
+      for (Path file : files) {
+        try {
+          Files.deleteIfExists(file);
+        } catch (IOException e) {
+          // deleted when Java ends
+        }
+      }
+      files.clear();
+    }
+  }
+
+  /**
    * An egglog that CQL started with {@code --mode interactive}. CQL writes commands to its standard
    * input, one a line, in UTF-8, and for each line egglog writes what the command prints to its
    * standard output, and then {@code (done)}, or {@code (error)} alone. Two threads follow egglog's
@@ -1422,39 +1452,18 @@ public class EgglogProver<T, C, V> extends DPKB<T, C, V> {
     }
 
     /**
-     * Has egglog run a program: its commands, and then its facts, which egglog reads from files
-     * that CQL writes into a directory of its own and deletes once egglog has read them.
+     * Has egglog run a program: its commands, and then its facts, which egglog reads from temporary
+     * files that CQL writes and deletes once egglog has read them.
      */
     void load(Program program) {
       run(program.lines);
       if (program.facts.isEmpty()) {
         return;
       }
-      File dir = null;
-      try {
-        dir = Files.createTempDirectory("cql-egglog").toFile();
-        run(program.input(dir.toPath()));
+      try (TempFiles files = new TempFiles()) {
+        run(program.input(files));
       } catch (IOException e) {
         throw new RuntimeException("CQL cannot write the facts for egglog: " + e.getMessage(), e);
-      } finally {
-        if (dir != null) {
-          delete(dir);
-        }
-      }
-    }
-
-    /** Deletes a directory and its files; what cannot be deleted now is deleted when Java ends. */
-    private static void delete(File dir) {
-      File[] files = dir.listFiles();
-      List<File> left = new ArrayList<>();
-      for (File file : files == null ? new File[0] : files) {
-        if (!file.delete()) {
-          left.add(file);
-        }
-      }
-      if (!left.isEmpty() || !dir.delete()) {
-        dir.deleteOnExit();
-        left.forEach(File::deleteOnExit);
       }
     }
 
